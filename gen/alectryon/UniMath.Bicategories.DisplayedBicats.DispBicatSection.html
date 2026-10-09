@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DispBicatSection.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************</span>
+
+<span class="sd"> Sections of displayed bicategories</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Definition of a section</span>
+<span class="sd"> 2. Builder for locally propositional/groupoidal displayed bicategories</span>
+<span class="sd"> 3. Every section gives a pseudofunctor from the base to the total bicategory</span>
+
+<span class="sd"> *******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Definition of a section</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_data</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : UU
+  := ∑ (s_ob : ∏ (x : B), D x)
+       (s_mor : ∏ (x y : B) (f : x --&gt; y), s_ob x --&gt;[ f ] s_ob y),
+     (∏ (x y : B)
+        (f g : x --&gt; y)
+        (τ : f ==&gt; g),
+      s_mor _ _ f ==&gt;[ τ ] s_mor _ _ g)
+     ×
+     (∏ (x : B),
+      disp_invertible_2cell
+        (id2_invertible_2cell _)
+        (id_disp _)
+        (s_mor _ _ (id₁ x)))
+     ×
+     (∏ (x y z : B)
+        (f : x --&gt; y)
+        (g : y --&gt; z),
+      disp_invertible_2cell
+        (id2_invertible_2cell _)
+        (s_mor _ _ f ;; s_mor _ _ g)
+        (s_mor _ _ (f · g))).
+
+<span class="kn">Section</span> <span class="nf">SectionDataProjections</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">D</span> : disp_bicat B}
+          (<span class="nv">s</span> : section_disp_bicat_data D).
+
+  <span class="kn">Definition</span> <span class="nf">section_on_ob</span>
+             (<span class="nv">x</span> : B)
+    : D x
+    := pr1 s x.
+
+  <span class="kn">Definition</span> <span class="nf">section_on_mor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+    : section_on_ob x --&gt;[ f ] section_on_ob y
+    := pr12 s _ _ f.
+
+  <span class="kn">Definition</span> <span class="nf">section_on_cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">τ</span> : f ==&gt; g)
+    : section_on_mor f ==&gt;[ τ ] section_on_mor g
+    := pr122 s _ _ _ _ τ.
+
+  <span class="kn">Definition</span> <span class="nf">section_on_id</span>
+             (<span class="nv">x</span> : B)
+    : disp_invertible_2cell
+        (id2_invertible_2cell _)
+        (id_disp _)
+        (section_on_mor (id₁ x))
+    := pr1 (pr222 s) x.
+
+  <span class="kn">Definition</span> <span class="nf">section_on_comp</span>
+             {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">g</span> : y --&gt; z)
+    : disp_invertible_2cell
+        (id2_invertible_2cell _)
+        (section_on_mor f ;; section_on_mor g)
+        (section_on_mor (f · g))
+    := pr2 (pr222 s) _ _ _ f g.
+<span class="kn">End</span> <span class="nf">SectionDataProjections</span>.
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws_id</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat_data D)
+  : UU
+  := ∏ (x y : B) (f : x --&gt; y),
+     section_on_cell s (id₂ f) = disp_id2 (section_on_mor s f).
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws_comp</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat_data D)
+  : UU
+  := ∏ (x y : B) (f g h : x --&gt; y) (τ : f ==&gt; g) (θ : g ==&gt; h),
+     section_on_cell s (τ • θ)
+     =
+     section_on_cell s τ •• section_on_cell s θ.
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws_lunitor_base</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           (<span class="nv">f</span> : x --&gt; y)
+  : lunitor f
+    =
+    ((id₂ _ ▹ f) • id₂ _) • lunitor f.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> id2_rwhisker.
+  <span class="nb">rewrite</span> !id2_left.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws_lunitor</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat_data D)
+  : UU
+  := ∏ (x y : B)
+       (f : x --&gt; y),
+     transportf
+       (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+       (section_disp_bicat_laws_lunitor_base f)
+       (disp_lunitor (section_on_mor s f))
+     =
+     ((pr1 (section_on_id s _) ▹▹ section_on_mor s f)
+     •• pr1 (section_on_comp s (id₁ _) f))
+     •• section_on_cell s (lunitor f).
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws_runitor_base</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           (<span class="nv">f</span> : x --&gt; y)
+  : runitor f
+    =
+    ((f ◃ id₂ _) • id₂ _) • runitor f.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> lwhisker_id2.
+  <span class="nb">rewrite</span> !id2_left.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws_runitor</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat_data D)
+  : UU
+  := ∏ (x y : B)
+       (f : x --&gt; y),
+     transportf
+       (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+       (section_disp_bicat_laws_runitor_base f)
+       (disp_runitor (section_on_mor s f))
+     =
+     ((section_on_mor s f ◃◃ pr1 (section_on_id s _))
+     •• pr1 (section_on_comp s f (id₁ _)))
+     •• section_on_cell s (runitor f).
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws_lassociator_base</span>
+           {<span class="nv">B</span> : bicat}             
+           {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+           (<span class="nv">f</span> : w --&gt; x)
+           (<span class="nv">g</span> : x --&gt; y)
+           (<span class="nv">h</span> : y --&gt; z)
+  : ((f ◃ id₂ _) • id₂ _) • lassociator f g h
+    =
+    (lassociator f g h • (id₂ _ ▹ h)) • id₂ _.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> id2_rwhisker, lwhisker_id2.
+  <span class="nb">rewrite</span> !id2_left, !id2_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws_lassociator</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat_data D)
+  := ∏ (w x y z : B)
+       (f : w --&gt; x)
+       (g : x --&gt; y)
+       (h : y --&gt; z),
+     transportf
+       (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+       (section_disp_bicat_laws_lassociator_base f g h)
+       (((section_on_mor s f ◃◃ pr1 (section_on_comp s g h))
+        •• pr1 (section_on_comp s f (g · h)))
+        •• section_on_cell s (lassociator f g h))
+     =
+     (disp_lassociator (section_on_mor s f) (section_on_mor s g) (section_on_mor s h)
+     •• (pr1 (section_on_comp s f g) ▹▹ section_on_mor s h))
+     •• pr1 (section_on_comp s (f · g) h).
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws_lwhisker_base</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+           (<span class="nv">f</span> : x --&gt; y)
+           {<span class="nv">g₁</span> <span class="nv">g₂</span> : y --&gt; z}
+           (<span class="nv">η</span> : g₁ ==&gt; g₂)
+  : id₂ _ • (f ◃ η) = (f ◃ η) • id₂ _.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> id2_left, id2_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws_lwhisker</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat_data D)
+  : UU
+  := ∏ (x y z : B)
+       (f : x --&gt; y)
+       (g₁ g₂ : y --&gt; z)
+       (η : g₁ ==&gt; g₂),
+    transportf
+       (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+       (section_disp_bicat_laws_lwhisker_base f η)
+       (pr1 (section_on_comp s f g₁) •• section_on_cell s (f ◃ η))
+     =
+     (section_on_mor s f ◃◃ section_on_cell s η) •• pr1 (section_on_comp s f g₂).
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws_rwhisker_base</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : B}
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : x --&gt; y}
+           (<span class="nv">g</span> : y --&gt; z)
+           (<span class="nv">η</span> : f₁ ==&gt; f₂)
+  : id₂ _ • (η ▹ g) = (η ▹ g) • id₂ _.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> id2_left, id2_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws_rwhisker</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat_data D)
+  : UU
+  := ∏ (x y z : B)
+       (f₁ f₂ : x --&gt; y)
+       (g : y --&gt; z)
+       (η : f₁ ==&gt; f₂),
+     transportf
+       (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+       (section_disp_bicat_laws_rwhisker_base g η)
+       (pr1 (section_on_comp s f₁ g) •• section_on_cell s (η ▹ g))
+     =
+     (section_on_cell s η ▹▹ section_on_mor s g) •• pr1 (section_on_comp s f₂ g).
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_laws</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat_data D)
+  : UU
+  := section_disp_bicat_laws_id s
+     ×
+     section_disp_bicat_laws_comp s
+     ×
+     section_disp_bicat_laws_lunitor s
+     ×
+     section_disp_bicat_laws_runitor s
+     ×
+     section_disp_bicat_laws_lassociator s
+     ×
+     section_disp_bicat_laws_lwhisker s
+     ×
+     section_disp_bicat_laws_rwhisker s.
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : UU
+  := ∑ (s : section_disp_bicat_data D), section_disp_bicat_laws s.
+
+<span class="kn">Coercion</span> <span class="nf">section_to_section_data</span>
+          {B : bicat}
+          {D : disp_bicat B}
+          (s : section_disp_bicat D)
+: section_disp_bicat_data D
+  := pr1 s.
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_id</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat D)
+  : section_disp_bicat_laws_id s
+  := pr12 s.
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_comp</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat D)
+  : section_disp_bicat_laws_comp s
+  := pr122 s.
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_lunitor</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat D)
+  : section_disp_bicat_laws_lunitor s
+  := pr1 (pr222 s).
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_runitor</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat D)
+  : section_disp_bicat_laws_runitor s
+  := pr12 (pr222 s).
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_lassociator</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat D)
+  : section_disp_bicat_laws_lassociator s
+  := pr122 (pr222 s).
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_lwhisker</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat D)
+  : section_disp_bicat_laws_lwhisker s
+  := pr1 (pr222 (pr222 s)).
+
+<span class="kn">Definition</span> <span class="nf">section_disp_bicat_rwhisker</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">s</span> : section_disp_bicat D)
+  : section_disp_bicat_laws_rwhisker s
+  := pr2 (pr222 (pr222 s)).
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Builder for locally propositional/groupoidal displayed bicategories</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">MakeSection</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">D</span> : disp_bicat B)
+          (<span class="nv">HD₁</span> : disp_2cells_isaprop D)
+          (<span class="nv">HD₂</span> : disp_locally_groupoid D)
+          (<span class="nv">s_ob</span> : ∏ (x : B), D x)
+          (<span class="nv">s_mor</span> : ∏ (x y : B) (f : x --&gt; y), s_ob x --&gt;[ f ] s_ob y)
+          (<span class="nv">s_cell</span> : ∏ (x y : B)
+                      (f g : x --&gt; y)
+                      (τ : f ==&gt; g),
+                    s_mor _ _ f ==&gt;[ τ ] s_mor _ _ g)
+          (<span class="nv">s_id</span> : ∏ (x : B), id_disp _ ==&gt;[ id2 _ ] s_mor _ _ (id₁ x))
+          (<span class="nv">s_comp</span> : ∏ (x y z : B)
+                      (f : x --&gt; y)
+                      (g : y --&gt; z),
+                    s_mor _ _ f ;; s_mor _ _ g
+                    ==&gt;[ id2 _ ]
+                    s_mor _ _ (f · g)).
+
+  <span class="kn">Definition</span> <span class="nf">make_section_disp_bicat_data</span>
+    : section_disp_bicat_data D.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (s_ob ,, s_mor ,, s_cell ,, _ ,, _).
+    - <span class="nb">intro</span> x.
+      <span class="nb">refine</span> (s_id x ,, _).
+      <span class="nb">apply</span> HD₂.
+    - <span class="nb">intros</span> x y z f g.
+      <span class="nb">refine</span> (s_comp _ _ _ f g ,, _).
+      <span class="nb">apply</span> HD₂.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_section_disp_bicat_laws</span>
+    : section_disp_bicat_laws make_section_disp_bicat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> HD₁.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_section_disp_bicat</span>
+    : section_disp_bicat D.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> make_section_disp_bicat_data.
+    - <span class="bp">exact</span> make_section_disp_bicat_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MakeSection</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Every section gives a pseudofunctor from the base to the total bicategory</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">SectionToPsfunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">D</span> : disp_bicat B}
+          (<span class="nv">s</span> : section_disp_bicat D).
+
+  <span class="kn">Definition</span> <span class="nf">section_to_psfunctor_data</span>
+    : psfunctor_data B (total_bicat D).
+  <span class="kn">Proof</span>.
+    use make_psfunctor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, x ,, section_on_ob s x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, f ,, section_on_mor s f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">τ</span>, τ ,, section_on_cell s τ).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, id2 _ ,, pr1 (section_on_id s x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, id2 _ ,, pr1 (section_on_comp s f g)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_to_psfunctor_laws</span>
+    : psfunctor_laws section_to_psfunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (section_disp_bicat_id s).
+    - <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (section_disp_bicat_comp s).
+    - use total2_paths_f.
+      + <span class="nb">apply</span> section_disp_bicat_laws_lunitor_base.
+      + <span class="nb">apply</span> (section_disp_bicat_lunitor s).
+    - use total2_paths_f.
+      + <span class="nb">apply</span> section_disp_bicat_laws_runitor_base.
+      + <span class="nb">apply</span> (section_disp_bicat_runitor s).
+    - use total2_paths_f.
+      + <span class="nb">apply</span> section_disp_bicat_laws_lassociator_base.
+      + <span class="nb">apply</span> (section_disp_bicat_lassociator s).
+    - use total2_paths_f.
+      + <span class="nb">apply</span> section_disp_bicat_laws_lwhisker_base.
+      + <span class="nb">apply</span> (section_disp_bicat_lwhisker s).
+    - use total2_paths_f.
+      + <span class="nb">apply</span> section_disp_bicat_laws_rwhisker_base.
+      + <span class="nb">apply</span> (section_disp_bicat_rwhisker s).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_to_psfunctor_invertible_cells</span>
+    : invertible_cells section_to_psfunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      use is_invertible_disp_to_total.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="nb">apply</span> is_invertible_2cell_id₂.
+      + <span class="bp">exact</span> (pr2 (section_on_id s x)).
+    - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+      use is_invertible_disp_to_total.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="nb">apply</span> is_invertible_2cell_id₂.
+      + <span class="bp">exact</span> (pr2 (section_on_comp s f g)).
+  <span class="kn">Defined</span>.
+  
+  <span class="kn">Definition</span> <span class="nf">section_to_psfunctor</span>
+    : psfunctor B (total_bicat D).
+  <span class="kn">Proof</span>.
+    use make_psfunctor.
+    - <span class="bp">exact</span> section_to_psfunctor_data.
+    - <span class="bp">exact</span> section_to_psfunctor_laws.
+    - <span class="bp">exact</span> section_to_psfunctor_invertible_cells.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SectionToPsfunctor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/DispBicatSection.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Every section gives a pseudofunctor from the base to the total bicategory
+  &gt;
+  &gt;  *******************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

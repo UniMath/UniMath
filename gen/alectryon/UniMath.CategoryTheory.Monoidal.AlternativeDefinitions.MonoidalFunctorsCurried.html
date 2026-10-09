@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidalFunctorsCurried.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesCurried.
+
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">local_helper_lemmas</span>.
+  <span class="c">(* I would assume that the following lemmas should already exists in the "iso file", but I can't find it (I need is_iso_stable_undertransportation)  *)</span>
+  <span class="kn">Lemma</span> <span class="nf">iso_stable_under_equality</span> {<span class="nv">C</span> : category} {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">g</span> : C⟦x,y⟧} : (g = f) → (is_z_isomorphism f) → (is_z_isomorphism g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> pe pi.
+    <span class="nb">induction</span> pe.
+    <span class="bp">exact</span> pi.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iso_stable_under_tranportation</span> {<span class="nv">C</span> : category} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : C⟦x,y⟧} {<span class="nv">pf</span> : y=z} : (is_z_isomorphism f) → (is_z_isomorphism (transportf _ pf f)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> pfi.
+    <span class="nb">induction</span> pf.
+    use pfi.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iso_stable_under_equalitytransportation</span> {<span class="nv">C</span> : category} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} {<span class="nv">f</span> : C⟦x,y⟧} {<span class="nv">g</span> : C⟦x,z⟧} {<span class="nv">pf</span> : y=z} :
+    (g = transportf _ pf f) -&gt; (is_z_isomorphism f) -&gt; (is_z_isomorphism g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p isof.
+    use (iso_stable_under_equality p).
+    use (iso_stable_under_tranportation).
+    <span class="bp">exact</span> isof.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">local_helper_lemmas</span>.
+
+
+<span class="kn">Section</span> <span class="nf">Curried_Monoidal_Functors</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category) (<span class="nv">M</span> : monoidalcategory_data C) (<span class="nv">N</span> : monoidalcategory_data D) (<span class="nv">F</span> : functor C D).
+
+  <span class="kn">Notation</span> <span class="s2">"x ⊗_{ M } y"</span> := ((tensoronobjects_from_tensordata M) x y) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f ⊗^{ M } g"</span> := ((tensoronmorphisms_from_tensordata M) _ _ _ _ f g) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"I_{ M }"</span> := (unit_from_monoidalcatdata M).
+  <span class="kn">Notation</span> <span class="s2">"lu^{ M }_{ x }"</span> := (leftunitordata_from_monoidalcatdata M x ).
+  <span class="kn">Notation</span> <span class="s2">"ru^{ M }_{ x }"</span> := (rightunitordata_from_monoidalcatdata M x ).
+  <span class="kn">Notation</span> <span class="s2">"α^{ M }_{ x , y , z }"</span> := ((associatordata_from_monoidalcatdata M) x y z).
+
+  <span class="sd">(** (Weak) Monoidal functors **)</span>
+  <span class="c">(* Monoidal functor data *)</span>
+  <span class="kn">Definition</span> <span class="nf">tensor_preserving_data</span> : UU
+    := ∏ (x y : C), D⟦(F x) ⊗_{N} (F y), F (x ⊗_{M} y)⟧.
+
+  <span class="kn">Definition</span> <span class="nf">unit_preserving_data</span> : UU := D ⟦ I_{N} , F I_{M} ⟧.
+
+  <span class="kn">Definition</span> <span class="nf">monoidalfunctor_data</span> :=
+    tensor_preserving_data × unit_preserving_data.
+
+  <span class="kn">Definition</span> <span class="nf">tensorpreservingdata_from_monoidalfunctordata</span> (<span class="nv">mfd</span> : monoidalfunctor_data) : tensor_preserving_data := pr1 mfd.
+  <span class="kn">Coercion</span> <span class="nf">tensorpreservingdata_from_monoidalfunctordata</span> : monoidalfunctor_data &gt;-&gt; tensor_preserving_data.
+
+  <span class="kn">Definition</span> <span class="nf">unitpreservingdata_from_monoidalfunctordata</span> (<span class="nv">mfd</span> : monoidalfunctor_data) : unit_preserving_data := pr2 mfd.
+  <span class="kn">Coercion</span> <span class="nf">unitpreservingdata_from_monoidalfunctordata</span> : monoidalfunctor_data &gt;-&gt; unit_preserving_data.
+
+  <span class="c">(* Weak monoidal functor properties *)</span>
+  <span class="kn">Definition</span> <span class="nf">tensor_preserving_data_is_natural</span> (<span class="nv">tpd</span> : tensor_preserving_data) :=
+    ∏ (x y x' y' : C) (f : C⟦x,x'⟧) (g : C⟦y,y'⟧),
+      (#F (f ⊗^{M} g))∘(tpd x y) = (tpd x' y')∘((#F f) ⊗^{N} (#F g)).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_associativity</span> (<span class="nv">tpd</span> : tensor_preserving_data) :=
+    ∏ (x y z : C), (#F (α^{M}_{x,y,z})) ∘ (tpd (x ⊗_{M} y) z) ∘ ((tpd x y) ⊗^{N} (identity (F z)))
+                   = (tpd x (y ⊗_{M} z)) ∘ ((identity (F x)) ⊗^{N} (tpd y z)) ∘ α^{N}_{F x, F y, F z}.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_leftunitality</span> (<span class="nv">tpd</span> : tensor_preserving_data) (<span class="nv">upd</span> : unit_preserving_data) : UU :=
+    ∏ (x : C), ((#F (lu^{M}_{x})) ∘ (tpd I_{M} x) ∘ (upd ⊗^{N} (identity (F x)))) = lu^{N}_{F x}.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_rightunitality</span> (<span class="nv">tpd</span> : tensor_preserving_data) (<span class="nv">upd</span> : unit_preserving_data) : UU :=
+    ∏ (x : C), (#F (ru^{M}_{x})) ∘ (tpd x I_{M}) ∘ ((identity (F x)) ⊗^{N} upd) = ru^{N}_{F x}.
+
+  <span class="kn">Definition</span> <span class="nf">monoidalfunctor_laws</span> (<span class="nv">mfd</span> : monoidalfunctor_data) : UU :=
+    (tensor_preserving_data_is_natural mfd) × (preserves_associativity mfd) ×
+    (preserves_leftunitality mfd mfd) × (preserves_rightunitality mfd mfd).
+
+  <span class="kn">Definition</span> <span class="nf">monoidalfunctor</span> : UU :=
+    ∑ (mfd : monoidalfunctor_data), monoidalfunctor_laws mfd.
+
+
+  <span class="sd">(** Strong and strict monoidal properties *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_stronglytensorpreserving</span> (<span class="nv">tpd</span> : tensor_preserving_data) : UU :=
+    ∏ (x y : C), is_z_isomorphism (tpd x y).
+
+  <span class="kn">Definition</span> <span class="nf">is_strictlytensorpreserving</span> (<span class="nv">tpd</span> : tensor_preserving_data) : UU :=
+      ∏ (x y : C), ∑ (pf : (F x) ⊗_{N} (F y) = F (x ⊗_{M} y)),
+      (tpd x y ) = transportf _ pf (identity ((F x) ⊗_{N} (F y))).
+
+  <span class="kn">Lemma</span> <span class="nf">strictlytensorpreserving_is_strong</span> {<span class="nv">tpd</span> : tensor_preserving_data} (<span class="nv">pfstrict</span> : is_strictlytensorpreserving tpd) : is_stronglytensorpreserving tpd.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use (iso_stable_under_equalitytransportation (pr2 (pfstrict x y)) (is_z_isomorphism_identity ((F x) ⊗_{N} (F y)))).
+  <span class="kn">Defined</span>.
+  <span class="kn">Coercion</span> <span class="nf">strictlytensorpreserving_is_strong</span> : is_strictlytensorpreserving &gt;-&gt; is_stronglytensorpreserving.
+
+  <span class="kn">Definition</span> <span class="nf">is_stronglyunitpreserving</span> (<span class="nv">upd</span> : unit_preserving_data) : UU := is_z_isomorphism upd.
+
+  <span class="kn">Definition</span> <span class="nf">is_strictlyunitpreserving</span> (<span class="nv">upd</span> : unit_preserving_data) : UU :=
+    ∑ (pf : I_{N} = (F I_{M})), upd = transportf _ pf (identity I_{N}).
+
+  <span class="kn">Definition</span> <span class="nf">strictlyunitpreserving_is_strong</span> {<span class="nv">upd</span> : unit_preserving_data} (<span class="nv">pfstrict</span> : is_strictlyunitpreserving upd) : is_stronglyunitpreserving upd.
+  <span class="kn">Proof</span>.
+    use (iso_stable_under_equalitytransportation (pr2 pfstrict) (is_z_isomorphism_identity I_{N})).
+  <span class="kn">Defined</span>.
+  <span class="kn">Coercion</span> <span class="nf">strictlyunitpreserving_is_strong</span> : is_strictlyunitpreserving &gt;-&gt; is_stronglyunitpreserving.
+
+<span class="kn">End</span> <span class="nf">Curried_Monoidal_Functors</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalFunctorsCurried.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

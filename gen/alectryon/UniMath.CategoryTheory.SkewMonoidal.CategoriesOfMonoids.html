@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CategoriesOfMonoids.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Categories of skew monoids for skew monoidal categories</span>
+
+<span class="sd">Ambroise LAFONT 2020</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SkewMonoidal.SkewMonoidalCategories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Precategory_of_SkewMonoids</span>.
+
+<span class="kn">Context</span> (<span class="nv">V</span> : skewmonoidal_category).
+
+<span class="kn">Notation</span> <span class="nf">tensor</span> := (skewmonoidal_tensor V).
+<span class="kn">Notation</span> <span class="nf">I</span> := (skewmonoidal_I V).
+<span class="kn">Notation</span> <span class="s2">"C ⊠ D"</span> := (category_binproduct C D) (<span class="kn">at level</span> <span class="mi">38</span>).
+<span class="kn">Notation</span> <span class="s2">"( c , d )"</span> := (make_catbinprod c d).
+<span class="kn">Notation</span> <span class="s2">"( f #, g )"</span> := (catbinprodmor f g).
+<span class="kn">Notation</span> <span class="s2">"X ⊗ Y"</span> := (tensor (X , Y)).
+
+<span class="kn">Notation</span> <span class="s2">"f #⊗ g"</span> :=
+   (functor_on_morphisms (functor_data_from_functor _ _ tensor) (f #, g))
+                         (<span class="kn">at level</span> <span class="mi">31</span>).
+
+<span class="kn">Notation</span> <span class="nf">α'</span> := (skewmonoidal_assoc (data_from_skewmonoidal V)).
+<span class="kn">Notation</span> <span class="nf">λ'</span> := (skewmonoidal_unitl (data_from_skewmonoidal V)).
+<span class="kn">Notation</span> <span class="nf">ρ'</span> := (skewmonoidal_unitr (data_from_skewmonoidal V)).
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid_data</span> : UU :=
+  ∑ X : V, (X ⊗ X --&gt; X) × (I --&gt; X).
+
+<span class="kn">Coercion</span> <span class="nf">sm_ob</span> (X : skewMonoid_data) : V := pr1 X.
+
+<span class="kn">Definition</span> <span class="nf">sm_unit</span> (<span class="nv">X</span> : skewMonoid_data) : I --&gt; X := pr2 (pr2 X).
+<span class="kn">Definition</span> <span class="nf">sm_mult</span> (<span class="nv">X</span> : skewMonoid_data) : X ⊗ X --&gt; X := pr1 (pr2 X).
+
+<span class="kn">Local Notation</span> <span class="nf">η</span> := sm_unit.
+<span class="kn">Local Notation</span> <span class="nf">μ</span> := sm_mult.
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid_laws</span> (<span class="nv">X</span> : skewMonoid_data) : UU :=
+	(μ X #⊗ identity X · μ X = α' X X X · identity X #⊗ μ X · μ X) × <span class="c">(* Pentagon diagram *)</span>
+	(η X #⊗ identity X · μ X = <span class="k">λ</span><span class="nv">' X</span>) × (ρ' X · identity X #⊗ η X · μ X = identity _). <span class="c">(* Unitor diagrams *)</span>
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid</span> : UU := ∑ (X : skewMonoid_data), skewMonoid_laws X.
+
+<span class="kn">Coercion</span> <span class="nf">skewMonoid_to_data</span> (X : skewMonoid) : skewMonoid_data := pr1 X.
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid_pentagon</span> (<span class="nv">X</span> : skewMonoid) :
+  μ X #⊗ identity X · μ X =  α' X X X · identity X #⊗ μ X · μ X
+                                := pr1 (pr2 X).
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid_unitl</span> (<span class="nv">X</span> : skewMonoid) :
+  (  η X #⊗ identity X · μ X =  <span class="k">λ</span><span class="nv">' X</span>) :=  pr1 (pr2 (pr2 X)).
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid_unitr</span> (<span class="nv">X</span> : skewMonoid) :
+  ( ρ' X · identity X #⊗ η X · μ X = identity _)
+  :=  pr2 (pr2 (pr2 X)).
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid_Mor_laws</span>  {<span class="nv">T</span> <span class="nv">T'</span> : skewMonoid_data} (<span class="nv">α</span> : V ⟦T , T'⟧)
+  : UU :=
+   (μ T · α  = α #⊗ α · μ T')
+                × η T · α = η T'.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_skewMonoid_Mor_laws</span>
+  (<span class="nv">T</span> <span class="nv">T'</span> : skewMonoid_data ) (<span class="nv">α</span> : V ⟦ T , T' ⟧)
+  : isaprop (skewMonoid_Mor_laws α).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid_Mor</span>  (<span class="nv">T</span> <span class="nv">T'</span> : skewMonoid_data) : UU
+  := ∑ α , @skewMonoid_Mor_laws T T' α.
+
+<span class="kn">Coercion</span> <span class="nf">mor_from_monoid_mor</span> (T T' : skewMonoid_data) (s : skewMonoid_Mor T T')
+  : V ⟦ T , T' ⟧ := pr1 s.
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid_Mor_η</span>  {<span class="nv">T</span> <span class="nv">T'</span> : skewMonoid_data } (<span class="nv">α</span> : skewMonoid_Mor T T')
+  : η T · α = η T' := pr2 (pr2 α).
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid_Mor_μ</span>  {<span class="nv">T</span> <span class="nv">T'</span> : skewMonoid_data } (<span class="nv">α</span> : skewMonoid_Mor T T')
+  : μ T · α = α #⊗ α · μ T' := pr1 (pr2 α).
+
+<span class="kn">Lemma</span> <span class="nf">skewMonoid_identity_laws</span>  (<span class="nv">T</span> : skewMonoid_data )
+  : skewMonoid_Mor_laws (identity T).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  - <span class="nb">rewrite</span> id_right.
+    etrans;[<span class="nb">apply</span> pathsinv0, id_left|].
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (functor_id tensor).
+  - <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid_identity</span> (<span class="nv">T</span> : skewMonoid_data)
+  : skewMonoid_Mor T T := tpair _ _ (skewMonoid_identity_laws T).
+
+<span class="kn">Lemma</span> <span class="nf">skewMonoid_composition_laws</span>  {<span class="nv">T</span> <span class="nv">T'</span> <span class="nv">T''</span> : skewMonoid_data }
+      (<span class="nv">α</span> : skewMonoid_Mor T T') (<span class="nv">α'</span> : skewMonoid_Mor T' T'') : skewMonoid_Mor_laws (α · α').
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">simpl</span>.
+  - <span class="nb">rewrite</span> assoc.
+    <span class="nb">set</span> (H:=skewMonoid_Mor_μ α ); <span class="nb">simpl</span> <span class="k">in</span> H.
+    <span class="nb">rewrite</span> H; <span class="nb">clear</span> H; <span class="nb">rewrite</span> &lt;- !assoc.
+    <span class="nb">set</span> (H:=skewMonoid_Mor_μ α' ); <span class="nb">simpl</span> <span class="k">in</span> H.
+    etrans;[<span class="nb">apply</span> cancel_precomposition,H|].
+    <span class="nb">clear</span> H.
+    etrans;[<span class="nb">apply</span> assoc|].
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (functor_comp tensor (_ #, _) (_ #, _)).
+  - <span class="nb">rewrite</span> assoc.
+    <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> cancel_postcomposition, skewMonoid_Mor_η|].
+    <span class="nb">apply</span> skewMonoid_Mor_η.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid_composition</span>  {<span class="nv">T</span> <span class="nv">T'</span> <span class="nv">T''</span> : skewMonoid_data }
+  (<span class="nv">α</span> : skewMonoid_Mor T T') (<span class="nv">α'</span> : skewMonoid_Mor T' T'')
+  : skewMonoid_Mor T T'' := tpair _ _ (skewMonoid_composition_laws α α').
+
+<span class="kn">Definition</span> <span class="nf">skewMonoid_Mor_equiv</span>
+  {<span class="nv">T</span> <span class="nv">T'</span> : skewMonoid_data } (<span class="nv">α</span> <span class="nv">β</span> : skewMonoid_Mor T T')
+  : α = β ≃ (pr1 α = pr1 β).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypeInjectivity; <span class="nb">intro</span> a.
+  <span class="nb">apply</span> isaprop_skewMonoid_Mor_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_skewMonoid_ob_mor</span>  : precategory_ob_mor
+  := make_precategory_ob_mor skewMonoid (<span class="k">λ</span> <span class="nv">T</span> <span class="nv">T'</span> : skewMonoid , skewMonoid_Mor T T').
+
+<span class="kn">Definition</span> <span class="nf">precategory_skewMonoid_data</span> : precategory_data.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">precategory_skewMonoid_ob_mor</span>).
+  <span class="k">exists</span> (<span class="nv">fun</span> (T : skewMonoid) =&gt; skewMonoid_identity T).
+  <span class="bp">exact</span> (<span class="k">fun</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : skewMonoid) =&gt; @skewMonoid_composition A B C ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">precategory_skewMonoid_axioms</span>
+  : is_precategory precategory_skewMonoid_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">simpl</span>; <span class="nb">intros</span>.
+  - <span class="nb">apply</span> (invmap (skewMonoid_Mor_equiv _ _ )).
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> (invmap (skewMonoid_Mor_equiv _ _ )).
+    <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> (invmap (skewMonoid_Mor_equiv _ _ )).
+    <span class="nb">apply</span> assoc.
+  - <span class="nb">apply</span> (invmap (skewMonoid_Mor_equiv _ _ )).
+    <span class="nb">apply</span> assoc'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_skewMonoid</span> : precategory
+  := tpair _ _ precategory_skewMonoid_axioms.
+
+<span class="kn">End</span> <span class="nf">Precategory_of_SkewMonoids</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/SkewMonoidal/CategoriesOfMonoids.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Ambroise LAFONT 2020
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

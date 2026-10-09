@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AlgebraCategoryCore.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The category of algebraic theory algebras</span>
+
+<span class="sd">  Defines the category of algebras for an algebraic theory. First, the category of dependent pairs</span>
+<span class="sd">  of theories and algebras is formalized as a stack of displayed categories, then the category of</span>
+<span class="sd">  algebras is a fiber of a (repeated) sigma category of this.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The dependent product category of theories and algebras [algebra_full_cat]</span>
+<span class="sd">  1.1. The full category of algebra data [algebra_data_full_cat]</span>
+<span class="sd">  1.1.1. Temporary accessors</span>
+<span class="sd">  1.2. The full category of algebras</span>
+<span class="sd">  1.2.1. A lemma about algebras [isaprop_full_is_algebra]</span>
+<span class="sd">  2. The category of algebras [algebra_cat]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+
+<span class="kn">Section</span> <span class="nf">AlgebraCategory</span>.
+
+<span class="sd">(** * 1. The dependent product category of theories and algebras *)</span>
+<span class="sd">(** ** 1.1. The full category of algebra data *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">action_ax</span>
+    (<span class="nv">T</span> : algebraic_theory)
+    (<span class="nv">A</span> : hSet)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : T n)
+    (<span class="nv">a</span> : stn n → A)
+    : UU
+    := A.
+
+  <span class="kn">Definition</span> <span class="nf">mor_action_ax</span>
+    {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory}
+    {<span class="nv">A</span> <span class="nv">A'</span> : hSet}
+    (<span class="nv">F</span> : algebraic_theory_morphism T T')
+    (<span class="nv">G</span> : A → A')
+    (<span class="nv">action</span> : ∏ n f a, action_ax T A n f a)
+    (<span class="nv">action'</span> : ∏ n f a, action_ax T' A' n f a)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : T n)
+    (<span class="nv">a</span> : stn n → A)
+    : UU
+    := G (action n f a) = action' n (F _ f) (<span class="k">λ</span> <span class="nv">i</span>, G (a i)).
+
+  <span class="kn">Definition</span> <span class="nf">algebra_data_full_disp_cat</span>
+    : disp_cat (cartesian' algebraic_theory_cat HSET).
+  <span class="kn">Proof</span>.
+    use disp_struct.
+    - <span class="nb">intro</span> X.
+      <span class="bp">exact</span> (∏ n f a, action_ax (pr1 X) (pr2 X) n f a).
+    - <span class="nb">intros</span> X X' action action' Y.
+      <span class="bp">exact</span> (∏ n f a, mor_action_ax (pr1 Y) (pr2 Y) action action' n f a).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span>;
+        <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+        <span class="nb">apply</span> setproperty
+      ).
+    - <span class="kp">abstract</span> <span class="bp">easy</span>.
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> X X' X'' action action' action'' y y' Gcommutes G'commutes n f a;
+        <span class="bp">exact</span> (maponpaths _ (Gcommutes _ _ _) @ G'commutes _ _ _)
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">algebra_data_full_cat</span> : category
+    := total_category algebra_data_full_disp_cat.
+
+<span class="sd">(** *** 1.1.1. Temporary accessors *)</span>
+
+  <span class="kn">Let</span> <span class="nf">data_theory</span>
+    (<span class="nv">A</span> : algebra_data_full_cat)
+    : algebraic_theory
+    := pr11 A.
+
+  <span class="kn">Let</span> <span class="nf">data_set</span>
+    (<span class="nv">A</span> : algebra_data_full_cat)
+    : hSet
+    := pr21 A.
+
+  <span class="kn">Let</span> <span class="nf">data_action</span>
+    {<span class="nv">A</span> : algebra_data_full_cat}
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">f</span> : data_theory A n)
+    (<span class="nv">a</span> : stn n → data_set A)
+    : action_ax _ _ n f a
+    := pr2 A n f a.
+
+  <span class="kn">Let</span> <span class="nf">data_mor_theory</span>
+    {<span class="nv">A</span> <span class="nv">A'</span> : algebra_data_full_cat}
+    (<span class="nv">F</span> : algebra_data_full_cat⟦A, A'⟧)
+    : algebraic_theory_morphism (data_theory A) (data_theory A')
+    := pr11 F.
+
+  <span class="kn">Let</span> <span class="nf">data_mor_set</span>
+    {<span class="nv">A</span> <span class="nv">A'</span> : algebra_data_full_cat}
+    (<span class="nv">F</span> : algebra_data_full_cat⟦A, A'⟧)
+    : data_set A → data_set A'
+    := pr21 F.
+
+  <span class="kn">Let</span> <span class="nf">data_mor_action</span>
+    {<span class="nv">A</span> <span class="nv">A'</span> : algebra_data_full_cat}
+    (<span class="nv">F</span> : algebra_data_full_cat⟦A, A'⟧)
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">f</span> : data_theory A n)
+    (<span class="nv">a</span> : stn n → data_set A)
+    : mor_action_ax (data_mor_theory F) (data_mor_set F) (@data_action A) (@data_action A') n f a
+    := pr2 F n f a.
+
+<span class="sd">(** ** 1.2. The full category of algebras *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">subst_action_ax</span>
+    (<span class="nv">T</span> : algebraic_theory)
+    (<span class="nv">A</span> : hSet)
+    (<span class="nv">action</span> : ∏ n f a, action_ax T A n f a)
+    (<span class="nv">m</span> <span class="nv">n</span> : nat)
+    (<span class="nv">f</span> : T m)
+    (<span class="nv">g</span> : stn m → T n)
+    (<span class="nv">a</span> : stn n → A)
+    : UU
+    := action n (f • g) a = action m f (<span class="k">λ</span> <span class="nv">i</span>, action n (g i) a).
+
+  <span class="kn">Definition</span> <span class="nf">var_action_ax</span>
+    (<span class="nv">T</span> : algebraic_theory)
+    (<span class="nv">A</span> : hSet)
+    (<span class="nv">action</span> : ∏ n f a, action_ax T A n f a)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">i</span> : stn n)
+    (<span class="nv">a</span> : stn n → A)
+    : UU
+    := action n (var i) a = a i.
+
+  <span class="kn">Definition</span> <span class="nf">full_is_algebra</span>
+    (<span class="nv">A</span> : algebra_data_full_cat)
+    : UU
+    := (∏ m n f g a, subst_action_ax _ _ (pr2 A) m n f g a) ×
+      (∏ n i a, var_action_ax _ _ (pr2 A) n i a).
+
+  <span class="kn">Definition</span> <span class="nf">algebra_full_disp_cat</span>
+    : disp_cat algebra_data_full_cat
+    := disp_full_sub algebra_data_full_cat full_is_algebra.
+
+  <span class="kn">Definition</span> <span class="nf">algebra_full_cat</span> : category
+    := total_category algebra_full_disp_cat.
+
+<span class="sd">(** *** 1.2.1. A lemma about algebras *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_full_is_algebra</span>
+    (<span class="nv">A</span> : algebra_data_full_cat)
+    : isaprop (full_is_algebra A).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">apply</span> isapropdirprod;
+      <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+      <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. The category of algebras *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">algebra_disp_cat</span>
+    : disp_cat algebraic_theory_cat
+    := sigma_disp_cat (sigma_disp_cat algebra_full_disp_cat).
+
+  <span class="kn">Definition</span> <span class="nf">algebra_cat</span>
+    (<span class="nv">T</span> : algebraic_theory)
+    := fiber_category algebra_disp_cat T.
+
+  <span class="kn">Lemma</span> <span class="nf">displayed_algebra_morphism_eq</span>
+    {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory}
+    {<span class="nv">F</span> : algebraic_theory_morphism T T'}
+    {<span class="nv">A</span> : algebra_cat T}
+    {<span class="nv">A'</span> : algebra_cat T'}
+    (<span class="nv">G</span> <span class="nv">G'</span> : (A : algebra_disp_cat _) --&gt;[F] A')
+    (<span class="nv">H</span> : pr1 G = pr1 G')
+    : G = G'.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (subtypePath _ H).
+    <span class="nb">intro</span> x.
+    use (isapropdirprod _ _ _ isapropunit).
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+    <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">AlgebraCategory</span>.
+
+<span class="kn">Arguments</span> action_ax /.
+<span class="kn">Arguments</span> mor_action_ax /.
+<span class="kn">Arguments</span> subst_action_ax /.
+<span class="kn">Arguments</span> var_action_ax /.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/AlgebraCategoryCore.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   2. The category of algebras [algebra_cat]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Categories.HSET.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

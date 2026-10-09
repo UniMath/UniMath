@@ -1,0 +1,583 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>folds_isomorphism.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Univalent FOLDS</span>
+
+<span class="sd">    Benedikt Ahrens, following notes by Michael Shulman</span>
+
+<span class="sd">Contents of this file:</span>
+
+<span class="sd">  - Definition of type of isomorphism [folds_iso a b] in a FOLDS precategory</span>
+<span class="sd">    - consists of two families of isos and an iso, see [folds_iso_data]</span>
+<span class="sd">      - [ϕ₁ : ∏ x, x ⇒ a → x ⇒ b]</span>
+<span class="sd">      - [ϕ₂ : ∏ z, a ⇒ z → b ⇒ z]</span>
+<span class="sd">      - [ϕ∙ :      a ⇒ a → b ⇒ b]</span>
+<span class="sd">    - and a number of logical equivalences, see [folds_iso_prop]</span>
+<span class="sd">  - Some lemmas expressing naturality of maps [ϕX]</span>
+<span class="sd">  - Components [ϕ₂] and [ϕ∙] are determined by [ϕ₁]</span>
+<span class="sd">    - [ϕ₂_determined]</span>
+<span class="sd">    - [ϕo_determined]</span>
+<span class="sd">  - Identity isomorphim [id_folds_iso], inverse [inv_folds_iso] and composition</span>
+<span class="sd">  - Map [folds_iso_from_iso] associating to any FOLDS precat isomorphism</span>
+<span class="sd">    an isomorphism in the corresponding precategory à la RezkCompletion</span>
+<span class="sd">  - Map [iso_from_folds_iso] doing the converse, still departing from a FOLDS precategory</span>
+<span class="sd">  - Lemma: [folds_iso_from_iso] and [iso_from_folds_iso] are inverse to each other</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Folds.UnicodeNotations.
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.Folds.folds_precat.
+<span class="kn">Require Import</span> UniMath.Folds.from_precats_to_folds_and_back.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a ⇒ b"</span> := (folds_morphisms a b).
+
+
+<span class="sd">(** * Definition of FOLDS precat isomorphisms **)</span>
+
+<span class="kn">Section</span> <span class="nf">folds_iso_def</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : folds_precat.
+
+<span class="kn">Local Notation</span> <span class="nf">C'</span>:= (precat_from_folds_precat C).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f □ g"</span> := (compose (C:=C') f g) (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">no associativity</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'id' a"</span> := (identity (C:=C') a) (<span class="kn">at level</span> <span class="mi">30</span>).
+
+
+<span class="kn">Definition</span> <span class="nf">folds_iso_data</span> (<span class="nv">a</span> <span class="nv">b</span> : C) : UU :=
+  ((∏ (x : C), (x ⇒ a) ≃ (x ⇒ b))
+ × (∏ (z : C), (a ⇒ z) ≃ (b ⇒ z)))
+×             ((a ⇒ a) ≃ (b ⇒ b)).
+
+<span class="kn">Definition</span> <span class="nf">ϕ₁</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : folds_iso_data a b) {<span class="nv">x</span> : C} : (x ⇒ a) ≃ (x ⇒ b) :=
+      pr1 (pr1 f) x.
+<span class="kn">Definition</span> <span class="nf">ϕ₂</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : folds_iso_data a b) {<span class="nv">z</span> : C} : (a ⇒ z) ≃ (b ⇒ z) :=
+      pr2 (pr1 f) z.
+<span class="kn">Definition</span> <span class="nf">ϕo</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : folds_iso_data a b) : (a ⇒ a) ≃ (b ⇒ b) :=
+      pr2 f.
+<span class="kn">Notation</span> <span class="s2">"ϕ∙"</span> := ϕo. <span class="c">(* works as a notation, but not as an identifier *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">folds_iso_prop</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">i</span> : folds_iso_data a b) : UU :=
+  ((((∏ (x y : C) (f : x ⇒ y) (g : y ⇒ a) (h : x ⇒ a), T f g h ≃ T f ((ϕ₁ i) g) ((ϕ₁ i) h))
+   × (∏ (x z : C) (f : x ⇒ a) (g : a ⇒ z) (h : x ⇒ z), T f g h ≃ T ((ϕ₁ i) f) ((ϕ₂ i) g) h))
+   × (∏ (z w : C) (f : a ⇒ z) (g : z ⇒ w) (h : a ⇒ w), T f g h ≃ T ((ϕ₂ i) f) g ((ϕ₂ i) h)))
+ × (((∏ (x : C) (f : x ⇒ a) (g : a ⇒ a) (h : x ⇒ a),   T f g h ≃ T ((ϕ₁ i) f) ((ϕo i) g) ((ϕ₁ i) h))
+   × (∏ (x : C) (f : a ⇒ x) (g : x ⇒ a) (h : a ⇒ a),   T f g h ≃ T ((ϕ₂ i) f) ((ϕ₁ i) g) ((ϕ∙ i) h)))
+  × ((∏ (x : C) (f : a ⇒ a) (g h : a ⇒ x),             T f g h ≃ T ((ϕ∙ i) f) ((ϕ₂ i) g) ((ϕ₂ i) h))
+   × (∏ f g h : a ⇒ a,                                 T f g h ≃ T ((ϕ∙ i) f) ((ϕ∙ i) g) ((ϕ∙ i) h)))))
+   × (∏ f : a ⇒ a,                                     I f ≃ I ((ϕ∙ i) f)).
+
+<span class="kn">Definition</span> <span class="nf">isaprop_folds_iso_prop</span> (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">i</span> : folds_iso_data a b) : isaprop (folds_iso_prop i).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod);
+   <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> isapropweqtoprop; <span class="nb">apply</span> pr2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">folds_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : C) := ∑ i : folds_iso_data a b, folds_iso_prop i.
+
+<span class="kn">Definition</span> <span class="nf">folds_iso_data_from_folds_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : C} : folds_iso a b → folds_iso_data a b
+  := <span class="k">λ</span> <span class="nv">i</span>, pr1 i.
+<span class="kn">Coercion</span> <span class="nf">folds_iso_data_from_folds_iso</span> : folds_iso &gt;-&gt; folds_iso_data.
+
+<span class="kn">Lemma</span> <span class="nf">folds_iso_eq</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">i</span> <span class="nv">i'</span> : folds_iso a b) :
+  folds_iso_data_from_folds_iso i = folds_iso_data_from_folds_iso i' → i = i'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> subtypePath.
+  - <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_folds_iso_prop.
+  - <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * Lemmas about FOLDS isomorphisms *)</span>
+<span class="sd">(** the families of equivalences constituting a FOLDS isomorphism</span>
+<span class="sd">are given by composition **)</span>
+
+<span class="kn">Section</span> <span class="nf">about_folds_isos</span>.
+
+<span class="kn">Context</span> {<span class="nv">a</span> <span class="nv">b</span> : C}.
+
+<span class="kn">Section</span> <span class="nf">fix_a_folds_iso</span>.
+
+<span class="kn">Variable</span> (<span class="nv">i</span> : folds_iso a b).
+
+<span class="kn">Lemma</span> <span class="nf">ϕ₁_is_comp</span> (<span class="nv">x</span> : C) (<span class="nv">f</span> : x ⇒ a) : ϕ₁ i f = f □ (ϕ₁ i (id _ )).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (q:=pr1 (pr1 (pr1 (pr1 (pr2 i))))).
+  <span class="nb">specialize</span> (q _ _ f (id _ ) f).
+  <span class="nb">set</span> (q':=pr1 q ); <span class="nb">clearbody</span> q'.
+  <span class="nb">assert</span> (H: T f (id a) f).
+  { <span class="nb">set</span> (H:= pr1 (pr2 (pr1 (pr2 C)))).
+    <span class="nb">apply</span> H. <span class="nb">apply</span> I_func_I. }
+  <span class="nb">set</span> (q'H:= q' H). <span class="nb">clearbody</span> q'H; <span class="nb">clear</span> H q' q.
+  <span class="nb">apply</span> path_to_ctr. <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ϕ₂_is_comp</span> (<span class="nv">z</span> : C) (<span class="nv">g</span> : a ⇒ z) : ϕ₂ i g = ϕ₂ i (id _ ) □ g.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (q:=pr2 (pr1 (pr1 (pr2 i)))). <span class="nb">simpl</span> <span class="k">in</span> q.
+  <span class="nb">specialize</span> (q _ _ (id _ ) g g).
+  <span class="nb">set</span> (q':=pr1 q ); <span class="nb">clearbody</span> q'.
+  <span class="nb">assert</span> (H: T (id a) g g).
+  { <span class="nb">set</span> (H:= pr2 (pr2 (pr1 (pr2 C)))).
+    <span class="nb">apply</span> H. <span class="nb">apply</span> I_func_I. }
+  <span class="nb">set</span> (q'H:= q' H). <span class="nb">clearbody</span> q'H; <span class="nb">clear</span> H q' q.
+  <span class="nb">apply</span> path_to_ctr. <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ϕ₁_ϕ₂_id</span> : ϕ₁ i (id _ ) □ (ϕ₂ i (id _ )) = id _.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (q:=pr2 (pr1 (pr1 (pr1 (pr2 i))))). <span class="nb">simpl</span> <span class="k">in</span> q.
+  <span class="nb">specialize</span> (q _ _ (id _ ) (id _ ) (id _ )).
+  <span class="nb">set</span> (q':=pr1 q ); <span class="nb">clearbody</span> q'.
+  <span class="nb">apply</span> comp_compose2'.
+  <span class="nb">apply</span> q'.
+  <span class="nb">apply</span> comp_compose2.
+  <span class="nb">apply</span> T_I_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ϕo_id</span> : ϕ∙ i (id _ ) = id _ .
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> id_identity2'.
+  <span class="nb">apply</span> (pr2 (pr2 i)).
+  <span class="nb">apply</span> I_func_I.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ϕ₂_ϕ₁_id</span>: ϕ₂ i (id a) □ ϕ₁ i (id a) = id b.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (H':= pr2 (pr1 (pr2 (pr1 (pr2 i))))).
+  <span class="nb">simpl</span> <span class="k">in</span> H'.
+  <span class="nb">specialize</span> (H' _ (id _ ) (id _ ) (id _ )).
+  <span class="nb">simpl</span> <span class="k">in</span> H'.
+  <span class="nb">rewrite</span> &lt;- ϕo_id.
+  <span class="nb">apply</span> comp_compose2'.
+  <span class="nb">apply</span> H'.
+  <span class="nb">apply</span> comp_compose2.
+  <span class="nb">apply</span> T_I_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ϕ₁_ϕ₂_are_inverse</span> : is_inverse_in_precat (C:= C') (ϕ₁ i (id _ )) (ϕ₂ i (id _ )).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> ϕ₁_ϕ₂_id.
+  - <span class="nb">apply</span> ϕ₂_ϕ₁_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ϕo_ϕ₁_ϕ₂</span> (<span class="nv">f</span> : a ⇒ a) : ϕ∙ i f = (ϕ₂ i (id _ ) □ f) □ ϕ₁ i (id _).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (q:=pr2 (pr1 (pr2 (pr1 (pr2 i))))); <span class="nb">simpl</span> <span class="k">in</span> q; <span class="nb">clearbody</span> q.
+  <span class="nb">specialize</span> (q _ f (id _ ) f).
+  <span class="nb">set</span> (q':=pr1 q). <span class="nb">clearbody</span> q'. <span class="nb">simpl</span> <span class="k">in</span> q'. <span class="nb">clear</span> q.
+  <span class="k">match goal with</span> | [_ : <span class="nl">?a</span> → _ |- _ ] =&gt; <span class="nb">assert</span> a <span class="k">end</span>.
+  { <span class="nb">apply</span> comp_compose2. <span class="nb">apply</span> (@id_right C'). }
+  <span class="nb">specialize</span> (q' X). <span class="nb">clear</span> X.
+  <span class="nb">set</span> (q:= comp_compose2' q'). <span class="nb">clearbody</span> q; <span class="nb">clear</span> q'.
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">change</span> (ϕ∙ i f) <span class="k">with</span> (ϕ∙ (pr1 i) f).
+  <span class="nb">rewrite</span> &lt;- q. <span class="nb">clear</span> q.
+  <span class="nb">rewrite</span> ϕ₂_is_comp. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">fix_a_folds_iso</span>.
+
+<span class="sd">(** * A FOLDS isomorphism is determined by the first family of isos **)</span>
+
+<span class="kn">Variables</span> <span class="nv">i</span> <span class="nv">i'</span> : folds_iso a b.
+
+<span class="kn">Hypothesis</span> <span class="nv">H</span> : ϕ₁ i (id _ ) = ϕ₁ i' (id _ ).
+
+<span class="kn">Lemma</span> <span class="nf">ϕ₂_determined</span> : ∏ x (f : a ⇒ x) , ϕ₂ i f = ϕ₂ i' f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x f.
+  <span class="nb">rewrite</span> (ϕ₂_is_comp i).
+  <span class="nb">rewrite</span> (ϕ₂_is_comp i').
+  <span class="nb">assert</span> (H': is_inverse_in_precat (C:=C') (ϕ₁ i (id _ )) (ϕ₂ i' (id _ ))).
+  { <span class="nb">split</span>.
+    - <span class="nb">rewrite</span> H. <span class="nb">apply</span> ϕ₁_ϕ₂_id.
+    - <span class="nb">rewrite</span> H. <span class="nb">apply</span> ϕ₂_ϕ₁_id. }
+  <span class="nb">assert</span> (X : ϕ₂ i (id _ ) = ϕ₂ i' (id _ )).
+  { <span class="nb">set</span> (H1:= inverse_unique_precat _ _  _ _  _ (ϕ₁_ϕ₂_are_inverse i) H').
+    <span class="bp">assumption</span>.
+  }
+  <span class="nb">rewrite</span> X.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ϕo_determined</span> : ∏ f, ϕ∙ i f = ϕ∙ i' f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> ϕo_ϕ₁_ϕ₂.
+  <span class="nb">rewrite</span> ϕ₂_determined.
+  <span class="nb">rewrite</span> H.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">folds_iso_equal</span> : i = i'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> folds_iso_eq.
+  <span class="nb">apply</span> dirprodeq.
+  - <span class="nb">apply</span> dirprodeq.
+    + <span class="nb">apply</span> funextsec; <span class="nb">intro</span>.
+      <span class="nb">apply</span> subtypePath.
+      * <span class="nb">intro</span>. <span class="nb">apply</span> isapropisweq.
+      * <span class="nb">apply</span> funextfun; <span class="nb">intro</span> f.
+        <span class="nb">eapply</span> pathscomp0.
+        { <span class="nb">apply</span> ϕ₁_is_comp. }
+        <span class="nb">symmetry</span>.
+        <span class="nb">eapply</span> pathscomp0.
+        { <span class="nb">apply</span> ϕ₁_is_comp. }
+        <span class="nb">rewrite</span> H. <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> funextsec; <span class="nb">intro</span>.
+      <span class="nb">apply</span> subtypePath.
+      * <span class="nb">intro</span>; <span class="nb">apply</span> isapropisweq.
+      * <span class="nb">apply</span> funextfun. <span class="nb">unfold</span> homot. <span class="nb">apply</span> ϕ₂_determined.
+  - <span class="nb">apply</span> subtypePath.
+    { <span class="nb">intro</span>. <span class="nb">apply</span> isapropisweq. }
+    <span class="nb">apply</span> funextfun. <span class="nb">intro</span> t.
+    <span class="nb">apply</span> ϕo_determined.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">End</span> <span class="nf">about_folds_isos</span>.
+
+
+<span class="sd">(** * Identity FOLDS isomorphism **)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">id_folds_iso_data</span> (<span class="nv">a</span> : C) : folds_iso_data a a.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span> x. <span class="nb">apply</span> idweq.
+  - <span class="nb">intro</span> z. <span class="nb">apply</span> idweq.
+  - <span class="nb">apply</span> idweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">id_folds_iso_prop</span> (<span class="nv">a</span> : C) : folds_iso_prop (id_folds_iso_data a).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">apply</span> idweq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_folds_iso</span> (<span class="nv">a</span> : C) : folds_iso a a := tpair _ (id_folds_iso_data a) (id_folds_iso_prop a).
+
+<span class="sd">(** * Inverse of a FOLDS isomorphism **)</span>
+
+<span class="kn">Section</span> <span class="nf">folds_iso_inverse</span>.
+
+<span class="kn">Context</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">i</span> : folds_iso a b).
+
+<span class="kn">Definition</span> <span class="nf">inv_folds_iso_data</span> : folds_iso_data b a.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span> x. <span class="bp">exact</span> (invweq (ϕ₁ i)).
+  - <span class="nb">intro</span> z. <span class="bp">exact</span> (invweq (ϕ₂ i)).
+  - <span class="bp">exact</span> (invweq (ϕ∙ i)).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">inv_folds_iso_prop</span> : folds_iso_prop inv_folds_iso_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> invweq.
+    <span class="nb">set</span> (q:=pr1 (pr1 (pr1 (pr1 (pr2 i))))). <span class="nb">clearbody</span> q.
+    <span class="nb">set</span> (q':= q _ _ f (invmap (ϕ₁ i) g) (invmap (ϕ₁ i) h)).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> (homotweqinvweq (ϕ₁ i)) <span class="k">in</span> q'.
+    <span class="nb">apply</span> q'.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> invweq.
+    <span class="nb">set</span> (q:=pr2 (pr1 (pr1 (pr1 (pr2 i))))). <span class="nb">simpl</span> <span class="k">in</span> q; <span class="nb">clearbody</span> q.
+    <span class="nb">set</span> (q':= q _ _ (invmap (ϕ₁ i) f) (invmap (ϕ₂ i) g) h); <span class="nb">clearbody</span> q'.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> homotweqinvweq <span class="k">in</span> q'.
+    <span class="nb">apply</span> q'.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> invweq.
+    <span class="nb">set</span> (q:= ((pr2 (pr1 (pr1 (pr2 i)))))). <span class="nb">clearbody</span> q; <span class="nb">simpl</span> <span class="k">in</span> q.
+    <span class="nb">set</span> (q':= q _ _ (invmap (ϕ₂ i) f) g  (invmap (ϕ₂ i) h) ).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> homotweqinvweq <span class="k">in</span> q'.
+    <span class="nb">apply</span> q'.
+  - <span class="nb">simpl</span>; <span class="nb">apply</span> invweq.
+    <span class="nb">set</span> (q:= pr1 (pr1 (pr2 (pr1 (pr2 i))))). <span class="nb">clearbody</span> q; <span class="nb">simpl</span> <span class="k">in</span> q.
+    <span class="nb">set</span> (q':= q _  (invmap (ϕ₁ i) f) (invmap (ϕ∙ i) g) (invmap (ϕ₁ i) h)).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> homotweqinvweq <span class="k">in</span> q'.
+    <span class="nb">apply</span> q'.
+  - <span class="nb">simpl</span>; <span class="nb">apply</span> invweq.
+    <span class="nb">set</span> (q:= pr2 (pr1 (pr2 (pr1 (pr2 i))))). <span class="nb">clearbody</span> q; <span class="nb">simpl</span> <span class="k">in</span> q.
+    <span class="nb">set</span> (q':= q _ (invmap (ϕ₂ i) f) (invmap (ϕ₁ i) g) (invmap (ϕ∙ i) h)).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> homotweqinvweq <span class="k">in</span> q'.
+    <span class="nb">apply</span> q'.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> invweq.
+    <span class="nb">set</span> (q:= pr1 (pr2 (pr2 (pr1 (pr2 i))))). <span class="nb">clearbody</span> q; <span class="nb">simpl</span> <span class="k">in</span> q.
+    <span class="nb">specialize</span> (q _ (invmap (ϕ∙ i) f) (invmap (ϕ₂ i) g) (invmap (ϕ₂ i) h)).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> homotweqinvweq <span class="k">in</span> q.
+    <span class="nb">apply</span> q.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> invweq.
+    <span class="nb">set</span> (q:= pr2 (pr2 (pr2 (pr1 (pr2 i))))). <span class="nb">clearbody</span> q; <span class="nb">simpl</span> <span class="k">in</span> q.
+    <span class="nb">specialize</span> (q (invmap (ϕ∙ i) f) (invmap (ϕ∙ i) g) (invmap (ϕ∙ i) h)).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> homotweqinvweq <span class="k">in</span> q.
+    <span class="nb">apply</span> q.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> invweq.
+    <span class="nb">set</span> (q:= pr2 (pr2 i)). <span class="nb">simpl</span> <span class="k">in</span> q; <span class="nb">clearbody</span> q.
+    <span class="nb">specialize</span> (q (invmap (ϕ∙ i) f)).
+    <span class="nb">rewrite</span> homotweqinvweq <span class="k">in</span> q.
+    <span class="nb">apply</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">inv_folds_iso</span> : folds_iso b a :=
+  tpair _ inv_folds_iso_data inv_folds_iso_prop.
+
+<span class="kn">End</span> <span class="nf">folds_iso_inverse</span>.
+
+<span class="sd">(** * Composition of FOLDS isomorphisms **)</span>
+
+<span class="kn">Section</span> <span class="nf">folds_iso_comp</span>.
+
+<span class="kn">Context</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">i</span> : folds_iso a b) (<span class="nv">i'</span> : folds_iso b c).
+
+<span class="kn">Definition</span> <span class="nf">folds_iso_comp_data</span> : folds_iso_data a c.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span> x; <span class="nb">apply</span> (weqcomp (ϕ₁ i) (ϕ₁ i')).
+  - <span class="nb">intro</span> z; <span class="nb">apply</span> (weqcomp (ϕ₂ i) (ϕ₂ i')).
+  - <span class="nb">apply</span> (weqcomp (ϕ∙ i) (ϕ∙ i')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">folds_iso_comp_prop</span> : folds_iso_prop folds_iso_comp_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span>. <span class="nb">simpl</span>. <span class="nb">eapply</span> weqcomp.
+    + <span class="nb">apply</span> (pr1 (pr1 (pr1 (pr1 (pr2 i))))).
+    + <span class="nb">apply</span> (pr1 (pr1 (pr1 (pr1 (pr2 i'))))).
+  - <span class="nb">intros</span>; <span class="nb">simpl</span>; <span class="nb">eapply</span> weqcomp.
+    + <span class="nb">apply</span> (pr2 (pr1 (pr1 (pr1 (pr2 i))))).
+    + <span class="nb">apply</span> (pr2 (pr1 (pr1 (pr1 (pr2 i'))))).
+  - <span class="nb">intros</span>; <span class="nb">simpl</span>; <span class="nb">eapply</span> weqcomp.
+    + <span class="nb">apply</span> (pr2 (pr1 (pr1 (pr2 i)))).
+    + <span class="nb">apply</span> (pr2 (pr1 (pr1 (pr2 i')))).
+  - <span class="nb">intros</span>; <span class="nb">simpl</span>; <span class="nb">eapply</span> weqcomp.
+    + <span class="nb">apply</span> (pr1 (pr1 (pr2 (pr1 (pr2 i))))).
+    + <span class="nb">apply</span> (pr1 (pr1 (pr2 (pr1 (pr2 i'))))).
+  - <span class="nb">intros</span>; <span class="nb">simpl</span>; <span class="nb">eapply</span> weqcomp.
+    + <span class="nb">apply</span> (pr2 (pr1 (pr2 (pr1 (pr2 i))))).
+    + <span class="nb">apply</span> (pr2 (pr1 (pr2 (pr1 (pr2 i'))))).
+  - <span class="nb">intros</span>; <span class="nb">simpl</span>; <span class="nb">eapply</span> weqcomp.
+    + <span class="nb">apply</span> (pr1 (pr2 (pr2 (pr1 (pr2 i))))).
+    + <span class="nb">apply</span> (pr1 (pr2 (pr2 (pr1 (pr2 i'))))).
+  - <span class="nb">intros</span>; <span class="nb">simpl</span>; <span class="nb">eapply</span> weqcomp.
+    + <span class="nb">apply</span> (pr2 (pr2 (pr2 (pr1 (pr2 i))))).
+    + <span class="nb">apply</span> (pr2 (pr2 (pr2 (pr1 (pr2 i'))))).
+  - <span class="nb">intros</span>; <span class="nb">simpl</span>; <span class="nb">eapply</span> weqcomp.
+    + <span class="nb">apply</span> (pr2 (pr2 i)).
+    + <span class="nb">apply</span> (pr2 (pr2 i')).
+<span class="kn">Qed</span>.
+
+
+
+<span class="kn">End</span> <span class="nf">folds_iso_comp</span>.
+
+<span class="sd">(** * From isomorphisms to FOLDS isomorphisms **)</span>
+
+<span class="kn">Section</span> <span class="nf">from_iso_to_folds_iso</span>.
+
+<span class="kn">Variables</span> <span class="nv">a</span> <span class="nv">b</span> : C.
+<span class="kn">Variable</span> <span class="nv">f</span> : z_iso (C:=C') a b.
+
+<span class="kn">Definition</span> <span class="nf">folds_iso_data_from_z_iso</span> : folds_iso_data a b :=
+  make_dirprod (make_dirprod (z_iso_comp_left_weq f)
+                           (z_iso_comp_right_weq (z_iso_inv_from_z_iso f)))
+              (z_iso_conjug_weq f).
+
+<span class="kn">Lemma</span> <span class="nf">folds_iso_data_prop</span> : folds_iso_prop folds_iso_data_from_z_iso.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intros</span>.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> logeqweq.
+    + <span class="nb">intro</span> H. <span class="nb">apply</span> comp_compose2.
+      <span class="nb">rewrite</span> assoc. <span class="nb">set</span> (H2 := comp_compose2' H). <span class="nb">rewrite</span> H2.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">intro</span> H. <span class="nb">apply</span> comp_compose2.
+      <span class="nb">set</span> (H2 := comp_compose2' H).
+      <span class="nb">rewrite</span> assoc <span class="k">in</span> H2.
+      <span class="nb">eapply</span> post_comp_with_z_iso_is_inj.
+      * <span class="nb">apply</span> (z_iso_is_inverse_in_precat f).
+      * <span class="nb">apply</span> H2.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> logeqweq.
+    + <span class="nb">intro</span> H. <span class="nb">apply</span> comp_compose2.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">eapply</span> pathscomp0.
+      * <span class="nb">apply</span> (pathsinv0 (comp_compose2' H)).
+      * <span class="nb">transitivity</span> ((f0 □ (f □ (inv_from_z_iso f))) □ g).
+        ** <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+           <span class="nb">rewrite</span> id_right.
+           <span class="nb">apply</span> idpath.
+        ** <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath.
+    + <span class="nb">intro</span> H. <span class="nb">apply</span> comp_compose2.
+      <span class="nb">set</span> (H2 := comp_compose2' H). <span class="nb">apply</span> pathsinv0.
+      <span class="nb">eapply</span> pathscomp0.
+      * <span class="nb">apply</span> (pathsinv0 H2).
+      * <span class="nb">transitivity</span> ((f0 □ (f □ (inv_from_z_iso f))) □ g).
+        ** <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath.
+        ** <span class="nb">rewrite</span> z_iso_inv_after_z_iso. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> logeqweq.
+    + <span class="nb">intro</span> H. <span class="nb">apply</span> comp_compose2.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> (comp_compose2' H). <span class="nb">apply</span> idpath.
+    + <span class="nb">intro</span> H. <span class="nb">apply</span> comp_compose2.
+      <span class="nb">set</span> (H2:= comp_compose2' H).
+      <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H2.
+      use (pre_comp_with_z_iso_inv_is_inj f). <span class="bp">exact</span> H2.
+  - <span class="nb">simpl</span>; <span class="nb">apply</span> logeqweq.
+    + <span class="nb">intro</span> H; <span class="nb">apply</span> comp_compose2.
+      <span class="nb">rewrite</span> &lt;- (comp_compose2' H).
+      <span class="nb">transitivity</span>
+          ((f0 □ (f □ (inv_from_z_iso f))) □ (g □ f)).
+      * <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath.
+      * <span class="nb">rewrite</span> z_iso_inv_after_z_iso. <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> assoc.
+    + <span class="nb">intro</span> H; <span class="nb">apply</span> comp_compose2.
+      <span class="nb">set</span> (H2 := comp_compose2' H).
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> H2.
+      use pathscomp0.
+      * <span class="bp">exact</span> ((f0 □ (f □ (inv_from_z_iso f))) □ g).
+      * <span class="nb">rewrite</span> z_iso_inv_after_z_iso, id_right; <span class="nb">apply</span> idpath.
+      * <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        use (post_comp_with_z_iso_is_inj f).
+        <span class="bp">exact</span> H2.
+  -  <span class="nb">simpl</span>; <span class="nb">apply</span> logeqweq.
+    + <span class="nb">intro</span> H. <span class="nb">apply</span> comp_compose2.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">rewrite</span> assoc4.
+      <span class="nb">rewrite</span> (comp_compose2' H).
+      <span class="nb">apply</span> pathsinv0, assoc.
+    + <span class="nb">intro</span> H; <span class="nb">apply</span> comp_compose2.
+      <span class="nb">set</span> (H2 := comp_compose2' H).
+      <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H2.
+      use (pre_comp_with_z_iso_inv_is_inj f).
+      use (post_comp_with_z_iso_is_inj f).
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc <span class="k">in</span> H2. <span class="nb">rewrite</span> assoc <span class="k">in</span> H2.
+      use (pathscomp0 H2). <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> logeqweq.
+    + <span class="nb">intro</span> H; <span class="nb">apply</span> comp_compose2.
+      <span class="nb">rewrite</span> &lt;- (comp_compose2' H); <span class="nb">clear</span> H.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> maponpaths. <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> assoc4, z_iso_inv_after_z_iso, id_right.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">intro</span> H; <span class="nb">apply</span> comp_compose2.
+      <span class="nb">set</span> (H':= comp_compose2' H); <span class="nb">generalize</span> H'; <span class="nb">clear</span> H' H; <span class="nb">intro</span> H.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H.
+      use (pre_comp_with_z_iso_inv_is_inj f). use (pathscomp0 _ H).
+      <span class="nb">rewrite</span> (@assoc C' _ _ _ _ f). <span class="nb">rewrite</span> z_iso_inv_after_z_iso. <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>; <span class="nb">apply</span> logeqweq.
+    + <span class="nb">intro</span> H; <span class="nb">set</span> (H':=comp_compose2' H); <span class="nb">clearbody</span> H'; <span class="nb">clear</span> H;
+      <span class="nb">rename</span> H' <span class="nb">into</span> H; <span class="nb">rewrite</span> &lt;- H; <span class="nb">clear</span> H.
+      <span class="nb">apply</span> comp_compose2.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc; <span class="nb">apply</span> maponpaths; <span class="nb">simpl</span>.
+      <span class="nb">set</span> (H':=@assoc C' _ _ _ _ f0 g f); <span class="nb">clearbody</span> H';
+      <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">rewrite</span> &lt;- H'; <span class="nb">clear</span> H'.
+      <span class="nb">apply</span> maponpaths. <span class="nb">simpl</span> <span class="k">in</span> *.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span>  (@assoc C').
+      <span class="nb">rewrite</span> z_iso_inv_after_z_iso, id_left;
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">intro</span> H; <span class="nb">set</span> (H':=comp_compose2' H); <span class="nb">clearbody</span> H'; <span class="nb">clear</span> H;
+      <span class="nb">rename</span> H' <span class="nb">into</span> H.
+      <span class="nb">apply</span> comp_compose2.
+      <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H.
+      use (post_comp_with_z_iso_is_inj f). use (pre_comp_with_z_iso_inv_is_inj f).
+      use (pathscomp0 _ H). <span class="nb">rewrite</span> (@assoc C' _ _ _ _ f). <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+      <span class="nb">rewrite</span> id_left. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> idpath.
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> logeqweq.
+    + <span class="nb">intro</span> H. <span class="nb">apply</span> id_identity2.
+      <span class="nb">rewrite</span> (id_identity2' H). <span class="nb">rewrite</span> (@id_left C').
+      <span class="nb">apply</span> (z_iso_after_z_iso_inv f).
+    + <span class="nb">intro</span> H. <span class="nb">apply</span> id_identity2.
+      <span class="nb">set</span> (H':=id_identity2' H); <span class="nb">clearbody</span> H'; <span class="nb">clear</span> H.
+      <span class="nb">set</span> (H2:=z_iso_inv_to_left _ _ _ f _ _ H'); <span class="nb">clearbody</span> H2.
+      <span class="nb">rewrite</span> id_right <span class="k">in</span> H2.
+      <span class="nb">transitivity</span> (f □ (inv_from_z_iso f)).
+      * <span class="nb">apply</span> (z_iso_inv_on_left (C:=C')), pathsinv0, H2.
+      * <span class="nb">apply</span> (z_iso_inv_after_z_iso (C := C')).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">folds_iso_from_iso</span> : folds_iso a b := tpair _ _ folds_iso_data_prop.
+
+<span class="kn">End</span> <span class="nf">from_iso_to_folds_iso</span>.
+
+<span class="sd">(** * from FOLDS isomorphism to isomorphism **)</span>
+
+<span class="kn">Section</span> <span class="nf">from_folds_iso_to_iso</span>.
+
+<span class="kn">Variables</span> <span class="nv">a</span> <span class="nv">b</span> : C.
+<span class="kn">Variable</span> <span class="nv">i</span> : folds_iso a b.
+
+<span class="kn">Let</span> <span class="nf">i'</span>: a ⇒ b := ϕ₁ i (id _ ).
+<span class="kn">Let</span> <span class="nf">i'inv</span> : b ⇒ a := ϕ₂ i (id _ ).
+
+<span class="kn">Definition</span> <span class="nf">iso_from_folds_iso</span> : z_iso (C:=C') a b.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">i'</span>.
+  <span class="k">exists</span> <span class="nv">i'inv</span>.
+  <span class="nb">apply</span> ϕ₁_ϕ₂_are_inverse.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">from_folds_iso_to_iso</span>.
+
+<span class="sd">(** * from FOLDS isos to isos and back, and the other way round **)</span>
+
+<span class="kn">Section</span> <span class="nf">iso_from_folds_from_iso</span>.
+
+<span class="kn">Hypothesis</span> (<span class="nv">hs</span>: has_homsets C').
+<span class="kn">Context</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">i</span> : z_iso (C:=C') a b).
+
+<span class="kn">Lemma</span> <span class="nf">iso_from_folds_iso_folds_iso_from_iso</span> : iso_from_folds_iso _ _ (folds_iso_from_iso _ _ i) = i.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (z_iso_eq(C:=C',,hs)).
+  <span class="nb">apply</span> (@id_left C').
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Variable</span> <span class="nv">i'</span> : folds_iso a b.
+
+<span class="kn">Lemma</span> <span class="nf">folds_iso_from_iso_iso_from_folds_iso</span> : folds_iso_from_iso _ _ (iso_from_folds_iso _ _ i') = i'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> folds_iso_equal.
+  <span class="nb">apply</span> (@id_left C').
+<span class="kn">Qed</span>.
+
+
+<span class="kn">End</span> <span class="nf">iso_from_folds_from_iso</span>.
+
+<span class="kn">End</span> <span class="nf">folds_iso_def</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Folds/folds_isomorphism.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Folds/UnicodeNotations.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Folds.UnicodeNotations.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.Foundations.PartD.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

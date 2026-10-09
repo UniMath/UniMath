@@ -1,0 +1,1235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SetFams.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> The displayed category of families of sets</span>
+
+<span class="sd"> There are two common ways to construct the set model of type theory. The first way is to</span>
+<span class="sd"> use the arrow category: we have a fibration from the arrow category of `SET` to `SET`,</span>
+<span class="sd"> namely the codomain fibration. We can equip this fibration with the structure necessary</span>
+<span class="sd"> for a comprehension category. To interpret type formers in this comprehension category,</span>
+<span class="sd"> we use that `SET` is locally Cartesian closed.</span>
+
+<span class="sd"> The other common way is to use an equivalent, but more convenient, presentation of the</span>
+<span class="sd"> codomain fibration of sets, and for that we use families of sets. Specifically, we</span>
+<span class="sd"> consider the fibration over `SET` such that the objects over `X : hSet` are families</span>
+<span class="sd"> `Y : X → hSet`. Note that in set-theoretic foundations this fibration is a split</span>
+<span class="sd"> replacement of the codomain fibration for sets.</span>
+
+<span class="sd"> In this file, we establish basic facts about the fibration of families of sets. We first</span>
+<span class="sd"> construct the necessary displayed category, and we show that it is univalent. We also</span>
+<span class="sd"> constructor a comprehension functor, and we show that this functor is both Cartesian</span>
+<span class="sd"> and fully faithful. Finally, we consider the structure of the fibers of this fibration.</span>
+<span class="sd"> Specifically, we construct finite limits in each fiber, and we equip each fiber with</span>
+<span class="sd"> a subobject classifier and a parameterized natural numbers object.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The displayed categories of families of sets</span>
+<span class="sd"> 2. Isomorphisms in the displayed category of families of sets</span>
+<span class="sd"> 3. The displayed categories of families of sets is univalent</span>
+<span class="sd"> 4. A cleaving for this displayed category</span>
+<span class="sd"> 5. The comprehension functor</span>
+<span class="sd"> 6. Some useful lemmas</span>
+<span class="sd"> 7. The fiberwise terminal object</span>
+<span class="sd"> 8. Fiberwise binary products</span>
+<span class="sd"> 9. Fiberwise equalizers</span>
+<span class="sd"> 10. The family of elements equal to some given element</span>
+<span class="sd"> 11. The fiberwise subobject classifier</span>
+<span class="sd"> 12. The fiberwise parameterized natural numbers object</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseEqualizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The displayed categories of families of sets *)</span>
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_ob_mor</span>
+  : disp_cat_ob_mor HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">X</span> : hSet), X → hSet).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet)
+             (<span class="nv">Y₁</span> : X₁ → hSet)
+             (<span class="nv">Y₂</span> : X₂ → hSet)
+             (<span class="nv">f</span> : X₁ → X₂),
+           ∏ (x : X₁), Y₁ x → Y₂ (f x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_id_comp</span>
+  : disp_cat_id_comp SET fam_disp_cat_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">X</span> : hSet) (<span class="nv">Y</span> : X → hSet) (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y x), y).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> : hSet)
+             (<span class="nv">f</span> : X₁ → X₂) (<span class="nv">g</span> : X₂ → X₃)
+             (<span class="nv">Y₁</span> : X₁ → hSet)
+             (<span class="nv">Y₂</span> : X₂ → hSet)
+             (<span class="nv">Y₃</span> : X₃ → hSet)
+             (<span class="nv">ff</span> : ∏ (x : X₁), Y₁ x → Y₂ (f x))
+             (<span class="nv">gg</span> : ∏ (x : X₂), Y₂ x → Y₃ (g x))
+             (<span class="nv">x</span> : X₁)
+             (<span class="nv">y</span> : Y₁ x),
+           gg (f x) (ff x y)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_data</span>
+  : disp_cat_data HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> fam_disp_cat_ob_mor.
+  - <span class="bp">exact</span> fam_disp_cat_id_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fam_disp_cat_transportb</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            {<span class="nv">f</span> <span class="nv">g</span> : X₁ → X₂}
+            (<span class="nv">p</span> : g = f)
+            {<span class="nv">Y₁</span> : fam_disp_cat_data X₁}
+            {<span class="nv">Y₂</span> : fam_disp_cat_data X₂}
+            (<span class="nv">ff</span> : Y₁ --&gt;[ f ] Y₂)
+            (<span class="nv">x</span> : X₁)
+            (<span class="nv">y</span> : Y₁ x)
+  : transportb (<span class="k">λ</span> (<span class="nv">z</span> : HSET ⟦ _ , _ ⟧), _ --&gt;[ z ] _) p ff x y
+    =
+    transportb Y₂ (eqtohomot p x) (ff x y).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fam_disp_cat_transportf</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            {<span class="nv">f</span> <span class="nv">g</span> : X₁ → X₂}
+            (<span class="nv">p</span> : f = g)
+            {<span class="nv">Y₁</span> : fam_disp_cat_data X₁}
+            {<span class="nv">Y₂</span> : fam_disp_cat_data X₂}
+            (<span class="nv">ff</span> : Y₁ --&gt;[ f ] Y₂)
+            (<span class="nv">x</span> : X₁)
+            (<span class="nv">y</span> : Y₁ x)
+  : transportf (<span class="k">λ</span> (<span class="nv">z</span> : HSET ⟦ _ , _ ⟧), _ --&gt;[ z ] _) p ff x y
+    =
+    transportf Y₂ (eqtohomot p x) (ff x y).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fam_disp_cat_axioms</span>
+  : disp_cat_axioms SET fam_disp_cat_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> X₁ X₂ f Y₁ Y₂ ff.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    <span class="nb">rewrite</span> fam_disp_cat_transportb.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> (transportf_set Y₂).
+    <span class="nb">apply</span> setproperty.
+  - <span class="nb">intros</span> X₁ X₂ f Y₁ Y₂ ff.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    <span class="nb">rewrite</span> fam_disp_cat_transportb.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> (transportf_set Y₂).
+    <span class="nb">apply</span> setproperty.
+  - <span class="nb">intros</span> X₁ X₂ X₃ X₄ f g h Y₁ Y₂ Y₃ Y₄ ff gg hh.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    <span class="nb">rewrite</span> fam_disp_cat_transportb.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> (transportf_set Y₄).
+    <span class="nb">apply</span> setproperty.
+  - <span class="nb">intros</span> X₁ X₂ f Y₁ Y₂.
+    <span class="nb">apply</span> impred_isaset ; <span class="nb">intro</span> x.
+    <span class="nb">apply</span> impred_isaset ; <span class="nb">intro</span> y.
+    <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat</span>
+  : disp_cat HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> fam_disp_cat_data.
+  - <span class="bp">exact</span> fam_disp_cat_axioms.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Isomorphisms in the displayed category of families of sets *)</span>
+<span class="kn">Definition</span> <span class="nf">make_z_iso_disp_fam_disp_cat</span>
+           {<span class="nv">X</span> : hSet}
+           {<span class="nv">Y₁</span> <span class="nv">Y₂</span> : X → hSet}
+           (<span class="nv">ff</span> : ∏ (x : X), Y₁ x ≃ Y₂ x)
+  : z_iso_disp (D := fam_disp_cat) (identity_z_iso _) Y₁ Y₂.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, ff x y).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, invmap (ff x) y).
+  - <span class="kp">abstract</span>
+      (use funextsec ; <span class="nb">intro</span> x ;
+       use funextsec ; <span class="nb">intro</span> y ;
+       <span class="nb">rewrite</span> fam_disp_cat_transportb ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (homotweqinvweq (ff x) y @ !_) ;
+       <span class="nb">apply</span> (transportf_set Y₂) ;
+       <span class="nb">apply</span> setproperty).
+  - <span class="kp">abstract</span>
+      (use funextsec ; <span class="nb">intro</span> x ;
+       use funextsec ; <span class="nb">intro</span> y ;
+       <span class="nb">rewrite</span> fam_disp_cat_transportb ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (homotinvweqweq (ff x) y @ !_) ;
+       <span class="nb">apply</span> (transportf_set Y₁) ;
+       <span class="nb">apply</span> setproperty).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">from_z_iso_disp_fam_disp_cat</span>
+           {<span class="nv">X</span> : hSet}
+           {<span class="nv">Y₁</span> <span class="nv">Y₂</span> : X → hSet}
+           (<span class="nv">ff</span> : z_iso_disp (D := fam_disp_cat) (identity_z_iso _) Y₁ Y₂)
+           (<span class="nv">x</span> : X)
+  : Y₁ x ≃ Y₂ x.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, pr1 ff x y).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, pr12 ff x y).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> y ;
+       <span class="nb">refine</span> (eqtohomot (eqtohomot (pr222 ff) x) y @ _) ;
+       <span class="nb">rewrite</span> fam_disp_cat_transportb ;
+       <span class="nb">apply</span> (transportf_set Y₁) ;
+       <span class="nb">apply</span> setproperty).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> y ;
+       <span class="nb">refine</span> (eqtohomot (eqtohomot (pr122 ff) x) y @ _) ;
+       <span class="nb">rewrite</span> fam_disp_cat_transportb ;
+       <span class="nb">apply</span> (transportf_set Y₂) ;
+       <span class="nb">apply</span> setproperty).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_z_iso_weq</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">Y₁</span> <span class="nv">Y₂</span> : X → hSet)
+  : (∏ (x : X), Y₁ x ≃ Y₂ x)
+    ≃
+    z_iso_disp (D := fam_disp_cat) (identity_z_iso _) Y₁ Y₂.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ff</span>, make_z_iso_disp_fam_disp_cat ff).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ff</span>, from_z_iso_disp_fam_disp_cat ff).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> ff ;
+       use funextsec ; <span class="nb">intro</span> x ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropisweq | ] ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> ff ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_iso_disp | ] ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. The displayed categories of families of sets is univalent *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_univalent_disp_fam_disp_cat</span>
+  : is_univalent_disp fam_disp_cat.
+<span class="kn">Proof</span>.
+  use is_univalent_disp_from_fibers.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> : hSet) (<span class="nv">Y₁</span> <span class="nv">Y₂</span> : X → hSet), _).
+  use weqhomot.
+  - <span class="bp">exact</span> (fam_disp_cat_z_iso_weq _ _
+           ∘ weqonsecfibers _ _ (<span class="k">λ</span> <span class="nv">x</span>, hSet_univalence _ _)
+           ∘ weqtoforallpaths _ _ _)%weq.
+  - <span class="nb">intro</span> p.
+    <span class="nb">induction</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_z_iso_disp.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_fam_disp_cat</span>
+  : disp_univalent_category HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> fam_disp_cat.
+  - <span class="bp">exact</span> is_univalent_disp_fam_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. A cleaving for this displayed category *)</span>
+<span class="kn">Definition</span> <span class="nf">cleaving_fam_disp_cat</span>
+  : cleaving fam_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X₂</span> <span class="nv">X₁</span> : hSet) (<span class="nv">f</span> : X₁ → X₂) (<span class="nv">Y₂</span> : X₂ → hSet), _).
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> : X₁), Y₂ (f x)).
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, y).
+    + <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X₀</span> : hSet)
+                (<span class="nv">g</span> : X₀ → X₁)
+                (<span class="nv">Y₀</span> : X₀ → hSet)
+                (<span class="nv">gg</span> : ∏ (x : X₀), Y₀ x → Y₂ (f (g x))),
+              _).
+      use make_iscontr.
+      * <span class="bp">exact</span> (gg ,, idpath _).
+      * <span class="kp">abstract</span>
+          (<span class="nb">intros</span> gg' ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homsets_disp | ] ;
+           <span class="bp">exact</span> (pr2 gg')).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. The comprehension functor *)</span>
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_comprehension_data</span>
+  : disp_functor_data (functor_identity _) fam_disp_cat (disp_codomain HSET).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">X</span> : hSet) (<span class="nv">Y</span> : X → hSet), (∑ (x : X), Y x)%<span class="nb">set</span> ,, pr1).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet)
+             (<span class="nv">Y₁</span> : X₁ → hSet)
+             (<span class="nv">Y₂</span> : X₂ → hSet)
+             (<span class="nv">f</span> : X₁ → X₂)
+             (<span class="nv">ff</span> : ∏ (x : X₁), Y₁ x → Y₂ (f x)),
+           (<span class="k">λ</span> (<span class="nv">xy</span> : ∑ (x : X₁), Y₁ x), f (pr1 xy) ,, ff (pr1 xy) (pr2 xy))
+           ,,
+           idpath _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fam_disp_cat_comprehension_axioms</span>
+  : disp_functor_axioms fam_disp_cat_comprehension_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y.
+    use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ].
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X₁ X₂ X₃ Y₁ Y₂ Y₃ f g ff gg.
+    use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ].
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_comprehension</span>
+  : disp_functor (functor_identity _) fam_disp_cat (disp_codomain HSET).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> fam_disp_cat_comprehension_data.
+  - <span class="bp">exact</span> fam_disp_cat_comprehension_axioms.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_cartesian_fam_disp_cat_comprehension</span>
+  : is_cartesian_disp_functor fam_disp_cat_comprehension.
+<span class="kn">Proof</span>.
+  use is_cartesian_disp_functor_chosen_lifts.
+  {
+    <span class="bp">exact</span> cleaving_fam_disp_cat.
+  }
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet) (<span class="nv">f</span> : X₁ → X₂) (<span class="nv">Y</span> : X₂ → hSet), _).
+  use isPullback_cartesian_in_cod_disp.
+  <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">W</span> : hSet) (<span class="nv">g₁</span> : W → ∑ (x : X₂), Y x) (<span class="nv">g₂</span> : W → X₁), _).
+  <span class="nb">intro</span> p.
+  use make_iscontr.
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">w</span> : W),
+             g₂ w
+             ,,
+             transportf Y (eqtohomot p w) (pr2 (g₁ w))).
+    + <span class="kp">abstract</span>
+        (use funextsec ; <span class="nb">intro</span> w ;
+         <span class="nb">refine</span> (!_) ;
+         use total2_paths_f ; [ <span class="bp">exact</span> (eqtohomot p w) | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> h ;
+       use subtypePath ;
+       [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+       use funextsec ; <span class="nb">intro</span> w ;
+       <span class="nb">cbn</span> ;
+       use total2_paths_f ; [ <span class="bp">exact</span> (eqtohomot (pr22 h) w) | ] ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> (functtransportf f Y) ;
+       <span class="nb">pose</span> (fiber_paths (eqtohomot (pr12 h) w)) <span class="k">as</span> q ;
+       <span class="nb">cbn</span> <span class="k">in</span> q ;
+       <span class="nb">rewrite</span> &lt;- q ;
+       <span class="nb">rewrite</span> transport_f_f ;
+       <span class="nb">apply</span> maponpaths_2 ;
+       <span class="nb">apply</span> setproperty).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_functor_ff_fam_disp_cat_comprehension</span>
+  : disp_functor_ff fam_disp_cat_comprehension.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet) (<span class="nv">Y₁</span> : X₁ → hSet) (<span class="nv">Y₂</span> : X₂ → hSet) (<span class="nv">f</span> : X₁ → X₂), _).
+  use isweq_iso.
+  - <span class="nb">cbn</span>.
+    <span class="nb">intros</span> ff x y.
+    <span class="bp">exact</span> (transportf Y₂ (eqtohomot (pr2 ff) (x ,, y)) (pr2 (pr1 ff (x ,, y)))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> ff ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> ff ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+       use funextsec ;
+       <span class="nb">intros</span> xy ; <span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (!_) ;
+       use total2_paths_f ; [ <span class="bp">exact</span> (eqtohomot (pr2 ff) xy) | ] ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Some useful lemmas *)</span>
+<span class="kn">Proposition</span> <span class="nf">fam_disp_cat_fiber_comp</span>
+            {<span class="nv">X</span> : hSet}
+            {<span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">Y₃</span> : X → hSet}
+            (<span class="nv">ff</span> : (fam_disp_cat [{ X }]) ⟦ Y₁ , Y₂ ⟧)
+            (<span class="nv">gg</span> : (fam_disp_cat [{ X }]) ⟦ Y₂ , Y₃ ⟧)
+            {<span class="nv">x</span> : X}
+            (<span class="nv">y</span> : Y₁ x)
+  : (ff · gg) x y = gg x (ff x y).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="bp">exact</span> (fam_disp_cat_transportf (id_right (C := HSET) _) _ x y).
+  }
+  <span class="nb">apply</span> (transportf_set Y₃).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fam_disp_cat_fiber_functor_from_cleaving</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            (<span class="nv">f</span> : X₁ → X₂)
+            {<span class="nv">Y₁</span> <span class="nv">Y₂</span> : X₂ → hSet}
+            (<span class="nv">ff</span> : ∏ (x : X₂), Y₁ x → Y₂ x)
+            {<span class="nv">x</span> : X₁}
+            (<span class="nv">y</span> : Y₁ (f x))
+  : #(fiber_functor_from_cleaving fam_disp_cat cleaving_fam_disp_cat f) ff x y
+    =
+    ff (f x) y.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="bp">exact</span> (fam_disp_cat_transportf (id_right (C := HSET) _ @ !(id_left _)) _ x y).
+  }
+  <span class="nb">apply</span> (transportf_set Y₂).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fam_disp_cat_fiber_functor_from_cleaving_comp</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> : hSet}
+            (<span class="nv">f₁</span> : X₁ → X₂)
+            (<span class="nv">f₂</span> : X₂ → X₃)
+            (<span class="nv">Y</span> : X₃ → hSet)
+            {<span class="nv">x</span> : X₁}
+            (<span class="nv">y</span> : Y (f₂ (f₁ x)))
+  : fiber_functor_from_cleaving_comp cleaving_fam_disp_cat f₂ f₁ Y x y = y.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span> -[fam_disp_cat].
+  etrans.
+  {
+    <span class="bp">exact</span> (fam_disp_cat_transportb _ (_ ;; _)%mor_disp x _).
+  }
+  <span class="nb">apply</span> (transportf_set Y).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fam_disp_cat_fiber_functor_from_cleaving_comp_inv</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> : hSet}
+            (<span class="nv">f₁</span> : X₁ → X₂)
+            (<span class="nv">f₂</span> : X₂ → X₃)
+            (<span class="nv">Y</span> : X₃ → hSet)
+            {<span class="nv">x</span> : X₁}
+            (<span class="nv">y</span> : Y (f₂ (f₁ x)))
+  : fiber_functor_from_cleaving_comp_inv cleaving_fam_disp_cat f₂ f₁ Y x y = y.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span> -[fam_disp_cat].
+  etrans.
+  {
+    <span class="bp">exact</span> (fam_disp_cat_transportf _ _ _ _).
+  }
+  <span class="nb">apply</span> (transportf_set Y).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fam_disp_cat_fiber_functor_on_eq</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            {<span class="nv">f</span> <span class="nv">g</span> : X₁ → X₂}
+            (<span class="nv">p</span> : f = g)
+            (<span class="nv">Y</span> : X₂ → hSet)
+            {<span class="nv">x</span> : X₁}
+            (<span class="nv">y</span> : Y (f x))
+  : fiber_functor_on_eq cleaving_fam_disp_cat p Y x y
+    =
+    transportf Y (eqtohomot p x) y.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fam_disp_cat_comm_nat_z_iso</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> <span class="nv">X₄</span> : hSet}
+            (<span class="nv">f</span> : X₂ → X₁)
+            (<span class="nv">g</span> : X₃ → X₁)
+            (<span class="nv">h</span> : X₄ → X₃)
+            (<span class="nv">k</span> : X₄ → X₂)
+            (<span class="nv">p</span> : (<span class="k">λ</span> <span class="nv">x</span>, f(k x)) = (<span class="k">λ</span> <span class="nv">x</span>, g(h x)))
+            (<span class="nv">Y</span> : X₁ → hSet)
+            {<span class="nv">x</span> : X₄}
+            (<span class="nv">y</span> : Y (f (k x)))
+  : comm_nat_z_iso cleaving_fam_disp_cat f g h k p Y x y
+    =
+    transportf Y (eqtohomot p x) y.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> comm_nat_z_iso_ob.
+  <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> fam_disp_cat_fiber_functor_from_cleaving_comp.
+  }
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> fam_disp_cat_fiber_functor_on_eq.
+  }
+  <span class="nb">apply</span> fam_disp_cat_fiber_functor_from_cleaving_comp_inv.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fam_disp_cat_comm_nat_z_iso_inv</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> <span class="nv">X₄</span> : hSet}
+            (<span class="nv">f</span> : X₂ → X₁)
+            (<span class="nv">g</span> : X₃ → X₁)
+            (<span class="nv">h</span> : X₄ → X₃)
+            (<span class="nv">k</span> : X₄ → X₂)
+            (<span class="nv">p</span> : (<span class="k">λ</span> <span class="nv">x</span>, f(k x)) = (<span class="k">λ</span> <span class="nv">x</span>, g(h x)))
+            (<span class="nv">Y</span> : X₁ → hSet)
+            {<span class="nv">x</span> : X₄}
+            (<span class="nv">y</span> : Y (g (h x)))
+  : comm_nat_z_iso_inv cleaving_fam_disp_cat f g h k p Y x y
+    =
+    transportb Y (eqtohomot p x) y.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> comm_nat_z_iso_inv_ob.
+  <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> fam_disp_cat_fiber_functor_from_cleaving_comp.
+  }
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> fam_disp_cat_fiber_functor_on_eq.
+  }
+  etrans.
+  {
+    <span class="nb">apply</span> fam_disp_cat_fiber_functor_from_cleaving_comp_inv.
+  }
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. The fiberwise terminal object *)</span>
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_fiber_terminal</span>
+           (<span class="nv">X</span> : hSet)
+  : Terminal (fam_disp_cat [{ X }]).
+<span class="kn">Proof</span>.
+  use make_Terminal.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> : X), unitset).
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">Y</span> : X → hSet), _).
+    use make_iscontr.
+    + <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y x), tt).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> ff ;
+         use funextsec ; <span class="nb">intro</span> x ;
+         use funextsec ; <span class="nb">intro</span> y ;
+         <span class="nb">apply</span> isapropunit).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_terminal_fiber_functor_fam_disp_cat</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            (<span class="nv">f</span> : X₁ → X₂)
+  : preserves_terminal
+      (fiber_functor_from_cleaving fam_disp_cat cleaving_fam_disp_cat f).
+<span class="kn">Proof</span>.
+  use preserves_terminal_if_preserves_chosen.
+  {
+    <span class="nb">apply</span> fam_disp_cat_fiber_terminal.
+  }
+  use iso_to_Terminal.
+  {
+    <span class="nb">apply</span> fam_disp_cat_fiber_terminal.
+  }
+  use make_z_iso.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, tt).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, tt).
+  - <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (use funextsec ; <span class="nb">intro</span> x ;
+         use funextsec ; <span class="nb">intro</span> y ;
+         <span class="nb">apply</span> isapropunit).
+    + <span class="kp">abstract</span>
+        (use funextsec ; <span class="nb">intro</span> x ;
+         use funextsec ; <span class="nb">intro</span> y ;
+         <span class="nb">apply</span> isapropunit).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_fiberwise_terminal</span>
+  : fiberwise_terminal cleaving_fam_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> fam_disp_cat_fiber_terminal.
+  - <span class="nb">intros</span> X₁ X₂ f.
+    <span class="bp">exact</span> (preserves_terminal_fiber_functor_fam_disp_cat f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 8. Fiberwise binary products *)</span>
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_fiber_binproducts</span>
+           (<span class="nv">X</span> : hSet)
+  : BinProducts (fam_disp_cat [{ X }]).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">Y₁</span> <span class="nv">Y₂</span> : X → hSet), _).
+  use make_BinProduct.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> : X), Y₁ x × Y₂ x)%<span class="nb">set</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y₁ x × Y₂ x), pr1 y).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y₁ x × Y₂ x), pr2 y).
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">Y₀</span> : X → hSet)
+              (<span class="nv">ff</span> : ∏ (x : X), Y₀ x → Y₁ x)
+              (<span class="nv">gg</span> : ∏ (x : X), Y₀ x → Y₂ x), _).
+    use make_iscontr.
+    + <span class="nb">refine</span> ((<span class="k">λ</span> (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y₀ x), ff x y ,, gg x y) ,, _ ,, _).
+      * <span class="kp">abstract</span>
+          (use funextsec ; <span class="nb">intro</span> x ;
+           use funextsec ; <span class="nb">intro</span> y ;
+           <span class="nb">apply</span> fam_disp_cat_fiber_comp).
+      * <span class="kp">abstract</span>
+          (use funextsec ; <span class="nb">intro</span> x ;
+           use funextsec ; <span class="nb">intro</span> y ;
+           <span class="nb">apply</span> fam_disp_cat_fiber_comp).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> hh ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+         use funextsec ; <span class="nb">intro</span> x ;
+         use funextsec ; <span class="nb">intro</span> y ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">pose</span> (p₁ := eqtohomot (eqtohomot (pr12 hh) x) y) ;
+         <span class="nb">pose</span> (p₂ := eqtohomot (eqtohomot (pr22 hh) x) y) ;
+         <span class="nb">rewrite</span> fam_disp_cat_fiber_comp <span class="k">in</span> p₁ ;
+         <span class="nb">rewrite</span> fam_disp_cat_fiber_comp <span class="k">in</span> p₂ ;
+         <span class="bp">exact</span> (pathsdirprod p₁ p₂)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_binproduct_fiber_functor_fam_disp_cat</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            (<span class="nv">f</span> : X₁ → X₂)
+  : preserves_binproduct
+      (fiber_functor_from_cleaving fam_disp_cat cleaving_fam_disp_cat f).
+<span class="kn">Proof</span>.
+  use preserves_binproduct_if_preserves_chosen.
+  {
+    <span class="nb">apply</span> fam_disp_cat_fiber_binproducts.
+  }
+  <span class="nb">intros</span> Y₁ Y₂.
+  use (isBinProduct_z_iso (isBinProduct_BinProduct _ (fam_disp_cat_fiber_binproducts _ _ _))).
+  - use make_z_iso.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, y).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, y).
+    + <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         use funextsec ; <span class="nb">intro</span> x ;
+         use funextsec ; <span class="nb">intro</span> y ;
+         <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  - use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    <span class="nb">cbn</span> -[fiber_category fiber_functor_from_cleaving].
+    etrans.
+    {
+      <span class="nb">apply</span> fam_disp_cat_fiber_functor_from_cleaving.
+    }
+    <span class="nb">rewrite</span> fam_disp_cat_fiber_comp.
+    <span class="nb">apply</span> idpath.
+  - use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    <span class="nb">cbn</span> -[fiber_category fiber_functor_from_cleaving].
+    etrans.
+    {
+      <span class="nb">apply</span> fam_disp_cat_fiber_functor_from_cleaving.
+    }
+    <span class="nb">rewrite</span> fam_disp_cat_fiber_comp.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_fiberwise_binproduct</span>
+  : fiberwise_binproducts cleaving_fam_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> fam_disp_cat_fiber_binproducts.
+  - <span class="nb">intros</span> X₁ X₂ f.
+    <span class="bp">exact</span> (preserves_binproduct_fiber_functor_fam_disp_cat f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 9. Fiberwise equalizers *)</span>
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_fiber_equalizers</span>
+           (<span class="nv">X</span> : hSet)
+  : Equalizers (fam_disp_cat [{ X }]).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">Y₁</span> <span class="nv">Y₂</span> : X → hSet) (<span class="nv">ff</span> <span class="nv">gg</span> : ∏ (x : X), Y₁ x → Y₂ x), _).
+  use make_Equalizer.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> : X), ∑ (y : Y₁ x), hProp_to_hSet (ff x y = gg x y)%logic)%<span class="nb">set</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> : X) (<span class="nv">e</span> : ∑ (y : Y₁ x), ff x y = gg x y), pr1 e).
+  - <span class="kp">abstract</span>
+      (use funextsec ; <span class="nb">intro</span> x ;
+       use funextsec ; <span class="nb">intro</span> e ;
+       <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp ;
+       <span class="bp">exact</span> (pr2 e)).
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">Y₀</span> : X → hSet) (<span class="nv">hh</span> : ∏ (x : X), Y₀ x → Y₁ x), _).
+    <span class="nb">intro</span> p.
+    use make_iscontr.
+    + <span class="nb">simple refine</span> ((<span class="k">λ</span> (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y₀ x), hh x y ,, _) ,, _).
+      * <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">pose</span> (q := eqtohomot (eqtohomot p x) y) ;
+           <span class="nb">cbn</span> -[fiber_category] <span class="k">in</span> q ;
+           <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp <span class="k">in</span> q ;
+           <span class="bp">exact</span> q).
+      * <span class="kp">abstract</span>
+          (use funextsec ; <span class="nb">intro</span> x ;
+           use funextsec ; <span class="nb">intro</span> y ;
+           <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> kk ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+         use funextsec ; <span class="nb">intro</span> x ;
+         use funextsec ; <span class="nb">intro</span> y ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">pose</span> (q := eqtohomot (eqtohomot (pr2 kk) x) y) ;
+         <span class="nb">rewrite</span> fam_disp_cat_fiber_comp <span class="k">in</span> q ;
+         <span class="bp">exact</span> q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_equalizer_fiber_functor_fam_disp_cat</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            (<span class="nv">f</span> : X₁ → X₂)
+  : preserves_equalizer
+      (fiber_functor_from_cleaving fam_disp_cat cleaving_fam_disp_cat f).
+<span class="kn">Proof</span>.
+  use preserves_equalizer_if_preserves_chosen.
+  {
+    <span class="nb">apply</span> fam_disp_cat_fiber_equalizers.
+  }
+  <span class="nb">intros</span> Y₁ Y₂ ff gg p.
+  use (isEqualizer_z_iso (isEqualizer_Equalizer (fam_disp_cat_fiber_equalizers _ _ _ _ _))).
+  - use make_z_iso.
+    + <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, pr1 y ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> -[fiber_functor_from_cleaving] ;
+         <span class="nb">rewrite</span> !(fam_disp_cat_fiber_functor_from_cleaving f) ;
+         <span class="bp">exact</span> (pr2 y)).
+    + <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, pr1 y ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> -[fiber_functor_from_cleaving] ;
+         <span class="nb">pose</span> (q := pr2 y) ;
+         <span class="nb">cbn</span> -[fiber_functor_from_cleaving] <span class="k">in</span> q ;
+         <span class="nb">rewrite</span> !(fam_disp_cat_fiber_functor_from_cleaving f) <span class="k">in</span> q ;
+         <span class="bp">exact</span> q).
+    + <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         use funextsec ; <span class="nb">intro</span> x ;
+         use funextsec ; <span class="nb">intro</span> y ;
+         <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+         <span class="nb">cbn</span> ;
+         (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ]) ;
+         <span class="nb">apply</span> idpath).
+  - use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    <span class="nb">cbn</span> -[fiber_functor_from_cleaving fiber_category].
+    <span class="nb">rewrite</span> (fam_disp_cat_fiber_functor_from_cleaving f).
+    <span class="nb">rewrite</span> fam_disp_cat_fiber_comp.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_fiberwise_equalizers</span>
+  : fiberwise_equalizers cleaving_fam_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> fam_disp_cat_fiber_equalizers.
+  - <span class="nb">intros</span> X₁ X₂ f.
+    <span class="bp">exact</span> (preserves_equalizer_fiber_functor_fam_disp_cat f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 10. The family of elements equal to some given element *)</span>
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_eq_fam</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">x</span> : X)
+  : X → hSet
+  := (<span class="k">λ</span> (<span class="nv">x'</span> : X), hProp_to_hSet (x = x'))%logic.
+
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_eq_fam_mor</span>
+           {<span class="nv">X</span> : hSet}
+           {<span class="nv">Y</span> : X → hSet}
+           {<span class="nv">x</span> : X}
+           (<span class="nv">y</span> : Y x)
+  : fam_disp_cat[{X}] ⟦ fam_disp_cat_eq_fam x , Y ⟧
+  := <span class="k">λ</span> (<span class="nv">x'</span> : X) <span class="nv">p</span>, transportf Y p y.
+
+<span class="sd">(** * 11. The fiberwise subobject classifier *)</span>
+<span class="kn">Definition</span> <span class="nf">prop_set_fam</span>
+           (<span class="nv">X</span> : hSet)
+  : fam_disp_cat[{X}]
+  := <span class="k">λ</span> <span class="nv">_</span>, hPropset.
+
+<span class="kn">Definition</span> <span class="nf">set_fam_truth_mor</span>
+           (<span class="nv">X</span> : hSet)
+  : fam_disp_cat[{X}] ⟦ fam_disp_cat_fiber_terminal X, prop_set_fam X ⟧
+  := <span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, htrue.
+
+<span class="kn">Section</span> <span class="nf">FiberSubobjectClassifier</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : hSet}
+          {<span class="nv">Y₁</span> <span class="nv">Y₂</span> : X → hSet}
+          (<span class="nv">mM</span> : Monic (fam_disp_cat[{X}]) Y₁ Y₂).
+
+  <span class="kn">Let</span> <span class="nf">m</span> : ∏ (x : X), Y₁ x → Y₂ x := pr1 mM.
+
+  <span class="kn">Proposition</span> <span class="nf">fam_disp_cat_fiber_monic_pt</span>
+              {<span class="nv">x</span> : X}
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : Y₁ x}
+              (<span class="nv">p</span> : m x y₁ = m x y₂)
+    : y₁ = y₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (fam_disp_cat_eq_fam_mor y₁ · pr1 mM = fam_disp_cat_eq_fam_mor y₂ · pr1 mM)
+      <span class="k">as</span> q.
+    {
+      use funextsec ; <span class="nb">intro</span> x'.
+      use funextsec ; <span class="nb">intro</span> q.
+      <span class="nb">cbn</span> <span class="k">in</span> q.
+      <span class="nb">induction</span> q.
+      <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp.
+      <span class="nb">cbn</span>.
+      <span class="bp">exact</span> p.
+    }
+    <span class="nb">pose</span> (eqtohomot (eqtohomot (pr2 mM _ _ _ q) x) (idpath _)) <span class="k">as</span> r.
+    <span class="nb">cbn</span> <span class="k">in</span> r.
+    <span class="bp">exact</span> r.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fam_disp_cat_characteristic_mor</span>
+    : fam_disp_cat[{X}] ⟦ Y₂ , prop_set_fam X ⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use make_hProp.
+    - <span class="bp">exact</span> (∑ (y' : Y₁ x), m x y' = y).
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> z₁ z₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+         use fam_disp_cat_fiber_monic_pt ;
+         <span class="bp">exact</span> (pr2 z₁ @ !(pr2 z₂))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">fam_disp_cat_characteristic_mor_eq</span>
+    : mM · fam_disp_cat_characteristic_mor
+      =
+      TerminalArrow (fam_disp_cat_fiber_terminal X) Y₁ · set_fam_truth_mor X.
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp.
+    use hPropUnivalence.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, tt).
+    - <span class="nb">intros</span> _ ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (y ,, _).
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fam_disp_cat_characteristic_ex_unique</span>
+             {<span class="nv">x</span> : X}
+             (<span class="nv">y</span> : Y₂ x)
+             (<span class="nv">q</span> : fam_disp_cat_characteristic_mor x y = htrue)
+    : <span class="k">∃</span>! (y' : Y₁ x), m x y' = y.
+  <span class="kn">Proof</span>.
+    use iscontraprop1.
+    - use invproofirrelevance.
+      <span class="nb">intros</span> ξ₁ ξ₂.
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ].
+      use fam_disp_cat_fiber_monic_pt.
+      <span class="bp">exact</span> (pr2 ξ₁ @ !(pr2 ξ₂)).
+    - <span class="bp">exact</span> (pr2 (weqlogeq _ _ q) tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">fam_disp_cat_characteristic_ex_unique_eq</span>
+              {<span class="nv">x</span> : X}
+              (<span class="nv">y</span> : Y₂ x)
+              (<span class="nv">q</span> : fam_disp_cat_characteristic_mor x y = htrue)
+              (<span class="nv">y'</span> : Y₁ x)
+              (<span class="nv">r</span> : m x y' = y)
+    : y' = pr11 (fam_disp_cat_characteristic_ex_unique y q).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths pr1 (pr2 (fam_disp_cat_characteristic_ex_unique y q) (_ ,, _))).
+    <span class="bp">exact</span> r.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">fam_disp_cat_characteristic_pb</span>
+    : isPullback fam_disp_cat_characteristic_mor_eq.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">Y₀</span> : X → hSet)
+              (<span class="nv">ff</span> : ∏ (x : X), Y₀ x → Y₂ x)
+              (<span class="nv">gg</span> : ∏ (x : X), Y₀ x → unit), _).
+    <span class="nb">intro</span> p.
+    use make_iscontr.
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">x</span> : X) (<span class="nv">y</span> : Y₀ x),
+                pr11 (fam_disp_cat_characteristic_ex_unique (ff x y) _)).
+        <span class="kp">abstract</span>
+          (<span class="nb">pose</span> (eqtohomot (eqtohomot p x) y) <span class="k">as</span> q ;
+           <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp <span class="k">in</span> q ;
+           <span class="nb">refine</span> (q @ _) ;
+           <span class="nb">assert</span> (gg x y = tt) <span class="k">as</span> -&gt; <span class="bp">by</span> <span class="nb">apply</span> isapropunit ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (use funextsec ; <span class="nb">intro</span> x ;
+           use funextsec ; <span class="nb">intro</span> y ;
+           <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+           <span class="bp">exact</span> (pr21 (fam_disp_cat_characteristic_ex_unique _ _))).
+      + <span class="kp">abstract</span>
+          (use funextsec ;
+           <span class="nb">intro</span> x ;
+           use funextsec ;
+           <span class="nb">intro</span> y ;
+           <span class="nb">apply</span> isapropunit).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> ξ ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+         use funextsec ;
+         <span class="nb">intro</span> x ;
+         use funextsec ;
+         <span class="nb">intro</span> y ;
+         <span class="nb">cbn</span> ;
+         use fam_disp_cat_characteristic_ex_unique_eq ;
+         <span class="nb">refine</span> (_ @ eqtohomot (eqtohomot (pr12 ξ) x) y) ;
+         <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">fam_disp_cat_characteristic_unique</span>
+              (<span class="nv">χ</span> : fam_disp_cat[{X}] ⟦ Y₂ , prop_set_fam X ⟧)
+              (<span class="nv">p</span> : mM · χ
+                   =
+                   TerminalArrow (fam_disp_cat_fiber_terminal X) Y₁ · set_fam_truth_mor X)
+              (<span class="nv">H</span> : isPullback p)
+    : χ = fam_disp_cat_characteristic_mor.
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use hPropUnivalence ; <span class="nb">cbn</span>.
+    - <span class="nb">pose</span> (PB := make_Pullback _ H).
+      <span class="nb">intros</span> z.
+      <span class="nb">assert</span> (fam_disp_cat_eq_fam_mor y · χ
+              =
+              fam_disp_cat_eq_fam_mor (Y := <span class="k">λ</span> <span class="nv">_</span>, unitset) tt · set_fam_truth_mor X)
+        <span class="k">as</span> r.
+      {
+        use funextsec ; <span class="nb">intro</span> x'.
+        use funextsec ; <span class="nb">intro</span> q.
+        <span class="nb">cbn</span> <span class="k">in</span> q.
+        <span class="nb">induction</span> q.
+        <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp.
+        <span class="nb">cbn</span>.
+        use hPropUnivalence.
+        {
+          <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, tt).
+        }
+        <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, z).
+      }
+      <span class="nb">pose</span> (PullbackArrow
+              PB
+              (fam_disp_cat_eq_fam x)
+              (fam_disp_cat_eq_fam_mor y)
+              (fam_disp_cat_eq_fam_mor (Y := <span class="k">λ</span> <span class="nv">_</span>, unitset) tt)
+              r)
+        <span class="k">as</span> h.
+      <span class="nb">cbn</span> <span class="k">in</span> h.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (h x (idpath _)).
+      + <span class="nb">cbn</span>.
+        <span class="nb">pose</span> (PullbackArrow_PullbackPr1
+                PB
+                (fam_disp_cat_eq_fam x)
+                (fam_disp_cat_eq_fam_mor y)
+                (fam_disp_cat_eq_fam_mor (Y := <span class="k">λ</span> <span class="nv">_</span>, unitset) tt)
+                r)
+          <span class="k">as</span> r'.
+        <span class="nb">refine</span> (_ @ eqtohomot (eqtohomot r' x) (idpath _)).
+        <span class="nb">rewrite</span> fam_disp_cat_fiber_comp.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> [ y' q ].
+      <span class="nb">rewrite</span> &lt;- q.
+      <span class="nb">pose</span> (eqtohomot (eqtohomot p x) y') <span class="k">as</span> r.
+      <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp <span class="k">in</span> r.
+      <span class="nb">cbn</span> <span class="k">in</span> r.
+      <span class="bp">exact</span> (pr2 (weqlogeq _ _ r) tt).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">FiberSubobjectClassifier</span>.
+
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_fiber_subobject_classifier</span>
+           (<span class="nv">X</span> : hSet)
+  : subobject_classifier (fam_disp_cat_fiber_terminal X).
+<span class="kn">Proof</span>.
+  use make_subobject_classifier.
+  - <span class="bp">exact</span> (prop_set_fam X).
+  - <span class="bp">exact</span> (set_fam_truth_mor X).
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">Y₁</span> <span class="nv">Y₂</span> : X → hSet) (<span class="nv">m</span> : Monic (fam_disp_cat[{X}]) Y₁ Y₂), _).
+    use make_iscontr.
+    + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      * <span class="bp">exact</span> (fam_disp_cat_characteristic_mor m).
+      * <span class="bp">exact</span> (fam_disp_cat_characteristic_mor_eq m).
+      * <span class="bp">exact</span> (fam_disp_cat_characteristic_pb m).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> χ ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ;
+           <span class="nb">apply</span> isaproptotal2 ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_isPullback | ] ;
+           <span class="nb">intros</span> ;
+           <span class="nb">apply</span> homset_property
+         | ] ;
+         <span class="bp">exact</span> (fam_disp_cat_characteristic_unique m (pr1 χ) (pr12 χ) (pr22 χ))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">preserves_subobject_classifier_fiber_functor_fam_disp_cat</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            (<span class="nv">f</span> : X₁ → X₂)
+  : preserves_subobject_classifier
+      (fiber_functor_from_cleaving fam_disp_cat cleaving_fam_disp_cat f)
+      (fam_disp_cat_fiber_terminal X₂)
+      (fam_disp_cat_fiber_terminal X₁)
+      (preserves_terminal_fiber_functor_fam_disp_cat f).
+<span class="kn">Proof</span>.
+  use preserves_chosen_to_preserves_subobject_classifier'.
+  - use is_univalent_fiber.
+    <span class="nb">apply</span> is_univalent_disp_fam_disp_cat.
+  - use is_univalent_fiber.
+    <span class="nb">apply</span> is_univalent_disp_fam_disp_cat.
+  - <span class="nb">apply</span> fam_disp_cat_fiber_subobject_classifier.
+  - use (z_iso_to_is_subobject_classifier
+           (C := univalent_fiber_category univalent_fam_disp_cat _)).
+    + <span class="nb">apply</span> fam_disp_cat_fiber_subobject_classifier.
+    + use make_z_iso.
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">P</span>, P).
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">P</span>, P).
+      * <span class="kp">abstract</span>
+          (<span class="nb">split</span> ;
+           use funextsec ; <span class="nb">intro</span> x ;
+           use funextsec ; <span class="nb">intro</span> y ;
+           <span class="nb">apply</span> fam_disp_cat_fiber_comp).
+    + use funextsec ; <span class="nb">intro</span> x.
+      use funextsec ; <span class="nb">intro</span> y.
+      <span class="nb">cbn</span> -[fiber_functor_from_cleaving fiber_category].
+      <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp.
+      <span class="nb">rewrite</span> !(fam_disp_cat_fiber_functor_from_cleaving f).
+      <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fam_disp_cat_fiberwise_subobject_classifier</span>
+  : fiberwise_subobject_classifier fam_disp_cat_fiberwise_terminal.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> fam_disp_cat_fiber_subobject_classifier.
+  - <span class="nb">intros</span> X₁ X₂ f.
+    <span class="bp">exact</span> (preserves_subobject_classifier_fiber_functor_fam_disp_cat f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 12. The fiberwise parameterized natural numbers object *)</span>
+<span class="kn">Section</span> <span class="nf">NNO</span>.
+  <span class="kn">Context</span> (<span class="nv">X</span> : hSet).
+
+  <span class="kn">Definition</span> <span class="nf">fam_disp_cat_nno_fam</span>
+             (<span class="nv">x</span> : X)
+    : hSet
+    := natset.
+
+  <span class="kn">Definition</span> <span class="nf">fam_disp_cat_nno_Z</span>
+    : fam_disp_cat[{X}] ⟦ fam_disp_cat_fiber_terminal X , fam_disp_cat_nno_fam ⟧
+    := <span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, <span class="mi">0</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fam_disp_cat_nno_S</span>
+    : fam_disp_cat[{X}] ⟦ fam_disp_cat_nno_fam , fam_disp_cat_nno_fam ⟧
+    := <span class="k">λ</span> <span class="nv">_</span> <span class="nv">n</span>, S n.
+
+  <span class="kn">Definition</span> <span class="nf">fam_disp_cat_nno_rec</span>
+             {<span class="nv">Y₁</span> <span class="nv">Y₂</span> : X → hSet}
+             (<span class="nv">zy</span> : ∏ (x : X), Y₁ x → Y₂ x)
+             (<span class="nv">sy</span> : ∏ (x : X), Y₂ x → Y₂ x)
+             (<span class="nv">x</span> : X)
+             (<span class="nv">yn</span> : Y₁ x × ℕ)
+    : Y₂ x.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> yn <span class="k">as</span> [ y n ].
+    <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ].
+    - <span class="bp">exact</span> (zy x y).
+    - <span class="bp">exact</span> (sy x IHn).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fam_disp_cat_fiber_parameterized_NNO</span>
+    : parameterized_NNO
+        (fam_disp_cat_fiber_terminal X)
+        (fam_disp_cat_fiber_binproducts X).
+  <span class="kn">Proof</span>.
+    use make_parameterized_NNO.
+    - <span class="bp">exact</span> fam_disp_cat_nno_fam.
+    - <span class="bp">exact</span> fam_disp_cat_nno_Z.
+    - <span class="bp">exact</span> fam_disp_cat_nno_S.
+    - <span class="nb">intros</span> Y₁ Y₂ zy sy.
+      use make_iscontr.
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (fam_disp_cat_nno_rec zy sy).
+        * <span class="kp">abstract</span>
+            (use funextsec ; <span class="nb">intro</span> x ;
+             use funextsec ; <span class="nb">intro</span> z ;
+             <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+             <span class="nb">cbn</span> -[fiber_category] ;
+             <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+             <span class="nb">cbn</span> ;
+             <span class="nb">apply</span> idpath).
+        * <span class="kp">abstract</span>
+            (use funextsec ; <span class="nb">intro</span> x ;
+             use funextsec ; <span class="nb">intro</span> z ;
+             <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp ;
+             <span class="nb">cbn</span> -[fiber_category] ;
+             <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp ;
+             <span class="nb">cbn</span> ;
+             <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> [ φ [ φz φs ]] ;
+           use subtypePath ;
+           [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+           use funextsec ;
+           <span class="nb">intro</span> x ;
+           use funextsec ; <span class="nb">cbn</span> ;
+           <span class="nb">intro</span> yn ;
+           <span class="nb">induction</span> yn <span class="k">as</span> [ y n ] ;
+           <span class="nb">pose</span> (p := eqtohomot (eqtohomot φz x) y) ;
+           <span class="nb">rewrite</span> fam_disp_cat_fiber_comp <span class="k">in</span> p ;
+           <span class="nb">cbn</span> -[fiber_category] <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> fam_disp_cat_fiber_comp <span class="k">in</span> p ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ] ; <span class="nb">cbn</span> ; [ <span class="bp">exact</span> p | ] ;
+           <span class="nb">pose</span> (q := eqtohomot (eqtohomot φs x) (y ,, n)) ;
+           <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp <span class="k">in</span> q ;
+           <span class="nb">cbn</span> -[fiber_category] <span class="k">in</span> q ;
+           <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp <span class="k">in</span> q ;
+           <span class="nb">cbn</span> <span class="k">in</span> q ;
+           <span class="nb">refine</span> (q @ _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> IHn).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">NNO</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_fiberwise_nno_stable</span>
+           {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+           (<span class="nv">f</span> : X₁ → X₂)
+  : preserves_parameterized_NNO
+      (fam_disp_cat_fiber_parameterized_NNO X₂)
+      (fam_disp_cat_fiber_parameterized_NNO X₁)
+      (fiber_functor_from_cleaving
+         fam_disp_cat
+         cleaving_fam_disp_cat
+         f)
+      (preserves_terminal_fiber_functor_fam_disp_cat f).
+<span class="kn">Proof</span>.
+  use make_is_z_isomorphism.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">n</span>, n).
+  - <span class="kp">abstract</span>
+      (<span class="nb">split</span> ;
+       use funextsec ; <span class="nb">intro</span> x ;
+       use funextsec ; <span class="nb">intro</span> n ;
+       <span class="nb">rewrite</span> fam_disp_cat_fiber_comp ;
+       <span class="nb">unfold</span> preserves_parameterized_NNO_mor, is_NNO_parameterized_NNO_mor ;
+       <span class="nb">cbn</span> -[fiber_category fiber_functor_from_cleaving] ;
+       <span class="nb">unfold</span> fam_disp_cat_nno_rec ;
+       <span class="nb">rewrite</span> !fam_disp_cat_fiber_comp ;
+       <span class="nb">rewrite</span> (fam_disp_cat_fiber_functor_from_cleaving f) ;
+       <span class="nb">cbn</span> -[fiber_functor_from_cleaving] ;
+       (<span class="nb">induction</span> n <span class="k">as</span> [ | n IHn ] ; [ <span class="nb">apply</span> idpath | ]) ;
+       <span class="nb">cbn</span> -[fiber_category fiber_functor_from_cleaving] ;
+       <span class="nb">rewrite</span> (fam_disp_cat_fiber_functor_from_cleaving f) ; <span class="nb">refine</span> (maponpaths S _) ;
+       <span class="bp">exact</span> IHn).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Examples/SetFams.v</tt>, line 39)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  12. The fiberwise parameterized natural numbers object
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

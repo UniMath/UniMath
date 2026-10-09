@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Truncation.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Propositional truncation in comprehension categories</span>
+
+<span class="sd"> We defined when a comprehension category is equipped with a universe type, and we constructed</span>
+<span class="sd"> a biequivalence between the bicategory of univalent DFL full comprehension categories with a</span>
+<span class="sd"> universe type and the bicategory of univalent categories with finite limits and a universe</span>
+<span class="sd"> type. Our next goal is to extended this biequivalence to cover universes that are closed under</span>
+<span class="sd"> certain type formers as well. We consider various type formers, and these are given in various</span>
+<span class="sd"> files. In this file, we consider codes for the propositional truncation. We use the same ideas</span>
+<span class="sd"> for each type former, and these are explained in the file `Constant.v`</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Codes for propositional truncations</span>
+<span class="sd"> 2. Accessors and builders</span>
+<span class="sd"> 3. Stability</span>
+
+<span class="sd">                                                                                           *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpiFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.HPropMono.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.ComprehensionPreservation.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.CompCatOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.UniverseType.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUniv.DFLCompCatUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CompCatUnivProps.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.DFLCompCatExamples.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="kn">Section</span> <span class="nf">TypesInCompCatUniv</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : dfl_full_comp_cat_with_univ).
+
+  <span class="kn">Let</span> <span class="nf">el</span> : comp_cat_univ_type (dfl_full_comp_cat_ob C)
+    := dfl_full_comp_cat_el C.
+
+  <span class="kn">Section</span> <span class="nf">TruncationCode</span>.
+    <span class="kn">Context</span> (<span class="nv">HC</span> : fiberwise_cat_property
+                    regular_local_property
+                    (dfl_full_comp_cat_with_univ_types C)).
+
+    <span class="sd">(** * 1. Codes for propositional truncations *)</span>
+    <span class="kn">Definition</span> <span class="nf">truncation_in_comp_cat_univ</span>
+      : UU
+      := ∏ (Γ : C)
+           (a : tm Γ (dfl_full_comp_cat_univ Γ))
+           (A := comp_cat_univ_el el a),
+         ∑ (trunc : tm Γ (dfl_full_comp_cat_univ Γ))
+           (f : z_iso
+                  (Γ &amp; comp_cat_univ_el el trunc)
+                  (Γ &amp; regular_local_property_trunc HC A)),
+         f · π _ = π _.
+
+    <span class="kn">Proposition</span> <span class="nf">isaset_truncation_in_comp_cat_univ</span>
+      : isaset truncation_in_comp_cat_univ.
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">2</span> (use impred_isaset ; <span class="nb">intro</span>).
+      use isaset_total2.
+      - <span class="nb">apply</span> isaset_comp_cat_tm.
+      - <span class="nb">intro</span>.
+        use isaset_total2.
+        + <span class="nb">apply</span> isaset_z_iso.
+        + <span class="nb">intro</span>.
+          <span class="nb">apply</span> isasetaprop.
+          <span class="nb">apply</span> homset_property.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** * 2. Accessors and builders *)</span>
+    <span class="kn">Definition</span> <span class="nf">make_truncation_in_comp_cat_univ</span>
+               (<span class="nv">trunc</span> : ∏ (Γ : C)
+                          (a : tm Γ (dfl_full_comp_cat_univ Γ)),
+                       tm Γ (dfl_full_comp_cat_univ Γ))
+               (<span class="nv">f</span> : ∏ (Γ : C)
+                      (a : tm Γ (dfl_full_comp_cat_univ Γ)),
+                    z_iso
+                      (Γ &amp; comp_cat_univ_el el (trunc Γ a))
+                      (Γ &amp; regular_local_property_trunc
+                             HC
+                             (comp_cat_univ_el el a)))
+               (<span class="nv">p</span> : ∏ (Γ : C)
+                      (a : tm Γ (dfl_full_comp_cat_univ Γ)),
+                    f Γ a · π _ = π _)
+    : truncation_in_comp_cat_univ
+    := <span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">a</span>, trunc Γ a ,, f Γ a ,, p Γ a.
+
+    <span class="kn">Definition</span> <span class="nf">truncation_in_comp_cat_univ_code</span>
+               (<span class="nv">trunc</span> : truncation_in_comp_cat_univ)
+               {<span class="nv">Γ</span> : C}
+               (<span class="nv">a</span> : tm Γ (dfl_full_comp_cat_univ Γ))
+      : tm Γ (dfl_full_comp_cat_univ Γ)
+      := pr1 (trunc Γ a).
+
+    <span class="kn">Definition</span> <span class="nf">truncation_in_comp_cat_univ_z_iso</span>
+               (<span class="nv">trunc</span> : truncation_in_comp_cat_univ)
+               {<span class="nv">Γ</span> : C}
+               (<span class="nv">a</span> : tm Γ (dfl_full_comp_cat_univ Γ))
+      : z_iso
+          (Γ &amp; comp_cat_univ_el el (truncation_in_comp_cat_univ_code trunc a))
+          (Γ &amp; regular_local_property_trunc
+                 HC
+                 (comp_cat_univ_el el a))
+      := pr12 (trunc Γ a).
+
+    <span class="kn">Proposition</span> <span class="nf">truncation_in_comp_cat_univ_comm</span>
+                (<span class="nv">trunc</span> : truncation_in_comp_cat_univ)
+                {<span class="nv">Γ</span> : C}
+                (<span class="nv">a</span> : tm Γ (dfl_full_comp_cat_univ Γ))
+      : truncation_in_comp_cat_univ_z_iso trunc a · π _ = π _.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr22 (trunc Γ a)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">truncation_in_comp_cat_univ_z_iso_fiber</span>
+               (<span class="nv">trunc</span> : truncation_in_comp_cat_univ)
+               {<span class="nv">Γ</span> : C}
+               (<span class="nv">a</span> : tm Γ (dfl_full_comp_cat_univ Γ))
+      : z_iso
+          (C := fiber_category _ _)
+          (comp_cat_univ_el el (truncation_in_comp_cat_univ_code trunc a))
+          (regular_local_property_trunc
+             HC
+             (comp_cat_univ_el el a)).
+    <span class="kn">Proof</span>.
+      use cod_iso_to_type_iso.
+      - <span class="bp">exact</span> (truncation_in_comp_cat_univ_z_iso trunc a).
+      - <span class="bp">exact</span> (truncation_in_comp_cat_univ_comm trunc a).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">trunc_in_comp_cat_univ_eq</span>
+                {<span class="nv">trunc₁</span> <span class="nv">trunc₂</span> : truncation_in_comp_cat_univ}
+                (<span class="nv">p</span> : ∏ (Γ : C)
+                       (a : tm Γ (dfl_full_comp_cat_univ Γ)),
+                     truncation_in_comp_cat_univ_code trunc₁ a
+                     =
+                     truncation_in_comp_cat_univ_code trunc₂ a)
+      : trunc₁ = trunc₂.
+    <span class="kn">Proof</span>.
+      use funextsec ; <span class="nb">intro</span> Γ.
+      use funextsec ; <span class="nb">intro</span> a.
+      use total2_paths_f.
+      - <span class="bp">exact</span> (p Γ a).
+      - use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">rewrite</span> pr1_transportf.
+        use z_iso_eq.
+        etrans.
+        {
+          <span class="nb">apply</span> (pr1_transportf
+                   (P := <span class="k">λ</span> (<span class="nv">x</span> : tm Γ (dfl_full_comp_cat_univ Γ))
+                           (<span class="nv">f</span> : Γ &amp; comp_cat_univ_el el x --&gt; _),
+                      is_z_isomorphism _)).
+        }
+        etrans.
+        {
+          <span class="bp">exact</span> (transportf_comp_cat_univ_el el (p Γ a) _).
+        }
+        use (hprop_ty_to_mono_ty (is_hprop_ty_trunc HC (comp_cat_univ_el el a))).
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (truncation_in_comp_cat_univ_comm trunc₁ a).
+        }
+        <span class="nb">rewrite</span> comp_cat_comp_mor_comm.
+        <span class="nb">refine</span> (!_).
+        <span class="bp">exact</span> (truncation_in_comp_cat_univ_comm trunc₂ a).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">truncation_in_comp_cat_univ_code_eq</span>
+                (<span class="nv">trunc</span> : truncation_in_comp_cat_univ)
+                {<span class="nv">Γ</span> : C}
+                {<span class="nv">a₁</span> <span class="nv">a₂</span> : tm Γ (dfl_full_comp_cat_univ Γ)}
+                (<span class="nv">p</span> : a₁ = a₂)
+      : (truncation_in_comp_cat_univ_code trunc a₁ : _ --&gt; _)
+        =
+        truncation_in_comp_cat_univ_code trunc a₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> p.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** * 3. Stability *)</span>
+    <span class="kn">Definition</span> <span class="nf">trunc_in_comp_cat_univ_is_stable</span>
+               (<span class="nv">trunc</span> : truncation_in_comp_cat_univ)
+      : UU
+      := ∏ (Γ Δ : C)
+           (s : Γ --&gt; Δ)
+           (a : tm Δ (dfl_full_comp_cat_univ Δ)),
+         truncation_in_comp_cat_univ_code trunc a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s
+         =
+         truncation_in_comp_cat_univ_code trunc (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s).
+
+    <span class="kn">Proposition</span> <span class="nf">isaprop_trunc_in_comp_cat_univ_is_stable</span>
+                (<span class="nv">trunc</span> : truncation_in_comp_cat_univ)
+      : isaprop (trunc_in_comp_cat_univ_is_stable trunc).
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">4</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaset_comp_cat_tm.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">stable_truncation_in_comp_cat_univ</span>
+      : UU
+      := ∑ (trunc : truncation_in_comp_cat_univ),
+         trunc_in_comp_cat_univ_is_stable trunc.
+
+    <span class="kn">Definition</span> <span class="nf">make_stable_truncation_in_comp_cat_univ</span>
+               (<span class="nv">trunc</span> : truncation_in_comp_cat_univ)
+               (<span class="nv">H</span> : trunc_in_comp_cat_univ_is_stable trunc)
+      : stable_truncation_in_comp_cat_univ
+      := trunc ,, H.
+
+    <span class="kn">Proposition</span> <span class="nf">isaset_stable_truncation_in_comp_cat_univ</span>
+      : isaset stable_truncation_in_comp_cat_univ.
+    <span class="kn">Proof</span>.
+      use isaset_total2.
+      - <span class="bp">exact</span> isaset_truncation_in_comp_cat_univ.
+      - <span class="nb">intro</span> x.
+        <span class="nb">apply</span> isasetaprop.
+        <span class="nb">apply</span> isaprop_trunc_in_comp_cat_univ_is_stable.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Coercion</span> <span class="nf">stable_truncation_in_comp_cat_univ_to_codes</span>
+             (trunc : stable_truncation_in_comp_cat_univ)
+      : truncation_in_comp_cat_univ
+      := pr1 trunc.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_truncation_in_comp_cat_univ_code_stable</span>
+                (<span class="nv">trunc</span> : stable_truncation_in_comp_cat_univ)
+                {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+                (<span class="nv">s</span> : Γ --&gt; Δ)
+                (<span class="nv">a</span> : tm Δ (dfl_full_comp_cat_univ Δ))
+      : truncation_in_comp_cat_univ_code trunc a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s
+        =
+        truncation_in_comp_cat_univ_code trunc (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (pr2 trunc Γ Δ s a).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_truncation_in_comp_cat_univ_code_stable_mor</span>
+                (<span class="nv">trunc</span> : stable_truncation_in_comp_cat_univ)
+                {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+                (<span class="nv">s</span> : Γ --&gt; Δ)
+                (<span class="nv">a</span> : tm Δ (dfl_full_comp_cat_univ Δ))
+      : s
+        · truncation_in_comp_cat_univ_code trunc a
+        · comprehension_functor_mor
+            (comp_cat_comprehension C)
+            (cleaving_of_types _ _ _ _ _)
+        =
+        truncation_in_comp_cat_univ_code trunc
+          (a [[ s ]]tm ↑ sub_dfl_comp_cat_univ s)
+        · PullbackPr1 (comp_cat_pullback _ _).
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (maponpaths pr1 (stable_truncation_in_comp_cat_univ_code_stable trunc s a)) <span class="k">as</span> p.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (!p).
+      }
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (comp_cat_comp_mor_sub_dfl_comp_cat_univ C s).
+      }
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> subst_comp_cat_tm_pr1.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">stable_truncation_in_comp_cat_univ_eq</span>
+                {<span class="nv">trunc₁</span> <span class="nv">trunc₂</span> : stable_truncation_in_comp_cat_univ}
+                (<span class="nv">p</span> : ∏ (Γ : C)
+                       (a : tm Γ (dfl_full_comp_cat_univ Γ)),
+                     truncation_in_comp_cat_univ_code trunc₁ a
+                     =
+                     truncation_in_comp_cat_univ_code trunc₂ a)
+      : trunc₁ = trunc₂.
+    <span class="kn">Proof</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_trunc_in_comp_cat_univ_is_stable.
+      }
+      use trunc_in_comp_cat_univ_eq.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">TruncationCode</span>.
+<span class="kn">End</span> <span class="nf">TypesInCompCatUniv</span>.
+
+<span class="kn">Arguments</span> truncation_in_comp_cat_univ_code {C} HC trunc {Γ} a.
+<span class="kn">Arguments</span> truncation_in_comp_cat_univ_z_iso {C} HC trunc {Γ} a.
+<span class="kn">Arguments</span> truncation_in_comp_cat_univ_comm {C} HC trunc {Γ} a.
+<span class="kn">Arguments</span> truncation_in_comp_cat_univ_z_iso_fiber {C} HC trunc {Γ} a.
+<span class="kn">Arguments</span> stable_truncation_in_comp_cat_univ_code_stable {C} HC trunc {Γ Δ} s a.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/CompCatTypes/Truncation.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Stability
+  &gt;
+  &gt;                                                                                            *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Terminal.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

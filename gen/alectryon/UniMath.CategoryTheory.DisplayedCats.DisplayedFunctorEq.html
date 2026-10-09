@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisplayedFunctorEq.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************</span>
+
+<span class="sd"> Equality of displayed functors</span>
+
+<span class="sd"> We are interested in the following bicategories:</span>
+<span class="sd"> - The bicategory of displayed categories</span>
+<span class="sd"> - The bicategory of fibrations over a fixed category</span>
+<span class="sd"> - The bicategory of fibrations</span>
+<span class="sd"> For each of these bicategories, we want to prove that it is univalent. That</span>
+<span class="sd"> requires two things:</span>
+<span class="sd"> - Proving that the identity of displayed functors is equivalent to the type of</span>
+<span class="sd">   displayed natural isomorphisms between them</span>
+<span class="sd"> - Proving that the identity of displayed categories is equivalent to the type of</span>
+<span class="sd">   displayed adjoint equivalences between them.</span>
+
+<span class="sd"> In this file, we look at the first of these two statements. The main idea of the</span>
+<span class="sd"> proof is to characterize the identity relation for displayed functors step by</span>
+<span class="sd"> step. For example, we start by proving [disp_functor_eq_step_1], which says that</span>
+<span class="sd"> two displayed functors are equal if their data is equal. After that, we use the</span>
+<span class="sd"> characterization of paths in sigma types to prove [disp_functor_eq_step_2]. In</span>
+<span class="sd"> [disp_functor_eq_step_3], we further refine the obtained characterizations using</span>
+<span class="sd"> function extensionality. In [disp_functor_eq_step_4], we use displayed univalence</span>
+<span class="sd"> and in [disp_functor_eq_step_5] we recover displayed natural isomorphisms. By</span>
+<span class="sd"> composing all these equivalences ([disp_functor_eq_weq]), we obtain the desired</span>
+<span class="sd"> equivalence.</span>
+
+<span class="sd"> In addition, there is one important trick in this proof: we characterize the</span>
+<span class="sd"> identity relation for displayed functors lying over a fixed functor `F` instead of</span>
+<span class="sd"> displayed functors `FF` and `GG` lying over `F` and `G` with a path `p : F = G`.</span>
+<span class="sd"> This simplifies the construction, while no generality is lost.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Lemmas about equality of displayed functors</span>
+<span class="sd"> 2. Equality of displayed functors is the same as natural isomorphisms</span>
+
+<span class="sd"> *********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="kn">Section</span> <span class="nf">DisplayedFunctorEq</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">F</span> : C₁ ⟶ C₂}
+          {<span class="nv">D₁</span> : disp_cat C₁}
+          {<span class="nv">D₂</span> : disp_cat C₂}
+          (<span class="nv">FF</span> <span class="nv">GG</span> : disp_functor F D₁ D₂)
+          (<span class="nv">HD₂</span> : is_univalent_disp D₂).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Lemmas about equality of displayed functors</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_eq_step_1</span>
+    : FF = GG ≃ pr1 FF = pr1 GG.
+  <span class="kn">Proof</span>.
+    use path_sigma_hprop.
+    <span class="nb">apply</span> isaprop_disp_functor_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_eq_step_2</span>
+    : pr1 FF = pr1 GG ≃ pr1 FF ╝ pr1 GG.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (total2_paths_equiv _ (pr1 FF) (pr1 GG)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_eq_step_3</span>
+    : pr1 FF ╝ pr1 GG
+      ≃
+      ∑ (p : ∏ (x : C₁) (xx : D₁ x), FF x xx = GG x xx),
+      ∏ (x y : C₁)
+        (xx : D₁ x)
+        (yy : D₁ y)
+        (f : x --&gt; y)
+        (ff : xx --&gt;[ f ] yy),
+      ♯FF ff ;; idtoiso_disp (idpath _) (p y yy)
+      =
+      transportb
+        _
+        (id_right _ @ !(id_left _))
+        (idtoiso_disp (idpath _) (p x xx) ;; ♯GG ff).
+  <span class="kn">Proof</span>.
+    use weqbandf.
+    - <span class="bp">exact</span> (weqonsecfibers _ _ (<span class="k">λ</span> <span class="nv">x</span>, weqtoforallpaths _ _ _)
+             ∘ weqtoforallpaths _ _ _)%weq.
+    - <span class="nb">intro</span> p.
+      <span class="nb">induction</span> FF <span class="k">as</span> [ [ FFo FFm ] FFp ].
+      <span class="nb">induction</span> GG <span class="k">as</span> [ [ GGo GGm ] GGp ].
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (weqonsecfibers _ _ (<span class="k">λ</span> <span class="nv">x</span>, _) ∘ weqtoforallpaths _ _ _)%weq.
+      <span class="nb">refine</span> (weqonsecfibers _ _ (<span class="k">λ</span> <span class="nv">y</span>, _) ∘ weqtoforallpaths _ _ _)%weq.
+      <span class="nb">refine</span> (weqonsecfibers _ _ (<span class="k">λ</span> <span class="nv">xx</span>, _) ∘ weqtoforallpaths _ _ _)%weq.
+      <span class="nb">refine</span> (weqonsecfibers _ _ (<span class="k">λ</span> <span class="nv">yy</span>, _) ∘ weqtoforallpaths _ _ _)%weq.
+      <span class="nb">refine</span> (weqonsecfibers _ _ (<span class="k">λ</span> <span class="nv">f</span>, _) ∘ weqtoforallpaths _ _ _)%weq.
+      <span class="nb">refine</span> (weqonsecfibers _ _ (<span class="k">λ</span> <span class="nv">ff</span>, _) ∘ weqtoforallpaths _ _ _)%weq.
+      use weqimplimpl.
+      + <span class="nb">intro</span> pp.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">rewrite</span> id_left_disp.
+        <span class="nb">rewrite</span> pp.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> homset_property.
+      + <span class="nb">intro</span> pp.
+        <span class="nb">rewrite</span> id_right_disp, id_left_disp <span class="k">in</span> pp.
+        <span class="nb">unfold</span> transportb <span class="k">in</span> pp.
+        <span class="nb">rewrite</span> transport_f_f <span class="k">in</span> pp.
+        <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, transportf _ (id_right _) z) pp @ _).
+        * <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">apply</span> transportf_set.
+          <span class="nb">apply</span> homset_property.
+        * <span class="nb">rewrite</span> transport_f_f.
+          <span class="nb">apply</span> transportf_set.
+          <span class="nb">apply</span> homset_property.
+      + <span class="nb">apply</span> D₂.
+      + <span class="nb">apply</span> D₂.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_eq_step_4</span>
+    : (∑ (p : ∏ (x : C₁) (xx : D₁ x), FF x xx = GG x xx),
+       ∏ (x y : C₁)
+         (xx : D₁ x)
+         (yy : D₁ y)
+         (f : x --&gt; y)
+         (ff : xx --&gt;[ f ] yy),
+       ♯FF ff ;; idtoiso_disp (idpath _) (p y yy)
+       =
+       transportb
+         _
+         (id_right _ @ !(id_left _))
+         (idtoiso_disp (idpath _) (p x xx) ;; ♯GG ff))
+      ≃
+      (∑ (p : ∏ (x : C₁) (xx : D₁ x), z_iso_disp (identity_z_iso _) (FF x xx) (GG x xx)),
+       ∏ (x y : C₁)
+         (xx : D₁ x)
+         (yy : D₁ y)
+         (f : x --&gt; y)
+         (ff : xx --&gt;[ f ] yy),
+       ♯FF ff ;; p y yy
+       =
+       transportb
+         _
+         (id_right _ @ !(id_left _))
+         (p x xx ;; ♯GG ff)).
+  <span class="kn">Proof</span>.
+    use weqbandf.
+    - <span class="bp">exact</span> (weqonsecfibers
+               _ _
+               (<span class="k">λ</span> <span class="nv">x</span>,
+                weqonsecfibers
+                  _ _
+                  (<span class="k">λ</span> <span class="nv">y</span>, make_weq _ (HD₂ _ _ (idpath _) _ _)))).
+    - <span class="nb">intro</span> p.
+      use weqimplimpl.
+      + <span class="nb">intros</span> pp x y xx yy f ff.
+        <span class="nb">cbn</span> -[idtoiso_disp].
+        <span class="bp">exact</span> (pp x y xx yy f ff).
+      + <span class="nb">intros</span> pp x y xx yy f ff.
+        <span class="nb">cbn</span> -[idtoiso_disp].
+        <span class="bp">exact</span> (pp x y xx yy f ff).
+      + <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> D₂.
+      + <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> D₂.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_eq_step_5_left</span>
+    : (∑ (p : ∏ (x : C₁) (xx : D₁ x), z_iso_disp (identity_z_iso _) (FF x xx) (GG x xx)),
+       ∏ (x y : C₁)
+         (xx : D₁ x)
+         (yy : D₁ y)
+         (f : x --&gt; y)
+         (ff : xx --&gt;[ f ] yy),
+       ♯FF ff ;; p y yy
+       =
+       transportb
+         _
+         (id_right _ @ !(id_left _))
+         (p x xx ;; ♯GG ff))
+      →
+      disp_nat_z_iso FF GG (nat_z_iso_id F).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">p</span>, (_ ,, _) ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, pr1 (pr1 p x xx)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f xx yy ff ;
+         <span class="nb">refine</span> (pr2 p x y xx yy f ff @ _) ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> homset_property).
+    - <span class="nb">intros</span> x xx.
+      <span class="bp">exact</span> (pr2 (pr1 p x xx)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_eq_step_5_right</span>
+    : disp_nat_z_iso FF GG (nat_z_iso_id F)
+      →
+      ∑ (p : ∏ (x : C₁) (xx : D₁ x), z_iso_disp (identity_z_iso _) (FF x xx) (GG x xx)),
+      ∏ (x y : C₁)
+        (xx : D₁ x)
+        (yy : D₁ y)
+        (f : x --&gt; y)
+        (ff : xx --&gt;[ f ] yy),
+      ♯FF ff ;; p y yy
+      =
+      transportb
+        _
+        (id_right _ @ !(id_left _))
+        (p x xx ;; ♯GG ff).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">p</span>, (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, _ ,, _) ,, _).
+    - <span class="bp">exact</span> (p x xx).
+    - <span class="bp">exact</span> (pr2 p x xx).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f xx yy ff ;
+         <span class="nb">refine</span> (disp_nat_trans_ax p ff @ _) ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> homset_property).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_functor_eq_step_5</span>
+    : (∑ (p : ∏ (x : C₁) (xx : D₁ x), z_iso_disp (identity_z_iso _) (FF x xx) (GG x xx)),
+       ∏ (x y : C₁)
+         (xx : D₁ x)
+         (yy : D₁ y)
+         (f : x --&gt; y)
+         (ff : xx --&gt;[ f ] yy),
+       ♯FF ff ;; p y yy
+       =
+       transportb
+         _
+         (id_right _ @ !(id_left _))
+         (p x xx ;; ♯GG ff))
+      ≃
+      disp_nat_z_iso FF GG (nat_z_iso_id F).
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> disp_functor_eq_step_5_left.
+    - <span class="bp">exact</span> disp_functor_eq_step_5_right.
+    - <span class="nb">intro</span> p.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> D₂.
+      }
+      use funextsec ; <span class="nb">intro</span> x.
+      use funextsec ; <span class="nb">intro</span> xx.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_iso_disp.
+      }
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> p.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> isaprop_is_z_iso_disp.
+      }
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Equality of displayed functors is the same as natural isomorphisms</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_functor_eq_weq</span>
+    : FF = GG ≃ disp_nat_z_iso FF GG (nat_z_iso_id F)
+    := (disp_functor_eq_step_5
+        ∘ disp_functor_eq_step_4
+        ∘ disp_functor_eq_step_3
+        ∘ disp_functor_eq_step_2
+        ∘ disp_functor_eq_step_1)%weq.
+<span class="kn">End</span> <span class="nf">DisplayedFunctorEq</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/DisplayedFunctorEq.v</tt>, line 37)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Equality of displayed functors is the same as natural isomorphisms
+  &gt;
+  &gt;  *********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

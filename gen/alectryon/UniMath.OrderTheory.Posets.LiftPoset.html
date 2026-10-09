@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LiftPoset.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> The lift of a partial order</span>
+
+<span class="sd"> We construct the lifting of partial order (adding a minimum</span>
+<span class="sd"> element). We also show that this gives the basic operations that</span>
+<span class="sd"> show that this operation is a comonad on pointed partial orders.</span>
+<span class="sd"> Note that on not necessarily pointed partial orders, this</span>
+<span class="sd"> operation would be a monad.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The order on the lift</span>
+<span class="sd"> 2. Action on morphisms</span>
+<span class="sd"> 3. The comonad structure</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.PointedPosets.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. The order on the lift</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lift_hrel</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : hrel X)
+  : hrel (setcoprod X unitset).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x₁ x₂.
+  <span class="nb">induction</span> x₁ <span class="k">as</span> [ x₁ | ].
+  - <span class="nb">induction</span> x₂ <span class="k">as</span> [ x₂ | ].
+    + <span class="bp">exact</span> (PX x₁ x₂).
+    + <span class="bp">exact</span> hfalse.
+  - <span class="bp">exact</span> htrue.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lift_isPartialOrder</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">PX</span> : PartialOrder X)
+  : isPartialOrder (lift_hrel PX).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> [ x₁ | [] ] [ x₂ | [] ] [ x₃ | [] ] p q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    + <span class="bp">exact</span> (trans_PartialOrder PX p q).
+    + <span class="bp">exact</span> q.
+    + <span class="bp">exact</span> (fromempty p).
+    + <span class="bp">exact</span> p.
+    + <span class="bp">exact</span> tt.
+    + <span class="bp">exact</span> tt.
+    + <span class="bp">exact</span> tt.
+    + <span class="bp">exact</span> tt.
+  - <span class="nb">intros</span> [ x | [] ] ; <span class="nb">cbn</span>.
+    + <span class="bp">exact</span> (refl_PartialOrder PX x).
+    + <span class="bp">exact</span> tt.
+  - <span class="nb">intros</span> [ x | [] ] [ y | [] ] p q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    + <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (antisymm_PartialOrder PX p q).
+    + <span class="bp">exact</span> (fromempty p).
+    + <span class="bp">exact</span> (fromempty q).
+    + <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lift_PartialOrder</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : PartialOrder X)
+  : PartialOrder (setcoprod X unitset).
+<span class="kn">Proof</span>.
+  use make_PartialOrder.
+  - <span class="bp">exact</span> (lift_hrel PX).
+  - <span class="bp">exact</span> (lift_isPartialOrder PX).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lift_pointed_PartialOrder</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : PartialOrder X)
+  : pointed_PartialOrder (setcoprod X unitset).
+<span class="kn">Proof</span>.
+  use make_pointed_PartialOrder.
+  - <span class="bp">exact</span> (lift_PartialOrder PX).
+  - <span class="bp">exact</span> (inr tt).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, tt).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Action on morphisms</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">lift_strict_and_monotone_map</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            {<span class="nv">f</span> : X → Y}
+            {<span class="nv">PX</span> : PartialOrder X}
+            {<span class="nv">PY</span> : PartialOrder Y}
+            (<span class="nv">Pf</span> : is_monotone PX PY f)
+  : is_strict_and_monotone
+      (lift_pointed_PartialOrder PX)
+      (lift_pointed_PartialOrder PY)
+      (coprodf1 f).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> [ x | [] ] [ y | [] ] p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    + <span class="nb">apply</span> Pf.
+      <span class="bp">exact</span> p.
+    + <span class="bp">exact</span> p.
+    + <span class="bp">exact</span> p.
+    + <span class="bp">exact</span> p.
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. The comonad structure</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">lift_pointed_PartialOrder_extract</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : pointed_PartialOrder X)
+           (<span class="nv">x</span> : setcoprod X unitset)
+  : X.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [ x | ].
+  - <span class="bp">exact</span> x.
+  - <span class="bp">exact</span> (⊥_{PX}).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strict_and_monotone_lift_pointed_PartialOrder_extract</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">PX</span> : pointed_PartialOrder X)
+  : is_strict_and_monotone
+      (lift_pointed_PartialOrder PX)
+      PX
+      (lift_pointed_PartialOrder_extract PX).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> [ x | [] ] [ y | [] ] p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    + <span class="bp">exact</span> p.
+    + <span class="bp">exact</span> (fromempty p).
+    + <span class="nb">apply</span> pointed_PartialOrder_min_point.
+    + <span class="nb">apply</span> refl_PartialOrder.
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lift_pointed_PartialOrder_dupl</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">PX</span> : pointed_PartialOrder X)
+           (<span class="nv">x</span> : setcoprod X unitset)
+  : setcoprod (setcoprod X unitset) unitset.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [ x | ].
+  - <span class="bp">exact</span> (inl (inl x)).
+  - <span class="bp">exact</span> (inr tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_strict_and_monotone_lift_pointed_PartialOrder_dupl</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">PX</span> : pointed_PartialOrder X)
+  : is_strict_and_monotone
+      (lift_pointed_PartialOrder PX)
+      (lift_pointed_PartialOrder (lift_pointed_PartialOrder PX))
+      (lift_pointed_PartialOrder_dupl PX).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> [ x | [] ] [ y | [] ] p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    + <span class="bp">exact</span> p.
+    + <span class="bp">exact</span> (fromempty p).
+    + <span class="bp">exact</span> tt.
+    + <span class="bp">exact</span> tt.
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Posets/LiftPoset.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The comonad structure
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+  &gt; Require Import UniMath.OrderTheory.Posets.MonotoneFunctions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

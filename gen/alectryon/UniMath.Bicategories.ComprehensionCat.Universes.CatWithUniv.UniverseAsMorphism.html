@@ -1,0 +1,700 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UniverseAsMorphism.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Universes as morphisms</span>
+
+<span class="sd"> Universes in categories are usually defined as morphisms. More specifically, a universe in a</span>
+<span class="sd"> category `C` with finite limits is given by a map `π : U_* --&gt; U`. This map defines a class</span>
+<span class="sd"> of small maps in `C` using that `C` has pullbacks.</span>
+
+<span class="sd"> In the file `UniverseInCat.v` we defined universes in another way. A universe in a category `C`</span>
+<span class="sd"> with finite limits is given by an object `U` together with a map assigning to each morphism</span>
+<span class="sd"> `t : Γ --&gt; U` a morphism `⌜ t ⌝ : El t --&gt; Γ` satisfying suitable stability and coherence</span>
+<span class="sd"> conditions. This definition is closer to what one has in type theory, and can more directly</span>
+<span class="sd"> be compared to how one would define universes in comprehension categories.</span>
+
+<span class="sd"> We show that these two definitions of universes are equivalent. Every morphism `π : U_* --&gt; U`</span>
+<span class="sd"> gives rise to a map `El` by taking the pullback. In addition, if we have a universe given by an</span>
+<span class="sd"> object and a map `El`, then we obtain the morphism `π : U_* --&gt; U` by taking `El (identity U)`.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Every universe gives rise to a morphism</span>
+<span class="sd"> 2. Every morphism gives rise to a universe</span>
+<span class="sd"> 3. The maps are inverses</span>
+<span class="sd"> 4. The equivalence between morphisms and universes</span>
+
+<span class="sd">                                                                                               *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">UniverseAsMorphism</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : univ_cat_with_finlim_ob).
+
+  <span class="sd">(** * 1. Every universe gives rise to a morphism *)</span>
+  <span class="kn">Definition</span> <span class="nf">cat_stable_el_map_coherent_to_mor</span>
+             (<span class="nv">el</span> : cat_stable_el_map_coherent C)
+    : ∑ (e : C), e --&gt; univ_cat_universe C.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (cat_el_map_el el (identity _)).
+    - <span class="bp">exact</span> (cat_el_map_mor el (identity _)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Every morphism gives rise to a universe *)</span>
+  <span class="kn">Section</span> <span class="nf">MorphismsToUniverse</span>.
+    <span class="kn">Context</span> {<span class="nv">e</span> : C}
+            (<span class="nv">p</span> : e --&gt; univ_cat_universe C).
+
+    <span class="kn">Definition</span> <span class="nf">cat_el_map_from_mor</span>
+      : cat_el_map C.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> Γ t.
+      <span class="nb">pose</span> (P := pullbacks_univ_cat_with_finlim C _ _ _ p t).
+      <span class="bp">exact</span> (PullbackObject P ,, PullbackPr2 P).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">morphism_to_pb_mor_univ</span>
+               {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+               (<span class="nv">s</span> : Γ --&gt; Δ)
+               (<span class="nv">t</span> : Δ --&gt; univ_cat_universe C)
+      : pullbacks_univ_cat_with_finlim C (univ_cat_universe C) e Γ p (s · t)
+        --&gt;
+        pullbacks_univ_cat_with_finlim C (univ_cat_universe C) e Δ p t.
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - <span class="bp">exact</span> (PullbackPr1 _).
+      - <span class="bp">exact</span> (PullbackPr2 _ · s).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> &lt;- PullbackSqrCommutes ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">morphism_to_pb_mor_univ_comm</span>
+                {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+                (<span class="nv">s</span> : Γ --&gt; Δ)
+                (<span class="nv">t</span> : Δ --&gt; univ_cat_universe C)
+      : morphism_to_pb_mor_univ s t
+        · PullbackPr2
+            (pullbacks_univ_cat_with_finlim
+               C
+               (univ_cat_universe C)
+               e Δ p t)
+        =
+        PullbackPr2
+          (pullbacks_univ_cat_with_finlim
+             C
+             (univ_cat_universe C)
+             e Γ p (s · t))
+        · s.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">UMP</span>.
+      <span class="kn">Context</span> {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">t</span> : Δ --&gt; univ_cat_universe C)
+              {<span class="nv">A</span> : C}
+              (<span class="nv">h</span> : A
+                   --&gt;
+                   pullbacks_univ_cat_with_finlim
+                     C
+                     (univ_cat_universe C)
+                     e Δ p t)
+              (<span class="nv">k</span> : A --&gt; Γ)
+              (<span class="nv">q</span> : h
+                   · PullbackPr2
+                       (pullbacks_univ_cat_with_finlim
+                          C
+                          (univ_cat_universe C) e Δ p t)
+                   =
+                   k · s).
+
+      <span class="kn">Definition</span> <span class="nf">is_pb_morphism_to_pb_mor_univ_mor</span>
+        : A
+          --&gt;
+          pullbacks_univ_cat_with_finlim C (univ_cat_universe C) e Γ p (s · t).
+      <span class="kn">Proof</span>.
+        use PullbackArrow.
+        - <span class="bp">exact</span> (h · PullbackPr1 _).
+        - <span class="bp">exact</span> k.
+        - <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> &lt;- q ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> &lt;- PullbackSqrCommutes ;
+             <span class="nb">apply</span> idpath).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">is_pb_morphism_to_pb_mor_univ_pr1</span>
+        : is_pb_morphism_to_pb_mor_univ_mor · morphism_to_pb_mor_univ s t
+          =
+          h.
+      <span class="kn">Proof</span>.
+        use (MorphismsIntoPullbackEqual
+               (isPullback_Pullback
+                  (pullbacks_univ_cat_with_finlim
+                     C
+                     (univ_cat_universe C)
+                     e Δ p t))).
+        - <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+          }
+          <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+        - <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">unfold</span> is_pb_morphism_to_pb_mor_univ_mor.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> q.
+          <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">is_pb_morphism_to_pb_mor_univ_unique</span>
+        : isaprop
+            (∑ hk,
+             (hk · morphism_to_pb_mor_univ s t = h)
+             ×
+             (hk
+              · PullbackPr2
+                  (pullbacks_univ_cat_with_finlim
+                     C
+                     (univ_cat_universe C)
+                     e Γ p (s · t))
+              =
+              k)).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> ζ₁ ζ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+        }
+        use (MorphismsIntoPullbackEqual
+               (isPullback_Pullback
+                  (pullbacks_univ_cat_with_finlim
+                     C
+                     (univ_cat_universe C)
+                     e Γ p (s · t)))).
+        - <span class="nb">pose proof</span> (maponpaths
+                        (<span class="k">λ</span> <span class="nv">z</span>, z · PullbackPr1 _)
+                        (pr12 ζ₁ @ !(pr12 ζ₂)))
+            <span class="k">as</span> r.
+          <span class="nb">cbn</span> <span class="k">in</span> r.
+          <span class="nb">unfold</span> morphism_to_pb_mor_univ <span class="k">in</span> r.
+          <span class="nb">rewrite</span> !assoc' <span class="k">in</span> r.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1 <span class="k">in</span> r.
+          <span class="bp">exact</span> r.
+        - <span class="nb">refine</span> (pr22 ζ₁ @ _).
+          <span class="nb">refine</span> (_ @ !(pr22 ζ₂)).
+          <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">UMP</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_pb_morphism_to_pb_mor_univ</span>
+               {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+               (<span class="nv">s</span> : Γ --&gt; Δ)
+               (<span class="nv">t</span> : Δ --&gt; univ_cat_universe C)
+      : isPullback (morphism_to_pb_mor_univ_comm s t).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> A h k q ; <span class="nb">cbn</span> <span class="k">in</span> q.
+      use iscontraprop1.
+      - <span class="nb">apply</span> is_pb_morphism_to_pb_mor_univ_unique.
+      - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        + <span class="bp">exact</span> (is_pb_morphism_to_pb_mor_univ_mor s t h k q).
+        + <span class="bp">exact</span> (is_pb_morphism_to_pb_mor_univ_pr1 s t h k q).
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">apply</span> PullbackArrow_PullbackPr2).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cat_el_map_stable_from_mor</span>
+      : cat_el_map_stable cat_el_map_from_mor.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> Γ Δ s t.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      - <span class="bp">exact</span> (morphism_to_pb_mor_univ s t).
+      - <span class="bp">exact</span> (morphism_to_pb_mor_univ_comm s t).
+      - <span class="bp">exact</span> (is_pb_morphism_to_pb_mor_univ s t).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cat_stable_el_map_from_mor</span>
+      : cat_stable_el_map C.
+    <span class="kn">Proof</span>.
+      use make_cat_stable_el_map.
+      - <span class="bp">exact</span> cat_el_map_from_mor.
+      - <span class="bp">exact</span> cat_el_map_stable_from_mor.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cat_el_map_el_eq_mor_from_mor</span>
+               {<span class="nv">Γ</span> : C}
+               {<span class="nv">t₁</span> <span class="nv">t₂</span> : Γ --&gt; univ_cat_universe C}
+               (<span class="nv">r</span> : t₁ = t₂)
+      : cat_el_map_el cat_stable_el_map_from_mor t₁
+        --&gt;
+        cat_el_map_el cat_stable_el_map_from_mor t₂.
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - <span class="bp">exact</span> (PullbackPr1 _).
+      - <span class="bp">exact</span> (PullbackPr2 _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> r ;
+           <span class="nb">apply</span> PullbackSqrCommutes).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">cat_el_map_el_eq_from_mor</span>
+                {<span class="nv">Γ</span> : C}
+                {<span class="nv">t₁</span> <span class="nv">t₂</span> : Γ --&gt; univ_cat_universe C}
+                (<span class="nv">r</span> : t₁ = t₂)
+      : pr1 (cat_el_map_el_eq cat_stable_el_map_from_mor r)
+        =
+        cat_el_map_el_eq_mor_from_mor r.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> r ; <span class="nb">cbn</span> ; <span class="nb">unfold</span> cat_el_map_el_eq_mor_from_mor.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+      - <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_coherent_cat_stable_el_map_from_mor</span>
+      : is_coherent_cat_stable_el_map cat_stable_el_map_from_mor.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intros</span> Γ t.
+        <span class="nb">refine</span> (_ @ !(cat_el_map_el_eq_from_mor _)).
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+        + <span class="nb">refine</span> (PullbackArrow_PullbackPr1 _ _ _ _ _ @ _).
+          <span class="bp">exact</span> (!(PullbackArrow_PullbackPr1 _ _ _ _ _)).
+        + <span class="nb">refine</span> (PullbackArrow_PullbackPr2 _ _ _ _ _ @ _).
+          <span class="nb">refine</span> (_ @ !(PullbackArrow_PullbackPr2 _ _ _ _ _)).
+          <span class="nb">apply</span> id_right.
+      - <span class="nb">intros</span> Γ₁ Γ₂ Γ₃ s₁ s₂ t.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> cat_el_map_el_eq_from_mor.
+        }
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+        + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+          }
+          <span class="nb">refine</span> (PullbackArrow_PullbackPr1 _ _ _ _ _ @ _).
+          <span class="bp">exact</span> (!(PullbackArrow_PullbackPr1 _ _ _ _ _)).
+        + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+          }
+          etrans.
+          {
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+          }
+          <span class="nb">refine</span> (_ @ !(PullbackArrow_PullbackPr2 _ _ _ _ _)).
+          <span class="nb">apply</span> assoc'.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cat_stable_el_map_coherent_from_mor</span>
+      : cat_stable_el_map_coherent C.
+    <span class="kn">Proof</span>.
+      use make_cat_stable_el_map_coherent.
+      - <span class="bp">exact</span> cat_stable_el_map_from_mor.
+      - <span class="bp">exact</span> is_coherent_cat_stable_el_map_from_mor.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MorphismsToUniverse</span>.
+
+  <span class="sd">(** * 3. The maps are inverses *)</span>
+  <span class="kn">Section</span> <span class="nf">UniverseToMorphismToUniverse</span>.
+    <span class="kn">Context</span> (<span class="nv">el</span> : cat_stable_el_map_coherent C).
+
+    <span class="kn">Section</span> <span class="nf">Isomorphism</span>.
+      <span class="kn">Context</span> {<span class="nv">Γ</span> : C}
+              (<span class="nv">t</span> : Γ --&gt; univ_cat_universe C).
+
+      <span class="kn">Let</span> <span class="nf">P</span> : Pullback (cat_el_map_mor el (id₁ (univ_cat_universe C))) t
+        := cat_stable_el_map_pb el t (identity _).
+
+      <span class="kn">Definition</span> <span class="nf">mor_to_cat_el_map_to_mor_z_iso_mor</span>
+        : cat_el_map_el
+            (cat_el_map_from_mor (cat_el_map_mor el (identity _)))
+            t
+          --&gt;
+          cat_el_map_el el (t · identity _).
+      <span class="kn">Proof</span>.
+        use (PullbackArrow P _ _ _ _) ; <span class="nb">cbn</span>.
+        - <span class="bp">exact</span> (PullbackPr1 _).
+        - <span class="bp">exact</span> (PullbackPr2 _).
+        - <span class="nb">apply</span> PullbackSqrCommutes.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">mor_to_cat_el_map_to_mor_z_iso_inv</span>
+        : cat_el_map_el el (t · identity _)
+          --&gt;
+          cat_el_map_el
+            (cat_el_map_from_mor (cat_el_map_mor el (identity _)))
+            t.
+      <span class="kn">Proof</span>.
+        use PullbackArrow.
+        - <span class="bp">exact</span> (cat_el_map_pb_mor el t (identity _)).
+        - <span class="bp">exact</span> (cat_el_map_mor el _).
+        - <span class="nb">apply</span> (PullbackSqrCommutes P).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">mor_to_cat_el_map_to_mor_z_iso_eqs</span>
+        : is_inverse_in_precat
+            mor_to_cat_el_map_to_mor_z_iso_mor
+            mor_to_cat_el_map_to_mor_z_iso_inv.
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+          + <span class="nb">rewrite</span> !assoc'.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+            }
+            <span class="nb">refine</span> (PullbackArrow_PullbackPr1 P _ _ _ _ @ _).
+            <span class="nb">rewrite</span> id_left.
+            <span class="nb">apply</span> idpath.
+          + <span class="nb">rewrite</span> !assoc'.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+            }
+            <span class="nb">refine</span> (PullbackArrow_PullbackPr2 P _ _ _ _ @ _).
+            <span class="nb">rewrite</span> id_left.
+            <span class="nb">apply</span> idpath.
+        - use (MorphismsIntoPullbackEqual (isPullback_Pullback P)).
+          + <span class="nb">rewrite</span> !assoc'.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> (PullbackArrow_PullbackPr1 P).
+            }
+            <span class="nb">refine</span> (PullbackArrow_PullbackPr1 _ _ _ _ _ @ _).
+            <span class="nb">rewrite</span> id_left.
+            <span class="nb">apply</span> idpath.
+          + <span class="nb">rewrite</span> !assoc'.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> (PullbackArrow_PullbackPr2 P).
+            }
+            <span class="nb">refine</span> (PullbackArrow_PullbackPr2 _ _ _ _ _ @ _).
+            <span class="nb">rewrite</span> id_left.
+            <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">mor_to_cat_el_map_to_mor_z_iso</span>
+        : z_iso
+            (cat_el_map_el
+               (cat_el_map_from_mor (cat_el_map_mor el (identity _)))
+               t)
+            (cat_el_map_el el (t · identity _)).
+      <span class="kn">Proof</span>.
+        use make_z_iso.
+        - <span class="bp">exact</span> mor_to_cat_el_map_to_mor_z_iso_mor.
+        - <span class="bp">exact</span> mor_to_cat_el_map_to_mor_z_iso_inv.
+        - <span class="bp">exact</span> mor_to_cat_el_map_to_mor_z_iso_eqs.
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">Isomorphism</span>.
+
+    <span class="kn">Arguments</span> mor_to_cat_el_map_to_mor_z_iso_mor /.
+
+    <span class="kn">Lemma</span> <span class="nf">mor_to_cat_el_map_to_mor_eq1</span>
+          {<span class="nv">Γ</span> : C}
+          (<span class="nv">t</span> : Γ --&gt; univ_cat_universe C)
+      : mor_to_cat_el_map_to_mor_z_iso_mor t
+        · cat_el_map_el_eq el (id_right t)
+        · cat_el_map_mor el t
+        =
+        PullbackPr2 _.
+    <span class="kn">Proof</span>.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> cat_el_map_mor_eq.
+      <span class="bp">exact</span> (PullbackArrow_PullbackPr2 (cat_stable_el_map_pb el t (identity _)) _ _ _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">mor_to_cat_el_map_to_mor_eq2</span>
+          {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+          (<span class="nv">s</span> : Γ --&gt; Δ)
+          (<span class="nv">t</span> : Δ --&gt; univ_cat_universe C)
+      : morphism_to_pb_mor_univ (cat_el_map_mor el (identity _)) s t
+        · mor_to_cat_el_map_to_mor_z_iso_mor t
+        · cat_el_map_el_eq el (id_right t)
+        =
+        mor_to_cat_el_map_to_mor_z_iso_mor (s · t)
+        · cat_el_map_el_eq el (id_right (s · t))
+        · cat_el_map_pb_mor el s t.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">assert</span> (cat_el_map_el_eq el (id_right (s · t))
+              · cat_el_map_pb_mor el s t
+              =
+              cat_el_map_el_eq el (assoc' _ _ _)
+              · cat_el_map_pb_mor el s (t · identity _)
+              · cat_el_map_el_eq el (id_right t))
+        <span class="k">as</span> -&gt;.
+      {
+        <span class="nb">refine</span> (_ @ assoc _ _ _).
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          use cat_el_map_pb_mor_eq.
+          <span class="nb">refine</span> (assoc _ _ _ @ id_right _).
+        }
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (cat_el_map_el_eq_comp _ _ _ @ _).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">pose</span> (P := cat_stable_el_map_pb el (s · t) (identity _)).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback (cat_stable_el_map_pb el t _))).
+      - <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (cat_stable_el_map_pb el t _)).
+        }
+        <span class="nb">unfold</span> morphism_to_pb_mor_univ.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> cat_el_map_pb_mor_comp.
+        }
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr1 P).
+      - <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (cat_stable_el_map_pb el t _)).
+        }
+        <span class="nb">unfold</span> morphism_to_pb_mor_univ.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">assert</span> (PullbackPr2 (cat_stable_el_map_pb el (s · t) (identity _)) · s
+                =
+                cat_el_map_el_eq el (assoc' s t (identity _))
+                · cat_el_map_pb_mor el s (t · identity _)
+                · cat_el_map_mor el (t · identity _))
+          <span class="k">as</span> p.
+        {
+          <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (PullbackSqrCommutes (cat_stable_el_map_pb el s _)).
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> cat_el_map_mor_eq.
+        }        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="bp">exact</span> (!p).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr2 P).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cat_el_map_coherent_to_mor_to_el_map</span>
+      : cat_stable_el_map_coherent_from_mor (cat_el_map_mor el (identity _)) = el.
+    <span class="kn">Proof</span>.
+      use cat_el_map_eq.
+      - <span class="nb">intros</span> Γ t.
+        <span class="bp">exact</span> (z_iso_comp
+                 (mor_to_cat_el_map_to_mor_z_iso t)
+                 (cat_el_map_el_eq el (id_right _))).
+      - <span class="nb">intros</span> Γ t.
+        <span class="bp">exact</span> (mor_to_cat_el_map_to_mor_eq1 t).
+      - <span class="nb">intros</span> Γ Δ s t.
+        <span class="nb">refine</span> (_ @ mor_to_cat_el_map_to_mor_eq2 s t).
+        <span class="nb">apply</span> assoc.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">UniverseToMorphismToUniverse</span>.
+
+  <span class="kn">Section</span> <span class="nf">MorphismToUniverseToMorphism</span>.
+    <span class="kn">Context</span> {<span class="nv">e</span> : C}
+            (<span class="nv">p</span> : e --&gt; univ_cat_universe C).
+
+    <span class="kn">Definition</span> <span class="nf">cat_el_map_to_mor_to_map_z_iso_inv</span>
+      : e --&gt; pullbacks_univ_cat_with_finlim C _ _ _ p (identity _).
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - <span class="nb">apply</span> identity.
+      - <span class="bp">exact</span> p.
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">cat_el_map_to_mor_to_map_z_iso_invs</span>
+      : is_inverse_in_precat
+          (PullbackPr1 _)
+          cat_el_map_to_mor_to_map_z_iso_inv.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> cat_el_map_to_mor_to_map_z_iso_inv.
+      <span class="nb">split</span>.
+      - use (MorphismsIntoPullbackEqual (isPullback_Pullback _)).
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> id_left, id_right.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">refine</span> (PullbackSqrCommutes _ @ _).
+          <span class="nb">apply</span> id_right.
+      - <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cat_el_map_to_mor_to_map_z_iso</span>
+      : z_iso
+          (pullbacks_univ_cat_with_finlim
+             C
+             _ _ _
+             p
+             (identity _))
+          e.
+    <span class="kn">Proof</span>.
+      use make_z_iso.
+      - <span class="bp">exact</span> (PullbackPr1 _).
+      - <span class="bp">exact</span> cat_el_map_to_mor_to_map_z_iso_inv.
+      - <span class="bp">exact</span> cat_el_map_to_mor_to_map_z_iso_invs.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MorphismToUniverseToMorphism</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">mor_to_cat_el_map_to_mor</span>
+              (<span class="nv">ep</span> : ∑ (e : C), e --&gt; univ_cat_universe C)
+    : cat_stable_el_map_coherent_to_mor (cat_stable_el_map_coherent_from_mor (pr2 ep)) = ep.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> ep <span class="k">as</span> [ e p ].
+    use total2_paths_f.
+    - use isotoid.
+      {
+        <span class="nb">apply</span> univalent_category_is_univalent.
+      }
+      <span class="bp">exact</span> (cat_el_map_to_mor_to_map_z_iso p).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> transportf_isotoid ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">unfold</span> cat_el_map_to_mor_to_map_z_iso_inv ;
+         <span class="nb">apply</span> PullbackArrow_PullbackPr2).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. The equivalence between morphisms and universes *)</span>
+  <span class="kn">Definition</span> <span class="nf">cat_stable_el_map_coherent_mor_weq</span>
+    : cat_stable_el_map_coherent C
+      ≃
+      ∑ (e : C), e --&gt; univ_cat_universe C.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> cat_stable_el_map_coherent_to_mor.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ep</span>, cat_stable_el_map_coherent_from_mor (pr2 ep)).
+    - <span class="nb">intros</span> el.
+      <span class="bp">exact</span> (cat_el_map_coherent_to_mor_to_el_map el).
+    - <span class="nb">intros</span> ep.
+      <span class="bp">exact</span> (mor_to_cat_el_map_to_mor ep).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">UniverseAsMorphism</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/CatWithUniv/UniverseAsMorphism.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The equivalence between morphisms and universes
+  &gt;
+  &gt;                                                                                                *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

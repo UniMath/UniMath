@@ -1,0 +1,290 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PrecategoriesWithAbgrops.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ** Precategories with homsets abelian groups (abgrops). *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Section</span> <span class="nf">def_precategory_with_abgrops</span>.
+
+  <span class="sd">(** Definition of precategories such that homsets are abgrops. *)</span>
+  <span class="kn">Definition</span> <span class="nf">categoryWithAbgropsData</span> (<span class="nv">PB</span> : precategoryWithBinOps) : UU :=
+    ∏ (x y : PB), @isabgrop (make_hSet (PB⟦x,y⟧) (homset_property PB x y)) (@to_binop _ x y).
+
+  <span class="kn">Definition</span> <span class="nf">make_categoryWithAbgropsData</span> {<span class="nv">PB</span> : precategoryWithBinOps}
+             (<span class="nv">H</span> : ∏ (x y : PB), @isabgrop (make_hSet (PB⟦x,y⟧) (homset_property _  x y)) (@to_binop _ x y)) :
+    categoryWithAbgropsData PB := H.
+
+  <span class="kn">Definition</span> <span class="nf">categoryWithAbgrops</span> : UU :=
+    ∑ PA : precategoryWithBinOps,
+           categoryWithAbgropsData PA.
+
+
+  <span class="kn">Definition</span> <span class="nf">categoryWithAbgrops_precategoryWithBinOps</span> (<span class="nv">PB</span> : categoryWithAbgrops) :
+    precategoryWithBinOps := (pr1 PB).
+
+  <span class="kn">Coercion</span> <span class="nf">categoryWithAbgrops_precategoryWithBinOps</span> :
+    categoryWithAbgrops &gt;-&gt; precategoryWithBinOps.
+
+  <span class="kn">Definition</span> <span class="nf">make_categoryWithAbgrops</span> (<span class="nv">PB</span> : precategoryWithBinOps)
+             (<span class="nv">H</span> : categoryWithAbgropsData PB) : categoryWithAbgrops.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (tpair _ PB H).
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Variable</span> <span class="nv">PA</span> : categoryWithAbgrops.
+
+  <span class="sd">(** Definitions to access the structure of a precategory with abelian groups. *)</span>
+  <span class="kn">Definition</span> <span class="nf">to_has_homsets</span> : has_homsets PA := (pr1 PA).
+
+  <span class="kn">Definition</span> <span class="nf">to_homset</span> (<span class="nv">x</span> <span class="nv">y</span> : PA) : hSet := make_hSet (PA⟦x, y⟧) (to_has_homsets x y).
+
+  <span class="kn">Definition</span> <span class="nf">to_setwithbinop</span> (<span class="nv">x</span> <span class="nv">y</span> : PA) := make_setwithbinop (to_homset x y) (to_binop x y).
+
+  <span class="kn">Definition</span> <span class="nf">to_isabgrop</span> (<span class="nv">x</span> <span class="nv">y</span> : PA) := (pr2 PA) x y.
+
+  <span class="kn">Definition</span> <span class="nf">to_abgr</span> (<span class="nv">x</span> <span class="nv">y</span> : PA) : abgr := make_abgr (to_setwithbinop x y) (to_isabgrop x y).
+
+  <span class="kn">Definition</span> <span class="nf">to_unel</span> (<span class="nv">x</span> <span class="nv">y</span> : PA) := unel (to_abgr x y).
+
+  <span class="kn">Definition</span> <span class="nf">to_lunax</span> (<span class="nv">x</span> <span class="nv">y</span> : PA) := lunax (to_abgr x y).
+
+  <span class="kn">Definition</span> <span class="nf">to_lunax'</span> (<span class="nv">x</span> <span class="nv">y</span> : PA) (<span class="nv">f</span> : x --&gt; y) : to_binop x y (to_unel x y) f = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> to_lunax.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_runax</span> (<span class="nv">x</span> <span class="nv">y</span> : PA) : isrunit op <span class="mi">1</span>%multmonoid := runax (to_abgr x y).
+
+  <span class="kn">Definition</span> <span class="nf">to_runax'</span> (<span class="nv">x</span> <span class="nv">y</span> : PA) (<span class="nv">f</span> : x --&gt; y) : to_binop x y f (to_unel x y) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> to_runax.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_inv</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} : PA⟦x, y⟧ -&gt; PA⟦x, y⟧ := grinv (to_abgr x y).
+
+  <span class="kn">Definition</span> <span class="nf">to_commax</span> (<span class="nv">x</span> <span class="nv">y</span> : PA) := commax (to_abgr x y).
+
+  <span class="kn">Definition</span> <span class="nf">to_commax'</span> {<span class="nv">x</span> <span class="nv">y</span> : ob PA} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) : to_binop x y f g = to_binop x y g f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> to_commax.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The following definition gives maps between abgrops homsets by precomposing and postcomposing</span>
+<span class="sd">      with a morphism. Note that we have not required these to be abelian group morphisms of abelian</span>
+<span class="sd">      groups. *)</span>
+  <span class="kn">Definition</span> <span class="nf">to_premor</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">z</span> : PA) (<span class="nv">f</span> : x --&gt; y) : to_abgr y z -&gt; to_abgr x z :=
+    <span class="k">fun</span> (<span class="nv">g</span> : (to_abgr y z)) =&gt; f · g.
+
+  <span class="kn">Definition</span> <span class="nf">to_postmor</span> (<span class="nv">x</span> : PA) {<span class="nv">y</span> <span class="nv">z</span> : PA} (<span class="nv">f</span> : y --&gt; z) : to_abgr x y -&gt; to_abgr x z :=
+    <span class="k">fun</span> (<span class="nv">g</span> : (to_abgr x y)) =&gt; g · f.
+
+  <span class="sd">(** Some equations on inverses *)</span>
+  <span class="kn">Lemma</span> <span class="nf">inv_inv_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> : PA⟦x, y⟧) : to_inv (to_inv f) = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> to_inv.
+    <span class="nb">apply</span> (grinvinv (to_abgr x y) f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cancel_inv</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> <span class="nv">g</span> : PA⟦x, y⟧) (<span class="nv">H</span> : (to_inv f) = (to_inv g)) : f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (grinvmaponpathsinv (to_abgr x y) H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_inv_unel</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} : to_inv (to_unel x y) = to_unel x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> to_unel.
+    <span class="nb">set</span> (tmp := grinvunel (to_abgr x y)). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">unfold</span> to_inv.
+    <span class="nb">apply</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">linvax</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> : PA⟦x, y⟧) : to_binop x y (to_inv f) f = to_unel x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (grlinvax (to_abgr x y)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">rinvax</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> : PA⟦x, y⟧) : to_binop x y f (to_inv f) = to_unel x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (grrinvax (to_abgr x y)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_lcan</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} {<span class="nv">f</span> <span class="nv">g</span> : PA⟦x, y⟧} (<span class="nv">h</span> : PA⟦x, y⟧) :
+    to_binop x y h f = to_binop x y h g -&gt; f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    <span class="nb">apply</span> (grlcan (to_abgr x y) h H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_rcan</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} {<span class="nv">f</span> <span class="nv">g</span> : PA⟦x, y⟧} (<span class="nv">h</span> : PA⟦x, y⟧) :
+    to_binop x y f h = to_binop x y g h -&gt; f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    <span class="nb">apply</span> (grrcan (to_abgr x y) h H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_lrw</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : PA⟦x, y⟧) (<span class="nv">e</span> : f = g) : to_binop x y f h = to_binop x y g h.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_rrw</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : PA⟦x, y⟧) (<span class="nv">e</span> : g = h) : to_binop x y f g = to_binop x y f h.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> e.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_assoc</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> : PA⟦x, y⟧) :
+    to_binop _ _ (to_binop _ _ f g) h = to_binop _ _ f (to_binop _ _ g h).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (assocax (to_abgr x y)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_binop_inv_inv</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> <span class="nv">g</span> : PA⟦x, y⟧) :
+    to_binop _ _ (to_inv f) (to_inv g) = to_inv (to_binop _ _ f g).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (to_rcan g). <span class="nb">rewrite</span> to_assoc. <span class="nb">rewrite</span> linvax. <span class="nb">rewrite</span> to_runax'.
+    <span class="nb">apply</span> (to_rcan f). <span class="nb">rewrite</span> to_assoc. <span class="nb">rewrite</span> linvax. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- (linvax (to_binop x y f g)). <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> to_commax'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_binop_inv_comm_1</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> <span class="nv">g</span> : PA⟦x, y⟧) :
+    to_binop _ _ (to_inv f) g = to_inv (to_binop _ _ f (to_inv g)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (to_rcan (to_binop x y f (to_inv g))). <span class="nb">rewrite</span> linvax.
+    <span class="nb">rewrite</span> (to_commax' f). <span class="nb">rewrite</span> to_assoc. <span class="nb">rewrite</span> &lt;- (to_assoc g).
+    <span class="nb">rewrite</span> rinvax. <span class="nb">rewrite</span> to_lunax'. <span class="nb">rewrite</span> linvax. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">to_binop_inv_comm_2</span> {<span class="nv">x</span> <span class="nv">y</span> : PA} (<span class="nv">f</span> <span class="nv">g</span> : PA⟦x, y⟧) :
+    to_binop _ _ f (to_inv g) = to_inv (to_binop _ _ (to_inv f) g).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> to_commax'. <span class="nb">rewrite</span> (to_commax' _ g). <span class="nb">apply</span> to_binop_inv_comm_1.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">def_precategory_with_abgrops</span>.
+
+<span class="kn">Arguments</span> to_has_homsets [PA] _ _ _ _ _ _.
+<span class="kn">Arguments</span> to_homset [PA] _ _.
+<span class="kn">Arguments</span> to_setwithbinop [PA] _ _.
+<span class="kn">Arguments</span> to_isabgrop [PA] _ _.
+<span class="kn">Arguments</span> to_abgr [PA] _ _.
+<span class="kn">Arguments</span> to_unel [PA] _ _.
+<span class="kn">Arguments</span> to_lunax [PA] _ _ _.
+<span class="kn">Arguments</span> to_runax [PA] _ _ _.
+<span class="kn">Arguments</span> to_premor [PA] [x] [y] _ _ _.
+<span class="kn">Arguments</span> to_postmor [PA] _ [y] [z] _ _.
+<span class="kn">Arguments</span> to_inv [PA] [x] [y] _.
+<span class="kn">Arguments</span> inv_inv_eq [PA] [x] [y] _.
+<span class="kn">Arguments</span> cancel_inv [PA] [x] [y] _ _ _.
+
+<span class="kn">Declare Scope</span> abgrcat.
+<span class="kn">Delimit Scope</span> abgrcat <span class="k">with</span> abgrcat.
+<span class="kn">Notation</span> <span class="s2">"b &lt;-- a"</span> := (to_abgr a b) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"a --&gt; b"</span> := (to_abgr a b) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"1"</span>     := (@identity (precategory_data_from_precategory (precategoryWithBinOps_precategory (categoryWithAbgrops_precategoryWithBinOps _))) _) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"0"</span>     := (unel (grtomonoid (abgrtogr _))) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"0"</span>     := (unel (grtomonoid (abgrtogr (to_abgr _ _)))) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"f + g"</span> := (@op (pr1monoid (grtomonoid (abgrtogr _))) f g) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"f + g"</span> := (@op (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _)))) f g) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"  - g"</span> := (@grinv (abgrtogr _) g) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"  - g"</span> := (@grinv (abgrtogr (to_abgr _ _)) g) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"f - g"</span> := (@op (pr1monoid (grtomonoid (abgrtogr _))) f (@grinv (abgrtogr (to_abgr _ _)) g)) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"f - g"</span> := (@op (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _)))) f (@grinv (abgrtogr (to_abgr _ _)) g)) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"g ∘ f"</span> := (@compose (precategory_data_from_precategory (precategoryWithBinOps_precategory (categoryWithAbgrops_precategoryWithBinOps _))) _ _ _ f g) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"f · g"</span> := (@compose (precategory_data_from_precategory (precategoryWithBinOps_precategory (categoryWithAbgrops_precategoryWithBinOps _))) _ _ _ f g) : abgrcat.
+<span class="kn">Notation</span> <span class="s2">"f = g"</span> := (@eqset (pr1setwithbinop (pr1monoid (grtomonoid (abgrtogr (to_abgr _ _))))) f g) : abgrcat.
+
+<span class="kn">Section</span> <span class="nf">transport_morphisms</span>.
+
+  <span class="kn">Variable</span> <span class="nv">PA</span> : categoryWithAbgrops.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_target_to_inv</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob PA} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">e</span> : y = z) :
+    to_inv (transportf (precategory_morphisms x) e f) =
+    transportf (precategory_morphisms x) e (to_inv f).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_source_to_inv</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob PA} (<span class="nv">f</span> : y --&gt; z) (<span class="nv">e</span> : y = x) :
+    to_inv (transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob PA, precategory_morphisms x' z) e f) =
+    transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob PA, precategory_morphisms x' z) e (to_inv f).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_target_to_binop</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob PA} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y) (<span class="nv">e</span> : y = z) :
+    to_binop _ _ (transportf (precategory_morphisms x) e f)
+             (transportf (precategory_morphisms x) e g) =
+    transportf (precategory_morphisms x) e (to_binop _ _ f g).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_source_to_binop</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ob PA} (<span class="nv">f</span> <span class="nv">g</span> : y --&gt; z) (<span class="nv">e</span> : y = x) :
+    to_binop _ _ (transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob PA, precategory_morphisms x' z) e f)
+             (transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob PA, precategory_morphisms x' z) e g) =
+    transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob PA, precategory_morphisms x' z) e (to_binop _ _ f g).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">transport_morphisms</span>.
+
+<span class="kn">Definition</span> <span class="nf">oppositeCategoryWithAbgrops</span> (<span class="nv">M</span> : categoryWithAbgrops) : categoryWithAbgrops.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (oppositePrecategoryWithBinOps M).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, @to_isabgrop M (rm_opp_ob b) (rm_opp_ob a)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">induced_categoryWithAbgrops</span> (<span class="nv">M</span> : categoryWithAbgrops) {<span class="nv">X</span>:<span class="kt">Type</span>} (<span class="nv">j</span> : X -&gt; ob M)
+  : categoryWithAbgrops.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (induced_precategoryWithBinOps M j).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, @to_isabgrop M (j a) (j b)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/PrecategoriesWithAbgrops.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** ** Precategories with homsets abelian groups (abgrops). *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NegativePropositions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Export</span> UniMath.Foundations.All.
+
+<span class="sd">(** *** Propositions equivalent to negations of propositions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">negProp</span> <span class="nv">P</span> := ∑ Q, isaprop Q × (¬P &lt;-&gt; Q).
+
+<span class="kn">Definition</span> <span class="nf">negProp_to_isaprop</span> {<span class="nv">P</span>} (<span class="nv">nP</span> : negProp P) : isaprop (pr1 nP)
+  := pr1 (pr2 nP).
+
+<span class="kn">Definition</span> <span class="nf">negProp_to_hProp</span> {<span class="nv">P</span> : UU} (<span class="nv">Q</span> : negProp P) : hProp.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">Q</span>). <span class="nb">apply</span> negProp_to_isaprop.
+<span class="kn">Defined</span>.
+<span class="kn">Coercion</span> <span class="nf">negProp_to_hProp</span> : negProp &gt;-&gt; hProp.
+
+<span class="kn">Definition</span> <span class="nf">negProp_to_iff</span> {<span class="nv">P</span>} (<span class="nv">nP</span> : negProp P) : ¬P &lt;-&gt; nP
+  := pr2 (pr2 nP).
+
+<span class="kn">Definition</span> <span class="nf">negProp_to_neg</span> {<span class="nv">P</span>} {<span class="nv">nP</span> : negProp P} : nP -&gt; ¬P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> np. <span class="bp">exact</span> (pr2 (negProp_to_iff nP) np).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">negProp_to_neg</span> : negProp &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">neg_to_negProp</span> {<span class="nv">P</span>} {<span class="nv">nP</span> : negProp P} : ¬P -&gt; nP.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> np. <span class="bp">exact</span> (pr1 (negProp_to_iff nP) np).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">negPred</span> {<span class="nv">X</span>:UU} (<span class="nv">x</span>  :X) (<span class="nv">P</span>:∏ y:X, UU)      := ∏ y  , negProp (P y).
+
+<span class="kn">Definition</span> <span class="nf">negReln</span> {<span class="nv">X</span>:UU}         (<span class="nv">P</span>:∏ (x y:X), UU)  := ∏ x y, negProp (P x y).
+
+<span class="kn">Definition</span> <span class="nf">neqProp</span> {<span class="nv">X</span>:UU} (<span class="nv">x</span> <span class="nv">y</span>:X) :=            negProp (x=y).
+
+<span class="kn">Definition</span> <span class="nf">neqPred</span> {<span class="nv">X</span>:UU} (<span class="nv">x</span>  :X) := ∏ y,       negProp (x=y).
+
+<span class="kn">Definition</span> <span class="nf">neqReln</span> (<span class="nv">X</span>:UU)         := ∏ (x y:X), negProp (x=y).
+
+<span class="kn">Lemma</span> <span class="nf">negProp_to_complementary</span> <span class="nv">P</span> : ∏ (Q : negProp P), P ⨿ Q &lt;-&gt; complementary P Q.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [Q [i [r s]]]; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">split</span>.
+  * <span class="nb">intros</span> pq. <span class="nb">split</span>.
+    - <span class="nb">intros</span> p q. <span class="nb">apply</span> s.
+      + <span class="bp">assumption</span>.
+      + <span class="bp">assumption</span>.
+    - <span class="bp">assumption</span>.
+      * <span class="nb">intros</span> [j c].
+        <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">negProp_to_uniqueChoice</span> <span class="nv">P</span> : ∏ (Q:negProp P), (isaprop P × (P ⨿ Q)) &lt;-&gt; iscontr (P ⨿ Q).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [Q [j [r s]]]; <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">split</span>.
+  * <span class="nb">intros</span> [i v]. <span class="k">exists</span> <span class="nv">v</span>. <span class="nb">intro</span> w.
+    <span class="nb">induction</span> v <span class="k">as</span> [v|v].
+    - <span class="nb">induction</span> w <span class="k">as</span> [w|w].
+      + <span class="nb">apply</span> maponpaths, i.
+      + contradicts (s w) v.
+    - <span class="nb">induction</span> w <span class="k">as</span> [w|w].
+      + contradicts (s v) w.
+      + <span class="nb">apply</span> maponpaths, j.
+  * <span class="nb">intros</span> [c e]. <span class="nb">split</span>.
+    - <span class="nb">induction</span> c <span class="k">as</span> [c|c].
+      + <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> p p'.
+        <span class="bp">exact</span> (equality_by_case (e (ii1 p) @ !e (ii1 p'))).
+      + <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> p p'.
+        contradicts (s c) p.
+    - <span class="bp">exact</span> c.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Rework some foundational material using negative propositions. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isisolated_ne</span> (<span class="nv">X</span>:UU) (<span class="nv">x</span>:X) (<span class="nv">neq_x</span>:neqPred x) := ∏ y:X, (x=y) ⨿ neq_x y.
+
+<span class="kn">Definition</span> <span class="nf">isisolated_to_isisolated_ne</span> {<span class="nv">X</span> <span class="nv">x</span> <span class="nv">neq_x</span>} :
+  isisolated X x -&gt; isisolated_ne X x neq_x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i y. <span class="nb">induction</span> (i y) <span class="k">as</span> [eq|ne].
+  - <span class="bp">exact</span> (ii1 eq).
+  - <span class="nb">apply</span> ii2. <span class="nb">apply</span> neg_to_negProp. <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isisolated_ne_to_isisolated</span> {<span class="nv">X</span> <span class="nv">x</span> <span class="nv">neq_x</span>} :
+  isisolated_ne X x neq_x -&gt; isisolated X x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i y. <span class="nb">induction</span> (i y) <span class="k">as</span> [eq|ne].
+  - <span class="bp">exact</span> (ii1 eq).
+  - <span class="nb">apply</span> ii2. use negProp_to_neg.
+    + <span class="bp">exact</span> (neq_x y).
+    + <span class="bp">exact</span> ne.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isolated_ne</span> ( <span class="nv">T</span> : UU ) (<span class="nv">neq</span>:neqReln T) := ∑ t:T, isisolated_ne _ t (neq t).
+
+<span class="kn">Definition</span> <span class="nf">make_isolated_ne</span> (<span class="nv">T</span> : UU) (<span class="nv">t</span>:T) (<span class="nv">neq</span>:neqReln T) (<span class="nv">i</span>:isisolated_ne _ t (neq t)) :
+  isolated_ne T neq
+  := (t,,i).
+
+<span class="kn">Definition</span> <span class="nf">pr1isolated_ne</span> ( <span class="nv">T</span> : UU ) (<span class="nv">neq</span>:neqReln T) (<span class="nv">x</span>:isolated_ne T neq) : T := pr1 x.
+
+<span class="kn">Theorem</span> <span class="nf">isaproppathsfromisolated_ne</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">neq_x</span> : neqPred x)
+        (<span class="nv">isi</span> : isisolated_ne X x neq_x) (<span class="nv">y</span> : X)
+  : isaprop (x = y).
+<span class="kn">Proof</span>.
+  <span class="c">(* we could follow the proof of isaproppathsfromisolated here, but we try a</span>
+<span class="c">     different way *)</span>
+  <span class="nb">intros</span>. <span class="nb">unfold</span> isisolated_ne <span class="k">in</span> isi. <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> m n.
+  <span class="nb">set</span> (Q y := (x = y) ⨿ (neq_x y)).
+  <span class="nb">assert</span> (a := (transport_section isi m) @ !(transport_section isi n)).
+  <span class="nb">induction</span> (isi x) <span class="k">as</span> [j|k].
+  - <span class="nb">assert</span> (b := transport_map (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">p</span>, ii1 p : Q y) m j); <span class="nb">simpl</span> <span class="k">in</span> b;
+      <span class="nb">assert</span> (c := transport_map (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">p</span>, ii1 p : Q y) n j); <span class="nb">simpl</span> <span class="k">in</span> c.
+    <span class="nb">assert</span> (d := equality_by_case (!b @ a @ c)); <span class="nb">simpl</span> <span class="k">in</span> d.
+    <span class="nb">rewrite</span> <span class="mi">2</span>? transportf_id1 <span class="k">in</span> d. <span class="nb">apply</span> (pathscomp_cancel_left j). <span class="bp">assumption</span>.
+  - contradicts (neq_x x k) (idpath x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">compl_ne</span> (<span class="nv">X</span>:UU) (<span class="nv">x</span>:X) (<span class="nv">neq_x</span> : neqPred x) := ∑ y, neq_x y.
+
+<span class="kn">Definition</span> <span class="nf">make_compl_ne</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">neq_x</span> : neqPred x) (<span class="nv">y</span> : X)
+           (<span class="nv">ne</span> :neq_x y) :
+  compl_ne X x neq_x := (y,,ne).
+
+<span class="kn">Definition</span> <span class="nf">pr1compl_ne</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">neq_x</span> : neqPred x)
+           (<span class="nv">c</span> : compl_ne X x neq_x) :
+  X := pr1 c.
+
+<span class="kn">Definition</span> <span class="nf">make_negProp</span> {<span class="nv">P</span> : UU} : negProp P.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (¬ P). <span class="nb">split</span>.
+       - <span class="nb">apply</span> isapropneg.  <span class="c">(* uses [funextemptyAxiom] *)</span>
+       - <span class="nb">apply</span> isrefl_logeq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_neqProp</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> <span class="nv">y</span> : X) : neqProp x y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> make_negProp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinclpr1compl_ne</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">neq_x</span> : neqPred x) :
+  isincl (pr1compl_ne X x neq_x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> isinclpr1. <span class="nb">intro</span> y. <span class="nb">apply</span> negProp_to_isaprop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">compl_ne_weq_compl</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">neq_x</span> : neqPred x) :
+  compl X x ≃ compl_ne X x neq_x.
+<span class="kn">Proof</span>.
+  <span class="c">(* uses [funextemptyAxiom] *)</span>
+  <span class="nb">intros</span>. <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> y. <span class="nb">apply</span> weqiff.
+  - <span class="nb">apply</span> negProp_to_iff.
+  - <span class="nb">apply</span> isapropneg.
+  - <span class="nb">apply</span> negProp_to_isaprop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">compl_weq_compl_ne</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">neq_x</span> : neqPred x) :
+  compl_ne X x neq_x ≃ compl X x.
+<span class="kn">Proof</span>.
+  <span class="c">(* uses [funextemptyAxiom] *)</span>
+  <span class="nb">intros</span>. <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> y. <span class="nb">apply</span> weqiff.
+  - <span class="nb">apply</span> issymm_logeq. <span class="nb">apply</span> negProp_to_iff.
+  - <span class="nb">apply</span> negProp_to_isaprop.
+  - <span class="nb">apply</span> isapropneg.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">recompl_ne</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">neq_x</span>:neqPred x) :
+  compl_ne X x neq_x ⨿ unit -&gt; X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w.
+  <span class="nb">induction</span> w <span class="k">as</span> [c|t].
+  - <span class="bp">exact</span> (pr1compl_ne _ _ _ c).
+  - <span class="bp">exact</span> x.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">maponcomplincl_ne</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">isin</span> : isincl f) (<span class="nv">x</span> : X)
+           (<span class="nv">neq_x</span> : neqPred x) (<span class="nv">neq_fx</span> : neqPred (f x))
+  : compl_ne X x neq_x -&gt; compl_ne Y (f x) neq_fx.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c.
+  <span class="nb">set</span> (x' := pr1 c).
+  <span class="nb">set</span> (neqx := pr2 c).
+  <span class="bp">exact</span> (f x',,neg_to_negProp (nP := neq_fx (f x'))
+           (negf (invmaponpathsincl _ isin x x') (negProp_to_neg neqx))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqoncompl_ne</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">w</span> : X ≃ Y) (<span class="nv">x</span> : X) (<span class="nv">neq_x</span> : neqPred x)
+           (<span class="nv">neq_wx</span> : neqPred (w x))
+  : compl_ne X x neq_x ≃ compl_ne Y (w x) neq_wx.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. intermediate_weq (∑ x', neq_wx (w x')).
+  - <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> x'.
+    <span class="nb">apply</span> weqiff.
+    {<span class="nb">apply</span> (logeq_trans (Y := x != x')).
+     {<span class="nb">apply</span> issymm_logeq, negProp_to_iff. }
+     <span class="nb">apply</span> (logeq_trans (Y := w x != w x')).
+     {<span class="nb">apply</span> logeqnegs. <span class="nb">apply</span> weq_to_iff. <span class="nb">apply</span> weqonpaths. }
+     <span class="nb">apply</span> negProp_to_iff. }
+    {<span class="nb">apply</span> negProp_to_isaprop. }
+    {<span class="nb">apply</span> negProp_to_isaprop. }
+  - <span class="nb">refine</span> (weqfp _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqoncompl_ne_compute</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU}
+           (<span class="nv">w</span> : X ≃ Y) (<span class="nv">x</span> : X) (<span class="nv">neq_x</span> : neqPred x) (<span class="nv">neq_wx</span> : neqPred (w x)) <span class="nv">x'</span> :
+  pr1 (weqoncompl_ne w x neq_x neq_wx x') = w (pr1 x').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">invrecompl_ne</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">neq_x</span> : neqPred x)
+           (<span class="nv">isi</span> : isisolated X x) : X -&gt; compl_ne X x neq_x ⨿ unit.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> y. <span class="nb">induction</span> (isi y) <span class="k">as</span> [k|k].
+  - <span class="bp">exact</span> (ii2 tt).
+  - <span class="bp">exact</span> (ii1 (make_compl_ne X x neq_x y (neg_to_negProp k))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isweqrecompl_ne</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x)
+        (<span class="nv">neq_x</span> : neqPred x) : isweq (recompl_ne _ x neq_x).
+<span class="kn">Proof</span>.
+  <span class="c">(* does not use [funextemptyAxiom] *)</span>
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (f := recompl_ne X x neq_x). <span class="nb">set</span> (g := invrecompl_ne X x neq_x isi).
+  <span class="nb">refine</span> (isweq_iso f g _ _).
+  {<span class="nb">intro</span> u. <span class="nb">induction</span> (isi (f u)) <span class="k">as</span> [ eq | ne ].
+   - <span class="nb">induction</span> u <span class="k">as</span> [ c | u].
+     + <span class="nb">simpl</span>. <span class="nb">induction</span> c <span class="k">as</span> [ t neq ]; <span class="nb">simpl</span>; <span class="nb">simpl</span> <span class="k">in</span> eq.
+       contradicts (negProp_to_neg neq) eq.
+     + <span class="nb">induction</span> u.
+       intermediate_path (g x).
+       {<span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (pathsinv0 eq). }
+       {<span class="nb">unfold</span> g, invrecompl_ne. <span class="nb">induction</span> (isi x) <span class="k">as</span> [ i | e ].
+        {<span class="nb">apply</span> idpath. }
+        {<span class="nb">simpl</span>. contradicts e (idpath x). }}
+   - <span class="nb">induction</span> u <span class="k">as</span> [ c | u ]. <span class="nb">simpl</span>.
+     + <span class="nb">induction</span> c <span class="k">as</span> [ y neq ]; <span class="nb">simpl</span>. <span class="nb">unfold</span> g, invrecompl_ne.
+       <span class="nb">induction</span> (isi y) <span class="k">as</span> [ eq' | ne' ].
+       {contradicts (negProp_to_neg neq) eq'. }
+       {<span class="nb">induction</span> (ii2 ne') <span class="k">as</span> [eq|neq'].
+        {<span class="nb">simpl</span>. contradicts eq ne'. }
+        {<span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="nb">unfold</span> make_compl_ne. <span class="nb">apply</span> maponpaths.
+         <span class="nb">apply</span> proofirrelevance. <span class="bp">exact</span> (pr1 (pr2 (neq_x y))). }}
+     + <span class="nb">induction</span> u. <span class="nb">unfold</span> f,g,invrecompl_ne;<span class="nb">simpl</span>.
+       <span class="nb">induction</span> (isi x) <span class="k">as</span> [eq|neq].
+       {<span class="nb">simpl</span>. <span class="nb">apply</span> idpath. }
+       {<span class="nb">apply</span> fromempty. <span class="nb">apply</span> neq. <span class="nb">apply</span> idpath. }}
+  {<span class="nb">intro</span> y. <span class="nb">unfold</span> f,g,invrecompl_ne;<span class="nb">simpl</span>.
+   <span class="nb">induction</span> (isi y) <span class="k">as</span> [eq|neq].
+   - <span class="nb">induction</span> eq. <span class="nb">apply</span> idpath.
+   - <span class="nb">simpl</span>. <span class="nb">apply</span> idpath. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">isweqrecompl_ne'</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x)
+        (<span class="nv">neq_x</span> : neqPred x) : isweq (recompl_ne _ x neq_x).
+<span class="kn">Proof</span>.
+  <span class="c">(* an alternative proof *)</span>
+  <span class="nb">intros</span>. <span class="nb">set</span> (f := recompl_ne X x neq_x). <span class="nb">intro</span> y.
+  <span class="nb">unfold</span> neqPred,negProp <span class="k">in</span> neq_x; <span class="nb">unfold</span> isisolated <span class="k">in</span> isi.
+  <span class="nb">apply</span> (iscontrweqb (weqtotal2overcoprod _)). <span class="nb">induction</span> (isi y) <span class="k">as</span> [eq|ne].
+  {<span class="nb">induction</span> eq. <span class="nb">refine</span> (iscontrweqf (weqii2withneg _ _) _).
+   {<span class="nb">intros</span> z; <span class="nb">induction</span> z <span class="k">as</span> [z e]; <span class="nb">induction</span> z <span class="k">as</span> [z neq]; <span class="nb">simpl</span> <span class="k">in</span> *.
+    contradicts (!e) (negProp_to_neg neq). }
+   {<span class="nb">change</span> x <span class="k">with</span> (f (ii2 tt)). <span class="nb">simple refine</span> ((_,,_),,_).
+    {<span class="bp">exact</span> tt. }
+    {<span class="nb">apply</span> idpath. }
+    {<span class="nb">intro</span> w. <span class="nb">induction</span> w <span class="k">as</span> [t e]. <span class="nb">unfold</span> f <span class="k">in</span> *; <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">induction</span> t.
+     <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isaproppathsfromisolated. <span class="bp">exact</span> isi. }}}
+  {<span class="nb">refine</span> (iscontrweqf (weqii1withneg _ _) _).
+   {<span class="nb">intros</span> z; <span class="nb">induction</span> z <span class="k">as</span> [z e]; <span class="nb">simpl</span> <span class="k">in</span> *. contradicts ne e. }
+   {<span class="nb">simple refine</span> ((_,,_),,_).
+    {<span class="k">exists</span> <span class="nv">y</span>. <span class="nb">apply</span> neg_to_negProp. <span class="bp">assumption</span>. }
+    {<span class="nb">simpl</span>. <span class="nb">apply</span> idpath. }
+    <span class="nb">intros</span> z; <span class="nb">induction</span> z <span class="k">as</span> [z e]; <span class="nb">induction</span> z <span class="k">as</span> [z neq];
+      <span class="nb">induction</span> e; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> (proofirrelevance _ (pr1 (pr2 (neq_x z))) neq
+                                (neg_to_negProp ne)).
+    <span class="nb">apply</span> idpath.
+  }}
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqrecompl_ne</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x)
+           (<span class="nv">neq_x</span> : neqPred x) : compl_ne X x neq_x ⨿ unit ≃ X
+  := make_weq _ (isweqrecompl_ne X x isi neq_x).
+
+<span class="kn">Theorem</span> <span class="nf">isweqrecompl'</span> (<span class="nv">X</span> : UU) (<span class="nv">x</span> : X) (<span class="nv">isi</span> : isisolated X x) :
+  isweq (recompl _ x).
+<span class="kn">Proof</span>.
+  <span class="c">(* alternative proof, spoils a computation if used in [weqrecompl], so unused *)</span>
+  <span class="nb">intros</span>. <span class="nb">set</span> (neq_x := <span class="k">λ</span> <span class="nv">y</span>, make_neqProp x y).
+  <span class="nb">apply</span> (isweqhomot (weqrecompl_ne X x isi neq_x
+                                   ∘ weqcoprodf (compl_ne_weq_compl X x neq_x)
+                                   (idweq unit))%weq).
+  {<span class="nb">intro</span> y. <span class="nb">induction</span> y <span class="k">as</span> [y|t]; <span class="nb">apply</span> idpath. }
+  <span class="nb">apply</span> weqproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscotrans_to_istrans_negReln</span> {<span class="nv">X</span> : UU} {<span class="nv">R</span> : hrel X} (<span class="nv">NR</span> : negReln R) :
+  isdeccotrans R -&gt; istrans NR.
+<span class="c">(* uses no axioms; compare to istransnegrel *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> i ? ? ? nxy nyz. <span class="nb">apply</span> neg_to_negProp.
+  <span class="nb">apply</span> (negf (i x1 x2 x3)). <span class="nb">intro</span> c. <span class="nb">induction</span> c <span class="k">as</span> [c|c].
+  - <span class="bp">exact</span> (negProp_to_neg nxy c).
+  - <span class="bp">exact</span> (negProp_to_neg nyz c).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">natneq</span> (<span class="nv">m</span> <span class="nv">n</span> : nat) : negProp (m = n).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">m</span> ≠ n). <span class="nb">split</span>.
+  - <span class="nb">apply</span> propproperty.
+  - <span class="nb">apply</span> natneq_iff_neq.
+<span class="kn">Defined</span>.
+
+<span class="c">(* this replaces an earlier notation: *)</span>
+<span class="kn">Notation</span> <span class="s2">" x ≠ y "</span> := (natneq x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : nat_scope.
+
+<span class="kn">Definition</span> <span class="nf">nat_compl</span> (<span class="nv">i</span> : nat) := compl_ne _ i (<span class="k">λ</span> <span class="nv">j</span>, i ≠ j).
+
+<span class="kn">Theorem</span> <span class="nf">weqdicompl</span> (<span class="nv">i</span> : nat) : nat ≃ nat_compl i.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intro</span> j. <span class="k">exists</span> (<span class="nv">di</span> <span class="nv">i</span> <span class="nv">j</span>). <span class="nb">apply</span> di_neq_i.
+  - <span class="nb">intro</span> j. <span class="bp">exact</span> (si i (pr1 j)).
+  - <span class="nb">simpl</span>. <span class="nb">intro</span> j. <span class="nb">unfold</span> di. <span class="nb">induction</span> (natlthorgeh j i) <span class="k">as</span> [lt|ge].
+    + <span class="nb">unfold</span> si. <span class="nb">induction</span> (natlthorgeh i j) <span class="k">as</span> [lt'|ge'].
+      * contradicts (isasymmnatlth _ _ lt') lt.
+      * <span class="nb">apply</span> idpath.
+    + <span class="nb">unfold</span> si. <span class="nb">induction</span> (natlthorgeh i (S j)) <span class="k">as</span> [lt'|ge'].
+      * <span class="nb">change</span> (S j) <span class="k">with</span> (<span class="mi">1</span> + j). <span class="nb">rewrite</span> natpluscomm. <span class="nb">apply</span> plusminusnmm.
+      * <span class="nb">unfold</span> natgeh,natleh <span class="k">in</span> ge. contradicts (natlehneggth ge') ge.
+  - <span class="nb">simpl</span>. <span class="nb">intro</span> j. <span class="nb">induction</span> j <span class="k">as</span> [j ne]; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> subtypePath.
+    + <span class="nb">intro</span> k. <span class="nb">apply</span> negProp_to_isaprop.
+    + <span class="nb">simpl</span>. <span class="nb">unfold</span> si. <span class="nb">induction</span> (natlthorgeh j i) <span class="k">as</span> [lt|ge].
+      * <span class="nb">clear</span> ne.
+        <span class="nb">induction</span> (natlthorgeh i j) <span class="k">as</span> [lt'|_].
+        { contradicts (isasymmnatlth _ _ lt') lt. }
+        { <span class="nb">unfold</span> di. <span class="nb">induction</span> (natlthorgeh j i) <span class="k">as</span> [lt'|ge'].
+          - <span class="nb">apply</span> idpath.
+          - contradicts (natgehtonegnatlth _ _ ge') lt. }
+      * <span class="nb">assert</span> (lt := natleh_neq ge ne); <span class="nb">clear</span> ne ge.
+        <span class="nb">induction</span> (natlthorgeh i j) <span class="k">as</span> [_|ge'].
+        { <span class="nb">unfold</span> di. <span class="nb">induction</span> (natlthorgeh (j - <span class="mi">1</span>) i) <span class="k">as</span> [lt'|ge'].
+          - <span class="nb">apply</span> fromempty. <span class="nb">induction</span> j <span class="k">as</span> [|j _].
+            + <span class="bp">exact</span> (negnatlthn0 _ lt).
+            + <span class="nb">change</span> (S j) <span class="k">with</span> (<span class="mi">1</span> + j) <span class="k">in</span> lt'.
+                 <span class="nb">rewrite</span> natpluscomm <span class="k">in</span> lt'.
+                 <span class="nb">rewrite</span> plusminusnmm <span class="k">in</span> lt'.
+                 <span class="nb">change</span> (i &lt; S j) <span class="k">with</span> (i ≤ j) <span class="k">in</span> lt.
+                 <span class="bp">exact</span> (natlehneggth lt lt').
+          - <span class="nb">induction</span> j <span class="k">as</span> [|j _].
+            + contradicts (negnatlthn0 i) lt.
+            + <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> natminuseqn. }
+        contradicts (natgehtonegnatlth _ _ ge') lt.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/NegativePropositions.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Export UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; (** *** Propositions equivalent to negations of propositions *)
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

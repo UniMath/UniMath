@@ -1,0 +1,1149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Domains_and_Fields.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Algebra I. Part E. Integral domains and fields. Vladimir Voevodsky. Aug. 2011 - . *)</span>
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Integral domains and fields</span>
+<span class="sd"> - Integral domains</span>
+<span class="sd">  - General definitions</span>
+<span class="sd">  - Computation lemmas for integral domains</span>
+<span class="sd">  - Multiplicative submonoid of non-zero elements</span>
+<span class="sd">  - Relations similar to "greater" on integral domains</span>
+<span class="sd"> - Fields</span>
+<span class="sd">  - Main definitions</span>
+<span class="sd">  - Field of fractions of an integral domain with decidable equality</span>
+<span class="sd">  - Canonical homomorphism to the field of fractions</span>
+<span class="sd"> - Relations similar to "greater" on field of fractions</span>
+<span class="sd">  - Description of the field of fractions as the ring of fractions</span>
+<span class="sd">    with respect to the submonoid of "positive" elements</span>
+<span class="sd">  - Definition and properties of "greater" on the field of fractions</span>
+<span class="sd">  - Relations and the canonical homomorphism to the field of fractions</span>
+<span class="sd">*)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+
+<span class="sd">(** ** Preamble *)</span>
+
+<span class="sd">(** Settings *)</span>
+
+<span class="kn">Unset</span> Kernel Term Sharing.
+
+<span class="sd">(** Imports *)</span>
+
+<span class="kn">Require Export</span> UniMath.Algebra.RigsAndRings.
+
+<span class="sd">(** To upstream files *)</span>
+
+<span class="sd">(** To one binary operation *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">islcancelableif</span> {<span class="nv">X</span> : hSet} (<span class="nv">opp</span> : binop X) (<span class="nv">x</span> : X)
+      (<span class="nv">isc</span> : ∏ a b : X, opp x a = opp x b → a = b) : islcancelable opp x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> isinclbetweensets.
+  - <span class="nb">apply</span> (setproperty X).
+  - <span class="nb">apply</span> (setproperty X).
+  - <span class="nb">apply</span> isc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isrcancelableif</span> {<span class="nv">X</span> : hSet} (<span class="nv">opp</span> : binop X) (<span class="nv">x</span> : X)
+      (<span class="nv">isc</span> : ∏ a b : X, opp a x = opp b x → a = b) : isrcancelable opp x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> isinclbetweensets.
+  - <span class="nb">apply</span> (setproperty X).
+  - <span class="nb">apply</span> (setproperty X).
+  - <span class="nb">apply</span> isc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iscancelableif</span> {<span class="nv">X</span> : hSet} (<span class="nv">opp</span> : binop X) (<span class="nv">x</span> : X)
+           (<span class="nv">isl</span> : ∏ a b : X, opp x a = opp x b → a = b)
+           (<span class="nv">isr</span> : ∏ a b : X, opp a x = opp b x → a = b) :
+  iscancelable opp x := islcancelableif opp x isl ,, isrcancelableif opp x isr.
+
+<span class="sd">(** To monoids *)</span>
+
+<span class="sd">(** TODO: this has now been upstreamed to BinaryOperations.v, these should be</span>
+<span class="sd">    expunged. *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> multmonoid.
+
+<span class="kn">Definition</span> <span class="nf">linvpair</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> : X) : UU := ∑ (x' : X), x' * x = <span class="mi">1</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1linvpair</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> : X) : linvpair X x → X := @pr1 _ _.
+
+<span class="kn">Definition</span> <span class="nf">linvpairxy</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> <span class="nv">y</span> : X) (<span class="nv">x'</span> : linvpair X x) (<span class="nv">y'</span> : linvpair X y) :
+  linvpair X (x * y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">y'</span> * pr1 x').
+  <span class="nb">rewrite</span> (assocax _ _ _ (x * y)).
+  <span class="nb">rewrite</span> &lt;- (assocax _ _ x y).
+  <span class="nb">rewrite</span> (pr2 x').
+  <span class="nb">rewrite</span> (lunax _ y).
+  <span class="nb">rewrite</span> (pr2 y').
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lcanfromlinv</span> (<span class="nv">X</span> : monoid) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : X) (<span class="nv">c'</span> : linvpair X c) (<span class="nv">e</span> : c * a = c * b) :
+  a = b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (e' := maponpaths (<span class="k">λ</span> <span class="nv">x</span> : X, (pr1 c') * x) e). <span class="nb">simpl</span> <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> &lt;- (assocax X _ _ _) <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> &lt;- (assocax X _ _ _) <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> (pr2 c') <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> (lunax X a) <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> (lunax X b) <span class="k">in</span> e'.
+  <span class="nb">apply</span> e'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rinvpair</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> : X) : UU := ∑ (x' : X), x * x' = <span class="mi">1</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1rinvpair</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> : X) : rinvpair X x → X := @pr1 _ _.
+
+<span class="kn">Definition</span> <span class="nf">rinvpairxy</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> <span class="nv">y</span> : X) (<span class="nv">x'</span> : rinvpair X x) (<span class="nv">y'</span> : rinvpair X y) :
+  rinvpair X (x * y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">y'</span> * pr1 x').
+  <span class="nb">rewrite</span> (assocax _ x y _).
+  <span class="nb">rewrite</span> &lt;- (assocax _ y _ _).
+  <span class="nb">rewrite</span> (pr2 y').
+  <span class="nb">rewrite</span> (lunax _ _).
+  <span class="nb">rewrite</span> (pr2 x').
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rcanfromrinv</span> (<span class="nv">X</span> : monoid) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : X) (<span class="nv">c'</span> : rinvpair X c) (<span class="nv">e</span> : a * c = b * c) :
+  a = b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (e' := maponpaths (<span class="k">λ</span> <span class="nv">x</span> : X, x * (pr1 c')) e). <span class="nb">simpl</span> <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> (assocax X _ _ _)  <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> (assocax X _ _ _) <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> (pr2 c') <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> (runax X a) <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> (runax X b) <span class="k">in</span> e'.
+  <span class="nb">apply</span> e'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pathslinvtorinv</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> : X) (<span class="nv">x'</span> : linvpair X x) (<span class="nv">x''</span> : rinvpair X x) : pr1 x' = pr1 x''.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> (runax X (pr1 x')). <span class="c">(*unfold p.*)</span>
+  <span class="nb">induction</span> (pr2 x'').
+  <span class="nb">set</span> (int := x * pr1 x'').
+  <span class="nb">rewrite</span> &lt;- (lunax X (pr1 x'')).
+  <span class="nb">induction</span> (pr2 x').  <span class="c">(*unfold p1.*)</span>
+  <span class="nb">unfold</span> int.
+  <span class="nb">apply</span> (!assocax X _ _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">invpair</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> : X) : UU :=
+  ∑ (x' : X), (x' * x = <span class="mi">1</span>) × (x * x' = <span class="mi">1</span>).
+
+<span class="kn">Definition</span> <span class="nf">pr1invpair</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> : X) : invpair X x → X := @pr1 _ _.
+
+<span class="kn">Definition</span> <span class="nf">invtolinv</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> : X) (<span class="nv">x'</span> : invpair X x) : linvpair X x :=
+  pr1 x' ,, pr12 x'.
+
+<span class="kn">Definition</span> <span class="nf">invtorinv</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> : X) (<span class="nv">x'</span> : invpair X x) : rinvpair X x :=
+  pr1 x' ,, pr22 x'.
+
+<span class="kn">Lemma</span> <span class="nf">isapropinvpair</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> : X) : isaprop (invpair X x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> invproofirrelevance. <span class="nb">intros</span> x' x''.
+  <span class="nb">apply</span> (invmaponpathsincl
+           _ (isinclpr1 _ (<span class="k">λ</span> <span class="nv">a</span>, isapropdirprod _ _ (setproperty X _ _) (setproperty X _ _)))).
+  <span class="nb">apply</span> (pathslinvtorinv X x (invtolinv X x x') (invtorinv X x x'')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">invpairxy</span> (<span class="nv">X</span> : monoid) (<span class="nv">x</span> <span class="nv">y</span> : X) (<span class="nv">x'</span> : invpair X x) (<span class="nv">y'</span> : invpair X y) :
+  invpair X (x * y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">y'</span> * pr1 x'). <span class="nb">split</span>.
+  - <span class="nb">apply</span> (pr2 (linvpairxy _ x y (invtolinv _ x x') (invtolinv _ y y'))).
+  - <span class="nb">apply</span> (pr2 (rinvpairxy _ x y (invtorinv _ x x') (invtorinv _ y y'))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** To groups *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">grfrompathsxy</span> (<span class="nv">X</span> : gr) {<span class="nv">a</span> <span class="nv">b</span> : X} (<span class="nv">e</span> : a = b) : a * grinv X b = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (e' := maponpaths (<span class="k">λ</span> <span class="nv">x</span> : X, x * grinv X b) e). <span class="nb">simpl</span> <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> (grrinvax X _) <span class="k">in</span> e'. <span class="nb">apply</span> e'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">grtopathsxy</span> (<span class="nv">X</span> : gr) {<span class="nv">a</span> <span class="nv">b</span> : X} (<span class="nv">e</span> : a * grinv X b = <span class="mi">1</span>) : a = b .
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (e' := maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x * b) e). <span class="nb">simpl</span> <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> (assocax X) <span class="k">in</span> e'. <span class="nb">rewrite</span> (grlinvax X) <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> (lunax X) <span class="k">in</span> e'. <span class="nb">rewrite</span> (runax X) <span class="k">in</span> e'.
+  <span class="nb">apply</span> e'.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** To rigs *)</span>
+
+<span class="kn">Definition</span> <span class="nf">multlinvpair</span> (<span class="nv">X</span> : rig) (<span class="nv">x</span> : X) : UU := linvpair (rigmultmonoid X) x.
+
+<span class="kn">Definition</span> <span class="nf">multrinvpair</span> (<span class="nv">X</span> : rig) (<span class="nv">x</span> : X) : UU := rinvpair (rigmultmonoid X) x.
+
+<span class="kn">Definition</span> <span class="nf">multinvpair</span> (<span class="nv">X</span> : rig) (<span class="nv">x</span> : X) : UU := invpair (rigmultmonoid X) x.
+
+<span class="kn">Definition</span> <span class="nf">rigneq0andmultlinv</span> (<span class="nv">X</span> : rig) (<span class="nv">n</span> <span class="nv">m</span> : X) (<span class="nv">isnm</span> : ((n * m) != <span class="mi">0</span>)%rig) :
+  n != <span class="mi">0</span>%rig.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> e. <span class="nb">rewrite</span> e <span class="k">in</span> isnm.
+  <span class="nb">rewrite</span> (rigmult0x X) <span class="k">in</span> isnm.
+  <span class="nb">induction</span> (isnm (idpath _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rigneq0andmultrinv</span> (<span class="nv">X</span> : rig) (<span class="nv">n</span> <span class="nv">m</span> : X) (<span class="nv">isnm</span> : ((n * m) != <span class="mi">0</span>)%rig) :
+  m != <span class="mi">0</span>%rig.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> e. <span class="nb">rewrite</span> e <span class="k">in</span> isnm. <span class="nb">rewrite</span> (rigmultx0 _) <span class="k">in</span> isnm.
+  <span class="nb">induction</span> (isnm (idpath _)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** To rings *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> ring_scope.
+
+<span class="kn">Definition</span> <span class="nf">ringneq0andmultlinv</span> (<span class="nv">X</span> : <span class="bp">ring</span>) (<span class="nv">n</span> <span class="nv">m</span> : X) (<span class="nv">isnm</span> : ((n * m) != <span class="mi">0</span>)) : n != <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> e. <span class="nb">rewrite</span> e <span class="k">in</span> isnm.
+  <span class="nb">rewrite</span> (ringmult0x X) <span class="k">in</span> isnm.
+  <span class="nb">induction</span> (isnm (idpath _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ringneq0andmultrinv</span> (<span class="nv">X</span> : <span class="bp">ring</span>) (<span class="nv">n</span> <span class="nv">m</span> : X) (<span class="nv">isnm</span> : ((n * m) != <span class="mi">0</span>)) : m != <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> e. <span class="nb">rewrite</span> e <span class="k">in</span> isnm.
+  <span class="nb">rewrite</span> (ringmultx0 _) <span class="k">in</span> isnm.
+  <span class="nb">induction</span> (isnm (idpath _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ringpossubmonoid</span> (<span class="nv">X</span> : <span class="bp">ring</span>) {<span class="nv">R</span> : hrel X} (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) :
+  @submonoid (ringmultmonoid X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span>, <span class="nv">R</span> <span class="nv">x</span> <span class="mi">0</span>). <span class="nb">split</span>.
+  - <span class="nb">intros</span> x1 x2. <span class="nb">apply</span> is1. <span class="nb">apply</span> (pr2 x1). <span class="nb">apply</span> (pr2 x2).
+  - <span class="nb">apply</span> is2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isinvringmultgtif</span> (<span class="nv">X</span> : <span class="bp">ring</span>) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R) (<span class="nv">is1</span> : isringmultgt X R)
+      (<span class="nv">nc</span> : neqchoice R) (<span class="nv">isa</span> : isasymm R) : isinvringmultgt X R.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b rab0 ra0.
+    <span class="nb">assert</span> (int : b != <span class="mi">0</span>).
+    {
+      <span class="nb">intro</span> e. <span class="nb">rewrite</span> e <span class="k">in</span> rab0. <span class="nb">rewrite</span> (ringmultx0 X _) <span class="k">in</span> rab0.
+      <span class="nb">apply</span> (isa _ _ rab0 rab0).
+    }
+    <span class="nb">induction</span> (nc _ _ int) <span class="k">as</span> [ g | l ].
+    + <span class="nb">apply</span> g.
+    + <span class="nb">set</span> (int' := ringmultgt0lt0 X is0 is1 ra0 l).
+      <span class="nb">induction</span> (isa _ _ rab0 int').
+  - <span class="nb">intros</span> a b rab0 rb0.
+    <span class="nb">assert</span> (int : a != <span class="mi">0</span>).
+    {
+      <span class="nb">intro</span> e. <span class="nb">rewrite</span> e <span class="k">in</span> rab0. <span class="nb">rewrite</span> (ringmult0x X _) <span class="k">in</span> rab0.
+      <span class="nb">apply</span> (isa _ _ rab0 rab0).
+    }
+    <span class="nb">induction</span> (nc _ _ int) <span class="k">as</span> [ g | l ].
+    + <span class="nb">apply</span> g.
+    + <span class="nb">set</span> (int' := ringmultlt0gt0 X is0 is1 l rb0).
+      <span class="nb">induction</span> (isa _ _ rab0 int').
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** ** Standard Algebraic Structures (cont.) Integral domains and Fileds.</span>
+
+<span class="sd">Some of the notions considered in this section were introduced in C. Mulvey "Intuitionistic algebra</span>
+<span class="sd">and representations of rings". See also P.T. Johnstone "Rings, fields and spectra". We only</span>
+<span class="sd">consider here the strongest ("geometric") forms of the conditions of integrality and of being a</span>
+<span class="sd">field. In particular all our fileds have decidable equality and p-adic numbers or reals are not</span>
+<span class="sd">fileds in the sense of the definitions considered here. *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> ring_scope.
+
+
+<span class="sd">(** *** Integral domains *)</span>
+
+
+<span class="sd">(** **** General definitions *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isnonzerolinvel</span> (<span class="nv">X</span> : <span class="bp">ring</span>) (<span class="nv">isc</span> : isnonzerorig X) (<span class="nv">x</span> : X) (<span class="nv">x'</span> : multlinvpair X x) :
+  ((pr1 x') != <span class="mi">0</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (negf (maponpaths (<span class="k">λ</span> <span class="nv">a</span> : X, a * x))).
+  <span class="nb">assert</span> (e := pr2 x'). <span class="nb">change</span> (pr1 x' * x = <span class="mi">1</span>) <span class="k">in</span> e.
+  <span class="nb">change</span> (pr1 x' * x != <span class="mi">0</span> * x). <span class="nb">rewrite</span> e.
+  <span class="nb">rewrite</span> (ringmult0x X _). <span class="nb">apply</span> isc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isnonzerorinvel</span> (<span class="nv">X</span> : <span class="bp">ring</span>) (<span class="nv">isc</span> : isnonzerorig X) (<span class="nv">x</span> : X) (<span class="nv">x'</span> : multrinvpair X x) :
+  ((pr1 x') != <span class="mi">0</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> (negf (maponpaths (<span class="k">λ</span> <span class="nv">a</span> : X, x * a))).
+  <span class="nb">assert</span> (e := pr2 x'). <span class="nb">change</span> (x * pr1 x' = <span class="mi">1</span>) <span class="k">in</span> e.
+  <span class="nb">change</span> (x * pr1 x' != x * <span class="mi">0</span>).
+  <span class="nb">rewrite</span> e. <span class="nb">rewrite</span> (ringmultx0 X _). <span class="nb">apply</span> isc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isnonzerofromlinvel</span> (<span class="nv">X</span> : <span class="bp">ring</span>) (<span class="nv">isc</span> : isnonzerorig X) (<span class="nv">x</span> : X) (<span class="nv">x'</span> : multlinvpair X x) :
+  x != <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (negf (maponpaths (<span class="k">λ</span> <span class="nv">a</span> : X, (pr1 x') * a))).
+  <span class="nb">assert</span> (e := pr2 x'). <span class="nb">change</span> (pr1 x' * x = <span class="mi">1</span>) <span class="k">in</span> e.
+  <span class="nb">change</span> (pr1 x' * x != pr1 x' * <span class="mi">0</span>).
+  <span class="nb">rewrite</span> e. <span class="nb">rewrite</span> (ringmultx0 X _). <span class="nb">apply</span> isc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isnonzerofromrinvel</span> (<span class="nv">X</span> : <span class="bp">ring</span>) (<span class="nv">isc</span> : isnonzerorig X) (<span class="nv">x</span> : X) (<span class="nv">x'</span> : multrinvpair X x) :
+  x != <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> (negf (maponpaths (<span class="k">λ</span> <span class="nv">a</span> : X, a * (pr1 x')))).
+  <span class="nb">assert</span> (e := pr2 x'). <span class="nb">change</span> (x * pr1 x' = <span class="mi">1</span>) <span class="k">in</span> e.
+  <span class="nb">change</span> (x * pr1 x' != <span class="mi">0</span> * pr1 x').
+  <span class="nb">rewrite</span> e. <span class="nb">rewrite</span> (ringmult0x X _). <span class="nb">apply</span> isc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isintdom</span> (<span class="nv">X</span> : commring) : UU :=
+  (isnonzerorig X) × (∏ (a1 a2 : X), (a1 * a2 = <span class="mi">0</span>) → (a1 = <span class="mi">0</span>) ∨ (a2 = <span class="mi">0</span>)).
+
+<span class="kn">Lemma</span> <span class="nf">isapropisintdom</span> (<span class="nv">X</span> : commring) : isaprop (isintdom X).
+<span class="kn">Proof</span>.
+  use isapropdirprod.
+  - <span class="nb">apply</span> propproperty.
+  - use impred. <span class="nb">intros</span> x1. use impred. <span class="nb">intros</span> x2. use impred. <span class="nb">intros</span> H.
+    use propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">intdom</span> : UU := ∑ (X : commring), isintdom X.
+
+<span class="kn">Definition</span> <span class="nf">pr1intdom</span> : intdom → commring := @pr1 _ _.
+<span class="kn">Coercion</span> <span class="nf">pr1intdom</span> : intdom &gt;-&gt; commring.
+
+<span class="kn">Definition</span> <span class="nf">nonzeroax</span> (<span class="nv">X</span> : intdom) : (<span class="mi">1</span> : X) != <span class="mi">0</span> := pr12 X.
+
+<span class="kn">Definition</span> <span class="nf">intdomax</span> (<span class="nv">X</span> : intdom) :
+  ∏ (a1 a2 : X), (a1 * a2) = <span class="mi">0</span> → (a1 = <span class="mi">0</span>) ∨ (a2 = <span class="mi">0</span>) := pr22 X.
+
+
+<span class="sd">(** **** (X = Y) ≃ (ringiso X Y)</span>
+<span class="sd">   We use the following composition</span>
+
+<span class="sd">                            (X = Y) ≃ (pr1 X = pr1 Y)</span>
+<span class="sd">                                    ≃ (ringiso X Y)</span>
+
+<span class="sd">  where the second weak equivalence is given by univalence for commrings, [commring_univalence].</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">intdom_univalence_weq1</span> (<span class="nv">X</span> <span class="nv">Y</span> : intdom) : (X = Y) ≃ (pr1 X = pr1 Y).
+<span class="kn">Proof</span>.
+  use subtypeInjectivity.
+  <span class="nb">intros</span> w. use isapropisintdom.
+<span class="kn">Defined</span>.
+<span class="kn">Opaque</span> intdom_univalence_weq1.
+
+<span class="kn">Definition</span> <span class="nf">intdom_univalence_weq2</span> (<span class="nv">X</span> <span class="nv">Y</span> : intdom) : (pr1 X = pr1 Y) ≃ (ringiso X Y) :=
+  commring_univalence (pr1 X) (pr1 Y).
+
+<span class="kn">Definition</span> <span class="nf">intdom_univalence_map</span> (<span class="nv">X</span> <span class="nv">Y</span> : intdom) : (X = Y) → (ringiso X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">induction</span> e. <span class="bp">exact</span> (idrigiso X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">intdom_univalence_isweq</span> (<span class="nv">X</span> <span class="nv">Y</span> : intdom) : isweq (intdom_univalence_map X Y).
+<span class="kn">Proof</span>.
+  use isweqhomot.
+  - <span class="bp">exact</span> (weqcomp (intdom_univalence_weq1 X Y) (intdom_univalence_weq2 X Y)).
+  - <span class="nb">intros</span> e. <span class="nb">induction</span> e. use weqcomp_to_funcomp_app.
+  - use weqproperty.
+<span class="kn">Defined</span>.
+<span class="kn">Opaque</span> intdom_univalence_isweq.
+
+<span class="kn">Definition</span> <span class="nf">intdom_univalence</span> (<span class="nv">X</span> <span class="nv">Y</span> : intdom) : (X = Y) ≃ (ringiso X Y)
+  := make_weq
+    (intdom_univalence_map X Y)
+    (intdom_univalence_isweq X Y).
+
+
+<span class="sd">(** **** Computational lemmas for integral domains *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">intdomax2l</span> (<span class="nv">X</span> : intdom) (<span class="nv">x</span> <span class="nv">y</span> : X) (<span class="nv">isc</span> : x * y = <span class="mi">0</span>) (<span class="nv">ne</span> : x != <span class="mi">0</span>) : y = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (int := intdomax X _ _ isc). <span class="nb">generalize</span> ne.
+  <span class="nb">assert</span> (int' : isaprop (x != <span class="mi">0</span> → y = <span class="mi">0</span>)).
+  {
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> (setproperty X _ _).
+  }
+  <span class="nb">generalize</span> int. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ int')).
+  <span class="nb">intro</span> ene. <span class="nb">induction</span> ene <span class="k">as</span> [ e'' | ne' ].
+  - <span class="nb">induction</span> (ne e'').
+  - <span class="nb">intro</span>. <span class="nb">apply</span> ne'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">intdomax2r</span> (<span class="nv">X</span> : intdom) (<span class="nv">x</span> <span class="nv">y</span> : X) (<span class="nv">isc</span> : x * y = <span class="mi">0</span>) (<span class="nv">ne</span> : y != <span class="mi">0</span>) : x = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (int := intdomax X _ _ isc). <span class="nb">generalize</span> ne.
+  <span class="nb">assert</span> (int' : isaprop (y != <span class="mi">0</span> → x = <span class="mi">0</span>)).
+  {
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> (setproperty X _ _).
+  }
+  <span class="nb">generalize</span> int. <span class="nb">simpl</span>. <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ int')).
+  <span class="nb">intro</span> ene. <span class="nb">induction</span> ene <span class="k">as</span> [ e'' | ne' ].
+  - <span class="nb">intro</span>. <span class="nb">apply</span> e''.
+  - <span class="nb">induction</span> (ne ne').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">intdomneq0andmult</span> (<span class="nv">X</span> : intdom) (<span class="nv">n</span> <span class="nv">m</span> : X) (<span class="nv">isn</span> : n != <span class="mi">0</span>)
+           (<span class="nv">ism</span> : m != <span class="mi">0</span>) : ((n * m) != <span class="mi">0</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intro</span> e. <span class="nb">induction</span> (ism (intdomax2l X n m e isn )).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">intdomlcan</span> (<span class="nv">X</span> : intdom) : ∏ (a b c : X), c != <span class="mi">0</span> → c * a = c * b → a = b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b c ne e.
+  <span class="nb">apply</span> (@grtopathsxy X a b). <span class="nb">change</span> (a - b = <span class="mi">0</span>).
+  <span class="nb">assert</span> (e' := grfrompathsxy X e). <span class="nb">change</span> (c * a - c * b = <span class="mi">0</span>) <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> &lt;- (ringrmultminus X _ _) <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> &lt;- (ringldistr X _ _ c) <span class="k">in</span> e'.
+  <span class="nb">set</span> (int := intdomax X _ _ e'). <span class="nb">generalize</span> ne.
+  <span class="nb">assert</span> (int' : isaprop (c != <span class="mi">0</span> → a - b = <span class="mi">0</span>)).
+  {
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> (setproperty X _ _).
+  }
+  <span class="nb">generalize</span> int. <span class="nb">simpl</span>. <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ int')).
+  <span class="nb">intro</span> ene. <span class="nb">induction</span> ene <span class="k">as</span> [ e'' | ne' ].
+  - <span class="nb">induction</span> (ne e'').
+  - <span class="nb">intro</span>. <span class="nb">apply</span> ne'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">intdomrcan</span> (<span class="nv">X</span> : intdom) : ∏ (a b c : X), c != <span class="mi">0</span> → a * c = b * c → a = b.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b c ne e. <span class="nb">apply</span> (@grtopathsxy X a b). <span class="nb">change</span> (a - b = <span class="mi">0</span>).
+  <span class="nb">assert</span> (e' := grfrompathsxy X e). <span class="nb">change</span> (a * c - b * c = <span class="mi">0</span>) <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> &lt;- (ringlmultminus X _ _) <span class="k">in</span> e'.
+  <span class="nb">rewrite</span> &lt;- (ringrdistr X _ _ c) <span class="k">in</span> e'.
+  <span class="nb">set</span> (int := intdomax X _ _ e'). <span class="nb">generalize</span> ne.
+  <span class="nb">assert</span> (int' : isaprop (c != <span class="mi">0</span> → a - b = <span class="mi">0</span>)).
+  {
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> (setproperty X _ _).
+  }
+  <span class="nb">generalize</span> int. <span class="nb">simpl</span>. <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ int')).
+  <span class="nb">intro</span> ene. <span class="nb">induction</span> ene <span class="k">as</span> [ e'' | ne' ].
+  - <span class="nb">intro</span>. <span class="nb">apply</span> e''.
+  - <span class="nb">induction</span> (ne ne').
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">intdomiscancelable</span> (<span class="nv">X</span> : intdom) (<span class="nv">x</span> : X) (<span class="nv">isc</span> : x != <span class="mi">0</span>) : iscancelable (@op2 X) x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> iscancelableif.
+  - <span class="nb">intros</span> a b. <span class="nb">apply</span> (intdomlcan X a b x isc).
+  - <span class="nb">intros</span> a b. <span class="nb">apply</span> (intdomrcan X a b x isc).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** **** Multiplicative submonoid of non-zero elements *)</span>
+
+<span class="kn">Definition</span> <span class="nf">intdomnonzerosubmonoid</span> (<span class="nv">X</span> : intdom) : @subabmonoid (ringmultabmonoid X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span> : X, make_hProp _ (isapropneg (x = <span class="mi">0</span>))). <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b. <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">intro</span> e.
+    <span class="nb">set</span> (int := intdomax X (pr1 a) (pr1 b) e). <span class="nb">clearbody</span> int. <span class="nb">generalize</span> int.
+    <span class="nb">apply</span> toneghdisj. <span class="nb">apply</span> (pr2 a ,, pr2 b).
+  - <span class="nb">simpl</span>. <span class="nb">apply</span> (nonzeroax X).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** **** Relations similar to "greater" on integral domains *)</span>
+
+<span class="kn">Definition</span> <span class="nf">intdomnonzerotopos</span> (<span class="nv">X</span> : intdom) (<span class="nv">R</span> : hrel X) (<span class="nv">is0</span> : @isbinophrel X R)
+           (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R)
+           (<span class="nv">x</span> : intdomnonzerosubmonoid X) : ringpossubmonoid X is1 is2.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> (nc (pr1 x) <span class="mi">0</span> (pr2 x)) <span class="k">as</span> [ g | l ].
+  - <span class="nb">apply</span> (pr1 x ,, g).
+  - <span class="k">exists</span> (- pr1 x). <span class="nb">simpl</span>.
+    <span class="nb">apply</span> ringtogt0.
+    + <span class="nb">apply</span> is0.
+    + <span class="nb">rewrite</span> (ringminusminus X _). <span class="nb">apply</span> l.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Ring units (i.e. multilicatively invertible elements) *)</span>
+
+
+<span class="sd">(** *** Fields *)</span>
+
+
+<span class="sd">(** **** Main definitions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isafield</span> (<span class="nv">X</span> : commring) : UU :=
+  (isnonzerorig X) × (∏ x : X, (multinvpair X x) ⨿ (x = <span class="mi">0</span>)).
+
+<span class="kn">Lemma</span> <span class="nf">isapropisafield</span> (<span class="nv">X</span> : commring) : isaprop (isafield X).
+<span class="kn">Proof</span>.
+  use isofhleveltotal2.
+  - <span class="nb">apply</span> propproperty.
+  - <span class="nb">intros</span> H.
+    use impred. <span class="nb">intros</span> x. use isapropcoprod.
+    + use isapropinvpair.
+    + use setproperty.
+    + <span class="nb">intros</span> H' e. use H.
+      <span class="nb">refine</span> (_ @ multx0_is_l _ (ringop2axs X) (ringdistraxs X) (pr1 H')).
+      <span class="nb">refine</span> (_ @ maponpaths _ e).
+      <span class="bp">exact</span> (!dirprod_pr1 (pr2 H')).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fld</span> : UU := ∑ (X : commring), isafield X.
+
+<span class="kn">Definition</span> <span class="nf">make_fld</span> (<span class="nv">X</span> : commring) (<span class="nv">isc</span> : isafield X) : fld := X ,, isc.
+
+<span class="kn">Definition</span> <span class="nf">pr1fld</span> : fld → commring := @pr1 _ _.
+
+<span class="kn">Definition</span> <span class="nf">fldtointdom</span> (<span class="nv">X</span> : fld) : intdom.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">X</span>). <span class="k">exists</span> (<span class="nv">pr1</span> (pr2 X)).
+  <span class="nb">intros</span> a1 a2. <span class="nb">induction</span> (pr2 (pr2 X) a1) <span class="k">as</span> [ a1' | e0 ].
+  - <span class="nb">intro</span> e12. <span class="nb">rewrite</span> &lt;- (ringmultx0 (pr1 X) a1) <span class="k">in</span> e12.
+    <span class="nb">set</span> (e2 := lcanfromlinv _ _ _ _ (invtolinv _ _ a1') e12).
+    <span class="nb">apply</span> (hinhpr (ii2 e2)).
+  - <span class="nb">intro</span> e12. <span class="nb">apply</span> (hinhpr (ii1 e0)).
+<span class="kn">Defined</span>.
+<span class="kn">Coercion</span> <span class="nf">fldtointdom</span> : fld &gt;-&gt; intdom.
+
+<span class="kn">Definition</span> <span class="nf">fldchoice</span> {<span class="nv">X</span> : fld} (<span class="nv">x</span> : X) : (multinvpair X x) ⨿ (x = <span class="mi">0</span>) := pr2 (pr2 X) x.
+
+<span class="kn">Definition</span> <span class="nf">fldmultinvpair</span> (<span class="nv">X</span> : fld) (<span class="nv">x</span> : X) (<span class="nv">ne</span> : x != <span class="mi">0</span>) : multinvpair X x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> (fldchoice x) <span class="k">as</span> [ ne0 | e0 ].
+  - <span class="nb">apply</span> ne0.
+  - <span class="nb">induction</span> (ne e0).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fldmultinv</span> {<span class="nv">X</span> : fld} (<span class="nv">x</span> : X) (<span class="nv">ne</span> : x != <span class="mi">0</span>) : X := pr1 (fldmultinvpair X x ne).
+
+
+<span class="sd">(** **** (X = Y) ≃ (ringiso X Y)</span>
+<span class="sd">   We use the following composition</span>
+
+<span class="sd">                                (X = Y) ≃ (pr1 X = pr1 Y)</span>
+<span class="sd">                                        ≃ (ringiso X Y)</span>
+
+<span class="sd">   where the second weak equivalence is given by univalence for commrings, [commring_univalence].</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">fld_univalence_weq1</span> (<span class="nv">X</span> <span class="nv">Y</span> : fld) : (X = Y) ≃ (pr1 X = pr1 Y).
+<span class="kn">Proof</span>.
+  use subtypeInjectivity.
+  <span class="nb">intros</span> w. use isapropisafield.
+<span class="kn">Defined</span>.
+<span class="kn">Opaque</span> fld_univalence_weq1.
+
+<span class="kn">Definition</span> <span class="nf">fld_univalence_weq2</span> (<span class="nv">X</span> <span class="nv">Y</span> : fld) : (pr1 X = pr1 Y) ≃ (ringiso X Y) :=
+  commring_univalence (pr1 X) (pr1 Y).
+
+<span class="kn">Definition</span> <span class="nf">fld_univalence_map</span> (<span class="nv">X</span> <span class="nv">Y</span> : fld) : (X = Y) → (ringiso X Y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">induction</span> e. <span class="bp">exact</span> (idrigiso X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">fld_univalence_isweq</span> (<span class="nv">X</span> <span class="nv">Y</span> : fld) : isweq (fld_univalence_map X Y).
+<span class="kn">Proof</span>.
+  use isweqhomot.
+  - <span class="bp">exact</span> (weqcomp (fld_univalence_weq1 X Y) (fld_univalence_weq2 X Y)).
+  - <span class="nb">intros</span> e. <span class="nb">induction</span> e. use weqcomp_to_funcomp_app.
+  - use weqproperty.
+<span class="kn">Defined</span>.
+<span class="kn">Opaque</span> fld_univalence_isweq.
+
+<span class="kn">Definition</span> <span class="nf">fld_univalence</span> (<span class="nv">X</span> <span class="nv">Y</span> : fld) : (X = Y) ≃ (ringiso X Y)
+  := make_weq
+    (fld_univalence_map X Y)
+    (fld_univalence_isweq X Y).
+
+
+<span class="sd">(** **** Field of fractions of an integral domain with decidable equality *)</span>
+
+<span class="kn">Definition</span> <span class="nf">fldfracmultinvint</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X)
+           (<span class="nv">xa</span> : X × intdomnonzerosubmonoid X) : X × intdomnonzerosubmonoid X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> (isc (pr1 xa) <span class="mi">0</span>) <span class="k">as</span> [ e0 | ne0 ].
+  - <span class="nb">apply</span> (<span class="mi">1</span> ,, (<span class="mi">1</span> ,, nonzeroax X)).
+  - <span class="nb">apply</span> (pr12 xa ,, pr1 xa ,, ne0).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Note: we choose a strange from the mathematicians perspective approach to the definition of the</span>
+<span class="sd">multiplicative inverse on non-zero elements of a field due to the current, somewhat less than</span>
+<span class="sd">satisfactory, situation with computational behavior of our construction of set-quotients. The</span>
+<span class="sd">particular problem is that the weak equivalence between "quotient of subtype" and "subtype of a</span>
+<span class="sd">quotient" is not isomorphism in the syntactic category. This can be corrected by extension of the</span>
+<span class="sd">type system with tfc-terms. See discussion in hSet.v *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">fldfracmultinvintcomp</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) :
+  iscomprelrelfun (eqrelcommringfrac X (intdomnonzerosubmonoid X))
+                  (eqrelcommringfrac X (intdomnonzerosubmonoid X))
+                  (fldfracmultinvint X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intros</span> xa1 xa2.
+  <span class="nb">set</span> (x1 := pr1 xa1). <span class="nb">set</span> (aa1 := pr2 xa1). <span class="nb">set</span> (a1 := pr1 aa1).
+  <span class="nb">set</span> (x2 := pr1 xa2). <span class="nb">set</span> (aa2 := pr2 xa2). <span class="nb">set</span> (a2 := pr1 aa2).
+  <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2. <span class="nb">unfold</span> fldfracmultinvint.
+  <span class="nb">induction</span> (isc (pr1 xa1) <span class="mi">0</span>) <span class="k">as</span> [ e1 | ne1 ].
+  - <span class="nb">induction</span> (isc (pr1 xa2) <span class="mi">0</span>) <span class="k">as</span> [ e2 | ne2 ].
+    + <span class="bp">now</span> <span class="k">exists</span> ((<span class="mi">1</span> : X) ,, nonzeroax X).
+    +  <span class="nb">simpl</span>. <span class="nb">set</span> (aa0 := pr1 t2). <span class="nb">set</span> (a0 := pr1 aa0).
+       <span class="nb">assert</span> (e := pr2 t2). <span class="nb">change</span> (x1 * a2 * a0 = x2 * a1 * a0) <span class="k">in</span> e.
+       <span class="nb">change</span> (x1 = <span class="mi">0</span>) <span class="k">in</span> e1. <span class="nb">rewrite</span> e1 <span class="k">in</span> e. <span class="nb">rewrite</span> (ringmult0x X _) <span class="k">in</span> e.
+       <span class="nb">rewrite</span> (ringmult0x X _) <span class="k">in</span> e.
+       <span class="nb">assert</span> (e' := intdomax2r X _ _ (!e) (pr2 aa0)).
+       <span class="nb">assert</span> (e'' := intdomax2r X _ _ e' (pr2 aa1)).
+       <span class="nb">induction</span> (ne2 e'').
+  - <span class="nb">induction</span> (isc (pr1 xa2) <span class="mi">0</span>) <span class="k">as</span> [ e2 | ne2 ].
+    + <span class="nb">simpl</span>. <span class="nb">set</span> (aa0 := pr1 t2). <span class="nb">set</span> (a0 := pr1 aa0).
+      <span class="nb">assert</span> (e := pr2 t2). <span class="nb">change</span> (x1 * a2 * a0 = x2 * a1 * a0) <span class="k">in</span> e.
+      <span class="nb">change</span> (x2 = <span class="mi">0</span>) <span class="k">in</span> e2. <span class="nb">rewrite</span> e2 <span class="k">in</span> e. <span class="nb">rewrite</span> (ringmult0x X _) <span class="k">in</span> e.
+      <span class="nb">rewrite</span> (ringmult0x X _) <span class="k">in</span> e.
+      <span class="nb">assert</span> (e' := intdomax2r X _ _  e (pr2 aa0)).
+      <span class="nb">assert</span> (e'' := intdomax2r X _ _ e' (pr2 aa2)).
+      <span class="nb">induction</span> (ne1 e'').
+    + <span class="nb">simpl</span>. <span class="nb">set</span> (aa0 := pr1 t2). <span class="nb">set</span> (a0 := pr1 aa0).
+      <span class="nb">assert</span> (e := pr2 t2). <span class="k">exists</span> <span class="nv">aa0</span>.
+      <span class="nb">change</span> (a1 * x2 * a0 = a2 * x1 * a0).
+      <span class="nb">change</span> (x1 * a2 * a0 = x2 * a1 * a0) <span class="k">in</span> e.
+      <span class="nb">rewrite</span> (ringcomm2 X a1 x2). <span class="nb">rewrite</span> (ringcomm2 X a2 x1).
+      <span class="nb">apply</span> (!e).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fldfracmultinv0</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X)
+           (<span class="nv">x</span> : commringfrac X (intdomnonzerosubmonoid X)) :
+  commringfrac X (intdomnonzerosubmonoid X) := setquotfun _ _ _ (fldfracmultinvintcomp X isc) x.
+
+<span class="kn">Lemma</span> <span class="nf">nonzeroincommringfrac</span> (<span class="nv">X</span> : commring) (<span class="nv">S</span> : @submonoid (ringmultmonoid X)) (<span class="nv">xa</span> : X × S)
+      (<span class="nv">ne</span> : (setquotpr (eqrelcommringfrac X S) xa !=
+             setquotpr _ (<span class="mi">0</span> ,, unel S))) : pr1 xa != <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">set</span> (x := pr1 xa). <span class="nb">set</span> (aa := pr2 xa).
+  <span class="nb">assert</span> (e' := negf (weqpathsinsetquot (eqrelcommringfrac X S) _ _) ne).
+  <span class="nb">simpl</span> <span class="k">in</span> e'. <span class="nb">generalize</span> e'.
+  <span class="nb">apply</span> negf. <span class="nb">intro</span> e. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">unel</span> <span class="nv">S</span>).
+  <span class="nb">change</span> (x * <span class="mi">1</span> * <span class="mi">1</span> = <span class="mi">0</span> * pr1 aa * <span class="mi">1</span>). <span class="nb">rewrite</span> e.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> (ringmult0x X _).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">zeroincommringfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">S</span> : @submonoid (ringmultmonoid X))
+      (<span class="nv">isc</span> : ∏ s : S, (pr1 s != <span class="mi">0</span>)) (<span class="nv">x</span> : X) (<span class="nv">aa</span> : S)
+      (<span class="nv">e</span> : setquotpr (eqrelcommringfrac X S) (x ,, aa) = setquotpr _ (<span class="mi">0</span> ,, unel S))
+      : x = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (e' := invweq (weqpathsinsetquot _ _ _) e). <span class="nb">simpl</span> <span class="k">in</span> e'. <span class="nb">generalize</span> e'.
+  <span class="nb">apply</span> (@hinhuniv _ (make_hProp _ (setproperty X _ _))).
+  <span class="nb">intro</span> t2. <span class="nb">simpl</span>.
+  <span class="nb">set</span> (aa0 := pr1 t2). <span class="nb">set</span> (a0 := pr1 aa0). <span class="nb">set</span> (a := pr1 aa).
+  <span class="nb">assert</span> (e2 := pr2 t2). <span class="nb">simpl</span> <span class="k">in</span> e2.
+  <span class="nb">change</span> (x * <span class="mi">1</span> * a0 = <span class="mi">0</span> * a * a0) <span class="k">in</span> e2.
+  <span class="nb">rewrite</span> (ringmult0x X _) <span class="k">in</span> e2.
+  <span class="nb">rewrite</span> (ringmult0x X _) <span class="k">in</span> e2.
+  <span class="nb">rewrite</span> (ringrunax2 X _) <span class="k">in</span> e2.
+  <span class="nb">apply</span> (intdomax2r X x a0 e2 (isc aa0)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isdeceqfldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) :
+  isdeceq (commringfrac X (intdomnonzerosubmonoid X)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> isdeceqcommringfrac.
+  - <span class="nb">intro</span> a. <span class="nb">apply</span> isrcancelableif.
+    <span class="nb">intros</span> b0 b1 e. <span class="nb">apply</span> (intdomrcan X _ _ (pr1 a) (pr2 a) e).
+  - <span class="nb">apply</span> isc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">islinvinfldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) (<span class="nv">x</span> : commringfrac X (intdomnonzerosubmonoid X))
+      (<span class="nv">ne</span> : x != <span class="mi">0</span>) : (fldfracmultinv0 X isc x * x) = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> x ne.
+  <span class="nb">assert</span> (int : ∏ x0, isaprop (x0 != <span class="mi">0</span> → (fldfracmultinv0 X isc x0) * x0 = <span class="mi">1</span>)).
+  {
+    <span class="nb">intro</span> x0.
+    <span class="nb">apply</span> impred. <span class="nb">intro</span>.
+    <span class="nb">apply</span> (setproperty (commringfrac X (intdomnonzerosubmonoid X)) (fldfracmultinv0 X isc x0 * x0) _).
+  }
+  <span class="nb">apply</span> (setquotunivprop _ (<span class="k">λ</span> <span class="nv">x0</span>, make_hProp _ (int x0))).
+  <span class="nb">simpl</span>. <span class="nb">intros</span> xa ne.
+  <span class="nb">change</span> (setquotpr _ (
+            (pr1 (fldfracmultinvint X isc xa)) * (pr1 xa) ,,
+            @op (intdomnonzerosubmonoid X) (pr2 (fldfracmultinvint X isc xa)) (pr2 xa)
+          )
+        = setquotpr (eqrelcommringfrac X (intdomnonzerosubmonoid X)) (<span class="mi">1</span> ,, <span class="mi">1</span> ,, nonzeroax X)).
+  <span class="nb">apply</span> (weqpathsinsetquot). <span class="nb">unfold</span> fldfracmultinvint. <span class="nb">simpl</span>.
+  <span class="nb">induction</span> (isc (pr1 xa) <span class="mi">0</span> ) <span class="k">as</span> [ e0 | ne0' ].
+  - <span class="nb">induction</span> (nonzeroincommringfrac X (intdomnonzerosubmonoid X) xa ne e0).
+  - <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> ((<span class="mi">1</span> : X) ,, nonzeroax X).
+    <span class="nb">set</span> (x := (pr1 xa) : X). <span class="nb">set</span> (aa := pr2 xa). <span class="nb">set</span> (a := (pr1 aa) : X).
+    <span class="nb">simpl</span>. <span class="nb">change</span> (a * x * <span class="mi">1</span>  * <span class="mi">1</span> = <span class="mi">1</span> * (x * a) * <span class="mi">1</span>).
+    <span class="nb">rewrite</span> (ringcomm2 X a x). <span class="kp">repeat</span> <span class="nb">rewrite</span> (ringrunax2 X _). <span class="nb">rewrite</span> (ringlunax2 X _).
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isrinvinfldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) (<span class="nv">x</span> : commringfrac X (intdomnonzerosubmonoid X))
+      (<span class="nv">ne</span> : x != <span class="mi">0</span>) : x * fldfracmultinv0 X isc x = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">rewrite</span> (ringcomm2 _ _ _). <span class="nb">apply</span> islinvinfldfrac. <span class="nb">apply</span> ne.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) : fld.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="k">exists</span> (<span class="nv">commringfrac</span> <span class="nv">X</span> (intdomnonzerosubmonoid X)). <span class="nb">split</span>.
+  - <span class="nb">intro</span> e.
+    <span class="nb">set</span> (e' := zeroincommringfrac X (intdomnonzerosubmonoid X)
+                                 (<span class="k">λ</span> <span class="nv">a</span> : (intdomnonzerosubmonoid X), pr2 a) <span class="mi">1</span>
+                                 (unel (intdomnonzerosubmonoid X)) e).
+    <span class="nb">apply</span> (nonzeroax X e').
+  - <span class="nb">intro</span> x. <span class="nb">induction</span> (isdeceqfldfrac X isc x <span class="mi">0</span>) <span class="k">as</span> [ e | ne ].
+    <span class="nb">apply</span> (ii2 e). <span class="nb">apply</span> ii1. <span class="k">exists</span> (<span class="nv">fldfracmultinv0</span> <span class="nv">X</span> <span class="nv">isc</span> <span class="nv">x</span>). <span class="nb">split</span>.
+    + <span class="nb">apply</span> (islinvinfldfrac X isc x ne) .
+    + <span class="nb">apply</span> (isrinvinfldfrac X isc x ne).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** **** Canonical homomorphism to the field of fractions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">tofldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) (<span class="nv">x</span> : X) : fldfrac X isc :=
+  setquotpr _ (x ,, <span class="mi">1</span> ,, nonzeroax X).
+
+<span class="kn">Definition</span> <span class="nf">isbinop1funtofldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) :
+  @isbinopfun X (fldfrac X isc) (tofldfrac X isc) := isbinop1funtocommringfrac X _.
+
+<span class="kn">Lemma</span> <span class="nf">isunital1funtofldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) : (tofldfrac X isc <span class="mi">0</span>) = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaddmonoidfuntofldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) :
+  @ismonoidfun X (fldfrac X isc) (tofldfrac X isc) :=
+  isbinop1funtofldfrac X isc ,, isunital1funtofldfrac X isc.
+
+<span class="kn">Definition</span> <span class="nf">tofldfracandminus0</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) (<span class="nv">x</span> : X) :
+  tofldfrac X isc (- x) = - tofldfrac X isc x :=
+  tocommringfracandminus0 _ _ x.
+
+<span class="kn">Definition</span> <span class="nf">tofldfracandminus</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) (<span class="nv">x</span> <span class="nv">y</span> : X) :
+  tofldfrac X isc (x - y) = tofldfrac X isc x - tofldfrac X isc y :=
+  tocommringfracandminus _ _ x y.
+
+<span class="kn">Lemma</span> <span class="nf">isbinop2funtofldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) :
+  @isbinopfun (ringmultmonoid X) (ringmultmonoid (fldfrac X isc)) (tofldfrac X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isbinopfuntoabmonoidfrac (ringmultabmonoid X)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isunital2funtofldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) : (tofldfrac X isc <span class="mi">1</span>) = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ismultmonoidfuntofldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) :
+  @ismonoidfun (ringmultmonoid X) (ringmultmonoid (fldfrac X isc)) (tofldfrac X isc) :=
+  isbinop2funtofldfrac X isc ,, isunital2funtofldfrac X isc.
+
+<span class="kn">Definition</span> <span class="nf">isringfuntofldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) :
+  @isringfun X (fldfrac X isc) (tofldfrac X isc) :=
+  isaddmonoidfuntofldfrac X isc ,, ismultmonoidfuntofldfrac X isc.
+
+<span class="kn">Definition</span> <span class="nf">isincltofldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) : isincl (tofldfrac X isc) :=
+  isincltocommringfrac X (intdomnonzerosubmonoid X)
+                      (<span class="k">λ</span> <span class="nv">x</span>, pr2 (intdomiscancelable X (pr1 x) (pr2 x))).
+
+
+<span class="sd">(** *** Relations similar to "greater" on fields of fractions</span>
+
+<span class="sd">Our approach here is slightly different from the tranditional one used for example in Bourbaki</span>
+<span class="sd">Algebra II, Ch. VI, Section 2 where one starts with a total ordering on a ring and extends it to</span>
+<span class="sd">its field of fractions. This situation woud be exemplified by the extension of "greater or equal"</span>
+<span class="sd">from integers to rationals. We have chosen to use instead as our archetypical example the extension</span>
+<span class="sd">of "greater" from integers to rationals. There is no particular difference between the two choices</span>
+<span class="sd">for types with decidable equality but in the setting of general rings in constructive mathematics</span>
+<span class="sd">the relations such as "greater" appear to be more fundamental than relations such as "greater or</span>
+<span class="sd">equal". For example, "greater or equal" on constructive real numbers can be obtained from "greater"</span>
+<span class="sd">but not vice versa. *)</span>
+
+
+<span class="sd">(** **** Description of the field of fractions as the ring of fractions with respect to the submonoid of "positive" elements *)</span>
+
+<span class="kn">Definition</span> <span class="nf">weqfldfracgtint_f</span> (<span class="nv">X</span> : intdom) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+           (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R)
+           (<span class="nv">xa</span> : X × intdomnonzerosubmonoid X) : X × ringpossubmonoid X is1 is2.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">induction</span> (nc (pr1 (pr2 xa)) <span class="mi">0</span> (pr2 (pr2 xa))) <span class="k">as</span> [ g | l ].
+  - <span class="nb">apply</span> (pr1 xa ,, pr1 (pr2 xa) ,, g).
+  - <span class="k">exists</span> (- (pr1 xa)). <span class="k">exists</span> (- (pr1 (pr2 xa))).
+    <span class="nb">simpl</span>. <span class="nb">apply</span> (ringfromlt0 X is0 l).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weqfldfracgtintcomp_f</span> (<span class="nv">X</span> : intdom) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+      (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) :
+  iscomprelrelfun (eqrelcommringfrac X (intdomnonzerosubmonoid X))
+                  (eqrelcommringfrac X (ringpossubmonoid X is1 is2))
+                  (weqfldfracgtint_f X is0 is1 is2 nc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intros</span> xa1 xa2. <span class="nb">simpl</span>.
+  <span class="nb">set</span> (x1 := pr1 xa1). <span class="nb">set</span> (aa1 := pr2 xa1). <span class="nb">set</span> (a1 := pr1 aa1).
+  <span class="nb">set</span> (x2 := pr1 xa2). <span class="nb">set</span> (aa2 := pr2 xa2). <span class="nb">set</span> (a2 := pr1 aa2).
+  <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2. <span class="k">exists</span> ((<span class="mi">1</span> : X) ,, is2).
+  <span class="nb">set</span> (aa0 := pr1 t2). <span class="nb">set</span> (a0 := pr1 aa0).
+  <span class="nb">assert</span> (e := pr2 t2). <span class="nb">change</span> (x1 * a2 * a0 = x2 * a1 * a0) <span class="k">in</span> e.
+  <span class="nb">unfold</span> weqfldfracgtint_f.
+  <span class="nb">induction</span> (nc (pr1 (pr2 xa1)) <span class="mi">0</span> (pr2 (pr2 xa1))) <span class="k">as</span> [ g1 | l1 ].
+  - <span class="nb">induction</span> (nc (pr1 (pr2 xa2)) <span class="mi">0</span> (pr2 (pr2 xa2))) <span class="k">as</span> [ g2 | l2 ].
+    + <span class="nb">simpl</span>. <span class="nb">rewrite</span> (ringrunax2 X _). <span class="nb">rewrite</span> (ringrunax2 X _).
+      <span class="nb">apply</span> (intdomrcan X _ _ _ (pr2 aa0) e).
+    + <span class="nb">simpl</span>. <span class="nb">rewrite</span> (ringrunax2 X _). <span class="nb">rewrite</span> (ringrunax2 X _).
+      <span class="nb">rewrite</span> (ringrmultminus X _ _). <span class="nb">rewrite</span> (ringlmultminus X _ _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span> : X, - x)).
+      <span class="nb">apply</span> (intdomrcan X _ _ _ (pr2 aa0) e).
+  - <span class="nb">induction</span> (nc (pr1 (pr2 xa2)) <span class="mi">0</span> (pr2 (pr2 xa2))) <span class="k">as</span> [ g2 | l2 ].
+    + <span class="nb">simpl</span>. <span class="nb">rewrite</span> (ringrunax2 X _). <span class="nb">rewrite</span> (ringrunax2 X _).
+      <span class="nb">rewrite</span> (ringrmultminus X _ _). <span class="nb">rewrite</span> (ringlmultminus X _ _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span> : X, - x)).
+      <span class="nb">apply</span> (intdomrcan X _ _ _ (pr2 aa0) e).
+    + <span class="nb">simpl</span>. <span class="nb">rewrite</span> (ringrunax2 X _). <span class="nb">rewrite</span> (ringrunax2 X _).
+      <span class="nb">rewrite</span> (ringrmultminus X _ _). <span class="nb">rewrite</span> (ringlmultminus X _ _).
+      <span class="nb">rewrite</span> (ringrmultminus X _ _). <span class="nb">rewrite</span> (ringlmultminus X _ _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span> : X, - - x)).
+      <span class="nb">apply</span> (intdomrcan X _ _ _ (pr2 aa0) e).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqfldfracgt_f</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+           (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) :
+  fldfrac X isc → commringfrac X (ringpossubmonoid X is1 is2) :=
+  setquotfun _ _ _ (weqfldfracgtintcomp_f X is0 is1 is2 nc).
+
+<span class="kn">Definition</span> <span class="nf">weqfldfracgtint_b</span> (<span class="nv">X</span> : intdom) {<span class="nv">R</span> : hrel X} (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>)
+           (<span class="nv">ir</span> : isirrefl R) (<span class="nv">xa</span> : X × ringpossubmonoid X is1 is2) :
+  X × intdomnonzerosubmonoid X :=
+  pr1 xa ,, pr1 (pr2 xa) ,, rtoneq ir (pr2 (pr2 xa)).
+
+<span class="kn">Lemma</span> <span class="nf">weqfldfracgtintcomp_b</span> (<span class="nv">X</span> : intdom) {<span class="nv">R</span> : hrel X} (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>)
+      (<span class="nv">ir</span> : isirrefl R) : iscomprelrelfun (eqrelcommringfrac X (ringpossubmonoid X is1 is2))
+                                          (eqrelcommringfrac X (intdomnonzerosubmonoid X))
+                                          (weqfldfracgtint_b X is1 is2 ir).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intros</span> xa1 xa2. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhfun. <span class="nb">intro</span> t2.
+  <span class="k">exists</span> (<span class="nv">pr1</span> (pr1 t2) ,, rtoneq ir (pr2 (pr1 t2))).
+  <span class="nb">apply</span> (pr2 t2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weqfldfracgt_b</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is1</span> : isringmultgt X R)
+           (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">ir</span> : isirrefl R) :
+  commringfrac X (ringpossubmonoid X is1 is2) → fldfrac X isc :=
+  setquotfun _ _ _ (weqfldfracgtintcomp_b X is1 is2 ir).
+
+<span class="kn">Definition</span> <span class="nf">weqfldfracgt</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+           (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) (<span class="nv">ir</span> : isirrefl R) :
+  weq (fldfrac X isc) (commringfrac X (ringpossubmonoid X is1 is2)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (f := weqfldfracgt_f X isc is0 is1 is2 nc).
+  <span class="nb">set</span> (g := weqfldfracgt_b X isc is1 is2 ir).
+  <span class="k">exists</span> <span class="nv">f</span>.
+  <span class="nb">assert</span> (egf : ∏ a, g (f a) = a).
+  {
+    <span class="nb">unfold</span> fldfrac. <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (setquotunivprop _ (<span class="k">λ</span> <span class="nv">a</span>, make_hProp _ (isasetsetquot _ (g (f a)) a))).
+    <span class="nb">intro</span> xa. <span class="nb">simpl</span>.
+    <span class="nb">change</span> (setquotpr _ (weqfldfracgtint_b _ is1 is2 ir (weqfldfracgtint_f _ is0 _ _ nc xa))
+          = setquotpr (eqrelcommringfrac _ _) xa).
+    <span class="nb">apply</span> (weqpathsinsetquot). <span class="nb">simpl</span>. <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> ((<span class="mi">1</span> : X) ,, nonzeroax X). <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> weqfldfracgtint_f.
+    <span class="nb">induction</span> (nc (pr1 (pr2 xa)) <span class="mi">0</span> (pr2 (pr2 xa))) <span class="k">as</span> [ g' | l' ].
+    - <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+    - <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> (ringrmultminus X _ _). <span class="nb">rewrite</span> (ringlmultminus X _ _).
+      <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">assert</span> (efg : ∏ a, f (g a) = a).
+  {
+    <span class="nb">unfold</span> fldfrac. <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (setquotunivprop _ (<span class="k">λ</span> <span class="nv">a</span>, make_hProp _ (isasetsetquot _ (f (g a)) a))).
+    <span class="nb">intro</span> xa. <span class="nb">simpl</span>.
+    <span class="nb">change</span> (setquotpr _ (weqfldfracgtint_f _ is0 is1 is2 nc (weqfldfracgtint_b _ _ _ ir xa))
+          = setquotpr (eqrelcommringfrac _ _) xa).
+    <span class="nb">apply</span> weqpathsinsetquot. <span class="nb">simpl</span>. <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> ((<span class="mi">1</span> : X) ,, is2).
+    <span class="nb">unfold</span> weqfldfracgtint_f. <span class="nb">unfold</span> weqfldfracgtint_b. <span class="nb">simpl</span>.
+    <span class="nb">set</span> (int := nc (pr1 (pr2 xa)) <span class="mi">0</span> (rtoneq ir (pr2 (pr2 xa))) ).
+    <span class="nb">change</span> (nc (pr1 (pr2 xa)) <span class="mi">0</span> (rtoneq ir (pr2 (pr2 xa)))) <span class="k">with</span> int.
+    <span class="nb">induction</span> int <span class="k">as</span> [ g' | l' ].
+    - <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+    - <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> (ringrmultminus X _ _). <span class="nb">rewrite</span> (ringlmultminus X _ _).
+      <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> (isweq_iso _ _ egf efg).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isringfunweqfldfracgt_b</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is1</span> : isringmultgt X R)
+      (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">ir</span> : isirrefl R) : isringfun (weqfldfracgt_b X isc is1 is2 ir).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">set</span> (g :=  weqfldfracgt_b X isc is1 is2 ir).
+  <span class="nb">set</span> (g0 := weqfldfracgtint_b X is1 is2 ir).
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    + <span class="nb">unfold</span> isbinopfun.
+      <span class="nb">change</span> (∏ x x' : commringfrac X (ringpossubmonoid X is1 is2),
+                       g (x + x') = g x + g x').
+      <span class="nb">apply</span> (setquotuniv2prop
+               _ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">x'</span> : commringfrac X (ringpossubmonoid X is1 is2),
+                    make_hProp _ (setproperty (fldfrac X isc) (g (x + x')) ((g x) + (g x'))))).
+      <span class="nb">intros</span> xa1 xa2.
+      <span class="nb">change</span> (setquotpr _ (g0 (commringfracop1int _ _ xa1 xa2))
+            = setquotpr (eqrelcommringfrac _ _) (commringfracop1int X _ (g0 xa1) (g0 xa2))).
+      <span class="nb">apply</span> (maponpaths (setquotpr _)).
+      <span class="nb">unfold</span> g0. <span class="nb">unfold</span> weqfldfracgtint_b. <span class="nb">unfold</span> commringfracop1int. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> (pathsdirprod).
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">induction</span> xa1 <span class="k">as</span> [ x1 aa1 ]. <span class="nb">induction</span> xa2 <span class="k">as</span> [ x2 aa2 ]. <span class="nb">simpl</span>.
+        <span class="nb">induction</span> aa1 <span class="k">as</span> [ a1 ia1 ]. <span class="nb">induction</span> aa2 <span class="k">as</span> [ a2 ia2 ]. <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (invmaponpathsincl
+                 (@pr1 _ _) (isinclpr1 _ (<span class="k">λ</span> <span class="nv">a</span>, (isapropneg (a = <span class="mi">0</span>))))
+                 (a1 * a2 ,, rtoneq ir (is1 a1 a2 ia1 ia2))
+                 (make_carrier (<span class="k">λ</span> <span class="nv">x</span> : pr1 X, make_hProp (x = <span class="mi">0</span> → empty) (isapropneg (x = <span class="mi">0</span>)))
+                              (a1 * a2) (<span class="k">λ</span> (<span class="nv">e</span> : a1 * a2 = <span class="mi">0</span>),
+                                           toneghdisj (rtoneq ir ia1 ,, rtoneq ir ia2)
+                                                      (intdomax X a1 a2 e))) (idpath _)).
+    + <span class="nb">change</span> (setquotpr (eqrelcommringfrac X _) (g0 (<span class="mi">0</span> ,, <span class="mi">1</span> ,, is2))
+            = setquotpr _ (<span class="mi">0</span> ,, <span class="mi">1</span> ,, nonzeroax X)).
+      <span class="nb">apply</span> (maponpaths (setquotpr _)).
+      <span class="nb">unfold</span> g0. <span class="nb">unfold</span> weqfldfracgtint_b. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> pathsdirprod.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> (invmaponpathsincl (@pr1 _ _) (isinclpr1 _ (<span class="k">λ</span> <span class="nv">a</span>, (isapropneg (a = <span class="mi">0</span>))))
+                                 (<span class="mi">1</span> ,, rtoneq ir is2) (<span class="mi">1</span> ,, nonzeroax X)).
+        <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+  - <span class="nb">split</span>.
+    + <span class="nb">unfold</span> isbinopfun.
+      <span class="nb">change</span> (∏ x x' : commringfrac X (ringpossubmonoid X is1 is2),
+                       g (x * x') = (g x) * (g x')).
+      <span class="nb">apply</span> (setquotuniv2prop
+               _ (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">x'</span> : commringfrac X (ringpossubmonoid X is1 is2),
+                    make_hProp _ (setproperty (fldfrac X isc) (g (x * x')) ((g x) * (g x'))))).
+      <span class="nb">intros</span> xa1 xa2.
+      <span class="nb">change</span> (setquotpr _ (g0 (commringfracop2int _ _ xa1 xa2))
+            = setquotpr (eqrelcommringfrac _ _) (commringfracop2int X _ (g0 xa1) (g0 xa2))).
+      <span class="nb">apply</span> (maponpaths (setquotpr _)).
+      <span class="nb">unfold</span> g0. <span class="nb">unfold</span> weqfldfracgtint_b.
+      <span class="nb">unfold</span> commringfracop2int. <span class="nb">unfold</span> abmonoidfracopint. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> (pathsdirprod).
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">induction</span> xa1 <span class="k">as</span> [ x1 aa1 ]. <span class="nb">induction</span> xa2 <span class="k">as</span> [ x2 aa2 ]. <span class="nb">simpl</span>.
+        <span class="nb">induction</span> aa1 <span class="k">as</span> [ a1 ia1 ]. <span class="nb">induction</span> aa2 <span class="k">as</span> [ a2 ia2 ]. <span class="nb">simpl</span>.
+        <span class="nb">apply</span> (invmaponpathsincl
+                 (@pr1 _ _)
+                 (isinclpr1 _ (<span class="k">λ</span> <span class="nv">a</span>, (isapropneg (a = <span class="mi">0</span>))))
+                 (a1 * a2 ,, rtoneq ir (is1 a1 a2 ia1 ia2))
+                 (make_carrier (<span class="k">λ</span> <span class="nv">x</span> : pr1 X, make_hProp (x = <span class="mi">0</span> → empty) (isapropneg (x = <span class="mi">0</span>)))
+                              (a1 * a2) (<span class="k">λ</span> (<span class="nv">e</span> : a1 * a2 = <span class="mi">0</span>),
+                                           toneghdisj (rtoneq ir ia1 ,, rtoneq ir ia2)
+                                                      (intdomax X a1 a2 e))) (idpath _)).
+    + <span class="nb">change</span> (setquotpr (eqrelcommringfrac _ _) (g0 (<span class="mi">1</span> ,, <span class="mi">1</span> ,, is2))
+            = setquotpr _ (<span class="mi">1</span> ,, <span class="mi">1</span> ,, nonzeroax X)).
+      <span class="nb">apply</span> (maponpaths (setquotpr _)).
+      <span class="nb">unfold</span> g0. <span class="nb">unfold</span> weqfldfracgtint_b. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> pathsdirprod.
+      * <span class="nb">apply</span> idpath.
+      * <span class="nb">apply</span> (invmaponpathsincl (@pr1 _ _) (isinclpr1 _ (<span class="k">λ</span> <span class="nv">a</span>, (isapropneg (a = <span class="mi">0</span>))))
+                                 (<span class="mi">1</span> ,, rtoneq ir is2) (<span class="mi">1</span> ,, nonzeroax X)).
+        <span class="nb">simpl</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isringfunweqfldfracgt_f</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+      (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) (<span class="nv">ir</span> : isirrefl R) :
+  isringfun (weqfldfracgt_f X isc is0 is1 is2 nc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> weqfldfracgt_f.
+  <span class="nb">set</span> (int := make_ringiso (invweq (weqfldfracgt X isc is0 is1 is2 nc ir))
+                         (isringfunweqfldfracgt_b X isc is1 is2 ir)).
+  <span class="nb">change</span> (@isringfun (fldfrac X isc) (commringfrac X (ringpossubmonoid X is1 is2)) (invmap int)).
+  <span class="nb">apply</span> isringfuninvmap.
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** **** Definition and properties of "greater" on the field of fractions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">fldfracgt</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+           (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) : hrel (fldfrac X isc) :=
+  <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, commringfracgt X (ringpossubmonoid X is1 is2) is0 is1 (<span class="k">λ</span> <span class="nv">c</span> <span class="nv">r</span>, r)
+                        (weqfldfracgt_f X isc is0 is1 is2 nc a)
+                        (weqfldfracgt_f X isc is0 is1 is2 nc b).
+
+<span class="kn">Lemma</span> <span class="nf">isringmultfldfracgt</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+      (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) (<span class="nv">ir</span> : isirrefl R) :
+  isringmultgt (fldfrac X isc) (fldfracgt X isc is0 is1 is2 nc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">refine</span> (ringmultgtandfun (ringfunconstr (isringfunweqfldfracgt_f X isc is0 is1 is2 nc ir)) _ _).
+  <span class="nb">apply</span> isringmultcommringfracgt.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isringaddfldfracgt</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+      (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) (<span class="nv">ir</span> : isirrefl R) :
+  @isbinophrel (fldfrac X isc) (fldfracgt X isc is0 is1 is2 nc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">refine</span> (ringaddhrelandfun (ringfunconstr (isringfunweqfldfracgt_f X isc is0 is1 is2 nc ir)) _ _).
+  <span class="nb">apply</span> isringaddcommringfracgt.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istransfldfracgt</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+      (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) (<span class="nv">isr</span> : istrans R) :
+  istrans (fldfracgt X isc is0 is1 is2 nc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intros</span> a b c. <span class="nb">unfold</span> fldfracgt.
+  <span class="nb">apply</span> istransabmonoidfracrel.
+  <span class="nb">apply</span> isr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isirreflfldfracgt</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+      (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) (<span class="nv">isr</span> : isirrefl R) :
+  isirrefl (fldfracgt X isc is0 is1 is2 nc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intros</span> a. <span class="nb">unfold</span> fldfracgt .
+  <span class="nb">apply</span> isirreflabmonoidfracrel.
+  <span class="nb">apply</span> isr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isasymmfldfracgt</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+      (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) (<span class="nv">isr</span> : isasymm R) :
+  isasymm (fldfracgt X isc is0 is1 is2 nc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intros</span> a b. <span class="nb">unfold</span> fldfracgt .
+  <span class="nb">apply</span> isasymmabmonoidfracrel.
+  <span class="nb">apply</span> isr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscotransfldfracgt</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+      (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) (<span class="nv">isr</span> : iscotrans R) :
+  iscotrans (fldfracgt X isc is0 is1 is2 nc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intros</span> a b c. <span class="nb">unfold</span> fldfracgt .
+  <span class="nb">apply</span> iscotransabmonoidfracrel.
+  <span class="nb">apply</span> isr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isantisymmnegfldfracgt</span>  (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+      (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) (<span class="nv">ir</span> : isirrefl R)
+      (<span class="nv">isr</span> : isantisymmneg R) : isantisymmneg (fldfracgt X isc is0 is1 is2 nc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">assert</span> (int : isantisymmneg (commringfracgt X (ringpossubmonoid X is1 is2) is0 is1 (<span class="k">λ</span> <span class="nv">c</span> <span class="nv">r</span>, r))).
+  {
+    <span class="nb">unfold</span> commringfracgt.
+    <span class="nb">apply</span> (isantisymmnegabmonoidfracrel
+             (ringmultabmonoid X) (ringpossubmonoid X is1 is2)
+             (ispartbinopcommringfracgt X (ringpossubmonoid X is1 is2) is0 is1 (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">r</span>, r))).
+    <span class="nb">apply</span> isr.
+  }
+  <span class="nb">intros</span> a b n1 n2. <span class="nb">set</span> (e := int _ _ n1 n2).
+  <span class="nb">apply</span> (invmaponpathsweq (weqfldfracgt X isc is0 is1 is2 nc ir)  _ _ e).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isdecfldfracgt</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">R</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X R)
+           (<span class="nv">is1</span> : isringmultgt X R) (<span class="nv">is2</span> : R <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice R) (<span class="nv">isa</span> : isasymm R)
+           (<span class="nv">isr</span> : isdecrel R) : isdecrel (fldfracgt X isc is0 is1 is2 nc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unfold</span> fldfracgt. <span class="nb">intros</span> a b. <span class="nb">apply</span> isdecabmonoidfracrel.
+  - <span class="nb">apply</span> (pr1 (isinvringmultgtaspartinvbinophrel X R is0)).
+    <span class="nb">apply</span> isinvringmultgtif.
+    + <span class="nb">apply</span> is0.
+    + <span class="nb">apply</span> is1.
+    + <span class="nb">apply</span> nc.
+    + <span class="nb">apply</span> isa.
+  - <span class="nb">apply</span> isr.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** **** Relations and the canonical homomorphism to the field of fractions *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">iscomptofldfrac</span> (<span class="nv">X</span> : intdom) (<span class="nv">isc</span> : isdeceq X) {<span class="nv">L</span> : hrel X} (<span class="nv">is0</span> : @isbinophrel X L)
+           (<span class="nv">is1</span> : isringmultgt X L) (<span class="nv">is2</span> : L <span class="mi">1</span> <span class="mi">0</span>) (<span class="nv">nc</span> : neqchoice L) (<span class="nv">isa</span> : isasymm L) :
+  iscomprelrelfun L (fldfracgt X isc is0 is1 is2 nc) (tofldfrac X isc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">intros</span> x1 x2 l.
+  <span class="nb">assert</span> (int := iscomptocommringfrac X (ringpossubmonoid X is1 is2) is0 is1 (<span class="k">λ</span> <span class="nv">c</span> <span class="nv">r</span>, r)).
+  <span class="nb">simpl</span> <span class="k">in</span> int. <span class="nb">unfold</span> fldfracgt. <span class="nb">unfold</span> iscomprelrelfun <span class="k">in</span> int.
+  <span class="nb">assert</span> (ee : ∏ x : X, tocommringfrac X (ringpossubmonoid X is1 is2) x
+                      = weqfldfracgt_f X isc is0 is1 is2 nc (tofldfrac X isc x)).
+  {
+    <span class="nb">intros</span> x.
+    <span class="nb">change</span> (tocommringfrac X (ringpossubmonoid X is1 is2) x)
+      <span class="k">with</span> (setquotpr (eqrelcommringfrac X (ringpossubmonoid X is1 is2)) (x ,, <span class="mi">1</span> ,, is2)).
+    <span class="nb">change</span> (weqfldfracgt_f X isc is0 is1 is2 nc (tofldfrac X isc x))
+      <span class="k">with</span> (setquotpr (eqrelcommringfrac X (ringpossubmonoid X is1 is2))
+                      (weqfldfracgtint_f
+                        X is0 is1 is2 nc
+                        (x ,, <span class="mi">1</span> ,, (nonzeroax X)))).
+    <span class="nb">apply</span> (maponpaths (setquotpr (eqrelcommringfrac X (ringpossubmonoid X is1 is2)))).
+    <span class="nb">unfold</span> weqfldfracgtint_f. <span class="nb">simpl</span>.
+    <span class="nb">induction</span> (nc <span class="mi">1</span> <span class="mi">0</span> (nonzeroax X) ) <span class="k">as</span> [ l' | nl ].
+    - <span class="nb">apply</span> pathsdirprod.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> (invmaponpathsincl _ (isinclpr1 _ (<span class="k">λ</span> <span class="nv">a</span>, (pr2 (L a <span class="mi">0</span>))))).
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">induction</span> (isa _ _ is2 nl).
+  }
+  <span class="nb">assert</span> (int' := int x1 x2).
+  <span class="nb">rewrite</span> (ee x1) <span class="k">in</span> int'. <span class="nb">rewrite</span> (ee x2) <span class="k">in</span> int'.
+  <span class="nb">apply</span> int'. <span class="nb">apply</span> l.
+<span class="kn">Qed</span>.
+
+<span class="c">(* End of the file *)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Domains_and_Fields.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Algebra/Groups.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Algebra I. Part E. Integral domains and fields. Vladimir Voevodsky. Aug. 2011 - . *)&gt;&gt;&gt;Require Import UniMath.Algebra.Groups.&lt;&lt;&lt;
+  &gt; (** ** Contents
+  &gt; - Integral domains and fields
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

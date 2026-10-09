@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Fullsub.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* A full sub-category of a dagger category is again a dagger category. *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Unitary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Functors.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Fullsub</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger C) (<span class="nv">P</span> : ob C -&gt; hProp).
+
+  <span class="kn">Let</span> <span class="nf">CP</span> := full_sub_category C P.
+
+  <span class="kn">Definition</span> <span class="nf">full_sub_dagger_structure</span> : dagger_structure CP
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, dag _ _ (pr1 f) ,, tt.
+
+  <span class="kn">Lemma</span> <span class="nf">full_sub_dagger_laws</span> : dagger_laws full_sub_dagger_structure.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; (<span class="nb">intro</span> ; <span class="nb">intros</span> ; use subtypePath ; [<span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit | ]).
+    - <span class="nb">apply</span> dagger_to_law_id.
+    - <span class="nb">apply</span> dagger_to_law_comp.
+    - <span class="nb">apply</span> dagger_to_law_idemp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">full_sub_dagger</span> : dagger CP
+    := _ ,, full_sub_dagger_laws.
+
+  <span class="kn">Lemma</span> <span class="nf">inclusion_is_dagger_functor</span>
+    : is_dagger_functor full_sub_dagger dag
+                        (sub_precategory_inclusion C (full_sub_precategory P)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Fullsub</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DaggerCategories/Examples/Fullsub.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (* A full sub-category of a dagger category is again a dagger category. *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

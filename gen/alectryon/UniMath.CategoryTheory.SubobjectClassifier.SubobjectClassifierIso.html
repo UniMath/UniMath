@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SubobjectClassifierIso.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Subobject classifiers and isomorphisms</span>
+
+<span class="sd"> This file is a collection of statements about isomorphisms and subobject classifiers. We</span>
+<span class="sd"> show that</span>
+<span class="sd"> - Any two subobject classifiers are isomorphic. This implies that the type of subobject</span>
+<span class="sd">   classifiers in a category is a proposition.</span>
+<span class="sd"> - If an object is isomorphic to a subobject classifier, then it is also a subobject</span>
+<span class="sd">   classifier.</span>
+<span class="sd"> - The existence of a subobject classifier is independent of the choice of terminal object</span>
+<span class="sd"> For the second and third statement, we use univalent categories, because it simplifies the proof.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Isomorphisms between subobject classifiers</span>
+<span class="sd"> 2. Being isomorphic to subobject classifiers</span>
+<span class="sd"> 3. Independence of terminal object</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Isomorphisms between subobject classifiers *)</span>
+<span class="kn">Definition</span> <span class="nf">mor_subobject_classifier</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : Terminal C}
+           (<span class="nv">Ω</span> <span class="nv">Ω'</span> : subobject_classifier T)
+  : Ω --&gt; Ω'.
+<span class="kn">Proof</span>.
+  use characteristic_morphism.
+  - <span class="bp">exact</span> T.
+  - <span class="bp">exact</span> (true Ω).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">mor_subobject_classifier_inv</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">T</span> : Terminal C}
+            (<span class="nv">Ω</span> <span class="nv">Ω'</span> : subobject_classifier T)
+  : mor_subobject_classifier Ω Ω' · mor_subobject_classifier Ω' Ω = identity Ω.
+<span class="kn">Proof</span>.
+  use subobject_classifier_map_eq.
+  - <span class="bp">exact</span> T.
+  - <span class="bp">exact</span> (true Ω).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">unfold</span> mor_subobject_classifier ;
+       <span class="nb">rewrite</span> !assoc ;
+       <span class="nb">refine</span> (maponpaths
+                 (<span class="k">λ</span> <span class="nv">z</span>, z · _)
+                 (subobject_classifier_square_commutes Ω' (true Ω))
+               @ _) ;
+       <span class="nb">rewrite</span> assoc' ;
+       <span class="nb">refine</span> (maponpaths
+                 (<span class="k">λ</span> <span class="nv">z</span>, _ · z)
+                 (subobject_classifier_square_commutes Ω (true Ω'))
+               @ _) ;
+       <span class="nb">unfold</span> const_true ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> !assoc ;
+       <span class="nb">apply</span> maponpaths_2 ;
+       <span class="nb">apply</span> TerminalArrowEq).
+  - <span class="kp">abstract</span>
+      (<span class="nb">unfold</span> const_true ;
+       <span class="nb">rewrite</span> id_right ;
+       <span class="nb">refine</span> (!(id_left _) @ _) ;
+       <span class="nb">apply</span> maponpaths_2 ;
+       <span class="nb">apply</span> TerminalArrowEq).
+  - use (isPullback_mor_paths
+           _ _ _ _ _ _
+           (isPullback_Pullback
+              (pullback_glue_pullback
+                 _
+                 (subobject_classifier_pullback Ω (true Ω'))
+                 (subobject_classifier_pullback Ω' (true Ω))))).
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> TerminalArrowEq.
+  - use (isPullback_mor_paths
+           _ _ _ _ _ _
+           (isPullback_Pullback (subobject_classifier_pullback Ω (true Ω)))).
+    + <span class="nb">apply</span> characteristic_morphism_true.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">z_iso_subobject_classifier_inverse</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">T</span> : Terminal C}
+            (<span class="nv">Ω</span> <span class="nv">Ω'</span> : subobject_classifier T)
+  : is_inverse_in_precat
+      (mor_subobject_classifier Ω Ω')
+      (mor_subobject_classifier Ω' Ω).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (mor_subobject_classifier_inv Ω Ω').
+  - <span class="bp">exact</span> (mor_subobject_classifier_inv Ω' Ω).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_subobject_classifier</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : Terminal C}
+           (<span class="nv">Ω</span> <span class="nv">Ω'</span> : subobject_classifier T)
+  : z_iso Ω Ω'.
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - <span class="bp">exact</span> (mor_subobject_classifier Ω Ω').
+  - <span class="bp">exact</span> (mor_subobject_classifier Ω' Ω).
+  - <span class="bp">exact</span> (z_iso_subobject_classifier_inverse Ω Ω').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_subobject_classifier'</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : is_univalent C)
+           (<span class="nv">T</span> : Terminal C)
+  : isaprop (subobject_classifier T).
+<span class="kn">Proof</span>.
+  use invproofirrelevance.
+  <span class="nb">intros</span> Ω Ω'.
+  use total2_paths_f.
+  - <span class="bp">exact</span> (isotoid _ HC (z_iso_subobject_classifier Ω Ω')).
+  - use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_subobject_classifier.
+    }
+    <span class="nb">rewrite</span> pr1_transportf.
+    <span class="nb">rewrite</span> transportf_isotoid'.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> mor_subobject_classifier.
+    etrans.
+    {
+      <span class="nb">apply</span> (subobject_classifier_square_commutes Ω' (true Ω)).
+    }
+    <span class="nb">refine</span> (_ @ id_left _) ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_subobject_classifier</span>
+           {<span class="nv">C</span> : univalent_category}
+           (<span class="nv">T</span> : Terminal C)
+  : isaprop (subobject_classifier T).
+<span class="kn">Proof</span>.
+  use isaprop_subobject_classifier'.
+  <span class="bp">exact</span> (univalent_category_is_univalent C).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Being isomorphic to subobject classifiers *)</span>
+<span class="kn">Definition</span> <span class="nf">eq_to_is_subobject_classifier</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">T</span> : Terminal C}
+           (<span class="nv">Ω</span> : subobject_classifier T)
+           (<span class="nv">Ω'</span> : C)
+           (<span class="nv">t</span> : T --&gt; Ω')
+           (<span class="nv">p</span> : (Ω : C) = Ω')
+           (<span class="nv">q</span> : true Ω · idtoiso p = t)
+  : is_subobject_classifier T Ω' t.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">cbn</span> <span class="k">in</span> q.
+  <span class="nb">rewrite</span> id_right <span class="k">in</span> q.
+  <span class="nb">induction</span> q.
+  <span class="nb">apply</span> (pr2 Ω).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">z_iso_to_is_subobject_classifier</span>
+           {<span class="nv">C</span> : univalent_category}
+           {<span class="nv">T</span> : Terminal C}
+           (<span class="nv">Ω</span> : subobject_classifier T)
+           (<span class="nv">Ω'</span> : C)
+           (<span class="nv">t</span> : T --&gt; Ω')
+           (<span class="nv">f</span> : z_iso Ω Ω')
+           (<span class="nv">q</span> : true Ω · f = t)
+  : is_subobject_classifier T Ω' t.
+<span class="kn">Proof</span>.
+  use eq_to_is_subobject_classifier.
+  - <span class="bp">exact</span> Ω.
+  - <span class="bp">exact</span> (isotoid C (univalent_category_is_univalent C) f).
+  - <span class="nb">rewrite</span> idtoiso_isotoid.
+    <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Independence of terminal object *)</span>
+<span class="kn">Lemma</span> <span class="nf">subobject_classifier_independent_of_chosen_terminal_if_univalent</span>
+  {<span class="nv">C</span> : univalent_category} (<span class="nv">T₁</span> <span class="nv">T₂</span> : Terminal C)
+  : subobject_classifier T₁ → subobject_classifier T₂.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Ω.
+  <span class="nb">induction</span> (Terminal_unique_up_to_id_if_univalent C T₁ T₂).
+  <span class="bp">exact</span> Ω.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/SubobjectClassifier/SubobjectClassifierIso.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Independence of terminal object
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

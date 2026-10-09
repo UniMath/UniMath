@@ -1,0 +1,693 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Auxiliary.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Matrices</span>
+
+<span class="sd">  Miscellaneous background lemmas for [GaussianElimination.Elimination]</span>
+
+<span class="sd">  Primary Author: Daniel @Skantz (November 2022)</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.Maybe.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Domains_and_Fields.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+
+<span class="sd">(** Results of this file are required for the [Elimination] subpackage but aren’t specifically part of the topic; probably could/should be upstreamed within [UniMath] *)</span>
+
+<span class="sd">(** * Logic *)</span>
+
+<span class="kn">Section</span> <span class="nf">Logic</span>.
+
+  <span class="c">(* not obvious how to deduce this from existing [isapropisdecprop] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isaprop_dec_with_negProp</span> {<span class="nv">P</span> : hProp} (<span class="nv">Q</span> : negProp P) : isaprop (P ⨿ Q).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropcoprod.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">intros</span> p q; <span class="nb">revert</span> p. <span class="nb">apply</span> (negProp_to_neg q).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Logic</span>.
+
+<span class="sd">(** * Naturals *)</span>
+<span class="sd">(** Lemmas for standard functions on natural numbers *)</span>
+<span class="kn">Section</span> <span class="nf">Nat</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">natminus1lthn</span>
+    (<span class="nv">n</span> : nat) : n &gt; <span class="mi">0</span> -&gt; n - <span class="mi">1</span> &lt; n.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n_gt_0.
+    <span class="nb">apply</span> natminuslthn.
+    - <span class="bp">assumption</span>.
+    - <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Next two lemmas are from PAdics.lemmas, restated here for accessibility.</span>
+<span class="c">     They are only used in this file, in the dualelement section. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">minussn1'</span> ( <span class="nv">n</span> : nat ) : ( S n ) - <span class="mi">1</span> = n.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> n; <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">pathssminus'</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) ( <span class="nv">p</span> : natlth m ( S n ) ) :
+    S ( n - m ) = ( S n ) - m.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> m p; <span class="nb">induction</span> n.
+    <span class="nb">intros</span> m p; <span class="nb">destruct</span> m. {<span class="nb">auto</span>. }
+    <span class="nb">apply</span> fromempty.
+    <span class="nb">apply</span> nopathstruetofalse. <span class="nb">apply</span> pathsinv0. <span class="bp">assumption</span>.
+    - <span class="nb">intros</span> m p. <span class="nb">destruct</span> m.
+        + <span class="nb">auto</span>.
+        + <span class="nb">apply</span> IHn. <span class="nb">apply</span> p.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* End duplicated proofs. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">eq_of_le_le</span> {<span class="nv">a</span> <span class="nv">b</span> : nat} (<span class="nv">le_a_b</span> : a ≤ b) (<span class="nv">le_b_a</span> : b ≤ a)
+    : a = b.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (natlehchoice _ _ le_a_b) <span class="k">as</span> [lt_a_b | e_a_b].
+    <span class="mi">2</span>: { <span class="bp">assumption</span>. }
+    <span class="nb">apply</span> fromempty. <span class="nb">eapply</span> natlthtonegnatgeh; <span class="bp">eassumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">prev_nat</span>
+    (<span class="nv">n</span> : nat) (<span class="nv">p</span> : n &gt; <span class="mi">0</span>): ∑ m, S m = n.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> n <span class="k">as</span> [| n]. { <span class="bp">contradiction</span> (negnatlthn0 _ p). }
+    <span class="k">exists</span> <span class="nv">n</span>; <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">from_natneq_eq</span>
+    {<span class="nv">X</span> : UU} (<span class="nv">m</span> <span class="nv">n</span> : nat) : (m = n) -&gt; (m ≠ n) -&gt; X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m_eq_n m_neq_n.
+    <span class="nb">apply</span> fromempty.
+    <span class="nb">destruct</span> m_eq_n.
+    <span class="nb">eapply</span> isirrefl_natneq.
+    <span class="bp">exact</span> (m_neq_n).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_nat_eq_or_neq</span> {<span class="nv">m</span> <span class="nv">n</span> : nat} : isaprop ((m = n) ⨿ (m ≠ n)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (@isaprop_dec_with_negProp (_,,_) (natneq _ _)).
+    <span class="nb">apply</span> isasetnat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">nat_eq_or_neq_refl</span> (<span class="nv">i</span> : nat)
+    : nat_eq_or_neq i i = inl (idpath i).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_nat_eq_or_neq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">nat_eq_or_neq_left</span> {<span class="nv">i</span> <span class="nv">j</span>: nat} (<span class="nv">p</span> : i = j)
+    : nat_eq_or_neq i j = inl p.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_nat_eq_or_neq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">nat_eq_or_neq_right</span> {<span class="nv">i</span> <span class="nv">j</span>: nat} (<span class="nv">p</span> : i ≠ j)
+    : nat_eq_or_neq i j = inr p.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_nat_eq_or_neq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">min_le_l</span>:
+    ∏ a b : (nat), min a b ≤ a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>; <span class="nb">unfold</span> min; <span class="nb">revert</span> a.
+    <span class="nb">induction</span> b <span class="k">as</span> [| b IH]; <span class="nb">destruct</span> a ; <span class="kp">try</span> <span class="bp">reflexivity</span>.
+    <span class="nb">apply</span> IH.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">min_le_r</span>:
+    ∏ a b : (nat), min a b ≤ b.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>; <span class="nb">unfold</span> min; <span class="nb">revert</span> a.
+    <span class="nb">induction</span> b <span class="k">as</span> [| b IH]; <span class="nb">destruct</span> a ; <span class="kp">try</span> <span class="bp">reflexivity</span>.
+    <span class="nb">apply</span> IH.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">min_le_iff</span> :
+    ∏ a b c : nat, (a ≤ min b c) &lt;-&gt; (a ≤ b ∧ a ≤ c).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b c; <span class="nb">split</span>.
+    - <span class="nb">intros</span> le_a_mbc; <span class="nb">split</span>; <span class="nb">eapply</span> (istransnatleh le_a_mbc).
+      + <span class="nb">apply</span> min_le_l.
+      + <span class="nb">apply</span> min_le_r.
+    - <span class="nb">revert</span> a c; <span class="nb">induction</span> b <span class="k">as</span> [ | b' IH ]; <span class="nb">intros</span> a c [le_a_b le_a_c].
+      { <span class="nb">intros</span>; <span class="bp">exact</span> le_a_b. } <span class="c">(* case b = 0 *)</span>
+      <span class="nb">destruct</span> c <span class="k">as</span> [ | c' ].
+      { <span class="bp">exact</span> le_a_c. } <span class="c">(* case c = 0 *)</span>
+      <span class="nb">destruct</span> a <span class="k">as</span> [ | a' ].
+      { <span class="nb">apply</span> natleh0n. } <span class="c">(* case a = 0 *)</span>
+      <span class="c">(* when all successors, done by the reductions</span>
+<span class="c">          [ min (S b') (S c')  ~~&gt;  S (min b' c') ]</span>
+<span class="c">          [ S x ≤ S y  ~~&gt;  x ≤ y ] *)</span>
+      <span class="nb">apply</span> IH.
+      <span class="nb">split</span>; <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** All further properties of [min] should be derivable from [min_le_iff]:</span>
+<span class="sd">  the inductive definition of [min] should never need unfolding again</span>
+<span class="sd">  (though of course it can be, if that makes a proof nicer). *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">min_of_le</span> {<span class="nv">a</span> <span class="nv">b</span> : nat} (<span class="nv">le_a_b</span> : a ≤ b) : min a b = a.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> eq_of_le_le.
+    - <span class="nb">apply</span> min_le_l.
+    - <span class="nb">apply</span> min_le_iff. <span class="nb">split</span>; <span class="kp">try</span> <span class="bp">assumption</span>. <span class="nb">apply</span> isreflnatleh.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">min_comm</span> (<span class="nv">a</span> <span class="nv">b</span> : nat) : min a b = min b a.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> eq_of_le_le;
+      <span class="nb">apply</span> min_le_iff; <span class="nb">split</span>; <span class="nb">auto using</span> min_le_l, min_le_r.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">min_eq_a_or_eq_b</span> :
+    ∏ a b : (nat), coprod (min a b = a) (min a b = b).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b. <span class="nb">destruct</span> (natleorle a b) <span class="k">as</span> [le_a_b | le_b_a].
+    - <span class="nb">apply</span> inl. <span class="nb">apply</span> min_of_le; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> inr. <span class="nb">rewrite</span> min_comm. <span class="nb">apply</span> min_of_le; <span class="bp">assumption</span>.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Nat</span>.
+
+<span class="sd">(** * Standard finite sets *)</span>
+<span class="sd">(** lemmas for working with [Stn], the standard finite sets *)</span>
+
+<span class="kn">Section</span> <span class="nf">Stn</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">minabstn_to_astn</span>
+    { <span class="nv">a</span> <span class="nv">b</span> : nat } : ⟦ min a b ⟧%stn -&gt; ⟦ a ⟧%stn.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> stnmtostnn, min_le_l.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">minabstn_to_bstn</span>
+    { <span class="nv">a</span> <span class="nv">b</span> : nat } : ⟦ min a b ⟧%stn -&gt; ⟦ b ⟧%stn.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> stnmtostnn, min_le_r.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">stn_inhabited_implies_succ</span>
+    {<span class="nv">n</span>:nat} (<span class="nv">i</span> : ⟦ n ⟧%stn)
+  : ∑ m, n = S m.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> n <span class="k">as</span> [| m].
+    - <span class="nb">destruct</span> i <span class="k">as</span> [i le_i_0].
+      <span class="nb">destruct</span> (negnatlthn0 _ le_i_0).
+    - <span class="k">exists</span> <span class="nv">m</span>. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_stn_eq_or_neq</span> {<span class="nv">n</span>} (<span class="nv">i</span> <span class="nv">j</span> : ⟦n⟧%stn)
+    : isaprop ((i = j) ⨿ (i ≠ j)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (@isaprop_dec_with_negProp (_,,_) (stnneq _ _)).
+    <span class="nb">apply</span> isasetstn.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">stn_eq_or_neq_refl</span> {<span class="nv">n</span>} {<span class="nv">i</span> : ⟦ n ⟧%stn}
+    : stn_eq_or_neq i i = inl (idpath i).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaprop_stn_eq_or_neq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">stn_eq_or_neq_left</span> {<span class="nv">n</span>} {<span class="nv">i</span> <span class="nv">j</span>: (⟦ n ⟧)%stn}
+    : <span class="k">forall</span> <span class="nv">p</span> : i = j, stn_eq_or_neq i j = inl p.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>; <span class="nb">apply</span> isaprop_stn_eq_or_neq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">stn_eq_or_neq_right</span> {<span class="nv">n</span>} {<span class="nv">i</span> <span class="nv">j</span> : (⟦ n ⟧)%stn}
+    : <span class="k">forall</span> (<span class="nv">p</span> : i ≠ j), stn_eq_or_neq i j = inr p.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>; <span class="nb">apply</span> isaprop_stn_eq_or_neq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">stn_implies_ngt0</span>
+    { <span class="nv">n</span> : nat} (<span class="nv">i</span> : ⟦ n ⟧%stn) : n &gt; <span class="mi">0</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">eapply</span> natgthgehtrans. { <span class="bp">exact</span> (stnlt i). }
+    <span class="nb">apply</span> natgehn0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">stn_implies_nneq0</span>
+    { <span class="nv">n</span> : nat } (<span class="nv">i</span> : ⟦ n ⟧%stn) : n ≠ <span class="mi">0</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> natgthtoneq, stn_implies_ngt0, i.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">snlehm_to_nltm</span>
+    (<span class="nv">m</span> <span class="nv">n</span> : nat) : (S n ≤ m) -&gt; n &lt; m.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> le_sn_m; <span class="bp">exact</span> le_sn_m.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">stn_eq</span> {<span class="nv">k</span> : nat} (<span class="nv">i</span> <span class="nv">j</span> : stn k) (<span class="nv">eq</span> : pr1 i = pr1 j)
+    : i = j.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">stn_eq_2</span> {<span class="nv">k</span> : nat} (<span class="nv">i</span>: stn k) (<span class="nv">j</span> : nat) (<span class="nv">eq</span> : pr1 i = j) (<span class="nv">P</span> : j &lt; k)
+    : i = (j,, P).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>; <span class="nb">apply</span> stn_eq, eq.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* perhaps generalise to a version for any [isincl], and use [isinclstntonat]? *)</span>
+  <span class="kn">Lemma</span> <span class="nf">stn_eq_nat_eq</span>
+    { <span class="nv">n</span> : nat } (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧%stn) : i = j &lt;-&gt; (pr1 i = pr1 j).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> maponpaths.
+    - <span class="nb">apply</span> subtypePath_prop.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">stn_neq_nat_neq</span>
+    { <span class="nv">n</span> : nat } (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧%stn) : i ≠ j &lt;-&gt; (pr1 i ≠ pr1 j).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">apply</span> idfun.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">issymm_stnneq</span> {<span class="nv">n</span> : nat} {<span class="nv">i</span> <span class="nv">j</span> : stn n} (<span class="nv">neq</span> : i ≠ j)
+    : (j ≠ i).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> issymm_natneq; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">prev_stn</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">i</span> : ⟦ n ⟧%stn) (<span class="nv">p</span> : i &gt; <span class="mi">0</span>) : ∑ j : ⟦ n ⟧%stn, S j = i.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (prev_nat i p) <span class="k">as</span> [j Sj_i].
+    use tpair.
+    - <span class="k">exists</span> <span class="nv">j</span>.
+      <span class="nb">refine</span> (istransnatlth _ _ _ (natgthsnn j) _ ).
+      <span class="nb">rewrite</span> Sj_i.
+      <span class="nb">apply</span> (pr2 i).
+    - <span class="bp">exact</span> Sj_i.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** General symmetry for decidable equality is tricky to state+prove (requires Hedberg’s theorem); but for non-dependent case-splits, it’s cleaner. *)</span>
+  <span class="sd">(** Should also be generalisable using [negProp], ideally *)</span>
+  <span class="kn">Lemma</span> <span class="nf">stn_eq_or_neq_symm_nondep</span> {<span class="nv">n</span>} {<span class="nv">x</span> <span class="nv">y</span> : ⟦n⟧%stn}
+        (<span class="nv">de_xy</span> : (x = y) ⨿ (x ≠ y)%stn) (<span class="nv">de_yx</span> : (y = x) ⨿ (y ≠ x)%stn)
+       {<span class="nv">Z</span>} (<span class="nv">z1</span> <span class="nv">z2</span> : Z)
+    : coprod_rect (<span class="k">fun</span> <span class="nv">_</span> =&gt; Z) (<span class="k">fun</span> <span class="nv">_</span> =&gt; z1) (<span class="k">fun</span> <span class="nv">_</span> =&gt; z2) de_xy
+    = coprod_rect (<span class="k">fun</span> <span class="nv">_</span> =&gt; Z) (<span class="k">fun</span> <span class="nv">_</span> =&gt; z1) (<span class="k">fun</span> <span class="nv">_</span> =&gt; z2) de_yx.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> de_xy <span class="k">as</span> [e_xy | ne_xy];
+      <span class="nb">destruct</span> de_yx <span class="k">as</span> [e_yx | ne_yx];
+      <span class="nb">simpl</span>;
+    <span class="sd">(** consistent cases: *)</span>
+      <span class="kp">try</span> <span class="bp">reflexivity</span>;
+    <span class="sd">(** inconsistent cases: *)</span>
+      <span class="nb">eapply</span> fromempty, nat_neq_to_nopath; <span class="kp">try</span> <span class="bp">eassumption</span>;
+      <span class="nb">apply</span> pathsinv0, maponpaths; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Stn</span>.
+
+<span class="sd">(** Lemmas on the “dual” function on the standard finite sets, reversing the order *)</span>
+
+<span class="sd">(** Note: the definition of [dualelement] upstream has an unnecessary case split.</span>
+<span class="sd">    We provide an alternative to simplify proofs in this section, that could potentially be upstreamed. *)</span>
+<span class="kn">Section</span> <span class="nf">Dual</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dualelement'</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> : ⟦ n ⟧%stn) : ⟦ n ⟧%stn.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (make_stn n (n - <span class="mi">1</span> - i) _).
+    <span class="nb">apply</span> StandardFiniteSets.dualelement_lt. <span class="c">(* Make non-local upstream? *)</span>
+    <span class="bp">now</span> <span class="nb">apply</span> stn_implies_ngt0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dualelement_defs_eq</span> {<span class="nv">n</span> : nat} (<span class="nv">i</span> : ⟦ n ⟧%stn)
+    : dualelement i = dualelement' i.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> dualelement', dualelement.
+    <span class="nb">apply</span> subtypePath_prop; <span class="nb">simpl</span>.
+    <span class="nb">destruct</span> (natchoice0 _) <span class="k">as</span> [eq0 | gt]; <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_2x</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">i</span> : ⟦ n ⟧%stn) : dualelement (dualelement i) = i.
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> dualelement_defs_eq; <span class="nb">unfold</span> dualelement'.
+    <span class="nb">unfold</span> make_stn.
+    <span class="nb">apply</span> subtypePath_prop; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> minusminusmmn; <span class="kp">try</span> <span class="bp">reflexivity</span>.
+    <span class="nb">apply</span> natgthtogehm1, (pr2 i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_eq</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧%stn)
+  : dualelement i = j
+    -&gt; i = dualelement j.
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> dualelement_defs_eq; <span class="nb">unfold</span> dualelement'.
+    <span class="nb">intros</span> H; <span class="nb">apply</span> subtypePath_prop; <span class="nb">revert</span> H; <span class="nb">simpl</span>.
+    <span class="nb">intros</span> eq; <span class="nb">rewrite</span> &lt;- eq; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> minusminusmmn; <span class="kp">try</span> <span class="bp">reflexivity</span>.
+    <span class="nb">apply</span> natlthsntoleh.
+    <span class="nb">apply</span> natgthtogehm1, (pr2 i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_lt_comp</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧%stn)
+  : i &lt; j -&gt; (dualelement i) &gt; (dualelement j).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> lt.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> dualelement_defs_eq; <span class="nb">unfold</span> dualelement'.
+    <span class="nb">apply</span> minusgth0inv; <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> natminusminusassoc, natpluscomm,
+    &lt;- natminusminusassoc, minusminusmmn.
+    <span class="mi">2</span>: {<span class="nb">apply</span> (natgthtogehm1 _ _ (pr2 j)). }
+    <span class="nb">apply</span> (minusgth0 _ _ lt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_lt_comp'</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧%stn)
+  : (dualelement i) &lt; (dualelement j)
+    -&gt; j &lt; i.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> lt.
+    <span class="nb">pose</span> (H := @dualelement_lt_comp _ (dualelement i) (dualelement j) lt).
+    <span class="bp">now</span> <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> dualelement_2x <span class="k">in</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_le_comp</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧%stn)
+  : i ≤ j -&gt; (dualelement j) ≤ (dualelement i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> le.
+    <span class="nb">destruct</span> (natlehchoice i j) <span class="k">as</span> [lt | eq]; <span class="kp">try</span> <span class="bp">assumption</span>.
+    { <span class="nb">apply</span> natlthtoleh. <span class="nb">apply</span> (dualelement_lt_comp _ _ lt). }
+    <span class="nb">rewrite</span> (stn_eq _ _ eq).
+    <span class="nb">apply</span> isreflnatgeh.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_le_comp'</span>
+    {<span class="nv">n</span> : nat} (<span class="nv">i</span> <span class="nv">j</span> : ⟦ n ⟧%stn)
+  : (dualelement i) ≤ (dualelement j)
+    -&gt; j ≤ i.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> le.
+    <span class="nb">pose</span> (H := @dualelement_le_comp _ (dualelement i) (dualelement j) le).
+    <span class="bp">now</span> <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> dualelement_2x <span class="k">in</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_lt_trans_2</span>
+    {<span class="nv">m</span> <span class="nv">n</span> <span class="nv">k</span> <span class="nv">q</span>: nat} (<span class="nv">p1</span> : n &lt; k ) (<span class="nv">p2</span> : n &lt; q) (<span class="nv">p3</span> : k &lt; q)
+    (<span class="nv">lt_dual</span> : m &lt; dualelement (n,, p1))
+    : (m &lt; (dualelement (n,, p2))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> dualelement_defs_eq; <span class="nb">unfold</span> dualelement'.
+    <span class="nb">refine</span> (istransnatlth _ _ _ _ _). {<span class="bp">exact</span> lt_dual. }
+    <span class="nb">rewrite</span> dualelement_defs_eq.
+    <span class="nb">simpl</span>; <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> natminusminus.
+    <span class="nb">apply</span> natlthandminusl; <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="nb">refine</span> (natlehlthtrans _ _ _ _ _); <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="mi">2</span>: { <span class="bp">exact</span> p3. }
+    <span class="nb">rewrite</span> natpluscomm.
+    <span class="nb">apply</span> natlthtolehp1.
+    <span class="bp">exact</span> p1; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_sn_eq</span>
+    {<span class="nv">m</span> <span class="nv">n</span> <span class="nv">k</span> <span class="nv">q</span>: nat} (<span class="nv">lt</span> : S n &lt; S k)
+    : pr1 (dualelement (n,, lt)) = (pr1 (dualelement (S n,, lt))).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> dualelement_defs_eq; <span class="nb">unfold</span> dualelement'; <span class="nb">simpl</span>.
+    <span class="bp">now</span> <span class="nb">rewrite</span> natminuseqn, natminusminus.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_sn_le</span>
+    {<span class="nv">m</span> <span class="nv">n</span> <span class="nv">k</span> <span class="nv">q</span>: nat} (<span class="nv">lt</span> : S n &lt; S k)
+    : pr1 (dualelement (n,, lt)) &lt;= (pr1 (dualelement (S n,, lt))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> (@dualelement_sn_eq n n k k lt).
+    <span class="nb">apply</span> isreflnatleh.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_sn_le_2</span>
+  {<span class="nv">m</span> <span class="nv">n</span> <span class="nv">k</span> <span class="nv">q</span>: nat} (<span class="nv">lt</span> : S n &lt; S k)
+  : pr1 (dualelement (n,, lt)) &gt;= (pr1 (dualelement (S n,, lt))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> (@dualelement_sn_eq n n k k lt).
+    <span class="nb">apply</span> isreflnatleh.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_sn_stn_nge_0</span>
+   {<span class="nv">n</span> : nat} (<span class="nv">i</span> : stn n)
+   : <span class="k">forall</span> <span class="nv">lt</span> : (<span class="mi">0</span> &lt; S n), i &gt;= (dualelement (<span class="mi">0</span>,, lt)) -&gt; empty.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> lt gt.
+    <span class="nb">rewrite</span> dualelement_defs_eq <span class="k">in</span> gt; <span class="nb">unfold</span> dualelement' <span class="k">in</span> gt.
+    <span class="nb">simpl</span> <span class="k">in</span> gt.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> natminuseqn <span class="k">in</span> gt.
+    <span class="bp">contradiction</span> (natgthtonegnatleh _ _ (pr2 i)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_sn_stn_ge_n</span>
+   {<span class="nv">n</span> : nat} (<span class="nv">i</span> : stn n) : i &gt;= (dualelement (n,, natgthsnn n)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> dualelement_defs_eq.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> (@natminuseqn _), minuseq0'.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualelement_lt_to_le_s</span>
+    {<span class="nv">n</span> <span class="nv">k</span> : nat}
+    (<span class="nv">i</span> : stn n)
+    (<span class="nv">p</span> : k &lt; n)
+    (<span class="nv">leh</span>: dualelement (k,, p) &lt; i)
+    : dualelement (k,, istransnatlth _ _ (S n) (natgthsnn k) p) &lt;= i.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> dualelement_defs_eq; <span class="nb">rewrite</span> dualelement_defs_eq <span class="k">in</span> leh;
+    <span class="nb">unfold</span> dualelement' <span class="k">in</span> leh |- *; <span class="nb">simpl</span> <span class="k">in</span> leh |- *.
+    <span class="nb">rewrite</span> natminuseqn.
+    <span class="nb">apply</span> natgthtogehsn <span class="k">in</span> leh.
+    <span class="nb">rewrite</span> pathssminus' <span class="k">in</span> leh.
+    <span class="mi">2</span>: { <span class="nb">rewrite</span> pathssminus'.
+         - <span class="bp">now</span> <span class="nb">rewrite</span> minussn1'.
+         - <span class="bp">now</span> <span class="nb">apply</span> (stn_implies_ngt0 i). }
+    <span class="nb">assert</span> (e : n = S (n - <span class="mi">1</span>)).
+    { <span class="nb">change</span> (S (n - <span class="mi">1</span>)) <span class="k">with</span> (<span class="mi">1</span> + (n - <span class="mi">1</span>)). <span class="nb">rewrite</span> natpluscomm.
+      <span class="nb">apply</span> pathsinv0, minusplusnmm, (natlthtolehp1 _ _ (stn_implies_ngt0 i)). }
+    <span class="bp">now</span> <span class="nb">destruct</span> (!e).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dualvalue_eq</span>
+    {<span class="nv">X</span> : UU} {<span class="nv">n</span> : nat}
+    (<span class="nv">v</span> : ⟦ n ⟧%stn -&gt; X) (<span class="nv">i</span> : ⟦ n ⟧%stn)
+  : (v i) = (<span class="k">λ</span> <span class="nv">i'</span> : ⟦ n ⟧%stn, v (dualelement i')) (dualelement i).
+  <span class="kn">Proof</span>.
+    <span class="nb">simpl</span>; <span class="bp">now</span> <span class="nb">rewrite</span> dualelement_2x.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Dual</span>.
+
+<span class="sd">(** * Rings, fields *)</span>
+
+<span class="sd">(** Lemmas on general rings and fields, and in particular their decidable equality *)</span>
+
+<span class="kn">Section</span> <span class="nf">Rings_and_Fields</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">multlinvpair_of_multinvpair</span> {R : rig} (x : R)
+    : @multinvpair R x -&gt; @multlinvpair R x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [y [xy yx]]. <span class="nb">esplit</span>; <span class="nb">eauto</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">multrinvpair_of_multinvpair</span> {R : rig} (x : R)
+    : @multinvpair R x -&gt; @multrinvpair R x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [y [xy yx]]. <span class="nb">esplit</span>; <span class="nb">eauto</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ringplusminus</span>
+    {<span class="nv">R</span>: <span class="bp">ring</span>} (<span class="nv">a</span> <span class="nv">b</span> : R) : (a + b - b)%<span class="bp">ring</span> = a.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> ringassoc1.
+    <span class="nb">rewrite</span> ringrinvax1.
+    <span class="nb">apply</span> (rigrunax1 R).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ringminusdistr'</span> { <span class="nv">X</span> : commring } ( <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : X ) :
+    (a * (b - c))%<span class="bp">ring</span> = (a * b - a * c)%<span class="bp">ring</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="nb">rewrite</span> ringldistr. <span class="nb">rewrite</span> ringrmultminus. <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fldchoice0</span> {<span class="nv">X</span> : fld} (<span class="nv">e</span> : X) : coprod (e = <span class="mi">0</span>%<span class="bp">ring</span>) (e != <span class="mi">0</span>%<span class="bp">ring</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (fldchoice e) <span class="k">as</span> [ x_inv | x_0 ].
+    - <span class="nb">right</span>.
+      <span class="nb">apply</span> isnonzerofromrinvel. { <span class="nb">apply</span> nonzeroax. }
+      <span class="bp">exact</span> x_inv.
+    - <span class="nb">left</span>; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fldchoice0_left</span> {<span class="nv">X</span> : fld} (<span class="nv">e</span> : X) (<span class="nv">eq</span> : (e = <span class="mi">0</span>)%<span class="bp">ring</span>):
+    (fldchoice0 e) = inl eq.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdec, setproperty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fldchoice0_right</span> {<span class="nv">X</span> : fld} (<span class="nv">e</span> : X) (<span class="nv">neq</span> : (e != <span class="mi">0</span>)%<span class="bp">ring</span>):
+    (fldchoice0 e) = inr neq.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdec, setproperty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fldmultinvlax</span> {<span class="nv">X</span>: fld} (<span class="nv">e</span> : X) (<span class="nv">ne</span> : e != <span class="mi">0</span>%<span class="bp">ring</span>) :
+    (fldmultinv e ne * e)%<span class="bp">ring</span> = <span class="mi">1</span>%<span class="bp">ring</span>.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr2 (fldmultinvpair _ e ne))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fldmultinvrax</span> {<span class="nv">X</span>: fld} (<span class="nv">e</span> : X) (<span class="nv">ne</span> : e != <span class="mi">0</span>%<span class="bp">ring</span>) :
+    (e * fldmultinv e ne)%<span class="bp">ring</span> = <span class="mi">1</span>%<span class="bp">ring</span>.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (pr2 (fldmultinvpair _ e ne))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fldmultinv'</span> {<span class="nv">X</span> : fld} (<span class="nv">e</span> : X) : X.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (fldchoice0 e) <span class="k">as</span> [eq0 | neq].
+    - <span class="bp">exact</span> <span class="mi">0</span>%<span class="bp">ring</span>.
+    - <span class="bp">exact</span> (fldmultinv e neq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fldmultinvlax'</span> {<span class="nv">X</span>: fld} (<span class="nv">e</span> : X) (<span class="nv">ne</span> : e != <span class="mi">0</span>%<span class="bp">ring</span>) :
+    (fldmultinv' e * e)%<span class="bp">ring</span> = <span class="mi">1</span>%<span class="bp">ring</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> fldmultinv'.
+    <span class="nb">destruct</span> (fldchoice0 _).
+    - <span class="bp">contradiction</span>.
+    - <span class="nb">apply</span> fldmultinvlax.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fldmultinvrax'</span> {<span class="nv">X</span>: fld} (<span class="nv">e</span> : X) (<span class="nv">ne</span> : e != <span class="mi">0</span>%<span class="bp">ring</span>) :
+    (e * fldmultinv' e)%<span class="bp">ring</span> = <span class="mi">1</span>%<span class="bp">ring</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> fldmultinv'.
+    <span class="nb">destruct</span> (fldchoice0 _).
+    - <span class="bp">contradiction</span>.
+    - <span class="nb">apply</span> fldmultinvrax.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Rings_and_Fields</span>.
+
+<span class="sd">(** * Rationals. Commented out to respect import dependency ordering. Could be downstreamed or removed. *)</span>
+<span class="c">(* Section Rationals.</span>
+
+<span class="c">  Lemma hqone_neq_hqzero : 1%hq != 0%hq.</span>
+<span class="c">  Proof.</span>
+<span class="c">    intro contr.</span>
+<span class="c">    assert (contr_hz : intpart 1%hq != intpart 0%hq).</span>
+<span class="c">    { unfold intpart. apply hzone_neg_hzzero. }</span>
+<span class="c">    apply contr_hz.</span>
+<span class="c">    apply maponpaths, contr.</span>
+<span class="c">  Defined.</span>
+<span class="c">  (* A more obvious approach might be to use the injectivity of the map from the integers:</span>
+<span class="c">    [apply hzone_neg_hzzero; refine (invmaponpathsincl _ isinclhztohq 1%hz 0%hz contr).]</span>
+<span class="c">  However, this turns out very slow, apparently because recognising [hztohq 1%hz = 1%hq] is slow (and similarly for 0).  Seems surprising that this is slower than computing [intpart 1%hq = 1%hz]!</span>
+<span class="c">*)</span>
+
+<span class="c">  Lemma hqplusminus</span>
+<span class="c">    (a b : hq) : (a + b - b)%hq = a.</span>
+<span class="c">  Proof.</span>
+<span class="c">    apply (@ringplusminus hq).</span>
+<span class="c">  Defined.</span>
+
+<span class="c">End Rationals. *)</span>
+
+<span class="sd">(** * Maybe *)</span>
+
+<span class="sd">(** Lemmas on the general “maybe” construction *)</span>
+
+<span class="kn">Section</span> <span class="nf">Maybe</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isdeceqmaybe</span>
+    {<span class="nv">X</span> : UU} (<span class="nv">dec</span> : isdeceq X) : isdeceq (maybe X).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isdeceqcoprod.
+    - <span class="bp">exact</span> dec.
+    - <span class="bp">exact</span> isdecequnit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">maybe_choice</span>
+    {<span class="nv">X</span> : UU} (<span class="nv">e</span> : maybe X)
+  : coprod (e != nothing) (e = nothing).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> e <span class="k">as</span> [? | u].
+    - <span class="nb">apply</span> ii1. <span class="nb">apply</span> negpathsii1ii2.
+    - <span class="nb">apply</span> ii2. <span class="bp">now</span> <span class="nb">induction</span> u.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">maybe_choice'</span>
+    {<span class="nv">X</span> : UU} (<span class="nv">e</span> : maybe X)
+  : coprod (∑ x:X, e = just x) (e = nothing).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> e <span class="k">as</span> [x | u].
+    - <span class="nb">apply</span> ii1. <span class="k">exists</span> <span class="nv">x</span>; <span class="bp">reflexivity</span>.
+    - <span class="nb">apply</span> ii2. <span class="bp">now</span> <span class="nb">induction</span> u.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_maybe</span>
+    {<span class="nv">X</span> : UU} (<span class="nv">m</span> : maybe X) (<span class="nv">p</span> : m != nothing) : X.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> nothing <span class="k">in</span> p.
+     <span class="nb">destruct</span> m <span class="k">as</span> [x | u].
+     - <span class="bp">exact</span> x.
+     - <span class="bp">contradiction</span> p.
+       <span class="bp">now</span> <span class="nb">induction</span> u.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Maybe</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/GaussianElimination/Auxiliary.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   Primary Author: Daniel &#64;Skantz (November 2022)
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,453 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Fiber.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Fibers of two-sided displayed categories and two-sided fibrations</span>
+
+<span class="sd"> In this file, we construct the fiber of two-sided displayed categories. Note that</span>
+<span class="sd"> the constructions are similar to those for displayed categories. Again, we look at</span>
+<span class="sd"> objects over given objects in the base and the morphisms are displayed morphisms</span>
+<span class="sd"> over the identity. The difference is that we have to take the two-sidedness into</span>
+<span class="sd"> account.</span>
+
+<span class="sd"> We also show that if we have a discrete two-sided fibration, then every morphism</span>
+<span class="sd"> in the base gives rise to a function between the fibers. Using that, we conclude</span>
+<span class="sd"> that every discrete two-sided fibration gives rise to a profunctor.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Fiber set of a discrete two-sided fibration</span>
+<span class="sd"> 2. Fiber category of a two-sided fibration</span>
+<span class="sd"> 2.1. Definition of the fiber category</span>
+<span class="sd"> 2.2. Isos in the fiber</span>
+<span class="sd"> 2.3. Univalence of the fiber</span>
+<span class="sd"> 3. Fiber functor in a two-sided fibration</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Profunctors.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedFibration.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Fiber set of a discrete two-sided fibration</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">fiber_hset_twosided_disp_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C₁ C₂}
+           (<span class="nv">HD</span> : discrete_twosided_disp_cat D)
+           (<span class="nv">x</span> : C₁)
+           (<span class="nv">y</span> : C₂)
+  : hSet.
+<span class="kn">Proof</span>.
+  use make_hSet.
+  - <span class="bp">exact</span> (D x y).
+  - <span class="bp">exact</span> (isaset_discrete_twosided_cat_ob HD x y).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Fiber category of a two-sided fibration</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">FiberCat</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">D</span> : twosided_disp_cat C₁ C₂)
+          (<span class="nv">x</span> : C₁)
+          (<span class="nv">y</span> : C₂).
+
+  <span class="sd">(**</span>
+<span class="sd">   2.1. Definition of the fiber category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">fiber_twosided_disp_precat_ob_mor</span>
+    : precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    use make_precategory_ob_mor.
+    - <span class="bp">exact</span> (D x y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span>, xy₁ --&gt;[ identity x ][ identity y ] xy₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fiber_twosided_disp_precat_data</span>
+    : precategory_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - <span class="bp">exact</span> fiber_twosided_disp_precat_ob_mor.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span>, id_two_disp xy).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>,
+             transportf
+               (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _ ] _)
+               (id_left _)
+               (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _)
+                  (id_left _)
+                  (f ;;<span class="mi">2</span> g))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fiber_twosided_disp_is_precategory</span>
+    : is_precategory fiber_twosided_disp_precat_data.
+  <span class="kn">Proof</span>.
+    use is_precategory_one_assoc_to_two.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> xy₁ xy₂ f ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_two_disp_left.
+      <span class="nb">unfold</span> transportb, transportb_disp_mor2, transportf_disp_mor2 ;
+      <span class="nb">rewrite</span> !twosided_prod_transport.
+      <span class="nb">rewrite</span> transport_f_f.
+      use (transportf_set
+             (<span class="k">λ</span> <span class="nv">z</span>, xy₁ --&gt;[ pr1 z ][ dirprod_pr2 z ] xy₂)
+             (pathsdirprod _ _ @ pathsdirprod _ _)).
+      <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> xy₁ xy₂ f ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_two_disp_right.
+      <span class="nb">unfold</span> transportb, transportb_disp_mor2, transportf_disp_mor2.
+      <span class="nb">rewrite</span> !twosided_prod_transport.
+      <span class="nb">rewrite</span> transport_f_f.
+      use (transportf_set
+             (<span class="k">λ</span> <span class="nv">z</span>, xy₁ --&gt;[ pr1 z ][ dirprod_pr2 z ] xy₂)
+             (pathsdirprod _ _ @ pathsdirprod _ _)).
+      <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> xy₁ xy₂ xy₃ xy₄ f g h ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> two_disp_post_whisker_left.
+      <span class="nb">rewrite</span> two_disp_post_whisker_right.
+      <span class="nb">rewrite</span> two_disp_pre_whisker_left.
+      <span class="nb">rewrite</span> two_disp_pre_whisker_right.
+      <span class="nb">rewrite</span> assoc_two_disp.
+      <span class="nb">unfold</span> transportb, transportb_disp_mor2, transportf_disp_mor2.
+      <span class="nb">rewrite</span> !twosided_prod_transport.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fiber_twosided_disp_precat</span>
+    : precategory.
+  <span class="kn">Proof</span>.
+    use make_precategory.
+    - <span class="bp">exact</span> fiber_twosided_disp_precat_data.
+    - <span class="bp">exact</span> fiber_twosided_disp_is_precategory.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fiber_twosided_disp_cat</span>
+    : category.
+  <span class="kn">Proof</span>.
+    use make_category.
+    - <span class="bp">exact</span> fiber_twosided_disp_precat.
+    - <span class="nb">intros</span> xy₁ xy₂ ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> isaset_disp_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2.2. Isos in the fiber</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_z_iso_in_fiber</span>
+             {<span class="nv">xy₁</span> <span class="nv">xy₂</span> : fiber_twosided_disp_cat}
+             (<span class="nv">f</span> : z_iso xy₁ xy₂)
+    : iso_twosided_disp (idtoiso (idpath x)) (idtoiso (idpath y)) xy₁ xy₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> (pr1 f).
+    - <span class="bp">exact</span> (inv_from_z_iso f).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">pose</span> (p := z_iso_inv_after_z_iso f) ;
+         <span class="nb">cbn</span> <span class="k">in</span> p ;
+         <span class="nb">rewrite</span> &lt;- p ;
+         <span class="nb">unfold</span> transportb, transportb_disp_mor2, transportf_disp_mor2 ;
+         <span class="nb">rewrite</span> !twosided_swap_transport ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">refine</span> (transportbfinv (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _ ] _) _ _ @ _) ;
+         <span class="bp">exact</span> (transportbfinv (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _) _ _)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">pose</span> (p := z_iso_after_z_iso_inv f) ;
+         <span class="nb">cbn</span> <span class="k">in</span> p ;
+         <span class="nb">rewrite</span> &lt;- p ;
+         <span class="nb">unfold</span> transportb, transportb_disp_mor2, transportf_disp_mor2 ;
+         <span class="nb">rewrite</span> !twosided_swap_transport ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">refine</span> (transportbfinv (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _ ] _) _ _ @ _) ;
+         <span class="bp">exact</span> (transportbfinv (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _) _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_z_iso_in_fiber</span>
+             {<span class="nv">xy₁</span> <span class="nv">xy₂</span> : fiber_twosided_disp_cat}
+             (<span class="nv">f</span> : iso_twosided_disp (idtoiso (idpath x)) (idtoiso (idpath y)) xy₁ xy₂)
+    : z_iso xy₁ xy₂.
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> (pr1 f).
+    - <span class="bp">exact</span> (iso_inv_twosided_disp (pr2 f)).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">pose</span> (p := inv_after_iso_twosided_disp (pr2 f)) ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> p ;
+           <span class="nb">unfold</span> transportb, transportb_disp_mor2, transportf_disp_mor2 ;
+           <span class="nb">rewrite</span> !twosided_swap_transport ;
+           <span class="nb">refine</span> (transportfbinv (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _ ] _) _ _ @ _) ;
+           <span class="bp">exact</span> (transportfbinv (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _) _ _)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">pose</span> (p := iso_after_inv_twosided_disp (pr2 f)) ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> p ;
+           <span class="nb">unfold</span> transportb, transportb_disp_mor2, transportf_disp_mor2 ;
+           <span class="nb">rewrite</span> !twosided_swap_transport ;
+           <span class="nb">refine</span> (transportfbinv (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _ ] _) _ _ @ _) ;
+           <span class="bp">exact</span> (transportfbinv (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _) _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_in_fiber</span>
+             (<span class="nv">xy₁</span> <span class="nv">xy₂</span> : fiber_twosided_disp_cat)
+    : iso_twosided_disp (idtoiso (idpath x)) (idtoiso (idpath y)) xy₁ xy₂
+      ≃
+      z_iso xy₁ xy₂.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> from_z_iso_in_fiber.
+    - <span class="bp">exact</span> make_z_iso_in_fiber.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> f ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> f ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism | ] ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2.3. Univalence of the fiber</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_univalent_fiber_twosided_disp_cat</span>
+             (<span class="nv">HD</span> : is_univalent_twosided_disp_cat D)
+    : is_univalent fiber_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> xy₁ xy₂.
+    use weqhomot.
+    - <span class="bp">exact</span> (z_iso_in_fiber xy₁ xy₂
+             ∘ make_weq _ (HD x x y y (idpath _) (idpath _) xy₁ xy₂))%weq.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> p ;
+         <span class="nb">induction</span> p ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_isomorphism | ] ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FiberCat</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Fiber functor in a two-sided fibration</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">TwoSidedDiscreteFibrationToProfunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">D</span> : discrete_twosided_fibration C₁ C₂).
+
+  <span class="kn">Let</span> <span class="nf">HD</span> : discrete_twosided_disp_cat D := pr12 D.
+  <span class="kn">Let</span> <span class="nf">HD'</span> : is_discrete_twosided_fibration (pr12 D) := pr22 D.
+
+  <span class="kn">Definition</span> <span class="nf">fiber_fun_hset_twosided_disp_cat</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+             (<span class="nv">f</span> : x₁ --&gt; x₂)
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+             (<span class="nv">g</span> : y₂ --&gt; y₁)
+    : fiber_hset_twosided_disp_cat HD x₂ y₂
+      →
+      fiber_hset_twosided_disp_cat HD x₁ y₁
+    := <span class="k">λ</span> <span class="nv">xy</span>,
+       discrete_twosided_opcleaving_ob
+         _
+         (pr2 HD')
+         (discrete_twosided_cleaving_ob
+            _
+            (pr1 HD')
+            xy
+            f)
+         g.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_twosided_fibration_to_profunctor_data</span>
+    : functor_data
+        (category_binproduct C₁^op C₂)
+        HSET.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span>, fiber_hset_twosided_disp_cat HD (pr1 xy) (pr2 xy)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">fg</span>, fiber_fun_hset_twosided_disp_cat (pr1 fg) (pr2 fg)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fiber_fun_hset_twosided_disp_cat_id_map</span>
+             {<span class="nv">x</span> : C₁}
+             {<span class="nv">y</span> : C₂}
+             (<span class="nv">xy</span> : fiber_hset_twosided_disp_cat HD x y)
+  : fiber_fun_hset_twosided_disp_cat (identity x) (identity y) xy
+    --&gt;[ identity _ ][ identity _ ]
+    xy.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> fiber_fun_hset_twosided_disp_cat.
+    use discrete_twosided_opcleaving_opcartesian.
+    <span class="nb">refine</span> (transportb
+              (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _ ] _)
+              _
+              (transportb
+                 (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _)
+                 _
+                 (discrete_twosided_cleaving_mor _ (pr1 HD') xy (identity x)))).
+    - <span class="bp">exact</span> (id_right _).
+    - <span class="bp">exact</span> (id_right _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fiber_fun_hset_twosided_disp_cat_id</span>
+             {<span class="nv">x</span> : C₁}
+             {<span class="nv">y</span> : C₂}
+             (<span class="nv">xy</span> : fiber_hset_twosided_disp_cat HD x y)
+  : fiber_fun_hset_twosided_disp_cat (identity x) (identity y) xy
+    =
+    xy.
+  <span class="kn">Proof</span>.
+    use (mortoid_discrete_twosided_disp HD).
+    <span class="bp">exact</span> (fiber_fun_hset_twosided_disp_cat_id_map xy).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fiber_fun_hset_twosided_disp_cat_comp_map</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> : C₁}
+             (<span class="nv">f₁</span> : x₃ --&gt; x₂)
+             (<span class="nv">f₂</span> : x₂ --&gt; x₁)
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : C₂}
+             (<span class="nv">g₁</span> : y₁ --&gt; y₂)
+             (<span class="nv">g₂</span> : y₂ --&gt; y₃)
+             (<span class="nv">xy</span> : fiber_hset_twosided_disp_cat HD x₁ y₁)
+    : fiber_fun_hset_twosided_disp_cat (f₁ · f₂) (g₁ · g₂) xy
+      --&gt;[ identity _ ][ identity _ ]
+      fiber_fun_hset_twosided_disp_cat
+        f₁ g₂
+        (fiber_fun_hset_twosided_disp_cat
+           f₂ g₁
+           xy).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> fiber_fun_hset_twosided_disp_cat.
+    use discrete_twosided_opcleaving_opcartesian.
+    <span class="nb">pose</span> (h₁ := discrete_twosided_opcleaving_mor
+                  _
+                  (pr2 HD')
+                  (discrete_twosided_cleaving_ob (pr1 D)
+                     (pr1 HD')
+                     (discrete_twosided_opcleaving_ob (pr1 D)
+                        (pr2 HD')
+                        (discrete_twosided_cleaving_ob (pr1 D) (pr1 HD') xy f₂) g₁)
+                     f₁)
+                  g₂).
+    <span class="nb">refine</span> (transportb
+              (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _)
+              (id_right _)
+              (_ ;;<span class="mi">2</span> h₁)).
+    use discrete_twosided_cleaving_cartesian.
+    <span class="nb">pose</span> (h₂ := discrete_twosided_opcleaving_mor
+                  _
+                  (pr2 HD')
+                  (discrete_twosided_cleaving_ob (pr1 D) (pr1 HD') xy f₂) g₁).
+    <span class="nb">refine</span> (transportb
+              (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _ ] _)
+              (id_left _ @ !(id_right _))
+              (transportb
+                 (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _)
+                 (id_right _ @ !(id_left _))
+                 (_ ;;<span class="mi">2</span> h₂))).
+    use discrete_twosided_cleaving_cartesian.
+    <span class="nb">pose</span> (h₃ := discrete_twosided_cleaving_mor
+                  _
+                  (pr1 HD')
+                  xy
+                  (f₁ · f₂)).
+    <span class="bp">exact</span> (transportb
+             (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _)
+             (id_right _)
+             h₃).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fiber_fun_hset_twosided_disp_cat_comp</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> : C₁}
+             (<span class="nv">f₁</span> : x₃ --&gt; x₂)
+             (<span class="nv">f₂</span> : x₂ --&gt; x₁)
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> : C₂}
+             (<span class="nv">g₁</span> : y₁ --&gt; y₂)
+             (<span class="nv">g₂</span> : y₂ --&gt; y₃)
+             (<span class="nv">xy</span> : fiber_hset_twosided_disp_cat HD x₁ y₁)
+    : fiber_fun_hset_twosided_disp_cat (f₁ · f₂) (g₁ · g₂) xy
+      =
+      fiber_fun_hset_twosided_disp_cat
+        f₁ g₂
+        (fiber_fun_hset_twosided_disp_cat
+           f₂ g₁
+           xy).
+  <span class="kn">Proof</span>.
+    use (mortoid_discrete_twosided_disp HD).
+    <span class="bp">exact</span> (fiber_fun_hset_twosided_disp_cat_comp_map f₁ f₂ g₁ g₂ xy).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_twosided_fibration_to_profunctor_is_functor</span>
+    : is_functor
+        discrete_twosided_fibration_to_profunctor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> z.
+      use funextsec.
+      <span class="bp">exact</span> fiber_fun_hset_twosided_disp_cat_id.
+    - <span class="nb">intros</span> z₁ z₂ z₃ f g.
+      use funextsec.
+      <span class="bp">exact</span> (fiber_fun_hset_twosided_disp_cat_comp _ _ _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_twosided_fibration_to_profunctor</span>
+    : profunctor C₂ C₁.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> discrete_twosided_fibration_to_profunctor_data.
+    - <span class="bp">exact</span> discrete_twosided_fibration_to_profunctor_is_functor.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">TwoSidedDiscreteFibrationToProfunctor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/TwoSidedDisplayedCats/Fiber.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Fiber functor in a two-sided fibration
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

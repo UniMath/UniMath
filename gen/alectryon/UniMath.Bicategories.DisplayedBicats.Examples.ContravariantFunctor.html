@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ContravariantFunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** * Bicategories</span>
+<span class="sd">    Benedikt Ahrens, Marco Maggesi</span>
+<span class="sd">    February 2018</span>
+
+<span class="sd"> Displayed bicategory of contravariant functors into a fixed category K.</span>
+<span class="sd"> ********************************************************************************* *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+
+<span class="kn">Section</span> <span class="nf">fix_a_category</span>.
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"∁"</span> := bicat_of_univ_cats.
+
+  <span class="kn">Variable</span> (<span class="nv">K</span> : univalent_category).
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaf_cat_ob_mor</span> : disp_cat_ob_mor ∁.
+  <span class="kn">Proof</span>.
+    use tpair.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">c</span> : univalent_category, functor (op_unicat c) K).
+    + <span class="nb">cbn</span>. <span class="nb">intros</span> c d ty ty' f.
+      <span class="bp">exact</span> (nat_trans ty (functor_composite (functor_opp f) ty')).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaf_cat_data</span> : disp_cat_data ∁.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">disp_presheaf_cat_ob_mor</span>.
+    use tpair.
+    + <span class="nb">intros</span> c f.
+      <span class="nb">set</span> (T:= nat_trans_id (pr1 f) ).
+      <span class="bp">exact</span> T.
+    + <span class="nb">intros</span> c d e f g ty ty' ty''.
+      <span class="nb">intros</span> x y.
+      <span class="nb">set</span> (T1 := x).
+      <span class="nb">set</span> (T2 := @pre_whisker
+                   (op_unicat c) (op_unicat d) K
+                   (functor_opp f) _ _ (y : nat_trans (ty': functor _ _ )  _  )).
+      <span class="bp">exact</span> (@nat_trans_comp (op_unicat c) K _ _ _ T1 T2 ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaf_prebicat_1_id_comp_cells</span> : disp_prebicat_1_id_comp_cells bicat_of_univ_cats.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">disp_presheaf_cat_data</span>.
+    <span class="nb">intros</span> c d f g a.
+    <span class="nb">intros</span> p p'.
+    <span class="nb">intros</span> x y.
+    <span class="bp">exact</span> (x = @nat_trans_comp (op_unicat c) K _  _ _ y (post_whisker (op_nt a) p')).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaf_prebicat_ops</span> : disp_prebicat_ops disp_presheaf_prebicat_1_id_comp_cells.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span>. <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> (homset_property K); <span class="nb">cbn</span>.
+      <span class="nb">intro</span>. <span class="nb">rewrite</span> (functor_id y). <span class="nb">apply</span> pathsinv0, id_right.
+    - <span class="nb">intros</span>. <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> (homset_property K); <span class="nb">cbn</span>.
+      <span class="nb">intro</span>.  <span class="nb">rewrite</span> (functor_id y). <span class="nb">rewrite</span> id_left, id_right. <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span>. <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> (homset_property K); <span class="nb">cbn</span>.
+      <span class="nb">intro</span>. <span class="nb">rewrite</span> (functor_id y). <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span>. <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> (homset_property K); <span class="nb">cbn</span>.
+      <span class="nb">intro</span>. <span class="nb">rewrite</span> (functor_id y). <span class="nb">rewrite</span> id_left, id_right. <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span>. <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> (homset_property K); <span class="nb">cbn</span>.
+      <span class="nb">intro</span>. <span class="nb">rewrite</span> (functor_id y). <span class="kp">repeat</span> <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span>. <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> (homset_property K); <span class="nb">cbn</span>.
+      <span class="nb">intro</span>. <span class="nb">rewrite</span> (functor_id z). <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> pathsinv0, assoc.
+    - <span class="nb">intros</span>. <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> (homset_property K); <span class="nb">cbn</span>.
+      <span class="nb">intro</span>. <span class="nb">rewrite</span> (functor_id z). <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> assoc.
+    - <span class="nb">intros</span>. <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> (homset_property K).
+      <span class="nb">intro</span>.
+      <span class="nb">rewrite</span> X. <span class="nb">rewrite</span> X0.
+      <span class="nb">cbn</span>.
+      <span class="nb">pose</span> (T:= @functor_comp (op_cat b) _ y).
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> &lt;- T.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span>. <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> (homset_property K); <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> X.
+      <span class="nb">intro</span>. <span class="nb">apply</span> assoc.
+    - <span class="nb">intros</span>. <span class="nb">apply</span> nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> (homset_property K); <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> X.
+      <span class="nb">intros</span>. <span class="nb">cbn</span>.
+      <span class="nb">pose</span> (T:= nat_trans_ax gg).
+      <span class="nb">cbn</span> <span class="k">in</span> T.
+      <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> T.
+      <span class="nb">apply</span> assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaf_prebicat_data</span> : disp_prebicat_data ∁
+    := _ ,,  disp_presheaf_prebicat_ops.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_presheaf_prebicat_laws</span> : disp_prebicat_laws disp_presheaf_prebicat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span>;
+      <span class="nb">intros</span>;
+      <span class="nb">apply</span> isaset_nat_trans; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaf_prebicat</span> : disp_prebicat ∁ :=
+    (disp_presheaf_prebicat_data,, disp_presheaf_prebicat_laws).
+
+  <span class="kn">Lemma</span> <span class="nf">has_disp_cellset_disp_presheaf_prebicat</span>
+    : has_disp_cellset disp_presheaf_prebicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>. <span class="nb">intros</span>.
+    <span class="nb">unfold</span> disp_2cells.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> isaset_nat_trans.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaf_bicat</span> : disp_bicat ∁
+    := (disp_presheaf_prebicat,, has_disp_cellset_disp_presheaf_prebicat).
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaves_all_invertible</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : ∁}
+             {<span class="nv">F</span> <span class="nv">G</span> : ∁⟦C, D⟧}
+             (<span class="nv">α</span> : invertible_2cell F G)
+             {<span class="nv">CD</span> : disp_presheaf_bicat C}
+             {<span class="nv">FC</span> : disp_presheaf_bicat D}
+             {<span class="nv">γF</span> : CD --&gt;[ F] FC}
+             {<span class="nv">γG</span> : CD --&gt;[ G ] FC}
+             (<span class="nv">p</span> : disp_2cells α γF γG)
+    : is_disp_invertible_2cell α p.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> nat_trans_eq.
+      { <span class="nb">apply</span> homset_property. }
+      <span class="nb">intro</span> x.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (nat_trans_eq_pointwise p x) @ _).
+      <span class="nb">refine</span> (!(assoc _ _ _) @ _).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (!(functor_comp FC _ _)) @ _).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (nat_trans_eq_pointwise (pr222 α) x).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (functor_id FC).
+      }
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">split</span> ; <span class="nb">apply</span> isaset_nat_trans ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaves_is_univalent_2_1</span>
+    : disp_univalent_2_1 disp_presheaf_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fiberwise_local_univalent_is_univalent_2_1.
+    <span class="nb">intros</span> C D F CD FC α β.
+    use isweqimplimpl.
+    - <span class="nb">intro</span> p ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">apply</span> nat_trans_eq.
+      { <span class="nb">apply</span> homset_property. }
+      <span class="nb">intro</span> x.
+      <span class="nb">pose</span> (nat_trans_eq_pointwise (pr1 p) x) <span class="k">as</span> q.
+      <span class="nb">cbn</span> <span class="k">in</span> q.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">rewrite</span> (functor_id FC), id_right.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">apply</span> isaset_nat_trans.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> isofhleveltotal2.
+      + <span class="nb">apply</span> isaset_nat_trans.
+        <span class="nb">apply</span> homset_property.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaves_adjequiv</span>
+             {<span class="nv">C</span> : ∁}
+             (<span class="nv">FC</span> <span class="nv">FC'</span> : disp_presheaf_bicat C)
+    : @invertible_2cell bicat_of_univ_cats _ _ FC FC'
+      -&gt; disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> α.
+    use tpair.
+    - <span class="nb">apply</span> α.
+    - use tpair.
+      + use tpair.
+        * <span class="nb">apply</span> α.
+        * <span class="nb">split</span> ; <span class="nb">apply</span> nat_trans_eq ; <span class="kp">try</span> (<span class="nb">apply</span> homset_property) ; <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+          ** <span class="nb">rewrite</span> (functor_id FC), id_right.
+             <span class="bp">exact</span> (!(nat_trans_eq_pointwise (pr122 α) x)).
+          ** <span class="nb">rewrite</span> (functor_id FC'), id_left.
+             <span class="bp">exact</span> (nat_trans_eq_pointwise (pr222 α) x).
+      + <span class="nb">split</span> ; <span class="nb">split</span>.
+        * <span class="nb">apply</span> isaset_nat_trans.
+          <span class="nb">apply</span> homset_property.
+        * <span class="nb">apply</span> isaset_nat_trans.
+          <span class="nb">apply</span> homset_property.
+        * <span class="nb">apply</span> disp_presheaves_all_invertible.
+        * <span class="nb">apply</span> disp_presheaves_all_invertible.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaves_adjequiv_inv</span>
+             {<span class="nv">C</span> : ∁}
+             (<span class="nv">FC</span> <span class="nv">FC'</span> : disp_presheaf_bicat C)
+    : disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'
+      → @invertible_2cell bicat_of_univ_cats _ _ FC FC'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> α.
+    use tpair.
+    - <span class="nb">apply</span> α.
+    - use tpair.
+      + <span class="nb">apply</span> α.
+      + <span class="nb">split</span>.
+        * <span class="nb">apply</span> nat_trans_eq.
+          { <span class="nb">apply</span> homset_property. }
+          <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+          <span class="nb">pose</span> (nat_trans_eq_pointwise (pr1(pr212 α)) x) <span class="k">as</span> p.
+          <span class="nb">cbn</span> <span class="k">in</span> p.
+          <span class="nb">rewrite</span> (functor_id FC), id_right <span class="k">in</span> p.
+          <span class="bp">exact</span> (!p).
+        * <span class="nb">apply</span> nat_trans_eq.
+          { <span class="nb">apply</span> homset_property. }
+          <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+          <span class="nb">pose</span> (nat_trans_eq_pointwise (pr2(pr212 α)) x) <span class="k">as</span> p.
+          <span class="nb">cbn</span> <span class="k">in</span> p.
+          <span class="nb">rewrite</span> (functor_id FC'), id_right <span class="k">in</span> p.
+          <span class="bp">exact</span> p.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaves_adjequiv_weq</span>
+             {<span class="nv">C</span> : ∁}
+             (<span class="nv">FC</span> <span class="nv">FC'</span> : disp_presheaf_bicat C)
+    : @invertible_2cell bicat_of_univ_cats _ _ FC FC'
+      ≃ disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">disp_presheaves_adjequiv</span> <span class="nv">FC</span> <span class="nv">FC'</span>).
+    use isweq_iso.
+    - <span class="bp">exact</span> (disp_presheaves_adjequiv_inv FC FC').
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> subtypePath.
+      { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">intro</span> x.
+      <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence.
+        + <span class="nb">apply</span> univalent_cat_is_univalent_2_1.
+        + <span class="nb">apply</span> disp_presheaves_is_univalent_2_1.
+      }
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaves_idtoiso_2_0</span>
+             {<span class="nv">C</span> : ∁}
+             (<span class="nv">FC</span> <span class="nv">FC'</span> : disp_presheaf_bicat C)
+    : FC = FC' ≃ disp_adjoint_equivalence (internal_adjoint_equivalence_identity C) FC FC'
+    := ((disp_presheaves_adjequiv_weq FC FC')
+          ∘ (make_weq (@idtoiso_2_1 bicat_of_univ_cats _ _ FC FC')
+                     (univalent_cat_is_univalent_2_1 _ _ _ _)))%weq.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaves_is_univalent_2_0</span>
+    : disp_univalent_2_0 disp_presheaf_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    <span class="nb">intros</span> C FC FC'.
+    use weqhomot.
+    - <span class="bp">exact</span> (disp_presheaves_idtoiso_2_0 FC FC').
+    - <span class="nb">intro</span> p.
+      <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence.
+        + <span class="nb">apply</span> univalent_cat_is_univalent_2_1.
+        + <span class="nb">apply</span> disp_presheaves_is_univalent_2_1.
+      }
+      <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_presheaves_is_univalent_2</span>
+    : disp_univalent_2 disp_presheaf_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> disp_presheaves_is_univalent_2_0.
+    - <span class="bp">exact</span> disp_presheaves_is_univalent_2_1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_presheaf</span>
+    : disp_2cells_isaprop disp_presheaf_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaset_nat_trans.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_presheaf</span>
+    : disp_locally_groupoid disp_presheaf_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>; <span class="nb">intros</span>.
+    <span class="nb">apply</span> disp_presheaves_all_invertible.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">fix_a_category</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/ContravariantFunctor.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  Displayed bicategory of contravariant functors into a fixed category K.
+  &gt;  ********************************************************************************* *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

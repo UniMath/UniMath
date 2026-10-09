@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisplayMapComprehensionBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************</span>
+
+<span class="sd"> The comprehension bicategory of a display map bicategory</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The comprehension pseudofunctor</span>
+<span class="sd"> 2. Preservation of cartesian 1-cells</span>
+<span class="sd"> 3. Preservation of (op)cartesian 2-cells</span>
+<span class="sd"> 4. The comprehension bicategory</span>
+<span class="sd"> 5. Internal Street fibrations and opfibrations</span>
+
+<span class="sd"> *******************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Logic.DisplayMapBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CartesianPseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DisplayMapBicatToDispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.CodomainCleaving.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.DisplayMapBicatCleaving.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.OpCellBicatLimits.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.Logic.ComprehensionBicat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">DispMapBicatToCompBicat</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">D</span> : disp_map_bicat B)
+          (<span class="nv">HB</span> : is_univalent_2 B).
+
+  <span class="kn">Let</span> <span class="nf">DD</span> : disp_bicat B := disp_map_bicat_to_disp_bicat D.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. The comprehension pseudofunctor</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_comprehension_data</span>
+    : disp_psfunctor_data DD (cod_disp_bicat B) (id_psfunctor B).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">hx</span>, pr1 hx ,, pr12 hx).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">hx</span> <span class="nv">hy</span> <span class="nv">hf</span>, pr1 hf ,, pr22 hf).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span> <span class="nv">hx</span> <span class="nv">hy</span> <span class="nv">hf</span> <span class="nv">hg</span> <span class="nv">hα</span>, hα).
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">hx</span>, _ ,, _).
+      + use make_disp_2cell_cod.
+        * <span class="bp">exact</span> (id₂ _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">unfold</span> coherent_homot ; <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> id2_rwhisker, id2_right ;
+             <span class="nb">rewrite</span> lwhisker_id2, id2_left ;
+             <span class="nb">apply</span> idpath).
+      + use is_disp_invertible_2cell_cod ; <span class="nb">simpl</span>.
+        is_iso.
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">hx</span> <span class="nv">hy</span> <span class="nv">hz</span> <span class="nv">hf</span> <span class="nv">hg</span>, _ ,, _).
+      + use make_disp_2cell_cod.
+        * <span class="bp">exact</span> (id₂ _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">unfold</span> coherent_homot ; <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> id2_rwhisker, id2_right ;
+             <span class="nb">rewrite</span> lwhisker_id2, id2_left ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">apply</span> idpath).
+      + use is_disp_invertible_2cell_cod ; <span class="nb">simpl</span>.
+        is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_comprehension_is_disp_psfunctor</span>
+    : is_disp_psfunctor _ _ _ disp_map_bicat_comprehension_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+      (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ]).
+    - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over _ _)) ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over _ _)) ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over (psfunctor_lunitor _ _) _)) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_rwhisker, !id2_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over (psfunctor_runitor _ _) _)) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> lwhisker_id2, !id2_left.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over (psfunctor_lassociator _ _ _ _) _)) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_rwhisker, lwhisker_id2.
+      <span class="nb">rewrite</span> !id2_left, !id2_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over (psfunctor_lwhisker _ _ _) _)) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !id2_left, id2_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over (psfunctor_rwhisker _ _ _) _)) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !id2_left, id2_right.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_comprehension</span>
+    : disp_psfunctor DD (cod_disp_bicat B) (id_psfunctor B)
+    := disp_map_bicat_comprehension_data
+       ,,
+       disp_map_bicat_comprehension_is_disp_psfunctor.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Preservation of cartesian 1-cells</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">global_cartesian_disp_map_bicat_comprehension</span>
+    : global_cartesian_disp_psfunctor disp_map_bicat_comprehension.
+  <span class="kn">Proof</span>.
+    use preserves_global_lifts_to_cartesian.
+    - <span class="bp">exact</span> HB.
+    - <span class="bp">exact</span> (cod_disp_univalent_2 _ HB).
+    - <span class="bp">exact</span> (global_cleaving_of_disp_map_bicat D).
+    - <span class="nb">intros</span> x y f hy.
+      use is_pb_to_cartesian_1cell.
+      <span class="bp">exact</span> (mirror_has_pb_ump
+               (pb_of_pred_ob_has_pb_ump D (pr12 hy) f (pr22 hy))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Preservation of (op)cartesian 2-cells</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_to_comp_bicat_local_opcartesian</span>
+             (<span class="nv">HD</span> : is_covariant_disp_map_bicat D)
+    : local_opcartesian_disp_psfunctor disp_map_bicat_comprehension.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ? ? ? ? ? ? ? ? H.
+    <span class="nb">apply</span> is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (disp_map_is_opcartesian_2cell_to_is_opcartesian_2cell_sopfib _ HD).
+    <span class="bp">exact</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_to_comp_bicat_local_cartesian</span>
+             (<span class="nv">HD</span> : is_contravariant_disp_map_bicat D)
+    : local_cartesian_disp_psfunctor disp_map_bicat_comprehension.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ? ? ? ? ? ? ? ? H.
+    <span class="nb">apply</span> is_cartesian_2cell_sfib_to_is_cartesian_2cell.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (disp_map_is_cartesian_2cell_to_is_cartesian_2cell_sfib _ HD).
+    <span class="bp">exact</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. The comprehension bicategory</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_to_comp_bicat</span>
+    : comprehension_bicat_structure B.
+  <span class="kn">Proof</span>.
+    use make_comprehension_bicat_structure.
+    - <span class="bp">exact</span> DD.
+    - <span class="bp">exact</span> disp_map_bicat_comprehension.
+    - <span class="bp">exact</span> (global_cleaving_of_disp_map_bicat D).
+    - <span class="bp">exact</span> global_cartesian_disp_map_bicat_comprehension.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_covariant_disp_map_bicat_to_comp_bicat</span>
+             (<span class="nv">HD</span> : is_covariant_disp_map_bicat D)
+    : is_covariant disp_map_bicat_to_comp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (local_opcleaving_of_disp_map_bicat _ HD).
+    - <span class="bp">exact</span> (lwhisker_opcartesian_disp_map_bicat _ HD).
+    - <span class="bp">exact</span> (rwhisker_opcartesian_disp_map_bicat _ HD).
+    - <span class="bp">exact</span> (disp_map_bicat_to_comp_bicat_local_opcartesian HD).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_contravariant_disp_map_bicat_to_comp_bicat</span>
+             (<span class="nv">HD</span> : is_contravariant_disp_map_bicat D)
+    : is_contravariant disp_map_bicat_to_comp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (local_cleaving_of_disp_map_bicat _ HD).
+    - <span class="bp">exact</span> (lwhisker_cartesian_disp_map_bicat _ HD).
+    - <span class="bp">exact</span> (rwhisker_cartesian_disp_map_bicat _ HD).
+    - <span class="bp">exact</span> (disp_map_bicat_to_comp_bicat_local_cartesian HD).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_comprehension_bicat</span>
+             (<span class="nv">HD</span> : is_covariant_disp_map_bicat D)
+    : comprehension_bicat
+    := _ ,, _ ,, is_covariant_disp_map_bicat_to_comp_bicat HD.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_contravariant_comprehension_bicat</span>
+             (<span class="nv">HD</span> : is_contravariant_disp_map_bicat D)
+    : contravariant_comprehension_bicat
+    := _ ,, _ ,, is_contravariant_disp_map_bicat_to_comp_bicat HD.
+<span class="kn">End</span> <span class="nf">DispMapBicatToCompBicat</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Internal Street fibrations and opfibrations</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">internal_sfib_comprehension_bicat_structure</span>
+           (<span class="nv">B</span> : bicat_with_pb)
+           (<span class="nv">HB</span> : is_univalent_2 B)
+  : comprehension_bicat_structure B
+  := disp_map_bicat_to_comp_bicat (sfib_disp_map_bicat B) HB.
+
+<span class="kn">Definition</span> <span class="nf">is_contravariant_internal_sfib_comprehension_bicat_structure</span>
+           (<span class="nv">B</span> : bicat_with_pb)
+           (<span class="nv">HB</span> : is_univalent_2 B)
+  : is_contravariant (internal_sfib_comprehension_bicat_structure B HB).
+<span class="kn">Proof</span>.
+  use is_contravariant_disp_map_bicat_to_comp_bicat.
+  <span class="nb">apply</span> sfib_disp_map_bicat_is_contravariant.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">internal_sfib_contravariant_comprehension_bicat</span>
+           (<span class="nv">B</span> : bicat_with_pb)
+           (<span class="nv">HB</span> : is_univalent_2 B)
+  : contravariant_comprehension_bicat
+  := _ ,, _ ,, is_contravariant_internal_sfib_comprehension_bicat_structure B HB.
+
+<span class="kn">Definition</span> <span class="nf">internal_sopfib_comprehension_bicat_structure</span>
+           (<span class="nv">B</span> : bicat_with_pb)
+           (<span class="nv">HB</span> : is_univalent_2 B)
+  : comprehension_bicat_structure B
+  := disp_map_bicat_to_comp_bicat (sopfib_disp_map_bicat B) HB.
+
+<span class="kn">Definition</span> <span class="nf">is_covariant_internal_sopfib_comprehension_bicat_structure</span>
+           (<span class="nv">B</span> : bicat_with_pb)
+           (<span class="nv">HB</span> : is_univalent_2 B)
+  : is_covariant (internal_sopfib_comprehension_bicat_structure B HB).
+<span class="kn">Proof</span>.
+  use is_covariant_disp_map_bicat_to_comp_bicat.
+  <span class="nb">apply</span> sopfib_disp_map_bicat_is_covariant.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">internal_sopfib_comprehension_bicat</span>
+           (<span class="nv">B</span> : bicat_with_pb)
+           (<span class="nv">HB</span> : is_univalent_2 B)
+  : comprehension_bicat
+  := _ ,, _ ,, is_covariant_internal_sopfib_comprehension_bicat_structure B HB.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Logic/Examples/DisplayMapComprehensionBicat.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Internal Street fibrations and opfibrations
+  &gt;
+  &gt;  *******************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

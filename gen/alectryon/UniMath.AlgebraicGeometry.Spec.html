@@ -1,0 +1,640 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Spec.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ** Contents</span>
+
+<span class="sd">- Zariski topology</span>
+<span class="sd">- Structure sheaf</span>
+<span class="sd">  - Sections</span>
+<span class="sd">  - Restriction of a section</span>
+<span class="sd">  - Definition of the structure sheaf</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.Ideals.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.AxiomOfChoice.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Subtypes.
+<span class="kn">Require Import</span> UniMath.Topology.Topology.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Commring.
+<span class="kn">Require Import</span> UniMath.AlgebraicGeometry.Topology.
+<span class="kn">Require Import</span> UniMath.AlgebraicGeometry.SheavesOfRings.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> <span class="bp">ring</span>.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subtype.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> open.
+
+<span class="sd">(** ** Zariski topology *)</span>
+
+<span class="kn">Section</span> <span class="nf">spec</span>.
+  <span class="kn">Context</span> {<span class="nv">R</span> : commring}.
+
+  <span class="kn">Definition</span> <span class="nf">zariski_topology</span> : (prime_ideal R -&gt; hProp) -&gt; hProp :=
+    <span class="k">λ</span> <span class="nv">U</span>, <span class="k">∃</span> <span class="nv">A</span>, U ≡ (<span class="k">λ</span> <span class="nv">p</span>, A ⊈ p).
+
+  <span class="kn">Lemma</span> <span class="nf">zariski_topology_union</span> :
+    isSetOfOpen_union zariski_topology.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> O H0. <span class="nb">unfold</span> zariski_topology.
+    <span class="nb">set</span> (S := <span class="k">λ</span> <span class="nv">A</span>, <span class="k">∃</span> <span class="nv">U</span>, O U ∧ U ≡ (<span class="k">λ</span> <span class="nv">p</span>, A ⊈ p)).
+    <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">union</span> <span class="nv">S</span>). <span class="nb">intro</span> p.
+    <span class="nb">apply</span> issymm_logeq, (logeq_trans (union_not_contained_in S p)).
+    <span class="nb">unfold</span> union. use make_dirprod; <span class="nb">intro</span> H.
+    - use (hinhuniv _ H); <span class="nb">intro</span> HA.
+      <span class="nb">induction</span> HA <span class="k">as</span> [A HA].
+      use (hinhfun _ (dirprod_pr1 HA)); <span class="nb">intro</span> HU.
+      <span class="nb">induction</span> HU <span class="k">as</span> [U HU].
+      <span class="k">exists</span> <span class="nv">U</span>. use make_dirprod.
+      + <span class="bp">exact</span> (dirprod_pr1 HU).
+      + <span class="nb">apply</span> (dirprod_pr2 (dirprod_pr2 HU p)), (dirprod_pr2 HA).
+    - use (hinhuniv _ H); <span class="nb">intro</span> HU. <span class="nb">induction</span> HU <span class="k">as</span> [U HU].
+      use (hinhfun _ (H0 U (dirprod_pr1 HU))); <span class="nb">intro</span> HA.
+      <span class="nb">induction</span> HA <span class="k">as</span> [A HA].
+      <span class="k">exists</span> <span class="nv">A</span>. use make_dirprod.
+      + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">U</span>. <span class="bp">exact</span> (make_dirprod (dirprod_pr1 HU) HA).
+      + <span class="nb">apply</span> (dirprod_pr1 (HA p)), (dirprod_pr2 HU).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">zariski_topology_htrue</span> :
+    isSetOfOpen_htrue zariski_topology.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span>, <span class="nv">htrue</span>). <span class="nb">intro</span> p.
+    use make_dirprod; <span class="nb">intro</span> H.
+    - <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">rigunel2</span>.
+      <span class="bp">exact</span> (make_dirprod tt (prime_ideal_ax2 p)).
+    - <span class="bp">exact</span> tt.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">zariski_topology_and</span> :
+    isSetOfOpen_and zariski_topology.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> zariski_topology. <span class="nb">intros</span> U V HU HV.
+    use (hinhuniv _ HU); <span class="nb">intros</span> HA.
+    use (hinhfun _ HV); <span class="nb">intros</span> HB.
+    <span class="nb">induction</span> HA <span class="k">as</span> [A HA]. <span class="nb">induction</span> HB <span class="k">as</span> [B HB].
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span>, <span class="k">∃</span> <span class="nv">a</span> <span class="nv">b</span>, A a × B b × x = (a * b)%<span class="bp">ring</span>). <span class="nb">intro</span> p.
+    <span class="nb">assert</span> (H0 : U p ∧ V p ⇔ A ⊈ p ∧ B ⊈ p).
+    { use make_dirprod; <span class="nb">intro</span> H.
+      - use make_dirprod.
+        + <span class="nb">apply</span> (dirprod_pr1 (HA p)), (dirprod_pr1 H).
+        + <span class="nb">apply</span> (dirprod_pr1 (HB p)), (dirprod_pr2 H).
+      - use make_dirprod.
+        + <span class="nb">apply</span> (dirprod_pr2 (HA p)), (dirprod_pr1 H).
+        + <span class="nb">apply</span> (dirprod_pr2 (HB p)), (dirprod_pr2 H). }
+    <span class="nb">apply</span> (logeq_trans H0). <span class="nb">unfold</span> subtype_notContainedIn.
+    use make_dirprod; <span class="nb">intro</span> H.
+    - use (hinhuniv _ (dirprod_pr1 H)); <span class="nb">intro</span> Ha.
+      use (hinhfun _ (dirprod_pr2 H)); <span class="nb">intro</span> Hb.
+      <span class="nb">induction</span> Ha <span class="k">as</span> [a Ha]. <span class="nb">induction</span> Hb <span class="k">as</span> [b Hb].
+      <span class="k">exists</span> (<span class="nv">a</span> * b)%<span class="bp">ring</span>. use make_dirprod.
+      + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">a</span>, b.
+        <span class="bp">exact</span> (make_dirprod (dirprod_pr1 Ha)
+                            (make_dirprod (dirprod_pr1 Hb) (idpath _))).
+      + <span class="nb">apply</span> (@negf _ (p a ∨ p b)).
+        * <span class="bp">exact</span> (prime_ideal_ax1 _ a b).
+        * <span class="nb">apply</span> toneghdisj.
+          <span class="bp">exact</span> (make_dirprod (dirprod_pr2 Ha) (dirprod_pr2 Hb)).
+    - use (hinhuniv _ H); <span class="nb">intro</span> Hx.
+      <span class="nb">induction</span> Hx <span class="k">as</span> [x Hx]. <span class="nb">induction</span> Hx <span class="k">as</span> [Hx Hpx].
+      use (hinhuniv _ Hx); <span class="nb">intro</span> Hab.
+      <span class="nb">induction</span> Hab <span class="k">as</span> [a Hab]. <span class="nb">induction</span> Hab <span class="k">as</span> [b Hab].
+      <span class="nb">induction</span> Hab <span class="k">as</span> [Ha Hab]. <span class="nb">induction</span> Hab <span class="k">as</span> [Hb Hab].
+      use make_dirprod; <span class="nb">apply</span> hinhpr.
+      + <span class="k">exists</span> <span class="nv">a</span>. use make_dirprod.
+        * <span class="bp">exact</span> Ha.
+        * use (negf _ Hpx). <span class="nb">intro</span> Hpa.
+          <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">y</span>, p y) Hab).
+          <span class="nb">apply</span> (ideal_isr p b a), Hpa.
+      + <span class="k">exists</span> <span class="nv">b</span>. use make_dirprod.
+        * <span class="bp">exact</span> Hb.
+        * use (negf _ Hpx). <span class="nb">intro</span> Hpb.
+          <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">y</span>, p y) Hab).
+          <span class="nb">apply</span> (ideal_isl p a b), Hpb.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Spec</span> : TopologicalSpace :=
+    make_TopologicalSpace (make_hSet (prime_ideal R) isaset_prime_ideal)
+                       zariski_topology
+                       zariski_topology_union
+                       zariski_topology_htrue
+                       zariski_topology_and.
+<span class="kn">End</span> <span class="nf">spec</span>.
+
+<span class="kn">Arguments</span> Spec _ : <span class="kn">clear implicits</span>.
+
+
+<span class="sd">(** ** Structure sheaf *)</span>
+
+<span class="sd">(** *** Sections *)</span>
+
+<span class="sd">(** For each prime ideal p of R, let R_p be the localization of R at p. For an open set U from the</span>
+<span class="sd">    spectrum of R, we define [section U] to be the family of functions s : ∏ p, R_p, such that s is</span>
+<span class="sd">    locally a quotient of elements of R: to be precise, we require that for each p in U there is a</span>
+<span class="sd">    neighborhood V of p, contained in U, and elements f, g in R, such that for each q in V, g not in</span>
+<span class="sd">    q, and s q = f/g. *)</span>
+
+<span class="kn">Section</span> <span class="nf">section</span>.
+  <span class="kn">Context</span> {<span class="nv">R</span> : commring} {<span class="nv">U</span> : @Open (Spec R)}.
+
+  <span class="kn">Definition</span> <span class="nf">is_quotient_on</span> (<span class="nv">V</span> : Open)
+                            (<span class="nv">s</span> : ∏ q : carrier U, localization_at (pr1 q)) : hProp :=
+    <span class="k">∃</span> (<span class="nv">f</span> <span class="nv">g</span> : R), <span class="k">∀</span> <span class="nv">q</span> : carrier U,
+        V (pr1 q) ⇒ <span class="k">∃</span> <span class="nv">Hg</span> : ¬ (pr1 q : prime_ideal R) g, s q = quotient f (g ,, Hg).
+
+  <span class="kn">Definition</span> <span class="nf">is_section</span> (<span class="nv">s</span> : ∏ p : carrier U, localization_at (pr1 p)) : hProp :=
+    <span class="k">∀</span> <span class="nv">p</span> : carrier U, <span class="k">∃</span> <span class="nv">V</span> : Open, V (pr1 p) ∧ V ⊆ U ∧ is_quotient_on V s.
+
+  <span class="kn">Definition</span> <span class="nf">section</span> : UU :=
+    ∑ s : (∏ p : carrier U, localization_at (pr1 p)), is_section s.
+
+  <span class="kn">Definition</span> <span class="nf">make_section</span> (<span class="nv">s</span> : ∏ p : carrier U, localization_at (pr1 p)) (<span class="nv">H</span> : is_section s) :
+    section := s ,, H.
+
+  <span class="kn">Definition</span> <span class="nf">section_map</span> (<span class="nv">s</span> : section) : ∏ p : carrier U, localization_at (pr1 p) := pr1 s.
+  <span class="kn">Coercion</span> <span class="nf">section_map</span> : section &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_prop</span> (<span class="nv">s</span> : section) : is_section s := pr2 s.
+
+  <span class="kn">Definition</span> <span class="nf">funext_section</span> (<span class="nv">s</span> <span class="nv">t</span> : section) : (<span class="k">∀</span> <span class="nv">p</span>, s p = t p) -&gt; s = t :=
+    <span class="k">λ</span> <span class="nv">H</span>, subtypePath_prop (funextsec _ _ _ H).
+<span class="kn">End</span> <span class="nf">section</span>.
+
+<span class="kn">Arguments</span> section {_} _.
+
+
+<span class="c">(* [section U] is a commutative ring. *)</span>
+
+<span class="kn">Section</span> <span class="nf">section_commring</span>.
+  <span class="kn">Context</span> {<span class="nv">R</span> : commring} {<span class="nv">U</span> : @Open (Spec R)}.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_section</span> : isaset (section U).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> impred_isaset. <span class="nb">intro</span> p. <span class="nb">apply</span> setproperty.
+    - <span class="nb">intro</span> s. <span class="nb">apply</span> isasetaprop, propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_hset</span> : hSet :=
+    make_hSet _ isaset_section.
+
+  <span class="kn">Lemma</span> <span class="nf">is_section_op1</span> (<span class="nv">s</span> <span class="nv">t</span> : section U) : is_section (<span class="k">λ</span> <span class="nv">p</span>, s p + t p).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">induction</span> s <span class="k">as</span> [s Hs].
+    <span class="nb">induction</span> t <span class="k">as</span> [t Ht].
+    use (hinhuniv _ (Hs p)); <span class="nb">intro</span> H1.
+    use (hinhuniv _ (Ht p)); <span class="nb">intro</span> H2.
+    <span class="nb">induction</span> H1 <span class="k">as</span> [V1 H1]. <span class="nb">induction</span> H1 <span class="k">as</span> [Hp1 H1]. <span class="nb">induction</span> H1 <span class="k">as</span> [HU1 H1].
+    <span class="nb">induction</span> H2 <span class="k">as</span> [V2 H2]. <span class="nb">induction</span> H2 <span class="k">as</span> [Hp2 H2]. <span class="nb">induction</span> H2 <span class="k">as</span> [HU2 H2].
+    use (hinhuniv _ H1); <span class="nb">intro</span> Hfg1.
+    use (hinhuniv _ H2); <span class="nb">intro</span> Hfg2.
+    <span class="nb">induction</span> Hfg1 <span class="k">as</span> [f1 Hfg1]. <span class="nb">induction</span> Hfg1 <span class="k">as</span> [g1 Hq1].
+    <span class="nb">induction</span> Hfg2 <span class="k">as</span> [f2 Hfg2]. <span class="nb">induction</span> Hfg2 <span class="k">as</span> [g2 Hq2].
+    <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">V1</span> ∩ V2). use make_dirprod.
+    - <span class="bp">exact</span> (make_dirprod Hp1 Hp2).
+    - use make_dirprod.
+      + <span class="nb">intros</span> x Hx. <span class="nb">apply</span> (HU1 x), (dirprod_pr1 Hx).
+      + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">g2</span> * f1 + g1 * f2), (g1 * g2). <span class="nb">intros</span> q HVq.
+        use (hinhuniv _ (Hq1 q (dirprod_pr1 HVq))); <span class="nb">intro</span> Hg1.
+        use (hinhuniv _ (Hq2 q (dirprod_pr2 HVq))); <span class="nb">intro</span> Hg2.
+        <span class="nb">induction</span> Hg1 <span class="k">as</span> [Hg1 Heq1].
+        <span class="nb">induction</span> Hg2 <span class="k">as</span> [Hg2 Heq2].
+        <span class="nb">set</span> (Hg := prime_ideal_ax1_contraposition (pr1 q) _ _ Hg1 Hg2).
+        <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">Hg</span>. <span class="bp">exact</span> (map_on_two_paths op1 Heq1 Heq2 @ idpath _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_op1</span> : binop (section U) :=
+    <span class="k">λ</span> <span class="nv">s</span> <span class="nv">t</span>, make_section _ (is_section_op1 s t).
+
+  <span class="kn">Lemma</span> <span class="nf">isassoc_section_op1</span> : isassoc section_op1.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> r s t. <span class="nb">apply</span> funext_section.
+    <span class="nb">intro</span> p. <span class="nb">simpl</span>. <span class="nb">apply</span> (rigassoc1 (localization_at (pr1 p))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iscomm_section_op1</span> : iscomm section_op1.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> s t. <span class="nb">apply</span> funext_section.
+    <span class="nb">intro</span> p. <span class="nb">simpl</span>. <span class="nb">apply</span> (rigcomm1 (localization_at (pr1 p))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_section_unel1</span> : is_section (<span class="k">λ</span> <span class="nv">p</span> : carrier U, @rigunel1 (localization_at (pr1 p))).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p. <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">U</span>. use make_dirprod.
+    - <span class="bp">exact</span> (pr2 p).
+    - use make_dirprod.
+      + <span class="nb">intros</span> x H. <span class="bp">exact</span> H.
+      + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="mi">0</span>, <span class="mi">1</span>. <span class="nb">intros</span> q Hq.
+        <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">prime_ideal_ax2</span> <span class="nv">_</span>). <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_unel1</span> : section U :=
+    make_section _ is_section_unel1.
+
+  <span class="kn">Lemma</span> <span class="nf">islunit_section_unel1</span> : islunit section_op1 section_unel1.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> s. <span class="nb">apply</span> funext_section.
+    <span class="nb">intro</span> p. <span class="nb">apply</span> (riglunax1 (localization_at (pr1 p))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isrunit_section_unel1</span> : isrunit section_op1 section_unel1.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (@weqlunitrunit section_hset).
+    - <span class="bp">exact</span> iscomm_section_op1.
+    - <span class="bp">exact</span> islunit_section_unel1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isunit_section_unel1</span> : isunit section_op1 section_unel1.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (make_dirprod islunit_section_unel1 isrunit_section_unel1).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ismonoidop_section_op1</span> : ismonoidop section_op1 :=
+    make_ismonoidop isassoc_section_op1
+                    (make_isunital section_unel1 isunit_section_unel1).
+
+  <span class="kn">Lemma</span> <span class="nf">is_section_inv</span> (<span class="nv">s</span> : section U) : is_section (<span class="k">λ</span> <span class="nv">p</span>, - s p).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">induction</span> s <span class="k">as</span> [s Hs].
+    use (hinhuniv _ (Hs p)); <span class="nb">intro</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [V H]. <span class="nb">induction</span> H <span class="k">as</span> [HVp H]. <span class="nb">induction</span> H <span class="k">as</span> [HV H].
+    use (hinhuniv _ H); <span class="nb">intro</span> Hfg.
+    <span class="nb">induction</span> Hfg <span class="k">as</span> [f Hfg]. <span class="nb">induction</span> Hfg <span class="k">as</span> [g Hfg].
+    <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">V</span>. use make_dirprod.
+    - <span class="bp">exact</span> HVp.
+    - use make_dirprod.
+      + <span class="bp">exact</span> HV.
+      + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (-<span class="mi">1</span> * f), g.
+        <span class="nb">intros</span> q Hq.
+        use (hinhuniv _ (Hfg q Hq)); <span class="nb">intros</span> Hg.
+        <span class="nb">induction</span> Hg <span class="k">as</span> [Hg Heq].
+        <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">Hg</span>. <span class="bp">exact</span> (maponpaths ringinv1 Heq @ idpath _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_inv</span> : section U -&gt; section U :=
+    <span class="k">λ</span> <span class="nv">s</span>, make_section _ (is_section_inv s).
+
+  <span class="kn">Lemma</span> <span class="nf">islinv_section_inv</span> : islinv section_op1 section_unel1 section_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> s. <span class="nb">apply</span> funext_section.
+    <span class="nb">intro</span> p. <span class="nb">simpl</span>. <span class="nb">apply</span> (ringlinvax1 (localization_at (pr1 p))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isrinv_section_inv</span> : isrinv section_op1 section_unel1 section_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (@weqlinvrinv section_hset).
+    - <span class="bp">exact</span> iscomm_section_op1.
+    - <span class="bp">exact</span> islinv_section_inv.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isinv_section_inv</span> : isinv section_op1 section_unel1 section_inv.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (make_isinv islinv_section_inv isrinv_section_inv).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">invstruct_section_op1</span> : invstruct section_op1 ismonoidop_section_op1.
+  <span class="kn">Proof</span>.
+    use make_invstruct.
+    - <span class="bp">exact</span> section_inv.
+    - <span class="bp">exact</span> isinv_section_inv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isgrop_section_op1</span> : isgrop section_op1 :=
+    make_isgrop ismonoidop_section_op1 invstruct_section_op1.
+
+  <span class="kn">Lemma</span> <span class="nf">is_section_op2</span> (<span class="nv">s</span> <span class="nv">t</span> : section U) : is_section (<span class="k">λ</span> <span class="nv">p</span>, s p * t p).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p.
+    <span class="nb">induction</span> s <span class="k">as</span> [s Hs].
+    <span class="nb">induction</span> t <span class="k">as</span> [t Ht].
+    use (hinhuniv _ (Hs p)); <span class="nb">intro</span> H1.
+    use (hinhuniv _ (Ht p)); <span class="nb">intro</span> H2.
+    <span class="nb">induction</span> H1 <span class="k">as</span> [V1 H1]. <span class="nb">induction</span> H1 <span class="k">as</span> [Hp1 H1]. <span class="nb">induction</span> H1 <span class="k">as</span> [HU1 H1].
+    <span class="nb">induction</span> H2 <span class="k">as</span> [V2 H2]. <span class="nb">induction</span> H2 <span class="k">as</span> [Hp2 H2]. <span class="nb">induction</span> H2 <span class="k">as</span> [HU2 H2].
+    use (hinhuniv _ H1); <span class="nb">intro</span> Hfg1.
+    use (hinhuniv _ H2); <span class="nb">intro</span> Hfg2.
+    <span class="nb">induction</span> Hfg1 <span class="k">as</span> [f1 Hfg1]. <span class="nb">induction</span> Hfg1 <span class="k">as</span> [g1 Hq1].
+    <span class="nb">induction</span> Hfg2 <span class="k">as</span> [f2 Hfg2]. <span class="nb">induction</span> Hfg2 <span class="k">as</span> [g2 Hq2].
+    <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">V1</span> ∩ V2). use make_dirprod.
+    + <span class="bp">exact</span> (make_dirprod Hp1 Hp2).
+    + use make_dirprod.
+      * <span class="nb">intros</span> x Hx. <span class="nb">apply</span> (HU1 x), (dirprod_pr1 Hx).
+      * <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">f1</span> * f2), (g1 * g2). <span class="nb">intros</span> q HVq.
+        use (hinhuniv _ (Hq1 q (dirprod_pr1 HVq))); <span class="nb">intro</span> Hg1.
+        use (hinhuniv _ (Hq2 q (dirprod_pr2 HVq))); <span class="nb">intro</span> Hg2.
+        <span class="nb">induction</span> Hg1 <span class="k">as</span> [Hg1 Heq1].
+        <span class="nb">induction</span> Hg2 <span class="k">as</span> [Hg2 Heq2].
+        <span class="nb">set</span> (Hg := prime_ideal_ax1_contraposition (pr1 q) _ _ Hg1 Hg2).
+        <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">Hg</span>. <span class="bp">exact</span> (map_on_two_paths op2 Heq1 Heq2 @ idpath _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_op2</span> : binop (section U) :=
+    <span class="k">λ</span> <span class="nv">s</span> <span class="nv">t</span>, make_section _ (is_section_op2 s t).
+
+  <span class="kn">Lemma</span> <span class="nf">isassoc_section_op2</span> : isassoc section_op2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> r s t. <span class="nb">apply</span> funext_section.
+    <span class="nb">intro</span> p. <span class="nb">simpl</span>. <span class="nb">apply</span> (rigassoc2 (localization_at (pr1 p))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iscomm_section_op2</span> : iscomm section_op2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> s t. <span class="nb">apply</span> funext_section.
+    <span class="nb">intro</span> p. <span class="nb">simpl</span>. <span class="nb">apply</span> (rigcomm2 (localization_at (pr1 p))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_section_unel2</span> :
+    is_section (<span class="k">λ</span> <span class="nv">p</span> : carrier U, @rigunel2 (localization_at (pr1 p))).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p. <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">U</span>. use make_dirprod.
+    - <span class="bp">exact</span> (pr2 p).
+    - use make_dirprod.
+      + <span class="nb">intros</span> x H. <span class="bp">exact</span> H.
+      + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="mi">1</span>, <span class="mi">1</span>. <span class="nb">intros</span> q Hq.
+        <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">prime_ideal_ax2</span> <span class="nv">_</span>). <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_unel2</span> : section U :=
+    make_section _ is_section_unel2.
+
+  <span class="kn">Lemma</span> <span class="nf">islunit_section_unel2</span> : islunit section_op2 section_unel2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> s. <span class="nb">apply</span> funext_section.
+    <span class="nb">intro</span> p. <span class="nb">apply</span> (riglunax2 (localization_at (pr1 p))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isrunit_section_unel2</span> : isrunit section_op2 section_unel2.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (@weqlunitrunit section_hset).
+    - <span class="bp">exact</span> iscomm_section_op2.
+    - <span class="bp">exact</span> islunit_section_unel2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isunit_section_unel2</span> : isunit section_op2 section_unel2.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (make_dirprod islunit_section_unel2 isrunit_section_unel2).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ismonoidop_section_op2</span> : ismonoidop section_op2 :=
+    make_ismonoidop isassoc_section_op2
+                    (make_isunital section_unel2 isunit_section_unel2).
+
+  <span class="kn">Lemma</span> <span class="nf">isldistr_section_ops</span> : isldistr section_op1 section_op2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> r s t. <span class="nb">apply</span> funext_section.
+    <span class="nb">intro</span> p. <span class="nb">simpl</span>. <span class="nb">apply</span> (rigldistr (localization_at (pr1 p))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isrdistr_section_ops</span> : isrdistr section_op1 section_op2.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (@weqldistrrdistr section_hset).
+    - <span class="bp">exact</span> iscomm_section_op2.
+    - <span class="bp">exact</span> isldistr_section_ops.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isdistr_section_ops</span> : isdistr section_op1 section_op2.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (isldistr_section_ops ,, isrdistr_section_ops).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_commring</span> : commring :=
+    @commringconstr section_hset section_op1 section_op2
+                    isgrop_section_op1 iscomm_section_op1
+                    ismonoidop_section_op2 iscomm_section_op2
+                    isdistr_section_ops.
+<span class="kn">End</span> <span class="nf">section_commring</span>.
+
+<span class="kn">Arguments</span> section_hset {_} _.
+<span class="kn">Arguments</span> section_commring {_} _.
+
+
+<span class="sd">(** *** Restriction of a section *)</span>
+
+<span class="kn">Section</span> <span class="nf">restriction</span>.
+  <span class="kn">Context</span> {<span class="nv">R</span> : commring} {<span class="nv">U</span> <span class="nv">V</span> : @Open (Spec R)} (<span class="nv">H</span> : V ⊆ U).
+
+  <span class="kn">Definition</span> <span class="nf">restriction_section_map</span> : (∏ p : carrier U, localization_at (pr1 p)) -&gt;
+                                       (∏ p : carrier V, localization_at (pr1 p)) :=
+    <span class="k">λ</span> <span class="nv">s</span> <span class="nv">p</span>, s (pr1 p ,, H (pr1 p) (pr2 p)).
+
+  <span class="kn">Lemma</span> <span class="nf">is_section_restriction_section_map</span> (<span class="nv">s</span> : section U) :
+    is_section (restriction_section_map s).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    <span class="nb">induction</span> p <span class="k">as</span> [p HVp]. <span class="nb">induction</span> s <span class="k">as</span> [s Hs].
+    use (hinhuniv _ (Hs (p ,, (H _ HVp)))); <span class="nb">intro</span> HW.
+    <span class="nb">induction</span> HW <span class="k">as</span> [W HW]. <span class="nb">induction</span> HW <span class="k">as</span> [HWp HW]. <span class="nb">induction</span> HW <span class="k">as</span> [HUW Hfg].
+    use (hinhfun _ Hfg); <span class="nb">intro</span> Hq.
+    <span class="nb">induction</span> Hq <span class="k">as</span> [f Hq]. <span class="nb">induction</span> Hq <span class="k">as</span> [g Hq].
+    <span class="k">exists</span> (<span class="nv">V</span> ∩ W). use make_dirprod.
+    - <span class="bp">exact</span> (make_dirprod HVp HWp).
+    - use make_dirprod.
+      + <span class="nb">intros</span> x Hx. <span class="bp">exact</span> (dirprod_pr1 Hx).
+      + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">f</span>, g. <span class="nb">intros</span> q H0. <span class="nb">induction</span> q <span class="k">as</span> [q HVq].
+        use (hinhfun _ (Hq (q ,, H _ HVq) (dirprod_pr2 H0))); <span class="nb">intro</span> Hg.
+        <span class="nb">induction</span> Hg <span class="k">as</span> [Hg Heq].
+        <span class="k">exists</span> <span class="nv">Hg</span>. <span class="bp">exact</span> Heq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">restriction_section</span> : section U -&gt; section V :=
+    <span class="k">λ</span> <span class="nv">s</span>, make_section _ (is_section_restriction_section_map s).
+
+  <span class="c">(* The [restriction_section] map is a ring homomorphism. *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">isaddmonoidfun_restriction_section</span> :
+    @ismonoidfun (rigaddabmonoid (section_commring U))
+                 (rigaddabmonoid (section_commring V))
+                 restriction_section.
+  <span class="kn">Proof</span>.
+    use make_ismonoidfun.
+    - <span class="nb">intros</span> s t. <span class="nb">apply</span> subtypePath_prop, idpath.
+    - <span class="nb">apply</span> subtypePath_prop, idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ismultmonoidfun_restriction_section</span> :
+    @ismonoidfun (rigmultmonoid (section_commring U))
+                 (rigmultmonoid (section_commring V))
+                 restriction_section.
+  <span class="kn">Proof</span>.
+    use make_ismonoidfun.
+    - <span class="nb">intros</span> s t. <span class="nb">apply</span> subtypePath_prop, idpath.
+    - <span class="nb">apply</span> subtypePath_prop, idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isringfun_restriction_section</span> :
+    @isringfun (section_commring U) (section_commring V) restriction_section.
+  <span class="kn">Proof</span>.
+    use make_isrigfun.
+    - <span class="bp">exact</span> isaddmonoidfun_restriction_section.
+    - <span class="bp">exact</span> ismultmonoidfun_restriction_section.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">restriction_ringfun</span> : ringfun (section_commring U) (section_commring V) :=
+    rigfunconstr isringfun_restriction_section.
+<span class="kn">End</span> <span class="nf">restriction</span>.
+
+
+<span class="kn">Section</span> <span class="nf">restriction_facts</span>.
+  <span class="kn">Context</span> {<span class="nv">R</span> : commring} {<span class="nv">U</span> <span class="nv">V</span> : @Open (Spec R)}.
+
+  <span class="kn">Lemma</span> <span class="nf">restriction_paths</span> (<span class="nv">H</span> : V ⊆ U) (<span class="nv">s</span> : section U) {<span class="nv">p</span> : Spec R} (<span class="nv">HUp</span> : U p) (<span class="nv">HVp</span> : V p) :
+    restriction_section H s (p ,, HVp) = s (p ,, HUp).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> (proofirrelevance_hProp _ (H _ HVp) HUp). <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">section_subset</span> {<span class="nv">H</span> : V ⊆ U} {<span class="nv">s</span> <span class="nv">t</span> : section U} :
+    restriction_section H s = restriction_section H t -&gt;
+    ∏ p : carrier U, V (pr1 p) -&gt; s p = t p.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Heq p HVp.
+    <span class="nb">apply</span> (@pathscomp0 _ _ (restriction_section H s (pr1 p ,, HVp))).
+    - <span class="nb">apply</span> pathsinv0, restriction_paths.
+    - <span class="nb">apply</span> (@pathscomp0 _ _ (restriction_section H t (pr1 p ,, HVp))).
+      + <span class="nb">induction</span> Heq. <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> restriction_paths.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">section_intersection</span> (<span class="nv">s</span> : section U) (<span class="nv">t</span> : section V) :
+    restriction_section (intersection_contained1 U V) s =
+    restriction_section (intersection_contained2 U V) t -&gt;
+    ∏ p (HUp : U p) (HVp : V p), s (p ,, HUp) = t (p ,, HVp).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Heq p HUp HVp.
+    <span class="nb">set</span> (Hp := make_dirprod HUp HVp).
+    <span class="nb">assert</span> (H : restriction_section (intersection_contained1 U V) s (p ,, Hp) =
+                restriction_section (intersection_contained2 U V) t (p ,, Hp)).
+    { <span class="nb">induction</span> Heq. <span class="nb">apply</span> idpath. }
+    <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">restriction_facts</span>.
+
+
+<span class="sd">(** *** Definition of the structure sheaf *)</span>
+
+<span class="kn">Section</span> <span class="nf">structure_sheaf</span>.
+  <span class="kn">Context</span> (<span class="nv">R</span> : commring).
+
+  <span class="c">(* presheaf *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">structure_presheaf_data</span> :
+    functor_data (open_category (Spec R))^op commring_precategory.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> section_commring.
+    - <span class="bp">exact</span> (@restriction_ringfun R).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_functor_structure_presheaf_data</span> : is_functor structure_presheaf_data.
+  <span class="kn">Proof</span>.
+    use make_dirprod.
+    - <span class="nb">intro</span> U.
+      <span class="nb">apply</span> rigfun_paths, funextsec. <span class="nb">intro</span> s. <span class="nb">apply</span> subtypePath_prop, idpath.
+    - <span class="nb">intros</span> U V W f g.
+      <span class="nb">apply</span> rigfun_paths, funextsec. <span class="nb">intro</span> s. <span class="nb">apply</span> subtypePath_prop, idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">structure_presheaf</span> : (open_category (Spec R))^op ⟶ commring_precategory :=
+    make_functor structure_presheaf_data is_functor_structure_presheaf_data.
+
+  <span class="c">(* locality *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">locality_structure_presheaf</span> : locality structure_presheaf.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> A s t H. <span class="nb">apply</span> funext_section. <span class="nb">intro</span> p.
+    use (hinhuniv _ (hexists_open_neighborhood p)); <span class="nb">intro</span> HU.
+    <span class="nb">induction</span> HU <span class="k">as</span> [U HUp].
+    <span class="nb">apply</span> (section_subset (H U)), HUp.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* gluing *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">agree_on_intersections_section</span> {<span class="nv">A</span> : hsubtype (@Open (Spec R))}
+                                            (<span class="nv">g</span> : ∏ U : A, section_commring (pr1 U)) : UU :=
+    ∏ U V : A, restriction_section (intersection_contained1 _ _) (g U) =
+               restriction_section (intersection_contained2 _ _) (g V).
+
+  <span class="kn">Definition</span> <span class="nf">glue_sections</span> {<span class="nv">A</span> : hsubtype (@Open (Spec R))}
+                           (<span class="nv">g</span> : ∏ U : A, section_commring (pr1 U))
+                           (<span class="nv">Hg</span> : agree_on_intersections_section g)
+                           (<span class="nv">H</span> : ∏ p : carrier (⋃ A), ∑ U : A, pr1 U (pr1 p)) :
+    section_commring (⋃ A).
+  <span class="kn">Proof</span>.
+    use make_section; <span class="nb">intro</span> x; <span class="nb">induction</span> (H x) <span class="k">as</span> [U HUx];
+      <span class="nb">set</span> (s := g U);
+      <span class="nb">set</span> (p := make_carrier _ _ HUx).
+    - <span class="bp">exact</span> (section_map s p).
+    - use (hinhfun _ (section_prop s p)); <span class="nb">intro</span> H1.
+      <span class="nb">induction</span> H1 <span class="k">as</span> [V HV]. <span class="nb">induction</span> HV <span class="k">as</span> [HVp HV]. <span class="nb">induction</span> HV <span class="k">as</span> [HVU HV].
+      <span class="k">exists</span> <span class="nv">V</span>. <span class="nb">apply</span> make_dirprod.
+      + <span class="bp">exact</span> HVp.
+      + <span class="nb">apply</span> make_dirprod.
+        * <span class="nb">apply</span> (subtype_containment_istrans _ _ _ _ HVU), contained_in_union_open.
+        * use (hinhfun _ HV). <span class="nb">intro</span> H2.
+          <span class="nb">induction</span> H2 <span class="k">as</span> [f Hh]. <span class="nb">induction</span> Hh <span class="k">as</span> [h H3].
+          <span class="k">exists</span> <span class="nv">f</span>, h. <span class="nb">intros</span> q HVq. <span class="nb">induction</span> q <span class="k">as</span> [q Hq].
+          use (hinhfun _ (H3 (q ,, HVU q HVq) HVq)); <span class="nb">intro</span> H4.
+          <span class="nb">induction</span> H4 <span class="k">as</span> [Hh Heq].
+          <span class="k">exists</span> <span class="nv">Hh</span>. use (pathscomp0 _ Heq). <span class="nb">simpl</span>.
+          <span class="nb">apply</span> section_intersection. <span class="nb">apply</span> Hg.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">gluing_structure_presheaf</span> (<span class="nv">ac</span> : AxiomOfChoice) : gluing structure_presheaf.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> A g Hg.
+    <span class="nb">set</span> (H0 := ac (carrier_subset (⋃ A)) _ (@hexists_open_neighborhood _ A)).
+    use (hinhfun _ H0); <span class="nb">intro</span> H.
+    <span class="k">exists</span> (<span class="nv">glue_sections</span> <span class="nv">g</span> <span class="nv">Hg</span> <span class="nv">H</span>).
+    <span class="nb">intro</span> U. <span class="nb">apply</span> funext_section.
+    <span class="nb">intro</span> q. <span class="nb">induction</span> q <span class="k">as</span> [q HUq]. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> section_intersection, Hg.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* structure sheaf *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">structure_sheaf</span> (<span class="nv">ac</span> : AxiomOfChoice) : sheaf_commring (Spec R) :=
+    make_sheaf_commring structure_presheaf
+                        locality_structure_presheaf
+                        (gluing_structure_presheaf ac).
+<span class="kn">End</span> <span class="nf">structure_sheaf</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicGeometry/Spec.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Algebra/RigsAndRings.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   - Definition of the structure sheaf
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Algebra.RigsAndRings.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Algebra.RigsAndRings.Ideals.
+  &gt; Require Import UniMath.MoreFoundations.AxiomOfChoice.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

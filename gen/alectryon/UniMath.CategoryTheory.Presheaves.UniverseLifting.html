@@ -1,0 +1,783 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UniverseLifting.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> The Hofmann-Streicher lifting of universes</span>
+
+<span class="sd"> We show that every universe of sets gives rise to a universe of presheaves. Our</span>
+<span class="sd"> construction follows Hofmann and Streicher, and it is similar to the construction</span>
+<span class="sd"> of the subobject classifier of presheaves. If we have a (small) category `C`,</span>
+<span class="sd"> then the subobject classifier of presheaves is defined to be the presheaf that</span>
+<span class="sd"> maps every `x : C` to the set of sieves on `x`. Sieves on `x` are the same as</span>
+<span class="sd"> functors from `(C/x)^op` to the category `hProp`, whose objects are propositions</span>
+<span class="sd"> and whose morphisms are functions. We construct the lifting of a set universe in</span>
+<span class="sd"> a similar way. Given a universe `u` of sets, we define the lifting presheaf as</span>
+<span class="sd"> follows: it maps every `x` to the set of functors from `(C/x)^op` to the category</span>
+<span class="sd"> `u`, whose objects are inhabitants of `u` and whose morphisms are functions between</span>
+<span class="sd"> the associated types.</span>
+
+<span class="sd"> We also give a definition of families of presheaves valued in a given universe of</span>
+<span class="sd"> sets. This definition follows the definition of dependent presheaf, and the only</span>
+<span class="sd"> difference is that the given universe of sets takes the place of `hSet`.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Lifting Grothendieck universes" by Hofmann and Streicher</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. A useful lemma</span>
+<span class="sd"> 2. The unvierse lifting as a dependent presheaf</span>
+<span class="sd"> 3. Lemmas to construct the associated type</span>
+<span class="sd"> 4. The associated type</span>
+<span class="sd"> 5. Dependent presheaves valued in a set universe</span>
+<span class="sd"> 6. Equality of presheaves valued in a universe of sets</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Combinatorics.SetUniverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.UniverseToCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLeftAdjoint.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodDomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.TotalPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. A useful lemma *)</span>
+<span class="kn">Proposition</span> <span class="nf">functor_to_set_universe_eq_ob</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">u</span> : set_universe}
+            {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ set_universe_to_category u}
+            (<span class="nv">p</span> : F = G)
+            (<span class="nv">x</span> : C)
+  : F x = G x.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ;<span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">functor_to_set_universe_eq</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">u</span> : set_universe}
+            {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ set_universe_to_category u}
+            (<span class="nv">p</span> : F = G)
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">a</span> : set_universe_el (F x))
+  : #F f a
+    =
+    set_universe_eq
+      (eqtohomot (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z) (!p)) y)
+      (#G f (set_universe_eq (eqtohomot (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z) p) x) a)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ;<span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">functor_to_set_universe_mor_eq</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">F</span> : C ⟶ set_universe_to_category u)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+            {<span class="nv">f</span> : x₁ --&gt; y₁}
+            {<span class="nv">g</span> : x₂ --&gt; y₂}
+            (<span class="nv">px</span> : x₁ = x₂)
+            (<span class="nv">py</span> : y₁ = y₂)
+            (<span class="nv">q</span> : f · idtoiso py = idtoiso px ·  g)
+            (<span class="nv">a</span> : set_universe_el (F x₁))
+  : #F f a
+    =
+    set_universe_eq (maponpaths F (!py)) (#F g (set_universe_eq (maponpaths F px) a)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> px, py.
+  <span class="nb">cbn</span> <span class="k">in</span> q.
+  <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> q.
+  <span class="nb">induction</span> q.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">Lifting</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : category)
+          (<span class="nv">u</span> : set_universe).
+
+  <span class="sd">(** * 2. The unvierse lifting as a dependent presheaf *)</span>
+  <span class="kn">Definition</span> <span class="nf">presheaf_universe</span>
+    : dep_psh (constant_functor (C^op) HSET unitset).
+  <span class="kn">Proof</span>.
+    use make_dep_psh.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">_</span>,
+             set_functors_to_set_category
+               ((C/x)^op)
+               (set_universe_to_setcategory u)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">_</span> <span class="nv">F</span>, functor_op (comp_functor f) ∙ F).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x ? ? F ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> comp_functor_identity ;
+         use functor_eq ; [ <span class="nb">apply</span> set_universe_to_category | ] ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y z ? ? ? f g p q r F ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> comp_functor_comp ;
+         use functor_eq ; [ <span class="nb">apply</span> set_universe_to_category | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">presheaf_universe_ctx</span>
+             (<span class="nv">Γ</span> : C^op ⟶ HSET)
+    : dep_psh Γ
+    := dep_psh_subst
+         (TerminalArrow Terminal_PreShv Γ)
+         presheaf_universe.
+
+  <span class="sd">(** * 3. Lemmas to construct the associated type *)</span>
+  <span class="kn">Lemma</span> <span class="nf">psh_term_set_universe_eq</span>
+        {<span class="nv">Γ</span> : C^op ⟶ HSET}
+        (<span class="nv">τ</span> : psh_term (presheaf_universe_ctx Γ))
+        {<span class="nv">x</span> : C}
+        (<span class="nv">xx</span> : (Γ x : hSet))
+        {<span class="nv">f₁</span> <span class="nv">f₂</span> <span class="nv">f₁'</span> <span class="nv">f₂'</span> : C/x}
+        {<span class="nv">g</span> : f₁ --&gt; f₂}
+        {<span class="nv">g'</span> : f₁' --&gt; f₂'}
+        (<span class="nv">p₁</span> : f₁' = f₁)
+        (<span class="nv">p₂</span> : f₂' = f₂)
+        (<span class="nv">r</span> : g' · idtoiso p₂ = idtoiso p₁ · g)
+        (<span class="nv">a</span> : set_universe_el ((τ x xx : _ ⟶ _) f₂))
+    : #(τ x xx : _ ⟶ _) g a
+      =
+      set_universe_eq
+        (maponpaths (τ _ _ : _ ⟶ _) p₁)
+        (#(τ x xx : _ ⟶ _) g' (set_universe_eq (maponpaths (τ _ _ : _ ⟶ _) (!p₂)) a)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p₁, p₂.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (_ @ !r @ _).
+    - <span class="bp">exact</span> (!(id_left _)).
+    - <span class="bp">exact</span> (id_right _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">psh_term_universe_id_path</span>
+        {<span class="nv">Γ</span> : C^op ⟶ HSET}
+        (<span class="nv">τ</span> : psh_term (presheaf_universe_ctx Γ))
+        {<span class="nv">x</span> : C}
+        (<span class="nv">xx</span> : (Γ x : hSet))
+    : (τ x xx : _ ⟶ _) (cod_fib_id x)
+      =
+      (τ x xx : _ ⟶ _) (cod_fib_comp (identity x) (cod_fib_id x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (!(id_left _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">psh_universe_id_lem_1</span>
+        (<span class="nv">x</span> : C)
+    : cod_fib_id x = cod_fib_comp (identity x) (cod_fib_id x).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (!(id_left _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">psh_universe_id_lem_2</span>
+        (<span class="nv">x</span> : C)
+    : identity (cod_fib_id x) · identity _
+      =
+      idtoiso (psh_universe_id_lem_1 x) · cod_fib_comp_mor (identity x).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> psh_universe_id_lem_1.
+    use eq_mor_cod_fib.
+    <span class="nb">rewrite</span> !comp_in_cod_fib.
+    <span class="nb">rewrite</span> !dom_mor_idtoiso.
+    <span class="nb">refine</span> (id_right _ @ _ @ !(id_right _)).
+    <span class="nb">refine</span> (!_).
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (maponpathscomp (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) cod_dom _ @ _).
+      <span class="nb">apply</span> maponpaths_for_constant_function.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">psh_term_universe_id</span>
+        {<span class="nv">Γ</span> : C^op ⟶ HSET}
+        (<span class="nv">τ</span> : psh_term (presheaf_universe_ctx Γ))
+        {<span class="nv">x</span> : C}
+        (<span class="nv">xx</span> : (Γ x : hSet))
+        (<span class="nv">a</span> : set_universe_el ((τ x xx : _ ⟶ _) (cod_fib_id x)))
+    : # (τ x xx : _ ⟶ _) (cod_fib_comp_mor (identity x)) a
+      =
+      set_universe_eq (psh_term_universe_id_path τ xx) a.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    etrans.
+    {
+      use (psh_term_set_universe_eq τ xx _ (idpath _)).
+      - <span class="bp">exact</span> (cod_fib_id x).
+      - <span class="nb">apply</span> identity.
+      - <span class="bp">exact</span> (psh_universe_id_lem_1 x).
+      - <span class="bp">exact</span> (psh_universe_id_lem_2 x).
+    }
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (eqtohomot (functor_id (τ x xx) (cod_fib_id x)) a).
+    }
+    <span class="nb">apply</span> set_universe_eq_path.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">psh_term_universe_comp_path₁</span>
+        {<span class="nv">Γ</span> : C^op ⟶ HSET}
+        (<span class="nv">τ</span> : psh_term (presheaf_universe_ctx Γ))
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+        (<span class="nv">s₁</span> : x --&gt; y)
+        (<span class="nv">s₂</span> : y --&gt; z)
+        (<span class="nv">zz</span> : (Γ z : hSet))
+    : (τ y (#Γ s₂ zz) : _ ⟶ _) (cod_fib_comp s₁ (cod_fib_id x))
+      =
+      (τ z zz : _ ⟶ _) (cod_fib_comp (s₁ · s₂) (cod_fib_id x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> (<span class="nv">z</span> : _ ⟶ _), z _) (psh_term_naturality τ s₂ zz) @ _).
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">psh_term_universe_comp_path₂</span>
+        {<span class="nv">Γ</span> : C^op ⟶ HSET}
+        (<span class="nv">τ</span> : psh_term (presheaf_universe_ctx Γ))
+        {<span class="nv">x</span> <span class="nv">y</span> : C}
+        (<span class="nv">s</span> : x --&gt; y)
+        (<span class="nv">yy</span> : (Γ y : hSet))
+    : (τ y yy : _ ⟶ _) (cod_fib_comp s (cod_fib_id x))
+      =
+      (τ x (#Γ s yy) :_ ⟶ _) (cod_fib_id x).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (!_).
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> (<span class="nv">z</span> : _ ⟶ _), z _) (psh_term_naturality τ s yy)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">psh_term_universe_comp_lem_1</span>
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+        (<span class="nv">s₁</span> : x --&gt; y)
+        (<span class="nv">s₂</span> : y --&gt; z)
+    : comp_functor s₂ (cod_fib_comp s₁ (cod_fib_id x))
+      =
+      cod_fib_comp (s₁ · s₂) (cod_fib_id x).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">psh_term_universe_comp_lem_2</span>
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+        (<span class="nv">s₁</span> : x --&gt; y)
+        (<span class="nv">s₂</span> : y --&gt; z)
+    : #(comp_functor s₂) (cod_fib_comp_mor s₁)
+      · cod_fib_comp_mor s₂
+      · identity _
+      =
+      idtoiso (psh_term_universe_comp_lem_1 s₁ s₂)
+      · cod_fib_comp_mor (s₁ · s₂).
+  <span class="kn">Proof</span>.
+    use eq_mor_cod_fib.
+    <span class="nb">rewrite</span> !comp_in_cod_fib.
+    <span class="nb">rewrite</span> !dom_mor_idtoiso.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">refine</span> (!(id_left _) @ !_).
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (maponpathscomp (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) cod_dom _ @ _).
+      <span class="nb">apply</span> maponpaths_for_constant_function.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">psh_term_universe_comp</span>
+        {<span class="nv">Γ</span> : C^op ⟶ HSET}
+        (<span class="nv">τ</span> : psh_term (presheaf_universe_ctx Γ))
+        {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+        (<span class="nv">s₁</span> : x --&gt; y)
+        (<span class="nv">s₂</span> : y --&gt; z)
+        (<span class="nv">zz</span> : (Γ z : hSet))
+        (<span class="nv">a</span> : set_universe_el ((τ z zz : _ ⟶ _) (cod_fib_id z)))
+    : # (τ z zz : _ ⟶ _) (cod_fib_comp_mor (s₁ · s₂)) a
+      =
+      set_universe_eq
+        (psh_term_universe_comp_path₁ τ s₁ s₂ zz)
+        (# (τ y (#Γ s₂ zz) : _ ⟶ _)
+           (cod_fib_comp_mor s₁)
+           (set_universe_eq
+              (psh_term_universe_comp_path₂ τ s₂ zz)
+              (# (τ z zz : _ ⟶ _)
+                 (cod_fib_comp_mor s₂)
+                 a))).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">refine</span> (psh_term_set_universe_eq τ zz _ (idpath _) _ _).
+      <span class="bp">exact</span> (psh_term_universe_comp_lem_2 s₁ s₂).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z _) (functor_comp (τ z zz) _ _)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (functor_to_set_universe_eq (psh_term_naturality τ s₂ zz)).
+    }
+    <span class="nb">rewrite</span> !set_universe_eq_comp.
+    <span class="nb">rewrite</span> !set_universe_eq_idpath.
+    <span class="nb">apply</span> set_universe_eq_path.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. The associated type *)</span>
+  <span class="kn">Proposition</span> <span class="nf">presheaf_el_map_path</span>
+              {<span class="nv">Γ</span> : C^op ⟶ HSET}
+              (<span class="nv">τ</span> : psh_term (presheaf_universe_ctx Γ))
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              {<span class="nv">xx</span> : (Γ x : hSet)}
+              {<span class="nv">yy</span> : (Γ y : hSet)}
+              (<span class="nv">s</span> : y --&gt; x)
+              (<span class="nv">p</span> : #Γ s xx = yy)
+    : (τ x xx : _ ⟶ _) (cod_fib_comp s (cod_fib_id y))
+      =
+      (τ y yy : _ ⟶ _) (cod_fib_id y).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">pose</span> (psh_term_naturality τ s xx) <span class="k">as</span> q.
+    <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> (<span class="nv">z</span> : _ ⟶ _), z _) (!q)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">presheaf_el_map</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             (<span class="nv">τ</span> : psh_term (presheaf_universe_ctx Γ))
+    : dep_psh Γ.
+  <span class="kn">Proof</span>.
+    use make_dep_psh.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, set_universe_el ((τ x xx : _ ⟶ _) (cod_fib_id x))).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">s</span> <span class="nv">p</span> <span class="nv">a</span>,
+             set_universe_eq
+               (presheaf_el_map_path τ s p)
+               (#(τ x xx : _ ⟶ _) (cod_fib_comp_mor s) a)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">intros</span> x xx p a ;
+         etrans ;
+         [ <span class="nb">apply</span> maponpaths ;
+           <span class="nb">apply</span> psh_term_universe_id
+         | ] ;
+         <span class="nb">rewrite</span> set_universe_eq_comp ;
+         <span class="nb">apply</span> set_universe_eq_idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y z xx yy zz s₁ s₂ p q r a ;
+         <span class="nb">induction</span> p, q ;
+         <span class="nb">cbn</span> <span class="k">in</span> * ;
+         etrans ;
+         [ <span class="nb">apply</span> maponpaths ;
+           <span class="nb">apply</span> psh_term_universe_comp
+         | ] ;
+         <span class="nb">rewrite</span> set_universe_eq_comp ;
+         <span class="nb">refine</span> (set_universe_eq_path _ _ _ @ _) ;
+         <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> set_universe_eq_path).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">presheaf_el_map_eq</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             {<span class="nv">a</span> <span class="nv">b</span> : psh_term (presheaf_universe_ctx Γ)}
+             (<span class="nv">p</span> : a = b)
+    : dep_psh_nat_trans
+        (presheaf_el_map a)
+        (presheaf_el_map b)
+        (nat_trans_id _).
+  <span class="kn">Proof</span>.
+    use make_dep_psh_nat_trans.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, set_universe_eq _).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">induction</span> p ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y xx yy f q₁ q₂ z ;
+         <span class="nb">induction</span> p ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> set_universe_eq_comp ;
+         <span class="nb">rewrite</span> set_universe_eq_idpath ;
+         <span class="nb">apply</span> set_universe_eq_path).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">total_psh_el_map_nat_z_iso</span>
+             {<span class="nv">Γ</span> : C^op ⟶ HSET}
+             {<span class="nv">a</span> <span class="nv">b</span> : psh_term (presheaf_universe_ctx Γ)}
+             (<span class="nv">p</span> : a = b)
+    : nat_z_iso
+        (total_psh
+           (presheaf_el_map a))
+        (total_psh
+           (presheaf_el_map b)).
+  <span class="kn">Proof</span>.
+    use total_psh_nat_z_iso.
+    - <span class="bp">exact</span> (presheaf_el_map_eq p).
+    - <span class="nb">intros</span> x xx.
+      use isweq_iso.
+      + <span class="nb">refine</span> (set_universe_eq _).
+        <span class="kp">abstract</span>
+          (<span class="nb">induction</span> p ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> z ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> set_universe_eq_comp ;
+           <span class="nb">apply</span> set_universe_eq_idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> z ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> set_universe_eq_comp ;
+           <span class="nb">apply</span> set_universe_eq_idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Lifting</span>.
+
+<span class="kn">Arguments</span> presheaf_universe_ctx {C} u Γ.
+<span class="kn">Arguments</span> presheaf_el_map {C u Γ} τ.
+
+<span class="kn">Section</span> <span class="nf">SmallDependentPresheaf</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">u</span> : set_universe}.
+
+  <span class="sd">(** * 5. Dependent presheaves valued in a set universe *)</span>
+  <span class="kn">Definition</span> <span class="nf">set_universe_dep_psh_data</span>
+             (<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u)
+    : UU
+    := ∑ (Fo : ∏ (x : C) (xx : set_universe_el (Γ x)), u),
+       ∏ (x y : C)
+         (xx : set_universe_el (Γ x))
+         (yy : set_universe_el (Γ y))
+         (s : y --&gt; x)
+         (p : #Γ s xx = yy),
+       set_universe_el (Fo x xx)
+       → set_universe_el (Fo y yy).
+
+  <span class="kn">Definition</span> <span class="nf">make_set_universe_dep_psh_data</span>
+             {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+             (<span class="nv">Fo</span> : ∏ (x : C) (xx : set_universe_el (Γ x)), u)
+             (<span class="nv">Fm</span> : ∏ (x y : C)
+                     (xx : set_universe_el (Γ x))
+                     (yy : set_universe_el (Γ y))
+                     (s : y --&gt; x)
+                     (p : #Γ s xx = yy),
+                   set_universe_el (Fo x xx)
+                   → set_universe_el (Fo y yy))
+    : set_universe_dep_psh_data Γ
+    := Fo ,, Fm.
+
+  <span class="kn">Definition</span> <span class="nf">set_universe_dep_psh_ob</span>
+             {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+             (<span class="nv">F</span> : set_universe_dep_psh_data Γ)
+             (<span class="nv">x</span> : C)
+             (<span class="nv">xx</span> : set_universe_el (Γ x))
+    : u
+    := pr1 F x xx.
+
+  <span class="kn">Coercion</span> <span class="nf">set_universe_dep_psh_ob</span> : set_universe_dep_psh_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_universe_dep_psh_mor</span>
+             {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+             (<span class="nv">F</span> : set_universe_dep_psh_data Γ)
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             {<span class="nv">xx</span> : set_universe_el (Γ x)}
+             {<span class="nv">yy</span> : set_universe_el (Γ y)}
+             (<span class="nv">s</span> : y --&gt; x)
+             (<span class="nv">p</span> : #Γ s xx = yy)
+             (<span class="nv">a</span> : set_universe_el (F x xx))
+    : set_universe_el (F y yy)
+    := pr2 F x y xx yy s p a.
+
+  <span class="kn">Notation</span> <span class="s2">"#s"</span> := set_universe_dep_psh_mor : cat.
+
+  <span class="kn">Definition</span> <span class="nf">set_universe_dep_psh_laws</span>
+             {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+             (<span class="nv">F</span> : set_universe_dep_psh_data Γ)
+    : UU
+    := (∏ (x : C)
+          (xx : set_universe_el (Γ x))
+          (p : #Γ (identity x) xx = xx)
+          (a : set_universe_el (F x xx)),
+        #s F (identity _) p a = a)
+       ×
+       (∏ (x y z : C)
+          (xx : set_universe_el (Γ x))
+          (yy : set_universe_el (Γ y))
+          (zz : set_universe_el (Γ z))
+          (s₁ : y --&gt; x)
+          (s₂ : z --&gt; y)
+          (p : #Γ s₁ xx = yy)
+          (q : #Γ s₂ yy = zz)
+          (r : #Γ (s₂ · s₁) xx = zz)
+          (a : set_universe_el (F x xx)),
+        #s F (s₂ · s₁) r a = #s F s₂ q (#s F s₁ p a)).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_set_universe_dep_psh_laws</span>
+              {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+              (<span class="nv">F</span> : set_universe_dep_psh_data Γ)
+    : isaprop (set_universe_dep_psh_laws F).
+  <span class="kn">Proof</span>.
+    use isapropdirprod.
+    - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> setproperty.
+    - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_universe_dep_psh</span>
+             (<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u)
+    : UU
+    := ∑ (F : set_universe_dep_psh_data Γ),
+       set_universe_dep_psh_laws F.
+
+  <span class="kn">Definition</span> <span class="nf">make_set_universe_dep_psh</span>
+             {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+             (<span class="nv">F</span> : set_universe_dep_psh_data Γ)
+             (<span class="nv">H</span> : set_universe_dep_psh_laws F)
+    : set_universe_dep_psh Γ
+    := F ,, H.
+
+  <span class="kn">Coercion</span> <span class="nf">set_universe_dep_psh_to_data</span>
+           {Γ : C^op ⟶ set_universe_to_setcategory u}
+           (F : set_universe_dep_psh Γ)
+    : set_universe_dep_psh_data Γ
+    := pr1 F.
+
+  <span class="kn">Proposition</span> <span class="nf">set_universe_dep_psh_id</span>
+              {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+              (<span class="nv">F</span> : set_universe_dep_psh Γ)
+              {<span class="nv">x</span> : C}
+              {<span class="nv">xx</span> : set_universe_el (Γ x)}
+              (<span class="nv">p</span> : #Γ (identity x) xx = xx)
+              (<span class="nv">a</span> : set_universe_el (F x xx))
+    : #s F (identity _) p a = a.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 F x xx p a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_universe_dep_psh_comp</span>
+              {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+              (<span class="nv">F</span> : set_universe_dep_psh Γ)
+              {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+              {<span class="nv">xx</span> : set_universe_el (Γ x)}
+              {<span class="nv">yy</span> : set_universe_el (Γ y)}
+              {<span class="nv">zz</span> : set_universe_el (Γ z)}
+              {<span class="nv">s₁</span> : y --&gt; x}
+              {<span class="nv">s₂</span> : z --&gt; y}
+              (<span class="nv">p</span> : #Γ s₁ xx = yy)
+              (<span class="nv">q</span> : #Γ s₂ yy = zz)
+              (<span class="nv">r</span> : #Γ (s₂ · s₁) xx = zz)
+              (<span class="nv">a</span> : set_universe_el (F x xx))
+    : #s F (s₂ · s₁) r a = #s F s₂ q (#s F s₁ p a).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 F x y z xx yy zz s₁ s₂ p q r a).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_universe_dep_psh_mor_eq_path</span>
+              {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              {<span class="nv">xx</span> : set_universe_el (Γ x)}
+              {<span class="nv">yy</span> : set_universe_el (Γ y)}
+              {<span class="nv">s</span> <span class="nv">s'</span> : y --&gt; x}
+              (<span class="nv">p</span> : #Γ s xx = yy)
+              (<span class="nv">q</span> : s = s')
+    : #Γ s' xx = yy.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> q.
+    <span class="bp">exact</span> p.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_universe_dep_psh_mor_eq</span>
+              {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+              (<span class="nv">F</span> : set_universe_dep_psh Γ)
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              {<span class="nv">xx</span> : set_universe_el (Γ x)}
+              {<span class="nv">yy</span> : set_universe_el (Γ y)}
+              {<span class="nv">s</span> <span class="nv">s'</span> : y --&gt; x}
+              (<span class="nv">p</span> : #Γ s xx = yy)
+              (<span class="nv">q</span> : s = s')
+              (<span class="nv">a</span> : set_universe_el (F x xx))
+    : #s F s p a = #s F s' (set_universe_dep_psh_mor_eq_path p q) a.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> q.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 6. Equality of presheaves valued in a universe of sets *)</span>
+  <span class="kn">Proposition</span> <span class="nf">set_universe_dep_psh_data_path_help</span>
+              {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+              {<span class="nv">F</span> <span class="nv">G</span> : set_universe_dep_psh_data Γ}
+              (<span class="nv">q₁</span> : pr1 F = pr1 G)
+              (<span class="nv">q₂</span> : ∏ (x y : C)
+                      (xx : set_universe_el (Γ x))
+                      (yy : set_universe_el (Γ y))
+                      (s : y --&gt; x)
+                      (p : #Γ s xx = yy)
+                      (a : set_universe_el (F x xx)),
+                    set_universe_eq
+                      (toforallpaths _ _ _ (toforallpaths _ _ _ q₁ y) yy)
+                      (#s F s p a)
+                    =
+                    #s G s p (set_universe_eq
+                                (toforallpaths _ _ _ (toforallpaths _ _ _ q₁ x) xx)
+                                a))
+    : F = G.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> F <span class="k">as</span> [ Fo Fm ], G <span class="k">as</span> [ Go Gm ].
+    <span class="nb">cbn</span> <span class="k">in</span> q₁.
+    <span class="nb">induction</span> q₁.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span> <span class="k">in</span> q₂.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intro</span> xx.
+    use funextsec ; <span class="nb">intro</span> yy.
+    use funextsec ; <span class="nb">intro</span> s.
+    use funextsec ; <span class="nb">intro</span> p.
+    use funextsec ; <span class="nb">intro</span> a.
+    <span class="nb">apply</span> q₂.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_universe_dep_psh_data_path</span>
+              {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+              {<span class="nv">F</span> <span class="nv">G</span> : set_universe_dep_psh_data Γ}
+              (<span class="nv">q₁</span> : ∏ (x : C) (xx : set_universe_el (Γ x)), F x xx = G x xx)
+              (<span class="nv">q₂</span> : ∏ (x y : C)
+                      (xx : set_universe_el (Γ x))
+                      (yy : set_universe_el (Γ y))
+                      (s : y --&gt; x)
+                      (p : #Γ s xx = yy)
+                      (a : set_universe_el (F x xx)),
+                    set_universe_eq (q₁ y yy) (#s F s p a)
+                    =
+                    #s G s p (set_universe_eq (q₁ x xx) a))
+    : F = G.
+  <span class="kn">Proof</span>.
+    use set_universe_dep_psh_data_path_help.
+    - use funextsec.
+      <span class="nb">intros</span> x.
+      use funextsec.
+      <span class="nb">intros</span> xx.
+      <span class="bp">exact</span> (q₁ x xx).
+    - <span class="nb">intros</span> x y xx yy s p a.
+      <span class="nb">rewrite</span> !toforallpaths_funextsec.
+      <span class="nb">apply</span> q₂.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_universe_dep_psh_eq</span>
+              {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+              (<span class="nv">F</span> : set_universe_dep_psh_data Γ)
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              {<span class="nv">xx</span> <span class="nv">xx'</span> : set_universe_el (Γ x)}
+              {<span class="nv">yy</span> <span class="nv">yy'</span> : set_universe_el (Γ y)}
+              (<span class="nv">s</span> : y --&gt; x)
+              (<span class="nv">p</span> : #Γ s xx = yy)
+              (<span class="nv">q</span> : F x xx' = F x xx)
+              (<span class="nv">q'</span> : yy' = yy)
+              (<span class="nv">q''</span> : xx' = xx)
+              (<span class="nv">a</span> : set_universe_el (F x xx'))
+    : #s F s p (set_universe_eq q a)
+      =
+      set_universe_eq
+        (maponpaths (F y) q')
+        (#s F s (maponpaths (# Γ s) q'' @ p @ !q') a).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> q'.
+    <span class="nb">induction</span> q''.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> set_universe_eq_idpath.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">set_universe_dep_psh_path</span>
+              {<span class="nv">Γ</span> : C^op ⟶ set_universe_to_setcategory u}
+              {<span class="nv">F</span> <span class="nv">G</span> : set_universe_dep_psh Γ}
+              (<span class="nv">p</span> : (F : set_universe_dep_psh_data Γ) = G)
+    : F = G.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_set_universe_dep_psh_laws.
+    }
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">SmallDependentPresheaf</span>.
+
+<span class="kn">Notation</span> <span class="s2">"#s"</span> := set_universe_dep_psh_mor : cat.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/UniverseLifting.v</tt>, line 33)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Equality of presheaves valued in a universe of sets
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Combinatorics.SetUniverses.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

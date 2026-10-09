@@ -1,0 +1,1013 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NNORecursiveMap.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Recursive maps from the natural numbers</span>
+
+<span class="sd"> We show how to construct recursive maps from the natural numbers to other partial</span>
+<span class="sd"> setoids that are equipped with a zero and a successor map.</span>
+
+<span class="sd"> The map is represented by a formula, and the first main point is that we give an</span>
+<span class="sd"> impredicative definition of this formula. Specifically, we take the intersection of</span>
+<span class="sd"> some collection of relations between `N` and `X`. We look at those relations that</span>
+<span class="sd"> satisfy the recursive equations of the map, and that respect equality. In another</span>
+<span class="sd"> file we show that this intersection gives rise to a functional relation and thus to</span>
+<span class="sd"> a morphism in the category of partial setoids.  We show that the resulting formula</span>
+<span class="sd"> satisfies the expected recursive equation ([nat_per_rec_spec_iff]), which simplifies</span>
+<span class="sd"> proving properties of this map.</span>
+
+<span class="sd"> We also prove the computation rules for zero and the successor. The most interesting</span>
+<span class="sd"> part here is that here we use axioms for natural numbers in the tripos. For the</span>
+<span class="sd"> computation rule for 0, we need that 0 isn't the successor of any number: this</span>
+<span class="sd"> prevents that we ever land in the successor case. For the computation rule for the</span>
+<span class="sd"> successor, we also use that the successor is injective.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Clauses of maps defined by recursion</span>
+<span class="sd"> 2. The formula defining the recursive map</span>
+<span class="sd"> 3. The recursive specification</span>
+<span class="sd"> 4. The recursive map satisfies the specification</span>
+<span class="sd"> 5. Computation rule for 0</span>
+<span class="sd"> 6. Computation rule for the successor</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Tripos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERs.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.ExponentialPER.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.InductivePER.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> weak_tripos.
+
+<span class="kn">Section</span> <span class="nf">RecursiveMap</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : weak_tripos}
+          (<span class="nv">N</span> : first_order_hyperdoctrine_nats H)
+          {<span class="nv">X</span> : partial_setoid H}
+          (<span class="nv">zX</span> : partial_setoid_morphism (eq_partial_setoid <span class="mi">𝟙</span>) X)
+          (<span class="nv">sX</span> : partial_setoid_morphism X X).
+
+  <span class="sd">(** * 1. Clauses of maps defined by recursion *)</span>
+  <span class="kn">Definition</span> <span class="nf">map_contains_z</span>
+    : form (ℙ (N ×h X))
+    := <span class="k">let</span> <span class="nv">p</span> := π₁ (tm_var (ℙ (N ×h X) ×h X)) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">x</span> := π₂ (tm_var (ℙ (N ×h X) ×h X)) <span class="k">in</span>
+       (<span class="k">∀</span><span class="nv">h</span> (<span class="nv">zX</span> [ ⟨ !! , x ⟩ ]
+            ⇒
+            ⟨ hd_nats_z N _ , x ⟩ ∈ p)).
+
+  <span class="kn">Proposition</span> <span class="nf">map_contains_z_prf</span>
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">Δ</span> : form Γ}
+              (<span class="nv">p</span> : tm Γ (ℙ (N ×h X)))
+              (<span class="nv">x</span> : tm Γ X)
+              (<span class="nv">q₁</span> : Δ ⊢ map_contains_z [ p ])
+              (<span class="nv">q₂</span> : Δ ⊢ zX [ ⟨ !! , x ⟩ ])
+    : Δ ⊢ ⟨ hd_nats_z N _ , x ⟩ ∈ p.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+    {
+      <span class="bp">exact</span> (conj_intro q₁ q₂).
+    }
+    <span class="nb">unfold</span> map_contains_z.
+    hypersimplify.
+    <span class="nb">refine</span> (weaken_cut _ _).
+    {
+      use weaken_left.
+      <span class="bp">exact</span> (forall_elim (hyperdoctrine_hyp _) x).
+    }
+    use hyp_ltrans.
+    use weaken_right.
+    hypersimplify.
+    <span class="nb">rewrite</span> subst_hd_nats_z.
+    <span class="nb">refine</span> (impl_elim _ (weaken_right (hyperdoctrine_hyp _) _)).
+    use weaken_left.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">map_contains_s</span>
+    : form (ℙ (N ×h X))
+    := <span class="k">let</span> <span class="nv">p</span> := π₁ (π₁ (π₁ (tm_var _))) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">x</span> := π₂ (π₁ (π₁ (tm_var _))) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">y</span> := π₂ (π₁ (tm_var _)) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">n</span> := π₂ (tm_var _) <span class="k">in</span>
+       (<span class="k">∀</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span> (<span class="nv">sX</span> [ ⟨ x , y ⟩ ]
+                  ⇒ ⟨ n , x ⟩ ∈ p
+                  ⇒ ⟨ hd_nats_s N n , y ⟩ ∈ p)).
+
+  <span class="kn">Proposition</span> <span class="nf">map_contains_s_prf</span>
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">Δ</span> : form Γ}
+              (<span class="nv">p</span> : tm Γ (ℙ (N ×h X)))
+              (<span class="nv">x</span> <span class="nv">y</span> : tm Γ X)
+              (<span class="nv">n</span> : tm Γ N)
+              (<span class="nv">q₁</span> : Δ ⊢ map_contains_s [ p ])
+              (<span class="nv">q₂</span> : Δ ⊢ sX [ ⟨ x , y ⟩ ])
+              (<span class="nv">q₃</span> : Δ ⊢ ⟨ n , x ⟩ ∈ p)
+    : Δ ⊢ ⟨ hd_nats_s N n , y ⟩ ∈ p.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+    {
+      <span class="bp">exact</span> (conj_intro q₁ (conj_intro q₂ q₃)).
+    }
+    <span class="nb">unfold</span> map_contains_s.
+    hypersimplify.
+    <span class="nb">refine</span> (weaken_cut _ _).
+    {
+      use weaken_left.
+      <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+      <span class="bp">exact</span> x.
+    }
+    use hyp_ltrans.
+    use weaken_right.
+    use hyp_sym.
+    hypersimplify.
+    <span class="nb">refine</span> (weaken_cut _ _).
+    {
+      use weaken_left.
+      <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+      <span class="bp">exact</span> y.
+    }
+    use hyp_ltrans.
+    use weaken_right.
+    use hyp_sym.
+    hypersimplify.
+    <span class="nb">refine</span> (weaken_cut _ _).
+    {
+      use weaken_left.
+      <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+      <span class="bp">exact</span> n.
+    }
+    use hyp_ltrans.
+    use weaken_right.
+    use hyp_sym.
+    hypersimplify.
+    <span class="nb">rewrite</span> subst_hd_nats_s.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+    <span class="nb">rewrite</span> !var_tm_subst.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2.
+    <span class="nb">refine</span> (impl_elim _ (impl_elim _ _)).
+    - <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - use weaken_right.
+      use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. The formula defining the recursive map *)</span>
+  <span class="kn">Definition</span> <span class="nf">nat_per_rec_form_def</span>
+    : form (N ×h X)
+    := <span class="k">let</span> <span class="nv">n</span> := π₁ (π₁ (tm_var ((N ×h X) ×h ℙ (N ×h X)))) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">x</span> := π₂ (π₁ (tm_var ((N ×h X) ×h ℙ (N ×h X)))) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">p</span> := π₂ (tm_var ((N ×h X) ×h ℙ (N ×h X))) <span class="k">in</span>
+       (<span class="k">∀</span><span class="nv">h</span> (<span class="nv">map_contains_z</span> [ p ]
+            ⇒ map_contains_s [ p ]
+            ⇒ (exp_partial_setoid_eq_defined_law (nat_partial_setoid N) _) [ p ]
+            ⇒ ⟨ n , x ⟩ ∈ p)).
+
+  <span class="kn">Definition</span> <span class="nf">nat_per_rec_form</span>
+    : form (N ×h X)
+    := <span class="k">let</span> <span class="nv">n</span> := π₁ (tm_var (nat_partial_setoid N ×h X)) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">x</span> := π₂ (tm_var (N ×h X)) <span class="k">in</span>
+       n ~ n
+       ∧
+       x ~ x
+       ∧
+       nat_per_rec_form_def.
+
+  <span class="sd">(** * 3. The recursive specification *)</span>
+  <span class="kn">Definition</span> <span class="nf">nat_per_rec_spec_suc</span>
+    : form (((N ×h X) ×h N) ×h X)
+    := <span class="k">let</span> <span class="nv">Γ</span> := ((N ×h X) ×h N) ×h X <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">y</span> := π₂ (tm_var Γ) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">m</span> := π₂ (π₁ (tm_var Γ)) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">x</span> := π₂ (π₁ (π₁ (tm_var Γ))) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">n</span> := π₁ (π₁ (π₁ (tm_var Γ))) <span class="k">in</span>
+       (n ≡ hd_nats_s N m ∧ sX [ ⟨ y , x ⟩ ]
+        ∧
+        nat_per_rec_form [ ⟨ m , y ⟩ ]).
+
+  <span class="kn">Definition</span> <span class="nf">nat_per_rec_spec</span>
+    : form (N ×h X)
+    := <span class="k">let</span> <span class="nv">n</span> := π₁ (tm_var (N ×h X)) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">x</span> := π₂ (tm_var (N ×h X)) <span class="k">in</span>
+       (n ≡ hd_nats_z N _ ∧ zX [ ⟨ !! , x ⟩ ])
+       ∨
+       (<span class="k">∃</span><span class="nv">h</span> <span class="k">∃</span><span class="nv">h</span> <span class="nv">nat_per_rec_spec_suc</span>).
+
+  <span class="kn">Proposition</span> <span class="nf">nat_per_rec_spec_zero</span>
+              {<span class="nv">Γ</span> : ty H}
+              (<span class="nv">x</span> : tm Γ X)
+              {<span class="nv">Δ</span> : form Γ}
+              (<span class="nv">p</span> : Δ ⊢ zX [⟨ !! , x ⟩])
+    : Δ ⊢ nat_per_rec_spec [ ⟨ hd_nats_z N _ , x ⟩ ].
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> nat_per_rec_spec.
+    hypersimplify.
+    use disj_intro_left.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> subst_hd_nats_z.
+    use conj_intro.
+    - use hyperdoctrine_refl.
+    - <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">nat_per_rec_spec_s</span>
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">n</span> : tm Γ N}
+              (<span class="nv">x</span> <span class="nv">sx</span> : tm Γ X)
+              {<span class="nv">Δ</span> : form Γ}
+              (<span class="nv">p</span> : Δ ⊢ sX [⟨ x , sx ⟩])
+              (<span class="nv">q</span> : Δ ⊢ nat_per_rec_form [⟨ n , x ⟩])
+    : Δ ⊢ nat_per_rec_spec [ ⟨ hd_nats_s N n , sx ⟩ ].
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> nat_per_rec_spec.
+    hypersimplify.
+    use disj_intro_right.
+    use exists_intro.
+    {
+      <span class="bp">exact</span> n.
+    }
+    hypersimplify.
+    use exists_intro.
+    {
+      <span class="bp">exact</span> x.
+    }
+    <span class="nb">unfold</span> nat_per_rec_spec_suc.
+    hypersimplify.
+    <span class="nb">rewrite</span> subst_hd_nats_s.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+    <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+    <span class="nb">rewrite</span> !var_tm_subst.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+    <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2.
+    <span class="kp">repeat</span> use conj_intro.
+    - use hyperdoctrine_refl.
+    - <span class="bp">exact</span> p.
+    - <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">nat_per_rec_spec_eq</span>
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">n₁</span> <span class="nv">n₂</span> : tm Γ (nat_partial_setoid N)}
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> : tm Γ X}
+              {<span class="nv">Δ</span> : form Γ}
+              (<span class="nv">p₁</span> : Δ ⊢ n₁ ~ n₂)
+              (<span class="nv">p₂</span> : Δ ⊢ x₁ ~ x₂)
+              (<span class="nv">p₃</span> : Δ ⊢ nat_per_rec_spec [⟨ n₁ , x₁ ⟩])
+    : Δ ⊢ nat_per_rec_spec [⟨ n₂ , x₂ ⟩].
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (weaken_cut p₃ _).
+    <span class="nb">unfold</span> nat_per_rec_spec.
+    hypersimplify.
+    use hyp_sym.
+    <span class="nb">refine</span> (disj_elim _ _ _).
+    - use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - use hyp_ltrans.
+      use weaken_right.
+      use disj_intro_left.
+      <span class="nb">rewrite</span> !subst_hd_nats_z.
+      use conj_intro.
+      + <span class="nb">refine</span> (hyperdoctrine_eq_trans _ _).
+        {
+          use weaken_left.
+          use eq_nat_partial_setoid_to_eq.
+          use partial_setoid_sym.
+          <span class="bp">exact</span> p₁.
+        }
+        use weaken_right.
+        use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use hyp_rtrans.
+        use (partial_setoid_mor_eq_defined zX _ _ (weaken_right (hyperdoctrine_hyp _) _)).
+        * use eq_in_eq_partial_setoid.
+          <span class="nb">apply</span> hyperdoctrine_refl.
+        * <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+          <span class="bp">exact</span> p₂.
+    - use hyp_ltrans.
+      use weaken_right.
+      use disj_intro_right.
+      use hyp_sym.
+      <span class="nb">refine</span> (exists_elim _ _).
+      {
+        use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      }
+      <span class="nb">rewrite</span> conj_subst.
+      use hyp_ltrans.
+      use weaken_right.
+      use hyp_sym.
+      <span class="nb">refine</span> (exists_elim _ _).
+      {
+        use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      }
+      <span class="nb">rewrite</span> conj_subst.
+      use hyp_ltrans.
+      use weaken_right.
+      hypersimplify.
+      <span class="nb">pose</span> (x := π₂ (tm_var ((Γ ×h N) ×h X))).
+      <span class="nb">pose</span> (n := π₂ (π₁ (tm_var ((Γ ×h N) ×h X)))).
+      <span class="nb">pose</span> (γ := π₁ (π₁ (tm_var ((Γ ×h N) ×h X)))).
+      <span class="nb">fold</span> x n γ.
+      use exists_intro.
+      {
+        <span class="bp">exact</span> n.
+      }
+      hypersimplify.
+      use exists_intro.
+      {
+        <span class="bp">exact</span> x.
+      }
+      hypersimplify.
+      <span class="nb">fold</span> γ.
+      <span class="nb">unfold</span> nat_per_rec_spec_suc.
+      hypersimplify.
+      <span class="nb">rewrite</span> !subst_hd_nats_s.
+      <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+      <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+      <span class="nb">rewrite</span> !var_tm_subst.
+      <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+      <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2.
+      <span class="kp">repeat</span> use conj_intro.
+      + <span class="nb">refine</span> (hyperdoctrine_eq_trans _ _).
+        * <span class="nb">rewrite</span> &lt;- (equal_subst γ _ n₁).
+          use weaken_left.
+          use hyperdoctrine_proof_subst.
+          use hyperdoctrine_eq_sym.
+          use eq_nat_partial_setoid_to_eq.
+          <span class="bp">exact</span> p₁.
+        * use weaken_right.
+          use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="nb">refine</span> (partial_setoid_mor_eq_defined sX _ _ _).
+        * <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+          use weaken_left.
+          <span class="nb">refine</span> (partial_setoid_mor_dom_defined sX _ _ _).
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use weaken_left.
+          <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+          {
+            <span class="bp">exact</span> (hyperdoctrine_proof_subst γ p₂).
+          }
+          <span class="nb">rewrite</span> partial_setoid_subst.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+          use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="kp">do</span> <span class="mi">3</span> use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. The recursive map satisfies the specification *)</span>
+  <span class="kn">Proposition</span> <span class="nf">from_nat_per_rec_spec</span>
+    : nat_per_rec_spec ⊢ nat_per_rec_form.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (disj_elim _ _ _).
+    - <span class="nb">apply</span> hyperdoctrine_hyp.
+    - use weaken_right.
+      <span class="kp">repeat</span> use conj_intro.
+      + <span class="nb">cbn</span>.
+        <span class="nb">pose</span> (n := π₁ (tm_var (N ×h X))).
+        <span class="nb">pose</span> (x := π₂ (tm_var (N ×h X))).
+        <span class="nb">fold</span> n x.
+        <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+        {
+          use weaken_left.
+          <span class="nb">refine</span> (hyperdoctrine_eq_transportb
+                    (tm_var (nat_partial_setoid N) ~ tm_var _)
+                    (hyperdoctrine_hyp _)
+                    _).
+          <span class="nb">cbn</span>.
+          hypersimplify.
+          use nat_partial_setoid_refl.
+          <span class="nb">apply</span> is_inductive_zero.
+        }
+        hypersimplify.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="nb">cbn</span>.
+        <span class="nb">pose</span> (n := π₁ (tm_var (N ×h X))).
+        <span class="nb">pose</span> (x := π₂ (tm_var (N ×h X))).
+        <span class="nb">fold</span> n x.
+        use weaken_right.
+        <span class="nb">refine</span> (partial_setoid_mor_cod_defined zX _ _ _).
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use forall_intro.
+        <span class="kp">do</span> <span class="mi">2</span> use impl_intro.
+        <span class="nb">cbn</span>.
+        hypersimplify.
+        <span class="nb">rewrite</span> subst_hd_nats_z.
+        <span class="nb">pose</span> (n := π₁ (π₁ (tm_var ((N ×h X) ×h ℙ (N ×h X))))).
+        <span class="nb">pose</span> (x := π₂ (π₁ (tm_var ((N ×h X) ×h ℙ (N ×h X))))).
+        <span class="nb">pose</span> (p := π₂ (tm_var ((N ×h X) ×h ℙ (N ×h X)))).
+        <span class="nb">fold</span> n x p.
+        use weaken_left.
+        <span class="nb">refine</span> (weaken_cut _ _).
+        {
+          <span class="nb">refine</span> (map_contains_z_prf _ _ (weaken_right (hyperdoctrine_hyp _) _) _).
+          use weaken_left.
+          use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+        {
+          <span class="nb">refine</span> (hyperdoctrine_eq_elim
+                    (⟨ π₂ (tm_var _) , x [ π₁ (tm_var _) ]tm ⟩ ∈ p [ π₁ (tm_var _) ]tm)
+                    _
+                    _).
+          {
+            <span class="kp">do</span> <span class="mi">3</span> use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_eq_sym.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          hypersimplify.
+          use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        hypersimplify.
+        use impl_intro.
+        use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+    - use weaken_right.
+      <span class="nb">refine</span> (exists_elim _ _).
+      {
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      }
+      use weaken_right.
+      <span class="nb">refine</span> (exists_elim _ _).
+      {
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      }
+      use weaken_right.
+      <span class="nb">unfold</span> nat_per_rec_spec_suc, nat_per_rec_form ; <span class="nb">cbn</span>.
+      hypersimplify.
+      <span class="kp">repeat</span> use conj_intro.
+      + <span class="nb">pose</span> (Γ := ((N ×h X) ×h N) ×h X).
+        <span class="nb">fold</span> Γ.
+        <span class="nb">pose</span> (y := π₂ (tm_var Γ)).
+        <span class="nb">pose</span> (m := π₂ (π₁ (tm_var Γ))).
+        <span class="nb">pose</span> (x := π₂ (π₁ (π₁ (tm_var Γ)))).
+        <span class="nb">pose</span> (n := π₁ (π₁ (π₁ (tm_var Γ)))).
+        <span class="nb">cbn</span>.
+        <span class="nb">fold</span> n m x y.
+        <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+        {
+          <span class="nb">refine</span> (hyperdoctrine_eq_transportb
+                    (tm_var (nat_partial_setoid N) ~ tm_var _)
+                    (weaken_left (hyperdoctrine_hyp _) _)
+                    _).
+          <span class="nb">cbn</span>.
+          hypersimplify.
+          use nat_partial_setoid_refl.
+          <span class="nb">apply</span> is_inductive_suc.
+          use weaken_right.
+          use weaken_right.
+          use weaken_left.
+          <span class="nb">refine</span> (eq_nat_partial_setoid_to_inductive _ _).
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        hypersimplify.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="nb">pose</span> (Γ := ((N ×h X) ×h N) ×h X).
+        <span class="nb">fold</span> Γ.
+        <span class="nb">pose</span> (y := π₂ (tm_var Γ)).
+        <span class="nb">pose</span> (m := π₂ (π₁ (tm_var Γ))).
+        <span class="nb">pose</span> (x := π₂ (π₁ (π₁ (tm_var Γ)))).
+        <span class="nb">pose</span> (n := π₁ (π₁ (π₁ (tm_var Γ)))).
+        <span class="nb">fold</span> n m x y.
+        <span class="nb">refine</span> (partial_setoid_mor_cod_defined sX _ _ _).
+        use weaken_right.
+        use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="nb">unfold</span> nat_per_rec_form_def.
+        <span class="nb">rewrite</span> !forall_subst.
+        use forall_intro.
+        hypersimplify.
+        <span class="nb">rewrite</span> subst_hd_nats_s.
+        <span class="nb">pose</span> (Γ := (((N ×h X) ×h N) ×h X) ×h ℙ (N ×h X)).
+        <span class="nb">fold</span> Γ.
+        <span class="nb">pose</span> (p := π₂ (tm_var Γ)).
+        <span class="nb">pose</span> (y := π₂ (π₁ (tm_var Γ))).
+        <span class="nb">pose</span> (m := π₂ (π₁ (π₁ (tm_var Γ)))).
+        <span class="nb">pose</span> (x := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
+        <span class="nb">pose</span> (n := π₁ (π₁ (π₁ (π₁ (tm_var Γ))))).
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+        <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+        <span class="nb">rewrite</span> !var_tm_subst.
+        <span class="nb">fold</span> n m x y p.
+        <span class="kp">do</span> <span class="mi">3</span> use hyp_rtrans.
+        use hyp_sym.
+        <span class="nb">refine</span> (weaken_cut _ _).
+        {
+          use weaken_left.
+          <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+          <span class="bp">exact</span> p.
+        }
+        use hyp_ltrans.
+        use weaken_right.
+        hypersimplify.
+        <span class="nb">fold</span> m y.
+        <span class="kp">do</span> <span class="mi">2</span> use impl_intro.
+        <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+        {
+          <span class="nb">refine</span> (conj_intro _ _).
+          {
+            <span class="kp">do</span> <span class="mi">3</span> use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">refine</span> (conj_intro _ _).
+          {
+            <span class="nb">refine</span> (impl_elim _ _).
+            {
+              use weaken_right.
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+            }
+            <span class="nb">refine</span> (impl_elim _ _).
+            {
+              use weaken_left.
+              use weaken_right.
+              <span class="nb">apply</span> hyperdoctrine_hyp.
+            }
+            <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+            use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        use hyp_rtrans.
+        use hyp_sym.
+        use impl_intro.
+        <span class="nb">refine</span> (weaken_cut _ _).
+        {
+          <span class="nb">refine</span> (map_contains_s_prf _ _ _ _ _ _ _).
+          - <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          - use weaken_left.
+            use weaken_right.
+            <span class="kp">do</span> <span class="mi">3</span> use weaken_left.
+            use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          - <span class="nb">refine</span> (impl_elim (weaken_right (hyperdoctrine_hyp _) _) _).
+            use weaken_left.
+            <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+        {
+          <span class="nb">refine</span> (hyperdoctrine_eq_elim
+                    (⟨ π₂ (tm_var _) , x [ π₁ (tm_var _) ]tm ⟩ ∈ p [ π₁ (tm_var _) ]tm)
+                    _
+                    _).
+          {
+            <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+            use weaken_right.
+            <span class="kp">do</span> <span class="mi">4</span> use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_eq_sym.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          hypersimplify.
+          use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        hypersimplify.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_nat_per_rec_spec</span>
+    : nat_per_rec_form ⊢ nat_per_rec_spec.
+  <span class="kn">Proof</span>.
+    use hyp_rtrans.
+    use hyp_sym.
+    <span class="nb">refine</span> (exists_elim _ _).
+    {
+      <span class="bp">exact</span> (weak_tripos_compr (nat_per_rec_spec [ π₁ (tm_var _) ]) _ !!).
+    }
+    <span class="nb">unfold</span> nat_per_rec_form, nat_per_rec_form_def.
+    <span class="nb">cbn</span>.
+    hypersimplify.
+    <span class="nb">pose</span> (Γ := (N ×h X) ×h ℙ (N ×h X)).
+    <span class="nb">fold</span> Γ.
+    <span class="nb">pose</span> (p := π₂ (tm_var Γ)).
+    <span class="nb">pose</span> (x := π₂ (π₁ (tm_var Γ))).
+    <span class="nb">pose</span> (n := π₁ (π₁ (tm_var Γ))).
+    <span class="nb">cbn</span>.
+    <span class="nb">fold</span> n x p.
+    use hyp_ltrans.
+    <span class="nb">refine</span> (weaken_cut _ _).
+    {
+      use weaken_left.
+      <span class="bp">exact</span> (forall_elim (hyperdoctrine_hyp _) p).
+    }
+    use hyp_ltrans.
+    use weaken_right.
+    hypersimplify.
+    <span class="nb">rewrite</span> hyperdoctrine_unit_tm_subst.
+    <span class="nb">fold</span> n x.
+    <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+    - <span class="nb">refine</span> (weak_tripos_rel_equiv_left _ _ _ _ _ _ _).
+      {
+        use weaken_left.
+        use weaken_right.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      }
+      <span class="nb">refine</span> (impl_elim
+                _
+                (impl_elim
+                   _
+                   (impl_elim
+                      _
+                      (weaken_right (hyperdoctrine_hyp _) _)))).
+      + use weaken_left.
+        <span class="nb">unfold</span> p, n, x, Γ.
+        <span class="nb">clear</span> Γ n x p.
+        <span class="nb">unfold</span> exp_partial_setoid_eq_defined_law.
+        <span class="nb">cbn</span>.
+        hypersimplify_form.
+        <span class="kp">do</span> <span class="mi">4</span> use forall_intro.
+        hypersimplify.
+        <span class="nb">pose</span> (Γ := (((((N ×h X) ×h ℙ (N ×h X)) ×h N) ×h N) ×h X) ×h X).
+        <span class="nb">fold</span> Γ.
+        <span class="nb">pose</span> (x₂ := π₂ (tm_var Γ)).
+        <span class="nb">pose</span> (x₁ := π₂ (π₁ (tm_var Γ))).
+        <span class="nb">pose</span> (n₂ := π₂ (π₁ (π₁ (tm_var Γ)))).
+        <span class="nb">pose</span> (n₁ := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
+        <span class="nb">pose</span> (f := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var Γ)))))).
+        <span class="nb">pose</span> (x₃ := π₂ (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ))))))).
+        <span class="nb">pose</span> (n₃ := π₁ (π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ))))))).
+        <span class="nb">cbn</span>.
+        <span class="nb">fold</span> x₁ x₂ x₃ n₁ n₂ n₃ f.
+        use weaken_right.
+        <span class="kp">do</span> <span class="mi">3</span> use impl_intro.
+        <span class="nb">unfold</span> weak_tripos_rel_equiv.
+        hypersimplify.
+        <span class="kp">do</span> <span class="mi">2</span> use hyp_ltrans.
+        <span class="nb">refine</span> (weaken_cut _ _).
+        {
+          use weaken_left.
+          <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+          <span class="bp">exact</span> ⟨ n₁ , x₁ ⟩.
+        }
+        use hyp_ltrans.
+        <span class="nb">refine</span> (weaken_cut _ _).
+        {
+          use weaken_left.
+          <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+          <span class="bp">exact</span> ⟨ n₂ , x₂ ⟩.
+        }
+        use hyp_ltrans.
+        use weaken_right.
+        hypersimplify.
+        <span class="nb">fold</span> f.
+        <span class="nb">refine</span> (iff_elim_right _ _).
+        {
+          use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        use weaken_left.
+        <span class="nb">refine</span> (weaken_cut _ _).
+        {
+          <span class="nb">refine</span> (iff_elim_left _ _).
+          {
+            use weaken_right.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          use weaken_left.
+          <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        use nat_per_rec_spec_eq.
+        * <span class="bp">exact</span> n₁.
+        * <span class="bp">exact</span> x₁.
+        * <span class="kp">do</span> <span class="mi">3</span> use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+          use weaken_right.
+          use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use weaken_left.
+        <span class="nb">unfold</span> map_contains_s.
+        hypersimplify.
+        <span class="kp">do</span> <span class="mi">3</span> use forall_intro.
+        <span class="nb">unfold</span> p, n, x, Γ.
+        hypersimplify.
+        <span class="nb">clear</span> Γ p n x.
+        <span class="nb">pose</span> (Γ := ((((N ×h X) ×h ℙ (N ×h X)) ×h X) ×h X) ×h N).
+        <span class="nb">pose</span> (m := π₂ (tm_var Γ)).
+        <span class="nb">pose</span> (x₃ := π₂ (π₁ (tm_var Γ))).
+        <span class="nb">pose</span> (x₂ := π₂ (π₁ (π₁ (tm_var Γ)))).
+        <span class="nb">pose</span> (p := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
+        <span class="nb">pose</span> (x₁ := π₂ (π₁ (π₁ (π₁ (π₁ (tm_var Γ)))))).
+        <span class="nb">pose</span> (n := π₁ (π₁ (π₁ (π₁ (π₁ (tm_var Γ)))))).
+        <span class="nb">cbn</span>.
+        <span class="nb">fold</span> Γ n m x₁ x₂ x₃ p.
+        use hyp_sym.
+        <span class="kp">do</span> <span class="mi">2</span> use impl_intro.
+        <span class="kp">do</span> <span class="mi">2</span> use hyp_ltrans.
+        <span class="nb">rewrite</span> subst_hd_nats_s.
+        <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+        <span class="nb">rewrite</span> !var_tm_subst.
+        <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2.
+        <span class="nb">unfold</span> weak_tripos_rel_equiv.
+        hypersimplify.
+        <span class="nb">refine</span> (weaken_cut _ _).
+        {
+          use weaken_left.
+          <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+          <span class="bp">exact</span> ⟨ hd_nats_s N m , x₃ ⟩.
+        }
+        hypersimplify.
+        <span class="nb">fold</span> p.
+        <span class="nb">refine</span> (iff_elim_right _ _).
+        {
+          use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        use weaken_left.
+        <span class="nb">refine</span> (weaken_cut _ _).
+        {
+          use weaken_left.
+          <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+          <span class="bp">exact</span> ⟨ m , x₂ ⟩.
+        }
+        hypersimplify.
+        <span class="nb">fold</span> p.
+        use hyp_ltrans.
+        <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+        {
+          use weaken_right.
+          <span class="nb">refine</span> (conj_intro _ _).
+          {
+            use weaken_left.
+            use weaken_right.
+            use weaken_left.
+            <span class="nb">apply</span> hyperdoctrine_hyp.
+          }
+          <span class="nb">refine</span> (iff_elim_left (weaken_right (hyperdoctrine_hyp _) _) _).
+          use weaken_left.
+          <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        use nat_per_rec_spec_s.
+        * <span class="bp">exact</span> x₂.
+        * use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        * use weaken_right.
+          <span class="nb">refine</span> (hyperdoctrine_proof_subst _ _).
+          <span class="nb">apply</span> from_nat_per_rec_spec.
+      + use weaken_left.
+        <span class="nb">unfold</span> map_contains_z.
+        hypersimplify.
+        use forall_intro.
+        <span class="nb">unfold</span> p, n, x, Γ.
+        hypersimplify.
+        <span class="nb">clear</span> Γ p n x.
+        <span class="nb">pose</span> (Γ := ((N ×h X) ×h ℙ (N ×h X)) ×h X).
+        <span class="nb">pose</span> (y := π₂ (tm_var Γ)).
+        <span class="nb">pose</span> (p := π₂ (π₁ (tm_var Γ))).
+        <span class="nb">pose</span> (x := π₂ (π₁ (π₁ (tm_var Γ)))).
+        <span class="nb">pose</span> (n := π₁ (π₁ (π₁ (tm_var Γ)))).
+        <span class="nb">cbn</span>.
+        <span class="nb">fold</span> Γ n x y p.
+        use impl_intro.
+        <span class="nb">unfold</span> weak_tripos_rel_equiv.
+        hypersimplify.
+        <span class="nb">rewrite</span> subst_hd_nats_z.
+        use hyp_ltrans.
+        use hyp_sym.
+        use hyp_ltrans.
+        <span class="nb">refine</span> (weaken_cut _ _).
+        {
+          use weaken_left.
+          <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+          <span class="bp">exact</span> ⟨ hd_nats_z N Γ , y ⟩.
+        }
+        use hyp_ltrans.
+        use weaken_right.
+        hypersimplify.
+        <span class="nb">fold</span> p.
+        use hyp_sym.
+        <span class="nb">refine</span> (iff_elim_right _ _).
+        {
+          use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        use weaken_right.
+        <span class="nb">unfold</span> nat_per_rec_spec.
+        hypersimplify.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !subst_hd_nats_z.
+        use disj_intro_left.
+        use conj_intro.
+        * <span class="nb">apply</span> hyperdoctrine_refl.
+        * use weaken_left.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+    - hypersimplify.
+      <span class="nb">rewrite</span> (hyperdoctrine_pair_eta (π₁ (tm_var Γ))).
+      <span class="nb">fold</span> n x.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">nat_per_rec_spec_iff</span>
+    : ⊤ ⊢ nat_per_rec_form ⇔ nat_per_rec_spec.
+  <span class="kn">Proof</span>.
+    use iff_intro.
+    - use weaken_right.
+      <span class="bp">exact</span> to_nat_per_rec_spec.
+    - use weaken_right.
+      <span class="bp">exact</span> from_nat_per_rec_spec.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. Computation rule for 0 *)</span>
+  <span class="kn">Proposition</span> <span class="nf">nat_per_rec_form_z</span>
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">Δ</span> : form Γ}
+              {<span class="nv">x</span> : tm Γ X}
+              (<span class="nv">p</span> : Δ ⊢ zX [ ⟨ !! , x ⟩ ])
+    : Δ ⊢ nat_per_rec_form [ ⟨ hd_nats_z N _ , x ⟩ ].
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (hyperdoctrine_cut p _).
+    <span class="nb">refine</span> (hyperdoctrine_cut
+              _
+              (hyperdoctrine_proof_subst _ from_nat_per_rec_spec)).
+    <span class="nb">unfold</span> nat_per_rec_spec.
+    hypersimplify_form.
+    use disj_intro_left.
+    hypersimplify.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> subst_hd_nats_z.
+    use conj_intro.
+    - <span class="nb">apply</span> hyperdoctrine_refl.
+    - <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">nat_per_rec_form_z_inv</span>
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">Δ</span> : form Γ}
+              {<span class="nv">x</span> : tm Γ X}
+              (<span class="nv">p</span> : Δ ⊢ nat_per_rec_form [ ⟨ hd_nats_z N _ , x ⟩ ])
+    : Δ ⊢ zX [ ⟨ !! , x ⟩ ].
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (hyperdoctrine_cut p _).
+    <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+    {
+      <span class="nb">refine</span> (hyperdoctrine_proof_subst _ _).
+      <span class="nb">apply</span> to_nat_per_rec_spec.
+    }
+    <span class="nb">unfold</span> nat_per_rec_spec.
+    hypersimplify.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> subst_hd_nats_z.
+    <span class="nb">refine</span> (disj_elim (hyperdoctrine_hyp _) _ _).
+    - <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - use weaken_right.
+      <span class="nb">refine</span> (exists_elim (hyperdoctrine_hyp _) _).
+      use weaken_right.
+      <span class="nb">refine</span> (exists_elim (hyperdoctrine_hyp _) _).
+      use weaken_right.
+      <span class="nb">unfold</span> nat_per_rec_spec_suc.
+      hypersimplify.
+      <span class="nb">rewrite</span> subst_hd_nats_z.
+      <span class="nb">rewrite</span> subst_hd_nats_s.
+      <span class="nb">refine</span> (neg_elim _ _).
+      + use weaken_left.
+        <span class="nb">refine</span> (hyperdoctrine_eq_sym _).
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="nb">apply</span> first_order_hyperdoctrine_nats_z_neq_s.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 6. Computation rule for the successor *)</span>
+  <span class="kn">Proposition</span> <span class="nf">nat_per_rec_form_s</span>
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">Δ</span> : form Γ}
+              {<span class="nv">n</span> : tm Γ N}
+              {<span class="nv">x</span> <span class="nv">sx</span> : tm Γ X}
+              (<span class="nv">q₁</span> : Δ ⊢ sX [ ⟨ x , sx ⟩ ])
+              (<span class="nv">q₂</span> : Δ ⊢ nat_per_rec_form [ ⟨ n , x ⟩ ])
+    : Δ ⊢ nat_per_rec_form [ ⟨ hd_nats_s N n , sx ⟩ ].
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (hyperdoctrine_cut (conj_intro q₁ q₂) _).
+    <span class="nb">refine</span> (hyperdoctrine_cut
+              _
+              (hyperdoctrine_proof_subst _ from_nat_per_rec_spec)).
+    <span class="nb">refine</span> (nat_per_rec_spec_s _ _ _ _).
+    - use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">nat_per_rec_form_s_inv</span>
+              {<span class="nv">Γ</span> : ty H}
+              {<span class="nv">Δ</span> : form Γ}
+              {<span class="nv">n</span> : tm Γ N}
+              {<span class="nv">sx</span> : tm Γ X}
+              (<span class="nv">q</span> : Δ ⊢ nat_per_rec_form [ ⟨ hd_nats_s N n , sx ⟩ ])
+    : Δ ⊢ (<span class="k">∃</span><span class="nv">h</span> (<span class="nv">sX</span> [ ⟨ π₂ (tm_var _) , sx [ π₁ (tm_var _) ]tm ⟩ ]
+               ∧
+               nat_per_rec_form [ ⟨ n [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩ ])).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (hyperdoctrine_cut q _).
+    <span class="nb">refine</span> (hyperdoctrine_cut
+              (hyperdoctrine_proof_subst _ to_nat_per_rec_spec)
+              _).
+    <span class="nb">unfold</span> nat_per_rec_spec.
+    hypersimplify.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> subst_hd_nats_z.
+    <span class="nb">refine</span> (disj_elim (hyperdoctrine_hyp _) _ _).
+    - use weaken_right.
+      use weaken_left.
+      <span class="nb">refine</span> (first_order_hyperdoctrine_nats_z_neq_s_all _ _ _).
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - use weaken_right.
+      <span class="nb">refine</span> (exists_elim (hyperdoctrine_hyp _) _).
+      use weaken_right.
+      <span class="nb">refine</span> (exists_elim (hyperdoctrine_hyp _) _).
+      use weaken_right.
+      <span class="nb">unfold</span> nat_per_rec_spec_suc.
+      hypersimplify.
+      <span class="nb">rewrite</span> !subst_hd_nats_s.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+      <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+      <span class="nb">rewrite</span> !var_tm_subst.
+      <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+      <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2.
+      use exists_intro.
+      {
+        <span class="bp">exact</span> (π₂ (tm_var _)).
+      }
+      hypersimplify.
+      use conj_intro.
+      + use weaken_right.
+        use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+        {
+          <span class="nb">refine</span> (hyperdoctrine_eq_elim
+                    (nat_per_rec_form [⟨ π₂ (tm_var _) , π₂ (π₁ (tm_var _)) ⟩])
+                    _
+                    _).
+          {
+            use weaken_left.
+            use hyperdoctrine_eq_sym.
+            <span class="bp">exact</span> (first_order_hyperdoctrine_nats_s_mono N (hyperdoctrine_hyp _)).
+          }
+          hypersimplify.
+          <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+          <span class="nb">apply</span> hyperdoctrine_hyp.
+        }
+        hypersimplify.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">RecursiveMap</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/PartialEqRels/NNORecursiveMap.v</tt>, line 32)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Computation rule for the successor
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

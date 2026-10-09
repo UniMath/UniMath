@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoCodLimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************************</span>
+
+<span class="sd"> Fiberwise limits in the displayed category of monomorphisms</span>
+
+<span class="sd"> We construct fiberwise terminal objects and fiberwise binary products in the displayed</span>
+<span class="sd"> category of monomorphisms. They are constructed the same way as fiberwise terminal</span>
+<span class="sd"> objects and binary products are constructed in the displayed category of morphisms.</span>
+
+<span class="sd"> The interesting aspect in the construction is the preservation of terminal objects and</span>
+<span class="sd"> of binary products by the pullback functors. In the displayed category of morphisms, we</span>
+<span class="sd"> can prove this quite directly. The pullback functors have a left adjoint, which is given</span>
+<span class="sd"> by composition. As such, the pullback functors preserve limits since right adjoints</span>
+<span class="sd"> preserve limits. However, if we want to use this argument for monomorphisms, then we need</span>
+<span class="sd"> an additional assumption, namely that `C` is regular. The reason for that is that for</span>
+<span class="sd"> monomorphisms the left adjoint of pullback should be given by the existential quantifier.</span>
+<span class="sd"> This quantifier is constructed as a quotient of the sigma type, which is why we want the</span>
+<span class="sd"> category to be regular.</span>
+
+<span class="sd"> We can still prove the preservation of terminal objects and binary products by the</span>
+<span class="sd"> pullback functors even without assuming that `C` is regular. For this, we use two facts:</span>
+<span class="sd"> - The pullback functor for the displayed category of monomorphisms has the same on</span>
+<span class="sd">   morphisms as the pullback functor for the displayed category of all morphisms.</span>
+<span class="sd"> - The second of these two pullback functors preserves limits, because it has a left</span>
+<span class="sd">   adjoint.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Fiberwise terminal objects</span>
+<span class="sd"> 2. Fiberwise binary products</span>
+
+<span class="sd"> ***************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.MonoCodomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MonoCodomain.FiberMonoCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MonoCodomain.Inclusion.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">CodomainStructure</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">HC</span> : Pullbacks C).
+
+  <span class="kn">Let</span> <span class="nf">HD</span> : cleaving (disp_mono_codomain C) := mono_cod_disp_cleaving HC.
+
+  <span class="sd">(** * 1. Fiberwise terminal objects *)</span>
+  <span class="kn">Proposition</span> <span class="nf">isTerminal_mono_codomain_fib</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">yf</span> : C /m x)
+              (<span class="nv">H</span> : is_z_isomorphism (pr21 yf))
+    : isTerminal (C /m x) yf.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (f := (_ ,, H) : z_iso _ _).
+    <span class="nb">intro</span> zg.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use eq_mor_mono_cod_fib ;
+         use (cancel_z_iso _ _ f) ;
+         <span class="bp">exact</span> (pr2 φ₁ @ !(pr2 φ₂))).
+    - use make_mono_cod_fib_mor.
+      + <span class="bp">exact</span> (mono_cod_mor zg · inv_from_z_iso f).
+      + <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> assoc' ;
+           <span class="nb">refine</span> (_ @ id_right _) ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (z_iso_after_z_iso_inv f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mono_codomain_fib_terminal</span>
+             (<span class="nv">x</span> : C)
+    : Terminal (C /m x).
+  <span class="kn">Proof</span>.
+    use make_Terminal.
+    - <span class="bp">exact</span> (mono_cod_fib_id x).
+    - use isTerminal_mono_codomain_fib.
+      <span class="nb">apply</span> identity_is_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">mono_codomain_fib_preserves_terminal</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+    : preserves_terminal (mono_cod_pb HC f).
+  <span class="kn">Proof</span>.
+    use preserves_terminal_if_preserves_chosen.
+    {
+      <span class="nb">apply</span> mono_codomain_fib_terminal.
+    }
+    <span class="nb">unfold</span> preserves_chosen_terminal.
+    use isTerminal_mono_codomain_fib.
+    use (is_z_iso_from_isTerminal_codomain (_ ,, _)).
+    use (codomain_fib_preserves_terminal HC f (_ ,, _)).
+    <span class="nb">apply</span> isTerminal_codomain_fib.
+    <span class="nb">apply</span> identity_is_z_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mono_codomain_fiberwise_terminal</span>
+    : fiberwise_terminal HD.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> mono_codomain_fib_terminal.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, mono_codomain_fib_preserves_terminal).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Fiberwise binary products *)</span>
+  <span class="kn">Section</span> <span class="nf">Prod</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> : C}
+            {<span class="nv">fy₁</span> <span class="nv">fy₂</span> <span class="nv">pz</span> : C /m x}
+            (<span class="nv">π₁</span> : pz --&gt; fy₁)
+            (<span class="nv">π₂</span> : pz --&gt; fy₂).
+
+    <span class="kn">Let</span> <span class="nf">fy₁'</span> : C / x := mono_cod_to_cod_fib _ fy₁.
+    <span class="kn">Let</span> <span class="nf">fy₂'</span> : C / x := mono_cod_to_cod_fib _ fy₂.
+    <span class="kn">Let</span> <span class="nf">pz'</span> : C / x := mono_cod_to_cod_fib _ pz.
+    <span class="kn">Let</span> <span class="nf">π₁'</span> : pz' --&gt; fy₁' := pr1 π₁.
+    <span class="kn">Let</span> <span class="nf">π₂'</span> : pz' --&gt; fy₂' := pr1 π₂.
+
+    <span class="kn">Context</span> (<span class="nv">H</span> : isBinProduct (C / x) _ _ _ π₁' π₂').
+
+    <span class="kn">Let</span> <span class="nf">P</span> : BinProduct _ _ _ := make_BinProduct _ _ _ _ _ _ H.
+
+    <span class="kn">Definition</span> <span class="nf">mono_codomain_fib_binproducts_prod</span>
+      : isBinProduct (C /m x) _ _ _ π₁ π₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> h φ ψ.
+      use iscontraprop1.
+      - <span class="kp">abstract</span>
+          (use isaproptotal2 ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">intros</span> ;
+           <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat).
+      - <span class="nb">simple refine</span> ((_ ,, tt) ,, _ ,, _).
+        + <span class="bp">exact</span> (BinProductArrow _ P (#(mono_cod_to_cod_fib _) φ) (#(mono_cod_to_cod_fib _) ψ)).
+        + <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+        + <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Prod</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mono_codomain_fib_binproducts</span>
+             (<span class="nv">x</span> : C)
+    : BinProducts (C /m x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> fy₁ fy₂.
+    <span class="nb">pose</span> (fy₁' := mono_cod_dom fy₁ ,, pr1 (mono_cod_mor fy₁) : C / x).
+    <span class="nb">pose</span> (fy₂' := mono_cod_dom fy₂ ,, pr1 (mono_cod_mor fy₂) : C / x).
+    <span class="nb">pose</span> (P := codomain_fib_binproducts HC x fy₁' fy₂').
+    use make_BinProduct.
+    - use make_mono_cod_fib_ob.
+      + <span class="bp">exact</span> (cod_dom P).
+      + use (make_Monic _ (cod_mor P)).
+        <span class="kp">abstract</span>
+          (use isMonic_comp ; [ | <span class="nb">apply</span> (MonicisMonic _ (monic_of_mono_in_cat fy₁)) ] ;
+           <span class="nb">apply</span> (MonicPullbackisMonic' _ _ (monic_of_mono_in_cat fy₂))).
+    - <span class="bp">exact</span> (BinProductPr1 _ P ,, tt).
+    - <span class="bp">exact</span> (BinProductPr2 _ P ,, tt).
+    - <span class="nb">apply</span> mono_codomain_fib_binproducts_prod.
+      <span class="nb">apply</span> isBinProduct_BinProduct.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">mono_codomain_fib_preserves_binproduct</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">f</span> : x --&gt; y)
+    : preserves_binproduct (mono_cod_pb HC f).
+  <span class="kn">Proof</span>.
+    use preserves_binproduct_if_preserves_chosen.
+    {
+      <span class="nb">apply</span> mono_codomain_fib_binproducts.
+    }
+    <span class="nb">intros</span> m₁ m₂.
+    <span class="nb">pose</span> (π₁ := BinProductPr1 (C /m y) (mono_codomain_fib_binproducts y m₁ m₂)).
+    <span class="nb">pose</span> (π₂ := BinProductPr2 (C /m y) (mono_codomain_fib_binproducts y m₁ m₂)).
+    <span class="nb">pose</span> (π₁' := #(mono_cod_to_cod_fib _) π₁).
+    <span class="nb">pose</span> (π₂' := #(mono_cod_to_cod_fib _) π₂).
+    <span class="kn">Locate</span> mono_cod_fiber_functor_on_mor.
+    <span class="nb">rewrite</span> !mono_cod_fiber_functor_on_mor.
+    use mono_codomain_fib_binproducts_prod.
+    use codomain_fib_preserves_binproduct.
+    <span class="nb">apply</span> isBinProduct_BinProduct.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mono_codomain_fiberwise_binproducts</span>
+    : fiberwise_binproducts HD.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> mono_codomain_fib_binproducts.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, mono_codomain_fib_preserves_binproduct).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CodomainStructure</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/MonoCodomain/MonoCodLimits.v</tt>, line 31)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Fiberwise binary products
+  &gt;
+  &gt;  ***************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SigmaSheaf.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> ∑-types of sheaves</span>
+
+<span class="sd"> We show that sheaves are closed under ∑-types. In essence, the proof is mostly the</span>
+<span class="sd"> same as the proof that sheaves are closed under binary products, but it is slightly</span>
+<span class="sd"> more complicated due to the involved dependencies.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Matching families in ∑-types</span>
+<span class="sd"> 2. The amalgamation in the ∑-type</span>
+<span class="sd"> 3. Sheaves are closed under ∑-types</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.TotalPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SigmaTypes.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ConstructionsSheaves.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Matching families in ∑-types *)</span>
+<span class="kn">Definition</span> <span class="nf">pr1_sigma_matching_family</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ SET}
+           {<span class="nv">A</span> : dep_psh Γ}
+           {<span class="nv">B</span> : dep_psh (total_psh A)}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           {<span class="nv">z</span> : matching_family Γ ω}
+           (<span class="nv">zz</span> : matching_family_dep (sigma_dep_psh A B) z)
+  : matching_family_dep A z.
+<span class="kn">Proof</span>.
+  use make_matching_family_dep.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">p</span>, pr1 (zz y f p)).
+  - <span class="nb">intros</span> y₁ y₂ f₁ f₂ g p q₁ q₂ ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (path_sigma_dep_psh_pr1 _ _ (matching_family_dep_restr zz p q₁ q₂)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_sigma_matching_family</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : C^op ⟶ SET}
+           {<span class="nv">A</span> : dep_psh Γ}
+           {<span class="nv">B</span> : dep_psh (total_psh A)}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">ω</span> : sieve x}
+           {<span class="nv">z</span> : matching_family Γ ω}
+           (<span class="nv">zz</span> : matching_family_dep (sigma_dep_psh A B) z)
+  : matching_family_dep B (make_matching_family_total_psh z (pr1_sigma_matching_family zz)).
+<span class="kn">Proof</span>.
+  use make_matching_family_dep.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">p</span>, pr2 (zz y f p)).
+  - <span class="nb">intros</span> y₁ y₂ f₁ f₂ g p q₁ q₂ ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (path_sigma_dep_psh_pr2 _ _ (!(matching_family_dep_restr zz p q₁ q₂))) <span class="k">as</span> q.
+    <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">simple refine</span> (_ @ maponpaths (#d B (identity _) _) (!q) @ _).
+    + <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+      use dep_psh_mor_path_eq.
+      <span class="nb">rewrite</span> !id_left.
+      <span class="nb">apply</span> idpath.
+    + use dep_psh_total_space_path.
+      * <span class="bp">exact</span> (eqtohomot (functor_id Γ _) _).
+      * <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+        <span class="nb">apply</span> dep_psh_mor_id'.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+    + <span class="nb">cbn</span>.
+      <span class="nb">apply</span> dep_psh_mor_id'.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">SigmaSheaf</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : site}
+          {<span class="nv">Γ</span> : C^op ⟶ HSET}
+          {<span class="nv">A</span> : dep_psh Γ}
+          (<span class="nv">HA</span> : is_dep_sheaf A)
+          {<span class="nv">B</span> : dep_psh (total_psh A)}
+          (<span class="nv">HB</span> : is_dep_sheaf B).
+
+  <span class="sd">(** * 2. The amalgamation in the ∑-type *)</span>
+  <span class="kn">Section</span> <span class="nf">Amalgamation</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            (<span class="nv">p</span> : C x ω)
+            {<span class="nv">z</span> : matching_family Γ ω}
+            {<span class="nv">a</span> : amalgamation z}
+            (<span class="nv">zz</span> : matching_family_dep (sigma_dep_psh A B) z).
+
+    <span class="kn">Definition</span> <span class="nf">sigma_sheaf_amalgamation_ob</span>
+      : sigma_dep_psh A B x a.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (dep_sheaf_amalgamation HA p z a (pr1_sigma_matching_family zz)).
+      - <span class="bp">exact</span> (dep_sheaf_amalgamation
+                 HB
+                 p
+                 (make_matching_family_total_psh z (pr1_sigma_matching_family zz))
+                 (make_amalgamation_total_psh
+                    (dep_sheaf_amalgamation_dep HA p z a (pr1_sigma_matching_family zz)))
+                 (pr2_sigma_matching_family zz)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">sigma_sheaf_amalgamation_law</span>
+      : amalgamation_dep_law zz sigma_sheaf_amalgamation_ob.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> y f q ; <span class="nb">cbn</span>.
+      use path_sigma_dep_psh_ob.
+      - <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (dep_sheaf_amalgamation_restr HA p z a (pr1_sigma_matching_family zz) q).
+      - <span class="nb">cbn</span>.
+        <span class="nb">pose</span> (dep_sheaf_amalgamation_restr
+                HB
+                p
+                (make_matching_family_total_psh z (pr1_sigma_matching_family zz))
+                (make_amalgamation_total_psh
+                   (dep_sheaf_amalgamation_dep HA p z a (pr1_sigma_matching_family zz)))
+                (pr2_sigma_matching_family zz)
+                q)
+          <span class="k">as</span> r.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!r).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> dep_psh_mor_comp'.
+        use dep_psh_mor_path_eq.
+        <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">sigma_sheaf_amalgamation</span>
+      : amalgamation_dep a zz.
+    <span class="kn">Proof</span>.
+      use make_amalgamation_dep.
+      - <span class="bp">exact</span> sigma_sheaf_amalgamation_ob.
+      - <span class="bp">exact</span> sigma_sheaf_amalgamation_law.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Arguments</span> sigma_sheaf_amalgamation_ob /.
+    <span class="kn">Arguments</span> sigma_sheaf_amalgamation /.
+
+    <span class="kn">Proposition</span> <span class="nf">sigma_sheaf_amalgamation_unique</span>
+                (<span class="nv">aa</span> : amalgamation_dep a zz)
+      : aa = sigma_sheaf_amalgamation.
+    <span class="kn">Proof</span>.
+      use amalgamation_dep_eq.
+      use path_sigma_dep_psh_ob.
+      - use (dep_sheaf_amalgamation_unique' HA p).
+        <span class="nb">intros</span> y f q ; <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (path_sigma_dep_psh_pr1 _ _ (amalgamation_dep_restr aa f q)).
+      - use (dep_sheaf_amalgamation_unique
+                HB
+                p
+                (a := make_amalgamation _ _)).
+        + <span class="bp">exact</span> (make_matching_family_total_psh z (pr1_sigma_matching_family zz)).
+        + <span class="nb">cbn</span>.
+          <span class="nb">intros</span> y f q ; <span class="nb">cbn</span>.
+          use dep_psh_total_space_path.
+          * <span class="nb">cbn</span>.
+            <span class="bp">exact</span> (amalgamation_restr a f q).
+          * <span class="nb">cbn</span>.
+            <span class="nb">rewrite</span> dep_psh_mor_comp'.
+            <span class="nb">refine</span> (_ @ maponpaths pr1 (amalgamation_dep_restr aa f q)).
+            <span class="nb">cbn</span>.
+            use dep_psh_mor_path_eq.
+            <span class="nb">rewrite</span> id_left.
+            <span class="nb">apply</span> idpath.
+        + <span class="bp">exact</span> (pr2_sigma_matching_family zz).
+        + <span class="nb">intros</span> y f q ; <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (_ @ !(path_sigma_dep_psh_pr2 _ _ (!(amalgamation_dep_restr aa f q)))).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> dep_psh_mor_comp'.
+          use dep_psh_mor_path_eq.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">intros</span> y f q ; <span class="nb">cbn</span>.
+          <span class="nb">pose</span> (dep_sheaf_amalgamation_restr
+                  HB
+                  p
+                  (make_matching_family_total_psh z (pr1_sigma_matching_family zz))
+                  (make_amalgamation_total_psh
+                     (dep_sheaf_amalgamation_dep HA p z a (pr1_sigma_matching_family zz)))
+                  (pr2_sigma_matching_family zz)
+                  q)
+            <span class="k">as</span> r.
+          <span class="nb">refine</span> (_ @ r).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> dep_psh_mor_comp'.
+          use dep_psh_mor_path_eq.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Amalgamation</span>.
+
+  <span class="sd">(** * 3. Sheaves are closed under ∑-types *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_dep_sheaf_sigma_dep_psh</span>
+    : is_dep_sheaf (sigma_dep_psh A B).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x ω p z a zz.
+    use make_iscontr.
+    - <span class="bp">exact</span> (sigma_sheaf_amalgamation p zz).
+    - <span class="bp">exact</span> (sigma_sheaf_amalgamation_unique p zz).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SigmaSheaf</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/SigmaSheaf.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Sheaves are closed under ∑-types
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Presheaf.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

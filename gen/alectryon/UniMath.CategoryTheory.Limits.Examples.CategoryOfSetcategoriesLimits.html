@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CategoryOfSetcategoriesLimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Equalizers in the category of strict categories</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory_precategory_ob_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : precategory_ob_mor.
+<span class="kn">Proof</span>.
+  use make_precategory_ob_mor.
+  - <span class="bp">exact</span> (∑ (x : C₁), F x = G x).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, ∑ (f : pr1 x --&gt; pr1 y),
+           # F f · idtoiso (pr2 y)
+           =
+           idtoiso (pr2 x) · # G f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory_precategory_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : precategory_data.
+<span class="kn">Proof</span>.
+  use make_precategory_data.
+  - <span class="bp">exact</span> (equalizer_of_setcategory_precategory_ob_mor F G).
+  - <span class="nb">cbn</span> ; <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, identity _ ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> !functor_id ;
+       <span class="nb">rewrite</span> id_left, id_right ;
+       <span class="nb">apply</span> idpath).
+  - <span class="nb">cbn</span> ; <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, pr1 f · pr1 g ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> !functor_comp ;
+       <span class="nb">rewrite</span> !assoc ;
+       <span class="nb">rewrite</span> &lt;- (pr2 f) ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">rewrite</span> &lt;- (pr2 g) ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory_is_precategory</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : is_precategory (equalizer_of_setcategory_precategory_data F G).
+<span class="kn">Proof</span>.
+  use make_is_precategory_one_assoc ;
+    <span class="nb">intros</span> ;
+    (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ]) ;
+    <span class="nb">cbn</span>.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory_precategory</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : precategory.
+<span class="kn">Proof</span>.
+  use make_precategory.
+  - <span class="bp">exact</span> (equalizer_of_setcategory_precategory_data F G).
+  - <span class="bp">exact</span> (equalizer_of_setcategory_is_precategory F G).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory_is_setcategory</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : is_setcategory (equalizer_of_setcategory_precategory F G).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - use isaset_total2.
+    + <span class="nb">apply</span> C₁.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="bp">exact</span> (pr12 C₂ (F x) (G x)).
+  - <span class="nb">intros</span> x y.
+    use isaset_total2.
+    + <span class="nb">apply</span> homset_property.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : setcategory
+  := equalizer_of_setcategory_precategory F G ,, equalizer_of_setcategory_is_setcategory F G.
+
+<span class="kn">Definition</span> <span class="nf">idtoiso_equalizer_of_setcategory</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+           {<span class="nv">x</span> <span class="nv">y</span> : equalizer_of_setcategory F G}
+           (<span class="nv">p</span> : x = y)
+  : pr11 (idtoiso p) = pr1 (idtoiso (maponpaths pr1 p)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory_pr1</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : equalizer_of_setcategory F G ⟶ C₁.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use make_functor_data.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 x).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, pr1 f).
+  - <span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory_eq</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : equalizer_of_setcategory_pr1 F G ∙ F
+    =
+    equalizer_of_setcategory_pr1 F G ∙ G.
+<span class="kn">Proof</span>.
+  use functor_eq.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  use functor_data_eq ; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr2 x).
+  - <span class="nb">intros</span> x y f.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> double_transport_idtoiso.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> (pr2 f).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory_ump_mor_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+           {<span class="nv">C₀</span> : setcategory}
+           (<span class="nv">H</span> : C₀ ⟶ C₁)
+           (<span class="nv">p</span> : H ∙ F = H ∙ G)
+  : functor_data
+      C₀
+      (equalizer_of_setcategory F G).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, H x ,, _).
+    <span class="kp">abstract</span> <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z x) p).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, #H f ,, _).
+    <span class="kp">abstract</span> (
+      <span class="nb">refine</span> (_ @ path_functor_mor p f @ _);
+      [ <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · idtoiso x));
+        <span class="nb">apply</span> isaset_ob
+      | <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, idtoiso x · _));
+        <span class="nb">apply</span> isaset_ob ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory_ump_mor_is_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+           {<span class="nv">C₀</span> : setcategory}
+           (<span class="nv">H</span> : C₀ ⟶ C₁)
+           (<span class="nv">p</span> : H ∙ F = H ∙ G)
+  : is_functor (equalizer_of_setcategory_ump_mor_data F G H p).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> x.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">apply</span> functor_id.
+  - <span class="nb">intros</span> x y z f g.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">apply</span> functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory_ump_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+           {<span class="nv">C₀</span> : setcategory}
+           (<span class="nv">H</span> : C₀ ⟶ C₁)
+           (<span class="nv">p</span> : H ∙ F = H ∙ G)
+  : C₀ ⟶ equalizer_of_setcategory F G.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (equalizer_of_setcategory_ump_mor_data F G H p).
+  - <span class="bp">exact</span> (equalizer_of_setcategory_ump_mor_is_functor F G H p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory_ump_mor_pr1</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+           {<span class="nv">C₀</span> : setcategory}
+           (<span class="nv">H</span> : C₀ ⟶ C₁)
+           (<span class="nv">p</span> : H ∙ F = H ∙ G)
+  : equalizer_of_setcategory_ump_mor F G H p ∙ equalizer_of_setcategory_pr1 F G
+    =
+    H.
+<span class="kn">Proof</span>.
+  use functor_eq.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  use functor_data_eq.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, idpath _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, idpath _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">equalizer_of_setcategory_ump_unique</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+           {<span class="nv">C₀</span> : setcategory}
+           (<span class="nv">H</span> : C₀ ⟶ C₁)
+           (<span class="nv">p</span> : H ∙ F = H ∙ G)
+           (<span class="nv">K</span> : C₀ ⟶ equalizer_of_setcategory F G)
+           (<span class="nv">K_pr1</span> : K ∙ equalizer_of_setcategory_pr1 F G = H)
+  : K = equalizer_of_setcategory_ump_mor F G H p.
+<span class="kn">Proof</span>.
+  use functor_eq.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">assert</span> (equalizer_of_setcategory_ump_unique_subproof : pr1 K ~ pr1 (equalizer_of_setcategory_ump_mor F G H p)).
+  { <span class="kp">abstract</span>
+      (<span class="nb">intro</span> x ;
+       use subtypePath ;
+       [ <span class="nb">intro</span> z ;
+         <span class="bp">exact</span> (pr12 C₂ (F z) (G z))
+       | ] ;
+       <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z x) K_pr1)). }
+  use functor_data_eq.
+  - <span class="bp">exact</span> equalizer_of_setcategory_ump_unique_subproof.
+  - <span class="nb">intros</span> x₁ x₂ f.
+    <span class="nb">rewrite</span> double_transport_idtoiso.
+    <span class="nb">rewrite</span> !assoc'.
+    use z_iso_inv_on_right.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">refine</span> (_ @ path_functor_mor K_pr1 f @ _).
+    + <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ · x)).
+      <span class="nb">refine</span> (idtoiso_equalizer_of_setcategory _ _ (equalizer_of_setcategory_ump_unique_subproof x₂) @ _).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ (idtoiso x))).
+      <span class="nb">apply</span> isaset_ob.
+    + <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x · _)).
+      <span class="nb">refine</span> (_ @ !idtoiso_equalizer_of_setcategory _ _ (equalizer_of_setcategory_ump_unique_subproof x₁)).
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ (idtoiso x))).
+      <span class="nb">apply</span> isaset_ob.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_of_setcategory_equalizers</span>
+  : Equalizers cat_of_setcategory.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> C₁ C₂ F G.
+  use make_Equalizer.
+  - <span class="bp">exact</span> (equalizer_of_setcategory F G).
+  - <span class="bp">exact</span> (equalizer_of_setcategory_pr1 F G).
+  - <span class="bp">exact</span> (equalizer_of_setcategory_eq F G).
+  - use make_isEqualizer.
+    <span class="nb">intros</span> C₀ H p.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="nb">refine</span> (equalizer_of_setcategory_ump_mor F G H p ,, _).
+      <span class="bp">exact</span> (equalizer_of_setcategory_ump_mor_pr1 F G H p).
+    + <span class="kp">abstract</span>
+        (<span class="nb">simpl</span> ;
+         <span class="nb">intro</span> K ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cat_of_setcategory | ] ;
+         <span class="nb">apply</span> equalizer_of_setcategory_ump_unique ;
+         <span class="bp">exact</span> (pr2 K)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Examples/CategoryOfSetcategoriesLimits.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  Equalizers in the category of strict categories
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

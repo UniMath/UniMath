@@ -1,0 +1,489 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FunctorCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Unitary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Transformations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local Lemma</span> <span class="nf">equality_on_objects_from_functor_equality</span>
+      {<span class="nv">C</span> <span class="nv">D</span> : category}
+      (<span class="nv">F</span> <span class="nv">G</span> : functor_data C D)
+      (<span class="nv">p</span> : ∏ c: C, F c = G c)
+      (<span class="nv">q</span> : transportf (<span class="k">λ</span> <span class="nv">F</span> : C → D, ∏ a b : C, C ⟦ a, b ⟧ → D ⟦ F a, F b ⟧)
+   (funextsec (<span class="k">λ</span> <span class="nv">_</span> : C, D) (pr1 F) (pr1 G) (<span class="k">λ</span> <span class="nv">x</span> : C, p x)) (pr2 F) = pr2 G)
+  : ∏ c : C,
+      toforallpaths (<span class="k">λ</span> <span class="nv">_</span> : C, D) F G
+    (base_paths F G
+       (total2_paths_f ((funextsec (<span class="k">λ</span> <span class="nv">_</span> : C, D) (pr1 F) (pr1 G) (<span class="k">λ</span> <span class="nv">x</span> : C, p x)))
+                       q)) c = p c.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  <span class="nb">rewrite</span> base_total2_paths.
+  <span class="bp">now</span> <span class="nb">rewrite</span> toforallpaths_funextsec.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">functor_eq_eq_from_functor_ob_eq'</span>
+             (<span class="nv">C</span> <span class="nv">C'</span>: category)
+             (<span class="nv">F</span> <span class="nv">G</span> : functor C C') (<span class="nv">p</span> <span class="nv">q</span> : pr1 F = pr1 G)
+             (<span class="nv">H</span> : (base_paths _ _  p) =
+                    (base_paths _ _ q)) :
+    p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (invmaponpathsweq (total2_paths_equiv _ _ _ )); <span class="nb">simpl</span>.
+  use total2_paths_f.
+  + <span class="bp">exact</span> H.
+  + <span class="nb">apply</span> uip.
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred_isaset ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> funspace_isaset.
+    <span class="nb">apply</span> C'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">DaggerFunctorCategories</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          (<span class="nv">dagC</span> : dagger C) (<span class="nv">dagD</span> : dagger D).
+
+  <span class="kn">Definition</span> <span class="nf">dagger_functor_disp_cat</span>
+    : disp_cat (functor_category C D)
+    := disp_full_sub [C,D] (<span class="k">λ</span> <span class="nv">F</span>, is_dagger_functor dagC dagD F).
+
+  <span class="kn">Definition</span> <span class="nf">dagger_functor_cat</span>
+    : category
+    := total_category dagger_functor_disp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">make_dagger_functor</span>
+             {<span class="nv">F</span> : functor C D}
+             (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+    : dagger_functor_cat
+    := F ,, dagF.
+
+  <span class="kn">Definition</span> <span class="nf">make_dagger_transformation</span>
+             (<span class="nv">F</span> <span class="nv">G</span> : dagger_functor_cat)
+             (<span class="nv">α</span> : nat_trans (pr1 F : functor _ _) (pr1 G : functor _ _))
+    : dagger_functor_cat⟦F,G⟧
+    := α ,, tt.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_functor_cat_structure</span>
+    : dagger_structure dagger_functor_cat
+    := <span class="k">λ</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">α</span>, make_dagger_transformation _ _ (dagger_adjoint (pr2 F) (pr2 G) (pr1 α)).
+
+  <span class="kn">Lemma</span> <span class="nf">dagger_transformation_equality</span>
+        {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+        {<span class="nv">dagF</span> : is_dagger_functor dagC dagD F}
+        {<span class="nv">dagG</span> : is_dagger_functor dagC dagD G}
+        (<span class="nv">α</span> <span class="nv">β</span> : dagger_functor_cat⟦make_dagger_functor dagF , make_dagger_functor dagG⟧)
+    : (∏ x : C, pr11 α x = pr11 β x) -&gt; α = β.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    <span class="nb">apply</span> (nat_trans_eq D).
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dagger_functor_cat_laws</span>
+    : dagger_laws dagger_functor_cat_structure.
+  <span class="kn">Proof</span>.
+    <span class="c">(*use make_dagger_laws*)</span> <span class="kp">repeat</span> <span class="nb">split</span> ;
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> dagger_transformation_equality ; <span class="nb">intro</span>).
+    - <span class="nb">apply</span> dagger_to_law_id.
+    - <span class="nb">apply</span> dagger_to_law_comp.
+    - <span class="nb">apply</span> dagger_to_law_idemp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_on_functor_cat</span> : dagger dagger_functor_cat
+    := _ ,, dagger_functor_cat_laws.
+
+<span class="kn">End</span> <span class="nf">DaggerFunctorCategories</span>.
+
+<span class="kn">Section</span> <span class="nf">Univalence</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+          {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+          {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+          (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+          (<span class="nv">dagG</span> : is_dagger_functor dagC dagD G).
+
+  <span class="kn">Local Definition</span> <span class="nf">unitary_functors_eq</span>
+    : UU
+    := ∑ p : (∏ x : pr11 C, unitary dagD (F x) (G x)),
+        ∏ (x y : C) (f : C⟦x,y⟧),
+        #G f = (dagD _ _ (pr1 (p x))) · #F f · (pr1 (p y)).
+
+  <span class="kn">Local Definition</span> <span class="nf">functors_eq_data</span>
+    : UU
+    := ∑ p : (∏ x : C, (pr11 F x) = (pr11 G x)),
+        ∏ (x y : pr11 C) (f : (pr11 C)⟦x,y⟧),
+        #G f = idtodaggermor dagD (! p x) · #F f · idtodaggermor dagD (p y).
+
+  <span class="kn">Definition</span> <span class="nf">unitary_functors_equiv_unitary</span>
+    : unitary_functors dagF dagG ≃ unitary (dagger_functor_cat_structure dagC dagD) (F,,dagF) (G,,dagG).
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">intro</span> α.
+      <span class="k">exists</span> (<span class="nv">make_dagger_transformation</span> <span class="nv">dagC</span> <span class="nv">dagD</span> <span class="nv">_</span> <span class="nv">_</span> (pr1 α : nat_trans (pr1 (F,,dagF)) (pr1 (G,,dagG)))).
+      <span class="kp">abstract</span> (<span class="nb">split</span> ; <span class="nb">apply</span> dagger_transformation_equality ; <span class="nb">intro</span> c ; <span class="nb">apply</span> (pr2 α c)).
+    - <span class="nb">intro</span> α.
+      <span class="k">exists</span> (<span class="nv">pr11</span> <span class="nv">α</span>).
+      <span class="kp">abstract</span> (
+          <span class="nb">intro</span> c ;
+          <span class="nb">split</span> ;
+          [ <span class="bp">exact</span> (eqtohomot (base_paths _ _ (base_paths _ _ (pr12 α))) c)
+          | <span class="bp">exact</span> (eqtohomot (base_paths _ _ (base_paths _ _ (pr22 α))) c) ]).
+    - <span class="kp">abstract</span> (
+          <span class="nb">intro</span> α ;
+          use total2_paths_f ;
+          [ use (nat_trans_eq (pr2 D)) ; <span class="nb">intro</span> ; <span class="nb">apply</span> idpath
+          | use proofirrelevance ;
+            <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span> ;
+            <span class="nb">apply</span> Isos.isaprop_is_inverse_in_precat]).
+    - <span class="kp">abstract</span> (
+          <span class="nb">intro</span> α ;
+          use total2_paths_f ;
+          [ <span class="nb">apply</span> dagger_transformation_equality ;
+            <span class="nb">intro</span> ; <span class="nb">apply</span> idpath
+          | <span class="nb">apply</span> isaprop_is_unitary]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">unitary_functor_eq_to_unitary_functors_naturality</span>
+        (<span class="nv">p</span> : unitary_functors_eq)
+    : is_nat_trans F G (<span class="k">λ</span> <span class="nv">c</span> : pr11 C, pr1 (pr1 p c)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c1 c2 f.
+    <span class="nb">refine</span> (_ @ maponpaths (compose _) (! pr2 p _ _ _)).
+    <span class="nb">refine</span> (_ @ assoc' _ _ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (_ @ assoc' _ _ _).
+    <span class="nb">refine</span> (! id_left _ @ _).
+    <span class="nb">apply</span> maponpaths_2, pathsinv0, (pr1 p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unitary_functors_eq_to_unitary_functors</span>
+    : unitary_functors_eq -&gt; unitary_functors dagF dagG.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [p q].
+    use tpair.
+    - <span class="nb">apply</span> (make_nat_trans _ _ (<span class="k">λ</span> <span class="nv">c</span>, pr1 (p c))).
+      <span class="bp">exact</span> (unitary_functor_eq_to_unitary_functors_naturality (p,,q)).
+    - <span class="kp">abstract</span> (<span class="nb">intro</span> ; <span class="nb">apply</span> p).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">unitary_functors_eq_from_unitary_functors_naturality</span>
+        (<span class="nv">α</span> : unitary_functors dagF dagG)
+    : ∏ (x y : C) (f : C ⟦ x, y ⟧), # G f = dagD (F x) (G x) ((pr1 α) x) · # F f · (pr1 α) y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c1 c2 f.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (compose _) (pr21 α _ _ _) @ _).
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">apply</span> maponpaths_2, (pr2 α).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unitary_functors_eq_from_unitary_functors</span>
+    : unitary_functors dagF dagG -&gt; unitary_functors_eq.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [α p].
+    use tpair.
+    + <span class="nb">intro</span> c.
+      <span class="k">exists</span> (<span class="nv">α</span> <span class="nv">c</span>).
+      <span class="nb">apply</span> p.
+    + <span class="bp">exact</span> (unitary_functors_eq_from_unitary_functors_naturality (α,,p)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">unitary_functors_eq_equiv_unitary_functors_inv_law1</span>
+    :  ∏ x : unitary_functors_eq,
+        unitary_functors_eq_from_unitary_functors (unitary_functors_eq_to_unitary_functors x) = x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>.
+    use total2_paths_f.
+    - <span class="nb">apply</span> funextsec ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> unitary_eq, idpath.
+    - <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">unitary_functors_eq_equiv_unitary_functors_inv_law2</span>
+    :  ∏ y : unitary_functors dagF dagG,
+        unitary_functors_eq_to_unitary_functors (unitary_functors_eq_from_unitary_functors y) = y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>.
+    use total2_paths_f.
+    - use (nat_trans_eq (pr2 D)).
+      <span class="nb">intro</span> ; <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> funextsec ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> Isos.isaprop_is_inverse_in_precat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">unitary_functors_eq_equiv_unitary_functors</span>
+    : unitary_functors_eq ≃ unitary_functors dagF dagG.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> unitary_functors_eq_to_unitary_functors.
+    - <span class="bp">exact</span> unitary_functors_eq_from_unitary_functors.
+    - <span class="bp">exact</span> unitary_functors_eq_equiv_unitary_functors_inv_law1.
+    - <span class="bp">exact</span> unitary_functors_eq_equiv_unitary_functors_inv_law2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functors_eq_data_to_unitary_functors_eq</span>
+             (<span class="nv">u</span> : is_univalent_dagger dagD)
+    : functors_eq_data -&gt; unitary_functors_eq.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">idtodaggeriso</span> <span class="nv">dagD</span> <span class="nv">_</span> <span class="nv">_</span> (pr1 p c)).
+    <span class="nb">intros</span> x y f.
+    <span class="nb">refine</span> (pr2 p x y f @ _).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    { <span class="nb">apply</span> (idtodaggeriso_is_dagger_of_idtodaggeriso dagD). }
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> pathsinv0inv0.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functors_eq_data_from_unitary_functors_eq</span>
+             (<span class="nv">u</span> : is_univalent_dagger dagD)
+    : unitary_functors_eq -&gt; functors_eq_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p.
+    use tpair.
+    - <span class="nb">intro</span> c ; <span class="nb">apply</span> u ; <span class="bp">exact</span> (pr1 p c).
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">refine</span> (pr2 p x y f @ _).
+      <span class="nb">apply</span> maponpaths_compose.
+      + <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (_ @ ! idtodaggeriso_is_dagger_of_idtodaggeriso dagD _).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        etrans.
+        * <span class="nb">apply</span> pathsinv0, (idtodaggeriso_daggerisotoid u).
+        * <span class="nb">apply</span> maponpaths, pathsinv0, pathsinv0inv0.
+      + <span class="nb">apply</span> pathsinv0, idtodaggermor_daggerisotoid.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">functors_eq_data_equiv_unitary_functors_eq_inv_law1</span>
+        (<span class="nv">u</span> : is_univalent_dagger dagD)
+    :   ∏ x : functors_eq_data,
+        functors_eq_data_from_unitary_functors_eq u (functors_eq_data_to_unitary_functors_eq u x) = x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    use total2_paths_f.
+    - <span class="nb">apply</span> funextsec ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> daggerisotoid_idtodaggeriso.
+    - <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">functors_eq_data_equiv_unitary_functors_eq_inv_law2</span>
+        (<span class="nv">u</span> : is_univalent_dagger dagD)
+    :   ∏ y : unitary_functors_eq,
+        functors_eq_data_to_unitary_functors_eq u (functors_eq_data_from_unitary_functors_eq u y) = y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    use total2_paths_f.
+    - <span class="nb">apply</span> funextsec ; <span class="nb">intro</span>.
+      use total2_paths_f.
+      + <span class="nb">apply</span> maponpaths, idtodaggeriso_daggerisotoid.
+      + <span class="nb">apply</span> isaprop_is_unitary.
+    - <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functors_eq_data_equiv_unitary_functors_eq</span>
+             (<span class="nv">u</span> : is_univalent_dagger dagD)
+    : functors_eq_data ≃ unitary_functors_eq.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> (functors_eq_data_to_unitary_functors_eq u).
+    - <span class="bp">exact</span> (functors_eq_data_from_unitary_functors_eq u).
+    - <span class="bp">exact</span> (functors_eq_data_equiv_unitary_functors_eq_inv_law1 u).
+    - <span class="bp">exact</span> (functors_eq_data_equiv_unitary_functors_eq_inv_law2 u).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_of_dagger_functor_map_is_pointwise</span>
+        (<span class="nv">F0</span> <span class="nv">G0</span> : pr11 C -&gt; pr11 D)
+        (<span class="nv">F1</span> : ∏ a b : pr11 C, a --&gt; b -&gt; F0 a --&gt; F0 b)
+        (<span class="nv">gamma</span> : F0  = G0 )
+        (<span class="nv">a</span> <span class="nv">b</span> : pr11 C) (<span class="nv">f</span> : a --&gt; b) :
+    transportf (<span class="k">fun</span> <span class="nv">x</span> : pr11 C -&gt; pr11 D =&gt;
+                  ∏ a0 b0 : pr11 C, a0 --&gt; b0 -&gt; x a0 --&gt; x b0)
+               gamma F1 a b f =
+      Univalence.double_transport (toforallpaths (<span class="k">λ</span> <span class="nv">_</span> : pr11 C, pr11 D) F0 G0 gamma a)
+                       (toforallpaths (<span class="k">λ</span> <span class="nv">_</span> : pr11 C, pr11 D) F0 G0 gamma b)
+                       (F1 a b f).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> gamma.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">double_transport_idtodaggeriso</span> (<span class="nv">a</span> <span class="nv">a'</span> <span class="nv">b</span> <span class="nv">b'</span> : pr111 D)
+        (<span class="nv">p</span> : a = a') (<span class="nv">q</span> : b = b')  (<span class="nv">f</span> : a --&gt; b) :
+    Univalence.double_transport p q f = pr1 (idtodaggeriso dagD _ _ (! p)) · f · pr1 (idtodaggeriso dagD _ _ q).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> p.
+    <span class="nb">destruct</span> q.
+    intermediate_path (identity _ · f).
+    - <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equality_to_functors_eq_data</span>
+    : pr1 F = pr1 G -&gt; functors_eq_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span>, <span class="nv">eqtohomot</span> (base_paths _ _ p) c).
+    <span class="kp">abstract</span> (
+        <span class="nb">intros</span> x y f ;
+        <span class="nb">refine</span> (! eqtohomot (eqtohomot (eqtohomot (fiber_paths p) x) y) f @ _) ;
+        etrans ; [
+          <span class="nb">apply</span> transport_of_dagger_functor_map_is_pointwise
+        | <span class="nb">apply</span> double_transport_idtodaggeriso]
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equality_from_functors_eq_data</span>
+    : functors_eq_data → pr1 F = pr1 G.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [p q].
+    use total2_paths_f.
+    - <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> ; <span class="nb">apply</span> p.
+    - <span class="kp">abstract</span>(
+          <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>) ;
+          <span class="nb">rewrite</span> transport_of_dagger_functor_map_is_pointwise ;
+          <span class="nb">rewrite</span> double_transport_idtodaggeriso ;
+          <span class="nb">rewrite</span> toforallpaths_funextsec ;
+          <span class="bp">exact</span> (! q _ _ _)
+        ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equality_equiv_functors_eq_data_inv_law1</span>
+    : ∏ x : pr1 F = pr1 G, equality_from_functors_eq_data (equality_to_functors_eq_data x) = x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> functor_eq_eq_from_functor_ob_eq'.
+    <span class="nb">refine</span> (base_total2_paths _ @ _).
+    <span class="nb">apply</span> (invmaponpathsweq (weqtoforallpaths _ _ _)).
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> toforallpaths_funextsec.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> ; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equality_equiv_functors_eq_data_inv_law2</span>
+    : ∏ y : functors_eq_data, equality_to_functors_eq_data (equality_from_functors_eq_data y) = y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [p q].
+    use total2_paths_f.
+    - <span class="nb">apply</span> funextsec ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> equality_on_objects_from_functor_equality.
+    - <span class="nb">apply</span> proofirrelevance.
+      <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equality_equiv_functors_eq_data</span>
+    : pr1 F = pr1 G ≃ functors_eq_data.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> equality_to_functors_eq_data.
+    - <span class="bp">exact</span> equality_from_functors_eq_data.
+    - <span class="bp">exact</span> equality_equiv_functors_eq_data_inv_law1.
+    - <span class="bp">exact</span> equality_equiv_functors_eq_data_inv_law2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">id_pr1_to_pr11_id</span>
+    : F = G ≃ pr1 F = pr1 G.
+  <span class="kn">Proof</span>.
+    use subtypeInjectivity.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_functor.
+    <span class="nb">apply</span> (pr2 D).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">id_to_pr1_id</span>
+    : (F,,dagF) = (G,,dagG) ≃ F = G.
+  <span class="kn">Proof</span>.
+    use subtypeInjectivity.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_dagger_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">univalence_iso</span>
+             (<span class="nv">u</span> : is_univalent_dagger dagD)
+    : (F,,dagF) = (G,,dagG) ≃  unitary (dagger_functor_cat_structure dagC dagD) (F,, dagF) (G,, dagG).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ∘ id_to_pr1_id)%weq.
+    <span class="nb">refine</span> (_ ∘ id_pr1_to_pr11_id)%weq.
+    <span class="nb">refine</span> (_ ∘ equality_equiv_functors_eq_data)%weq.
+    <span class="nb">refine</span> (_ ∘ functors_eq_data_equiv_unitary_functors_eq u)%weq.
+    <span class="nb">refine</span> (_ ∘ unitary_functors_eq_equiv_unitary_functors)%weq.
+    <span class="bp">exact</span> unitary_functors_equiv_unitary.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Univalence</span>.
+
+<span class="kn">Lemma</span> <span class="nf">dagger_functor_cat_is_dagger_univalent</span>
+      {<span class="nv">C</span> <span class="nv">D</span> : category}
+      (<span class="nv">dagC</span> : dagger C) (<span class="nv">dagD</span> : dagger D)
+      (<span class="nv">u</span> : is_univalent_dagger dagD)
+  : is_univalent_dagger (dagger_on_functor_cat dagC dagD).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F G.
+  use weqhomot.
+  - <span class="bp">exact</span> (univalence_iso (pr2 F) (pr2 G) u).
+  - <span class="nb">intro</span> p.
+    <span class="nb">induction</span> p.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_unitary. }
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit. }
+    <span class="nb">apply</span> (nat_trans_eq (pr2 D)).
+    <span class="nb">intro</span> ; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DaggerCategories/FunctorCategory.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

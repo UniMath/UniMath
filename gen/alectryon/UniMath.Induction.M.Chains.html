@@ -1,0 +1,441 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Chains.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Limits of chains and cochains in the precategory of types *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Univalence.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.WeakEquivalences.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.Limits.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Cochains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.Induction.FunctorCoalgebras_legacy.
+
+<span class="kn">Require Import</span> UniMath.Induction.PolynomialFunctors.
+<span class="kn">Require Import</span> UniMath.Induction.M.Limits.
+<span class="kn">Require Import</span> UniMath.Induction.M.Core.
+
+<span class="sd">(** The shifted chain (X', π') from (X, π) is one where Xₙ' = Xₙ₊₁ and πₙ' = πₙ₊₁. *)</span>
+<span class="kn">Definition</span> <span class="nf">shift_chain</span> (<span class="nv">cha</span> : chain type_precat) : chain type_precat.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (dob cha ∘ S).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">path</span>, dmor cha (maponpaths S path)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The shifted cochain (X', π') from (X, π) is one where Xₙ' = Xₙ₊₁ and πₙ' = πₙ₊₁. *)</span>
+<span class="kn">Definition</span> <span class="nf">shift_cochain</span> {<span class="nv">C</span> : precategory} (<span class="nv">cochn</span> : cochain C) : cochain C.
+<span class="kn">Proof</span>.
+  use cochain_weq; use tpair.
+  - <span class="bp">exact</span> (dob cochn ∘ S).
+  - <span class="nb">intros</span> n; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (dmor cochn).
+    <span class="bp">exact</span> (idpath _).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Interaction between transporting over (maponpaths S ed) and shifting the cochain *)</span>
+<span class="kn">Definition</span> <span class="nf">transport_shift_cochain</span> :
+  ∏ cochn ver1 ver2 (ed : ver1 = ver2)
+    (stdlim_shift : standard_limit (shift_cochain cochn)),
+  transportf (dob cochn) (maponpaths S ed) (pr1 stdlim_shift ver1) =
+  transportf (dob (shift_cochain cochn)) ed (pr1 stdlim_shift ver1).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> cochn ver1 ver2 ed stdlim_shift.
+  <span class="nb">induction</span> ed.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Ways to prove that [dmor]s are equal on cochains *)</span>
+<span class="kn">Lemma</span> <span class="nf">cochain_dmor_paths</span> {<span class="nv">C</span> : precategory} {<span class="nv">ver1</span> <span class="nv">ver2</span> : vertex conat_graph}
+      (<span class="nv">cochn</span> : cochain C) (<span class="nv">p1</span> <span class="nv">p2</span> : edge ver1 ver2) : dmor cochn p1 = dmor cochn p2.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> maponpaths, proofirrelevance, isasetnat.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** More ways to prove that [dmor]s are equal on cochains *)</span>
+<span class="kn">Lemma</span> <span class="nf">cochain_dmor_paths_type</span> {<span class="nv">ver1</span> <span class="nv">ver2</span> <span class="nv">ver3</span> : vertex conat_graph}
+  (<span class="nv">cochn</span> : cochain type_precat) (<span class="nv">p1</span> : edge ver1 ver3) (<span class="nv">p2</span> : edge ver2 ver3)
+  (<span class="nv">q1</span> : ver1 = ver2) :
+  ∏ v1 : dob cochn ver1, dmor cochn p1 v1 = dmor cochn p2 (transportf _ q1 v1).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> v1; <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">induction</span> q1.
+  <span class="nb">cbn</span>.
+  <span class="bp">exact</span> (toforallpaths _ _ _ (cochain_dmor_paths cochn p1 p2) v1).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** We use the following tactic notations to mirror the "equational style" of</span>
+<span class="sd">    reasoning used in Ahrens, Capriotti, and Spadotti. *)</span>
+<span class="kn">Local</span> <span class="kn">Tactic Notation</span> <span class="s2">"≃"</span> <span class="kp">constr</span>(H) <span class="s2">"by"</span> tactic(t) := intermediate_weq H; [t|].
+<span class="kn">Local</span> <span class="kn">Tactic Notation</span> <span class="s2">"≃'"</span> <span class="kp">constr</span>(H) <span class="s2">"by"</span> tactic(t) := intermediate_weq H; [|t].
+<span class="kn">Local</span> <span class="kn">Tactic Notation</span> <span class="s2">"≃"</span> <span class="kp">constr</span>(H) := intermediate_weq H.
+<span class="kn">Local</span> <span class="kn">Tactic Notation</span> <span class="s2">"≃'"</span> <span class="kp">constr</span>(H) := <span class="nb">apply</span> invweq; intermediate_weq H.
+
+<span class="kn">Local Lemma</span> <span class="nf">combine_over_nat_basic</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : nat → UU} :
+  X <span class="mi">0</span> ≃ Z <span class="mi">0</span> → (∏ n : nat, Y (S n) ≃ Z (S n)) →
+  (X <span class="mi">0</span> × ∏ n : nat, Y (S n)) ≃ ∏ n : nat, Z n.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x0z0 yszs.
+  ≃ (Z <span class="mi">0</span> × (∏ n : nat, Z (S n))).
+  - <span class="nb">apply</span> weqdirprodf; [<span class="nb">apply</span> x0z0|].
+    <span class="nb">apply</span> weqonsecfibers, yszs.
+  - use weq_iso.
+    + <span class="nb">intros</span> z0zs.
+      <span class="nb">intros</span> n; <span class="nb">induction</span> n.
+      * <span class="bp">exact</span> (dirprod_pr1 z0zs).
+      * <span class="nb">apply</span> (dirprod_pr2 z0zs).
+    + <span class="nb">intros</span> xs; use make_dirprod.
+      * <span class="nb">apply</span> xs.
+      * <span class="bp">exact</span> (xs ∘ S).
+    + <span class="bp">reflexivity</span>.
+    + <span class="nb">intros</span> xs.
+      <span class="nb">apply</span> funextsec; <span class="nb">intros</span> n.
+      <span class="nb">induction</span> n; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">combine_over_nat</span> {<span class="nv">X</span> : nat → UU} {<span class="nv">P</span> : (X <span class="mi">0</span> × (∏ n : nat, X (S n))) → UU} :
+  (∑ x0 : X <span class="mi">0</span>, ∑ xs : ∏ n : nat, X (S n), P (make_dirprod x0 xs)) ≃
+  (∑ xs : ∏ n : nat, X n, P (make_dirprod (xs <span class="mi">0</span>) (xs ∘ S))).
+<span class="kn">Proof</span>.
+  ≃ (∑ pair : (X <span class="mi">0</span> × ∏ n : nat, X (S n)), P pair) <span class="bp">by</span> <span class="nb">apply</span> weqtotal2asstol.
+  use weqbandf.
+  - <span class="nb">apply</span> (@combine_over_nat_basic X X X); <span class="nb">intros</span>; <span class="nb">apply</span> idweq.
+  - <span class="nb">intros</span> x0xs; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">combine_over_nat'</span> {<span class="nv">X</span> : nat → UU} {<span class="nv">P</span> : X <span class="mi">0</span> → (∏ n : nat, X (S n)) → UU} :
+  (∑ x0 : X <span class="mi">0</span>, ∑ xs : ∏ n : nat, X (S n), P x0 xs) ≃
+  (∑ xs : ∏ n : nat, X n, P (xs <span class="mi">0</span>) (xs ∘ S)).
+<span class="kn">Proof</span>.
+  ≃ (∑ (x0 : X <span class="mi">0</span>) (xs : ∏ n : nat, X (S n)), (uncurry (Z := <span class="k">λ</span> <span class="nv">_</span>, UU) P)
+                                             (make_dirprod x0 xs)) <span class="bp">by</span> <span class="nb">apply</span> idweq.
+  ≃' (∑ xs : ∏ n : nat, X n, uncurry P (Z := <span class="k">λ</span> <span class="nv">_</span>, UU)
+                                     (make_dirprod (xs <span class="mi">0</span>) (xs ∘ S))) <span class="bp">by</span> <span class="nb">apply</span> idweq.
+  <span class="nb">apply</span> combine_over_nat.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** If the base type is contractible, so is the type of sections over it. *)</span>
+<span class="kn">Definition</span> <span class="nf">weqsecovercontr_uncurried</span> {<span class="nv">X</span> : UU} {<span class="nv">Y</span> : X -&gt; UU}
+           (<span class="nv">P</span> : ∏ x : X, Y x -&gt; UU) (<span class="nv">isc</span> : iscontr (∑ x : X, Y x)) :
+  (∏ (x : X) (y : Y x), P x y) ≃ (P (pr1 (iscontrpr1 isc)) (pr2 (iscontrpr1 isc))).
+<span class="kn">Proof</span>.
+  ≃ (∏ pair : (∑ x : X, Y x), uncurry (Z := <span class="k">λ</span> <span class="nv">_</span>, UU) P pair) <span class="bp">by</span>
+    <span class="nb">apply</span> invweq, weqsecovertotal2.
+  ≃' (uncurry (Z := <span class="k">λ</span> <span class="nv">_</span>, UU) P (iscontrpr1 isc)) <span class="bp">by</span> (<span class="nb">apply</span> idweq).
+  <span class="nb">apply</span> weqsecovercontr.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Shifted cochains have equivalent limits.</span>
+<span class="sd">    (Lemma 12 in Ahrens, Capriotti, and Spadotti) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">shifted_limit</span> (<span class="nv">cocha</span> : cochain type_precat) :
+  standard_limit (shift_cochain cocha) ≃ standard_limit cocha.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (X := dob cocha); <span class="nb">cbn</span> <span class="k">in</span> X.
+  <span class="nb">pose</span> (π n := (@dmor _ _ cocha (S n) n (idpath _))).
+  <span class="nb">unfold</span> standard_limit, shift_cochain; <span class="nb">cbn</span>.
+
+  <span class="nb">assert</span> (isc : ∏ x : ∏ v : nat, dob cocha (S v),
+                iscontr (∑ x0 : X <span class="mi">0</span>, (π <span class="mi">0</span> (x <span class="mi">0</span>)) = x0)).
+  {
+    <span class="nb">intros</span> x.
+    <span class="nb">apply</span> iscontr_paths_from.
+  }
+
+  <span class="sd">(** Step (2) *)</span>
+  <span class="sd">(** This is the direct product with the type proven contractible above *)</span>
+  ≃ (∑ xs : ∏ v : nat, X (S v),
+    (∏ (u v : nat) (e : S v = u),
+    (dmor cocha (idpath (S (S v)))
+      ∘ transportf (<span class="k">λ</span> <span class="nv">o</span> : nat, X (S o) → X (S (S v))) e
+      (idfun (X (S (S v))))) (xs u) = xs v)
+    × (∑ x0 : X <span class="mi">0</span>, (π <span class="mi">0</span> (xs <span class="mi">0</span>)) = x0)) <span class="bp">by</span>
+    (<span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span>; <span class="nb">apply</span> dirprod_with_contr_r; <span class="nb">apply</span> isc).
+
+  <span class="sd">(** Now, we swap the components in the direct product. *)</span>
+  ≃ (∑ xs : ∏ v : nat, X (S v),
+    (∑ x0 : X <span class="mi">0</span>, π <span class="mi">0</span> (xs <span class="mi">0</span>) = x0) ×
+    (∏ (u v : nat) (e : S v = u),
+      (dmor cocha (idpath (S (S v)))
+      ∘ transportf (<span class="k">λ</span> <span class="nv">o</span> : nat, X (S o) → X (S (S v))) e
+      (idfun (X (S (S v))))) (xs u) = xs v)) <span class="bp">by</span>
+    (<span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span>; <span class="nb">apply</span> weqdirprodcomm).
+
+  <span class="sd">(** Using associativity of Σ-types, *)</span>
+  ≃ (∑ xs : ∏ v : nat, X (S v),
+     ∑ x0 : X <span class="mi">0</span>,
+     (π <span class="mi">0</span> (xs <span class="mi">0</span>) = x0) ×
+     (∏ (u v : nat) (e : S v = u),
+       (dmor cocha (idpath (S (S v)))
+       ∘ transportf (<span class="k">λ</span> <span class="nv">o</span> : nat, X (S o) → X (S (S v))) e
+       (idfun (X (S (S v))))) (xs u) = xs v)) <span class="bp">by</span>
+    (<span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span>; <span class="nb">apply</span> weqtotal2asstor).
+
+  <span class="sd">(** And again by commutativity of ×, we swap the first components *)</span>
+  ≃ (∑ x0 : X <span class="mi">0</span>,
+     ∑ xs : ∏ n : nat, X (S n),
+     (π <span class="mi">0</span> (xs <span class="mi">0</span>) = x0) ×
+     (∏ (u v : nat) (e : S v = u),
+       (dmor cocha (idpath (S (S v)))
+       ∘ transportf (<span class="k">λ</span> <span class="nv">o</span> : nat, X (S o) → X (S (S v))) e
+       (idfun (X (S (S v))))) (xs u) = xs v)) <span class="bp">by</span> (<span class="nb">apply</span> weqtotal2comm).
+
+  <span class="sd">(** Step 3: combine the first bits *)</span>
+  ≃ (∑ xs : ∏ n : nat, X n,
+      (π <span class="mi">0</span> (xs <span class="mi">1</span>) = xs <span class="mi">0</span>) ×
+      (∏ (u v : nat) (e : S v = u),
+        (dmor cocha (idpath (S (S v)))
+        ∘ transportf (<span class="k">λ</span> <span class="nv">o</span> : nat, dob cocha (S o) → dob cocha (S (S v))) e
+        (idfun (dob cocha (S (S v))))) (xs (S u)) = xs (S v))).
+  <span class="nb">apply</span> (@combine_over_nat' X
+        (<span class="k">λ</span> <span class="nv">x0</span> <span class="nv">xs</span>,
+        π <span class="mi">0</span> (xs <span class="mi">0</span>) = x0
+        × (∏ (u v : nat) (e : S v = u),
+            (dmor cocha (idpath (S (S v)))
+            ∘ transportf (<span class="k">λ</span> <span class="nv">o</span> : nat, X (S o) → X (S (S v))) e (idfun (X (S (S v)))))
+              (xs u) = xs v))).
+
+  <span class="sd">(** Now the first component is the same. *)</span>
+  <span class="nb">apply</span> weqfibtototal; <span class="nb">intros</span> xs.
+
+  ≃ (π <span class="mi">0</span> (xs <span class="mi">1</span>) = xs <span class="mi">0</span>
+    × (∏ (v u : nat) (e : S v = u),
+      (dmor cocha (idpath (S (S v)))
+        ∘ transportf (<span class="k">λ</span> <span class="nv">o</span> : nat, dob cocha (S o) → dob cocha (S (S v))) e
+            (idfun (dob cocha (S (S v))))) (xs (S u)) = xs (S v))) <span class="bp">by</span>
+    <span class="nb">apply</span> weqdirprodf; [<span class="nb">apply</span> idweq|<span class="nb">apply</span> flipsec_weq].
+
+  ≃' (∏ (v u : nat) (e : S v = u), dmor cocha e (xs u) = xs v) <span class="bp">by</span>
+    <span class="nb">apply</span> flipsec_weq.
+
+  <span class="sd">(** Split into cases on n = 0 or n &gt; 0. *)</span>
+  <span class="sd">(** Coq is bad about coming up with these implicit arguments, so we have to be</span>
+<span class="sd">      very excplicit. *)</span>
+  <span class="nb">apply</span> (@combine_over_nat_basic
+           (<span class="k">λ</span> <span class="nv">n</span>, π n (xs (S n)) = xs n)
+           (<span class="k">λ</span> <span class="nv">v</span>, ∏ (u : nat) (e : v = u),
+             (dmor cocha (idpath (S v))
+               ∘ _ (idfun (dob cocha (S v)))) (xs (S u)) = xs v)
+           (<span class="k">λ</span> <span class="nv">v</span>, ∏ (u : nat) (e : S v = u), dmor cocha e (xs u) = xs v)).
+
+  <span class="sd">(** We use the following fact over and over to simplify the remaining types:</span>
+<span class="sd">      for any x : X, the type ∑ y : X, x = y is contractible. *)</span>
+  - <span class="nb">apply</span> invweq.
+    <span class="nb">apply</span> (@weqsecovercontr_uncurried
+             nat (<span class="k">λ</span> <span class="nv">n</span>, <span class="mi">1</span> = n) (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, _ = xs <span class="mi">0</span>) (iscontr_paths_from <span class="mi">1</span>)).
+  - <span class="nb">intros</span> u.
+    ≃ ((dmor cocha (idpath (S (S u)))
+            ∘ transportf (<span class="k">λ</span> <span class="nv">o</span> : nat, dob cocha (S o) → dob cocha (S (S u)))
+                (idpath (S u)) (idfun (dob cocha (S (S u))))) (xs (S (S u))) =
+          xs (S u)).
+    + <span class="nb">apply</span> (@weqsecovercontr_uncurried
+               nat (<span class="k">λ</span> <span class="nv">n</span>, (S u) = n) (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, _ _ = xs (S u)) (iscontr_paths_from _)).
+    + <span class="nb">cbn</span>.
+      <span class="nb">apply</span> invweq.
+      <span class="nb">apply</span> (@weqsecovercontr_uncurried
+               nat (<span class="k">λ</span> <span class="nv">n</span>, (S (S u)) = n) (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, _ = xs (S u)) (iscontr_paths_from _)).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** Lemma 11 in Ahrens, Capriotti, and Spadotti *)</span>
+<span class="kn">Local Definition</span> <span class="nf">Z</span> <span class="nv">X</span> <span class="nv">l</span> :=
+ ∑ (x : ∏ n, X n), ∏ n, x (S n) = l n (x n).
+<span class="kn">Local Lemma</span> <span class="nf">lemma_11</span> (<span class="nv">X</span> : nat -&gt; UU) (<span class="nv">l</span> : ∏ n, X n -&gt; X (S n)) : Z X l ≃ X <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+ <span class="nb">set</span> (f (xp : Z X l) := pr1 xp <span class="mi">0</span>).
+ transparent <span class="nb">assert</span> (g : (X <span class="mi">0</span> -&gt; Z X l)). {
+   <span class="nb">intros</span> x.
+   <span class="k">exists</span> (<span class="nv">nat_rect</span> <span class="nv">_</span> <span class="nv">x</span> <span class="nv">l</span>).
+   <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span>, idpath _).
+ }
+ <span class="nb">apply</span> (make_weq f).
+ <span class="nb">apply</span> (isweq_iso f g).
+ - <span class="nb">cbn</span>.
+   <span class="nb">intros</span> xp; <span class="nb">induction</span> xp <span class="k">as</span> [x p].
+   transparent <span class="nb">assert</span> ( q : (nat_rect X (x <span class="mi">0</span>) l ~ x )). {
+     <span class="nb">intros</span> n; <span class="nb">induction</span> n; <span class="nb">cbn</span>.
+     * <span class="bp">reflexivity</span>.
+     * <span class="bp">exact</span> (maponpaths (l n) IHn @ !p n).
+   }
+   <span class="nb">set</span> (q' := funextsec _ _ _ q).
+   use total2_paths_f; <span class="nb">cbn</span>.
+   + <span class="bp">exact</span> q'.
+   + <span class="nb">rewrite</span> transportf_sec_constant. <span class="nb">apply</span> funextsec; <span class="nb">intros</span> n.
+     intermediate_path (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x (S n)) q' @
+                         maponpaths (<span class="k">λ</span> <span class="nv">x</span>, l n (x n)) q'). {
+       use transportf_paths_FlFr.
+     }
+     intermediate_path (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x (S n)) q' @
+                         maponpaths (l n) (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x n) q')). {
+       <span class="nb">apply</span> maponpaths. <span class="nb">symmetry</span>. use maponpathscomp.
+     }
+     intermediate_path (! q (S n) @ maponpaths (l n) (q n)). {
+       <span class="nb">unfold</span> q'.
+       <span class="kp">repeat</span> <span class="nb">rewrite</span> maponpaths_funextsec.
+       <span class="bp">reflexivity</span>.
+     }
+     intermediate_path (! (maponpaths (l n) (q n) @ ! p n) @
+                          maponpaths (l n) (q n)). {
+       <span class="bp">reflexivity</span>.
+     }
+     <span class="nb">rewrite</span> pathscomp_inv.
+     <span class="nb">rewrite</span> &lt;- path_assoc.
+     <span class="nb">rewrite</span> pathsinv0l.
+     <span class="nb">rewrite</span> pathsinv0inv0.
+     <span class="nb">rewrite</span> pathscomp0rid.
+     <span class="bp">reflexivity</span>.
+ - <span class="nb">cbn</span>.
+   <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="c">(* Maybe easier to apply in Lemma *)</span>
+<span class="kn">Local Definition</span> <span class="nf">lemma_11_unfolded</span> (<span class="nv">X</span> : nat -&gt; UU) (<span class="nv">l</span> : ∏ n, X n -&gt; X (S n)) :
+  (∑ (x : ∏ n, X n), ∏ n, x (S n) = l n (x n)) ≃ X <span class="mi">0</span> := lemma_11 X l.
+
+<span class="kn">Lemma</span> <span class="nf">cochain_limit_standard_limit_weq</span> (<span class="nv">cha</span> <span class="nv">cha'</span> : cochain type_precat) :
+  cochain_limit cha ≃ cochain_limit cha' → standard_limit cha ≃ standard_limit cha'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="nb">apply</span> (weqcomp (invweq (lim_equiv _))).
+  <span class="nb">apply</span> (weqcomp f).
+  <span class="nb">apply</span> (lim_equiv _).
+<span class="kn">Defined</span>.
+
+<span class="c">(* There is a simpler way to give cones over the terminal cochain. *)</span>
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Section</span> <span class="nf">CochainCone</span>.
+
+  <span class="kn">Context</span> (<span class="nv">A</span> <span class="nv">C</span> : UU) (<span class="nv">B</span> : A -&gt; UU).
+
+  <span class="kn">Definition</span> <span class="nf">terminal_cochain</span>  : cochain type_precat :=
+    termCochain (TerminalType) (polynomial_functor A B).
+
+  <span class="kn">Definition</span> <span class="nf">m_type</span>  := standard_limit terminal_cochain.
+
+  <span class="kn">Definition</span> <span class="nf">apply_on_chain</span> (<span class="nv">cha</span> : cochain type_precat) : cochain type_precat :=
+    mapcochain (polynomial_functor A B) cha.
+
+  <span class="c">(* Shifting the terminal cochain is equivalent to applying</span>
+<span class="c">    the polynomial functor once *)</span>
+  <span class="kn">Definition</span> <span class="nf">terminal_cochain_shifted_lim</span> :
+    standard_limit (shift_cochain terminal_cochain) ≃
+                  standard_limit (apply_on_chain terminal_cochain).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> cochain_limit_standard_limit_weq.
+    <span class="nb">unfold</span> shift_cochain, apply_on_chain, cochain_limit.
+    <span class="nb">apply</span> weqfibtototal;<span class="nb">intros</span>.
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> n.
+    <span class="nb">apply</span> idweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">W</span> <span class="nv">n</span> := iter_functor (polynomial_functor A B) n unit.
+  <span class="kn">Let</span> <span class="nf">Cone0'</span> := <span class="k">λ</span> <span class="nv">n</span> : nat, C → W n.
+  <span class="kn">Let</span> <span class="nf">Cone0</span> := ∏ n : nat, Cone0' n.
+  <span class="kn">Let</span> <span class="nf">π</span> := <span class="k">λ</span> <span class="nv">n</span> : nat, dmor terminal_cochain (idpath (S n)).
+
+  <span class="kn">Definition</span> <span class="nf">simplified_cone</span> : UU :=
+    (∑ (u : Cone0), ∏ n : nat, (π n ∘ u (S n))%functions = u n).
+
+  <span class="kn">Lemma</span> <span class="nf">simplify_cochain_cone</span> :
+    cone terminal_cochain C ≃ simplified_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cone, Cone0.
+    <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> f.
+    intermediate_weq (
+      (∏ (u v : vertex conat_graph) (e0 : edge u v),
+      f _ · dmor terminal_cochain e0 ~ f v)
+      ). {
+      <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span>).
+      <span class="nb">apply</span> invweq.
+      <span class="nb">apply</span> weqfunextsec.
+    }
+    <span class="nb">apply</span> invweq.
+    intermediate_weq (∏ u, (π u ∘ f (S u))%functions ~ f u). {
+      <span class="nb">apply</span> invweq.
+      <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span>.
+      <span class="nb">apply</span> weqfunextsec.
+    }
+    <span class="nb">unfold</span> homotsec.
+    <span class="nb">apply</span> invweq.
+    intermediate_weq (
+      (∏ (u v : vertex conat_graph) (c : C) (e0 : edge u v),
+       (f u · dmor terminal_cochain e0) c = f v c)). {
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span>).
+      <span class="nb">apply</span> flipsec_weq.
+    }
+    intermediate_weq (
+      (∏ (c : C) (u v : vertex conat_graph) (e0 : edge u v),
+       (f u · dmor terminal_cochain e0) c = f v c)). {
+      intermediate_weq (
+        (∏ (u : vertex conat_graph) (c : C) (v : vertex conat_graph) (e0 : edge u v),
+        (f u · dmor terminal_cochain e0) c = f v c)). {
+        <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span>.
+        <span class="nb">apply</span> flipsec_weq.
+      }
+      <span class="nb">apply</span> flipsec_weq.
+    }
+    <span class="nb">apply</span> invweq.
+    intermediate_weq ((∏ (x : C) (u : nat), (π u ∘ f (S u))%functions x = f u x));
+      [<span class="nb">apply</span> flipsec_weq|].
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> c.
+    <span class="nb">apply</span> invweq.
+    use weq_iso.
+    - <span class="nb">intros</span> eq; <span class="nb">intro</span>; <span class="nb">apply</span> eq.
+    - <span class="nb">intros</span> eq.
+      <span class="nb">intros</span> ? ? e.
+      <span class="nb">induction</span> e; <span class="nb">apply</span> eq.
+    - <span class="kp">abstract</span> ( <span class="nb">intro</span>;
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>);
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> e;
+      <span class="nb">induction</span> e;
+      <span class="bp">reflexivity</span> ).
+    - <span class="kp">abstract</span> ( <span class="nb">intro</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span>; <span class="bp">reflexivity</span> ).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">CochainCone</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Induction/M/Chains.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Limits of chains and cochains in the precategory of types *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.NaturalNumbers.
+  &gt; Require Import UniMath.MoreFoundations.Notations.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

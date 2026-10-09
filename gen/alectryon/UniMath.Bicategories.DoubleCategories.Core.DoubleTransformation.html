@@ -1,0 +1,966 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DoubleTransformation.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Double Transformations</span>
+
+<span class="sd"> We define double transformations between lax double functors. In addition, we give</span>
+<span class="sd"> some examples of these, namely the examples that are needed to construct the</span>
+<span class="sd"> bicategory of double categories.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Preservation of the identity</span>
+<span class="sd"> 2. Preservation of composition</span>
+<span class="sd"> 3. Examples of double transformations</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Preservation of the identity *)</span>
+<span class="kn">Definition</span> <span class="nf">double_nat_trans_hor_id</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           {<span class="nv">GG</span> : twosided_disp_functor G G D₁ D₂}
+           {<span class="nv">τ</span> : F ⟹ G}
+           (<span class="nv">ττ</span> : twosided_disp_nat_trans τ τ FF GG)
+           {<span class="nv">I₁</span> : hor_id D₁}
+           {<span class="nv">I₂</span> : hor_id D₂}
+           (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+           (<span class="nv">GI</span> : double_functor_hor_id GG I₁ I₂)
+  : UU
+  := ∏ (x : C₁),
+     functor_double_id_cell FI x ;;<span class="mi">2</span> ττ x x (double_id I₁ x)
+     =
+     transportb_disp_mor2
+       (id_left _ @ !(id_right _))
+       (id_left _ @ !(id_right _))
+       (double_id_mor I₂ (τ x) ;;<span class="mi">2</span> functor_double_id_cell GI x).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_double_nat_trans_hor_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₁ D₂}
+            {<span class="nv">τ</span> : F ⟹ G}
+            (<span class="nv">ττ</span> : twosided_disp_nat_trans τ τ FF GG)
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+            (<span class="nv">GI</span> : double_functor_hor_id GG I₁ I₂)
+  : isaprop (double_nat_trans_hor_id ττ FI GI).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaset_disp_mor.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Preservation of composition *)</span>
+<span class="kn">Definition</span> <span class="nf">double_nat_trans_hor_comp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           {<span class="nv">GG</span> : twosided_disp_functor G G D₁ D₂}
+           {<span class="nv">τ</span> : F ⟹ G}
+           (<span class="nv">ττ</span> : twosided_disp_nat_trans τ τ FF GG)
+           {<span class="nv">Cm₁</span> : hor_comp D₁}
+           {<span class="nv">Cm₂</span> : hor_comp D₂}
+           (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+           (<span class="nv">GC</span> : double_functor_hor_comp GG Cm₁ Cm₂)
+  : UU
+  := ∏ (x y z : C₁)
+       (h : D₁ x y)
+       (k : D₁ y z),
+     functor_double_comp_cell FC h k
+     ;;<span class="mi">2</span>
+     ττ _ _ (double_hor_comp Cm₁ h k)
+     =
+     transportb_disp_mor2
+       (id_left _ @ !(id_right _))
+       (id_left _ @ !(id_right _))
+       (double_hor_comp_mor Cm₂ (ττ _ _ h) (ττ _ _ k)
+        ;;<span class="mi">2</span>
+        functor_double_comp_cell GC h k).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_double_nat_trans_hor_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₁ D₂}
+            {<span class="nv">τ</span> : F ⟹ G}
+            (<span class="nv">ττ</span> : twosided_disp_nat_trans τ τ FF GG)
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+            (<span class="nv">GC</span> : double_functor_hor_comp GG Cm₁ Cm₂)
+  : isaprop (double_nat_trans_hor_comp ττ FC GC).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaset_disp_mor.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Examples of double transformations *)</span>
+<span class="kn">Proposition</span> <span class="nf">id_twosided_disp_nat_trans_hor_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+  : double_nat_trans_hor_id (id_twosided_disp_nat_trans FF) FI FI.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> double_id_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_twosided_disp_nat_trans_hor_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : C₁ ⟶ C₂}
+            {<span class="nv">τ</span> : F ⟹ F'}
+            {<span class="nv">τ'</span> : F' ⟹ F''}
+            {<span class="nv">D</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D'</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D D'}
+            {<span class="nv">FF'</span> : twosided_disp_functor F' F' D D'}
+            {<span class="nv">FF''</span> : twosided_disp_functor F'' F'' D D'}
+            {<span class="nv">ττ</span> : twosided_disp_nat_trans τ τ FF FF'}
+            {<span class="nv">ττ'</span> : twosided_disp_nat_trans τ' τ' FF' FF''}
+            {<span class="nv">I</span> : hor_id D}
+            {<span class="nv">I'</span> : hor_id D'}
+            {<span class="nv">FFI</span> : double_functor_hor_id FF I I'}
+            {<span class="nv">FFI'</span> : double_functor_hor_id FF' I I'}
+            {<span class="nv">FFI''</span> : double_functor_hor_id FF'' I I'}
+            (<span class="nv">ττI</span> : double_nat_trans_hor_id ττ FFI FFI')
+            (<span class="nv">ττI'</span> : double_nat_trans_hor_id ττ' FFI' FFI'')
+  : double_nat_trans_hor_id
+      (comp_twosided_disp_nat_trans ττ ττ')
+      FFI
+      FFI''.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">rewrite</span> assoc_two_disp.
+    <span class="nb">rewrite</span> (ττI x).
+    <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+    <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+    <span class="nb">rewrite</span> assoc_two_disp_alt.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> (ττI' x).
+    <span class="nb">rewrite</span> two_disp_post_whisker_b.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> assoc_two_disp.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  <span class="nb">rewrite</span> double_id_mor_id_comp.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">pre_whisker_twosided_disp_nat_trans_hor_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">G</span> <span class="nv">G'</span> : C₂ ⟶ C₃}
+            {<span class="nv">τ</span> : G ⟹ G'}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+            {<span class="nv">GG'</span> : twosided_disp_functor G' G' D₂ D₃}
+            {<span class="nv">ττ</span> : twosided_disp_nat_trans τ τ GG GG'}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            {<span class="nv">I₃</span> : hor_id D₃}
+            (<span class="nv">FFI</span> : double_functor_hor_id FF I₁ I₂)
+            {<span class="nv">GGI</span> : double_functor_hor_id GG I₂ I₃}
+            {<span class="nv">GGI'</span> : double_functor_hor_id GG' I₂ I₃}
+            (<span class="nv">ττI</span> : double_nat_trans_hor_id ττ GGI GGI')
+  : double_nat_trans_hor_id
+      (pre_whisker_twosided_disp_nat_trans FF ττ)
+      (comp_hor_id FFI GGI)
+      (comp_hor_id FFI GGI').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> assoc_two_disp_alt.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> (pr2 ττ).
+    <span class="nb">rewrite</span> two_disp_post_whisker_b.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> assoc_two_disp.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (ττI (F x)).
+    }
+    <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> assoc_two_disp_alt.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">rewrite</span> two_disp_post_whisker_f.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">apply</span> idpath.
+  }
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">post_whisker_twosided_disp_nat_trans_hor_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">F</span> <span class="nv">F'</span> : C₁ ⟶ C₂}
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            {<span class="nv">τ</span> : F ⟹ F'}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">FF'</span> : twosided_disp_functor F' F' D₁ D₂}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+            {<span class="nv">ττ</span> : twosided_disp_nat_trans τ τ FF FF'}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            {<span class="nv">I₃</span> : hor_id D₃}
+            {<span class="nv">FFI</span> : double_functor_hor_id FF I₁ I₂}
+            {<span class="nv">FFI'</span> : double_functor_hor_id FF' I₁ I₂}
+            (<span class="nv">GGI</span> : double_functor_hor_id GG I₂ I₃)
+            (<span class="nv">ττI</span> : double_nat_trans_hor_id ττ FFI FFI')
+  : double_nat_trans_hor_id
+      (post_whisker_twosided_disp_nat_trans GG ττ)
+      (comp_hor_id FFI GGI)
+      (comp_hor_id FFI' GGI).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> assoc_two_disp_alt.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> twosided_disp_functor_comp_alt.
+    <span class="nb">rewrite</span> two_disp_post_whisker_f.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> (ττI x).
+    <span class="nb">rewrite</span> transportb_twosided_disp_functor.
+    <span class="nb">rewrite</span> two_disp_post_whisker_b.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> twosided_disp_functor_comp.
+    <span class="nb">rewrite</span> two_disp_post_whisker_b.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> assoc_two_disp.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> two_disp_post_whisker_f.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> assoc_two_disp.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (functor_double_id_eq GGI (τ x)).
+    }
+    <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">apply</span> idpath.
+  }
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lunitor_twosided_disp_nat_trans_hor_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+  : double_nat_trans_hor_id
+      (id_twosided_disp_nat_trans _)
+      (comp_hor_id (identity_hor_id _) FI)
+      FI.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> double_id_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> twosided_disp_functor_id.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">runitor_twosided_disp_nat_trans_hor_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+  : double_nat_trans_hor_id
+      (id_twosided_disp_nat_trans _)
+      (comp_hor_id FI (identity_hor_id _))
+      FI.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> double_id_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">linvunitor_twosided_disp_nat_trans_hor_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+  : double_nat_trans_hor_id
+      (id_twosided_disp_nat_trans _)
+      FI
+      (comp_hor_id (identity_hor_id _) FI).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> double_id_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> twosided_disp_functor_id.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rinvunitor_twosided_disp_nat_trans_hor_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+  : double_nat_trans_hor_id
+      (id_twosided_disp_nat_trans _)
+      FI
+      (comp_hor_id FI (identity_hor_id _)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> double_id_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rassociator_twosided_disp_nat_trans_hor_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            {<span class="nv">H</span> : C₃ ⟶ C₄}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+            {<span class="nv">D₄</span> : twosided_disp_cat C₄ C₄}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+            {<span class="nv">HH</span> : twosided_disp_functor H H D₃ D₄}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            {<span class="nv">I₃</span> : hor_id D₃}
+            {<span class="nv">I₄</span> : hor_id D₄}
+            (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+            (<span class="nv">GI</span> : double_functor_hor_id GG I₂ I₃)
+            (<span class="nv">HI</span> : double_functor_hor_id HH I₃ I₄)
+  : double_nat_trans_hor_id
+      (id_twosided_disp_nat_trans
+         (comp_twosided_disp_functor
+            _
+            (comp_twosided_disp_functor _ _)))
+      (comp_hor_id (comp_hor_id FI GI) HI)
+      (comp_hor_id FI (comp_hor_id GI HI)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> transportf_twosided_disp_functor.
+  <span class="nb">rewrite</span> !two_disp_post_whisker_f.
+  <span class="nb">rewrite</span> !two_disp_pre_whisker_f.
+  <span class="nb">rewrite</span> !two_disp_post_whisker_f.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> !transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> double_id_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> twosided_disp_functor_comp.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> !two_disp_post_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lassociator_twosided_disp_nat_trans_hor_id</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            {<span class="nv">H</span> : C₃ ⟶ C₄}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+            {<span class="nv">D₄</span> : twosided_disp_cat C₄ C₄}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+            {<span class="nv">HH</span> : twosided_disp_functor H H D₃ D₄}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            {<span class="nv">I₃</span> : hor_id D₃}
+            {<span class="nv">I₄</span> : hor_id D₄}
+            (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+            (<span class="nv">GI</span> : double_functor_hor_id GG I₂ I₃)
+            (<span class="nv">HI</span> : double_functor_hor_id HH I₃ I₄)
+  : double_nat_trans_hor_id
+      (id_twosided_disp_nat_trans
+         (comp_twosided_disp_functor
+            _
+            (comp_twosided_disp_functor _ _)))
+      (comp_hor_id FI (comp_hor_id GI HI))
+      (comp_hor_id (comp_hor_id FI GI) HI).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> transportf_twosided_disp_functor.
+  <span class="nb">rewrite</span> !two_disp_post_whisker_f.
+  <span class="nb">rewrite</span> !two_disp_pre_whisker_f.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> !transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> double_id_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> twosided_disp_functor_comp.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> !two_disp_post_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_twosided_disp_nat_trans_hor_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+  : double_nat_trans_hor_comp (id_twosided_disp_nat_trans FF) FC FC.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> double_hor_comp_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_twosided_disp_nat_trans_hor_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : C₁ ⟶ C₂}
+            {<span class="nv">τ</span> : F ⟹ F'}
+            {<span class="nv">τ'</span> : F' ⟹ F''}
+            {<span class="nv">D</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D'</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D D'}
+            {<span class="nv">FF'</span> : twosided_disp_functor F' F' D D'}
+            {<span class="nv">FF''</span> : twosided_disp_functor F'' F'' D D'}
+            {<span class="nv">ττ</span> : twosided_disp_nat_trans τ τ FF FF'}
+            {<span class="nv">ττ'</span> : twosided_disp_nat_trans τ' τ' FF' FF''}
+            {<span class="nv">Cm</span> : hor_comp D}
+            {<span class="nv">Cm'</span> : hor_comp D'}
+            {<span class="nv">FFC</span> : double_functor_hor_comp FF Cm Cm'}
+            {<span class="nv">FFC'</span> : double_functor_hor_comp FF' Cm Cm'}
+            {<span class="nv">FFC''</span> : double_functor_hor_comp FF'' Cm Cm'}
+            (<span class="nv">ττC</span> : double_nat_trans_hor_comp ττ FFC FFC')
+            (<span class="nv">ττC'</span> : double_nat_trans_hor_comp ττ' FFC' FFC'')
+  : double_nat_trans_hor_comp
+      (comp_twosided_disp_nat_trans ττ ττ')
+      FFC
+      FFC''.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> assoc_two_disp.
+  <span class="nb">rewrite</span> (ττC x).
+  <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp_alt.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> (ττC' x).
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> double_hor_comp_mor_comp.
+  <span class="nb">rewrite</span> assoc_two_disp_alt.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">pre_whisker_twosided_disp_nat_trans_hor_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">G</span> <span class="nv">G'</span> : C₂ ⟶ C₃}
+            {<span class="nv">τ</span> : G ⟹ G'}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+            {<span class="nv">GG'</span> : twosided_disp_functor G' G' D₂ D₃}
+            {<span class="nv">ττ</span> : twosided_disp_nat_trans τ τ GG GG'}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            {<span class="nv">Cm₃</span> : hor_comp D₃}
+            (<span class="nv">FFC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+            {<span class="nv">GGC</span> : double_functor_hor_comp GG Cm₂ Cm₃}
+            {<span class="nv">GGC'</span> : double_functor_hor_comp GG' Cm₂ Cm₃}
+            (<span class="nv">ττC</span> : double_nat_trans_hor_comp ττ GGC GGC')
+  : double_nat_trans_hor_comp
+      (pre_whisker_twosided_disp_nat_trans FF ττ)
+      (comp_hor_comp FFC GGC)
+      (comp_hor_comp FFC GGC').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp_alt.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> (pr2 ττ).
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> ττC.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp_alt.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">post_whisker_twosided_disp_nat_trans_hor_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">F</span> <span class="nv">F'</span> : C₁ ⟶ C₂}
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            {<span class="nv">τ</span> : F ⟹ F'}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">FF'</span> : twosided_disp_functor F' F' D₁ D₂}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+            {<span class="nv">ττ</span> : twosided_disp_nat_trans τ τ FF FF'}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            {<span class="nv">Cm₃</span> : hor_comp D₃}
+            {<span class="nv">FFC</span> : double_functor_hor_comp FF Cm₁ Cm₂}
+            {<span class="nv">FFC'</span> : double_functor_hor_comp FF' Cm₁ Cm₂}
+            (<span class="nv">GGC</span> : double_functor_hor_comp GG Cm₂ Cm₃)
+            (<span class="nv">ττC</span> : double_nat_trans_hor_comp ττ FFC FFC')
+  : double_nat_trans_hor_comp
+      (post_whisker_twosided_disp_nat_trans GG ττ)
+      (comp_hor_comp FFC GGC)
+      (comp_hor_comp FFC' GGC).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+  <span class="nb">rewrite</span> assoc_two_disp_alt.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> twosided_disp_functor_comp_alt.
+  <span class="nb">rewrite</span> two_disp_post_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> (ττC x y z h k).
+  <span class="nb">rewrite</span> transportb_twosided_disp_functor.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> twosided_disp_functor_comp.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> two_disp_post_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> (functor_double_comp_eq GGC _ _).
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lunitor_twosided_disp_nat_trans_hor_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">FI</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+  : double_nat_trans_hor_comp
+      (id_twosided_disp_nat_trans _)
+      (comp_hor_comp (identity_hor_comp _) FI)
+      FI.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> double_hor_comp_mor_id.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> twosided_disp_functor_id.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">runitor_twosided_disp_nat_trans_hor_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+  : double_nat_trans_hor_comp
+      (id_twosided_disp_nat_trans _)
+      (comp_hor_comp FC (identity_hor_comp _))
+      FC.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> double_hor_comp_mor_id.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">linvunitor_twosided_disp_nat_trans_hor_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+  : double_nat_trans_hor_comp
+      (id_twosided_disp_nat_trans _)
+      FC
+      (comp_hor_comp (identity_hor_comp _) FC).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> double_hor_comp_mor_id.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> twosided_disp_functor_id.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rinvunitor_twosided_disp_nat_trans_hor_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+  : double_nat_trans_hor_comp
+      (id_twosided_disp_nat_trans _)
+      FC
+      (comp_hor_comp FC (identity_hor_comp _)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> double_hor_comp_mor_id.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rassociator_twosided_disp_nat_trans_hor_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            {<span class="nv">H</span> : C₃ ⟶ C₄}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+            {<span class="nv">D₄</span> : twosided_disp_cat C₄ C₄}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+            {<span class="nv">HH</span> : twosided_disp_functor H H D₃ D₄}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            {<span class="nv">Cm₃</span> : hor_comp D₃}
+            {<span class="nv">Cm₄</span> : hor_comp D₄}
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+            (<span class="nv">GC</span> : double_functor_hor_comp GG Cm₂ Cm₃)
+            (<span class="nv">HC</span> : double_functor_hor_comp HH Cm₃ Cm₄)
+  : double_nat_trans_hor_comp
+      (id_twosided_disp_nat_trans
+         (comp_twosided_disp_functor
+            _
+            (comp_twosided_disp_functor _ _)))
+      (comp_hor_comp (comp_hor_comp FC GC) HC)
+      (comp_hor_comp FC (comp_hor_comp GC HC)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> transportb_twosided_disp_functor.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> !transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> double_hor_comp_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> twosided_disp_functor_comp.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lassociator_twosided_disp_nat_trans_hor_comp</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">C₄</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            {<span class="nv">H</span> : C₃ ⟶ C₄}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+            {<span class="nv">D₄</span> : twosided_disp_cat C₄ C₄}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+            {<span class="nv">HH</span> : twosided_disp_functor H H D₃ D₄}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            {<span class="nv">Cm₃</span> : hor_comp D₃}
+            {<span class="nv">Cm₄</span> : hor_comp D₄}
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+            (<span class="nv">GC</span> : double_functor_hor_comp GG Cm₂ Cm₃)
+            (<span class="nv">HC</span> : double_functor_hor_comp HH Cm₃ Cm₄)
+  : double_nat_trans_hor_comp
+      (id_twosided_disp_nat_trans
+         (comp_twosided_disp_functor
+            _
+            (comp_twosided_disp_functor _ _)))
+      (comp_hor_comp FC (comp_hor_comp GC HC))
+      (comp_hor_comp (comp_hor_comp FC GC) HC).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> transportb_twosided_disp_functor.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> !transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> double_hor_comp_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> twosided_disp_functor_comp.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Core/DoubleTransformation.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Examples of double transformations
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

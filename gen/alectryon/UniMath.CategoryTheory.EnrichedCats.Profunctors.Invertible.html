@@ -1,0 +1,339 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Invertible.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Invertible transformations of profunctors</span>
+
+<span class="sd"> In this file, we define invertible transformations of profunctors. These are transformations</span>
+<span class="sd"> that are pointwise an isomorphism. We also show that their inverse is again a transformation</span>
+<span class="sd"> of profunctors and we prove the inverse laws. Finally, we characterize the identity type of</span>
+<span class="sd"> enriched profunctors via invertible enriched transformations. This proof follows the proof</span>
+<span class="sd"> of univalence for functor categories.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Invertible profunctor transformations</span>
+<span class="sd"> 2. The inverse transformation</span>
+<span class="sd"> 3. The identity type of enriched profunctors</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.Tensor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Profunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.StandardProfunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.ProfunctorTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.ProfunctorSquares.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Opaque</span> sym_mon_braiding.
+
+<span class="kn">Section</span> <span class="nf">InvertibleTransformation</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_mon_closed_cat}
+          {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">E₁</span> : enrichment C₁ V}
+          {<span class="nv">E₂</span> : enrichment C₂ V}
+          {<span class="nv">P</span> <span class="nv">Q</span> : E₁ ↛e E₂}
+          (<span class="nv">τ</span> : enriched_profunctor_transformation P Q).
+
+  <span class="sd">(** * 1. Invertible profunctor transformations *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_iso_enriched_profunctor_transformation</span>
+    : UU
+    := ∏ (y : C₂) (x : C₁), is_z_isomorphism (τ y x).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_iso_enriched_profunctor_transformation</span>
+    : isaprop is_iso_enriched_profunctor_transformation.
+  <span class="kn">Proof</span>.
+    use impred ; <span class="nb">intro</span> y.
+    use impred ; <span class="nb">intro</span> x.
+    <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pointwise_iso_enriched_profunctor_transformation</span>
+             (<span class="nv">Hτ</span> : is_iso_enriched_profunctor_transformation)
+             (<span class="nv">y</span> : C₂)
+             (<span class="nv">x</span> : C₁)
+    : z_iso (P y x) (Q y x)
+    := _ ,, Hτ y x.
+
+  <span class="sd">(** * 2. The inverse transformation *)</span>
+  <span class="kn">Definition</span> <span class="nf">pointwise_inv_enriched_profunctor_transformation</span>
+             (<span class="nv">Hτ</span> : is_iso_enriched_profunctor_transformation)
+             (<span class="nv">y</span> : C₂)
+             (<span class="nv">x</span> : C₁)
+    : Q y x --&gt; P y x
+    := inv_from_z_iso (pointwise_iso_enriched_profunctor_transformation Hτ y x).
+
+  <span class="kn">Section</span> <span class="nf">Inverse</span>.
+    <span class="kn">Context</span> (<span class="nv">Hτ</span> : is_iso_enriched_profunctor_transformation).
+
+    <span class="kn">Proposition</span> <span class="nf">inv_enriched_profunctor_transformation_laws</span>
+      : enriched_profunctor_transformation_laws
+          (pointwise_inv_enriched_profunctor_transformation Hτ).
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intros</span> y₁ y₂ x ; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> pointwise_inv_enriched_profunctor_transformation.
+        use z_iso_inv_on_left ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- enriched_profunctor_transformation_lmap_e.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intros</span> y x₁ x₂ ; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> pointwise_inv_enriched_profunctor_transformation.
+        use z_iso_inv_on_left ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- enriched_profunctor_transformation_rmap_e.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+        <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+        <span class="nb">rewrite</span> tensor_id_id.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">inv_enriched_profunctor_transformation</span>
+      : enriched_profunctor_transformation Q P.
+    <span class="kn">Proof</span>.
+      use make_enriched_profunctor_transformation.
+      - <span class="bp">exact</span> (pointwise_inv_enriched_profunctor_transformation Hτ).
+      - <span class="bp">exact</span> inv_enriched_profunctor_transformation_laws.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Inverse</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">inv_enriched_profunctor_transformation_left</span>
+              (<span class="nv">Hτ</span> : is_iso_enriched_profunctor_transformation)
+    : enriched_profunctor_comp_transformation
+        (inv_enriched_profunctor_transformation Hτ)
+        τ
+      =
+      enriched_profunctor_id_transformation _.
+  <span class="kn">Proof</span>.
+    use eq_enriched_profunctor_transformation.
+    <span class="nb">intros</span> y x ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> pointwise_inv_enriched_profunctor_transformation.
+    <span class="nb">apply</span> z_iso_after_z_iso_inv.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">inv_enriched_profunctor_transformation_right</span>
+              (<span class="nv">Hτ</span> : is_iso_enriched_profunctor_transformation)
+    : enriched_profunctor_comp_transformation
+        τ
+        (inv_enriched_profunctor_transformation Hτ)
+      =
+      enriched_profunctor_id_transformation _.
+  <span class="kn">Proof</span>.
+    use eq_enriched_profunctor_transformation.
+    <span class="nb">intros</span> y x ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> pointwise_inv_enriched_profunctor_transformation.
+    <span class="bp">exact</span> (z_iso_inv_after_z_iso
+             (pointwise_iso_enriched_profunctor_transformation Hτ y x)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">InvertibleTransformation</span>.
+
+<span class="kn">Arguments</span> pointwise_inv_enriched_profunctor_transformation {V C₁ C₂ E₁ E₂ P Q τ} Hτ y x /.
+
+<span class="sd">(** * 3. The identity type of enriched profunctors *)</span>
+<span class="kn">Definition</span> <span class="nf">enriched_profunctor_data_eq_weq_help</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           (<span class="nv">P</span> <span class="nv">Q</span> : E₁ ↛e E₂)
+  : pr1 P ╝ pr1 Q
+    ≃
+    ∑ (p : ∏ (y : C₂) (x : C₁), P y x = Q y x),
+    (∏ (y₁ y₂ : C₂) (x : C₁),
+     identity _ #⊗ idtoiso (p y₁ x) · lmap_e Q y₁ y₂ x
+     =
+     lmap_e P y₁ y₂ x · idtoiso (p y₂ x))
+    ×
+    (∏ (y : C₂) (x₁ x₂ : C₁),
+     identity _ #⊗ idtoiso (p y x₁) · rmap_e Q y x₁ x₂
+     =
+     rmap_e P y x₁ x₂ · idtoiso (p y x₂)).
+<span class="kn">Proof</span>.
+  use weqbandf.
+  - <span class="nb">refine</span> (_ ∘ weqtoforallpaths _ _ _)%weq.
+    use weqonsecfibers ; <span class="nb">intro</span> y.
+    <span class="nb">apply</span> weqtoforallpaths.
+  - <span class="nb">intro</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">induction</span> P <span class="k">as</span> [ P HP ].
+    <span class="nb">induction</span> P <span class="k">as</span> [ Po Pm ].
+    <span class="nb">induction</span> Q <span class="k">as</span> [ Q HQ ].
+    <span class="nb">induction</span> Q <span class="k">as</span> [ Qo Qm ].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ ∘ pathsdirprodweq)%weq.
+    use weqdirprodf.
+    + <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (_ ∘ weqtoforallpaths _ _ _)%weq ;
+         use weqonsecfibers ; <span class="nb">intro</span> y₁ ;
+         <span class="nb">refine</span> (_ ∘ weqtoforallpaths _ _ _)%weq ;
+         use weqonsecfibers ; <span class="nb">intro</span> y₂ ;
+         <span class="nb">refine</span> (_ ∘ weqtoforallpaths _ _ _)%weq ;
+         use weqonsecfibers ; <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> tensor_id_id ;
+         <span class="nb">rewrite</span> id_left ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (weqpathsinv0 _ _)).
+    + <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (_ ∘ weqtoforallpaths _ _ _)%weq ;
+         use weqonsecfibers ; <span class="nb">intro</span> y₁ ;
+         <span class="nb">refine</span> (_ ∘ weqtoforallpaths _ _ _)%weq ;
+         use weqonsecfibers ; <span class="nb">intro</span> y₂ ;
+         <span class="nb">refine</span> (_ ∘ weqtoforallpaths _ _ _)%weq ;
+         use weqonsecfibers ; <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> tensor_id_id ;
+         <span class="nb">rewrite</span> id_left ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (weqpathsinv0 _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_profunctor_data_eq_weq</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           (<span class="nv">HV</span> : is_univalent V)
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           (<span class="nv">P</span> <span class="nv">Q</span> : E₁ ↛e E₂)
+  : pr1 P ╝ pr1 Q
+    ≃
+    ∑ (f : ∏ (y : C₂) (x : C₁), z_iso (P y x) (Q y x)),
+    (∏ (y₁ y₂ : C₂) (x : C₁),
+     identity _ #⊗ f y₁ x · lmap_e Q y₁ y₂ x
+     =
+     lmap_e P y₁ y₂ x · f y₂ x)
+    ×
+    (∏ (y : C₂) (x₁ x₂ : C₁),
+     identity _ #⊗ f y x₁ · rmap_e Q y x₁ x₂
+     =
+     rmap_e P y x₁ x₂ · f y x₂).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ ∘ enriched_profunctor_data_eq_weq_help P Q)%weq.
+  use weqbandf.
+  - use weqonsecfibers ; <span class="nb">intro</span> y.
+    use weqonsecfibers ; <span class="nb">intro</span> x.
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (make_weq _ (HV _ _)).
+  - <span class="nb">intros</span> τ.
+    <span class="nb">apply</span> idweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_profunctor_univalent_cat_help</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           (<span class="nv">P</span> <span class="nv">Q</span> : E₁ ↛e E₂)
+  : (∑ (f : ∏ (y : C₂) (x : C₁), z_iso (P y x) (Q y x)),
+    (∏ (y₁ y₂ : C₂) (x : C₁),
+     identity _ #⊗ f y₁ x · lmap_e Q y₁ y₂ x
+     =
+     lmap_e P y₁ y₂ x · f y₂ x)
+    ×
+    (∏ (y : C₂) (x₁ x₂ : C₁),
+     identity _ #⊗ f y x₁ · rmap_e Q y x₁ x₂
+     =
+     rmap_e P y x₁ x₂ · f y x₂))
+    ≃
+    ∑ (τ : enriched_profunctor_transformation P Q),
+    is_iso_enriched_profunctor_transformation τ.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intros</span> τ.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + use make_enriched_profunctor_transformation.
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">x</span>, pr1 τ y x).
+      * <span class="bp">exact</span> (pr2 τ).
+    + <span class="nb">intros</span> y x.
+      <span class="nb">apply</span> z_iso_is_z_isomorphism.
+  - <span class="nb">intro</span> τ.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">x</span>, pr1 τ y x ,, _).
+      <span class="nb">apply</span> (pr2 τ).
+    + <span class="nb">intros</span>.
+      <span class="nb">apply</span> enriched_profunctor_transformation_lmap_e.
+    + <span class="nb">intros</span> y x₁ x₂.
+      <span class="nb">apply</span> enriched_profunctor_transformation_rmap_e.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_profunctor_univalent_cat</span>
+           {<span class="nv">V</span> : sym_mon_closed_cat}
+           (<span class="nv">HV</span> : is_univalent V)
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           (<span class="nv">P</span> <span class="nv">Q</span> : E₁ ↛e E₂)
+  : P = Q
+    ≃
+    ∑ (τ : enriched_profunctor_transformation P Q),
+    is_iso_enriched_profunctor_transformation τ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ ∘ path_sigma_hprop _ _ _ _)%weq.
+  {
+    <span class="nb">apply</span> isaprop_enriched_profunctor_laws.
+  }
+  <span class="nb">refine</span> (_ ∘ total2_paths_equiv _ _ _)%weq.
+  <span class="nb">refine</span> (_ ∘ enriched_profunctor_data_eq_weq HV P Q)%weq.
+  <span class="nb">apply</span> enriched_profunctor_univalent_cat_help.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Profunctors/Invertible.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The identity type of enriched profunctors
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

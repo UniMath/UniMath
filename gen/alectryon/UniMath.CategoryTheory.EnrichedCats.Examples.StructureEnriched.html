@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StructureEnriched.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Enrichment over structured sets</span>
+
+<span class="sd"> In this file, we look at categories enriched over a notion of</span>
+<span class="sd"> structured sets. The notion of structured sets in consideration</span>
+<span class="sd"> here is designed so that structures are preserved under product</span>
+<span class="sd"> and the unit set has a structure. As such, we have a cartesian</span>
+<span class="sd"> monoidal category of structured sets (`StructuresMonoidal.v`).</span>
+
+<span class="sd"> We first show that this monoidal category is faithful. From this,</span>
+<span class="sd"> it follows that all natural transformations are enriched, so</span>
+<span class="sd"> afterwards we don't consider enriched transformations.</span>
+
+<span class="sd"> Afterwards, we give an elementary definition of enrichment over</span>
+<span class="sd"> structures. This elementary notion says that for every homset,</span>
+<span class="sd"> we have a structure and that composition preserves the structure.</span>
+<span class="sd"> This notion of enrichment is equivalent to the usual one.</span>
+
+<span class="sd"> Lastly, we do the same for enriched functors, and for those,</span>
+<span class="sd"> enrichment is the same as the action on morphisms being a</span>
+<span class="sd"> structure-preserving map. Again this is equivalent to the</span>
+<span class="sd"> general definition of enrichment.</span>
+
+<span class="sd"> We can apply the content of this file to various notions of</span>
+<span class="sd"> structured sets, such as posets and domains. However, note that</span>
+<span class="sd"> not for every notion of structured set this gives the 'right'</span>
+<span class="sd"> notion of enriched category. For example, for abelian groups</span>
+<span class="sd"> (or modules), the corresponding notion of enriched category</span>
+<span class="sd"> should be over a different monoidal category than the one</span>
+<span class="sd"> induced by the cartesian structure of these categories. For these</span>
+<span class="sd"> notions of structure, one should construct the tensor product</span>
+<span class="sd"> instead and show that this gives rise to a monoidal category.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The monoidal category is faithful</span>
+<span class="sd"> 2. Elementary definition of enrichment over structures</span>
+<span class="sd"> 3. Equivalence of enrichments with the elementary definition</span>
+<span class="sd"> 4. Elementary definition of functor enrichments over structures</span>
+<span class="sd"> 5. Equivalence of functor enrichments with elementary definition</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.StructuresMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">FixAStructure</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : hset_cartesian_closed_struct).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. The monoidal category is faithful</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">category_of_hset_struct_faithful_moncat</span>
+    : faithful_moncat (monoidal_cat_of_hset_struct P).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> R₁ R₂ f g p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">cbn</span> -[isaprop].
+      <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+    }
+    use funextsec ; <span class="nb">intro</span> x.
+    <span class="nb">assert</span> (mor_hset_struct P (hset_struct_unit P) (pr2 R₁) (<span class="k">λ</span> <span class="nv">_</span>, x)) <span class="k">as</span> H.
+    {
+      <span class="nb">apply</span> hset_struct_const.
+    }
+    <span class="bp">exact</span> (eqtohomot (maponpaths pr1 (p ((<span class="k">λ</span> <span class="nv">_</span>, x) ,, H))) tt).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Elementary definition of enrichment over structures</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">struct_enrichment_data</span>
+             (<span class="nv">C</span> : category)
+    : UU
+    := ∏ (x y : C), P (homset x y).
+
+  <span class="kn">Definition</span> <span class="nf">struct_enrichment_laws</span>
+             {<span class="nv">C</span> : category}
+             (<span class="nv">SC</span> : struct_enrichment_data C)
+    : UU
+    := ∏ (x y z : C),
+       mor_hset_struct
+         P
+         (hset_struct_prod P (SC y z) (SC x y))
+         (SC x z)
+         (<span class="k">λ</span> (<span class="nv">fg</span> : C ⟦ y, z ⟧ × C ⟦ x, y ⟧), pr2 fg · pr1 fg).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_struct_enrichment_laws</span>
+              {<span class="nv">C</span> : category}
+              (<span class="nv">SC</span> : struct_enrichment_data C)
+    : isaprop (struct_enrichment_laws SC).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_hset_struct_on_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">struct_enrichment</span>
+             (<span class="nv">C</span> : category)
+    : UU
+    := ∑ (SC : struct_enrichment_data C),
+       struct_enrichment_laws SC.
+
+  <span class="kn">Definition</span> <span class="nf">struct_enrichment_to_data</span>
+             {<span class="nv">C</span> : category}
+             (<span class="nv">SC</span> : struct_enrichment C)
+             (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : P (homset x y)
+    := pr1 SC x y.
+
+  <span class="kn">Coercion</span> <span class="nf">struct_enrichment_to_data</span> : struct_enrichment &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">struct_enrichment_comp</span>
+              {<span class="nv">C</span> : category}
+              (<span class="nv">SC</span> : struct_enrichment C)
+              (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C)
+    : mor_hset_struct
+        P
+        (hset_struct_prod P (SC y z) (SC x y))
+        (SC x z)
+        (<span class="k">λ</span> (<span class="nv">fg</span> : C ⟦ y, z ⟧ × C ⟦ x, y ⟧), pr2 fg · pr1 fg).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 SC x y z).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Equivalence of enrichments with the elementary definition</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">MakeStructEnrichment</span>.
+    <span class="kn">Context</span> (<span class="nv">C</span> : category)
+            (<span class="nv">SC</span> : struct_enrichment C).
+
+    <span class="kn">Definition</span> <span class="nf">make_enrichment_over_struct_data</span>
+      : enrichment_data C (monoidal_cat_of_hset_struct P).
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, _ ,, SC x y).
+      - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, (<span class="k">λ</span> <span class="nv">_</span>, identity _) ,, _).
+        <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">apply</span> hset_struct_const).
+      - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>, _ ,, _) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">fg</span>, pr2 fg · pr1 fg).
+        + <span class="nb">apply</span> struct_enrichment_comp.
+      - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, (<span class="k">λ</span> <span class="nv">_</span>, f) ,, _).
+        <span class="nb">apply</span> hset_struct_const.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, pr1 f tt).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">make_enrichment_over_struct_laws</span>
+      : enrichment_laws make_enrichment_over_struct_data.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      - <span class="nb">intros</span> x y.
+        use eq_mor_hset_struct.
+        <span class="nb">intro</span> a ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intros</span> x y.
+        use eq_mor_hset_struct.
+        <span class="nb">intro</span> a ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intros</span> w x y z.
+        use eq_mor_hset_struct.
+        <span class="nb">intro</span> a ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intros</span> x y f.
+        use eq_mor_hset_struct.
+        <span class="nb">intro</span> a ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> isapropunit.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_enrichment_over_struct</span>
+      : enrichment C (monoidal_cat_of_hset_struct P)
+      := make_enrichment_over_struct_data ,, make_enrichment_over_struct_laws.
+  <span class="kn">End</span> <span class="nf">MakeStructEnrichment</span>.
+
+  <span class="kn">Section</span> <span class="nf">FromStructEnrichment</span>.
+    <span class="kn">Context</span> (<span class="nv">C</span> : category)
+            (<span class="nv">E</span> : enrichment C (monoidal_cat_of_hset_struct P)).
+
+    <span class="kn">Definition</span> <span class="nf">mor_to_enriched_hom</span>
+               {<span class="nv">x</span> <span class="nv">y</span> : C}
+               (<span class="nv">f</span> : x --&gt; y)
+      : pr11 (E ⦃ x , y ⦄)
+      := pr1 (enriched_from_arr E f) tt.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_hom_to_mor</span>
+               {<span class="nv">x</span> <span class="nv">y</span> : C}
+               (<span class="nv">f</span> : pr11 (E ⦃ x , y ⦄))
+      : x --&gt; y.
+    <span class="kn">Proof</span>.
+      <span class="nb">assert</span> (mor_hset_struct P (hset_struct_unit P) (pr2 (E ⦃ x, y ⦄)) (<span class="k">λ</span> <span class="nv">_</span>, f)) <span class="k">as</span> H.
+      {
+        <span class="nb">apply</span> hset_struct_const.
+      }
+      <span class="bp">exact</span> (enriched_to_arr E (_ ,, H)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">mor_weq_enriched_hom</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C)
+      : pr11 (E ⦃ x , y ⦄) ≃ (x --&gt; y).
+    <span class="kn">Proof</span>.
+      use weq_iso.
+      - <span class="bp">exact</span> enriched_hom_to_mor.
+      - <span class="bp">exact</span> mor_to_enriched_hom.
+      - <span class="kp">abstract</span>
+          (<span class="nb">intro</span> f ;
+           <span class="nb">unfold</span> mor_to_enriched_hom, enriched_hom_to_mor ;
+           <span class="nb">rewrite</span> enriched_from_to_arr ;
+           <span class="nb">apply</span> idpath).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intro</span> f ;
+           <span class="nb">unfold</span> mor_to_enriched_hom, enriched_hom_to_mor ;
+           <span class="nb">refine</span> (_ @ enriched_to_from_arr E f) ;
+           <span class="nb">apply</span> maponpaths ;
+           use eq_mor_hset_struct ;
+           <span class="nb">intro</span> t ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">apply</span> isapropunit).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_struct_enrichment_data</span>
+      : struct_enrichment_data C.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y.
+      <span class="nb">refine</span> (transportf_struct_weq P _ (pr2 (E ⦃ x , y ⦄))).
+      <span class="bp">exact</span> (mor_weq_enriched_hom x y).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">make_struct_enrichment_laws</span>
+      : struct_enrichment_laws make_struct_enrichment_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y z.
+      use (transportf_struct_mor_prod_via_eq P).
+      - <span class="bp">exact</span> (pr1 (enriched_comp E x y z)).
+      - <span class="bp">exact</span> (pr2 (enriched_comp E x y z)).
+      - <span class="nb">intros</span> fg ; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> enriched_hom_to_mor.
+        <span class="nb">rewrite</span> (enriched_to_arr_comp E).
+        <span class="nb">apply</span> maponpaths.
+        use eq_mor_hset_struct.
+        <span class="nb">intro</span> t ; <span class="nb">induction</span> t.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_struct_enrichment</span>
+      : struct_enrichment C.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> make_struct_enrichment_data.
+      - <span class="bp">exact</span> make_struct_enrichment_laws.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FromStructEnrichment</span>.
+
+  <span class="kn">Section</span> <span class="nf">EnrichmentEquiv</span>.
+    <span class="kn">Context</span> {<span class="nv">C</span> : category}
+            (<span class="nv">E</span> : enrichment C (monoidal_cat_of_hset_struct P)).
+
+    <span class="kn">Definition</span> <span class="nf">enrichment_over_struct_weq_struct_enrichment_iso</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C)
+      : @z_iso
+          (category_of_hset_struct P)
+          (homset x y ,, make_struct_enrichment_data C E x y)
+          (E ⦃ x , y ⦄).
+    <span class="kn">Proof</span>.
+      use make_z_iso.
+      - <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, pr1 (enriched_from_arr E f) tt).
+        + <span class="nb">cbn</span>.
+          <span class="nb">apply</span> transportf_struct_weq_on_invweq.
+      - <span class="nb">simple refine</span> (_ ,, _).
+        + <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">f</span>, enriched_to_arr E ((<span class="k">λ</span> <span class="nv">_</span>, f) ,, _)).
+          <span class="nb">apply</span> hset_struct_const.
+        + <span class="nb">cbn</span>.
+          <span class="nb">apply</span> transportf_struct_weq_on_weq.
+      - <span class="nb">split</span>.
+        + use eq_mor_hset_struct.
+          <span class="nb">intro</span> w ; <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (_ @ enriched_to_from_arr E _).
+          <span class="nb">apply</span> maponpaths.
+          use eq_mor_hset_struct.
+          <span class="nb">intro</span> t.
+          <span class="nb">cbn</span>.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> isapropunit.
+        + use eq_mor_hset_struct.
+          <span class="nb">intro</span> f.
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> enriched_from_to_arr.
+          <span class="nb">apply</span> idpath.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enrichment_over_struct_weq_struct_enrichment_inv_1</span>
+      : make_enrichment_over_struct C (make_struct_enrichment C E) = E.
+    <span class="kn">Proof</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_enrichment_laws.
+      }
+      use (invweq (total2_paths_equiv _ _ _)).
+      use (invmap (enrichment_data_hom_path _ _ _)).
+      {
+        <span class="bp">exact</span> (is_univalent_category_of_hset_struct P).
+      }
+      <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+      - <span class="bp">exact</span> enrichment_over_struct_weq_struct_enrichment_iso.
+      - <span class="nb">intro</span> x.
+        use eq_mor_hset_struct.
+        <span class="nb">intro</span> t ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> enriched_from_arr_id.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> isapropunit.
+      - <span class="nb">intros</span> x y z.
+        use eq_mor_hset_struct.
+        <span class="nb">intro</span> t ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> enriched_from_arr_comp ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">intros</span> x y f.
+        use eq_mor_hset_struct.
+        <span class="nb">intro</span> t.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> isapropunit.
+      - <span class="nb">intros</span> x y f.
+        <span class="nb">cbn</span>.
+        <span class="nb">assert</span> (mor_hset_struct
+                  P
+                  (hset_struct_unit P)
+                  (make_struct_enrichment_data C E x y)
+                  (<span class="k">λ</span> <span class="nv">_</span>, pr1 f tt))
+          <span class="k">as</span> H.
+        {
+          <span class="nb">apply</span> hset_struct_const.
+        }
+        <span class="nb">refine</span> (!(enriched_to_from_arr E (pr1 f tt)) @ _).
+        <span class="nb">apply</span> maponpaths.
+        use eq_mor_hset_struct.
+        <span class="nb">intro</span> t ; <span class="nb">induction</span> t.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">EnrichmentEquiv</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">enrichment_over_struct_weq_struct_enrichment_inv_2</span>
+              {<span class="nv">C</span> : category}
+              (<span class="nv">E</span> : struct_enrichment C)
+    : make_struct_enrichment C (make_enrichment_over_struct C E) = E.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_struct_enrichment_laws.
+    }
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> make_struct_enrichment_data.
+    <span class="nb">unfold</span> make_enrichment_over_struct.
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> transportf_struct_weq.
+    <span class="nb">refine</span> (_ @ idpath_transportf _ _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (_ @ univalence_hSet_idweq _).
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> isapropisweq.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enrichment_over_struct_weq_struct_enrichment</span>
+             (<span class="nv">C</span> : category)
+    : enrichment C (monoidal_cat_of_hset_struct P) ≃ struct_enrichment C.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> (make_struct_enrichment C).
+    - <span class="bp">exact</span> (make_enrichment_over_struct C).
+    - <span class="nb">apply</span> enrichment_over_struct_weq_struct_enrichment_inv_1.
+    - <span class="nb">apply</span> enrichment_over_struct_weq_struct_enrichment_inv_2.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Elementary definition of functor enrichments over structures</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">functor_struct_enrichment</span>
+             {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+             (<span class="nv">P₁</span> : struct_enrichment C₁)
+             (<span class="nv">P₂</span> : struct_enrichment C₂)
+             (<span class="nv">F</span> : C₁ ⟶ C₂)
+    : UU
+    := ∏ (x y : C₁), mor_hset_struct P (P₁ x y) (P₂ (F x) (F y)) (<span class="k">λ</span> <span class="nv">f</span>, #F f).
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Equivalence of functor enrichments with elementary definition</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_functor_struct_enrichment</span>
+             {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+             (<span class="nv">P₁</span> : struct_enrichment C₁)
+             (<span class="nv">P₂</span> : struct_enrichment C₂)
+             (<span class="nv">F</span> : C₁ ⟶ C₂)
+             (<span class="nv">HF</span> : functor_enrichment
+                     F
+                     (make_enrichment_over_struct C₁ P₁)
+                     (make_enrichment_over_struct C₂ P₂))
+    : functor_struct_enrichment P₁ P₂ F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">refine</span> (transportf
+              _
+              _
+              (pr2 (HF x y))).
+    use funextsec.
+    <span class="nb">intro</span> f.
+    <span class="nb">pose</span> (eqtohomot
+            (maponpaths
+               pr1
+               (functor_enrichment_from_arr HF f))
+            tt)
+      <span class="k">as</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="bp">exact</span> (!p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_functor_enrichment_over_struct</span>
+             {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+             (<span class="nv">P₁</span> : struct_enrichment C₁)
+             (<span class="nv">P₂</span> : struct_enrichment C₂)
+             (<span class="nv">F</span> : C₁ ⟶ C₂)
+             (<span class="nv">HF</span> : functor_struct_enrichment P₁ P₂ F)
+    : functor_enrichment
+        F
+        (make_enrichment_over_struct C₁ P₁)
+        (make_enrichment_over_struct C₂ P₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (<span class="k">λ</span> <span class="nv">f</span>, #F f) ,, HF x y).
+    - <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x ;
+           use eq_mor_hset_struct ;
+           <span class="nb">intro</span> f ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> functor_id).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y z ;
+           use eq_mor_hset_struct ;
+           <span class="nb">intro</span> f ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> functor_comp).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ;
+           use eq_mor_hset_struct ;
+           <span class="nb">intro</span> w ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_enrichment_over_struct_weq_struct_enrichment</span>
+             {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+             (<span class="nv">P₁</span> : struct_enrichment C₁)
+             (<span class="nv">P₂</span> : struct_enrichment C₂)
+             (<span class="nv">F</span> : C₁ ⟶ C₂)
+    : functor_enrichment
+        F
+        (make_enrichment_over_struct C₁ P₁)
+        (make_enrichment_over_struct C₂ P₂)
+      ≃
+      functor_struct_enrichment P₁ P₂ F.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> (make_functor_struct_enrichment P₁ P₂ F).
+    - <span class="bp">exact</span> (make_functor_enrichment_over_struct P₁ P₂ F).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> EF ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_functor_enrichment | ] ;
+         use funextsec ; <span class="nb">intro</span> x ;
+         use funextsec ; <span class="nb">intro</span> y ;
+         use eq_mor_hset_struct ;
+         <span class="nb">intro</span> f ;
+         <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (eqtohomot (maponpaths pr1 (functor_enrichment_from_arr EF f)) tt)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> EF ;
+         use funextsec ; <span class="nb">intro</span> x ;
+         use funextsec ; <span class="nb">intro</span> y ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> isaprop_hset_struct_on_mor).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FixAStructure</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Examples/StructureEnriched.v</tt>, line 43)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Equivalence of functor enrichments with elementary definition
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

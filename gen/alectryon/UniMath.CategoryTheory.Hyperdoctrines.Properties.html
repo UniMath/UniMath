@@ -1,0 +1,602 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Properties.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Properties of hyperdoctrines</span>
+
+<span class="sd"> In this file, we consider various properties that a first-order hyperdoctrine may satisfy.</span>
+<span class="sd"> These are</span>
+<span class="sd"> - Extensionality</span>
+<span class="sd"> - Comprehension</span>
+<span class="sd"> - Functional completeness</span>
+<span class="sd"> We also consider extensionality for propositions and powersets in weak triposes.</span>
+
+<span class="sd"> In an extensional hyperdoctrine, we can verify the equality of morphisms in the category of</span>
+<span class="sd"> types and morphisms via the equality formula. This requirement is similar to functional</span>
+<span class="sd"> extensionality. We can use it to check whether a morphism is a monomorphism using the</span>
+<span class="sd"> internal language.</span>
+
+<span class="sd"> Hyperdoctrines can also come with a comprehension operation. However, comprehension in</span>
+<span class="sd"> hyperdoctrines comes with different ideas than comprehension in comprehension categories.</span>
+<span class="sd"> The goal of a comprehension operation for hyperdoctrines is giving subtypes: if we have</span>
+<span class="sd"> a type `A` together with a formula `φ` in context `A`, then comprehension gives us a subtype</span>
+<span class="sd"> of `A`. We write `{ A | φ }` for the comprehension. Specifically, comprehension is given by</span>
+<span class="sd"> a displayed functor from formulas to monomorphisms over the identity. In essence, the main</span>
+<span class="sd"> requirement for this functor are that terms of type `{ A | φ }` are the same as terms of</span>
+<span class="sd"> type `A` for which `φ` holds. This is not required for comprehension categories.</span>
+
+<span class="sd"> Functional completeness allows one to make morphisms in the category of types and terms</span>
+<span class="sd"> using functional relations. To define a morphism from `A` to `B`, it suffices to give a</span>
+<span class="sd"> formula in context `A ×h B` that is a functional relation. The use case for functional</span>
+<span class="sd"> completeness is that we can use the internal language to construct morphisms.</span>
+
+<span class="sd"> Propositional extensionality is the same as univalence for the generic predicate, which</span>
+<span class="sd"> functions as `hProp` in a tripos. We derive  propositional extensionality from a more</span>
+<span class="sd"> general principle, namely an equality principle for the powerset.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Extensional hyperdoctrines</span>
+<span class="sd"> 2. Comprehension</span>
+<span class="sd"> 3. Functional completeness</span>
+<span class="sd"> 4. Extensionality for the power set</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.MonoCodomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MonoCodomain.FiberMonoCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Tripos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.GenericPredicate.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+
+<span class="sd">(** * 1. Extensional hyperdoctrines *)</span>
+<span class="kn">Definition</span> <span class="nf">extensional_first_order_hyperdoctrine</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+  : UU
+  := ∏ (A B : ty H)
+       (f g : A --&gt; B),
+     (⊤ ⊢ <span class="k">∀</span><span class="nv">h</span> (<span class="nv">f</span> [ π₂ (tm_var (<span class="mi">𝟙</span> ×h A)) ]tm ≡ g [ π₂ (tm_var _) ]tm))
+     →
+     f = g.
+
+<span class="kn">Definition</span> <span class="nf">isInjective_hyperdoctrine</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">A</span> <span class="nv">B</span> : ty H}
+           (<span class="nv">f</span> : A --&gt; B)
+  : form (<span class="mi">𝟙</span> : ty H)
+  := (<span class="k">∀</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span>
+      <span class="nv">let</span> <span class="nv">a₁</span> := π₂ (π₁ (tm_var _)) <span class="k">in</span>
+      <span class="k">let</span> <span class="nv">a₂</span> := π₂ (tm_var _) <span class="k">in</span>
+      f [ a₁ ]tm ≡ f [ a₂ ]tm ⇒ a₁ ≡ a₂).
+
+<span class="kn">Proposition</span> <span class="nf">isInjective_hyperdoctrine_eq</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty H}
+            {<span class="nv">f</span> : A --&gt; B}
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            (<span class="nv">Hf</span> : ⊤ ⊢ isInjective_hyperdoctrine f)
+            (<span class="nv">a₁</span> <span class="nv">a₂</span> : tm Γ A)
+            (<span class="nv">p</span> : Δ ⊢ f [ a₁ ]tm ≡ f [ a₂ ]tm)
+  : Δ ⊢ a₁ ≡ a₂.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (hyperdoctrine_proof_subst (!! : Γ --&gt; _) Hf) <span class="k">as</span> q.
+  <span class="nb">unfold</span> isInjective_hyperdoctrine <span class="k">in</span> q.
+  <span class="nb">rewrite</span> truth_subst, !forall_subst <span class="k">in</span> q.
+  <span class="nb">pose</span> (forall_elim q a₁) <span class="k">as</span> q'.
+  <span class="nb">rewrite</span> !forall_subst <span class="k">in</span> q'.
+  <span class="nb">pose</span> (forall_elim q' a₂) <span class="k">as</span> r.
+  <span class="nb">refine</span> (hyperdoctrine_cut p _).
+  <span class="nb">refine</span> (weaken_cut _ _).
+  {
+    <span class="nb">refine</span> (hyperdoctrine_cut _ r).
+    <span class="nb">apply</span> truth_intro.
+  }
+  simplify.
+  <span class="nb">refine</span> (impl_elim _ _).
+  - use weaken_left.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  - use weaken_right.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isMonic_extensional_first_order_hyperdoctrine</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            (<span class="nv">Hext</span> : extensional_first_order_hyperdoctrine H)
+            {<span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">f</span> : A --&gt; B)
+            (<span class="nv">Hf</span> : ⊤ ⊢ isInjective_hyperdoctrine f)
+  : isMonic f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Γ x₁ x₂ p.
+  use Hext.
+  use forall_intro.
+  simplify.
+  use (isInjective_hyperdoctrine_eq Hf).
+  use hyperdoctrine_refl_eq.
+  <span class="nb">unfold</span> tm_subst, tm_var ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Comprehension *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_comprehension</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+  : UU
+  := ∑ (χ : disp_functor
+              (functor_identity _)
+              (hyperdoctrine_formula_disp_cat H)
+              (disp_mono_codomain _)),
+     (∏ (A : ty H) (φ : form A),
+      ⊤ ⊢ φ [ MonicArrow _ (mono_cod_mor (χ A φ)) ])
+     ×
+     (∏ (Γ A : ty H)
+        (φ : form A)
+        (t : tm Γ A)
+        (p : ⊤ ⊢ φ [ t ]),
+      <span class="k">∃</span>! (f : tm Γ (mono_cod_dom (χ A φ))),
+      (MonicArrow _ (mono_cod_mor (χ A φ))) [ f ]tm = t).
+
+<span class="kn">Definition</span> <span class="nf">make_first_order_hyperdoctrine_comprehension</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">χ</span> : disp_functor
+                  (functor_identity _)
+                  (hyperdoctrine_formula_disp_cat H)
+                  (disp_mono_codomain _))
+           (<span class="nv">p</span> : ∏ (A : ty H) (φ : form A),
+                ⊤ ⊢ φ [ MonicArrow _ (mono_cod_mor (χ A φ)) ])
+           (<span class="nv">q</span> : ∏ (Γ A : ty H)
+                  (φ : form A)
+                  (t : tm Γ A)
+                  (p : ⊤ ⊢ φ [ t ]),
+                <span class="k">∃</span>! (f : tm Γ (mono_cod_dom (χ A φ))),
+                (MonicArrow _ (mono_cod_mor (χ A φ))) [ f ]tm = t)
+  : first_order_hyperdoctrine_comprehension H
+  := χ ,, p ,, q.
+
+<span class="kn">Section</span> <span class="nf">Comprehension</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : first_order_hyperdoctrine}
+          (<span class="nv">χ</span> : first_order_hyperdoctrine_comprehension H).
+
+  <span class="kn">Definition</span> <span class="nf">functor_of_comprehension</span>
+    : disp_functor
+        (functor_identity _)
+        (hyperdoctrine_formula_disp_cat H)
+        (disp_mono_codomain _)
+    := pr1 χ.
+
+  <span class="kn">Definition</span> <span class="nf">formula_comprehension</span>
+             {<span class="nv">A</span> : ty H}
+             (<span class="nv">φ</span> : form A)
+    : ty H
+    := mono_cod_dom (functor_of_comprehension A φ).
+
+  <span class="kn">Definition</span> <span class="nf">formula_inclusion</span>
+             {<span class="nv">A</span> : ty H}
+             (<span class="nv">φ</span> : form A)
+    : formula_comprehension φ --&gt; A
+    := mono_cod_mor (functor_of_comprehension A φ).
+
+  <span class="kn">Definition</span> <span class="nf">formula_comprehension_sub</span>
+             {<span class="nv">A</span> : ty H}
+             {<span class="nv">φ</span> <span class="nv">ψ</span> : form A}
+             (<span class="nv">p</span> : φ ⊢ ψ)
+    : formula_comprehension φ --&gt; formula_comprehension ψ
+    := mono_dom_mor (♯functor_of_comprehension p)%mor_disp.
+
+  <span class="kn">Proposition</span> <span class="nf">formula_comprehension_sub_eq</span>
+              {<span class="nv">A</span> : ty H}
+              {<span class="nv">φ</span> <span class="nv">ψ</span> : form A}
+              (<span class="nv">p</span> : φ ⊢ ψ)
+    : formula_comprehension_sub p · formula_inclusion ψ = formula_inclusion φ.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (mono_mor_eq (♯functor_of_comprehension p)%mor_disp).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">formula_comprehension_prf</span>
+              {<span class="nv">A</span> : ty H}
+              (<span class="nv">φ</span> : form A)
+    : ⊤ ⊢ φ [ formula_inclusion φ ].
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 χ A φ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">formula_comprehension_prf_tm</span>
+              {<span class="nv">A</span> : ty H}
+              {<span class="nv">φ</span> : form A}
+              {<span class="nv">Γ</span> : ty H}
+              (<span class="nv">Δ</span> : form Γ)
+              (<span class="nv">t</span> : tm Γ (formula_comprehension φ))
+    : Δ ⊢ φ [ (formula_inclusion φ) [ t ]tm ].
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (hyperdoctrine_proof_subst t (formula_comprehension_prf φ)) <span class="k">as</span> q.
+    <span class="nb">rewrite</span> truth_subst <span class="k">in</span> q.
+    <span class="nb">rewrite</span> hyperdoctrine_comp_subst <span class="k">in</span> q.
+    <span class="nb">refine</span> (hyperdoctrine_cut _ q).
+    <span class="nb">apply</span> truth_intro.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_comprehension_term</span>
+             {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+             (<span class="nv">φ</span> : form A)
+             (<span class="nv">t</span> : tm Γ A)
+             (<span class="nv">p</span> : ⊤ ⊢ φ [ t ])
+    : tm Γ (formula_comprehension φ)
+    := pr11 (pr22 χ Γ A φ t p).
+
+  <span class="kn">Proposition</span> <span class="nf">make_comprehension_term_eq</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+              (<span class="nv">φ</span> : form A)
+              (<span class="nv">t</span> : tm Γ A)
+              (<span class="nv">p</span> : ⊤ ⊢ φ [ t ])
+    : (formula_inclusion φ) [ make_comprehension_term φ t p ]tm = t.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr21 (pr22 χ Γ A φ t p)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_comprehension_term</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+              {<span class="nv">φ</span> : form A}
+              {<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ (formula_comprehension φ)}
+              (<span class="nv">p</span> : (formula_inclusion φ) [ t₁ ]tm
+                   =
+                   (formula_inclusion φ) [ t₂ ]tm)
+    : t₁ = t₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths
+              pr1
+              (proofirrelevance
+                 _
+                 (isapropifcontr (pr22 χ Γ A φ ((formula_inclusion φ) [ t₁ ]tm) _))
+                 (_ ,, _)
+                 (_ ,, _))).
+    - <span class="nb">apply</span> formula_comprehension_prf_tm.
+    - <span class="nb">apply</span> idpath.
+    - <span class="bp">exact</span> (!p).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Comprehension</span>.
+
+<span class="sd">(** * 3. Functional completeness *)</span>
+<span class="kn">Definition</span> <span class="nf">relation_with_images</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">A</span> <span class="nv">B</span> : ty H}
+           (<span class="nv">φ</span> : form (A ×h B))
+  : form (<span class="mi">𝟙</span> : ty H)
+  := (<span class="k">∀</span><span class="nv">h</span> <span class="k">∃</span><span class="nv">h</span>
+      <span class="nv">let</span> <span class="nv">a</span> := π₂ (π₁ (tm_var _)) : tm _ A <span class="k">in</span>
+      <span class="k">let</span> <span class="nv">b</span> := π₂ (tm_var _) : tm _ B <span class="k">in</span>
+      (φ [ ⟨ a , b ⟩ ])).
+
+<span class="kn">Definition</span> <span class="nf">relation_unique_images</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">A</span> <span class="nv">B</span> : ty H}
+           (<span class="nv">φ</span> : form (A ×h B))
+  : form (<span class="mi">𝟙</span> : ty H)
+  := (<span class="k">∀</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span>
+      <span class="nv">let</span> <span class="nv">a</span> := π₂ (π₁ (π₁ (tm_var _))) <span class="k">in</span>
+      <span class="k">let</span> <span class="nv">b₁</span> := π₂ (π₁ (tm_var _)) <span class="k">in</span>
+      <span class="k">let</span> <span class="nv">b₂</span> := π₂ (tm_var _) <span class="k">in</span>
+      (φ [ ⟨ a , b₁ ⟩ ] ⇒ φ [ ⟨ a , b₂ ⟩ ] ⇒ b₁ ≡ b₂)).
+
+<span class="kn">Definition</span> <span class="nf">functional_relation</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">A</span> <span class="nv">B</span> : ty H}
+           (<span class="nv">φ</span> : form (A ×h B))
+  : form (<span class="mi">𝟙</span> : ty H)
+  := relation_with_images φ ∧ relation_unique_images φ.
+
+<span class="kn">Proposition</span> <span class="nf">functional_relation_im</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">φ</span> : form (A ×h B))
+            (<span class="nv">p</span> : ⊤ ⊢ functional_relation φ)
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">Δ</span> : form Γ)
+            (<span class="nv">a</span> : tm Γ A)
+  : (Δ ⊢ <span class="k">∃</span><span class="nv">h</span> (<span class="nv">φ</span> [ ⟨ a [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩ ])).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (hyperdoctrine_proof_subst (!! : Γ --&gt; _) p) <span class="k">as</span> q.
+  <span class="nb">rewrite</span> truth_subst <span class="k">in</span> q.
+  <span class="nb">refine</span> (hyperdoctrine_cut (hyperdoctrine_cut (truth_intro _) q) _).
+  <span class="nb">unfold</span> functional_relation, relation_with_images.
+  simplify.
+  use weaken_left.
+  <span class="nb">refine</span> (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) a) _).
+  simplify.
+  <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">functional_relation_unique_im</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            {<span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">φ</span> : form (A ×h B))
+            (<span class="nv">p</span> : ⊤ ⊢ functional_relation φ)
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">Δ</span> : form Γ)
+            (<span class="nv">a</span> : tm Γ A)
+            (<span class="nv">b₁</span> <span class="nv">b₂</span> : tm Γ B)
+            (<span class="nv">q₁</span> : Δ ⊢ φ [ ⟨ a , b₁ ⟩ ])
+            (<span class="nv">q₂</span> : Δ ⊢ φ [ ⟨ a , b₂ ⟩ ])
+  : Δ ⊢ b₁ ≡ b₂.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (hyperdoctrine_proof_subst (!! : Γ --&gt; _) p) <span class="k">as</span> q.
+  <span class="nb">rewrite</span> truth_subst <span class="k">in</span> q.
+  use (impl_elim q₂).
+  use (impl_elim q₁).
+  <span class="nb">refine</span> (hyperdoctrine_cut (hyperdoctrine_cut (truth_intro _) q) _).
+  <span class="nb">unfold</span> functional_relation, relation_unique_images.
+  simplify.
+  use weaken_right.
+  <span class="nb">refine</span> (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) a) _).
+  simplify.
+  <span class="nb">refine</span> (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) b₁) _).
+  simplify.
+  <span class="nb">refine</span> (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) b₂) _).
+  simplify.
+  <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">agrees_with_relation</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           {<span class="nv">A</span> <span class="nv">B</span> : ty H}
+           (<span class="nv">φ</span> : form (A ×h B))
+           (<span class="nv">f</span> : A --&gt; B)
+  : form (<span class="mi">𝟙</span> : ty H)
+  := (<span class="k">∀</span><span class="nv">h</span>
+      <span class="nv">let</span> <span class="nv">a</span> := π₂ (tm_var _) <span class="k">in</span>
+      φ [ ⟨ a , f [ a ]tm ⟩ ]).
+
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_functional_completeness</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+  : UU
+  := ∏ (A B : ty H)
+       (φ : form (A ×h B))
+       (p : ⊤ ⊢ functional_relation φ),
+     ∑ (f : A --&gt; B),
+     (⊤ ⊢ agrees_with_relation φ f).
+
+<span class="kn">Definition</span> <span class="nf">functional_relation_to_mor</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">HH</span> : first_order_hyperdoctrine_functional_completeness H)
+           {<span class="nv">A</span> <span class="nv">B</span> : ty H}
+           (<span class="nv">φ</span> : form (A ×h B))
+           (<span class="nv">p</span> : ⊤ ⊢ functional_relation φ)
+  : A --&gt; B
+  := pr1 (HH A B φ p).
+
+<span class="kn">Proposition</span> <span class="nf">functional_relation_to_mor_agrees</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            (<span class="nv">HH</span> : first_order_hyperdoctrine_functional_completeness H)
+            {<span class="nv">A</span> <span class="nv">B</span> : ty H}
+            (<span class="nv">φ</span> : form (A ×h B))
+            (<span class="nv">p</span> : ⊤ ⊢ functional_relation φ)
+            {<span class="nv">Γ</span> : ty H}
+            (<span class="nv">Δ</span> : form Γ)
+            (<span class="nv">a</span> : tm Γ A)
+  : Δ ⊢ φ [ ⟨ a , (functional_relation_to_mor HH φ p) [ a ]tm ⟩ ].
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (hyperdoctrine_proof_subst (!! : Γ --&gt; _) (pr2 (HH A B φ p))) <span class="k">as</span> q.
+  <span class="nb">rewrite</span> truth_subst <span class="k">in</span> q.
+  <span class="nb">refine</span> (hyperdoctrine_cut (hyperdoctrine_cut (truth_intro _) q) _).
+  <span class="nb">unfold</span> agrees_with_relation.
+  <span class="nb">rewrite</span> forall_subst.
+  <span class="nb">refine</span> (hyperdoctrine_cut (forall_elim (hyperdoctrine_hyp _) a) _).
+  simplify.
+  <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Extensionality for the powerset *)</span>
+<span class="kn">Local</span> <span class="kn">Open Scope</span> weak_tripos.
+
+<span class="kn">Definition</span> <span class="nf">power_ext_weak_tripos</span>
+           (<span class="nv">H</span> : weak_tripos)
+  : UU
+  := ∏ (A : ty H),
+     <span class="k">let</span> <span class="nv">a</span> := π₂ (tm_var (((<span class="mi">𝟙</span> ×h ℙ A) ×h ℙ A) ×h A)) <span class="k">in</span>
+     <span class="k">let</span> <span class="nv">φ</span> := π₂ (π₁ (tm_var _)) <span class="k">in</span>
+     <span class="k">let</span> <span class="nv">ψ</span> := π₂ (π₁ (π₁ (tm_var _))) <span class="k">in</span>
+     ⊤ ⊢ (<span class="k">∀</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span> ((<span class="k">∀</span><span class="nv">h</span> (<span class="nv">a</span> ∈ φ ⇔ a ∈ ψ))
+                 ⇒
+                 π₂ (π₁ (tm_var _)) ≡ π₂ (tm_var _))).
+
+<span class="kn">Proposition</span> <span class="nf">power_ext_weak_tripos_set_eq</span>
+            {<span class="nv">H</span> : weak_tripos}
+            (<span class="nv">HPE</span> : power_ext_weak_tripos H)
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">φ</span> <span class="nv">ψ</span> : tm Γ (ℙ A)}
+            (<span class="nv">p</span> : Δ ⊢ <span class="k">∀</span><span class="nv">h</span> (<span class="nv">π₂</span> (tm_var _) ∈ φ [ π₁ (tm_var _) ]tm
+                         ⇒
+                         π₂ (tm_var _) ∈ ψ [ π₁ (tm_var _) ]tm))
+            (<span class="nv">q</span> : Δ ⊢ <span class="k">∀</span><span class="nv">h</span> (<span class="nv">π₂</span> (tm_var _) ∈ ψ [ π₁ (tm_var _) ]tm
+                         ⇒
+                         π₂ (tm_var _) ∈ φ [ π₁ (tm_var _) ]tm))
+  : Δ ⊢ φ ≡ ψ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+  {
+    <span class="nb">refine</span> (conj_intro p _).
+    <span class="nb">refine</span> (conj_intro q _).
+    <span class="nb">refine</span> (hyperdoctrine_cut _ (hyperdoctrine_proof_subst !! (HPE A))).
+    hypersimplify.
+    <span class="nb">apply</span> truth_intro.
+  }
+  use hyp_rtrans.
+  use hyp_sym.
+  hypersimplify.
+  <span class="nb">refine</span> (weaken_cut _ _).
+  {
+    use weaken_left.
+    <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+    <span class="bp">exact</span> φ.
+  }
+  use hyp_ltrans.
+  use weaken_right.
+  use hyp_sym.
+  hypersimplify.
+  <span class="nb">refine</span> (weaken_cut _ _).
+  {
+    use weaken_left.
+    <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+    <span class="bp">exact</span> ψ.
+  }
+  use hyp_ltrans.
+  use weaken_right.
+  hypersimplify.
+  <span class="nb">refine</span> (impl_elim _ (weaken_right (hyperdoctrine_hyp _) _)).
+  use weaken_left.
+  use forall_intro.
+  <span class="nb">pose</span> (a := π₂ (tm_var (Γ ×h A))).
+  hypersimplify.
+  <span class="nb">refine</span> (weaken_cut _ _).
+  {
+    use weaken_left.
+    <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+    <span class="bp">exact</span> (π₂ (tm_var _)).
+  }
+  use hyp_ltrans.
+  use weaken_right.
+  <span class="nb">refine</span> (weaken_cut _ _).
+  {
+    use weaken_left.
+    <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+    <span class="bp">exact</span> (π₂ (tm_var _)).
+  }
+  use hyp_ltrans.
+  use weaken_right.
+  hypersimplify.
+  <span class="nb">fold</span> a.
+  use iff_intro.
+  - use hyp_ltrans.
+    use weaken_right.
+    <span class="nb">refine</span> (impl_elim _ _).
+    + use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    + use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+  - <span class="nb">refine</span> (impl_elim _ _).
+    + use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    + <span class="kp">do</span> <span class="mi">2</span> use weaken_left.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+#[local] <span class="kn">Transparent</span> prf_of_weak_generic_predicate.
+
+<span class="kn">Proposition</span> <span class="nf">prop_ext_weak_tripos</span>
+            {<span class="nv">H</span> : weak_tripos}
+            (<span class="nv">HPE</span> : power_ext_weak_tripos H)
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : tm Γ Ω}
+            (<span class="nv">p</span> : Δ ⊢ Prf [ ω₁ ] ⇒ Prf [ ω₂ ])
+            (<span class="nv">q</span> : Δ ⊢ Prf [ ω₂ ] ⇒ Prf [ ω₁ ])
+  : Δ ⊢ ω₁ ≡ ω₂.
+<span class="kn">Proof</span>.
+  use (power_ext_weak_tripos_set_eq HPE).
+  - use forall_intro.
+    <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+    {
+      <span class="nb">refine</span> (hyperdoctrine_proof_subst _ p).
+    }
+    <span class="nb">cbn</span>.
+    hypersimplify.
+    <span class="nb">rewrite</span> !(hyperdoctrine_unit_eta (π₂ (tm_var (Γ ×h <span class="mi">𝟙</span>)))).
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  - use forall_intro.
+    <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+    {
+      <span class="nb">refine</span> (hyperdoctrine_proof_subst _ q).
+    }
+    <span class="nb">cbn</span>.
+    hypersimplify.
+    <span class="nb">rewrite</span> !(hyperdoctrine_unit_eta (π₂ (tm_var (Γ ×h <span class="mi">𝟙</span>)))).
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local</span> <span class="kn">Close Scope</span> weak_tripos.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> tripos.
+
+<span class="kn">Definition</span> <span class="nf">power_ext_tripos</span>
+           (<span class="nv">H</span> : tripos)
+  : UU
+  := power_ext_weak_tripos (tripos_to_weak_tripos H).
+
+<span class="kn">Proposition</span> <span class="nf">power_ext_tripos_set_eq</span>
+            {<span class="nv">H</span> : tripos}
+            (<span class="nv">HPE</span> : power_ext_tripos H)
+            {<span class="nv">Γ</span> <span class="nv">A</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">φ</span> <span class="nv">ψ</span> : tm Γ (ℙ A)}
+            (<span class="nv">p</span> : Δ ⊢ <span class="k">∀</span><span class="nv">h</span> (<span class="nv">π₂</span> (tm_var _) ∈ φ [ π₁ (tm_var _) ]tm
+                         ⇒
+                         π₂ (tm_var _) ∈ ψ [ π₁ (tm_var _) ]tm))
+            (<span class="nv">q</span> : Δ ⊢ <span class="k">∀</span><span class="nv">h</span> (<span class="nv">π₂</span> (tm_var _) ∈ ψ [ π₁ (tm_var _) ]tm
+                         ⇒
+                         π₂ (tm_var _) ∈ φ [ π₁ (tm_var _) ]tm))
+  : Δ ⊢ φ ≡ ψ.
+<span class="kn">Proof</span>.
+  use (power_ext_weak_tripos_set_eq HPE).
+  - <span class="bp">exact</span> p.
+  - <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">prop_ext_tripos</span>
+            {<span class="nv">H</span> : tripos}
+            (<span class="nv">HPE</span> : power_ext_tripos H)
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : tm Γ Ω}
+            (<span class="nv">p</span> : Δ ⊢ Prf [ ω₁ ] ⇒ Prf [ ω₂ ])
+            (<span class="nv">q</span> : Δ ⊢ Prf [ ω₂ ] ⇒ Prf [ ω₁ ])
+  : Δ ⊢ ω₁ ≡ ω₂.
+<span class="kn">Proof</span>.
+  use (prop_ext_weak_tripos HPE).
+  - <span class="bp">exact</span> p.
+  - <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/Properties.v</tt>, line 42)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Extensionality for the power set
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

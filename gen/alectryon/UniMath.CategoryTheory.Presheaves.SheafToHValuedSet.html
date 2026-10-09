@@ -1,0 +1,631 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SheafToHValuedSet.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Sheaves versus H-valued sets</span>
+
+<span class="sd"> Let H be a complete Heyting algebra. From `H`, we can obtain two toposes</span>
+<span class="sd"> - We can look at sheaves over `H`. Specifically, for each `ω : H` we have</span>
+<span class="sd">   a set `F ω`. We also have restriction maps: if `p : ω₁ ≤ ω₂`, then we</span>
+<span class="sd">   have a map `F p : F ω₂ → F ω₁`, and these restriction maps turn `F` into</span>
+<span class="sd">   a functor. This functor must be a sheaf in the following sense: if we</span>
+<span class="sd">   have `ω ≤ \/_{ i } ω_i` (with `ω_i ≤ ω`) and an element `x_i : F ω_i`, then</span>
+<span class="sd">   there is a unique `x : F ω` whose restrictions are the `x_i`. Note that the</span>
+<span class="sd">   category of sheaves always is univalent.</span>
+<span class="sd"> - We can look at sets together with a partial equivalence relation valued</span>
+<span class="sd">   in `H`. This construction is an instance of the tripos-to-topos construction</span>
+<span class="sd">   where we use the tripos of H-valued predicates. Note that the category of</span>
+<span class="sd">   H-valued sets is not necessarily univalent.</span>
+<span class="sd"> These constructions provide us toposes that are adjoint equivalent, which is</span>
+<span class="sd"> a theorem proven by Higgs. Our goal is to prove this theorem.</span>
+
+<span class="sd"> The reason why this theorem is interesting, is because it provides two</span>
+<span class="sd"> different perspectives. The notion of H-valued set is very much grounded in</span>
+<span class="sd"> partial elements: an element in `(X, ~)` is given by `x : X` and its extent</span>
+<span class="sd"> is defined to be `x ~ x`. The extent of `x` indicates the definedness of `x`.</span>
+<span class="sd"> For instance, if `H` is the collection of open sets in a topological space,</span>
+<span class="sd"> then an example of an `H`-valued set is given by a pair of `U : H` together</span>
+<span class="sd"> with a continuous function from `U` to `R`. If `f : U → R` is a continuous</span>
+<span class="sd"> function, then `f ~ f` is `U`. Concretely, `f` is a partial element who is</span>
+<span class="sd"> only defined on `U`. Sheaves provide a different perspective. Sheaves connect</span>
+<span class="sd"> very naturally to geometry, as sheaves are commonly used in, for instance,</span>
+<span class="sd"> algebraic geometry and differential geometry. In addition, H-valued sets</span>
+<span class="sd"> and sheaves connect to different constructions in forcing. H-valued sets</span>
+<span class="sd"> are closer to Heyting-valued models (and Boolean-valued models), whereas</span>
+<span class="sd"> sheaves are more similar to forcing over a partial order.</span>
+
+<span class="sd"> In this file, we construct a functor from he category of sheaves to the</span>
+<span class="sd"> category of H-valued sets.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Injectivity in the topos of complete Heyting algebra valued sets" by Higgs</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Some preliminaries</span>
+<span class="sd"> 2. The partial equivalence relation induced by a sheaf</span>
+<span class="sd"> 3. Natural transformations to H-valued morphisms</span>
+<span class="sd"> 4. The functor from sheaves to H-valued sets</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.CompleteHeyting.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.DerivedLawsCompleteHeyting.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.PosetCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ElementaryTopos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ExamplesSites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.HValuedSets.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> heyting.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">SheafToHValuedSet</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : complete_heyting_algebra}.
+
+  <span class="kn">Let</span> <span class="nf">C</span> : site := cha_to_site H.
+
+  <span class="sd">(** * 1. Some preliminaries *)</span>
+  <span class="kn">Proposition</span> <span class="nf">cha_sheaf_le_eq</span>
+              {<span class="nv">F</span> : sheaf C}
+              {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : H}
+              (<span class="nv">p</span> <span class="nv">q</span> : ω₁ ≤ ω₂)
+              (<span class="nv">x</span> : (F ω₂ : hSet))
+    : #F p x = #F q x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cha_sheaf_le_trans</span>
+              {<span class="nv">F</span> : sheaf C}
+              {<span class="nv">ω₁</span> <span class="nv">ω₂</span> <span class="nv">ω₃</span> <span class="nv">ω₄</span> : H}
+              (<span class="nv">x</span> : (F ω₁ : hSet))
+              (<span class="nv">y</span> : (F ω₂ : hSet))
+              {<span class="nv">px</span> : ω₃ ≤ ω₁}
+              {<span class="nv">py</span> : ω₃ ≤ ω₂}
+              (<span class="nv">q</span> : ω₄ ≤ ω₃)
+              (<span class="nv">rx</span> : ω₄ ≤ ω₁)
+              (<span class="nv">ry</span> : ω₄ ≤ ω₂)
+              (<span class="nv">eq</span> : #F px x = #F py y)
+    : #F rx x = #F ry y.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ @ maponpaths (#F q) eq @ _).
+    - <span class="nb">refine</span> (_ @ eqtohomot (functor_comp F _ _) _).
+      <span class="nb">apply</span> cha_sheaf_le_eq.
+    - <span class="nb">refine</span> (!(eqtohomot (functor_comp F _ _) _) @ _).
+      <span class="nb">apply</span> cha_sheaf_le_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. The partial equivalence relation induced by a sheaf *)</span>
+  <span class="kn">Definition</span> <span class="nf">cha_sheaf_rel</span>
+             {<span class="nv">F</span> : sheaf C}
+             {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : H}
+             (<span class="nv">x</span> : (F ω₁ : hSet))
+             (<span class="nv">y</span> : (F ω₂ : hSet))
+    : H
+    := \/_{ z : ∑ (ωm : H) (p : ωm ≤ ω₁) (q : ωm ≤ ω₂), #F p x = #F q y} pr1 z.
+
+  <span class="kn">Proposition</span> <span class="nf">cha_sheaf_rel_partial_refl</span>
+              {<span class="nv">F</span> : sheaf C}
+              {<span class="nv">ω</span> : H}
+              (<span class="nv">x</span> : (F ω : hSet))
+    : ω = cha_sheaf_rel x x.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cha_sheaf_rel.
+    use cha_le_antisymm.
+    - use cha_le_lub.
+      + <span class="nb">simple refine</span> (ω ,, _ ,, _ ,, _).
+        * <span class="nb">apply</span> cha_le_refl.
+        * <span class="nb">apply</span> cha_le_refl.
+        * <span class="nb">cbn</span>.
+          <span class="nb">apply</span> idpath.
+      + <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cha_le_refl.
+    - use cha_lub_le.
+      <span class="nb">intros</span> ( ωm &amp; p &amp; q &amp; r ).
+      <span class="nb">cbn</span>.
+      <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cha_sheaf_rel_sym</span>
+              {<span class="nv">F</span> : sheaf C}
+              {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : H}
+              (<span class="nv">x</span> : (F ω₁ : hSet))
+              (<span class="nv">y</span> : (F ω₂ : hSet))
+    : cha_sheaf_rel x y = cha_sheaf_rel y x.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cha_sheaf_rel.
+    use cha_le_antisymm.
+    - use cha_lub_le.
+      <span class="nb">cbn</span>.
+      <span class="nb">intros</span> ( ωm &amp; p &amp; q &amp; r).
+      <span class="nb">cbn</span>.
+      use cha_le_lub.
+      + <span class="nb">refine</span> (ωm ,, q ,, p ,, _).
+        <span class="bp">exact</span> (!r).
+      + <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cha_le_refl.
+    - use cha_lub_le.
+      <span class="nb">cbn</span>.
+      <span class="nb">intros</span> ( ωm &amp; p &amp; q &amp; r).
+      <span class="nb">cbn</span>.
+      use cha_le_lub.
+      + <span class="nb">refine</span> (ωm ,, q ,, p ,, _).
+        <span class="bp">exact</span> (!r).
+      + <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cha_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cha_sheaf_rel_trans</span>
+              {<span class="nv">F</span> : sheaf C}
+              {<span class="nv">ω₁</span> <span class="nv">ω₂</span> <span class="nv">ω₃</span> : H}
+              (<span class="nv">x</span> : (F ω₁ : hSet))
+              (<span class="nv">y</span> : (F ω₂ : hSet))
+              (<span class="nv">z</span> : (F ω₃ : hSet))
+    : (cha_sheaf_rel x y ∧ cha_sheaf_rel y z) ≤ cha_sheaf_rel x z.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cha_sheaf_rel.
+    <span class="nb">rewrite</span> cha_frobenius.
+    use cha_lub_le.
+    <span class="nb">intros</span> ( ωm₁ &amp; p₁ &amp; p₂ &amp; p₃ ).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> cha_min_comm.
+    <span class="nb">rewrite</span> cha_frobenius.
+    use cha_lub_le.
+    <span class="nb">intros</span> ( ωm₂ &amp; q₁ &amp; q₂ &amp; q₃ ).
+    <span class="nb">cbn</span>.
+    use cha_le_lub.
+    - <span class="nb">simple refine</span> ((ωm₁ ∧ ωm₂) ,, _ ,, _ ,, _).
+      + <span class="nb">refine</span> (cha_le_trans _ q₁).
+        <span class="bp">exact</span> (cha_min_le_r _ _).
+      + <span class="nb">refine</span> (cha_le_trans _ p₂).
+        <span class="bp">exact</span> (cha_min_le_l _ _).
+      + <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="bp">exact</span> (eqtohomot (functor_comp F _ _) _).
+        }
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> q₃.
+        }
+        <span class="nb">refine</span> (!(eqtohomot (functor_comp F _ _) _) @ _).
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="bp">exact</span> (eqtohomot (functor_comp F _ _) _).
+        }
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!p₃).
+        }
+        <span class="nb">refine</span> (!(eqtohomot (functor_comp F _ _) _) @ _).
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cha_sheaf_le_eq.
+    - <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sheaf_to_h_valued_set</span>
+             (<span class="nv">F</span> : sheaf C)
+    : h_valued_set H.
+  <span class="kn">Proof</span>.
+    use make_h_valued_set.
+    - <span class="bp">exact</span> (∑ (ω : H), F ω)%<span class="nb">set</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ωx</span> <span class="nv">ωy</span>, cha_sheaf_rel (pr2 ωx) (pr2 ωy)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, cha_sheaf_rel_sym (pr2 x) (pr2 y)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>, cha_sheaf_rel_trans (pr2 x) (pr2 y) (pr2 z)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. Natural transformations to H-valued morphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">cha_nat_trans_to_rel</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : sheaf C}
+             (<span class="nv">τ</span> : sheaf_nat_trans F G)
+             {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : H}
+             (<span class="nv">x</span> : (F ω₁ : hSet))
+             (<span class="nv">y</span> : (G ω₂ : hSet))
+    : H
+    := \/_{ z : ∑ (ωm : H) (p : ωm ≤ ω₁) (q : ωm ≤ ω₂), #G p (τ _ x) = #G q y } pr1 z.
+
+  <span class="kn">Proposition</span> <span class="nf">cha_nat_trans_to_rel_dom</span>
+              {<span class="nv">F</span> <span class="nv">G</span> : sheaf C}
+              (<span class="nv">τ</span> : sheaf_nat_trans F G)
+              {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : H}
+              (<span class="nv">x</span> : (F ω₁ : hSet))
+              (<span class="nv">y</span> : (G ω₂ : hSet))
+    : cha_nat_trans_to_rel τ x y ≤ cha_sheaf_rel x x.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cha_nat_trans_to_rel, cha_sheaf_rel.
+    use cha_lub_le.
+    <span class="nb">intros</span> ( ωm &amp; p &amp; q &amp; r ).
+    <span class="nb">cbn</span>.
+    use cha_le_lub.
+    - <span class="nb">simple refine</span> (ωm ,, _ ,, _ ,, _).
+      + <span class="bp">exact</span> p.
+      + <span class="bp">exact</span> p.
+      + <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cha_nat_trans_to_rel_cod</span>
+              {<span class="nv">F</span> <span class="nv">G</span> : sheaf C}
+              (<span class="nv">τ</span> : sheaf_nat_trans F G)
+              {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : H}
+              (<span class="nv">x</span> : (F ω₁ : hSet))
+              (<span class="nv">y</span> : (G ω₂ : hSet))
+    : cha_nat_trans_to_rel τ x y ≤ cha_sheaf_rel y y.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cha_nat_trans_to_rel, cha_sheaf_rel.
+    use cha_lub_le.
+    <span class="nb">intros</span> ( ωm &amp; p &amp; q &amp; r ).
+    <span class="nb">cbn</span>.
+    use cha_le_lub.
+    - <span class="nb">simple refine</span> (ωm ,, _ ,, _ ,, _).
+      + <span class="bp">exact</span> q.
+      + <span class="bp">exact</span> q.
+      + <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cha_nat_trans_to_rel_eq</span>
+              {<span class="nv">F</span> <span class="nv">G</span> : sheaf C}
+              (<span class="nv">τ</span> : sheaf_nat_trans F G)
+              {<span class="nv">ω₁</span> <span class="nv">ω₁'</span> <span class="nv">ω₂</span> <span class="nv">ω₂'</span> : H}
+              (<span class="nv">x</span> : (F ω₁ : hSet))
+              (<span class="nv">x'</span> : (F ω₁' : hSet))
+              (<span class="nv">y</span> : (G ω₂ : hSet))
+              (<span class="nv">y'</span> : (G ω₂' : hSet))
+    : (cha_sheaf_rel x x' ∧ cha_sheaf_rel y y' ∧ cha_nat_trans_to_rel τ x y)
+      ≤
+      cha_nat_trans_to_rel τ x' y'.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cha_nat_trans_to_rel, cha_sheaf_rel.
+    <span class="nb">rewrite</span> !cha_frobenius.
+    use cha_lub_le.
+    <span class="nb">intros</span> ( ζ₁ &amp; p₁ &amp; q₁ &amp; r₁ ).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> cha_min_comm.
+    <span class="nb">rewrite</span> cha_frobenius.
+    use cha_lub_le.
+    <span class="nb">intros</span> ( ζ₂ &amp; p₂ &amp; q₂ &amp; r₂ ).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> cha_min_assoc.
+    <span class="nb">rewrite</span> cha_min_comm.
+    <span class="nb">rewrite</span> cha_frobenius.
+    use cha_lub_le.
+    <span class="nb">intros</span> ( ζ₃ &amp; p₃ &amp; q₃ &amp; r₃ ).
+    <span class="nb">cbn</span>.
+    use cha_le_lub.
+    - <span class="nb">simple refine</span> (((ζ₁ ∧ ζ₂) ∧ ζ₃) ,, _ ,, _ ,, _).
+      + <span class="nb">refine</span> (cha_le_trans _ q₂).
+        <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+        <span class="bp">exact</span> (cha_min_le_r _ _).
+      + <span class="nb">refine</span> (cha_le_trans _ q₃).
+        <span class="bp">exact</span> (cha_min_le_r _ _).
+      + <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (_ @ eqtohomot (!(functor_comp G _ _)) _).
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- r₃.
+        <span class="nb">clear</span> r₃.
+        <span class="nb">refine</span> (eqtohomot (functor_comp G _ _) _ @ _).
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="bp">exact</span> (eqtohomot (nat_trans_ax τ _ _ q₂) x').
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- r₂.
+        <span class="nb">refine</span> (_ @ eqtohomot (functor_comp G _ _) _).
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">refine</span> (cha_sheaf_le_trans _ _ _ _ _ (!r₁)).
+          {
+            <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+            <span class="bp">exact</span> (cha_min_le_l _ _).
+          }
+          <span class="nb">refine</span> (cha_le_trans _ p₁).
+          <span class="nb">refine</span> (cha_le_trans (cha_min_le_l _ _) _).
+          <span class="bp">exact</span> (cha_min_le_l _ _).
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (eqtohomot (nat_trans_ax τ _ _ p₂) x).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!(eqtohomot (functor_comp G _ _) _) @ _).
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cha_sheaf_le_eq.
+    - <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cha_nat_trans_to_rel_unique</span>
+              {<span class="nv">F</span> <span class="nv">G</span> : sheaf C}
+              (<span class="nv">τ</span> : sheaf_nat_trans F G)
+              {<span class="nv">ω₁</span> <span class="nv">ω₂</span> <span class="nv">ω₂'</span> : H}
+              (<span class="nv">x</span> : (F ω₁ : hSet))
+              (<span class="nv">y</span> : (G ω₂ : hSet))
+              (<span class="nv">y'</span> : (G ω₂' : hSet))
+    : (cha_nat_trans_to_rel τ x y ∧ cha_nat_trans_to_rel τ x y')
+       ≤
+       cha_sheaf_rel y y'.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cha_nat_trans_to_rel, cha_sheaf_rel.
+    <span class="nb">rewrite</span> !cha_frobenius.
+    use cha_lub_le.
+    <span class="nb">intros</span> ( ζ₁ &amp; p₁ &amp; q₁ &amp; r₁ ).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> cha_min_comm.
+    <span class="nb">rewrite</span> cha_frobenius.
+    use cha_lub_le.
+    <span class="nb">intros</span> ( ζ₂ &amp; p₂ &amp; q₂ &amp; r₂ ).
+    <span class="nb">cbn</span>.
+    use cha_le_lub.
+    - <span class="nb">simple refine</span> ((ζ₁ ∧ ζ₂) ,, _ ,, _ ,, _).
+      + <span class="nb">refine</span> (cha_le_trans _ q₂).
+        <span class="bp">exact</span> (cha_min_le_r _ _).
+      + <span class="nb">refine</span> (cha_le_trans _ q₁).
+        <span class="bp">exact</span> (cha_min_le_l _ _).
+      + <span class="nb">refine</span> (eqtohomot (functor_comp G _ _) _ @ _).
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!r₂).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (_ @ eqtohomot (!(functor_comp G _ _)) _).
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!r₁).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (eqtohomot (!(functor_comp G _ _)) _ @ _).
+        <span class="nb">refine</span> (_ @ eqtohomot (functor_comp G _ _) _).
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cha_sheaf_le_eq.
+    - <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cha_nat_trans_to_rel_im</span>
+              {<span class="nv">F</span> <span class="nv">G</span> : sheaf C}
+              (<span class="nv">τ</span> : sheaf_nat_trans F G)
+              {<span class="nv">ω</span> : H}
+              (<span class="nv">x</span> : (F ω : hSet))
+    : cha_sheaf_rel x x
+      ≤
+      \/_{ y : ∑ (x : H), (G x : hSet) } (cha_nat_trans_to_rel τ x (pr2 y)).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cha_nat_trans_to_rel, cha_sheaf_rel.
+    use cha_lub_le.
+    <span class="nb">intros</span> ( ωm &amp; p &amp; q &amp; r ).
+    <span class="nb">cbn</span>.
+    use cha_le_lub.
+    - <span class="bp">exact</span> (ω ,, τ ω x).
+    - <span class="nb">cbn</span>.
+      use cha_le_lub.
+      + <span class="nb">refine</span> (ωm ,, p ,, p ,, _).
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">cbn</span>.
+        <span class="nb">apply</span> cha_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_to_h_valued_morphism</span>
+             {<span class="nv">F</span> <span class="nv">G</span> : sheaf C}
+             (<span class="nv">τ</span> : sheaf_nat_trans F G)
+    : h_valued_morphism
+        H
+        (sheaf_to_h_valued_set F)
+        (sheaf_to_h_valued_set G).
+  <span class="kn">Proof</span>.
+    use make_h_valued_morphism.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ωx</span> <span class="nv">ωy</span>, cha_nat_trans_to_rel τ (pr2 ωx) (pr2 ωy)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ωx</span> <span class="nv">ωy</span>, cha_nat_trans_to_rel_dom τ (pr2 ωx) (pr2 ωy)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ωx</span> <span class="nv">ωy</span>, cha_nat_trans_to_rel_cod τ (pr2 ωx) (pr2 ωy)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ωx₁</span> <span class="nv">ωx₂</span> <span class="nv">ωy₁</span> <span class="nv">ωy₂</span>,
+             cha_nat_trans_to_rel_eq τ (pr2 ωx₁) (pr2 ωx₂) (pr2 ωy₁) (pr2 ωy₂)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ωx</span> <span class="nv">ωy₁</span> <span class="nv">ωy₂</span>, cha_nat_trans_to_rel_unique τ (pr2 ωx) (pr2 ωy₁) (pr2 ωy₂)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">ωx</span>, cha_nat_trans_to_rel_im τ (pr2 ωx)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. The functor from sheaves to H-valued sets *)</span>
+  <span class="kn">Definition</span> <span class="nf">sheaf_to_h_valued_set_functor_data</span>
+    : functor_data (cat_of_sheaves C) (topos_of_h_valued_sets H).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> sheaf_to_h_valued_set.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">τ</span>, nat_trans_to_h_valued_morphism τ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">sheaf_to_h_valued_set_functor_laws</span>
+    : is_functor sheaf_to_h_valued_set_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> F.
+      use h_valued_morphism_eq.
+      + <span class="nb">intros</span> ( ω₁ &amp; x ) ( ω₂ &amp; y ) ; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> cha_nat_trans_to_rel, cha_sheaf_rel.
+        <span class="nb">cbn</span>.
+        use cha_lub_le.
+        <span class="nb">intros</span> ( ωm &amp; p &amp; q &amp; r ).
+        <span class="nb">cbn</span>.
+        use cha_le_lub.
+        * <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+          ** <span class="bp">exact</span> ωm.
+          ** <span class="bp">exact</span> p.
+          ** <span class="bp">exact</span> q.
+          ** <span class="nb">cbn</span>.
+             <span class="bp">exact</span> r.
+        * <span class="nb">cbn</span>.
+          <span class="nb">apply</span> cha_le_refl.
+      + <span class="nb">intros</span> ( ω₁ &amp; x ) ( ω₂ &amp; y ) ; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> cha_nat_trans_to_rel, cha_sheaf_rel.
+        <span class="nb">cbn</span>.
+        use cha_lub_le.
+        <span class="nb">intros</span> ( ωm &amp; p &amp; q &amp; r ).
+        <span class="nb">cbn</span>.
+        use cha_le_lub.
+        * <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+          ** <span class="bp">exact</span> ωm.
+          ** <span class="bp">exact</span> p.
+          ** <span class="bp">exact</span> q.
+          ** <span class="nb">cbn</span>.
+             <span class="bp">exact</span> r.
+        * <span class="nb">cbn</span>.
+          <span class="nb">apply</span> cha_le_refl.
+    - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">F₁</span> <span class="nv">F₂</span> <span class="nv">F₃</span> : sheaf C)
+                (<span class="nv">τ₁</span> : sheaf_nat_trans F₁ F₂)
+                (<span class="nv">τ₂</span> : sheaf_nat_trans F₂ F₃), _).
+      use h_valued_morphism_eq.
+      + <span class="nb">intros</span> ( ω₁ &amp; x ) ( ω₂ &amp; y ) ; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> cha_nat_trans_to_rel, cha_sheaf_rel.
+        <span class="nb">cbn</span>.
+        use cha_lub_le.
+        <span class="nb">intros</span> ( ωm &amp; p &amp; q &amp; r ).
+        <span class="nb">cbn</span>.
+        use cha_le_lub.
+        * <span class="bp">exact</span> (ω₁ ,, τ₁ ω₁ x).
+        * <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> cha_frobenius.
+          use cha_le_lub.
+          ** <span class="nb">refine</span> (ωm ,, p ,, q ,, _).
+             <span class="bp">exact</span> r.
+          ** <span class="nb">cbn</span>.
+             use cha_min_le_case ; [ | <span class="nb">apply</span> cha_le_refl ].
+             use cha_le_lub.
+             *** <span class="nb">refine</span> (ωm ,, p ,, p ,, _).
+                 <span class="nb">apply</span> idpath.
+             *** <span class="nb">cbn</span>.
+                 <span class="nb">apply</span> cha_le_refl.
+      + <span class="nb">intros</span> ( ω₁ &amp; x ) ( ω₂ &amp; y ) ; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> cha_nat_trans_to_rel, cha_sheaf_rel.
+        <span class="nb">cbn</span>.
+        use cha_lub_le.
+        <span class="nb">intros</span> i.
+        <span class="nb">induction</span> i <span class="k">as</span> [ ωm₁ z₁ ].
+        <span class="nb">rewrite</span> cha_frobenius.
+        use cha_lub_le.
+        <span class="nb">intros</span> ( ζ₁ &amp; p₁ &amp; q₁ &amp; r₁ ).
+        <span class="nb">rewrite</span> cha_min_comm.
+        <span class="nb">rewrite</span> cha_frobenius.
+        use cha_lub_le.
+        <span class="nb">intros</span> ( ζ₂ &amp; p₂ &amp; q₂ &amp; r₂ ).
+        <span class="nb">cbn</span> <span class="k">in</span> p₁, q₂, r₁, r₂.
+        <span class="nb">cbn</span>.
+        use cha_le_lub.
+        * <span class="nb">simple refine</span> ((ζ₁ ∧ ζ₂) ,, _ ,, _ ,, _).
+          ** <span class="nb">refine</span> (cha_le_trans _ p₂).
+             <span class="nb">apply</span> cha_min_le_r.
+          ** <span class="nb">refine</span> (cha_le_trans _ q₁).
+             <span class="nb">apply</span> cha_min_le_l.
+          ** <span class="nb">cbn</span>.
+             <span class="nb">refine</span> (eqtohomot (functor_comp F₃ _ _) _ @ _).
+             <span class="nb">cbn</span>.
+             etrans.
+             {
+               <span class="nb">apply</span> maponpaths.
+               <span class="bp">exact</span> (eqtohomot (!(nat_trans_ax τ₂ _ _ p₂)) _).
+             }
+             <span class="nb">cbn</span>.
+             etrans.
+             {
+               <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+               <span class="bp">exact</span> r₂.
+             }
+             <span class="nb">cbn</span>.
+             etrans.
+             {
+               <span class="nb">apply</span> maponpaths.
+               <span class="bp">exact</span> (eqtohomot (nat_trans_ax τ₂ _ _ q₂) z₁).
+             }
+             <span class="nb">cbn</span>.
+             <span class="nb">refine</span> (eqtohomot (!(functor_comp F₃ _ _)) _ @ _).
+             <span class="nb">refine</span> (!_).
+             <span class="nb">refine</span> (eqtohomot (functor_comp F₃ _ _) _ @ _).
+             <span class="nb">cbn</span>.
+             etrans.
+             {
+               <span class="nb">apply</span> maponpaths.
+               <span class="bp">exact</span> (!r₁).
+             }
+             <span class="nb">cbn</span>.
+             <span class="nb">refine</span> (eqtohomot (!(functor_comp F₃ _ _)) _ @ _).
+             <span class="nb">cbn</span>.
+             <span class="nb">apply</span> cha_sheaf_le_eq.
+        * <span class="nb">cbn</span>.
+          <span class="nb">apply</span> cha_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sheaf_to_h_valued_set_functor</span>
+    : cat_of_sheaves C ⟶ topos_of_h_valued_sets H.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> sheaf_to_h_valued_set_functor_data.
+    - <span class="bp">exact</span> sheaf_to_h_valued_set_functor_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SheafToHValuedSet</span>.
+
+<span class="kn">Arguments</span> sheaf_to_h_valued_set_functor_data : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> sheaf_to_h_valued_set_functor_laws : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> sheaf_to_h_valued_set_functor : <span class="kn">clear implicits</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/SheafToHValuedSet.v</tt>, line 48)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The functor from sheaves to H-valued sets
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Lattice.CompleteHeyting.
+  &gt; Require Import UniMath.OrderTheory.Lattice.DerivedLawsCompleteHeyting.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

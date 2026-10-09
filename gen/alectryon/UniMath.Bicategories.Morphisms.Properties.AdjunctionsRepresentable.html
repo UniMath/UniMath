@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AdjunctionsRepresentable.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************</span>
+
+<span class="sd"> Representable definitions of adjunctions/adjoint equivalence</span>
+
+<span class="sd"> We look at representable versions of adjunctions and adjoint equivalences.</span>
+
+<span class="sd"> The first thing we notice, is that every adjunction in a bicategory gives rise</span>
+<span class="sd"> to an adjunction on the hom-categories. However, note that in general, we do</span>
+<span class="sd"> not get an adjunction from an adjunction on the hom-categories.</span>
+
+<span class="sd"> For adjoint equivalences, the situation is different: for those, the two</span>
+<span class="sd"> definitions are actually equivalent.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Every adjunction gives rise to an adjunction on the hom-categories</span>
+<span class="sd"> 2. Representable definition of adjoint equivalences</span>
+<span class="sd"> 3. Adjoint equivalence to homwise adjoint equivalence</span>
+<span class="sd"> 4. Homwise adjoint equivalence to adjoint equivalence</span>
+<span class="sd"> 5. The two definitions are equivalent</span>
+
+<span class="sd"> *******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_repr</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           (<span class="nv">l</span> : x --&gt; y)
+  : UU
+  := ∏ (w : B), is_left_adjoint (post_comp w l).
+
+<span class="kn">Section</span> <span class="nf">LeftAdjointToLeftAdjointRepr</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          (<span class="nv">l</span> : x --&gt; y)
+          (<span class="nv">Hl</span> : left_adjoint l).
+
+  <span class="kn">Let</span> <span class="nf">r</span> : y --&gt; x := left_adjoint_right_adjoint Hl.
+  <span class="kn">Let</span> <span class="nf">η</span> : id₁ _ ==&gt; l · r := left_adjoint_unit Hl.
+  <span class="kn">Let</span> <span class="nf">ε</span> : r · l ==&gt; id₁ _ := left_adjoint_counit Hl.
+
+  <span class="kn">Section</span> <span class="nf">AdjointRepr</span>.
+    <span class="kn">Context</span> (<span class="nv">w</span> : B).
+
+    <span class="kn">Definition</span> <span class="nf">left_adjoint_to_repr_unit</span>
+      : functor_identity _
+        ⟹
+        post_comp w l ∙ post_comp w r.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, rinvunitor _ • (f ◃ η) • lassociator _ _ _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> f₁ f₂ τ ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> rwhisker_rwhisker ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> rinvunitor_natural ;
+           <span class="nb">rewrite</span> &lt;- rwhisker_hcomp ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> vcomp_whisker ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">left_adjoint_to_repr_counit</span>
+      : post_comp w r ∙ post_comp w l
+        ⟹
+        functor_identity _.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, rassociator _ _ _ • (f ◃ ε) • runitor _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> f₁ f₂ τ ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> rwhisker_rwhisker_alt ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> &lt;- vcomp_runitor ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> vcomp_whisker ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">AdjointRepr</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_to_left_adjoint_repr_form_adjunction</span>
+             (<span class="nv">w</span> : B)
+    : form_adjunction
+        (post_comp w l)
+        (post_comp w r)
+        (left_adjoint_to_repr_unit w)
+        (left_adjoint_to_repr_counit w).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> f ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">refine</span> (_ @ lwhisker_id2 _ _).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!(internal_triangle1 Hl)).
+      }
+      <span class="nb">rewrite</span> &lt;- runitor_triangle.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker_rassociator.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- rassociator_rassociator.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lassociator_rassociator.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker_rassociator.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> rwhisker_hcomp, lwhisker_hcomp.
+      <span class="nb">rewrite</span> triangle_r_inv.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> f ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">refine</span> (_ @ lwhisker_id2 _ _).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!(internal_triangle2 Hl)).
+      }
+      <span class="nb">rewrite</span> &lt;- rinvunitor_triangle.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- lassociator_lassociator.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lassociator_rassociator.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> runitor_rwhisker.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_to_left_adjoint_repr_are_adjoints</span>
+             (<span class="nv">w</span> : B)
+    : are_adjoints (post_comp w l) (post_comp w r).
+  <span class="kn">Proof</span>.
+    use make_are_adjoints.
+    - <span class="bp">exact</span> (left_adjoint_to_repr_unit w).
+    - <span class="bp">exact</span> (left_adjoint_to_repr_counit w).
+    - <span class="bp">exact</span> (left_adjoint_to_left_adjoint_repr_form_adjunction w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_to_left_adjoint_repr</span>
+    : left_adjoint_repr l
+    := <span class="k">λ</span> <span class="nv">w</span>,
+       post_comp w r
+       ,,
+       left_adjoint_to_left_adjoint_repr_are_adjoints w.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_to_adjunction_cat</span>
+             (<span class="nv">w</span> : B)
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+    : @adjunction bicat_of_univ_cats (univ_hom HB_2_1 w x) (univ_hom HB_2_1 w y).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (post_comp w l
+            ,,
+            ((post_comp w r
+            ,,
+            (left_adjoint_to_repr_unit w
+            ,,
+            left_adjoint_to_repr_counit w))
+            ,,
+            (_ ,, _))).
+    - <span class="kp">abstract</span>
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">intro</span> ;
+         <span class="nb">rewrite</span> !id2_right, id2_left ;
+         <span class="nb">apply</span> left_adjoint_to_left_adjoint_repr_form_adjunction).
+    - <span class="kp">abstract</span>
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">intro</span> ;
+         <span class="nb">rewrite</span> !id2_right, id2_left ;
+         <span class="nb">apply</span> left_adjoint_to_left_adjoint_repr_form_adjunction).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LeftAdjointToLeftAdjointRepr</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Representable definition of adjoint equivalences</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_repr</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           (<span class="nv">l</span> : x --&gt; y)
+  : UU
+  := ∏ (w : B), adj_equivalence_of_cats (post_comp w l).
+
+<span class="kn">Definition</span> <span class="nf">isaprop_left_adjoint_equivalence_repr</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           (<span class="nv">l</span> : x --&gt; y)
+  : isaprop (left_adjoint_equivalence_repr l).
+<span class="kn">Proof</span>.
+  use impred ; <span class="nb">intro</span> w.
+  use isofhlevelweqf.
+  - <span class="bp">exact</span> (@left_adjoint_equivalence
+             bicat_of_univ_cats
+             (univ_hom HB_2_1 _ _)
+             (univ_hom HB_2_1 _ _)
+             (post_comp w l)).
+  - <span class="bp">exact</span> (@adj_equiv_is_equiv_cat
+             (univ_hom HB_2_1 _ _)
+             _
+             _).
+  - <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+    <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Adjoint equivalence to homwise adjoint equivalence</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LeftAdjointToLeftAdjointRepr</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          (<span class="nv">l</span> : x --&gt; y)
+          (<span class="nv">Hl</span> : left_adjoint_equivalence l).
+
+  <span class="kn">Let</span> <span class="nf">r</span> : y --&gt; x := left_adjoint_right_adjoint Hl.
+  <span class="kn">Let</span> <span class="nf">η</span> : invertible_2cell (id₁ _) (l · r) := left_equivalence_unit_iso Hl.
+  <span class="kn">Let</span> <span class="nf">ε</span> : invertible_2cell (r · l) (id₁ _) := left_equivalence_counit_iso Hl.
+
+  <span class="kn">Section</span> <span class="nf">ToEquivalence</span>.
+    <span class="kn">Context</span> (<span class="nv">w</span> : B).
+
+    <span class="kn">Let</span> <span class="nf">L</span> : hom w x ⟶ hom w y := post_comp w l.
+    <span class="kn">Let</span> <span class="nf">R</span> : hom w y ⟶ hom w x := post_comp w r.
+
+    <span class="kn">Definition</span> <span class="nf">left_adjequiv_to_left_adjequiv_repr_equiv</span>
+      : equivalence_of_cats (hom w x) (hom w y).
+    <span class="kn">Proof</span>.
+      use make_equivalence_of_cats.
+      - use make_adjunction_data.
+        + <span class="bp">exact</span> L.
+        + <span class="bp">exact</span> R.
+        + <span class="nb">apply</span> left_adjoint_to_repr_unit.
+        + <span class="nb">apply</span> left_adjoint_to_repr_counit.
+      - <span class="nb">split</span>.
+        + <span class="nb">intro</span> f.
+          <span class="nb">apply</span> is_inv2cell_to_is_z_iso ; <span class="nb">cbn</span>.
+          is_iso.
+          <span class="bp">exact</span> (pr2 (left_equivalence_unit_iso Hl)).
+        + <span class="nb">intro</span> f.
+          <span class="nb">apply</span> is_inv2cell_to_is_z_iso ; <span class="nb">cbn</span>.
+          is_iso.
+          <span class="bp">exact</span> (pr2 (left_equivalence_counit_iso Hl)).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">ToEquivalence</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjequiv_to_left_adjequiv_repr</span>
+    : left_adjoint_equivalence_repr l
+    := <span class="k">λ</span> <span class="nv">w</span>, adjointification (left_adjequiv_to_left_adjequiv_repr_equiv w).
+<span class="kn">End</span> <span class="nf">LeftAdjointToLeftAdjointRepr</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Homwise adjoint equivalence to adjoint equivalence</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LeftAdjointReprToLeftAdjoint</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          (<span class="nv">l</span> : x --&gt; y)
+          (<span class="nv">Hl</span> : left_adjoint_equivalence_repr l).
+
+  <span class="kn">Let</span> <span class="nf">r</span> : y --&gt; x := right_adjoint (Hl y) (id₁ y).
+  <span class="kn">Let</span> <span class="nf">η</span> : invertible_2cell (r · l) (id₁ y)
+    := nat_z_iso_pointwise_z_iso
+         (counit_nat_z_iso_from_adj_equivalence_of_cats
+            (Hl y))
+         (id₁ y).
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_repr_to_left_adjoint_counit</span>
+    : invertible_2cell (l · r) (id₁ x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> z_iso_to_inv2cell.
+    <span class="nb">refine</span> (z_iso_comp
+              (nat_z_iso_pointwise_z_iso
+                 (unit_nat_z_iso_from_adj_equivalence_of_cats
+                    (Hl x))
+                 (l · r))
+              (z_iso_comp
+                 (functor_on_z_iso
+                    (right_adjoint (Hl x))
+                    _)
+                 (z_iso_inv
+                    (nat_z_iso_pointwise_z_iso
+                       (unit_nat_z_iso_from_adj_equivalence_of_cats
+                          (Hl x))
+                       (id₁ x))))).
+   <span class="nb">cbn</span>.
+   <span class="nb">apply</span> inv2cell_to_z_iso.
+   <span class="bp">exact</span> (comp_of_invertible_2cell
+            (rassociator_invertible_2cell _ _ _)
+            (comp_of_invertible_2cell
+               (lwhisker_of_invertible_2cell _ η)
+               (comp_of_invertible_2cell
+                  (runitor_invertible_2cell _)
+                  (linvunitor_invertible_2cell _)))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_repr_to_left_adjoint_data</span>
+    : left_adjoint_data l
+    := r ,, (left_adjoint_repr_to_left_adjoint_counit^-<span class="mi">1</span> ,, pr1 η).
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_repr_to_left_adjoint_axioms</span>
+    : left_equivalence_axioms left_adjoint_repr_to_left_adjoint_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="nb">apply</span> is_invertible_2cell_inv.
+    - <span class="bp">exact</span> (pr2 η).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">left_adjoint_repr_to_left_adjoint_equivalence</span>
+    : left_adjoint_equivalence l
+    := equiv_to_adjequiv
+         _
+         (left_adjoint_repr_to_left_adjoint_data
+          ,,
+          left_adjoint_repr_to_left_adjoint_axioms).
+<span class="kn">End</span> <span class="nf">LeftAdjointReprToLeftAdjoint</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. The two definitions are equivalent</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_weq_left_adjoint_equivalence_repr</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           (<span class="nv">l</span> : x --&gt; y)
+  : left_adjoint_equivalence_repr l ≃ left_adjoint_equivalence l.
+<span class="kn">Proof</span>.
+  use weqimplimpl.
+  - <span class="bp">exact</span> (left_adjoint_repr_to_left_adjoint_equivalence l).
+  - <span class="bp">exact</span> (left_adjequiv_to_left_adjequiv_repr l).
+  - <span class="nb">apply</span> isaprop_left_adjoint_equivalence_repr.
+    <span class="bp">exact</span> HB.
+  - <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+    <span class="bp">exact</span> HB.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Morphisms/Properties/AdjunctionsRepresentable.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. The two definitions are equivalent
+  &gt;
+  &gt;  *******************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

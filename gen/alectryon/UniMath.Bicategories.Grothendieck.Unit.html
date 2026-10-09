@@ -1,0 +1,879 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Unit.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(************************************************************************</span>
+
+<span class="sd"> Grothendieck construction: the unit</span>
+
+<span class="sd"> The Grothendieck construction gives a biequivalence between the</span>
+<span class="sd"> bicategory of fibrations over a fixed category `C` and the bicategory</span>
+<span class="sd"> of indexed categories over `C`. To construct this biequivalence, we</span>
+<span class="sd"> need to construct the following:</span>
+<span class="sd"> 1. A pseudofunctor from the bicategory of fibrations to the bicategory</span>
+<span class="sd">    of pseudofunctors</span>
+<span class="sd"> 2. A pseudofunctor from the bicategory of pseudofunctors to the</span>
+<span class="sd">    bicategory of fibrations</span>
+<span class="sd"> 3. The unit and a proof that it is a pointwise adjoint equivalence</span>
+<span class="sd"> 4. The counit and a proof that it is a pointwise adjoint equivalence</span>
+
+<span class="sd"> In this file, we construct the third part of this biequivalence, namely</span>
+<span class="sd"> the unit.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Action on objects</span>
+<span class="sd"> 2. Action on 1-cells</span>
+<span class="sd"> 3. The data</span>
+<span class="sd"> 4. The laws</span>
+<span class="sd"> 5. The unit</span>
+<span class="sd"> 6. The action on objects forms an equivalence</span>
+<span class="sd"> 7. The unit is a pointwise adjoint equivalence</span>
+
+<span class="sd"> ************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.FibrationToIndexedCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.CartesianToIndexedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.NatTransToIndexed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedCategoryToFibration.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedFunctorToCartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IndexedCategories.IndexedTransformationToTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Discreteness.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.DiscreteBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.FibSlice.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.PseudoFunctorsIntoCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.PseudoTransformationIntoCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Modification.
+<span class="kn">Require Import</span> UniMath.Bicategories.Modifications.Examples.ModificationIntoCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Grothendieck.FibrationToPseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.Grothendieck.PseudoFunctorToFibration.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">GrothendieckConstruction</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : univalent_category}.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'tr' P x"</span> := (transportf P _ x) (<span class="kn">at level</span> <span class="mi">100</span>, <span class="kn">only printing</span>).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Action on objects</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_disp_functor_data</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : disp_functor_data
+        (functor_identity C)
+        (indexed_cat_to_disp_cat
+           (psfunctor_to_indexed_cat
+              (indexed_cat_to_psfunctor
+                 (cleaving_to_indexed_cat D HD))))
+        D.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, xx).
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">f</span> <span class="nv">ff</span>,
+             transportf
+               (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+               _
+               (ff ;; HD y x f yy)%mor_disp).
+      <span class="kp">abstract</span> (<span class="nb">apply</span> id_left).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_disp_functor_axioms</span>
+              (<span class="nv">D</span> : disp_univalent_category C)
+              (<span class="nv">HD</span> : cleaving D)
+    : disp_functor_axioms
+        (psfunctor_fib_to_psfunctor_unit_disp_functor_data D HD).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> transportf_set.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> x y z xx yy zz f g ff gg ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> !assoc_disp_var.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc_disp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_disp_functor</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : disp_functor
+        (functor_identity C)
+        (indexed_cat_to_disp_cat
+           (psfunctor_to_indexed_cat
+              (indexed_cat_to_psfunctor
+                 (cleaving_to_indexed_cat D HD))))
+        D.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_disp_functor_data D HD).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_disp_functor_axioms D HD).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Opaque</span> psfunctor_to_indexed_cat.
+
+  <span class="kn">Definition</span> <span class="nf">is_cartesian_psfunctor_fib_to_psfunctor_unit_disp_functor</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : is_cartesian_disp_functor
+        (psfunctor_fib_to_psfunctor_unit_disp_functor D HD).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx yy ff Hff.
+    use is_cartesian_transportf.
+    use is_cartesian_comp_disp.
+    - use is_cartesian_z_iso_disp.
+      + <span class="bp">exact</span> (pr2 (identity_z_iso y)).
+      + <span class="nb">refine</span> (z_iso_disp_from_z_iso_fiber D y yy (pr1 (HD x y f xx)) (ff ,, _)).
+        <span class="nb">cbn</span> <span class="k">in</span> xx, yy, ff.
+        <span class="bp">exact</span> (is_cartesian_to_iso_indexed_cat
+                 (psfunctor_to_indexed_cat
+                    (indexed_cat_to_psfunctor
+                       (cleaving_to_indexed_cat D HD)))
+                  ff
+                  Hff).
+    - <span class="nb">apply</span> cartesian_lift_is_cartesian.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Transparent</span> psfunctor_to_indexed_cat.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_cartesian_disp_functor</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : cartesian_disp_functor
+        (functor_identity C)
+        (indexed_cat_to_disp_cat
+           (psfunctor_to_indexed_cat
+              (indexed_cat_to_psfunctor
+                 (cleaving_to_indexed_cat D HD))))
+        D.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_disp_functor D HD).
+    - <span class="bp">exact</span> (is_cartesian_psfunctor_fib_to_psfunctor_unit_disp_functor D HD).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Action on 1-cells</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_natural_data</span>
+             {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_univalent_category C}
+             (<span class="nv">HD₁</span> : cleaving D₁)
+             (<span class="nv">HD₂</span> : cleaving D₂)
+             (<span class="nv">F</span> : cartesian_disp_functor (functor_identity _) D₁ D₂)
+    : disp_nat_trans_data
+        (nat_trans_id _)
+        (disp_functor_over_id_composite
+           (psfunctor_fib_to_psfunctor_unit_disp_functor D₁ HD₁)
+           F)
+        (disp_functor_over_id_composite
+           (indexed_functor_to_disp_functor
+              (pstrans_to_indexed_functor
+                 (indexed_functor_to_pstrans
+                    (cartesian_disp_functor_to_indexed_functor HD₁ HD₂ F))))
+           (psfunctor_fib_to_psfunctor_unit_disp_functor D₂ HD₂))
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, id_disp _.
+
+  <span class="kn">Proposition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_natural_axioms</span>
+              {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_univalent_category C}
+              (<span class="nv">HD₁</span> : cleaving D₁)
+              (<span class="nv">HD₂</span> : cleaving D₂)
+              (<span class="nv">F</span> : cartesian_disp_functor (functor_identity _) D₁ D₂)
+    : disp_nat_trans_axioms
+        (psfunctor_fib_to_psfunctor_unit_natural_data HD₁ HD₂ F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx yy ff ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> transportb, fiber_functor_natural_inv, psfunctor_fib_to_psfunctor_unit_natural_data.
+    <span class="nb">rewrite</span> (disp_functor_transportf _ F).
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> id_right_disp.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> assoc_disp_var.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> disp_functor_comp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_natural</span>
+             {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_univalent_category C}
+             (<span class="nv">HD₁</span> : cleaving D₁)
+             (<span class="nv">HD₂</span> : cleaving D₂)
+             (<span class="nv">F</span> : cartesian_disp_functor (functor_identity _) D₁ D₂)
+    : disp_nat_trans
+        (nat_trans_id _)
+        (disp_functor_over_id_composite
+           (psfunctor_fib_to_psfunctor_unit_disp_functor D₁ HD₁)
+           F)
+        (disp_functor_over_id_composite
+           (indexed_functor_to_disp_functor
+              (pstrans_to_indexed_functor
+                 (indexed_functor_to_pstrans
+                    (cartesian_disp_functor_to_indexed_functor HD₁ HD₂ F))))
+           (psfunctor_fib_to_psfunctor_unit_disp_functor D₂ HD₂)).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_natural_data HD₁ HD₂ F).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_natural_axioms HD₁ HD₂ F).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. The data</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_data</span>
+    : pstrans_data
+        (comp_psfunctor
+           (psfunctor_psfunctor_bicat_to_fib C)
+           (psfunctor_fib_to_psfunctor_bicat C))
+        (id_psfunctor _).
+  <span class="kn">Proof</span>.
+    use make_pstrans_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">P</span>, psfunctor_fib_to_psfunctor_unit_cartesian_disp_functor
+                    (pr1 P) (pr2 P)).
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">P₁</span> <span class="nv">P₂</span> <span class="nv">F</span>, make_invertible_2cell _).
+      + <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_natural (pr2 P₁) (pr2 P₂) F).
+      + use is_invertible_2cell_fib_slice.
+        <span class="nb">intros</span> x xx.
+        <span class="nb">apply</span> id_is_z_iso_disp.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. The laws</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_pstrans_psfunctor_fib_to_psfunctor_unit</span>
+    : is_pstrans psfunctor_fib_to_psfunctor_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="nb">intros</span> P₁ P₂ F G τ.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx.
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> psfunctor_fib_to_psfunctor_unit_natural_data.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> id_right_disp.
+      <span class="nb">rewrite</span> id_left_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> P.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx.
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> psfunctor_fib_to_psfunctor_unit_natural_data.
+      <span class="nb">rewrite</span> transportf_object_cartesian_lift.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> !id_left_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> !id_left_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc_disp.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+        <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> P₁ P₂ P₃ F G.
+      use disp_nat_trans_eq.
+      <span class="nb">intros</span> x xx.
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> psfunctor_fib_to_psfunctor_unit_natural_data.
+      <span class="nb">rewrite</span> transportf_object_cartesian_lift.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> !id_left_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> (disp_functor_id (pr1 G)).
+      <span class="nb">rewrite</span> !id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> !id_left_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc_disp.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+        <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+        <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> id_right_disp.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+      <span class="kn">Opaque</span> comp_psfunctor.
+  <span class="kn">Qed</span>.
+  <span class="kn">Transparent</span> comp_psfunctor.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. The unit</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit</span>
+    : pstrans
+        (comp_psfunctor
+           (psfunctor_psfunctor_bicat_to_fib C)
+           (psfunctor_fib_to_psfunctor_bicat C))
+        (id_psfunctor _).
+  <span class="kn">Proof</span>.
+    use make_pstrans.
+    - <span class="bp">exact</span> psfunctor_fib_to_psfunctor_unit_data.
+    - <span class="bp">exact</span> is_pstrans_psfunctor_fib_to_psfunctor_unit.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. The action on objects forms an equivalence</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_disp_functor_inv_data</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : disp_functor_data
+        (functor_identity C)
+        D
+        (indexed_cat_to_disp_cat
+           (psfunctor_to_indexed_cat
+              (indexed_cat_to_psfunctor
+                 (cleaving_to_indexed_cat D HD)))).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, xx).
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">f</span> <span class="nv">ff</span>,
+              cartesian_factorisation
+                (HD y x f yy)
+                _
+                (transportf
+                   (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                   _
+                   ff)).
+      <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (!(id_left _))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_disp_functor_inv_axioms</span>
+              (<span class="nv">D</span> : disp_univalent_category C)
+              (<span class="nv">HD</span> : cleaving D)
+    : disp_functor_axioms
+        (psfunctor_fib_to_psfunctor_unit_disp_functor_inv_data D HD).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> x y z xx yy zz f g ff gg ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      use (cartesian_factorisation_unique (HD _ _ _ _)).
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc_disp.
+        <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+        <span class="nb">rewrite</span> transport_f_f.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+        <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+        <span class="nb">rewrite</span> !transport_f_f.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_disp_functor_inv</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : disp_functor
+        (functor_identity C)
+        D
+        (indexed_cat_to_disp_cat
+           (psfunctor_to_indexed_cat
+              (indexed_cat_to_psfunctor
+                 (cleaving_to_indexed_cat D HD)))).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_disp_functor_inv_data D HD).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_disp_functor_inv_axioms D HD).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_cartesian_psfunctor_fib_to_psfunctor_unit_disp_functor_inv</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : is_cartesian_disp_functor
+        (psfunctor_fib_to_psfunctor_unit_disp_functor_inv D HD).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx yy ff Hff.
+    <span class="nb">cbn</span>.
+    use is_cartesian_indexed_cat.
+    use is_z_iso_fiber_from_is_z_iso_disp.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _) ; <span class="nb">cbn</span>.
+    - <span class="nb">refine</span> (cartesian_factorisation Hff (identity _) _).
+      <span class="bp">exact</span> (transportb
+               (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+               (id_left _)
+               (HD x y f xx)).
+    - use (cartesian_factorisation_unique (HD _ _ _ _)).
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> id_left_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - use (cartesian_factorisation_unique Hff).
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> id_left_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_cartesian_disp_functor_inv</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : cartesian_disp_functor
+        (functor_identity C)
+        D
+        (indexed_cat_to_disp_cat
+           (psfunctor_to_indexed_cat
+              (indexed_cat_to_psfunctor
+                 (cleaving_to_indexed_cat D HD)))).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_disp_functor_inv D HD).
+    - <span class="bp">exact</span> (is_cartesian_psfunctor_fib_to_psfunctor_unit_disp_functor_inv D HD).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_equiv_unit_data</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : disp_nat_trans_data
+        (nat_trans_id (functor_identity C))
+        (disp_functor_identity _)
+        (disp_functor_over_id_composite
+           (psfunctor_fib_to_psfunctor_unit_disp_functor D HD)
+           (psfunctor_fib_to_psfunctor_unit_disp_functor_inv D HD)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (cartesian_factorisation
+              (HD x x (identity x) xx)
+              _
+              (transportf
+                 (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+                 _
+                 (id_disp _))).
+    <span class="bp">exact</span> (!(id_left _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_equiv_unit_laws</span>
+              (<span class="nv">D</span> : disp_univalent_category C)
+              (<span class="nv">HD</span> : cleaving D)
+    : disp_nat_trans_axioms
+        (psfunctor_fib_to_psfunctor_unit_equiv_unit_data D HD).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx yy ff.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> psfunctor_fib_to_psfunctor_unit_equiv_unit_data.
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !transport_f_f.
+    use (cartesian_factorisation_unique (HD _ _ _ _)).
+    <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+    etrans.
+    {
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> assoc_disp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> (transportf_indexed_cat_to_disp_cat
+                 (psfunctor_to_indexed_cat
+                    (indexed_cat_to_psfunctor
+                       (cleaving_to_indexed_cat D HD)))).
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> idtoiso_fiber_category.
+      }
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> transport_f_f.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> idtoiso_disp_cartesian_lift.
+      }
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> assoc_disp_var.
+        <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> !mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> id_left_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_equiv_unit</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : disp_nat_trans
+        (nat_trans_id (functor_identity C))
+        (disp_functor_identity _)
+        (disp_functor_over_id_composite
+           (psfunctor_fib_to_psfunctor_unit_disp_functor D HD)
+           (psfunctor_fib_to_psfunctor_unit_disp_functor_inv D HD)).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_equiv_unit_data D HD).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_equiv_unit_laws D HD).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_equiv_counit_data</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : disp_nat_trans_data
+        (nat_trans_id (functor_identity C))
+        (disp_functor_over_id_composite
+           (psfunctor_fib_to_psfunctor_unit_disp_functor_inv D HD)
+           (psfunctor_fib_to_psfunctor_unit_disp_functor D HD))
+        (disp_functor_identity _)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, id_disp _.
+
+  <span class="kn">Proposition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_equiv_counit_laws</span>
+              (<span class="nv">D</span> : disp_univalent_category C)
+              (<span class="nv">HD</span> : cleaving D)
+    : disp_nat_trans_axioms
+        (psfunctor_fib_to_psfunctor_unit_equiv_counit_data D HD).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx yy zz ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> psfunctor_fib_to_psfunctor_unit_equiv_counit_data.
+    <span class="nb">rewrite</span> id_left_disp, id_right_disp.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> !transport_f_f.
+    <span class="nb">rewrite</span> cartesian_factorisation_commutes.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_equiv_counit</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : disp_nat_trans
+        (nat_trans_id (functor_identity C))
+        (disp_functor_over_id_composite
+           (psfunctor_fib_to_psfunctor_unit_disp_functor_inv D HD)
+           (psfunctor_fib_to_psfunctor_unit_disp_functor D HD))
+        (disp_functor_identity _).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_equiv_counit_data D HD).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_equiv_counit_laws D HD).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   7. The unit is a pointwise adjoint equivalence</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">psfunctor_fib_to_psfunctor_unit_equiv</span>
+             (<span class="nv">D</span> : disp_univalent_category C)
+             (<span class="nv">HD</span> : cleaving D)
+    : @left_equivalence
+        (fib_slice_bicat C)
+        _ _
+        (psfunctor_fib_to_psfunctor_unit (D ,, HD)).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_cartesian_disp_functor_inv D HD).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_equiv_unit D HD).
+    - <span class="bp">exact</span> (psfunctor_fib_to_psfunctor_unit_equiv_counit D HD).
+    - <span class="nb">cbn</span>.
+      use is_invertible_2cell_fib_slice.
+      <span class="nb">intros</span> x xx.
+      use is_z_iso_disp_indexed_cat_to_disp_cat.
+      <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> xx.
+      <span class="nb">unfold</span> psfunctor_fib_to_psfunctor_unit_equiv_unit_data.
+      use is_z_iso_fiber_from_is_z_iso_disp.
+      use (is_z_iso_disp_cartesian_factorisation
+               (identity_is_z_iso x)
+               (identity_is_z_iso x)).
+      use (@is_z_iso_disp_transportf_fun_eq
+             _ _
+             _ _
+             (identity_z_iso _)).
+      <span class="nb">apply</span> id_is_z_iso_disp.
+    - use is_invertible_2cell_fib_slice.
+      <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id_is_z_iso_disp.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">GrothendieckConstruction</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Grothendieck/Unit.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. The unit is a pointwise adjoint equivalence
+  &gt;
+  &gt;  ************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Isos.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

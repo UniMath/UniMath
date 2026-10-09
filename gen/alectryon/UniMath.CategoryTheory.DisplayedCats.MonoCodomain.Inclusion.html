@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Inclusion.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************</span>
+
+<span class="sd"> The inclusion of monomorphisms into morphisms</span>
+
+<span class="sd"> We construct the displayed functor over the identity from the displayed category of</span>
+<span class="sd"> monomorphisms to the displayed category of morphisms, and we instantiate it to obtain</span>
+<span class="sd"> fiber functors. We also show that an object in the slice category lies in the slice</span>
+<span class="sd"> category of monomorphisms if an only if the map to the terminal object is a monomorphism</span>
+<span class="sd"> as well.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The displayed functor</span>
+<span class="sd"> 2. The fiber functor</span>
+<span class="sd"> 3. From the slice category to the slice category of monomorphisms</span>
+
+<span class="sd"> **************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.MonoCodomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MonoCodomain.FiberMonoCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodDomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The displayed functor *)</span>
+<span class="kn">Definition</span> <span class="nf">mono_cod_to_cod</span>
+           (<span class="nv">C</span> : category)
+  : disp_functor
+      (functor_identity C)
+      (disp_mono_codomain C)
+      (disp_codomain C)
+  := sigmapr1_disp_functor _.
+
+<span class="sd">(** * 2. The fiber functor *)</span>
+<span class="kn">Definition</span> <span class="nf">mono_cod_to_cod_fib</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">x</span> : C)
+  : (C /m x) ⟶ (C / x)
+  := fiber_functor (mono_cod_to_cod C) x.
+
+<span class="kn">Proposition</span> <span class="nf">mono_cod_fiber_functor_on_mor</span>
+            {<span class="nv">C</span> : category}
+            (<span class="nv">HC</span> : Pullbacks C)
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+            {<span class="nv">zg₁</span> <span class="nv">zg₂</span> : C /m y}
+            (<span class="nv">gp</span> : zg₁ --&gt; zg₂)
+  : #(mono_cod_pb HC f) gp
+    =
+    (#(cod_pb HC f) (#(mono_cod_to_cod_fib _) gp) ,, tt).
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropunit.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">rewrite</span> cod_fiber_functor_on_mor.
+  use (MorphismsIntoPullbackEqual
+         (isPullback_Pullback (HC y (pr11 zg₂) x (pr21 zg₂) f))) ; <span class="nb">cbn</span>.
+  - <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (HC y (pr11 zg₂) x (pr21 zg₂) f)).
+    }
+    <span class="nb">rewrite</span> transportf_mono_cod_disp.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (HC y (pr11 zg₂) x (pr21 zg₂) f)).
+    }
+    <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. From the slice category to the slice category of monomorphisms *)</span>
+<span class="kn">Section</span> <span class="nf">MonicSlice</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">y</span> : C}
+          (<span class="nv">xf</span> : C / y)
+          (<span class="nv">T</span> : Terminal (C / y)).
+
+    <span class="kn">Let</span> <span class="nf">T'</span> : Terminal (C / y) := codomain_fib_terminal y.
+    <span class="kn">Let</span> <span class="nf">x</span> : C := cod_dom xf .
+    <span class="kn">Let</span> <span class="nf">f</span>  : x --&gt; y := cod_mor xf.
+
+    <span class="kn">Let</span> <span class="nf">fm</span> := @make_cod_fib_mor _ _ xf T' f (id_right _).
+
+    <span class="kn">Proposition</span> <span class="nf">to_monic_slice_from_terminal</span>
+                (<span class="nv">H</span> : isMonic (TerminalArrow T xf))
+      : isMonic (cod_mor xf).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w g h p.
+      <span class="nb">simple refine</span> (maponpaths pr1 (H (cod_fib_comp f (make_cod_fib_ob g)) (_ ,, _) (_ ,, _) _)).
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_right.
+        <span class="bp">exact</span> (!p).
+      + <span class="nb">apply</span> TerminalArrowEq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">from_monic_slice_to_terminal</span>
+                (<span class="nv">H</span> : isMonic (cod_mor xf))
+      : isMonic (TerminalArrow T xf).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> xg φ ψ p.
+      use eq_mor_cod_fib.
+      use H.
+      use (cancel_z_iso _ _ (functor_on_z_iso (slice_dom _) (z_iso_Terminals T' T))).
+      <span class="nb">pose</span> (maponpaths dom_mor p) <span class="k">as</span> q.
+      <span class="nb">rewrite</span> !comp_in_cod_fib <span class="k">in</span> q.
+      <span class="nb">assert</span> (TerminalArrow T xf
+              =
+              fm · TerminalArrow T T') <span class="k">as</span> r.
+      {
+        <span class="nb">apply</span> TerminalArrowEq.
+      }
+      <span class="nb">rewrite</span> r <span class="k">in</span> q ; <span class="nb">clear</span> r.
+      <span class="nb">rewrite</span> !comp_in_cod_fib <span class="k">in</span> q.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">monic_slice_equiv_terminal</span>
+      : isMonic (cod_mor xf)
+        ≃
+        isMonic (TerminalArrow T xf).
+    <span class="kn">Proof</span>.
+      use weqimplimpl.
+      - <span class="nb">apply</span> from_monic_slice_to_terminal.
+      - <span class="nb">apply</span> to_monic_slice_from_terminal.
+      - <span class="nb">apply</span> isapropisMonic.
+      - <span class="nb">apply</span> isapropisMonic.
+    <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">MonicSlice</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/MonoCodomain/Inclusion.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. From the slice category to the slice category of monomorphisms
+  &gt;
+  &gt;  **************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

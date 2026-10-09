@@ -1,0 +1,771 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PresheafCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Properties of the category of algebraic theory presheaves</span>
+
+<span class="sd">  Shows that presheaves are fibered over algebraic theories. The displayed category structure is</span>
+<span class="sd">  then leveraged to show that the category is univalent and has all limits. To facilitate</span>
+<span class="sd">  computation, concrete definitions of the terminal object, binary product and product are given.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Univalence [is_univalent_presheaf_cat]</span>
+<span class="sd">  2. Fibration [presheaf_fibration]</span>
+<span class="sd">  3. Limits [limits_presheaf_cat]</span>
+<span class="sd">  4. Terminal object [terminal_presheaf_cat]</span>
+<span class="sd">  5. Binary products [bin_products_presheaf_cat]</span>
+<span class="sd">  6. Products [products_presheaf_cat]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Export</span> UniMath.AlgebraicTheories.PresheafCategoryCore.
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.IndexedSetCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.PresheafMorphisms.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Presheaves.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="sd">(** * 1. Univalence *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_presheaf_data_disp_cat</span>
+  : is_univalent_disp presheaf_data_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_disp_iff_fibers_are_univalent.
+  <span class="nb">intros</span> TA op op'.
+  use isweq_iso.
+  - <span class="nb">intro</span> F.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+    <span class="nb">apply</span> (pr1 F _).
+  - <span class="nb">intro</span>.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred_isaset; <span class="nb">intro</span>).
+    <span class="nb">apply</span> setproperty.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> z_iso_eq.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+    <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_presheaf_data_cat</span>
+  : is_univalent presheaf_data_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_category.
+  - <span class="nb">apply</span> is_univalent_cartesian'.
+    + <span class="bp">exact</span> is_univalent_algebraic_theory_cat.
+    + <span class="nb">apply</span> is_univalent_indexed_set_cat.
+  - <span class="bp">exact</span> is_univalent_disp_presheaf_data_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_presheaf_full_disp_cat</span>
+  : is_univalent_disp presheaf_full_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_full_sub_univalent.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> isaprop_full_is_presheaf.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_presheaf_full_cat</span>
+  : is_univalent presheaf_full_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_category.
+  - <span class="bp">exact</span> is_univalent_presheaf_data_cat.
+  - <span class="bp">exact</span> is_univalent_disp_presheaf_full_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_presheaf_disp_cat</span>
+  : is_univalent_disp presheaf_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> use is_univalent_sigma_disp.
+  - <span class="nb">apply</span> is_univalent_disp_cartesian'.
+    <span class="nb">apply</span> is_univalent_indexed_set_cat.
+  - <span class="bp">exact</span> is_univalent_disp_presheaf_data_disp_cat.
+  - <span class="bp">exact</span> is_univalent_disp_presheaf_full_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_presheaf_cat</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  : is_univalent (presheaf_cat T).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (is_univalent_fiber_cat _ _ _).
+  <span class="bp">exact</span> is_univalent_disp_presheaf_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Fibration *)</span>
+
+<span class="kn">Section</span> <span class="nf">fibration</span>.
+
+  <span class="kn">Section</span> <span class="nf">lift</span>.
+
+    <span class="kn">Context</span> {<span class="nv">T</span> <span class="nv">T'</span> : algebraic_theory}.
+    <span class="kn">Context</span> (<span class="nv">F</span> : algebraic_theory_morphism T' T).
+    <span class="kn">Context</span> (<span class="nv">P</span> : presheaf T).
+
+    <span class="kn">Definition</span> <span class="nf">lifted_presheaf_data</span>
+      : presheaf_data T'.
+    <span class="kn">Proof</span>.
+      use make_presheaf_data.
+      - <span class="bp">exact</span> (pr1 P).
+      - <span class="nb">intros</span> m n s t.
+        <span class="bp">exact</span> (op (P := P) s (<span class="k">λ</span> <span class="nv">i</span>, F _ (t i))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">lifted_is_presheaf</span>
+      : is_presheaf lifted_presheaf_data.
+    <span class="kn">Proof</span>.
+      use make_is_presheaf.
+      - <span class="kp">do</span> <span class="mi">6</span> <span class="nb">intro</span>.
+        <span class="nb">refine</span> (op_op _ a _ _ @ _).
+        <span class="nb">apply</span> (maponpaths (op (P := P) a)).
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span>.
+        <span class="nb">symmetry</span>.
+        <span class="nb">apply</span> mor_subst.
+      - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">intro</span>.
+        <span class="nb">refine</span> (_ @ op_var P _).
+        <span class="nb">apply</span> (maponpaths (op (P := P) f)).
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> mor_var.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">lifted_presheaf</span>
+      : presheaf T'
+      := make_presheaf _ lifted_is_presheaf.
+
+    <span class="kn">Definition</span> <span class="nf">lifted_presheaf_morphism</span>
+      : (lifted_presheaf : presheaf_disp_cat T') --&gt;[F] P.
+    <span class="kn">Proof</span>.
+      use tpair.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, idfun _).
+      - <span class="kp">abstract</span> <span class="bp">exact</span> ((<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, idpath _) ,, tt).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Section</span> <span class="nf">cartesian</span>.
+
+      <span class="kn">Context</span> {<span class="nv">T''</span>: algebraic_theory}.
+      <span class="kn">Context</span> {<span class="nv">F'</span>: algebraic_theory_morphism T'' T'}.
+      <span class="kn">Context</span> {<span class="nv">P''</span>: presheaf T''}.
+      <span class="kn">Context</span> (<span class="nv">G</span>: (P'' : presheaf_disp_cat T'') --&gt;[(F' : algebraic_theory_cat ⟦ _, _ ⟧) · F] P).
+
+      <span class="kn">Definition</span> <span class="nf">induced_morphism</span>
+        : (P'' : presheaf_disp_cat T'') --&gt;[F'] lifted_presheaf.
+      <span class="kn">Proof</span>.
+        use tpair.
+        - <span class="bp">exact</span> (pr1 G).
+        - <span class="kp">abstract</span> <span class="bp">exact</span> ((<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, pr12 G _ _ _ _) ,, tt).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">induced_morphism_commutes</span>
+        : (induced_morphism ;; lifted_presheaf_morphism) = G.
+      <span class="kn">Proof</span>.
+        <span class="bp">now</span> <span class="nb">apply</span> displayed_presheaf_morphism_eq.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">induced_morphism_unique</span>
+        (<span class="nv">induced_morphism'</span> : (P'' : presheaf_disp_cat T'') --&gt;[F'] lifted_presheaf)
+        (<span class="nv">H</span> : (induced_morphism' ;; lifted_presheaf_morphism) = G)
+        : induced_morphism' = induced_morphism.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> displayed_presheaf_morphism_eq.
+        <span class="bp">exact</span> (maponpaths _ H).
+      <span class="kn">Qed</span>.
+
+    <span class="kn">End</span> <span class="nf">cartesian</span>.
+
+    <span class="kn">Definition</span> <span class="nf">lifted_presheaf_morphism_is_cartesian</span>
+      : is_cartesian lifted_presheaf_morphism.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> T'' F' P'' G.
+      use unique_exists.
+      - <span class="bp">exact</span> (induced_morphism G).
+      - <span class="bp">exact</span> (induced_morphism_commutes G).
+      - <span class="kp">abstract</span> (<span class="nb">intro</span>; <span class="nb">apply</span> homsets_disp).
+      - <span class="bp">exact</span> (induced_morphism_unique G).
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">lift</span>.
+
+  <span class="kn">Definition</span> <span class="nf">presheaf_cleaving</span>
+    : cleaving presheaf_disp_cat
+    := <span class="k">λ</span> <span class="nv">T</span> <span class="nv">T'</span> <span class="nv">F</span> <span class="nv">P</span>,
+      (lifted_presheaf F P) ,,
+      (lifted_presheaf_morphism F P) ,,
+      (lifted_presheaf_morphism_is_cartesian F P).
+
+  <span class="kn">Definition</span> <span class="nf">presheaf_fibration</span>
+    : fibration algebraic_theory_cat
+    := presheaf_disp_cat ,, presheaf_cleaving.
+
+<span class="kn">End</span> <span class="nf">fibration</span>.
+
+<span class="sd">(** * 3. Limits *)</span>
+
+<span class="kn">Definition</span> <span class="nf">creates_limits_presheaf_base_disp</span>
+  : creates_limits (disp_cartesian' algebraic_theory_cat (indexed_set_cat nat)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> J d L.
+  use creates_limits_disp_cartesian'.
+  <span class="nb">apply</span> limits_indexed_set_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">limits_presheaf_base</span>
+  : Lims (cartesian' algebraic_theory_cat (indexed_set_cat nat)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> J d.
+  use total_limit.
+  - <span class="nb">apply</span> limits_algebraic_theory_cat.
+  - <span class="nb">apply</span> creates_limits_presheaf_base_disp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">DataLimits</span>.
+  <span class="kn">Context</span> (<span class="nv">D</span> := presheaf_data_disp_cat).
+  <span class="kn">Context</span> {<span class="nv">J</span> : graph}.
+  <span class="kn">Context</span> (<span class="nv">d</span> : diagram J (total_category D)).
+  <span class="kn">Context</span> (<span class="nv">L</span> := limits_presheaf_base J (mapdiagram (pr1_category _) d)).
+
+  <span class="kn">Definition</span> <span class="nf">tip_presheaf_data_disp_cat</span>
+    : D (lim L).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m n a f.
+    use tpair.
+    - <span class="nb">intro</span> u.
+      <span class="bp">exact</span> (pr2 (dob d u) m n (pr1 a u) (<span class="k">λ</span> <span class="nv">i</span>, pr1 (f i) u)).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> u v e;
+        <span class="nb">refine</span> (pr2 (dmor d e) _ _ _ _ @ _);
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, _ x _) _ @ maponpaths _ _);
+        [ <span class="bp">exact</span> (pr2 a u v e)
+        | <span class="nb">apply</span> funextfun;
+          <span class="nb">intro</span>;
+          <span class="bp">exact</span> (pr2 (f _) u v e) ]
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cone_presheaf_data_disp_cat</span>
+    (<span class="nv">j</span> : vertex J)
+    : tip_presheaf_data_disp_cat --&gt;[limOut L j] pr2 (dob d j).
+  <span class="kn">Proof</span>.
+    <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">uniqueness_presheaf_data_disp_cat</span>
+    (<span class="nv">d'</span> : D (lim L))
+    (<span class="nv">cone_out</span> : ∏ j, d' --&gt;[limOut L j] (pr2 (dob d j)))
+    : d' = tip_presheaf_data_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+    <span class="nb">apply</span> subtypePairEquality.
+    {
+      <span class="nb">intro</span>.
+      <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> (cone_out _ _ _ _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_limit_presheaf_data_disp_cat</span>
+    (<span class="nv">d'</span> : total_category D)
+    (<span class="nv">cone_out</span> : ∏ u, d' --&gt; (dob d u))
+    (<span class="nv">is_cone</span> : ∏ u v e, cone_out u · (dmor d e) = cone_out v)
+    : pr2 d' --&gt;[limArrow L _ (make_cone
+        (d := (mapdiagram (pr1_category D) d)) _
+        (<span class="k">λ</span> <span class="nv">u</span> <span class="nv">v</span> <span class="nv">e</span>, (maponpaths pr1 (is_cone u v e))))
+      ] tip_presheaf_data_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m n f g.
+    <span class="nb">apply</span> subtypePairEquality.
+    {
+      <span class="nb">intro</span>.
+      <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+      <span class="bp">exact</span> (setproperty _ _ _).
+    }
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> i.
+    <span class="bp">exact</span> (pr2 (cone_out i) m n f g).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">DataLimits</span>.
+
+<span class="kn">Definition</span> <span class="nf">creates_limits_presheaf_data_disp_cat</span>
+  {<span class="nv">J</span> : graph}
+  (<span class="nv">d</span> : diagram J (total_category presheaf_data_disp_cat))
+  : creates_limit d (limits_presheaf_base _ _)
+  := creates_limit_disp_struct _
+    (tip_presheaf_data_disp_cat _)
+    (cone_presheaf_data_disp_cat _)
+    (is_limit_presheaf_data_disp_cat _).
+
+<span class="kn">Definition</span> <span class="nf">creates_limits_unique_presheaf_data_disp_cat</span>
+  {<span class="nv">J</span> : graph}
+  (<span class="nv">d</span> : diagram J (total_category presheaf_data_disp_cat))
+  : creates_limit_unique d (limits_presheaf_base _ _)
+  := creates_limit_unique_disp_struct
+    (creates_limits_presheaf_data_disp_cat _)
+    (uniqueness_presheaf_data_disp_cat _).
+
+<span class="kn">Definition</span> <span class="nf">limits_presheaf_data_cat</span>
+  : Lims presheaf_data_cat
+  := <span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, total_limit _ (creates_limits_presheaf_data_disp_cat _).
+
+<span class="kn">Definition</span> <span class="nf">creates_limits_presheaf_full_disp_cat</span>
+  {<span class="nv">J</span> : graph}
+  (<span class="nv">d</span> : diagram J (total_category presheaf_full_disp_cat))
+  : creates_limit d (limits_presheaf_data_cat _ _).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> creates_limit_disp_full_sub.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_full_is_presheaf.
+  - <span class="kp">abstract</span> (
+      <span class="nb">split</span>;
+        <span class="kp">repeat</span> <span class="nb">intro</span>;
+        (use total2_paths_f;
+        [ <span class="nb">apply</span> funextsec;
+          <span class="nb">intro</span> u
+        | <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+          <span class="nb">apply</span> setproperty ]);
+      [ <span class="nb">apply</span> (pr1 (pr2 (dob d _)))
+      | <span class="nb">apply</span> (pr2 (pr2 (dob d _))) ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">creates_limits_unique_presheaf_full_disp_cat</span>
+  {<span class="nv">J</span> : graph}
+  (<span class="nv">d</span> : diagram J (total_category presheaf_full_disp_cat))
+  : creates_limit_unique d (limits_presheaf_data_cat _ _)
+  := creates_limit_unique_disp_full_sub
+    (<span class="k">λ</span> <span class="nv">_</span>, isaprop_full_is_presheaf _)
+    _
+    (creates_limits_presheaf_full_disp_cat _).
+
+<span class="kn">Definition</span> <span class="nf">limits_presheaf_full_cat</span>
+  : Lims presheaf_full_cat
+  := <span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, total_limit _ (creates_limits_presheaf_full_disp_cat _).
+
+<span class="kn">Definition</span> <span class="nf">creates_limits_presheaf_disp_cat</span>
+  {<span class="nv">J</span> : graph}
+  (<span class="nv">d</span> : diagram J (total_category presheaf_disp_cat))
+  : creates_limit d (limits_algebraic_theory_cat _ _).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> use creates_limits_sigma_disp_cat.
+  - <span class="bp">exact</span> (creates_limits_presheaf_base_disp _ _ _).
+  - <span class="bp">exact</span> (creates_limits_presheaf_data_disp_cat _).
+  - <span class="bp">exact</span> (creates_limits_presheaf_full_disp_cat _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">limits_presheaf_cat</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  : Lims (presheaf_cat T).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> J d.
+  use fiber_limit.
+  - <span class="nb">apply</span> limits_algebraic_theory_cat.
+  - <span class="nb">apply</span> creates_limits_presheaf_disp_cat.
+  - <span class="nb">apply</span> presheaf_cleaving.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Terminal object *)</span>
+
+<span class="kn">Section</span> <span class="nf">Terminal</span>.
+
+  <span class="kn">Context</span> (<span class="nv">T</span> : algebraic_theory).
+
+  <span class="kn">Definition</span> <span class="nf">terminal_presheaf_data</span>
+    : presheaf_data T.
+  <span class="kn">Proof</span>.
+    use make_presheaf_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, unitset).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">terminal_is_presheaf</span>
+    : is_presheaf terminal_presheaf_data.
+  <span class="kn">Proof</span>.
+    use make_is_presheaf;
+      <span class="kp">repeat</span> <span class="nb">intro</span>.
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">refine</span> (!pr2 iscontrunit _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">terminal_presheaf</span>
+    : presheaf T
+    := make_presheaf
+      terminal_presheaf_data
+      terminal_is_presheaf.
+
+  <span class="kn">Section</span> <span class="nf">TerminalMorphism</span>.
+
+    <span class="kn">Context</span> (<span class="nv">P</span> : presheaf T).
+
+    <span class="kn">Definition</span> <span class="nf">terminal_presheaf_morphism</span>
+      : presheaf_morphism P terminal_presheaf.
+    <span class="kn">Proof</span>.
+      use make_presheaf_morphism.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, tt).
+      - <span class="kp">abstract</span> <span class="bp">easy</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">terminal_presheaf_morphism_unique</span>
+      (<span class="nv">f</span> : presheaf_morphism P terminal_presheaf)
+      : f = terminal_presheaf_morphism.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (presheaf_morphism_eq).
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> iscontrunit.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">TerminalMorphism</span>.
+
+<span class="kn">Definition</span> <span class="nf">terminal_presheaf_cat</span>
+  : Terminal (presheaf_cat T).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (make_presheaf terminal_presheaf_data terminal_is_presheaf).
+  - <span class="nb">intro</span> P.
+    use make_iscontr.
+    + <span class="bp">exact</span> (terminal_presheaf_morphism P).
+    + <span class="bp">exact</span> (terminal_presheaf_morphism_unique P).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Terminal</span>.
+
+<span class="sd">(** * 5. Binary products *)</span>
+
+<span class="kn">Section</span> <span class="nf">BinProduct</span>.
+
+  <span class="kn">Context</span> (<span class="nv">T</span> : algebraic_theory).
+  <span class="kn">Context</span> (<span class="nv">P</span> <span class="nv">P'</span>: presheaf T).
+
+  <span class="kn">Definition</span> <span class="nf">binproduct_presheaf_data</span>
+    : presheaf_data T.
+  <span class="kn">Proof</span>.
+    use make_presheaf_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span>, dirprod_hSet (P n) (P' n)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span> <span class="nv">n</span> <span class="nv">t</span> <span class="nv">f</span>, (op (pr1 t) f ,, op (pr2 t) f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">binproduct_is_presheaf</span>
+    : is_presheaf binproduct_presheaf_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="kp">do</span> <span class="mi">6</span> <span class="nb">intro</span>.
+      <span class="nb">apply</span> pathsdirprod;
+      <span class="nb">apply</span> op_op.
+    - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">intro</span>.
+      <span class="nb">apply</span> pathsdirprod;
+      <span class="nb">apply</span> op_var.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binproduct_presheaf</span>
+    : presheaf T
+    := make_presheaf
+      binproduct_presheaf_data
+      binproduct_is_presheaf.
+
+  <span class="kn">Definition</span> <span class="nf">binproduct_presheaf_pr1</span>
+    : presheaf_morphism binproduct_presheaf P.
+  <span class="kn">Proof</span>.
+    use make_presheaf_morphism.
+    - <span class="nb">intro</span> n.
+      <span class="bp">exact</span> pr1.
+    - <span class="kp">abstract</span> <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">binproduct_presheaf_pr2</span>
+    : presheaf_morphism binproduct_presheaf P'.
+  <span class="kn">Proof</span>.
+    use make_presheaf_morphism.
+    - <span class="nb">intro</span> n.
+      <span class="bp">exact</span> pr2.
+    - <span class="kp">abstract</span> <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">UniversalProperty</span>.
+
+    <span class="kn">Context</span> (<span class="nv">Q</span> : presheaf T).
+    <span class="kn">Context</span> (<span class="nv">F</span>: presheaf_morphism Q P).
+    <span class="kn">Context</span> (<span class="nv">F'</span> : presheaf_morphism Q P').
+
+    <span class="kn">Definition</span> <span class="nf">binproduct_presheaf_induced_morphism_data</span>
+      (<span class="nv">n</span> : nat)
+      (<span class="nv">q</span> : Q n)
+      : binproduct_presheaf n.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (F _ q ,, F' _ q).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">binproduct_presheaf_induced_is_morphism</span>
+      (<span class="nv">m</span> <span class="nv">n</span> : nat)
+      (<span class="nv">a</span> : Q m)
+      (<span class="nv">f</span> : stn m → T n)
+      : mor_op_ax (identity T) binproduct_presheaf_induced_morphism_data (@op T Q) (@op T binproduct_presheaf) m n a f.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> pathsdirprod;
+        <span class="nb">apply</span> mor_op.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">binproduct_presheaf_induced_morphism</span>
+      : presheaf_morphism Q binproduct_presheaf
+      := make_presheaf_morphism
+        binproduct_presheaf_induced_morphism_data
+        binproduct_presheaf_induced_is_morphism.
+
+    <span class="kn">Lemma</span> <span class="nf">binproduct_presheaf_induced_morphism_commutes</span>
+      : (binproduct_presheaf_induced_morphism : presheaf_cat T⟦Q, binproduct_presheaf⟧) ·
+          binproduct_presheaf_pr1 = F ×
+        (binproduct_presheaf_induced_morphism : presheaf_cat T⟦Q, binproduct_presheaf⟧) ·
+          binproduct_presheaf_pr2 = F'.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>;
+        <span class="nb">apply</span> displayed_presheaf_morphism_eq;
+        <span class="nb">apply</span> funextsec;
+        <span class="nb">intro</span> n;
+        <span class="nb">apply</span> presheaf_mor_comp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">binproduct_presheaf_induced_morphism_unique</span>
+      (<span class="nv">t</span> : ∑ k : presheaf_cat T ⟦ Q, binproduct_presheaf ⟧,
+        k · binproduct_presheaf_pr1 = F × k · binproduct_presheaf_pr2 = F')
+      : t = binproduct_presheaf_induced_morphism ,, binproduct_presheaf_induced_morphism_commutes.
+    <span class="kn">Proof</span>.
+      use subtypePairEquality.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod;
+          <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">apply</span> displayed_presheaf_morphism_eq.
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span> n.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> s.
+      <span class="nb">apply</span> pathsdirprod.
+      - <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x _ _) (pr12 t)).
+        <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (presheaf_mor_comp _ _ _)).
+      - <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x _ _) (pr22 t)).
+        <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (presheaf_mor_comp _ _ _)).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">UniversalProperty</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bin_product_presheaf_cat</span>
+    : BinProduct (presheaf_cat T) P P'.
+  <span class="kn">Proof</span>.
+    use make_BinProduct.
+    - <span class="bp">exact</span> binproduct_presheaf.
+    - <span class="bp">exact</span> binproduct_presheaf_pr1.
+    - <span class="bp">exact</span> binproduct_presheaf_pr2.
+    - use make_isBinProduct.
+      <span class="nb">intros</span> Q F F'.
+      use make_iscontr.
+      + use tpair.
+        * <span class="bp">exact</span> (binproduct_presheaf_induced_morphism Q F F').
+        * <span class="bp">exact</span> (binproduct_presheaf_induced_morphism_commutes Q F F').
+      + <span class="bp">exact</span> (binproduct_presheaf_induced_morphism_unique Q F F').
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">BinProduct</span>.
+
+<span class="kn">Definition</span> <span class="nf">bin_products_presheaf_cat</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  : BinProducts (presheaf_cat T)
+  := bin_product_presheaf_cat T.
+
+<span class="sd">(** * 6. Products *)</span>
+
+<span class="kn">Section</span> <span class="nf">Product</span>.
+
+  <span class="kn">Context</span> (<span class="nv">T</span> : algebraic_theory).
+  <span class="kn">Context</span> (<span class="nv">I</span> : UU).
+  <span class="kn">Context</span> (<span class="nv">P</span> : I → presheaf T).
+
+  <span class="kn">Definition</span> <span class="nf">product_presheaf_data</span>
+    : presheaf_data T.
+  <span class="kn">Proof</span>.
+    use make_presheaf_data.
+    - <span class="nb">intro</span> n.
+      <span class="bp">exact</span> (forall_hSet (<span class="k">λ</span> <span class="nv">i</span>, P i n)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">m</span> <span class="nv">n</span> <span class="nv">t</span> <span class="nv">f</span> <span class="nv">i</span>, op (t i) f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">product_is_presheaf</span>
+    : is_presheaf product_presheaf_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="kp">do</span> <span class="mi">6</span> <span class="nb">intro</span>.
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> op_op.
+    - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">intro</span>.
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> op_var.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">product_presheaf</span>
+    : presheaf T
+    := make_presheaf
+      product_presheaf_data
+      product_is_presheaf.
+
+  <span class="kn">Definition</span> <span class="nf">product_presheaf_pr</span>
+    (<span class="nv">i</span> : I)
+    : presheaf_morphism product_presheaf (P i).
+  <span class="kn">Proof</span>.
+    use (make_presheaf_morphism (P := make_presheaf _ _)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span> <span class="nv">t</span>, t i).
+    - <span class="kp">abstract</span> <span class="bp">easy</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">UniversalProperty</span>.
+
+    <span class="kn">Context</span> (<span class="nv">Q</span> : presheaf T).
+    <span class="kn">Context</span> (<span class="nv">F</span> : ∏ i, presheaf_morphism Q (P i)).
+
+    <span class="kn">Definition</span> <span class="nf">product_presheaf_induced_morphism_data</span>
+      (<span class="nv">n</span> : nat)
+      (<span class="nv">q</span> : Q n)
+      : product_presheaf n.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> i.
+      <span class="bp">exact</span> (F i n q).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">product_presheaf_induced_is_morphism</span>
+      (<span class="nv">m</span> <span class="nv">n</span> : nat)
+      (<span class="nv">a</span> : Q m)
+      (<span class="nv">f</span> : stn m → T n)
+      : mor_op_ax (identity T) product_presheaf_induced_morphism_data (@op T Q) (@op T product_presheaf) m n a f.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span>.
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> mor_op.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">product_presheaf_induced_morphism</span>
+      : presheaf_morphism Q product_presheaf
+      := make_presheaf_morphism
+        product_presheaf_induced_morphism_data
+        product_presheaf_induced_is_morphism.
+
+    <span class="kn">Lemma</span> <span class="nf">product_presheaf_induced_morphism_commutes</span>
+      (<span class="nv">i</span> : I)
+      : (product_presheaf_induced_morphism : presheaf_cat T⟦Q, product_presheaf⟧) ·
+          product_presheaf_pr i = F i.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> displayed_presheaf_morphism_eq.
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span> n.
+      <span class="nb">apply</span> presheaf_mor_comp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">product_presheaf_induced_morphism_unique</span>
+      (<span class="nv">t</span> : ∑ k : presheaf_cat T ⟦ Q, product_presheaf ⟧,
+        ∏ i, k · product_presheaf_pr i = F i)
+      : t = product_presheaf_induced_morphism ,, product_presheaf_induced_morphism_commutes.
+    <span class="kn">Proof</span>.
+      use subtypePairEquality.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> impred_isaprop.
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">apply</span> displayed_presheaf_morphism_eq.
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span> n.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> s.
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, pr1 x _ _) (pr2 t i)).
+      <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (presheaf_mor_comp _ _ _)).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">UniversalProperty</span>.
+
+  <span class="kn">Definition</span> <span class="nf">product_presheaf_cat</span>
+    : Product I (presheaf_cat T) P.
+  <span class="kn">Proof</span>.
+    use make_Product.
+    - <span class="bp">exact</span> product_presheaf.
+    - <span class="bp">exact</span> product_presheaf_pr.
+    - use (make_isProduct _ _ (homset_property _)).
+      <span class="nb">intros</span> Q F.
+      use make_iscontr.
+      + use tpair.
+        * <span class="bp">exact</span> (product_presheaf_induced_morphism Q F).
+        * <span class="bp">exact</span> (product_presheaf_induced_morphism_commutes Q F).
+      + <span class="bp">exact</span> (product_presheaf_induced_morphism_unique Q F).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Product</span>.
+
+<span class="kn">Definition</span> <span class="nf">products_presheaf_cat</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  (<span class="nv">I</span> : UU)
+  : Products I (presheaf_cat T)
+  := product_presheaf_cat T I.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/PresheafCategory.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/AlgebraicTheories/PresheafCategoryCore.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   6. Products [products_presheaf_cat]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Export UniMath.AlgebraicTheories.PresheafCategoryCore.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.Foundations.All.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

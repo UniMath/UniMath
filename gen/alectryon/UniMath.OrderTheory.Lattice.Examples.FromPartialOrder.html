@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FromPartialOrder.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************************</span>
+
+<span class="sd"> Lattices from posets</span>
+
+<span class="sd"> One can construct a poset from a lattice if there is a suitable minimum and maximum operation.</span>
+<span class="sd"> The difference lies in how the laws are phrased. A lattice is given by an equational theory:</span>
+<span class="sd"> this means that we have laws (associativity, commutativity, and absorbption) that are equational.</span>
+<span class="sd"> However, in this file, we consider laws that are phrased using the order of the poset.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Minimum and maximum operations in posets</span>
+<span class="sd"> 2. Lattices from posets</span>
+
+<span class="sd"> **********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Lattice.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.Bounded.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> poset.
+
+<span class="sd">(** * 1. Minimum and maximum operations in posets *)</span>
+<span class="kn">Definition</span> <span class="nf">min_operation</span>
+           (<span class="nv">X</span> : Poset)
+  : UU
+  := ∏ (x y : X),
+     ∑ (m : X),
+     m ≤ x
+     ×
+     m ≤ y
+     ×
+     ∏ (z : X), z ≤ x → z ≤ y → z ≤ m.
+
+<span class="kn">Definition</span> <span class="nf">min_op</span>
+           {<span class="nv">X</span> : Poset}
+           (<span class="nv">min</span> : min_operation X)
+           (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : X
+  := pr1 (min x y).
+
+<span class="kn">Proposition</span> <span class="nf">min_op_l</span>
+            {<span class="nv">X</span> : Poset}
+            (<span class="nv">min</span> : min_operation X)
+            (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : min_op min x y ≤ x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 (min x y)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">min_op_r</span>
+            {<span class="nv">X</span> : Poset}
+            (<span class="nv">min</span> : min_operation X)
+            (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : min_op min x y ≤ y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr122 (min x y)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">le_min_op</span>
+            {<span class="nv">X</span> : Poset}
+            (<span class="nv">min</span> : min_operation X)
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X}
+            (<span class="nv">p</span> : z ≤ x)
+            (<span class="nv">q</span> : z ≤ y)
+  : z ≤ min_op min x y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr222 (min x y) z p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">max_operation</span>
+           (<span class="nv">X</span> : Poset)
+  : UU
+  := ∏ (x y : X),
+     ∑ (m : X),
+     x ≤ m
+     ×
+     y ≤ m
+     ×
+     ∏ (z : X), x ≤ z → y ≤ z → m ≤ z.
+
+<span class="kn">Definition</span> <span class="nf">max_op</span>
+           {<span class="nv">X</span> : Poset}
+           (<span class="nv">max</span> : max_operation X)
+           (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : X
+  := pr1 (max x y).
+
+<span class="kn">Proposition</span> <span class="nf">max_op_l</span>
+            {<span class="nv">X</span> : Poset}
+            (<span class="nv">max</span> : max_operation X)
+            (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : x ≤ max_op max x y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr12 (max x y)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">max_op_r</span>
+            {<span class="nv">X</span> : Poset}
+            (<span class="nv">max</span> : max_operation X)
+            (<span class="nv">x</span> <span class="nv">y</span> : X)
+  : y ≤ max_op max x y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr122 (max x y)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">max_op_le</span>
+            {<span class="nv">X</span> : Poset}
+            (<span class="nv">max</span> : max_operation X)
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : X}
+            (<span class="nv">p</span> : x ≤ z)
+            (<span class="nv">q</span> : y ≤ z)
+  : max_op max x y ≤ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr222 (max x y) z p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">min_el</span>
+           (<span class="nv">X</span> : Poset)
+  : UU
+  := ∑ (x : X), ∏ (y : X), x ≤ y.
+
+<span class="kn">Coercion</span> <span class="nf">min_el_to_el</span>
+         {X : Poset}
+         (m : min_el X)
+  : X.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 m).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_min_min_el</span>
+            {<span class="nv">X</span> : Poset}
+            (<span class="nv">m</span> : min_el X)
+            (<span class="nv">y</span> : X)
+  : m ≤ y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 m y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">max_el</span>
+           (<span class="nv">X</span> : Poset)
+  : UU
+  := ∑ (x : X), ∏ (y : X), y ≤ x.
+
+<span class="kn">Coercion</span> <span class="nf">max_el_to_el</span>
+         {X : Poset}
+         (m : max_el X)
+  : X.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 m).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_max_max_el</span>
+            {<span class="nv">X</span> : Poset}
+            (<span class="nv">m</span> : max_el X)
+            (<span class="nv">y</span> : X)
+  : y ≤ m.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 m y).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Lattices from posets *)</span>
+<span class="kn">Section</span> <span class="nf">FixAPoset</span>.
+  <span class="kn">Context</span> (<span class="nv">X</span> : Poset)
+          (<span class="nv">min</span> : min_operation X)
+          (<span class="nv">max</span> : max_operation X).
+
+  <span class="kn">Proposition</span> <span class="nf">poset_to_lattice_laws</span>
+    : islatticeop
+        (min_op min)
+        (max_op max).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y z.
+      use isantisymm_posetRelation.
+      + use le_min_op.
+        * <span class="nb">refine</span> (istrans_posetRelation _ _ _ _ _ _) ; [ <span class="nb">apply</span> min_op_l | ].
+          <span class="nb">apply</span> min_op_l.
+        * use le_min_op.
+          ** <span class="nb">refine</span> (istrans_posetRelation _ _ _ _ _ _) ; [ <span class="nb">apply</span> min_op_l | ].
+             <span class="nb">apply</span> min_op_r.
+          ** <span class="nb">apply</span> min_op_r.
+      + use le_min_op.
+        * use le_min_op.
+          ** <span class="nb">apply</span> min_op_l.
+          ** <span class="nb">refine</span> (istrans_posetRelation _ _ _ _ _ _) ; [ <span class="nb">apply</span> min_op_r | ].
+             <span class="nb">apply</span> min_op_l.
+        * <span class="nb">refine</span> (istrans_posetRelation _ _ _ _ _ _) ; [ <span class="nb">apply</span> min_op_r | ].
+          <span class="nb">apply</span> min_op_r.
+    - <span class="nb">intros</span> x y.
+      use isantisymm_posetRelation.
+      + use le_min_op.
+        * <span class="nb">apply</span> min_op_r.
+        * <span class="nb">apply</span> min_op_l.
+      + use le_min_op.
+        * <span class="nb">apply</span> min_op_r.
+        * <span class="nb">apply</span> min_op_l.
+    - <span class="nb">intros</span> x y z.
+      use isantisymm_posetRelation.
+      + use max_op_le.
+        * use max_op_le.
+          ** <span class="nb">apply</span> max_op_l.
+          ** <span class="nb">refine</span> (istrans_posetRelation _ _ _ _ _ _) ; [ | <span class="nb">apply</span> max_op_r ].
+             <span class="nb">apply</span> max_op_l.
+        * <span class="nb">refine</span> (istrans_posetRelation _ _ _ _ _ _) ; [ | <span class="nb">apply</span> max_op_r ].
+          <span class="nb">apply</span> max_op_r.
+      + use max_op_le.
+        * <span class="nb">refine</span> (istrans_posetRelation _ _ _ _ _ _) ; [ | <span class="nb">apply</span> max_op_l ].
+          <span class="nb">apply</span> max_op_l.
+        * use max_op_le.
+          ** <span class="nb">refine</span> (istrans_posetRelation _ _ _ _ _ _) ; [ | <span class="nb">apply</span> max_op_l ].
+             <span class="nb">apply</span> max_op_r.
+          ** <span class="nb">apply</span> max_op_r.
+    - <span class="nb">intros</span> x y.
+      use isantisymm_posetRelation.
+      + use max_op_le.
+        * <span class="nb">apply</span> max_op_r.
+        * <span class="nb">apply</span> max_op_l.
+      + use max_op_le.
+        * <span class="nb">apply</span> max_op_r.
+        * <span class="nb">apply</span> max_op_l.
+    - <span class="nb">intros</span> x y.
+      use isantisymm_posetRelation.
+      + <span class="nb">apply</span> min_op_l.
+      + use le_min_op.
+        * <span class="nb">apply</span> isrefl_posetRelation.
+        * <span class="nb">apply</span> max_op_l.
+    - <span class="nb">intros</span> x y.
+      use isantisymm_posetRelation.
+      + <span class="nb">apply</span> max_op_le.
+        * <span class="nb">apply</span> isrefl_posetRelation.
+        * <span class="nb">apply</span> min_op_l.
+      + use max_op_l.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">poset_to_lattice</span> : lattice X.
+  <span class="kn">Proof</span>.
+    use make_lattice.
+    - <span class="bp">exact</span> (min_op min).
+    - <span class="bp">exact</span> (max_op max).
+    - <span class="bp">exact</span> poset_to_lattice_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> (<span class="nv">bot</span> : min_el X)
+          (<span class="nv">top</span> : max_el X).
+
+  <span class="kn">Proposition</span> <span class="nf">poset_to_bounded_lattice_laws</span>
+    : bounded_latticeop poset_to_lattice bot top.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> x ; <span class="nb">cbn</span> ; use isantisymm_posetRelation.
+    - use max_op_le.
+      * <span class="nb">apply</span> is_min_min_el.
+      * <span class="nb">apply</span> isrefl_posetRelation.
+    - <span class="nb">apply</span> max_op_r.
+    - <span class="nb">apply</span> min_op_r.
+    - use le_min_op.
+      * <span class="nb">apply</span> is_max_max_el.
+      * <span class="nb">apply</span> isrefl_posetRelation.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">poset_to_bounded_lattice</span>
+    : bounded_lattice X.
+  <span class="kn">Proof</span>.
+    use make_bounded_lattice.
+    - <span class="bp">exact</span> poset_to_lattice.
+    - <span class="bp">exact</span> bot.
+    - <span class="bp">exact</span> top.
+    - <span class="bp">exact</span> poset_to_bounded_lattice_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FixAPoset</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Lattice/Examples/FromPartialOrder.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Lattices from posets
+  &gt;
+  &gt;  **********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Lattice.Lattice.
+  &gt; Require Import UniMath.OrderTheory.Lattice.Bounded.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

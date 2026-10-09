@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UnivalentKleisliEnriched.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************</span>
+
+<span class="sd"> The enriched univalent Kleisli category</span>
+
+<span class="sd"> We construct an enrichment of the univalent Kleisli category. Note</span>
+<span class="sd"> that since this category is defined as a subcategory of the</span>
+<span class="sd"> Eilenberg-Moore category, we assume that the monoidal category over</span>
+<span class="sd"> which we enrich, has equalizers.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Enrichment of the free algebra functor</span>
+<span class="sd"> 2. Enrichment of the univalent Kleisli category</span>
+<span class="sd"> 3. Functor to the Kleisli category</span>
+<span class="sd"> 4. Functor between the two different versions of the Kleisli category</span>
+<span class="sd"> 5. The functor is fully faithful</span>
+
+<span class="sd"> **********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Dialgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.EilenbergMoore.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.KleisliCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentMonad.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.DialgebraEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.EilenbergMooreEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.FullSubEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.KleisliEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.KleisliCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">EnrichedKleisli</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}
+          (<span class="nv">HV</span> : Equalizers V)
+          {<span class="nv">C</span> : category}
+          {<span class="nv">E</span> : enrichment C V}
+          {<span class="nv">M</span> : Monad C}
+          (<span class="nv">EM</span> : monad_enrichment E M).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Enrichment of the free algebra functor</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">free_alg_enrichment_mor</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : E ⦃ x, y ⦄
+      --&gt;
+      eilenberg_moore_enrichment HV EM ⦃ free_alg_em M x, free_alg_em M y ⦄.
+  <span class="kn">Proof</span>.
+    use EqualizerIn.
+    - <span class="bp">exact</span> (EM x y).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">unfold</span> dialgebra_enrichment_mor_left, dialgebra_enrichment_mor_right ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_left ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="bp">exact</span> (nat_trans_enrichment_to_comp (mu_of_monad_enrichment EM) x y)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">free_alg_enrichment_mor_incl</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : free_alg_enrichment_mor x y
+      · dialgebra_enrichment_mor_incl V HV EM (functor_id_enrichment E) (μ M x) (μ M y)
+      =
+      EM x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> EqualizerCommutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">free_alg_enrichment_laws</span>
+    : is_functor_enrichment free_alg_enrichment_mor.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> x.
+      use (dialgebra_enrichment_mor_eq_of_mor
+             V HV
+             EM (functor_id_enrichment E)).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> free_alg_enrichment_mor_incl.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> dialgebra_enrichment_id_incl.
+      }
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> functor_enrichment_id.
+    - <span class="nb">intros</span> x y z.
+      use (dialgebra_enrichment_mor_eq_of_mor
+             V HV
+             EM (functor_id_enrichment E)).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> free_alg_enrichment_mor_incl.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> dialgebra_enrichment_comp_incl.
+      }
+      <span class="nb">unfold</span> dialgebra_enrichment_comp_mor.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> tensor_comp_mor.
+      }
+      <span class="nb">rewrite</span> !free_alg_enrichment_mor_incl.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> functor_enrichment_comp.
+    - <span class="nb">intros</span> x y f.
+      use (dialgebra_enrichment_mor_eq_of_mor
+             V HV
+             EM (functor_id_enrichment E)).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> free_alg_enrichment_mor_incl.
+      etrans.
+      {
+        <span class="nb">apply</span> dialgebra_enrichment_from_arr_incl.
+      }
+      <span class="nb">apply</span> functor_enrichment_from_arr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">free_alg_enrichment</span>
+    : functor_enrichment
+        (free_alg_em M)
+        E
+        (eilenberg_moore_enrichment HV EM).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> free_alg_enrichment_mor.
+    - <span class="bp">exact</span> free_alg_enrichment_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">    2. Enrichment of the univalent Kleisli category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">kleisli_cat_enrichment</span>
+    : enrichment (kleisli_cat M) V.
+  <span class="kn">Proof</span>.
+    use image_enrichment.
+    <span class="bp">exact</span> (eilenberg_moore_enrichment HV EM).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">kleisli_cat_enrichment_precomp_arr</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : kleisli_cat M}
+              (<span class="nv">w</span> : kleisli_cat M)
+              (<span class="nv">f</span> : x --&gt; y)
+    : precomp_arr kleisli_cat_enrichment w f
+      · dialgebra_enrichment_mor_incl _ _ _ _ _ _
+      =
+      dialgebra_enrichment_mor_incl _ _ _ _ _ _ · precomp_arr _ _ (pr111 f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> eilenberg_moore_enrichment_precomp_arr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">kleisli_cat_enrichment_postcomp_arr</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : kleisli_cat M}
+              (<span class="nv">w</span> : kleisli_cat M)
+              (<span class="nv">f</span> : x --&gt; y)
+    : postcomp_arr kleisli_cat_enrichment w f
+      · dialgebra_enrichment_mor_incl _ _ _ _ _ _
+      =
+      dialgebra_enrichment_mor_incl _ _ _ _ _ _ · postcomp_arr _ _ (pr111 f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> eilenberg_moore_enrichment_postcomp_arr.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Functor to the Kleisli category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">kleisli_incl_enrichment</span>
+    : functor_enrichment
+        (kleisli_incl M)
+        E
+        kleisli_cat_enrichment.
+  <span class="kn">Proof</span>.
+    use image_proj_enrichment.
+    <span class="bp">exact</span> free_alg_enrichment.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">kleisli_nat_trans_enrichment</span>
+    : nat_trans_enrichment
+        (kleisli_nat_trans M)
+        (functor_comp_enrichment
+           EM
+           kleisli_incl_enrichment)
+        kleisli_incl_enrichment.
+  <span class="kn">Proof</span>.
+    use nat_trans_enrichment_via_comp.
+    <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+    use (dialgebra_enrichment_mor_eq_of_mor
+           V
+           HV
+           EM (functor_id_enrichment _)).
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (kleisli_cat_enrichment_precomp_arr
+               (kleisli_incl M y)
+               (kleisli_nat_trans M x)).
+    }
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> free_alg_enrichment_mor_incl.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (kleisli_cat_enrichment_postcomp_arr (kleisli_incl M (M x)) (kleisli_nat_trans M y)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> free_alg_enrichment_mor_incl.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="bp">exact</span> (!(nat_trans_enrichment_to_comp (mu_of_monad_enrichment EM) x y)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Functor between the two different versions of the Kleisli category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">functor_to_kleisli_cat_enrichment_mor</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : E ⦃ x, M y ⦄ --&gt; E ⦃ M x, M y ⦄
+    := EM x (M y) · postcomp_arr E (M x) (μ M y).
+
+  <span class="kn">Definition</span> <span class="nf">functor_to_kleisli_cat_enrichment_eq</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : functor_to_kleisli_cat_enrichment_mor x y
+      · @dialgebra_enrichment_mor_left
+           V C C
+           M (functor_identity C)
+           E E
+           (functor_id_enrichment E)
+           (M x) (M y)
+           (μ M x) (μ M y)
+      =
+      functor_to_kleisli_cat_enrichment_mor x y
+      · @dialgebra_enrichment_mor_right
+           V C C
+           M (functor_identity C)
+           E E
+           EM
+           (M x) (M y)
+           (μ M x) (μ M y).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> dialgebra_enrichment_mor_left, dialgebra_enrichment_mor_right ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">unfold</span> functor_to_kleisli_cat_enrichment_mor.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- functor_enrichment_postcomp_arr.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- postcomp_arr_comp.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> Monad_law3.
+    }
+    <span class="nb">rewrite</span> postcomp_arr_comp.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- precomp_postcomp_arr.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> (!(nat_trans_enrichment_to_comp (mu_of_monad_enrichment EM) x (M y))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_to_kleisli_cat_enrichment_data</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : C)
+    :  E ⦃ x, M y ⦄
+       --&gt;
+       dialgebra_enrichment_mor V HV EM (functor_id_enrichment E) (μ M x) (μ M y).
+  <span class="kn">Proof</span>.
+    use EqualizerIn.
+    - <span class="bp">exact</span> (functor_to_kleisli_cat_enrichment_mor x y).
+    - <span class="bp">exact</span> (functor_to_kleisli_cat_enrichment_eq x y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_to_kleisli_cat_enrichment_data_incl</span>
+             (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : functor_to_kleisli_cat_enrichment_data x y
+      · dialgebra_enrichment_mor_incl _ _ _ _ _ _
+      =
+      functor_to_kleisli_cat_enrichment_mor x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> EqualizerCommutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_to_kleisli_cat_enrichment_is_enrichment</span>
+    : @is_functor_enrichment
+        _ _ _
+        (functor_to_kleisli_cat M)
+        (Kleisli_cat_monad_enrichment EM)
+        kleisli_cat_enrichment
+        functor_to_kleisli_cat_enrichment_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+      use (dialgebra_enrichment_mor_eq_of_mor
+             V HV
+             EM (functor_id_enrichment E)).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">refine</span> (dialgebra_enrichment_id_incl _ _ _ _ _ @ _).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> functor_to_kleisli_cat_enrichment_data_incl.
+      }
+      <span class="nb">unfold</span> functor_to_kleisli_cat_enrichment_mor.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- functor_enrichment_from_arr.
+      <span class="nb">rewrite</span> enriched_from_arr_postcomp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (@Monad_law2 _ M x).
+      }
+      <span class="nb">apply</span> enriched_from_arr_id.
+    - <span class="nb">intros</span> x y z ; <span class="nb">cbn</span>.
+      use (dialgebra_enrichment_mor_eq_of_mor
+             V HV
+             EM (functor_id_enrichment E)).
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> functor_to_kleisli_cat_enrichment_data_incl.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> dialgebra_enrichment_comp_incl.
+      }
+      <span class="nb">unfold</span> dialgebra_enrichment_comp_mor, functor_to_kleisli_cat_enrichment_mor.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> !functor_to_kleisli_cat_enrichment_data_incl.
+        <span class="nb">unfold</span> functor_to_kleisli_cat_enrichment_mor.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> tensor_comp_l_id_r.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- precomp_postcomp_arr_assoc ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- functor_enrichment_postcomp_arr.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- postcomp_arr_comp.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> functor_enrichment_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> enriched_comp_postcomp_arr.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+        <span class="nb">rewrite</span> id_left, id_right.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> Monad_law3.
+      }
+      <span class="nb">rewrite</span> postcomp_arr_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- precomp_postcomp_arr.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (!(nat_trans_enrichment_to_comp (mu_of_monad_enrichment EM) y (M z))).
+    - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+      use (dialgebra_enrichment_mor_eq_of_mor
+             V HV
+             EM (functor_id_enrichment E)).
+      <span class="nb">unfold</span> bind.
+      <span class="nb">refine</span> (dialgebra_enrichment_from_arr_incl _ _ _ _ _ _ @ _).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> functor_to_kleisli_cat_enrichment_data_incl.
+      <span class="nb">unfold</span> functor_to_kleisli_cat_enrichment_mor.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- functor_enrichment_from_arr.
+      <span class="nb">rewrite</span> enriched_from_arr_postcomp.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_to_kleisli_cat_enrichment</span>
+    : functor_enrichment
+        (functor_to_kleisli_cat M)
+        (Kleisli_cat_monad_enrichment EM)
+        kleisli_cat_enrichment.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> functor_to_kleisli_cat_enrichment_data.
+    - <span class="bp">exact</span> functor_to_kleisli_cat_enrichment_is_enrichment.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">functor_to_kleisli_incl_nat_trans_enrichment</span>
+    : nat_trans_enrichment
+        (functor_to_kleisli_cat_incl_nat_trans M)
+        kleisli_incl_enrichment
+        (functor_comp_enrichment
+           (Left_Kleisli_functor_enrichment EM)
+           functor_to_kleisli_cat_enrichment).
+  <span class="kn">Proof</span>.
+    use nat_trans_enrichment_via_comp.
+    <span class="nb">intros</span> x y.
+    use (dialgebra_enrichment_mor_eq_of_mor
+           V HV
+           EM (functor_id_enrichment E)).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> kleisli_cat_enrichment_precomp_arr.
+    <span class="nb">rewrite</span> kleisli_cat_enrichment_postcomp_arr.
+    <span class="nb">rewrite</span> !assoc ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> precomp_arr_id, postcomp_arr_id.
+    <span class="nb">rewrite</span> !id_right.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> functor_to_kleisli_cat_enrichment_data_incl.
+    <span class="nb">rewrite</span> free_alg_enrichment_mor_incl.
+    <span class="nb">unfold</span> functor_to_kleisli_cat_enrichment_mor.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- functor_enrichment_postcomp_arr.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- postcomp_arr_comp.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (@Monad_law2 _ M y).
+    }
+    <span class="nb">rewrite</span> postcomp_arr_id.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. The functor is fully faithful</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">FullyFaithfulToKleisli</span>.
+    <span class="kn">Context</span> (<span class="nv">x</span> <span class="nv">y</span> : C).
+
+    <span class="kn">Definition</span> <span class="nf">functor_to_kleisli_cat_enrichment_inv</span>
+      : kleisli_cat_enrichment ⦃ functor_to_kleisli_cat M x, functor_to_kleisli_cat M y ⦄
+        --&gt;
+        Kleisli_cat_monad_enrichment EM ⦃ x, y ⦄
+      := dialgebra_enrichment_mor_incl _ _ _ _ _ _ · precomp_arr _ _ (η M x).
+
+    <span class="kn">Local Lemma</span> <span class="nf">functor_to_kleisli_cat_enrichment_inv_right</span>
+      : functor_to_kleisli_cat_enrichment_data x y
+        · functor_to_kleisli_cat_enrichment_inv
+        =
+        identity _.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> functor_to_kleisli_cat_enrichment_inv ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> functor_to_kleisli_cat_enrichment_data_incl.
+      <span class="nb">unfold</span> functor_to_kleisli_cat_enrichment_mor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- precomp_postcomp_arr.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (nat_trans_enrichment_to_comp (unit_of_monad_enrichment EM) _ _).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> &lt;- postcomp_arr_comp.
+      <span class="nb">refine</span> (_ @ postcomp_arr_id _ _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> Monad_law1.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">functor_to_kleisli_cat_enrichment_inv_left</span>
+      : functor_to_kleisli_cat_enrichment_inv
+        · functor_to_kleisli_cat_enrichment_data x y
+        =
+        identity _.
+    <span class="kn">Proof</span>.
+      use (dialgebra_enrichment_mor_eq_of_mor
+             V HV
+             EM (functor_id_enrichment E)).
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> functor_to_kleisli_cat_enrichment_data_incl.
+      }
+      <span class="nb">unfold</span> functor_to_kleisli_cat_enrichment_mor, functor_to_kleisli_cat_enrichment_inv.
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">pose</span> (dialgebra_enrichment_mor_incl_eq
+              V HV
+              EM (functor_id_enrichment E)
+              (μ M x) (μ M y))
+        <span class="k">as</span> p.
+      <span class="nb">unfold</span> dialgebra_enrichment_mor_right <span class="k">in</span> p.
+      <span class="nb">unfold</span> dialgebra_enrichment_mor_left <span class="k">in</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> id_left <span class="k">in</span> p.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- functor_enrichment_precomp_arr.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> precomp_postcomp_arr.
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="bp">exact</span> (!p).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- precomp_arr_comp.
+      <span class="nb">refine</span> (_ @ precomp_arr_id _ _ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> Monad_law2.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">FullyFaithfulToKleisli</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fully_faithful_functor_to_kleisli_cat_enrichment</span>
+    : fully_faithful_enriched_functor functor_to_kleisli_cat_enrichment.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (functor_to_kleisli_cat_enrichment_inv x y).
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> (functor_to_kleisli_cat_enrichment_inv_right x y).
+      + <span class="bp">exact</span> (functor_to_kleisli_cat_enrichment_inv_left x y).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EnrichedKleisli</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Examples/UnivalentKleisliEnriched.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. The functor is fully faithful
+  &gt;
+  &gt;  **********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

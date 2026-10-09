@@ -1,0 +1,2112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Complexes.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * The category of complexes over an additive category *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition of complexes [def_complexes]</span>
+<span class="sd">  - Complexes and morphisms between complexes</span>
+<span class="sd">  - Direct sum of complexes</span>
+<span class="sd">  - Construction of some complexes from objects</span>
+<span class="sd">- The precategory of complexes over an additive precategory [complexes_precategory]</span>
+<span class="sd">- The precategory of complexes over an additive precategory is an additive category,</span>
+<span class="sd">  [complexes_additive]</span>
+<span class="sd">- Precategory of complexes over an abelian category is abelian [complexes_abelian]</span>
+<span class="sd">- Useful transports for complexes</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Export</span> UniMath.Tactics.EnsureStructuredProofs.
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+
+<span class="kn">Require Import</span> UniMath.NumberSystems.Integers.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.TransportMorphisms.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Kernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cokernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinDirectSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PreAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Additive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Abelian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.AbelianToAdditive.
+
+
+<span class="kn">Unset</span> Kernel Term Sharing.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hz_scope.
+<span class="kn">Opaque</span> hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow.
+
+<span class="sd">(** * Definition of complexes *)</span>
+<span class="sd">(** ** Introduction</span>
+<span class="sd">   A complex consists of an objects C_i, for every integer i, and a morphism C_i --&gt; C_{i+1} for</span>
+<span class="sd">   every i, such that composition of two such morphisms is the zero morphism. One visualizes</span>
+<span class="sd">   complexes as</span>
+<span class="sd">                            ... --&gt; C_{i-1} --&gt; C_i --&gt; C_{i+1} --&gt; ...</span>
+<span class="sd">   A morphism of complexes from a complex C to a complex D is a collection of morphisms C_i --&gt; D_i</span>
+<span class="sd">   for every integer i, such that for every i the following diagram is commutative</span>
+<span class="sd">                                 C_i --&gt; C_{i+1}</span>
+<span class="sd">                                  |        |</span>
+<span class="sd">                                 D_i --&gt; D_{i+1}</span>
+
+<span class="sd">   Composition of morphisms is defined as pointwise composition. It is easy to check that this forms</span>
+<span class="sd">   a morphisms of complexes. Identity morphism is indexwise identity.</span>
+
+<span class="sd">   A direct sum of complexes is given by taking pointwise direct sum of the underlying objects.</span>
+<span class="sd">   The morphisms between the objects in direct sum complex is given by the following formula</span>
+<span class="sd">                 Pr1 · (C_i --&gt; C_{i+1]) · In1 + Pr2 · (D_i --&gt; D_{i+1}) · In2</span>
+<span class="sd">   To show that this defines a direct sum in the category of complexes is straightforward. The zero</span>
+<span class="sd">   complex is given by zero objects and zero morphisms.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">def_complexes</span>.
+
+  <span class="sd">(** ** Basics of complexes *)</span>
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : CategoryWithAdditiveStructure.
+
+  <span class="sd">(** Complex *)</span>
+  <span class="kn">Definition</span> <span class="nf">Complex</span> : UU :=
+    ∑ D' : (∑ D : (∏ i : hz, ob A), (∏ i : hz, A⟦D i, D (i + <span class="mi">1</span>)⟧)),
+           ∏ i : hz, (pr2 D' i) · (pr2 D' (i + <span class="mi">1</span>)) = ZeroArrow (Additive.to_Zero A) _ _.
+
+  <span class="kn">Definition</span> <span class="nf">make_Complex</span> (<span class="nv">D</span> : ∏ i : hz, ob A) (<span class="nv">D'</span> : ∏ i : hz, A⟦D i, D (i + <span class="mi">1</span>)⟧)
+             (<span class="nv">D''</span> : ∏ i : hz, (D' i) · (D' (i + <span class="mi">1</span>)) = ZeroArrow (Additive.to_Zero A) _ _) :
+    Complex := ((D,,D'),,D'').
+
+  <span class="sd">(** Accessor functions *)</span>
+  <span class="kn">Definition</span> <span class="nf">Complex_Funclass</span> (<span class="nv">C</span> : Complex) : hz -&gt; ob A := pr1 (pr1 C).
+  <span class="kn">Coercion</span> <span class="nf">Complex_Funclass</span> : Complex &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Diff</span> (<span class="nv">C</span> : Complex) (<span class="nv">i</span> : hz) : A⟦C i, C (i + <span class="mi">1</span>)⟧ := pr2 (pr1 C) i.
+
+  <span class="kn">Definition</span> <span class="nf">DSq</span> (<span class="nv">C</span> : Complex) (<span class="nv">i</span> : hz) :
+    (Diff C i) · (Diff C (i + <span class="mi">1</span>)) = ZeroArrow (Additive.to_Zero A) _ _ := pr2 C i.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexEq'</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) (<span class="nv">H</span> : ∏ (i : hz), C1 i = C2 i)
+        (<span class="nv">H1</span> : ∏ (i : hz),
+              transportf (<span class="k">λ</span> <span class="nv">x</span> : A, C2 i --&gt; x) (H (i + <span class="mi">1</span>))
+                         (transportf (<span class="k">λ</span> <span class="nv">x</span> : A, x --&gt; C1 (i + <span class="mi">1</span>)) (H i) (Diff C1 i)) =
+              Diff C2 i) :
+    transportf (<span class="k">λ</span> <span class="nv">x</span> : hz → A, ∏ i : hz, A ⟦ x i, x (i + <span class="mi">1</span>) ⟧)
+               (funextfun C1 C2 (<span class="k">λ</span> <span class="nv">i</span> : hz, H i)) (Diff C1) =
+    Diff C2.
+  <span class="kn">Proof</span>.
+    use funextsec. <span class="nb">intros</span> i.
+    <span class="nb">assert</span> (e : transportf (<span class="k">λ</span> <span class="nv">x</span> : hz → A, ∏ i0 : hz, A ⟦ x i0, x (i0 + <span class="mi">1</span>) ⟧)
+                           (funextfun C1 C2 (<span class="k">λ</span> <span class="nv">i0</span> : hz, H i0))
+                           (Diff C1) i =
+                transportf (<span class="k">λ</span> <span class="nv">x</span> : hz → A, A ⟦ x i, x (i + <span class="mi">1</span>) ⟧)
+                           (funextfun C1 C2 (<span class="k">λ</span> <span class="nv">i0</span> : hz, H i0))
+                           (Diff C1 i)).
+    {
+      <span class="nb">induction</span> (funextfun C1 C2 (<span class="k">λ</span> <span class="nv">i0</span> : hz, H i0)).
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> e. <span class="nb">clear</span> e.
+    <span class="nb">rewrite</span> transport_mor_funextfun.
+    <span class="nb">rewrite</span> transport_source_funextfun. <span class="nb">rewrite</span> transport_target_funextfun.
+    <span class="bp">exact</span> (H1 i).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexEq''</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) (<span class="nv">H</span> : ∏ (i : hz), C1 i = C2 i)
+        (<span class="nv">H1</span> : ∏ (i : hz),
+              transportf (<span class="k">λ</span> <span class="nv">x</span> : A, C2 i --&gt; x) (H (i + <span class="mi">1</span>))
+                         (transportf (<span class="k">λ</span> <span class="nv">x</span> : A, x --&gt; C1 (i + <span class="mi">1</span>)) (H i) (Diff C1 i)) =
+              Diff C2 i) :
+    transportf
+      (<span class="k">λ</span> <span class="nv">x</span> : ∑ D : hz → A, ∏ i : hz, A ⟦ D i, D (i + <span class="mi">1</span>) ⟧,
+                                 ∏ i : hz, pr2 x i · pr2 x (i + <span class="mi">1</span>) =
+                                           ZeroArrow (Additive.to_Zero A) _ _)
+      (total2_paths_f (funextfun C1 C2 (<span class="k">λ</span> <span class="nv">i</span> : hz, H i))
+                    (ComplexEq' C1 C2 H H1)) (DSq C1) = DSq C2.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> proofirrelevance. <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t. <span class="nb">apply</span> to_has_homsets.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexEq</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) (<span class="nv">H</span> : ∏ (i : hz), C1 i = C2 i)
+        (<span class="nv">H1</span> : ∏ (i : hz),
+              transportf (<span class="k">λ</span> <span class="nv">x</span> : A, C2 i --&gt; x) (H (i + <span class="mi">1</span>))
+                         (transportf (<span class="k">λ</span> <span class="nv">x</span> : A, x --&gt; C1 (i + <span class="mi">1</span>)) (H i) (Diff C1 i)) =
+              Diff C2 i) : C1 = C2.
+  <span class="kn">Proof</span>.
+    use total2_paths_f.
+    - use total2_paths_f.
+      + use funextfun. <span class="nb">intros</span> i. <span class="bp">exact</span> (H i).
+      + <span class="bp">exact</span> (ComplexEq' C1 C2 H H1).
+    - <span class="bp">exact</span> (ComplexEq'' C1 C2 H H1).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Zero Complex *)</span>
+  <span class="kn">Definition</span> <span class="nf">ZeroComplex</span> : Complex.
+  <span class="kn">Proof</span>.
+    use make_Complex.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (Additive.to_Zero A).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (ZeroArrow (Additive.to_Zero A) _ _).
+    - <span class="nb">intros</span> i. <span class="nb">apply</span> ZeroArrowEq.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Direct sum of two complexes *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">DirectSumComplex_comm</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex} (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">B1</span> := to_BinDirectSums A (C1 i) (C2 i) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">B2</span> := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">B3</span> := to_BinDirectSums A (C1 (i + <span class="mi">1</span> + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span> + <span class="mi">1</span>)) <span class="k">in</span>
+    (BinDirectSumIndAr (Diff C1 i) (Diff C2 i) B1 B2)
+      · (BinDirectSumIndAr (Diff C1 (i + <span class="mi">1</span>)) (Diff C2 (i + <span class="mi">1</span>)) B2 B3) =
+    ZeroArrow (Additive.to_Zero A) B1 B3.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> BinDirectSumIndArComp.
+    <span class="nb">unfold</span> BinDirectSumIndAr.
+    <span class="nb">rewrite</span> (DSq C1 i). <span class="nb">rewrite</span> ZeroArrow_comp_right.
+    <span class="nb">rewrite</span> (DSq C2 i). <span class="nb">rewrite</span> ZeroArrow_comp_right.
+    <span class="nb">apply</span> pathsinv0.
+    use ToBinDirectSumUnique.
+    - <span class="nb">apply</span> ZeroArrow_comp_left.
+    - <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DirectSumComplex</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) : Complex.
+  <span class="kn">Proof</span>.
+    use make_Complex.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (to_BinDirectSums A (C1 i) (C2 i)).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (BinDirectSumIndAr (Diff C1 i) (Diff C2 i) _ _).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (DirectSumComplex_comm i).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Morphism of complexes *)</span>
+  <span class="kn">Definition</span> <span class="nf">Morphism</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) : UU :=
+    ∑ D : (∏ i : hz, A⟦C1 i, C2 i⟧), ∏ i : hz, (D i) · (Diff C2 i) = (Diff C1 i) · (D (i + <span class="mi">1</span>)).
+
+  <span class="kn">Definition</span> <span class="nf">make_Morphism</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) (<span class="nv">Mors</span> : ∏ i : hz, A⟦C1 i, C2 i⟧)
+             (<span class="nv">Comm</span> : ∏ i : hz, (Mors i) · (Diff C2 i) = (Diff C1 i) · (Mors (i + <span class="mi">1</span>))) :
+    Morphism C1 C2 := tpair _ Mors Comm.
+
+  <span class="sd">(** Accessor functions *)</span>
+  <span class="kn">Definition</span> <span class="nf">MMor</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex} (<span class="nv">M</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) : A⟦C1 i, C2 i⟧ := pr1 M i.
+  <span class="kn">Coercion</span> <span class="nf">MMor</span> : Morphism &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MComm</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex} (<span class="nv">M</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    (M i) · (Diff C2 i) = (Diff C1 i) · (M (i + <span class="mi">1</span>)) := pr2 M i.
+
+  <span class="sd">(** A lemma to show that two morphisms are the same *)</span>
+  <span class="kn">Lemma</span> <span class="nf">MorphismEq</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex} (<span class="nv">M1</span> <span class="nv">M2</span> : Morphism C1 C2) (<span class="nv">H</span> : ∏ i : hz, M1 i = M2 i) :
+    M1 = M2.
+  <span class="kn">Proof</span>.
+    use total2_paths_f.
+    - use funextsec. <span class="nb">intros</span> i. <span class="bp">exact</span> (H i).
+    - use proofirrelevance. <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t. <span class="nb">apply</span> to_has_homsets.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Inverse to [MorphismEq] *)</span>
+  <span class="kn">Lemma</span> <span class="nf">MorphismEq'</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex} (<span class="nv">M1</span> <span class="nv">M2</span> : Morphism C1 C2) (<span class="nv">H</span> : M1 = M2) :
+    ∏ i : hz, M1 i = M2 i.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> H.
+    <span class="nb">intros</span> i.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The collection of morphism between two complexes is a set *)</span>
+  <span class="kn">Lemma</span> <span class="nf">Morphisms_isaset</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) : isaset (Morphism C1 C2).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> impred_isaset.
+      <span class="nb">intros</span> t. <span class="nb">apply</span> to_has_homsets.
+    - <span class="nb">intros</span> x. <span class="nb">apply</span> impred_isaset.
+      <span class="nb">intros</span> t. <span class="nb">apply</span> isasetaprop. <span class="nb">apply</span> to_has_homsets.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Morphisms_hSet</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) : hSet := make_hSet _ (Morphisms_isaset C1 C2).
+
+  <span class="sd">(** Identity Morphism *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">IdMorComm</span> (<span class="nv">C1</span> : Complex) (<span class="nv">i</span> : hz) :
+    (identity (C1 i)) · (Diff C1 i) = (Diff C1 i) · (identity (C1 (i + <span class="mi">1</span>))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">IdMor</span> (<span class="nv">C1</span> : Complex) : Morphism C1 C1.
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (identity _).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (IdMorComm C1 i).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Morphisms from and to Zero complex *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">MorphismFromZero_comm</span> (<span class="nv">C</span> : Complex) (<span class="nv">i</span> : hz) :
+    (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (C i)) · (Diff C i) =
+    (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (Additive.to_Zero A))
+      · (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (C (i + <span class="mi">1</span>))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MorphismFromZero</span> (<span class="nv">C</span> : Complex) : Morphism ZeroComplex C.
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (ZeroArrow (Additive.to_Zero A) _ _).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (MorphismFromZero_comm C i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">MorphismToZero_comm</span> (<span class="nv">C</span> : Complex) (<span class="nv">i</span> : hz) :
+    (ZeroArrow (Additive.to_Zero A) (C i) (Additive.to_Zero A))
+      · (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (Additive.to_Zero A)) =
+    (Diff C i) · ZeroArrow (Additive.to_Zero A) (C (i + <span class="mi">1</span>)) (Additive.to_Zero A).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> ZeroArrow_comp_right.
+    <span class="nb">rewrite</span> ZeroArrow_comp_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MorphismToZero</span> (<span class="nv">C</span> : Complex) : Morphism C ZeroComplex.
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (ZeroArrow (Additive.to_Zero A) _ _).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (MorphismToZero_comm C i).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Composition of morphisms *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">MorphismCompComm</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : Complex} (<span class="nv">M1</span> : Morphism C1 C2) (<span class="nv">M2</span> : Morphism C2 C3)
+        (<span class="nv">i</span> : hz) : (M1 i) · (M2 i) · (Diff C3 i) = (Diff C1 i) · (M1 (i + <span class="mi">1</span>) · M2 (i + <span class="mi">1</span>)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (MComm M1).
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="bp">exact</span> (MComm M2 i).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MorphismComp</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : Complex} (<span class="nv">M1</span> : Morphism C1 C2) (<span class="nv">M2</span> : Morphism C2 C3) :
+    Morphism C1 C3.
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> ((M1 i) · (M2 i)).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (MorphismCompComm M1 M2 i).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ZeroMorphism as the composite of to zero and from zero *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">ZeroMorphism_comm</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) (<span class="nv">i</span> : hz) :
+    ZeroArrow (Additive.to_Zero A) (C1 i) (C2 i) · Diff C2 i =
+    Diff C1 i · ZeroArrow (Additive.to_Zero A) (C1 (i + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ZeroMorphism</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) : Morphism C1 C2.
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (ZeroArrow (Additive.to_Zero A) _ _).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (ZeroMorphism_comm C1 C2 i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ZeroMorphism_eq</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) :
+    ZeroMorphism C1 C2 = MorphismComp (MorphismToZero C1) (MorphismFromZero C2).
+  <span class="kn">Proof</span>.
+    use MorphismEq. <span class="nb">intros</span> i. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> ZeroArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** Direct sums *)</span>
+
+  <span class="sd">(** Inclusions and projections from the DirectSumComplex *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">DirectSumComplexIn1_comm</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">B1</span> := to_BinDirectSums A (C1 i) (C2 i) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">B2</span> := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)) <span class="k">in</span>
+    (to_In1 B1) · (BinDirectSumIndAr (Diff C1 i) (Diff C2 i) B1 B2) =
+    (Diff C1 i) · (to_In1 B2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> BinDirectSumIndArEq1.
+    <span class="nb">unfold</span> BinDirectSumIndArFormula.
+    <span class="nb">rewrite</span> to_premor_linear'.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (to_IdIn1 B1). <span class="nb">rewrite</span> (to_Unel1 B1).
+    <span class="nb">rewrite</span> id_left. <span class="nb">rewrite</span> to_postmor_unel'. <span class="nb">rewrite</span> to_postmor_unel'.
+    <span class="nb">rewrite</span> to_runax'. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DirectSumComplexIn1</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) : Morphism C1 (DirectSumComplex C1 C2).
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (to_In1 (to_BinDirectSums A (C1 i) (C2 i))).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (DirectSumComplexIn1_comm C1 C2 i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">DirectSumComplexIn2_comm</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">B1</span> := to_BinDirectSums A (C1 i) (C2 i) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">B2</span> := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)) <span class="k">in</span>
+    (to_In2 B1) · (BinDirectSumIndAr (Diff C1 i) (Diff C2 i) B1 B2) =
+    (Diff C2 i) · (to_In2 B2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> BinDirectSumIndArEq1.
+    <span class="nb">unfold</span> BinDirectSumIndArFormula.
+    <span class="nb">rewrite</span> to_premor_linear'. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> (to_IdIn2 B1). <span class="nb">rewrite</span> (to_Unel2 B1).
+    <span class="nb">rewrite</span> id_left. <span class="nb">rewrite</span> to_postmor_unel'. <span class="nb">rewrite</span> to_postmor_unel'.
+    <span class="nb">rewrite</span> to_lunax'. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DirectSumComplexIn2</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) : Morphism C2 (DirectSumComplex C1 C2).
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (to_In2 (to_BinDirectSums A (C1 i) (C2 i))).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (DirectSumComplexIn2_comm C1 C2 i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">DirectSumComplexPr1_comm</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">B1</span> := to_BinDirectSums A (C1 i) (C2 i) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">B2</span> := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)) <span class="k">in</span>
+    (to_Pr1 B1) · (Diff C1 i) =
+    (BinDirectSumIndAr (Diff C1 i) (Diff C2 i) B1 B2) · (to_Pr1 B2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> BinDirectSumIndArEq1.
+    <span class="nb">unfold</span> BinDirectSumIndArFormula.
+    <span class="nb">rewrite</span> to_postmor_linear'.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> (to_IdIn1 B2). <span class="nb">rewrite</span> (to_Unel2 B2).
+    <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> to_premor_unel'. <span class="nb">rewrite</span> to_premor_unel'.
+    <span class="nb">rewrite</span> to_runax'. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DirectSumComplexPr1</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) : Morphism (DirectSumComplex C1 C2) C1.
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (to_Pr1 (to_BinDirectSums A (C1 i) (C2 i))).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (DirectSumComplexPr1_comm C1 C2 i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">DirectSumComplexPr2_comm</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">B1</span> := to_BinDirectSums A (C1 i) (C2 i) <span class="k">in</span>
+    <span class="k">let</span> <span class="nv">B2</span> := to_BinDirectSums A (C1 (i + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)) <span class="k">in</span>
+    (to_Pr2 B1) · (Diff C2 i) =
+    (BinDirectSumIndAr (Diff C1 i) (Diff C2 i) B1 B2) · (to_Pr2 B2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> BinDirectSumIndArEq1.
+    <span class="nb">unfold</span> BinDirectSumIndArFormula.
+    <span class="nb">rewrite</span> to_postmor_linear'.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> (to_IdIn2 B2). <span class="nb">rewrite</span> (to_Unel1 B2).
+    <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> to_premor_unel'. <span class="nb">rewrite</span> to_premor_unel'.
+    <span class="nb">rewrite</span> to_lunax'. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DirectSumComplexPr2</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) : Morphism (DirectSumComplex C1 C2) C2.
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (to_Pr2 (to_BinDirectSums A (C1 i) (C2 i))).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (DirectSumComplexPr2_comm C1 C2 i).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The equations for composing in1, in2, pr1, and pr2. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">DirectSumIdIn1</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) :
+    IdMor C1 = MorphismComp (DirectSumComplexIn1 C1 C2) (DirectSumComplexPr1 C1 C2).
+  <span class="kn">Proof</span>.
+    use MorphismEq.
+    <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (B := to_BinDirectSums A (C1 i) (C2 i)).
+    <span class="nb">rewrite</span> (to_IdIn1 B).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">DirectSumIdIn2</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) :
+    IdMor C2 = MorphismComp (DirectSumComplexIn2 C1 C2) (DirectSumComplexPr2 C1 C2).
+  <span class="kn">Proof</span>.
+    use MorphismEq.
+    <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (B := to_BinDirectSums A (C1 i) (C2 i)).
+    <span class="nb">rewrite</span> (to_IdIn2 B).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">DirectSumUnit1</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) :
+    MorphismComp (DirectSumComplexIn1 C1 C2) (DirectSumComplexPr2 C1 C2) = ZeroMorphism C1 C2.
+  <span class="kn">Proof</span>.
+    use MorphismEq.
+    <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (B := to_BinDirectSums A (C1 i) (C2 i)).
+    <span class="nb">rewrite</span> (to_Unel1 B).
+    <span class="nb">apply</span> PreAdditive_unel_zero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">DirectSumUnit2</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) :
+    MorphismComp (DirectSumComplexIn2 C1 C2) (DirectSumComplexPr1 C1 C2) = ZeroMorphism C2 C1.
+  <span class="kn">Proof</span>.
+    use MorphismEq.
+    <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (B := to_BinDirectSums A (C1 i) (C2 i)).
+    <span class="nb">rewrite</span> (to_Unel2 B).
+    <span class="nb">apply</span> PreAdditive_unel_zero.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Additition of morphisms is pointwise addition *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">MorphismOpComm</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex} (<span class="nv">M1</span> <span class="nv">M2</span> : Morphism C1 C2)  (<span class="nv">i</span> : hz) :
+    (to_binop (C1 i) (C2 i) (M1 i) (M2 i)) · (Diff C2 i) =
+    (Diff C1 i) · (to_binop (C1 (i + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>)) (M1 (i + <span class="mi">1</span>)) (M2 (i + <span class="mi">1</span>))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> to_premor_linear'.
+    <span class="nb">rewrite</span> (MComm M1 i). <span class="nb">rewrite</span> (MComm M2 i). <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MorphismOp</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex} (<span class="nv">M1</span> <span class="nv">M2</span> : Morphism C1 C2) : Morphism C1 C2.
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (to_binop _ _ (M1 i) (M2 i)).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (MorphismOpComm M1 M2 i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MorphismOp_isassoc</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) : @isassoc (Morphisms_hSet C1 C2) MorphismOp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> M1 M2 M3.
+    use MorphismEq.
+    <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (assocax (to_abgr (C1 i) (C2 i))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MorphismOp_isunit</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) :
+    @isunit (Morphisms_hSet C1 C2) MorphismOp (ZeroMorphism C1 C2).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> M.
+      use MorphismEq.
+      <span class="nb">intros</span> i. <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- PreAdditive_unel_zero.
+      <span class="nb">rewrite</span> to_lunax'. <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> M.
+      use MorphismEq.
+      <span class="nb">intros</span> i. <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- PreAdditive_unel_zero.
+      <span class="nb">rewrite</span> to_runax'. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">MorphismOp_inv_comm</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex} (<span class="nv">M</span> : Morphism C1 C2) (<span class="nv">i</span> : hz) :
+    (to_inv (M i)) · (Diff C2 i) = (Diff C1 i) · (to_inv (M (i + <span class="mi">1</span>))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invlcomp.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_invrcomp.
+    <span class="nb">apply</span> PreAdditive_cancel_inv.
+    <span class="nb">rewrite</span> inv_inv_eq.
+    <span class="nb">rewrite</span> inv_inv_eq.
+    <span class="bp">exact</span> (MComm M i).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MorphismOp_inv</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex} (<span class="nv">M</span> : Morphism C1 C2) : Morphism C1 C2.
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (to_inv (M i)).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (MorphismOp_inv_comm M i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">MorphismOp_isinv</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) :
+    @isinv (Morphisms_hSet C1 C2) MorphismOp (ZeroMorphism C1 C2) MorphismOp_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> H.
+      use MorphismEq.
+      <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (linvax A (MMor H i)).
+      <span class="nb">apply</span> PreAdditive_unel_zero.
+    - <span class="nb">intros</span> H.
+      use MorphismEq.
+      <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> (rinvax A (MMor H i)).
+      <span class="nb">apply</span> PreAdditive_unel_zero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MorphismOp_iscomm</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) : @iscomm (Morphisms_hSet C1 C2) MorphismOp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> M1 M2.
+    use MorphismEq.
+    <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (commax (to_abgr (C1 i) (C2 i)) (MMor M1 i) (MMor M2 i)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MorphismOp_isabgrop</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) : @isabgrop (Morphisms_hSet C1 C2) MorphismOp.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - use make_isgrop.
+      + <span class="nb">split</span>.
+        * <span class="bp">exact</span> (MorphismOp_isassoc C1 C2).
+        * use make_isunital.
+          -- <span class="bp">exact</span> (ZeroMorphism C1 C2).
+          -- <span class="bp">exact</span> (MorphismOp_isunit C1 C2).
+      + use tpair.
+        * <span class="bp">exact</span> MorphismOp_inv.
+        * <span class="bp">exact</span> (MorphismOp_isinv C1 C2).
+    - <span class="bp">exact</span> (MorphismOp_iscomm C1 C2).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** pr1 · in1 + pr2 · in2 = id *)</span>
+  <span class="kn">Lemma</span> <span class="nf">DirectSumId</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex) :
+    MorphismOp (MorphismComp (DirectSumComplexPr1 C1 C2) (DirectSumComplexIn1 C1 C2))
+               (MorphismComp (DirectSumComplexPr2 C1 C2) (DirectSumComplexIn2 C1 C2)) =
+    IdMor (DirectSumComplex C1 C2).
+  <span class="kn">Proof</span>.
+    use MorphismEq.
+    <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+    <span class="nb">set</span> (B := to_BinDirectSums A (C1 i) (C2 i)).
+    <span class="nb">apply</span> (to_BinOpId B).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">def_complexes</span>.
+<span class="kn">Arguments</span> Diff [A] _ _.
+<span class="kn">Arguments</span> ZeroComplex {A}.
+<span class="kn">Arguments</span> Morphism [A] _ _.
+<span class="kn">Arguments</span> MorphismEq [A] [C1] [C2] _ _ _.
+<span class="kn">Arguments</span> MorphismFromZero [A] _.
+<span class="kn">Arguments</span> MorphismToZero [A] _.
+<span class="kn">Arguments</span> MMor [A] [C1] [C2] _ _.
+<span class="kn">Arguments</span> MComm [A] [C1] [C2] _ _.
+<span class="kn">Arguments</span> IdMor [A] _.
+<span class="kn">Arguments</span> MorphismComp [A] [C1] [C2] [C3] _ _.
+
+
+<span class="sd">(** * Transport of morphisms indexed by integers *)</span>
+<span class="kn">Section</span> <span class="nf">transport_section'</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : precategory.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_source_target</span> (<span class="nv">f</span> : hz -&gt; ob C) (<span class="nv">n</span> : hz) (<span class="nv">H</span> : ∏ (i : hz), C⟦f i, f (i + n)⟧)
+        (<span class="nv">i</span> <span class="nv">i'</span> : hz) (<span class="nv">e1</span> : i = i') :
+    H i' = transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob C), C⟦x, f (i' + n)⟧) (maponpaths f e1)
+                      (transportf (precategory_morphisms (f i))
+                                  (maponpaths f (maponpaths_2 _ e1 _)) (H i)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e1. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_target_source</span> (<span class="nv">f</span> : hz -&gt; ob C) (<span class="nv">n</span> : hz) (<span class="nv">H</span> : ∏ (i : hz), C⟦f i, f (i + n)⟧)
+        (<span class="nv">i</span> <span class="nv">i'</span> : hz) (<span class="nv">e1</span> : i = i') :
+    H i' = transportf (precategory_morphisms (f i'))
+                      (maponpaths f (maponpaths_2 _ e1 _))
+                      (transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob C), C⟦x, f (i + n)⟧) (maponpaths f e1) (H i)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e1. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_section</span> (<span class="nv">f</span> : hz -&gt; ob C) (<span class="nv">n</span> : hz) (<span class="nv">H</span> : ∏ (i : hz), C⟦f i, f (i + n)⟧)
+        (<span class="nv">i</span> <span class="nv">i'</span> : hz) (<span class="nv">e1</span> : i = i') :
+    transportf (precategory_morphisms (f i)) (maponpaths f (maponpaths_2 _ e1 _)) (H i) =
+    transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob C), C⟦x, f (i' + n)⟧) (maponpaths f (! e1)) (H i').
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e1. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_section'</span> (<span class="nv">f</span> : hz -&gt; ob C) (<span class="nv">n</span> : hz) (<span class="nv">H</span> : ∏ (i : hz), C⟦f (i + n), f i⟧)
+        (<span class="nv">i</span> <span class="nv">i'</span> : hz) (<span class="nv">e1</span> : i + n = i' + n) (<span class="nv">e2</span> : i = i') :
+    transportf (precategory_morphisms (f (i + n))) (maponpaths f e2) (H i) =
+    transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob C), C⟦x, f i'⟧) (maponpaths f (! e1)) (H i').
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e2. <span class="nb">assert</span> (e : e1 = idpath _) <span class="bp">by</span> <span class="nb">apply</span> isasethz. <span class="nb">rewrite</span> e. <span class="nb">clear</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_double_section</span> (<span class="nv">f</span> <span class="nv">f'</span> : hz -&gt; ob C) (<span class="nv">H</span> : ∏ (i : hz), C⟦f i, f' i⟧)
+        (<span class="nv">i</span> <span class="nv">i'</span> : hz) (<span class="nv">e</span> : i = i') :
+    transportf (precategory_morphisms (f i)) (maponpaths f' e) (H i) =
+    transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob C), C⟦x, f' i'⟧) (maponpaths f (! e)) (H i').
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_double_section_source_target</span> (<span class="nv">f</span> <span class="nv">f'</span> : hz -&gt; ob C) (<span class="nv">H</span> : ∏ (i : hz), C⟦f i, f' i⟧)
+        (<span class="nv">i</span> <span class="nv">i'</span> : hz) (<span class="nv">e</span> : i = i') :
+    H i' = transportf (precategory_morphisms (f i')) (maponpaths f' e)
+                      (transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob C), C⟦x, f' i⟧) (maponpaths f e) (H i)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">transport_section'</span>.
+
+
+<span class="kn">Section</span> <span class="nf">acyclic_complexes</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : CategoryWithAdditiveStructure.
+
+  <span class="sd">(** ** Construction of a complexes with one object *)</span>
+  <span class="sd">(** ... -&gt; 0 -&gt; X -&gt; 0 -&gt; ... *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">ComplexFromObject_obs</span> (<span class="nv">X</span> : ob A) (<span class="nv">i</span> : hz) : hz -&gt; A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i0.
+    <span class="nb">induction</span> (isdecrelhzeq i i0) <span class="k">as</span> [e | n].
+    - <span class="bp">exact</span> X.
+    - <span class="bp">exact</span> (Additive.to_Zero A).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexFromObject_mors</span> (<span class="nv">X</span> : ob A) (<span class="nv">i</span> : hz) :
+    ∏ i0 : hz, A ⟦ComplexFromObject_obs X i i0, ComplexFromObject_obs X i (i0 + <span class="mi">1</span>)⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i0.
+    <span class="bp">exact</span> (ZeroArrow (Additive.to_Zero A) (ComplexFromObject_obs X i i0)
+                     (ComplexFromObject_obs X i (i0 + <span class="mi">1</span>))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexFromObject_comm</span> (<span class="nv">X</span> : ob A) (<span class="nv">i</span> : hz) :
+    ∏ i0 : hz, (ComplexFromObject_mors X i i0) · (ComplexFromObject_mors X i (i0 + <span class="mi">1</span>)) =
+               ZeroArrow (Additive.to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i0. <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexFromObject</span> (<span class="nv">X</span> : ob A) (<span class="nv">i</span> : hz) : Complex A.
+  <span class="kn">Proof</span>.
+    use make_Complex.
+    - <span class="bp">exact</span> (ComplexFromObject_obs X i).
+    - <span class="bp">exact</span> (ComplexFromObject_mors X i).
+    - <span class="bp">exact</span> (ComplexFromObject_comm X i).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** A morphism in A induces a morphisms of ComplexFromObjects *)</span>
+  <span class="kn">Definition</span> <span class="nf">ObjectMorToComplexMor_mors</span> {<span class="nv">a</span> <span class="nv">b</span> : ob A} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">i</span> : hz) :
+    ∏ i0 : hz, A ⟦(ComplexFromObject a i) i0, (ComplexFromObject b i) i0⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i0.
+    <span class="nb">unfold</span> ComplexFromObject. <span class="nb">cbn</span>. <span class="nb">unfold</span> ComplexFromObject_obs. <span class="nb">cbn</span>. <span class="nb">unfold</span> coprod_rect.
+    <span class="nb">induction</span> (isdecrelhzeq i i0) <span class="k">as</span> [e | n].
+    - <span class="bp">exact</span> f.
+    - <span class="nb">apply</span> (ZeroArrow (Additive.to_Zero A)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ObjectMorToComplexMor_comm</span> {<span class="nv">a</span> <span class="nv">b</span> : ob A} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">i</span> : hz) :
+    ∏ i0 : hz, (ObjectMorToComplexMor_mors f i i0) · (Diff (ComplexFromObject b i) i0) =
+               (Diff (ComplexFromObject a i) i0) · (ObjectMorToComplexMor_mors f i (i0 + <span class="mi">1</span>)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i0.
+    <span class="nb">unfold</span> ComplexFromObject. <span class="nb">unfold</span> ComplexFromObject_mors. <span class="nb">unfold</span> ComplexFromObject_obs. <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> ObjectMorToComplexMor_mors. <span class="nb">cbn</span>. <span class="nb">unfold</span> coprod_rect.
+    <span class="nb">induction</span> (isdecrelhzeq i i0) <span class="k">as</span> [e | n].
+    - <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e' | n'].
+      + <span class="nb">apply</span> (fromempty (hzeqeisi e e')).
+      + <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">apply</span> ZeroArrow_comp_right.
+    - <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e' | n'].
+      + <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ObjectMorToComplexMor</span> {<span class="nv">a</span> <span class="nv">b</span> : ob A} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">i</span> : hz) :
+    Morphism (ComplexFromObject a i) (ComplexFromObject b i).
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="bp">exact</span> (ObjectMorToComplexMor_mors f i).
+    - <span class="bp">exact</span> (ObjectMorToComplexMor_comm f i).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** Construction of a complex with a given object in two adjacent positions *)</span>
+
+
+  <span class="sd">(** *** Construction of the complex ... --&gt; 0 --&gt; X -Id-&gt; X --&gt; 0 --&gt; ... *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">AcyclicComplexFromObject_obs</span> (<span class="nv">a</span> : ob A) (<span class="nv">i</span> : hz) : hz -&gt; ob A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i0.
+    <span class="nb">induction</span> (isdecrelhzeq i i0) <span class="k">as</span> [e | n].
+    - <span class="bp">exact</span> a.
+    - <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) i0) <span class="k">as</span> [e' | n'].
+      + <span class="bp">exact</span> a.
+      + <span class="bp">exact</span> (Additive.to_Zero A).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AcyclicComplexFromObject_mors</span> (<span class="nv">a</span> : ob A) (<span class="nv">i</span> : hz) :
+    ∏ i0 : hz, A ⟦AcyclicComplexFromObject_obs a i i0, AcyclicComplexFromObject_obs a i (i0 + <span class="mi">1</span>)⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i0. <span class="nb">unfold</span> AcyclicComplexFromObject_obs. <span class="nb">cbn</span>. <span class="nb">unfold</span> coprod_rect.
+    <span class="nb">induction</span> (isdecrelhzeq i i0) <span class="k">as</span> [e | n].
+    + <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e' | n'].
+      * <span class="bp">exact</span> (fromempty (hzeqeisi e e')).
+      * <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'' | n''].
+        -- <span class="bp">exact</span> (identity a).
+        -- <span class="bp">exact</span> (fromempty (hzeqnmplusr e n'')).
+    + <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) i0) <span class="k">as</span> [e' | n'].
+      * <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'' | n''].
+        -- <span class="bp">exact</span> (fromempty (hzeqsnmnsm e' e'')).
+        -- <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e''' | n'''].
+           ++ <span class="bp">exact</span> (fromempty (hzeqeisi e' e''')).
+           ++ <span class="bp">exact</span> (ZeroArrow (Additive.to_Zero A) a (Additive.to_Zero A)).
+      * <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'' | n''].
+        -- <span class="bp">exact</span> (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) a).
+        -- <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e''' | n'''].
+           ++ <span class="bp">exact</span> (fromempty (hzeqnmplusr' n e''')).
+           ++ <span class="bp">exact</span> (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (Additive.to_Zero A)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">AcyclicComplexFromObject_diff</span> (<span class="nv">a</span> : ob A) (<span class="nv">i</span> : hz) :
+    ∏ i0 : hz, (AcyclicComplexFromObject_mors a i i0)
+                 · (AcyclicComplexFromObject_mors a i (i0 + <span class="mi">1</span>)) =
+               ZeroArrow (Additive.to_Zero A) _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i0. <span class="nb">unfold</span> AcyclicComplexFromObject_obs. <span class="nb">unfold</span> AcyclicComplexFromObject_mors.
+    <span class="nb">unfold</span> coprod_rect.
+    <span class="nb">induction</span> (isdecrelhzeq i i0) <span class="k">as</span> [e | n].
+    - <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e' | n'].
+      + <span class="bp">exact</span> (fromempty (hzeqeisi e e')).
+      + <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'' | n''].
+        * <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span> + <span class="mi">1</span>)) <span class="k">as</span> [e''' | n'''].
+          -- <span class="bp">exact</span> (fromempty (hzeqsnmnsm e'' e''')).
+          -- <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span> + <span class="mi">1</span>)) <span class="k">as</span> [e'''' | n''''].
+             ++ <span class="bp">exact</span> (fromempty (hzeqeisi e'' e'''')).
+             ++ <span class="bp">exact</span> (ZeroArrow_comp_right _ _ _ _ _ _).
+        * <span class="bp">exact</span> (fromempty (hzeqnmplusr e n'')).
+    - <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) i0) <span class="k">as</span> [e' | n'].
+      + <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'' | n''].
+        * <span class="bp">exact</span> (fromempty (hzeqsnmnsm e' e'')).
+        * <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e''' | n'''].
+          -- <span class="bp">exact</span> (fromempty (hzeqeisi e' e''')).
+          -- <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span> + <span class="mi">1</span>)) <span class="k">as</span> [e'''' | n''''].
+             ++ <span class="bp">exact</span> (ZeroArrow_comp_left _ _ _ _ _ _).
+             ++ <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span> + <span class="mi">1</span>)) <span class="k">as</span> [e5 | n5].
+                ** <span class="bp">exact</span> (fromempty (hzeqnmplusr' n'' e5)).
+                ** <span class="bp">exact</span> (ZeroArrow_comp_left _ _ _ _ _ _).
+      + <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'' | n''].
+        * <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span> + <span class="mi">1</span>)) <span class="k">as</span> [e3 | n3].
+          -- <span class="bp">exact</span> (fromempty (hzeqeisi e'' e3)).
+          -- <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span> + <span class="mi">1</span>)) <span class="k">as</span> [e4 | n4].
+             ++ <span class="bp">exact</span> (ZeroArrow_comp_left _ _ _ _ _ _).
+             ++ <span class="bp">exact</span> (fromempty (hzeqnmplusr e'' n4)).
+        * <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e3 | n3].
+          -- <span class="bp">exact</span> (fromempty (hzeqnmplusr' n e3)).
+          -- <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span> + <span class="mi">1</span>)) <span class="k">as</span> [e4 | n4].
+             ++ <span class="bp">exact</span> (ZeroArrow_comp_left _ _ _ _ _ _).
+             ++ <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span> + <span class="mi">1</span>)) <span class="k">as</span> [e5 | n5].
+                ** <span class="bp">exact</span> (fromempty (hzeqnmplusr' n'' e5)).
+                ** <span class="bp">exact</span> (ZeroArrow_comp_left _ _ _ _ _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">AcyclicComplexFromObject</span> (<span class="nv">a</span> : ob A) (<span class="nv">i</span> : hz) : Complex A.
+  <span class="kn">Proof</span>.
+    use make_Complex.
+    - <span class="bp">exact</span> (AcyclicComplexFromObject_obs a i).
+    - <span class="bp">exact</span> (AcyclicComplexFromObject_mors a i).
+    - <span class="bp">exact</span> (AcyclicComplexFromObject_diff a i).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Morphism from [AcyclicComplexFromObject] to a complex</span>
+<span class="sd">                           ... --&gt;   0   --&gt;  X^i  --&gt;  X^i   --&gt;   0    --&gt;   ...</span>
+<span class="sd">                                     |         |         |          |</span>
+<span class="sd">                           .. --&gt; X^{i-1} --&gt; X^i --&gt; X^{i+1} --&gt; X^{i+2} --&gt;  ...</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">FromAcyclicComplexFromObject_mors</span> {<span class="nv">a</span> : ob A} {<span class="nv">C</span> : Complex A} {<span class="nv">i</span> : hz}
+             (<span class="nv">f</span> : a --&gt; (C i)) : ∏ i0 : hz, A ⟦(AcyclicComplexFromObject a i) i0, C i0⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i0.
+    <span class="nb">unfold</span> AcyclicComplexFromObject. <span class="nb">unfold</span> AcyclicComplexFromObject_obs.
+    <span class="nb">unfold</span> AcyclicComplexFromObject_mors. <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> coprod_rect.
+    <span class="nb">induction</span> (isdecrelhzeq i i0) <span class="k">as</span> [e | n].
+    + <span class="bp">exact</span> (transportf (precategory_morphisms a) (maponpaths C e) f).
+    + <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) i0) <span class="k">as</span> [e' | n'].
+      * <span class="bp">exact</span> (transportf (precategory_morphisms a) (maponpaths C e') (f · Diff C i)).
+      * <span class="bp">exact</span> (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (C i0)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">FromAcyclicComplexFromObject_comm_eq1</span> {<span class="nv">a</span> : ob A} {<span class="nv">C</span> : Complex A} {<span class="nv">i</span> : hz}
+        (<span class="nv">f</span> : a --&gt; (C i)) (<span class="nv">i0</span> : hz) (<span class="nv">e</span> : i = i0) (<span class="nv">e''</span> : (i + <span class="mi">1</span>) = (i0 + <span class="mi">1</span>)) :
+    transportf (precategory_morphisms a) (maponpaths C e) f · Diff C i0 =
+    identity a · transportf (precategory_morphisms a) (maponpaths C e'') (f · Diff C i).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> id_left. <span class="nb">rewrite</span> transport_target_postcompose.
+    <span class="nb">rewrite</span> transport_compose. <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">rewrite</span> &lt;- maponpathsinv0.
+    use (pathscomp0 (! (transport_hz_section A C <span class="mi">1</span> (Diff C) _ _ e))).
+    use transportf_paths. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isasethz.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">FromAcyclicComplexFromObject_comm_eq2</span> {<span class="nv">a</span> : ob A} {<span class="nv">C</span> : Complex A} {<span class="nv">i</span> : hz}
+        (<span class="nv">f</span> : a --&gt; (C i)) (<span class="nv">i0</span> : hz) (<span class="nv">e'</span> : i + <span class="mi">1</span> = i0) :
+    transportf (precategory_morphisms a) (maponpaths C e') (f · Diff C i) · Diff C i0 =
+    (ZeroArrow (Additive.to_Zero A) a (Additive.to_Zero A))
+      · (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) (C (i0 + <span class="mi">1</span>))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">rewrite</span> (transport_hz_source_target A C <span class="mi">1</span> (Diff C) _ _ (e')).
+    <span class="nb">rewrite</span> transport_compose'. <span class="nb">rewrite</span> &lt;- transport_target_postcompose.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> DSq. <span class="nb">rewrite</span> ZeroArrow_comp_right.
+    <span class="nb">rewrite</span> transport_target_ZeroArrow. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">FromAcyclicComplexFromObject_comm</span> {<span class="nv">a</span> : ob A} {<span class="nv">C</span> : Complex A} {<span class="nv">i</span> : hz}
+        (<span class="nv">f</span> : a --&gt; (C i)) :
+    ∏ i0 : hz, (FromAcyclicComplexFromObject_mors f i0) · (Diff C i0) =
+               (Diff (AcyclicComplexFromObject a i) i0)
+                 · (FromAcyclicComplexFromObject_mors f (i0 + <span class="mi">1</span>)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i0.
+    <span class="nb">unfold</span> AcyclicComplexFromObject. <span class="nb">unfold</span> AcyclicComplexFromObject_obs.
+    <span class="nb">unfold</span> AcyclicComplexFromObject_mors. <span class="nb">unfold</span> FromAcyclicComplexFromObject_mors.
+    <span class="nb">unfold</span> coprod_rect. <span class="nb">cbn</span>.
+    <span class="nb">induction</span> (isdecrelhzeq i i0) <span class="k">as</span> [e | n].
+    + <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e' | n'].
+      * <span class="bp">exact</span> (fromempty (hzeqeisi e e')).
+      * <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'' | n''].
+        -- <span class="bp">exact</span> (FromAcyclicComplexFromObject_comm_eq1 f i0 e e'').
+        -- <span class="bp">exact</span> (fromempty (n'' (maponpaths (<span class="k">λ</span> <span class="nv">i'</span> : hz, i' + <span class="mi">1</span>) e))).
+    + <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) i0) <span class="k">as</span> [e' | n'].
+      * <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'' | n''].
+        -- <span class="bp">exact</span> (fromempty (hzeqsnmnsm e' e'')).
+        -- <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e''' | n'''].
+           ++ <span class="bp">exact</span> (fromempty (hzeqeisi e' e''')).
+           ++ <span class="bp">exact</span> (FromAcyclicComplexFromObject_comm_eq2 f i0 e').
+      * <span class="nb">induction</span> (isdecrelhzeq i (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'' | n''].
+        -- <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">apply</span> idpath.
+        -- <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e''' | n'''].
+           ++ <span class="bp">exact</span> (fromempty (n (hzplusrcan i i0 <span class="mi">1</span> e'''))).
+           ++ <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">FromAcyclicComplexFromObject</span> {<span class="nv">a</span> : ob A} {<span class="nv">C</span> : Complex A} {<span class="nv">i</span> : hz} (<span class="nv">f</span> : a --&gt; (C i)) :
+    Morphism (AcyclicComplexFromObject a i) C.
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="bp">exact</span> (FromAcyclicComplexFromObject_mors f).
+    - <span class="bp">exact</span> (FromAcyclicComplexFromObject_comm f).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Morphism from [AcyclicComplexFromObject] to a complex</span>
+<span class="sd">                           .. --&gt; X^{i-1} --&gt; X^i --&gt; X^{i+1} --&gt; X^{i+2} --&gt;  ...</span>
+<span class="sd">                                     |         |         |          |</span>
+<span class="sd">                           ... --&gt;   0   --&gt;  X^i  --&gt;  X^i   --&gt;   0    --&gt;   ...</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">ToAcyclicComplexFromObject_mors</span> {<span class="nv">a</span> : ob A} {<span class="nv">C</span> : Complex A} {<span class="nv">i</span> : hz}
+             (<span class="nv">f</span> : (C i) --&gt; a) : ∏ i0 : hz, A ⟦C i0, (AcyclicComplexFromObject a (i - <span class="mi">1</span>)) i0⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i0.
+    <span class="nb">unfold</span> AcyclicComplexFromObject. <span class="nb">unfold</span> AcyclicComplexFromObject_obs.
+    <span class="nb">unfold</span> AcyclicComplexFromObject_mors. <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> coprod_rect.
+    <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span>) i0) <span class="k">as</span> [e | n].
+    - use compose.
+      + <span class="bp">exact</span> (C i).
+      + <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob A, A⟦x', C i⟧) (maponpaths C e)
+                          (transportf (precategory_morphisms (C (i - <span class="mi">1</span>)))
+                                      (maponpaths C (hzrminusplus i <span class="mi">1</span>))
+                                      (Diff C (i - <span class="mi">1</span>)))).
+      + <span class="bp">exact</span> f.
+    - <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span> + <span class="mi">1</span>) i0) <span class="k">as</span> [e' | n'].
+      + <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob A, A⟦x', a⟧) (maponpaths C (! (hzrminusplus i <span class="mi">1</span>) @ e')) f).
+      + <span class="bp">exact</span> (ZeroArrow (Additive.to_Zero A) (C i0) (Additive.to_Zero A)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ToAcyclicComplexFromObject_mors_comm_eq1</span> {<span class="nv">a</span> : ob A} {<span class="nv">C</span> : Complex A} {<span class="nv">i</span> : hz}
+        (<span class="nv">f</span> : C i --&gt; a) (<span class="nv">i0</span> : hz) (<span class="nv">e</span> : i - <span class="mi">1</span> = i0) (<span class="nv">e''</span> : i - <span class="mi">1</span> + <span class="mi">1</span> = i0 + <span class="mi">1</span>) :
+    (transportf (<span class="k">λ</span> <span class="nv">x'</span> : A, A ⟦ x', C i ⟧) (maponpaths C e)
+                (transportf (precategory_morphisms (C (i - <span class="mi">1</span>)))
+                            (maponpaths C (hzrminusplus i <span class="mi">1</span>)) (Diff C (i - <span class="mi">1</span>))))
+      · f · identity a =
+    Diff C i0 · transportf (<span class="k">λ</span> <span class="nv">x'</span> : A, A ⟦ x', a ⟧) (maponpaths C (! hzrminusplus i <span class="mi">1</span> @ e'')) f.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> id_right. <span class="nb">rewrite</span> &lt;- (pathsinv0inv0 (! hzrminusplus i <span class="mi">1</span> @ e'')).
+    <span class="nb">rewrite</span> maponpathsinv0. <span class="nb">rewrite</span> &lt;- transport_compose.
+    <span class="nb">apply</span> cancel_postcomposition. <span class="nb">rewrite</span> transport_source_target_comm.
+    <span class="nb">induction</span> e. use transportf_paths. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isasethz.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ToAcyclicComplexFromObject_mors_comm_eq2</span> {<span class="nv">a</span> : ob A} {<span class="nv">C</span> : Complex A} {<span class="nv">i</span> : hz}
+        (<span class="nv">f</span> : (C i) --&gt; a) (<span class="nv">i0</span> : hz) (<span class="nv">e'</span> : i - <span class="mi">1</span> = i0 + <span class="mi">1</span>) :
+    (ZeroArrow (Additive.to_Zero A) (C i0) (Additive.to_Zero A))
+      · (ZeroArrow (Additive.to_Zero A) (Additive.to_Zero A) a) =
+    Diff C i0 · (transportf (<span class="k">λ</span> <span class="nv">x'</span> : A, A ⟦ x', C i ⟧) (maponpaths C e')
+                             (transportf (precategory_morphisms (C (i - <span class="mi">1</span>)))
+                                         (maponpaths C (hzrminusplus i <span class="mi">1</span>))
+                                         (Diff C (i - <span class="mi">1</span>))) · f).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> &lt;- (pathsinv0inv0 e'). <span class="nb">rewrite</span> maponpathsinv0.
+    <span class="nb">rewrite</span> &lt;- transport_compose.
+    <span class="nb">rewrite</span> &lt;- (ZeroArrow_comp_left _ _ _ _ _ f). <span class="nb">apply</span> cancel_postcomposition.
+    use (transport_target_path _ _ (! maponpaths C (hzrminusplus i <span class="mi">1</span>))).
+    <span class="nb">rewrite</span> &lt;- transport_target_postcompose. <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> pathsinv0r. <span class="nb">rewrite</span> transport_target_ZeroArrow.
+    use (transport_target_path _ _ (maponpaths C (maponpaths_2 _ e' _))).
+    <span class="nb">rewrite</span> transport_target_ZeroArrow. <span class="nb">rewrite</span> transport_f_f. <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- (DSq A C i0). <span class="nb">rewrite</span> transport_compose.
+    <span class="nb">rewrite</span> transport_target_postcompose. <span class="nb">apply</span> cancel_precomposition.
+    use (pathscomp0 (transport_hz_source_target A _ <span class="mi">1</span> (Diff C) _ _ e')).
+    <span class="nb">rewrite</span> transport_source_target_comm.
+    <span class="nb">rewrite</span> maponpathsinv0. <span class="nb">rewrite</span> pathsinv0inv0.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ToAcyclicComplexFromObject_mors_comm</span> {<span class="nv">a</span> : ob A} {<span class="nv">C</span> : Complex A} {<span class="nv">i</span> : hz}
+        (<span class="nv">f</span> : (C i) --&gt; a) :
+    ∏ i0 : hz, (ToAcyclicComplexFromObject_mors f i0)
+                 · (Diff (AcyclicComplexFromObject a (i - <span class="mi">1</span>)) i0) =
+               (Diff C i0) · (ToAcyclicComplexFromObject_mors f (i0 + <span class="mi">1</span>)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i0.
+    <span class="nb">unfold</span> AcyclicComplexFromObject. <span class="nb">unfold</span> AcyclicComplexFromObject_obs.
+    <span class="nb">unfold</span> AcyclicComplexFromObject_mors. <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> ToAcyclicComplexFromObject_mors. <span class="nb">unfold</span> coprod_rect. <span class="nb">cbn</span>.
+    <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span>) i0) <span class="k">as</span> [e | n].
+    - <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e' | n'].
+      + <span class="bp">exact</span> (fromempty (hzeqeisi e e')).
+      + <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span> + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'' | n''].
+        * <span class="bp">exact</span> (ToAcyclicComplexFromObject_mors_comm_eq1 f i0 e e'').
+        * <span class="bp">exact</span> (fromempty (hzeqnmplusr e n'')).
+    - <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e' | n'].
+      + <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span> + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'' | n''].
+        * <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span> + <span class="mi">1</span>) i0) <span class="k">as</span> [e''' | n'''].
+          -- <span class="bp">exact</span> (fromempty (hzeqsnmnsm e''' e')).
+          -- <span class="bp">exact</span> (ToAcyclicComplexFromObject_mors_comm_eq2 f i0 e').
+        * <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span> + <span class="mi">1</span>) i0) <span class="k">as</span> [e''' | n'''].
+          -- <span class="bp">exact</span> (fromempty (hzeqsnmnsm e''' e')).
+          -- <span class="bp">exact</span> (ToAcyclicComplexFromObject_mors_comm_eq2 f i0 e').
+      + <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span> + <span class="mi">1</span>) i0) <span class="k">as</span> [e''' | n'''].
+        * <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span> + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'''' | n''''].
+          -- <span class="bp">exact</span> (fromempty (hzeqeisi e''' e'''')).
+          -- <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">apply</span> idpath.
+        * <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span> + <span class="mi">1</span>) (i0 + <span class="mi">1</span>)) <span class="k">as</span> [e'''' | n''''].
+          -- <span class="bp">exact</span> (fromempty (hzeqnmplusr' n e'''')).
+          -- <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ToAcyclicComplexFromObject</span> {<span class="nv">a</span> : ob A} {<span class="nv">C</span> : Complex A} {<span class="nv">i</span> : hz} (<span class="nv">f</span> : (C i) --&gt; a) :
+    Morphism C (AcyclicComplexFromObject a (i - <span class="mi">1</span>)).
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="bp">exact</span> (ToAcyclicComplexFromObject_mors f).
+    - <span class="bp">exact</span> (ToAcyclicComplexFromObject_mors_comm f).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** Some equalities *)</span>
+  <span class="kn">Lemma</span> <span class="nf">FromAcyclicComplexFromObject_Eq</span> {<span class="nv">a</span> : ob A} {<span class="nv">C</span> : Complex A} (<span class="nv">i0</span> : hz) {<span class="nv">i</span> : hz}
+        (<span class="nv">f</span> : a --&gt; (C i)) :
+    FromAcyclicComplexFromObject f i0 = FromAcyclicComplexFromObject_mors f i0.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ToAcyclicComplexFromObject_Eq</span> {<span class="nv">a</span> : ob A} {<span class="nv">C</span> : Complex A} (<span class="nv">i0</span> : hz) {<span class="nv">i</span> : hz}
+        (<span class="nv">f</span> : (C i) --&gt; a) :
+    ToAcyclicComplexFromObject f i0 = ToAcyclicComplexFromObject_mors f i0.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">acyclic_complexes</span>.
+
+
+
+<span class="sd">(** * The category of complexes *)</span>
+<span class="sd">(** ** Introduction</span>
+<span class="sd">   We construct the category of complexes where the objects are complexes, [Complex], and morphisms</span>
+<span class="sd">   are  morphisms between complexes, [Morphism]. Also, we show that a monic (resp. epi) in this</span>
+<span class="sd">   category is indexwise monic (resp. epi), [ComplexMonicIndexMonic] (resp. [ComplexEpiIndexEpi]).</span>
+<span class="sd">   To show that a morphism of complexes is an isomorphism, it is enough to show that the morphism</span>
+<span class="sd">   is indexwise isomorphism, [ComplexIsoIndexIso].</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">complexes_precat</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : CategoryWithAdditiveStructure.
+
+  <span class="sd">(** ** Construction of the category of complexes *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_ob_mor</span> : precategory_ob_mor :=
+    tpair (<span class="k">λ</span> <span class="nv">ob</span> : UU, ob -&gt; ob -&gt; UU) (Complex A) (<span class="k">λ</span> <span class="nv">C1</span> <span class="nv">C2</span> : Complex A, Morphism C1 C2).
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_data</span> : precategory_data :=
+    make_precategory_data
+      ComplexPreCat_ob_mor (<span class="k">λ</span> (<span class="nv">C</span> : Complex A), IdMor C)
+      (<span class="k">fun</span> (<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : Complex A) (<span class="nv">M1</span> : Morphism C1 C2) (<span class="nv">M2</span> : Morphism C2 C3) =&gt; MorphismComp M1 M2).
+
+  <span class="kn">Lemma</span> <span class="nf">is_precategory_ComplexPreCat_data</span> : is_precategory ComplexPreCat_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">split</span>.
+      + <span class="nb">intros</span> a b f.
+        use MorphismEq.
+        <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+        <span class="nb">apply</span> id_left.
+      + <span class="nb">intros</span> a b f.
+        use MorphismEq.
+        <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+        <span class="nb">apply</span> id_right.
+    - <span class="nb">split</span>.
+      + <span class="nb">intros</span> a b c d f g h.
+        use MorphismEq.
+        <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+        <span class="nb">apply</span> assoc.
+      + <span class="nb">intros</span> a b c d f g h.
+        use MorphismEq.
+        <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+        <span class="nb">apply</span> assoc'.
+  <span class="kn">Qed</span>.
+  <span class="c">(* With Defined instead of Qed just above, we get a substantial increase in compile time:</span>
+<span class="c">        HomologicalAlgebra/KA                  (real: 334.56) &gt;&gt; (real:  57.64)</span>
+<span class="c">        HomologicalAlgebra/TranslationFunctors (real: 587.48) &gt;&gt; (real: 106.44)</span>
+<span class="c">        HomologicalAlgebra/MappingCylinder     (real:  31.59) &gt;&gt; (real:  13.79)</span>
+<span class="c">        HomologicalAlgebra/KAPreTriangulated   (real: 295.70) &gt;&gt; (real:  63.97)</span>
+<span class="c">        HomologicalAlgebra/KATriangulated      (real: 281.79) &gt;&gt; (real:  51.55)</span>
+<span class="c">        HomologicalAlgebra/CohomologyComplex   (real: 138.27) &gt;&gt; (real:  51.45)</span>
+<span class="c">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat</span> : precategory := tpair _ _ is_precategory_ComplexPreCat_data.
+
+  <span class="kn">Lemma</span> <span class="nf">has_homsets_ComplexPreCat</span> : has_homsets ComplexPreCat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C1 C2. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> impred_isaset.
+      <span class="nb">intros</span> t. <span class="nb">apply</span> to_has_homsets.
+    - <span class="nb">intros</span> x. <span class="nb">apply</span> impred_isaset.
+      <span class="nb">intros</span> t. <span class="nb">apply</span> isasetaprop. <span class="nb">apply</span> to_has_homsets.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexCat</span> : category := make_category _ has_homsets_ComplexPreCat.
+
+  <span class="sd">(** ** Monic of complexes is indexwise monic *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexMonicIndexMonic_eq</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">M</span> : Monic ComplexCat C1 C2) (<span class="nv">i</span> : hz)
+        {<span class="nv">a</span> : A} (<span class="nv">g</span> <span class="nv">h</span> : A ⟦a, C1 i⟧)
+        (<span class="nv">H</span> : g · (MMor (MonicArrow _ M) i) = h · (MMor (MonicArrow _ M) i)) :
+    FromAcyclicComplexFromObject_mors A g i = FromAcyclicComplexFromObject_mors A h i.
+  <span class="kn">Proof</span>.
+    use (pathscomp0 (! (FromAcyclicComplexFromObject_Eq A i g))).
+    use (pathscomp0 _ (FromAcyclicComplexFromObject_Eq A i h)).
+    use MorphismEq'.
+    use (MonicisMonic ComplexCat M). <span class="nb">cbn</span>.
+    use MorphismEq.
+    <span class="nb">intros</span> i0. <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> FromAcyclicComplexFromObject_mors. <span class="nb">unfold</span> coprod_rect.
+    <span class="nb">unfold</span> AcyclicComplexFromObject_obs. <span class="nb">cbn</span>.
+    <span class="nb">induction</span> (isdecrelhzeq i i0) <span class="k">as</span> [T | F].
+    - <span class="nb">induction</span> T. <span class="bp">exact</span> H.
+    - <span class="nb">induction</span> (isdecrelhzeq (i + <span class="mi">1</span>) i0) <span class="k">as</span> [T' | F'].
+      + <span class="nb">induction</span> T'. <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- MComm.
+        <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+        <span class="bp">exact</span> H.
+      + <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexMonicIndexMonic</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">M</span> : Monic ComplexCat C1 C2) :
+    ∏ i : hz, isMonic (@MMor A C1 C2 (MonicArrow _ M) i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i a g h H.
+    <span class="nb">set</span> (tmp := ComplexMonicIndexMonic_eq M i g h H).
+    <span class="nb">unfold</span> FromAcyclicComplexFromObject_mors <span class="k">in</span> tmp. <span class="nb">cbn</span> <span class="k">in</span> tmp.
+    <span class="nb">unfold</span> coprod_rect <span class="k">in</span> tmp. <span class="nb">unfold</span> AcyclicComplexFromObject_obs <span class="k">in</span> tmp.
+    <span class="nb">unfold</span> paths_rect <span class="k">in</span> tmp. <span class="nb">cbn</span> <span class="k">in</span> tmp.
+    <span class="nb">rewrite</span> (isdecrelhzeqi i) <span class="k">in</span> tmp.
+    <span class="bp">exact</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexMonicIndexMonic'</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2)
+        (<span class="nv">H</span> : ∏ i : hz, isMonic (f i)) : isMonic (f : ComplexCat⟦_, _⟧).
+  <span class="kn">Proof</span>.
+    use make_isMonic.
+    <span class="nb">intros</span> x g h X.
+    use MorphismEq. <span class="nb">intros</span> i.
+    <span class="nb">set</span> (tmp := MorphismEq' A _ _ X i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">apply</span> (H i) <span class="k">in</span> tmp.
+    <span class="bp">exact</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** Epi of complexes is indexwise epi *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexEpiIndexEpi_eq</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">E</span> : Epi ComplexCat C1 C2) (<span class="nv">i</span> : hz)
+        {<span class="nv">a</span> : A} (<span class="nv">g</span> <span class="nv">h</span> : A ⟦C2 i, a⟧)
+        (<span class="nv">H</span> : (MMor (EpiArrow _ E) i) · g = (MMor (EpiArrow _ E) i) · h) :
+    ToAcyclicComplexFromObject_mors A g i = ToAcyclicComplexFromObject_mors A h i.
+  <span class="kn">Proof</span>.
+    use (pathscomp0 (! (ToAcyclicComplexFromObject_Eq A i g))).
+    use (pathscomp0 _ (ToAcyclicComplexFromObject_Eq A i h)).
+    use MorphismEq'.
+    use (EpiisEpi ComplexCat E). <span class="nb">cbn</span>.
+    use MorphismEq.
+    <span class="nb">intros</span> i0. <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> ToAcyclicComplexFromObject_mors. <span class="nb">unfold</span> coprod_rect.
+    <span class="nb">unfold</span> AcyclicComplexFromObject_obs. <span class="nb">cbn</span>.
+    <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span>) i0) <span class="k">as</span> [T | F].
+    - <span class="nb">rewrite</span> &lt;- transport_source_precompose. <span class="nb">rewrite</span> &lt;- transport_source_precompose.
+      <span class="nb">rewrite</span> &lt;- (pathsinv0inv0 T). <span class="nb">rewrite</span> maponpathsinv0.
+      <span class="nb">rewrite</span> &lt;- transport_compose. <span class="nb">rewrite</span> &lt;- transport_compose.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- transport_target_postcompose.
+      <span class="nb">assert</span> (e : (transportf (precategory_morphisms (C1 i0)) (maponpaths C2 (! T))
+                              (MMor (EpiArrow _ E) i0)) · Diff C2 (i - <span class="mi">1</span>) =
+                  (Diff C1 i0) · (transportf (precategory_morphisms (C1 (i0 + <span class="mi">1</span>)))
+                                              (maponpaths C2 (maponpaths_2 _ (!T) _))
+                                              (MMor (EpiArrow _ E) (i0 + <span class="mi">1</span>)))).
+      {
+        <span class="nb">rewrite</span> &lt;- transport_target_postcompose. <span class="nb">rewrite</span> &lt;- MComm.
+        <span class="nb">rewrite</span> transport_target_postcompose. <span class="nb">induction</span> T. <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">cbn</span> <span class="k">in</span> e. <span class="nb">cbn</span>. <span class="nb">rewrite</span> e. <span class="nb">clear</span> e.
+      <span class="nb">rewrite</span> transport_target_postcompose.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">rewrite</span> transport_f_f. <span class="nb">rewrite</span> &lt;- maponpathscomp0.
+      use (@transport_source_path
+             A (C1 i) (C1 (i0 + <span class="mi">1</span>)) a _ _
+             (maponpaths C1 (maponpaths_2 _ (!T) _ @ hzrminusplus i <span class="mi">1</span>))).
+      <span class="nb">rewrite</span> transport_source_precompose. <span class="nb">rewrite</span> transport_source_precompose.
+      <span class="nb">rewrite</span> transport_source_target_comm.
+      <span class="nb">set</span> (tmp''' := transport_hz_double_section_source_target
+                       A _ _ (MMor (EpiArrow _ E)) _ _
+                       (maponpaths_2 _ (! T) _ @ hzrminusplus i <span class="mi">1</span>)).
+      <span class="nb">cbn</span> <span class="k">in</span> tmp'''. <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- tmp'''. <span class="nb">clear</span> tmp'''.
+      <span class="bp">exact</span> H.
+    - <span class="nb">induction</span> (isdecrelhzeq (i - <span class="mi">1</span> + <span class="mi">1</span>) i0) <span class="k">as</span> [e' | n'].
+      + <span class="nb">rewrite</span> &lt;- (pathsinv0inv0 e'). <span class="nb">rewrite</span> &lt;- pathscomp_inv. <span class="nb">rewrite</span> maponpathsinv0.
+        <span class="nb">rewrite</span> &lt;- transport_compose. <span class="nb">rewrite</span> &lt;- transport_compose.
+        use (@transport_source_path
+               A (C1 i) (C1 i0) a _ _ (maponpaths C1 (! e' @ hzrminusplus i <span class="mi">1</span>))).
+        <span class="nb">rewrite</span> transport_source_precompose. <span class="nb">rewrite</span> transport_source_precompose.
+        <span class="nb">rewrite</span> transport_source_target_comm.
+        <span class="nb">set</span> (tmp''' := transport_hz_double_section_source_target
+                         A _ _ (MMor (EpiArrow _ E)) _ _
+                         (! e' @ hzrminusplus i <span class="mi">1</span>)).
+        <span class="nb">cbn</span> <span class="k">in</span> tmp'''. <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- tmp'''. <span class="nb">clear</span> tmp'''.
+        <span class="bp">exact</span> H.
+      + <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexEpiIndexEpi</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">E</span> : Epi ComplexCat C1 C2) :
+    ∏ i : hz, isEpi (@MMor A C1 C2 (EpiArrow _ E) i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i a g h H.
+    <span class="nb">set</span> (tmp := ComplexEpiIndexEpi_eq E i g h H).
+    <span class="nb">unfold</span> ToAcyclicComplexFromObject_mors <span class="k">in</span> tmp. <span class="nb">cbn</span> <span class="k">in</span> tmp.
+    <span class="nb">unfold</span> coprod_rect <span class="k">in</span> tmp. <span class="nb">unfold</span> AcyclicComplexFromObject_obs <span class="k">in</span> tmp. <span class="nb">cbn</span> <span class="k">in</span> tmp.
+    <span class="nb">rewrite</span> (isdecrelhzeqpii i) <span class="k">in</span> tmp.
+    <span class="nb">rewrite</span> (isdecrelhzeqminusplus' i) <span class="k">in</span> tmp.
+    <span class="nb">rewrite</span> pathsinv0l <span class="k">in</span> tmp.
+    <span class="bp">exact</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexEpiIndexEpi'</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : Morphism C1 C2)
+        (<span class="nv">H</span> : ∏ i : hz, isEpi (f i)) : isEpi (f : ComplexPreCat⟦_, _⟧).
+  <span class="kn">Proof</span>.
+    use make_isEpi.
+    <span class="nb">intros</span> z g h X.
+    use MorphismEq. <span class="nb">intros</span> i.
+    <span class="nb">set</span> (tmp := MorphismEq' A _ _ X i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">apply</span> (H i) <span class="k">in</span> tmp.
+    <span class="bp">exact</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** An morphism in complexes is an isomorphism if it is so indexwise *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexIsoIndexIso</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">f</span> : ComplexPreCat⟦C1, C2⟧)
+        (<span class="nv">H</span> : ∏ (i : hz), is_iso (MMor f i)) : is_iso f.
+  <span class="kn">Proof</span>.
+    use is_iso_qinv.
+    - use make_Morphism.
+      + <span class="nb">intros</span> i. <span class="bp">exact</span> (iso_inv_from_is_iso _ (H i)).
+      + <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+        use (post_comp_with_iso_is_inj _ _ _ (H (i + <span class="mi">1</span>))).
+        use (pre_comp_with_iso_is_inj _ _ _ _ (H i)).
+        <span class="nb">assert</span> (e0 : MMor f i · inv_from_iso (MMor f i,, H i) = identity _).
+        {
+          <span class="nb">apply</span> (iso_inv_after_iso (make_iso _ (H i))).
+        }
+        <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> e0. <span class="nb">rewrite</span> id_left.
+        <span class="nb">rewrite</span> &lt;- (MComm f i). <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">assert</span> (e1 : inv_from_iso (MMor f (i + <span class="mi">1</span>),, H (i + <span class="mi">1</span>)) · MMor f (i + <span class="mi">1</span>) = identity _).
+        {
+          <span class="nb">apply</span> (iso_after_iso_inv (make_iso _ (H (i + <span class="mi">1</span>)))).
+        }
+        <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> e1. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> idpath.
+    - <span class="nb">split</span>.
+      + use MorphismEq. <span class="nb">intros</span> i. <span class="nb">cbn</span>. <span class="nb">apply</span> (iso_inv_after_iso (make_iso _ (H i))).
+      + use MorphismEq. <span class="nb">intros</span> i. <span class="nb">cbn</span>. <span class="nb">apply</span> (iso_after_iso_inv (make_iso _ (H i))).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">complexes_precat</span>.
+
+
+<span class="sd">(** * The category of complexes over CategoryWithAdditiveStructure is CategoryWithAdditiveStructure *)</span>
+<span class="sd">(** ** Introduction</span>
+<span class="sd">   We give the category of complexes over an additive category a natural structure as an additive</span>
+<span class="sd">   category. Addition of morphisms is given by indexwise addition, [MorphismOp], [ZeroComplex] is a</span>
+<span class="sd">   zero object, which is shown to be zero in [ComplexPreCat_isZero], and binary direct sums are</span>
+<span class="sd">   given by [DirectSumComplex]. [ComplexPreCat_Additive] is the main result.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">complexes_additive</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : CategoryWithAdditiveStructure.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_precategoryWithBinOps</span> : precategoryWithBinOps.
+  <span class="kn">Proof</span>.
+    use make_precategoryWithBinOps.
+    - <span class="bp">exact</span> (ComplexCat A).
+    - <span class="nb">intros</span> x y. <span class="bp">exact</span> (MorphismOp A).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_categoryWithAbgrops</span> : categoryWithAbgrops.
+  <span class="kn">Proof</span>.
+    use make_categoryWithAbgrops.
+    - <span class="bp">exact</span> ComplexPreCat_precategoryWithBinOps.
+    - <span class="nb">intros</span> x y. <span class="bp">exact</span> (MorphismOp_isabgrop A x y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexPreCat_isPreAdditive</span> : isPreAdditive ComplexPreCat_categoryWithAbgrops.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y z f.
+      <span class="nb">split</span>.
+      + <span class="nb">intros</span> g h.
+        use MorphismEq.
+        <span class="nb">intros</span> i.
+        <span class="nb">apply</span> to_premor_linear'.
+      + use MorphismEq.
+        <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+        <span class="nb">apply</span> ZeroArrow_comp_right.
+    - <span class="nb">intros</span> x y z f.
+      <span class="nb">split</span>.
+      + <span class="nb">intros</span> g h.
+        use MorphismEq.
+        <span class="nb">intros</span> i.
+        <span class="nb">apply</span> to_postmor_linear'.
+      + use MorphismEq.
+        <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+        <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexPreCat_PreAdditive</span> : PreAdditive.
+  <span class="kn">Proof</span>.
+    use make_PreAdditive.
+    - <span class="bp">exact</span> ComplexPreCat_categoryWithAbgrops.
+    - <span class="bp">exact</span> ComplexPreCat_isPreAdditive.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexPreCat_isZero</span> : @isZero ComplexPreCat_PreAdditive ZeroComplex.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> C.
+      use tpair.
+      + <span class="bp">exact</span> (MorphismFromZero C).
+      + <span class="nb">cbn</span>. <span class="nb">intros</span> t.
+        use MorphismEq.
+        <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+        <span class="nb">apply</span> ArrowsFromZero.
+    - <span class="nb">intros</span> C.
+      use tpair.
+      + <span class="bp">exact</span> (MorphismToZero C).
+      + <span class="nb">cbn</span>. <span class="nb">intros</span> t.
+        use MorphismEq.
+        <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+        <span class="nb">apply</span> ArrowsToZero.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> ComplexPreCat_isZero.
+
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexPreCat_isBinDirectSum</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex A) :
+    @isBinDirectSum
+      ComplexPreCat_PreAdditive C1 C2 (DirectSumComplex A C1 C2) (DirectSumComplexIn1 A C1 C2)
+      (DirectSumComplexIn2 A C1 C2) (DirectSumComplexPr1 A C1 C2) (DirectSumComplexPr2 A C1 C2).
+  <span class="kn">Proof</span>.
+    use make_isBinDirectSum.
+    - <span class="nb">apply</span> (! (DirectSumIdIn1 A C1 C2)).
+    - <span class="nb">apply</span> (! (DirectSumIdIn2 A C1 C2)).
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> (DirectSumUnit1 A C1 C2). <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> (DirectSumUnit2 A C1 C2). <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> (DirectSumId A C1 C2).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The category of complexes over an additive category is additive *)</span>
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_Additive</span> : CategoryWithAdditiveStructure.
+  <span class="kn">Proof</span>.
+    use make_Additive.
+    - <span class="bp">exact</span> ComplexPreCat_PreAdditive.
+    - use make_AdditiveStructure.
+      + use make_Zero.
+        * <span class="bp">exact</span> ZeroComplex.
+        * <span class="bp">exact</span> ComplexPreCat_isZero.
+      + <span class="nb">intros</span> C1 C2.
+        use (make_BinDirectSum ComplexPreCat_PreAdditive).
+        * <span class="bp">exact</span> (DirectSumComplex A C1 C2).
+        * <span class="bp">exact</span> (DirectSumComplexIn1 A C1 C2).
+        * <span class="bp">exact</span> (DirectSumComplexIn2 A C1 C2).
+        * <span class="bp">exact</span> (DirectSumComplexPr1 A C1 C2).
+        * <span class="bp">exact</span> (DirectSumComplexPr2 A C1 C2).
+        * <span class="bp">exact</span> (ComplexPreCat_isBinDirectSum C1 C2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Transparent</span> ZeroArrow.
+  <span class="kn">Lemma</span> <span class="nf">ComplexPreCat_ZeroArrow_ZeroMorphism</span> (<span class="nv">C1</span> <span class="nv">C2</span> : ob ComplexPreCat_Additive) :
+    ZeroMorphism A C1 C2 = ZeroArrow (Additive.to_Zero ComplexPreCat_Additive)  _ _.
+  <span class="kn">Proof</span>.
+    use MorphismEq.
+    - <span class="nb">intros</span> i. <span class="nb">cbn</span>. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> ZeroArrowEq.
+  <span class="kn">Qed</span>.
+  <span class="kn">Local</span> <span class="kn">Opaque</span> ZeroArrow.
+
+<span class="kn">End</span> <span class="nf">complexes_additive</span>.
+
+
+<span class="sd">(** * Complexes over Abelian is Abelian *)</span>
+<span class="sd">(** ** Introduction</span>
+<span class="sd">   We show that the category of complexes, [ComplexPreCat_Additive], over an abelian category A,</span>
+<span class="sd">   more precisely [AbelianToAdditive A hs], is an abelian category, [ComplexPreCat_AbelianPreCat].</span>
+<span class="sd">   Kernels and cokernels are given by taking kernels and cokernels indexwise. Since monics and epis</span>
+<span class="sd">   in [ComplexPreCat_Additive] are indexwise monics and epis, by [ComplexMonicIndexMonic] and</span>
+<span class="sd">   [ComplexEpiIndexEpi], we can use the fact that A is abelian to show that every monic is a kernel</span>
+<span class="sd">   of some morphism in [ComplexPreCat_Additive] and every epi is a cokernel of some morphism in</span>
+<span class="sd">   [ComplexPreCat_Additive].</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">complexes_abelian</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : AbelianPreCat.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets A := homset_property A.
+
+  <span class="sd">(** ** Kernels in Complexes over Abelian *)</span>
+  <span class="sd">(** *** Construction of the kernel object *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Kernel_moreq</span> {<span class="nv">Y</span> <span class="nv">Z</span> : Complex (AbelianToAdditive A)} (<span class="nv">g</span> : Morphism Y Z)
+        (<span class="nv">i</span> : hz) : (KernelArrow (Kernel (g i))) · (Diff Y i) · (g (i + <span class="mi">1</span>)) =
+                   ZeroArrow (to_Zero A) (Kernel (g i)) (Z (i + <span class="mi">1</span>)).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">cbn</span>. <span class="nb">set</span> (tmp := MComm g i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> &lt;- tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> KernelCompZero. <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Kernel_comp</span> {<span class="nv">Y</span> <span class="nv">Z</span> : Complex (AbelianToAdditive A)} (<span class="nv">g</span> : Morphism Y Z)
+        (<span class="nv">i</span> : hz) :
+    (KernelIn (to_Zero A) (Kernel (g (i + <span class="mi">1</span>))) (Kernel (g i))
+              ((KernelArrow (Kernel (g i))) · (Diff Y i))
+              (ComplexPreCat_Kernel_moreq g i))
+      · (KernelIn (to_Zero A) (Kernel (g (i + <span class="mi">1</span> + <span class="mi">1</span>))) (Kernel (g (i + <span class="mi">1</span>)))
+                   ((KernelArrow (Kernel (g (i + <span class="mi">1</span>)))) · (Diff Y (i + <span class="mi">1</span>)))
+                   (ComplexPreCat_Kernel_moreq g (i + <span class="mi">1</span>))) =
+    ZeroArrow (to_Zero A) (Kernel (g i)) (Kernel (g (i + <span class="mi">1</span> + <span class="mi">1</span>))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> KernelArrowisMonic. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> KernelCommutes.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">set</span> (tmp := DSq _ Y i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_Kernel</span> {<span class="nv">Y</span> <span class="nv">Z</span> : Complex (AbelianToAdditive A)} (<span class="nv">g</span> : Morphism Y Z) :
+    ComplexCat (AbelianToAdditive A).
+  <span class="kn">Proof</span>.
+    use make_Complex.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (Kernel (g i)).
+    - <span class="nb">intros</span> i. <span class="nb">cbn</span>. use KernelIn.
+      + <span class="bp">exact</span> (KernelArrow (Kernel (g i)) · Diff Y i).
+      + <span class="bp">exact</span> (ComplexPreCat_Kernel_moreq g i).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (ComplexPreCat_Kernel_comp g i).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Construction of the KernelArrow *)</span>
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_KernelArrow</span> {<span class="nv">Y</span> <span class="nv">Z</span> : Complex (AbelianToAdditive A)}
+             (<span class="nv">g</span> : Morphism Y Z) : Morphism (ComplexPreCat_Kernel g) Y.
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. use KernelArrow.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (! (KernelCommutes _ _ _ _ _)).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** *** isEqualizer  *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Kernels_comp</span> {<span class="nv">X</span> <span class="nv">Y</span> : Complex (AbelianToAdditive A)}
+        (<span class="nv">g</span> : Morphism X Y) :
+    <span class="k">let</span> <span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)) <span class="k">in</span>
+    MorphismComp (ComplexPreCat_KernelArrow g) g =
+    MorphismComp (ZeroArrowTo (ComplexPreCat_Kernel g)) (@ZeroArrowFrom _ Z Y).
+  <span class="kn">Proof</span>.
+    use MorphismEq.
+    <span class="nb">intros</span> i. <span class="nb">cbn</span>. <span class="nb">rewrite</span> KernelCompZero. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> ZeroArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_KernelIn_comp</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">w</span> : Complex (AbelianToAdditive A)}
+        (<span class="nv">g</span> : Morphism X Y) (<span class="nv">h</span> : Morphism w X) (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)) <span class="k">in</span>
+    MorphismComp h g = ZeroArrow Z w Y -&gt;
+    (h i) · (g i) = ZeroArrow (to_Zero A) (w i) (Y i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Z H.
+    <span class="nb">set</span> (tmp := MorphismEq' _ (MorphismComp h g) (ZeroArrow Z _ _) H i). <span class="nb">cbn</span> <span class="k">in</span> tmp.
+    <span class="nb">cbn</span>. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp. <span class="nb">apply</span> ZeroArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_KernelIn</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">w</span> : Complex (AbelianToAdditive A)} (<span class="nv">g</span> : Morphism X Y)
+             (<span class="nv">h</span> : Morphism w X) :
+    <span class="k">let</span> <span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)) <span class="k">in</span>
+    MorphismComp h g = ZeroArrow Z w Y -&gt;
+    (ComplexCat (AbelianToAdditive A)) ⟦w, ComplexPreCat_Kernel g⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">set</span> (Z := @make_Zero (ComplexCat (AbelianToAdditive A))
+                       ZeroComplex (ComplexPreCat_isZero (AbelianToAdditive A))).
+    <span class="nb">intros</span> H.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="nb">cbn</span>. use KernelIn.
+      + <span class="bp">exact</span> (h i).
+      + <span class="nb">apply</span> (ComplexPreCat_KernelIn_comp g h i H).
+    - <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+      <span class="nb">apply</span> KernelArrowisMonic.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">rewrite</span> KernelCommutes.
+      <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> KernelCommutes.
+      <span class="nb">apply</span> (MComm h i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Kernels_isKernel</span> {<span class="nv">X</span> <span class="nv">Y</span> : Complex (AbelianToAdditive A)}
+        (<span class="nv">g</span> : Morphism X Y) :
+    <span class="k">let</span> <span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)) <span class="k">in</span>
+    @isKernel (ComplexCat (AbelianToAdditive A)) _ _ _ _
+              (ComplexPreCat_KernelArrow g) g (ComplexPreCat_Kernels_comp g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Z.
+    use (make_isKernel <span class="c">(*(has_homsets_ComplexPreCat (AbelianToAdditive A))*)</span>).
+    <span class="nb">intros</span> w h H'.
+    use unique_exists.
+    - <span class="bp">exact</span> (ComplexPreCat_KernelIn g h H').
+    - <span class="nb">cbn</span>. use MorphismEq. <span class="nb">intros</span> i. use KernelCommutes.
+    - <span class="nb">intros</span> y. <span class="nb">apply</span> has_homsets_ComplexPreCat.
+    - <span class="nb">intros</span> y T. <span class="nb">cbn</span> beta <span class="k">in</span> T.
+      use MorphismEq.
+      <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+      <span class="nb">apply</span> KernelArrowisMonic.
+      <span class="nb">rewrite</span> KernelCommutes.
+      <span class="nb">apply</span> (MorphismEq' _ _ _ T i).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** Kernels *)</span>
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_Kernels</span> :
+    Kernels (@make_Zero (ComplexPreCat_Additive (AbelianToAdditive A))
+                      ZeroComplex (ComplexPreCat_isZero (AbelianToAdditive A))).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y f. <span class="nb">cbn</span> <span class="k">in</span> *.
+    use make_Kernel.
+    <span class="c">(* Kernel complex *)</span>
+    - <span class="bp">exact</span> (ComplexPreCat_Kernel f).
+    <span class="c">(* Kernel arrow *)</span>
+    - <span class="bp">exact</span> (ComplexPreCat_KernelArrow f).
+    <span class="c">(* Composition KernelArrow · g = ZeroArrow *)</span>
+    - <span class="bp">exact</span> (ComplexPreCat_Kernels_comp f).
+    <span class="c">(* isEqualizer property *)</span>
+    - <span class="bp">exact</span> (ComplexPreCat_Kernels_isKernel f).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** Cokernels in Complexes over Abelian *)</span>
+
+  <span class="sd">(** *** Cokernel complex *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Cokernel_comm</span> {<span class="nv">Y</span> <span class="nv">Z</span> : Complex (AbelianToAdditive A)}
+        (<span class="nv">g</span> : Morphism Y Z) (<span class="nv">i</span> : hz) :
+    (g i) · ((Diff Z i) · (CokernelArrow (Cokernel (g (i + <span class="mi">1</span>))))) =
+    ZeroArrow (to_Zero A) (Y i) (Cokernel (g (i + <span class="mi">1</span>))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc. <span class="nb">cbn</span>. <span class="nb">set</span> (tmp := MComm g i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> CokernelCompZero. <span class="nb">apply</span> ZeroArrow_comp_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Cokernel_comp</span> {<span class="nv">Y</span> <span class="nv">Z</span> : Complex (AbelianToAdditive A)}
+        (<span class="nv">g</span> : Morphism Y Z) (<span class="nv">i</span> : hz) :
+    (CokernelOut (to_Zero A) (Cokernel (g i)) (Cokernel (g (i + <span class="mi">1</span>)))
+                 ((Diff Z i) · (CokernelArrow (Cokernel (g (i + <span class="mi">1</span>)))))
+                 (ComplexPreCat_Cokernel_comm g i))
+      · (CokernelOut (to_Zero A) (Cokernel (g (i + <span class="mi">1</span>))) (Cokernel (g (i + <span class="mi">1</span> + <span class="mi">1</span>)))
+                      ((Diff Z (i + <span class="mi">1</span>)) · (CokernelArrow (Cokernel (g (i + <span class="mi">1</span> + <span class="mi">1</span>)))))
+                      (ComplexPreCat_Cokernel_comm g (i + <span class="mi">1</span>))) =
+    ZeroArrow (to_Zero A) (Cokernel (g i)) (Cokernel (g (i + <span class="mi">1</span> + <span class="mi">1</span>))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> CokernelArrowisEpi. <span class="nb">rewrite</span> ZeroArrow_comp_right.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> CokernelCommutes.
+    <span class="nb">rewrite</span> assoc. <span class="nb">set</span> (tmp := DSq _ Z i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">cbn</span>. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_Cokernel</span> {<span class="nv">Y</span> <span class="nv">Z</span> : Complex (AbelianToAdditive A)} (<span class="nv">g</span> : Morphism Y Z) :
+    ComplexCat (AbelianToAdditive A).
+  <span class="kn">Proof</span>.
+    use make_Complex.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (Cokernel (g i)).
+    - <span class="nb">intros</span> i. <span class="nb">cbn</span>. use CokernelOut.
+      + <span class="bp">exact</span> ((Diff Z i) · (CokernelArrow (Cokernel (g (i + <span class="mi">1</span>))))).
+      + <span class="bp">exact</span> (ComplexPreCat_Cokernel_comm g i).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (ComplexPreCat_Cokernel_comp g i).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** CokernelArrow *)</span>
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_CokernelArrow</span> {<span class="nv">Y</span> <span class="nv">Z</span> : Complex (AbelianToAdditive A)}
+             (<span class="nv">g</span> : Morphism Y Z) : Morphism Z (ComplexPreCat_Cokernel g).
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i. use CokernelArrow.
+    - <span class="nb">intros</span> i. use CokernelCommutes.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Cokernel *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_CokernelCompZero</span> {<span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">w</span> : Complex (AbelianToAdditive A)}
+        (<span class="nv">g</span> : (ComplexCat (AbelianToAdditive A))⟦Y, Z⟧)
+        (<span class="nv">h</span> : (ComplexCat (AbelianToAdditive A))⟦Z, w⟧)
+        (<span class="nv">i</span> : hz) :
+    <span class="k">let</span> <span class="nv">Z0</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)) <span class="k">in</span>
+    g · h = ZeroArrow Z0 Y w -&gt; (MMor g i) · (MMor h i) = ZeroArrow (to_Zero A) (Y i) (w i).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Z0. <span class="nb">cbn</span>. <span class="nb">intros</span> H. <span class="nb">set</span> (tmp := MorphismEq' _ (g · h) _ H i). <span class="nb">cbn</span> <span class="k">in</span> tmp.
+    <span class="nb">rewrite</span> tmp. <span class="nb">apply</span> ZeroArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Cokernels_Eq</span> {<span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">w</span> : Complex (AbelianToAdditive A)}
+        (<span class="nv">g</span> : (ComplexCat (AbelianToAdditive A))⟦Y, Z⟧)
+        (<span class="nv">h</span> : (ComplexCat (AbelianToAdditive A))⟦Z, w⟧)
+        (<span class="nv">H</span> : g · h =
+             ZeroArrow (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A))) Y w)
+        (<span class="nv">i</span> : hz) :
+    (CokernelOut (to_Zero A) (Cokernel (MMor g i)) (w i) (MMor h i)
+                 (ComplexPreCat_CokernelCompZero g h i H)) · (Diff w i) =
+    (CokernelOut (to_Zero A) (Cokernel (MMor g i)) (Cokernel (MMor g (i + <span class="mi">1</span>)))
+                 ((Diff Z i) · (CokernelArrow (Cokernel (MMor g (i + <span class="mi">1</span>)))))
+                 (ComplexPreCat_Cokernel_comm g i))
+      · (CokernelOut (to_Zero A) (Cokernel (MMor g (i + <span class="mi">1</span>)))
+                      (w (i + <span class="mi">1</span>)) (MMor h (i + <span class="mi">1</span>))
+                      (ComplexPreCat_CokernelCompZero g h (i + <span class="mi">1</span>) H)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> CokernelArrowisEpi.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes.
+    <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> CokernelCommutes.
+    <span class="nb">apply</span> (MComm h i).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Cokernels_Comp</span> {<span class="nv">Y</span> <span class="nv">Z</span> : Complex (AbelianToAdditive A)}
+        (<span class="nv">g</span> : (ComplexCat (AbelianToAdditive A))⟦Y, Z⟧) :
+    <span class="k">let</span> <span class="nv">Z0</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)) <span class="k">in</span>
+    MorphismComp g (ComplexPreCat_CokernelArrow g) =
+    MorphismComp (@ZeroArrowTo _ Z0 Y) (@ZeroArrowFrom _ Z0 (ComplexPreCat_Cokernel g)).
+  <span class="kn">Proof</span>.
+    use MorphismEq.
+    <span class="nb">intros</span> i. <span class="nb">cbn</span>. <span class="nb">rewrite</span> CokernelCompZero. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> ZeroArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Cokernels_isCokernel</span> {<span class="nv">Y</span> <span class="nv">Z</span> : Complex (AbelianToAdditive A)}
+        (<span class="nv">g</span> : (ComplexCat (AbelianToAdditive A))⟦Y, Z⟧) :
+    <span class="k">let</span> <span class="nv">Z0</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)) <span class="k">in</span>
+    isCokernel _ g (ComplexPreCat_CokernelArrow g) (ComplexPreCat_Cokernels_Comp g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Z0.
+    use make_isCokernel.
+    <span class="nb">intros</span> w h H'.
+    use unique_exists.
+    - use make_Morphism.
+      + <span class="nb">intros</span> i. <span class="nb">cbn</span>. use CokernelOut.
+        * <span class="bp">exact</span> (MMor h i).
+        * <span class="bp">exact</span> (ComplexPreCat_CokernelCompZero g h i H').
+      + <span class="nb">intros</span> i. <span class="nb">cbn</span>. use ComplexPreCat_Cokernels_Eq.
+    - <span class="nb">cbn</span>. use MorphismEq. <span class="nb">intros</span> i. use CokernelCommutes.
+    - <span class="nb">intros</span> y. <span class="nb">apply</span> has_homsets_ComplexPreCat.
+    - <span class="nb">intros</span> y T. <span class="nb">cbn</span> beta <span class="k">in</span> T.
+      use MorphismEq.
+      <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+      <span class="nb">apply</span> CokernelArrowisEpi.
+      <span class="nb">rewrite</span> CokernelCommutes.
+      <span class="nb">set</span> (tmp := MorphismEq' _ _ _ T i). <span class="nb">cbn</span> <span class="k">in</span> tmp.
+      <span class="bp">exact</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_Cokernels</span> :
+    Cokernels (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A))).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Y Z g. <span class="nb">cbn</span> <span class="k">in</span> *.
+    use make_Cokernel.
+    <span class="c">(* Cokernel *)</span>
+    - <span class="bp">exact</span> (ComplexPreCat_Cokernel g).
+    <span class="c">(* CokernelArrow *)</span>
+    - <span class="bp">exact</span> (ComplexPreCat_CokernelArrow g).
+    <span class="c">(* Composition is zero *)</span>
+    - <span class="bp">exact</span> (ComplexPreCat_Cokernels_Comp g).
+    <span class="c">(* isCoequalizer *)</span>
+    - <span class="bp">exact</span> (ComplexPreCat_Cokernels_isCokernel g).
+  <span class="kn">Defined</span>.
+
+
+  <span class="sd">(** ** Monics are kernels *)</span>
+
+  <span class="sd">(** *** Kernel complex from Monic *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Monic_Kernel_Complex_comm</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+    (<span class="nv">M</span> : Monic (ComplexPreCat_Additive (AbelianToAdditive A)) x y) (<span class="nv">i</span> : hz) :
+    (MMor (MonicArrow _ M) i)
+      · ((Diff y i) · (CokernelArrow (Cokernel (MMor (MonicArrow _ M) (i + <span class="mi">1</span>))))) =
+    ZeroArrow (to_Zero A) _ (Cokernel (MMor (MonicArrow _ M) (i + <span class="mi">1</span>))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> (MComm (MonicArrow _ M)). <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">rewrite</span> CokernelCompZero. <span class="nb">apply</span> ZeroArrow_comp_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Monic_Kernel_Complex_comp</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+    (<span class="nv">M</span> : Monic (ComplexPreCat_Additive (AbelianToAdditive A)) x y) (<span class="nv">i</span> : hz) :
+    (CokernelOut (to_Zero A) (Cokernel (MMor (MonicArrow _ M) i))
+                 (Cokernel (MMor (MonicArrow _ M) (i + <span class="mi">1</span>)))
+                 ((Diff y i) · (CokernelArrow (Cokernel (MMor (MonicArrow _ M) (i + <span class="mi">1</span>)))))
+                 (ComplexPreCat_Monic_Kernel_Complex_comm M i))
+      · (CokernelOut (to_Zero A) (Cokernel (MMor (MonicArrow _ M) (i + <span class="mi">1</span>)))
+                      (Cokernel (MMor (MonicArrow _ M) (i + <span class="mi">1</span> + <span class="mi">1</span>)))
+                      ((Diff y (i + <span class="mi">1</span>))
+                         · (CokernelArrow (Cokernel (MMor (MonicArrow _ M) (i + <span class="mi">1</span> + <span class="mi">1</span>)))))
+                      (ComplexPreCat_Monic_Kernel_Complex_comm M (i + <span class="mi">1</span>))) =
+    ZeroArrow (to_Zero A) (Cokernel (MMor (MonicArrow _ M) i))
+              (Cokernel (MMor (MonicArrow _ M) (i + <span class="mi">1</span> + <span class="mi">1</span>))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> CokernelArrowisEpi. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> CokernelCommutes. <span class="nb">rewrite</span> assoc.
+    <span class="nb">cbn</span>. <span class="nb">set</span> (tmp := DSq _ y i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">rewrite</span> ZeroArrow_comp_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_Monic_Kernel_Complex</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+    (<span class="nv">M</span> : Monic (ComplexPreCat_Additive (AbelianToAdditive A)) x y) :
+    ComplexPreCat_Additive (AbelianToAdditive A).
+  <span class="kn">Proof</span>.
+    use make_Complex.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (Cokernel (@MMor _ x y (MonicArrow _ M) i)).
+    - <span class="nb">intros</span> i. <span class="nb">cbn</span>. use CokernelOut.
+      + <span class="bp">exact</span> ((Diff y i) · (CokernelArrow (Cokernel (@MMor _ x y (MonicArrow _ M) (i + <span class="mi">1</span>))))).
+      + use ComplexPreCat_Monic_Kernel_Complex_comm.
+    - <span class="nb">intros</span> i. <span class="nb">cbn</span>. <span class="bp">exact</span> (ComplexPreCat_Monic_Kernel_Complex_comp M i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">KernelMorphism_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+        (<span class="nv">M</span> : Monic (ComplexPreCat_Additive (AbelianToAdditive A)) x y)
+        (<span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A))) :
+    MorphismComp
+      (MonicArrow _ M) (ComplexPreCat_CokernelArrow ((MonicArrow _ M) : Morphism _ _)) =
+    ZeroMorphism _ _ _.
+  <span class="kn">Proof</span>.
+    use MorphismEq. <span class="nb">intros</span> i. use CokernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexMonicKernelInComm</span> {<span class="nv">x</span> <span class="nv">y</span> : Complex (AbelianToAdditive A)}
+        (<span class="nv">M</span> : Monic (ComplexCat (AbelianToAdditive A)) x y)
+        {<span class="nv">w</span> : ComplexCat (AbelianToAdditive A)}
+        (<span class="nv">h</span> : (ComplexCat (AbelianToAdditive A))⟦w, y⟧) (<span class="nv">i</span> : hz)
+        (<span class="nv">Z</span> := @Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)))
+        (<span class="nv">H</span> : h · (ComplexPreCat_CokernelArrow (MonicArrow _ M)) = ZeroArrow Z _ _) :
+    (MMor h i) · (CokernelArrow (Cokernel (MMor (MonicArrow _ M) i))) =
+    ZeroArrow (to_Zero A) _ (Cokernel (MMor (MonicArrow _ M) i)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (H' := MorphismEq' _ _ _ H i). <span class="nb">cbn</span> <span class="k">in</span> H'. <span class="nb">cbn</span>. <span class="nb">rewrite</span> H'. <span class="nb">apply</span> ZeroArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexMonicKernelIn_Complex_Comm</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">w</span> : Complex (AbelianToAdditive A)}
+        (<span class="nv">M</span> : Monic (ComplexCat (AbelianToAdditive A)) x y)
+        (<span class="nv">h</span> : (ComplexCat (AbelianToAdditive A))⟦w, y⟧) (<span class="nv">i</span> : hz)
+        (<span class="nv">Z</span> := @Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)))
+        (<span class="nv">H</span> : h · (ComplexPreCat_CokernelArrow (MonicArrow _ M)) = ZeroArrow Z _ _) :
+    (KernelIn
+       (to_Zero A)
+       (MonicToKernel (make_Monic A (MMor (MonicArrow _ M) i) ((ComplexMonicIndexMonic _ M) i)))
+       (w i) (MMor h i) (ComplexMonicKernelInComm M h i H)) · (Diff x i) =
+    (Diff w i)
+      · (KernelIn
+            (to_Zero A)
+            (MonicToKernel (make_Monic A (MMor (MonicArrow _ M) (i + <span class="mi">1</span>))
+                                     ((ComplexMonicIndexMonic _ M) (i + <span class="mi">1</span>))))
+            (w (i + <span class="mi">1</span>)) (MMor h (i + <span class="mi">1</span>)) (ComplexMonicKernelInComm M h (i + <span class="mi">1</span>) H)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (isM := ComplexMonicIndexMonic _ M).
+    <span class="nb">set</span> (ker := MonicToKernel (make_Monic _ _ (isM (i + <span class="mi">1</span>)))).
+    <span class="nb">cbn</span> <span class="k">in</span> *. <span class="nb">apply</span> (KernelArrowisMonic _ ker).
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">fold</span> ker.
+    <span class="nb">rewrite</span> (KernelCommutes _ ker). <span class="nb">cbn</span>. use (pathscomp0 _ (MComm h i)).
+    <span class="nb">set</span> (tmp := MComm (MonicArrow _ M) i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> &lt;- tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> (KernelCommutes _ (MonicToKernel (make_Monic A _ (isM i))) (w i) (MMor h i)).
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">ComplexMonicKernelIn</span> {<span class="nv">x</span> <span class="nv">y</span> : Complex (AbelianToAdditive A)}
+             (<span class="nv">M</span> : Monic (ComplexCat (AbelianToAdditive A)) x y)
+             {<span class="nv">w</span> : ComplexCat (AbelianToAdditive A)}
+             (<span class="nv">h</span> : (ComplexCat (AbelianToAdditive A))⟦w, y⟧)
+             (<span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A))) :
+    h · (ComplexPreCat_CokernelArrow (MonicArrow _ M)) = ZeroArrow Z _ _  -&gt;
+    (ComplexCat (AbelianToAdditive A))⟦w, x⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H'.
+    <span class="nb">set</span> (isM := ComplexMonicIndexMonic _ M).
+    use make_Morphism.
+    - <span class="nb">intros</span> i.
+      <span class="bp">exact</span> (KernelIn (to_Zero A) (MonicToKernel (make_Monic _ _ (isM i))) _ (MMor h i)
+                      (ComplexMonicKernelInComm M h i H')).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (ComplexMonicKernelIn_Complex_Comm M h i H').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">KernelMorphism_eq'</span> {<span class="nv">x</span> <span class="nv">y</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+        (<span class="nv">M</span> : Monic (ComplexCat (AbelianToAdditive A)) x y)
+        (<span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A))):
+    M ·  (CokernelArrow (ComplexPreCat_Cokernels x y M)) =
+    ZeroArrow Z x (ComplexPreCat_Cokernels x y M).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>. <span class="nb">rewrite</span> KernelMorphism_eq. <span class="nb">apply</span> ComplexPreCat_ZeroArrow_ZeroMorphism.
+  <span class="kn">Qed</span>.
+
+
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCatAbelianMonicKernelsData_isKernel</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : Complex (AbelianToAdditive A)}
+             (<span class="nv">M</span> : Monic (ComplexCat (AbelianToAdditive A)) x y)
+             (<span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A))) :
+    @isKernel (ComplexCat (AbelianToAdditive A)) _ _ _ _ M
+              (ComplexPreCat_CokernelArrow (MonicArrow _ M))
+              (CokernelCompZero Z (ComplexPreCat_Cokernels _ _ (MonicArrow _ M))).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (isM := ComplexMonicIndexMonic _ M).
+    use (make_isKernel).
+    <span class="nb">intros</span> w h H'.
+    use unique_exists.
+    - <span class="nb">apply</span> (ComplexMonicKernelIn M h H').
+    - <span class="nb">cbn</span>. use MorphismEq.
+      <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (KernelCommutes _ (MonicToKernel (make_Monic A _ (isM i))) _ (MMor h i)).
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> has_homsets_ComplexPreCat.
+    - <span class="nb">intros</span> y0 T. <span class="nb">cbn</span> <span class="k">in</span> T.
+      use MorphismEq.
+      <span class="nb">intros</span> i. <span class="nb">apply</span> (isM i).
+      <span class="nb">set</span> (tmp :=  MorphismEq' _ _ _ T i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">cbn</span>. <span class="nb">rewrite</span> tmp.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">clear</span> tmp.
+      <span class="nb">apply</span> (KernelCommutes _ (MonicToKernel (make_Monic A _ (isM i))) _ (MMor h i)).
+  <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** ** Epis are Cokernels of kernels *)</span>
+
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Epi_Cokernel_Complex_comm</span>
+        {<span class="nv">x</span> <span class="nv">y</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+        (<span class="nv">E</span> : Epi (ComplexPreCat_Additive (AbelianToAdditive A)) x y) (<span class="nv">i</span> : hz) :
+    (KernelArrow (Kernel (MMor (EpiArrow _ E) i))) · (Diff x i) · (MMor (EpiArrow _ E) (i + <span class="mi">1</span>)) =
+    ZeroArrow (to_Zero A) (Kernel (MMor (EpiArrow _ E) i)) _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- (MComm (EpiArrow _ E)). <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> KernelCompZero. <span class="nb">apply</span> ZeroArrow_comp_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCat_Epi_Cokernel_Complex_comp</span>
+        {<span class="nv">x</span> <span class="nv">y</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+        (<span class="nv">E</span> : Epi (ComplexPreCat_Additive (AbelianToAdditive A)) x y) (<span class="nv">i</span> : hz) :
+    (KernelIn (to_Zero A) (Kernel (MMor (EpiArrow _ E) (i + <span class="mi">1</span>))) (Kernel (MMor (EpiArrow _ E) i))
+              ((KernelArrow (Kernel (MMor (EpiArrow _ E) i))) · (Diff x i))
+              (ComplexPreCat_Epi_Cokernel_Complex_comm E i))
+      · (KernelIn (to_Zero A) (Kernel (MMor (EpiArrow _ E) (i + <span class="mi">1</span> + <span class="mi">1</span>)))
+                   (Kernel (MMor (EpiArrow _ E) (i + <span class="mi">1</span>)))
+                   ((KernelArrow (Kernel (MMor (EpiArrow _ E) (i + <span class="mi">1</span>)))) · (Diff x (i + <span class="mi">1</span>)))
+                   (ComplexPreCat_Epi_Cokernel_Complex_comm E (i + <span class="mi">1</span>))) =
+    ZeroArrow (to_Zero A) (Kernel (MMor (EpiArrow _ E) i))
+              (Kernel (MMor (EpiArrow _ E) (i + <span class="mi">1</span> + <span class="mi">1</span>))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> KernelArrowisMonic. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> KernelCommutes.
+    <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> KernelCommutes. <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">cbn</span>. <span class="nb">set</span> (tmp := DSq _ x i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_Epi_Cokernel_Complex</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+             (<span class="nv">E</span> : Epi (ComplexPreCat_Additive (AbelianToAdditive A)) x y) :
+    ComplexPreCat_Additive (AbelianToAdditive A).
+  <span class="kn">Proof</span>.
+    use make_Complex.
+    - <span class="nb">intros</span> i.
+      <span class="bp">exact</span> (Kernel (@MMor _ x y (EpiArrow _ E) i)).
+    - <span class="nb">intros</span> i. <span class="nb">cbn</span>. use KernelIn.
+      + <span class="bp">exact</span> ((KernelArrow (Kernel (@MMor _ x y (EpiArrow _ E) i))) · (Diff x i)).
+      + <span class="nb">apply</span> ComplexPreCat_Epi_Cokernel_Complex_comm.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (ComplexPreCat_Epi_Cokernel_Complex_comp E i).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">CokernelMorphism_eq</span> {<span class="nv">x</span> <span class="nv">y</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+             (<span class="nv">E</span> : Epi (ComplexPreCat_Additive (AbelianToAdditive A)) x y)
+             (<span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A))) :
+    MorphismComp (ComplexPreCat_KernelArrow ((EpiArrow _ E) : Morphism _ _)) (EpiArrow _ E) =
+    ZeroMorphism _ _ _.
+  <span class="kn">Proof</span>.
+    use MorphismEq. <span class="nb">intros</span> i. use KernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCatCokernelOut_comp</span>
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">w0</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+    (<span class="nv">E</span> : Epi (ComplexCat (AbelianToAdditive A)) x y)
+    (<span class="nv">h</span> : (ComplexCat (AbelianToAdditive A))⟦x, w0⟧) (<span class="nv">i</span> : hz)
+    (<span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)))
+    (<span class="nv">H</span> : MorphismComp (ComplexPreCat_KernelArrow ((EpiArrow _ E) : Morphism _ _)) h =
+         ZeroArrow Z _ _) :
+    KernelArrow (Kernel (MMor (EpiArrow _ E) i)) · MMor h i =
+    ZeroArrow (to_Zero A) (Kernel (MMor (EpiArrow _ E) i)) _.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (H' := MorphismEq' _ _ _ H i). <span class="nb">cbn</span> <span class="k">in</span> H'. <span class="nb">cbn</span>. <span class="nb">rewrite</span> H'. <span class="nb">apply</span> ZeroArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCatCokernelOut_comm</span>
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">w0</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+    (<span class="nv">E</span> : Epi (ComplexCat (AbelianToAdditive A)) x y) (<span class="nv">i</span> : hz)
+    (<span class="nv">h</span> : (ComplexCat (AbelianToAdditive A))⟦x, w0⟧)
+    (<span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)))
+    (<span class="nv">H</span> : MorphismComp (ComplexPreCat_KernelArrow ((EpiArrow _ E) : Morphism _ _)) h =
+         ZeroArrow Z _ _)
+    (<span class="nv">isE</span> := ComplexEpiIndexEpi _ E) :
+    (CokernelOut (to_Zero A)
+                 (EpiToCokernel (make_Epi A (MMor (EpiArrow _ E) i) (isE i))) _ (MMor h i)
+                 (ComplexPreCatCokernelOut_comp E h i H)) · (Diff w0 i) =
+    (Diff y i)
+      · (CokernelOut (to_Zero A)
+                      (EpiToCokernel (make_Epi A (MMor (EpiArrow _ E) (i + <span class="mi">1</span>)) (isE (i + <span class="mi">1</span>))))
+                      _ (MMor h (i + <span class="mi">1</span>)) (ComplexPreCatCokernelOut_comp E h (i + <span class="mi">1</span>) H)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">set</span> (coker := EpiToCokernel (make_Epi _ _ (isE i))).
+    <span class="nb">apply</span> (CokernelArrowisEpi _ coker). <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> CokernelCommutes.
+    use (pathscomp0 _ (! (MComm h i))). <span class="nb">cbn</span>.
+    <span class="nb">set</span> (tmp := MComm (EpiArrow _ E) i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">clear</span> tmp.
+    <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> (CokernelCommutes _ (EpiToCokernel (make_Epi A _ (isE (i + <span class="mi">1</span>))))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCatCokernelOut</span>
+    {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+    (<span class="nv">E</span> : Epi (ComplexCat (AbelianToAdditive A)) x y)
+    (<span class="nv">h</span> : (ComplexCat (AbelianToAdditive A))⟦x, z⟧)
+    (<span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A)))
+    (<span class="nv">H</span> : MorphismComp (ComplexPreCat_KernelArrow ((EpiArrow _ E) : Morphism _ _)) h =
+         ZeroArrow Z _ _) :
+    (ComplexCat (AbelianToAdditive A))⟦y, z⟧.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (isE := ComplexEpiIndexEpi _ E).
+    use make_Morphism.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (CokernelOut
+                         (to_Zero A) (EpiToCokernel (make_Epi _ _ (isE i))) _ (MMor h i)
+                         (ComplexPreCatCokernelOut_comp E h i H)).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (ComplexPreCatCokernelOut_comm E i h H).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** EpisCokernelsData *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">CokernelMorphism_eq'</span> {<span class="nv">x</span> <span class="nv">y</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+        (<span class="nv">E</span> : Epi (ComplexCat (AbelianToAdditive A)) x y)
+        (<span class="nv">Z</span> := Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A))) :
+    KernelArrow (ComplexPreCat_Kernels x y E) · E =
+    ZeroArrow Z (ComplexPreCat_Kernels x y E) y.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>. <span class="nb">rewrite</span> CokernelMorphism_eq. <span class="nb">apply</span> ComplexPreCat_ZeroArrow_ZeroMorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexPreCatAbelianEpiCokernelsData_isCokernel</span>
+        {<span class="nv">x</span> <span class="nv">y</span> : ComplexPreCat_Additive (AbelianToAdditive A)}
+        (<span class="nv">E</span> : Epi (ComplexPreCat_Additive (AbelianToAdditive A)) x y)
+        (<span class="nv">Add</span> := ComplexPreCat_Additive (AbelianToAdditive A)) :
+    @isCokernel <span class="kn">Add</span> _ _ _ _ (KernelArrow (ComplexPreCat_Kernels _ _ E)) E (CokernelMorphism_eq' E).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (isE := ComplexEpiIndexEpi (AbelianToAdditive A) E).
+    use make_isCokernel.
+    <span class="nb">intros</span> w0 h H'.
+    use unique_exists.
+    - <span class="nb">apply</span> (ComplexPreCatCokernelOut E h H').
+    - <span class="nb">cbn</span>. use MorphismEq.
+      <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (CokernelCommutes _ (EpiToCokernel (make_Epi A _ (isE i))) _ (MMor h i)).
+    - <span class="nb">intros</span> y0. <span class="nb">apply</span> has_homsets_ComplexPreCat.
+    - <span class="nb">intros</span> y0 T. <span class="nb">cbn</span> <span class="k">in</span> T.
+      use MorphismEq.
+      <span class="nb">intros</span> i. <span class="nb">apply</span> (isE i).
+      <span class="nb">set</span> (tmp :=  MorphismEq' _ _ _ T i). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">cbn</span>. <span class="nb">rewrite</span> tmp.
+      <span class="nb">apply</span> pathsinv0. <span class="nb">clear</span> tmp.
+      <span class="nb">apply</span> (CokernelCommutes _ (EpiToCokernel (make_Epi A _ (isE i))) _ (MMor h i)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** ** Complexes over Abelian is Abelian *)</span>
+
+
+
+  <span class="kn">Definition</span> <span class="nf">ComplexPreCat_AbelianPreCat</span> : AbelianPreCat.
+  <span class="kn">Proof</span>.
+    use make_Abelian.
+    - <span class="bp">exact</span> (ComplexPreCat_Additive (AbelianToAdditive A)).
+    - use make_Data1.
+      + <span class="bp">exact</span> (Additive.to_Zero (ComplexPreCat_Additive (AbelianToAdditive A))).
+      + <span class="bp">exact</span> (Additive.to_BinProducts (ComplexPreCat_Additive (AbelianToAdditive A   ))).
+      + <span class="bp">exact</span> (Additive.to_BinCoproducts (ComplexPreCat_Additive (AbelianToAdditive A))).
+    - use make_AbelianData.
+      + use make_Data2.
+        * <span class="bp">exact</span> ComplexPreCat_Kernels.
+        * <span class="bp">exact</span> ComplexPreCat_Cokernels.
+      + use make_MonicsAreKernels.
+        <span class="nb">intros</span> x y M. <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (ComplexPreCatAbelianMonicKernelsData_isKernel M).
+      + use make_EpisAreCokernels.
+        <span class="nb">intros</span> x y E. <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (ComplexPreCatAbelianEpiCokernelsData_isCokernel E).
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">has_homsets_ComplexPreCat_AbelianPreCat</span> : has_homsets ComplexPreCat_AbelianPreCat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> has_homsets_ComplexPreCat.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">complexes_abelian</span>.
+
+
+
+<span class="sd">(** * Transport binary direct sums *)</span>
+<span class="kn">Section</span> <span class="nf">transport_hz_toBinDirectSums</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> : CategoryWithAdditiveStructure}.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_to_BinDirectSums</span> (<span class="nv">f</span> <span class="nv">f'</span> : hz -&gt; ob A) {<span class="nv">i</span> <span class="nv">i'</span> : hz} (<span class="nv">e</span> : i' = i) :
+    @maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e =
+    (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i0) (f' i')) _ _ e)
+      @ (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i) (f' i0)) _ _ e).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_to_BinDirectSums_comm</span> (<span class="nv">f</span> <span class="nv">f'</span> : hz -&gt; ob A) {<span class="nv">i</span> <span class="nv">i'</span> : hz} (<span class="nv">e</span> : i' = i) :
+    (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i0) (f' i')) _ _ e)
+      @ (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i) (f' i0)) _ _ e) =
+    (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i') (f' i0)) _ _ e)
+      @ (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i0) (f' i)) _ _ e).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_to_In1</span> (<span class="nv">f</span> <span class="nv">f'</span> : hz -&gt; ob A) {<span class="nv">i</span> <span class="nv">i'</span> : hz} (<span class="nv">e</span> : i' = i) :
+    to_In1 (to_BinDirectSums A (f i) (f' i)) =
+    transportf (precategory_morphisms (f i))
+               (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
+               (transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob A), A⟦x, to_BinDirectSums A (f i') (f' i')⟧)
+                           (maponpaths f e) (to_In1 (to_BinDirectSums A (f i') (f' i')))).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_to_In1'</span> (<span class="nv">f</span> <span class="nv">f'</span> : hz -&gt; ob A) {<span class="nv">i</span> <span class="nv">i'</span> : hz} (<span class="nv">e</span> : i' = i) :
+    transportf (precategory_morphisms (f i))
+               (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ (! e))
+               (to_In1 (to_BinDirectSums A (f i) (f' i))) =
+    transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob A), A⟦x, to_BinDirectSums A (f i') (f' i')⟧) (maponpaths f e)
+               (to_In1 (to_BinDirectSums A (f i') (f' i'))).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_to_In2</span> (<span class="nv">f</span> <span class="nv">f'</span> : hz -&gt; ob A) {<span class="nv">i</span> <span class="nv">i'</span> : hz} (<span class="nv">e</span> : i' = i) :
+    to_In2 (to_BinDirectSums A (f i) (f' i)) =
+    transportf (precategory_morphisms (f' i))
+               (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
+               (transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob A), A⟦x, to_BinDirectSums A (f i') (f' i')⟧)
+                           (maponpaths f' e) (to_In2 (to_BinDirectSums A (f i') (f' i')))).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_to_In2'</span> (<span class="nv">f</span> <span class="nv">f'</span> : hz -&gt; ob A) {<span class="nv">i</span> <span class="nv">i'</span> : hz} (<span class="nv">e</span> : i' = i) :
+    transportf (precategory_morphisms (f' i))
+               (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ (! e))
+               (to_In2 (to_BinDirectSums A (f i) (f' i))) =
+    transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob A), A⟦x, to_BinDirectSums A (f i') (f' i')⟧) (maponpaths f' e)
+               (to_In2 (to_BinDirectSums A (f i') (f' i'))).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_to_Pr1</span> (<span class="nv">f</span> <span class="nv">f'</span> : hz -&gt; ob A) {<span class="nv">i</span> <span class="nv">i'</span> : hz} (<span class="nv">e</span> : i' = i) :
+    to_Pr1 (to_BinDirectSums A (f i) (f' i)) =
+    transportf (precategory_morphisms (to_BinDirectSums A (f i) (f' i)))
+               (maponpaths f e)
+               (transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob A), A⟦x, (f i')⟧)
+                           (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
+                           (to_Pr1 (to_BinDirectSums A (f i') (f' i')))).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_to_Pr1'</span> (<span class="nv">f</span> <span class="nv">f'</span> : hz -&gt; ob A) {<span class="nv">i</span> <span class="nv">i'</span> : hz} (<span class="nv">e</span> : i' = i) :
+    transportf (precategory_morphisms (to_BinDirectSums A (f i) (f' i)))
+               (maponpaths f (! e)) (to_Pr1 (to_BinDirectSums A (f i) (f' i))) =
+               (transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob A), A⟦x, (f i')⟧)
+                           (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
+                           (to_Pr1 (to_BinDirectSums A (f i') (f' i')))).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_to_Pr2</span> (<span class="nv">f</span> <span class="nv">f'</span> : hz -&gt; ob A) {<span class="nv">i</span> <span class="nv">i'</span> : hz} (<span class="nv">e</span> : i' = i) :
+    to_Pr2 (to_BinDirectSums A (f i) (f' i)) =
+    transportf (precategory_morphisms (to_BinDirectSums A (f i) (f' i)))
+               (maponpaths f' e)
+               (transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob A), A⟦x, (f' i')⟧)
+                           (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
+                           (to_Pr2 (to_BinDirectSums A (f i') (f' i')))).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_hz_to_Pr2'</span> (<span class="nv">f</span> <span class="nv">f'</span> : hz -&gt; ob A) {<span class="nv">i</span> <span class="nv">i'</span> : hz} (<span class="nv">e</span> : i' = i) :
+    transportf (precategory_morphisms (to_BinDirectSums A (f i) (f' i)))
+               (maponpaths f' (! e)) (to_Pr2 (to_BinDirectSums A (f i) (f' i))) =
+               (transportf (<span class="k">λ</span> (<span class="nv">x</span> : ob A), A⟦x, (f' i')⟧)
+                           (@maponpaths hz A (<span class="k">λ</span> <span class="nv">i0</span> : hz, to_BinDirectSums A (f i0) (f' i0)) _ _ e)
+                           (to_Pr2 (to_BinDirectSums A (f i') (f' i')))).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">transport_hz_toBinDirectSums</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/HomologicalAlgebra/Complexes.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Tactics/EnsureStructuredProofs.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Useful transports for complexes
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Tactics.EnsureStructuredProofs.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.UnivalenceAxiom.
+  &gt; Require Import UniMath.Foundations.PartD.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,457 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CompactBasis.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************</span>
+
+<span class="sd"> Compact Basis</span>
+
+<span class="sd"> In this file, we define the notion of a compact basis. The difference between</span>
+<span class="sd"> a basis and a compact basis is that a compact basis is required to only</span>
+<span class="sd"> consist of compact elements. We show that every compact basis gives the DCPO</span>
+<span class="sd"> the structure of an algebraic DCPO.</span>
+
+<span class="sd"> In addition, we also look at how to define maps using a compact basis. If we</span>
+<span class="sd"> have a basis on a DCPO, then every monotone map from the basis to a DCPO can</span>
+<span class="sd"> be extended to a Scott continuous map. However, this Scott continuous is in</span>
+<span class="sd"> general not unique. If the basis only consists of compact elements, then the</span>
+<span class="sd"> acquired map is actually unique. In addition, we have a stronger computation</span>
+<span class="sd"> rule [scott_continuous_map_from_compact_basis_eq]. For ordinary basis, this</span>
+<span class="sd"> rule only holds up to inequality.</span>
+
+<span class="sd"> References:</span>
+<span class="sd"> - Section 4.8 in https://tdejong.com/writings/phd-thesis.pdf</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Compact basis</span>
+<span class="sd"> 2. Accessors and builders for compact bases</span>
+<span class="sd"> 3. Every compact basis gives rise to a basis</span>
+<span class="sd"> 4. Compact bases from bases of which every element is compact</span>
+<span class="sd"> 5. Compact bases versus algebraicity</span>
+<span class="sd"> 6. Constructing maps from their action on the basis</span>
+
+<span class="sd"> ******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottContinuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.WayBelow.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Continuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Algebraic.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Basis.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="kn">Section</span> <span class="nf">CompactBasisInDCPO</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Compact basis</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">compact_basis_le_element</span>
+             (<span class="nv">B</span> : dcpo_basis_data X)
+             (<span class="nv">x</span> : X)
+    : UU
+    := ∑ (b : B), B b ⊑ x.
+
+  <span class="kn">Definition</span> <span class="nf">compact_basis_le_map</span>
+             (<span class="nv">B</span> : dcpo_basis_data X)
+             (<span class="nv">x</span> : X)
+    : compact_basis_le_element B x → X
+    := <span class="k">λ</span> <span class="nv">b</span>, B(pr1 b).
+
+  <span class="kn">Definition</span> <span class="nf">compact_basis_laws</span>
+             (<span class="nv">B</span> : dcpo_basis_data X)
+    : UU
+    := (∏ (b : B), is_compact_el (B b))
+       ×
+       (∏ (x : X), is_directed X (compact_basis_le_map B x))
+       ×
+       (∏ (x : X), is_least_upperbound X (compact_basis_le_map B x) x).
+
+  <span class="kn">Definition</span> <span class="nf">compact_basis</span>
+    : UU
+    := ∑ (B : dcpo_basis_data X), compact_basis_laws B.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Accessors and builders for compact bases</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_compact_basis</span>
+             (<span class="nv">B</span> : dcpo_basis_data X)
+             (<span class="nv">HB</span> : compact_basis_laws B)
+    : compact_basis
+    := B ,, HB.
+
+  <span class="kn">Coercion</span> <span class="nf">compact_basis_to_data</span>
+           (B : compact_basis)
+    : dcpo_basis_data X
+    := pr1 B.
+
+  <span class="kn">Coercion</span> <span class="nf">compact_basis_to_laws</span>
+           (B : compact_basis)
+    : compact_basis_laws B
+    := pr2 B.
+
+  <span class="kn">Proposition</span> <span class="nf">is_compact_el_basis</span>
+              (<span class="nv">B</span> : compact_basis)
+              (<span class="nv">b</span> : B)
+    : is_compact_el (B b).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 B b).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_directed_compact_basis</span>
+              (<span class="nv">B</span> : compact_basis)
+              (<span class="nv">x</span> : X)
+    : is_directed X (compact_basis_le_map B x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 B x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">directed_set_from_compact_basis</span>
+             (<span class="nv">B</span> : compact_basis)
+             (<span class="nv">x</span> : X)
+    : directed_set X.
+  <span class="kn">Proof</span>.
+    use make_directed_set.
+    - <span class="bp">exact</span> (compact_basis_le_element B x).
+    - <span class="bp">exact</span> (compact_basis_le_map B x).
+    - <span class="bp">exact</span> (is_directed_compact_basis B x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_least_upperbound_compact_basis</span>
+              (<span class="nv">B</span> : compact_basis)
+              (<span class="nv">x</span> : X)
+    : is_least_upperbound X (compact_basis_le_map B x) x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr222 B x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">approximating_compact_basis_lub</span>
+              (<span class="nv">B</span> : compact_basis)
+              (<span class="nv">x</span> : X)
+    : ⨆ (directed_set_from_compact_basis B x) = x.
+  <span class="kn">Proof</span>.
+    use antisymm_dcpo.
+    - use dcpo_lub_is_least.
+      <span class="nb">intro</span> i.
+      <span class="bp">exact</span> (pr2 i).
+    - use (is_least_upperbound_is_least (is_least_upperbound_compact_basis B x)).
+      <span class="nb">apply</span> is_least_upperbound_is_upperbound.
+      <span class="bp">exact</span> (is_least_upperbound_dcpo_lub (directed_set_from_compact_basis B x)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">CompactBasisInDCPO</span>.
+
+<span class="kn">Arguments</span> compact_basis_laws : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> compact_basis : <span class="kn">clear implicits</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Every compact basis gives rise to a basis</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">compact_basis_to_dcpo_basis_laws</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">B</span> : compact_basis X)
+  : dcpo_basis_laws X B.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    + <span class="nb">assert</span> (H := directed_set_el (directed_set_from_compact_basis B x)).
+      <span class="nb">revert</span> H.
+      use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intro</span> i.
+      <span class="nb">refine</span> (hinhpr (pr1 i ,, _)).
+      <span class="bp">exact</span> (trans_way_below_le (is_compact_el_basis B (pr1 i)) (pr2 i)).
+    + <span class="nb">intros</span> i j.
+      <span class="nb">assert</span> (H := directed_set_top
+                     (directed_set_from_compact_basis B x)
+                     (pr1 i ,, way_below_to_le (pr2 i))
+                     (pr1 j ,, way_below_to_le (pr2 j))).
+      <span class="nb">revert</span> H.
+      use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intro</span> k.
+      <span class="nb">induction</span> k <span class="k">as</span> [ k [ p q ]].
+      <span class="nb">refine</span> (hinhpr ((pr1 k ,, _) ,, p ,, q)).
+      <span class="bp">exact</span> (trans_way_below_le (is_compact_el_basis B (pr1 k)) (pr2 k)).
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span> i.
+      <span class="bp">exact</span> (pr1 (is_least_upperbound_compact_basis B x) (pr1 i ,, way_below_to_le (pr2 i))).
+    + <span class="nb">intros</span> y p.
+      use (pr2 (is_least_upperbound_compact_basis B x) y).
+      <span class="nb">intro</span> i.
+      use (p (pr1 i ,, _)).
+      <span class="bp">exact</span> (trans_way_below_le (is_compact_el_basis B (pr1 i)) (pr2 i)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">compact_basis_to_dcpo_basis</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">B</span> : compact_basis X)
+  : dcpo_basis X.
+<span class="kn">Proof</span>.
+  use make_dcpo_basis.
+  - <span class="bp">exact</span> B.
+  - <span class="bp">exact</span> (compact_basis_to_dcpo_basis_laws B).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Compact bases from bases of which every element is compact</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">BasisToCompact</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}
+          (<span class="nv">B</span> : dcpo_basis X)
+          (<span class="nv">HB</span> : ∏ (b : B), is_compact_el (B b)).
+
+  <span class="kn">Proposition</span> <span class="nf">dcpo_basis_with_compact_to_compact_basis_laws</span>
+    : compact_basis_laws X B.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> HB.
+    - <span class="nb">intro</span> x.
+      <span class="nb">split</span>.
+      + <span class="nb">assert</span> (H := directed_set_el (directed_set_from_basis B x)).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> b.
+        <span class="nb">induction</span> b <span class="k">as</span> [ b p ].
+        <span class="nb">refine</span> (hinhpr (b ,, _)).
+        <span class="nb">apply</span> way_below_to_le.
+        <span class="bp">exact</span> p.
+      + <span class="nb">intros</span> i j.
+        <span class="nb">induction</span> i <span class="k">as</span> [ b₁ p₁ ].
+        <span class="nb">induction</span> j <span class="k">as</span> [ b₂ p₂ ].
+        <span class="nb">assert</span> (q₁ : B b₁ ≪ x).
+        {
+          <span class="nb">refine</span> (compact_el_way_below_le _ p₁).
+          <span class="nb">apply</span> HB.
+        }
+        <span class="nb">assert</span> (q₂ : B b₂ ≪ x).
+        {
+          <span class="nb">refine</span> (compact_el_way_below_le _ p₂).
+          <span class="nb">apply</span> HB.
+        }
+        <span class="nb">assert</span> (H := directed_set_top (directed_set_from_basis B x) (b₁ ,, q₁) (b₂ ,, q₂)).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intros</span> t.
+        <span class="nb">induction</span> t <span class="k">as</span> [ [ t r₁ ] [ r₂ r₃ ]].
+        <span class="nb">refine</span> (hinhpr ((t ,, _) ,, (r₂ ,, r₃))).
+        <span class="nb">apply</span> way_below_to_le.
+        <span class="bp">exact</span> r₁.
+    - <span class="nb">intro</span> x.
+      <span class="nb">split</span>.
+      + <span class="nb">intros</span> b.
+        <span class="bp">exact</span> (pr2 b).
+      + <span class="nb">intros</span> y Hy.
+        use (pr2 (is_least_upperbound_basis B x) y).
+        <span class="nb">intros</span> b.
+        <span class="nb">induction</span> b <span class="k">as</span> [ b p ].
+        use (Hy (b ,, _)).
+        <span class="nb">apply</span> way_below_to_le.
+        <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dcpo_basis_with_compact_to_compact_basis</span>
+    : compact_basis X.
+  <span class="kn">Proof</span>.
+    use make_compact_basis.
+    - <span class="bp">exact</span> B.
+    - <span class="bp">exact</span> dcpo_basis_with_compact_to_compact_basis_laws.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">BasisToCompact</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Compact bases versus algebraicity</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">algebraic_struct_from_compact_basis</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">B</span> : compact_basis X)
+  : algebraic_dcpo_struct X.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">refine</span> (directed_set_from_compact_basis B x ,, _ ,, _).
+  - <span class="nb">intro</span> i.
+    <span class="nb">apply</span> is_compact_el_basis.
+  - <span class="nb">apply</span> is_least_upperbound_compact_basis.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">compact_basis_data_from_algebraic_struct</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">AX</span> : algebraic_dcpo_struct X)
+  : dcpo_basis_data X.
+<span class="kn">Proof</span>.
+  use make_dcpo_basis_data.
+  - <span class="bp">exact</span> (compact_elements X).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">compact_basis_laws_from_algebraic_struct</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">AX</span> : algebraic_dcpo_struct X)
+  : compact_basis_laws X (compact_basis_data_from_algebraic_struct AX).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (CX := algebraic_dcpo_struct_to_continuous AX).
+  <span class="nb">simple refine</span> (_ ,, _ ,, _).
+  - <span class="nb">intro</span> b.
+    <span class="bp">exact</span> (pr2 b).
+  - <span class="nb">intro</span> x.
+    <span class="nb">pose</span> (D := compact_approximating_family AX x).
+    <span class="nb">split</span>.
+    + <span class="nb">assert</span> (H := directed_set_el D).
+      <span class="nb">revert</span> H.
+      use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intro</span> y.
+      <span class="nb">simple refine</span> (hinhpr ((D y ,, _) ,, _)) ; <span class="nb">cbn</span> -[way_below].
+      * <span class="nb">apply</span> is_compact_approximating_family.
+      * <span class="nb">rewrite</span> &lt;- (compact_approximating_family_lub AX x).
+        use (less_than_dcpo_lub D _ y).
+        <span class="nb">apply</span> refl_dcpo.
+    + <span class="nb">intros</span> y z.
+      <span class="nb">induction</span> y <span class="k">as</span> [ [ y Hy ] p ].
+      <span class="nb">induction</span> z <span class="k">as</span> [ [ z Hz ] q ].
+      <span class="nb">assert</span> (Hxy : y ⊑ ⨆ D).
+      {
+        <span class="nb">unfold</span> D.
+        <span class="nb">rewrite</span> (compact_approximating_family_lub AX x).
+        <span class="bp">exact</span> p.
+      }
+      <span class="nb">assert</span> (Hxz : z ⊑ ⨆ D).
+      {
+        <span class="nb">unfold</span> D.
+        <span class="nb">rewrite</span> (compact_approximating_family_lub AX x).
+        <span class="bp">exact</span> q.
+      }
+      <span class="nb">assert</span> (H₁ := Hy D Hxy).
+      <span class="nb">revert</span> H₁.
+      use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intros</span> i.
+      <span class="nb">induction</span> i <span class="k">as</span> [ i ri ].
+      <span class="nb">assert</span> (H₂ := Hz D Hxz).
+      <span class="nb">revert</span> H₂.
+      use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intros</span> j.
+      <span class="nb">induction</span> j <span class="k">as</span> [ j rj ].
+      <span class="nb">assert</span> (H₃ := directed_set_top D i j).
+      <span class="nb">revert</span> H₃.
+      use factor_through_squash ; [ <span class="nb">apply</span> propproperty | ].
+      <span class="nb">intros</span> k.
+      <span class="nb">induction</span> k <span class="k">as</span> [ k [ s₁ s₂ ] ].
+      <span class="nb">simple refine</span> (hinhpr (((D k ,, _) ,, _) ,, (_ ,, _))).
+      * <span class="nb">apply</span> is_compact_approximating_family.
+      * <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> &lt;- (compact_approximating_family_lub AX x).
+        use (less_than_dcpo_lub _ _ k).
+        <span class="nb">apply</span> refl_dcpo.
+      * <span class="bp">exact</span> (trans_dcpo ri s₁).
+      * <span class="bp">exact</span> (trans_dcpo rj s₂).
+  - <span class="nb">intro</span> x.
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> i.
+      <span class="nb">induction</span> i <span class="k">as</span> [ i p ].
+      <span class="bp">exact</span> p.
+    + <span class="nb">intros</span> y Hy.
+      <span class="nb">rewrite</span> &lt;- (compact_approximating_family_lub AX x).
+      use dcpo_lub_is_least.
+      <span class="nb">intro</span> i.
+      <span class="nb">simple refine</span> (Hy ((compact_approximating_family AX x i ,, _) ,, _)).
+      * <span class="nb">apply</span> is_compact_approximating_family.
+      * <span class="nb">apply</span> way_below_to_le.
+        <span class="nb">apply</span> compact_approximating_family_way_below.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">compact_basis_from_algebraic_struct</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">AX</span> : algebraic_dcpo_struct X)
+  : compact_basis X.
+<span class="kn">Proof</span>.
+  use make_compact_basis.
+  - <span class="bp">exact</span> (compact_basis_data_from_algebraic_struct AX).
+  - <span class="bp">exact</span> (compact_basis_laws_from_algebraic_struct AX).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Constructing maps from their action on the basis</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">scott_continuous_map_from_compact_basis_eq</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">B</span> : compact_basis X)
+            {<span class="nv">Y</span> : dcpo}
+            (<span class="nv">f</span> : B → Y)
+            (<span class="nv">Hf</span> : ∏ (i₁ i₂ : B), B i₁ ≪ B i₂ → f i₁ ⊑ f i₂)
+            (<span class="nv">i</span> : B)
+  : scott_continuous_map_from_basis
+      (compact_basis_to_dcpo_basis B)
+      f
+      Hf
+      (B i)
+    =
+    f i.
+<span class="kn">Proof</span>.
+  use antisymm_dcpo.
+  - <span class="nb">apply</span> scott_continuous_map_from_basis_le.
+  - use less_than_dcpo_lub.
+    + <span class="nb">refine</span> (i ,, _).
+      <span class="nb">apply</span> is_compact_el_basis.
+    + <span class="nb">apply</span> refl_dcpo.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">scott_continuous_map_from_compact_basis_ump</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">B</span> : compact_basis X)
+           {<span class="nv">Y</span> : dcpo}
+           (<span class="nv">f</span> : B → Y)
+           (<span class="nv">Hf</span> : ∏ (i₁ i₂ : B), B i₁ ≪ B i₂ → f i₁ ⊑ f i₂)
+  : <span class="k">∃</span>! (g : scott_continuous_map X Y),
+    ∏ (i : B), g (B i) = f i.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (CB := compact_basis_to_dcpo_basis B).
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> φ₁ φ₂ ;
+       use subtypePath ; [ <span class="nb">intro</span> ; use impred ; <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+       use (scott_continuous_map_eq_on_basis CB) ;
+       <span class="nb">intro</span> i ;
+       <span class="bp">exact</span> (pr2 φ₁ i @ !(pr2 φ₂ i))).
+  - <span class="nb">refine</span> (scott_continuous_map_from_basis CB f Hf ,, _).
+    <span class="nb">apply</span> scott_continuous_map_from_compact_basis_eq.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Basis/CompactBasis.v</tt>, line 30)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Constructing maps from their action on the basis
+  &gt;
+  &gt;  ******************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

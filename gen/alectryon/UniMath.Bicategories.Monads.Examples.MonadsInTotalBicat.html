@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonadsInTotalBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************</span>
+
+<span class="sd"> Monads in total bicategories</span>
+
+<span class="sd"> We show how to construct monads in total bicategories.</span>
+
+<span class="sd"> Many interesting examples of bicategories can be constructed as</span>
+<span class="sd"> total bicategories, such as monoidal categories, categories with an</span>
+<span class="sd"> action, and categories with certain (co)limits. By showing how to</span>
+<span class="sd"> construct monads, monad morphisms and monad cells in total</span>
+<span class="sd"> bicategories, we are also able to construct those in the previously</span>
+<span class="sd"> mentioned bicategories.</span>
+
+<span class="sd"> Note: the formalization is currently restricted to the case in which</span>
+<span class="sd"> all displayed 2-cells are equal. This is because this restriction</span>
+<span class="sd"> makes all involved definitions simpler, because the laws do not</span>
+<span class="sd"> have to be mentioned.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Monads</span>
+<span class="sd"> 2. Monad morphisms</span>
+<span class="sd"> 3. Monad cells</span>
+<span class="sd"> 4. Projections of monad in total bicategory</span>
+
+<span class="sd"> *********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.EndoMap.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">MonadInTotalBicat</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">D</span> : disp_bicat B}
+          (<span class="nv">HD</span> : disp_2cells_isaprop D).
+
+  <span class="kn">Let</span> <span class="nf">E</span> : bicat := total_bicat D.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Monads</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_mnd</span>
+             (<span class="nv">m</span> : mnd B)
+    : UU
+    := ∑ (Hob : D (ob_of_mnd m))
+         (Hendo : Hob --&gt;[ endo_of_mnd m ] Hob),
+       (id_disp Hob ==&gt;[ unit_of_mnd m ] Hendo)
+       ×
+       (Hendo ;; Hendo ==&gt;[ mult_of_mnd m ] Hendo).
+
+  <span class="kn">Definition</span> <span class="nf">ob_of_disp_mnd</span> {<span class="nv">m</span> : mnd B} (<span class="nv">d</span> : disp_mnd m) : D (ob_of_mnd m)
+    := pr1 d.
+
+  <span class="kn">Section</span> <span class="nf">Projections</span>.
+    <span class="kn">Context</span> {<span class="nv">m</span> : mnd B}
+            (<span class="nv">dm</span> : disp_mnd m).
+
+    <span class="kn">Definition</span> <span class="nf">endo_of_disp_mnd</span>
+      : ob_of_disp_mnd dm --&gt;[ endo_of_mnd m ] ob_of_disp_mnd dm
+      := pr12 dm.
+
+    <span class="kn">Definition</span> <span class="nf">unit_of_disp_mnd</span>
+      : id_disp _ ==&gt;[ unit_of_mnd m ] endo_of_disp_mnd
+      := pr122 dm.
+
+    <span class="kn">Definition</span> <span class="nf">mult_of_disp_mnd</span>
+      : endo_of_disp_mnd ;; endo_of_disp_mnd ==&gt;[ mult_of_mnd m ] endo_of_disp_mnd
+      := pr222 dm.
+  <span class="kn">End</span> <span class="nf">Projections</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_mnd</span>
+             {<span class="nv">m</span> : mnd B}
+             (<span class="nv">Hob</span> : D (ob_of_mnd m))
+             (<span class="nv">Hendo</span> : Hob --&gt;[ endo_of_mnd m ] Hob)
+             (<span class="nv">Hunit</span> : id_disp Hob ==&gt;[ unit_of_mnd m ] Hendo)
+             (<span class="nv">Hmult</span> : Hendo ;; Hendo ==&gt;[ mult_of_mnd m ] Hendo)
+    : disp_mnd m
+    := Hob ,, Hendo ,, Hunit ,, Hmult.
+
+  <span class="kn">Section</span> <span class="nf">MakeMonad</span>.
+    <span class="kn">Context</span> {<span class="nv">m</span> : mnd B}
+            (<span class="nv">dm</span> : disp_mnd m).
+
+    <span class="kn">Definition</span> <span class="nf">make_mnd_data_total_bicat</span>
+      : mnd_data E.
+    <span class="kn">Proof</span>.
+      use make_mnd_data.
+      - <span class="bp">exact</span> (ob_of_mnd m ,, ob_of_disp_mnd dm).
+      - <span class="bp">exact</span> (endo_of_mnd m ,, endo_of_disp_mnd dm).
+      - <span class="bp">exact</span> (unit_of_mnd m ,, unit_of_disp_mnd dm).
+      - <span class="bp">exact</span> (mult_of_mnd m ,, mult_of_disp_mnd dm).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_is_mnd_total_bicat</span>
+      : is_mnd E make_mnd_data_total_bicat.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span> ; (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> HD | ]) ; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (mnd_unit_left m).
+      - <span class="bp">exact</span> (mnd_unit_right m).
+      - <span class="bp">exact</span> (mnd_mult_assoc m).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_mnd_total_bicat</span>
+      : mnd E.
+    <span class="kn">Proof</span>.
+      use make_mnd.
+      - <span class="bp">exact</span> make_mnd_data_total_bicat.
+      - <span class="bp">exact</span> make_is_mnd_total_bicat.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MakeMonad</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Monad morphisms</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_mnd_mor</span>
+             {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+             (<span class="nv">f</span> : m₁ --&gt; m₂)
+             (<span class="nv">dm₁</span> : disp_mnd m₁)
+             (<span class="nv">dm₂</span> : disp_mnd m₂)
+    : UU
+    := ∑ (ff : ob_of_disp_mnd dm₁ --&gt;[ mor_of_mnd_mor f] ob_of_disp_mnd dm₂),
+       ff ;; endo_of_disp_mnd dm₂ ==&gt;[ mnd_mor_endo f] endo_of_disp_mnd dm₁ ;; ff.
+
+  <span class="kn">Section</span> <span class="nf">Projections</span>.
+    <span class="kn">Context</span> {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+            {<span class="nv">f</span> : m₁ --&gt; m₂}
+            {<span class="nv">dm₁</span> : disp_mnd m₁}
+            {<span class="nv">dm₂</span> : disp_mnd m₂}
+            (<span class="nv">ff</span> : disp_mnd_mor f dm₁ dm₂).
+
+    <span class="kn">Definition</span> <span class="nf">mor_of_disp_mnd_mor</span>
+      : ob_of_disp_mnd dm₁ --&gt;[ mor_of_mnd_mor f] ob_of_disp_mnd dm₂
+      := pr1 ff.
+
+    <span class="kn">Definition</span> <span class="nf">disp_mnd_mor_endo</span>
+      : mor_of_disp_mnd_mor ;; endo_of_disp_mnd dm₂
+        ==&gt;[ mnd_mor_endo f ]
+        endo_of_disp_mnd dm₁ ;; mor_of_disp_mnd_mor
+      := pr2 ff.
+  <span class="kn">End</span> <span class="nf">Projections</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_mnd_mor</span>
+             {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+             {<span class="nv">f</span> : m₁ --&gt; m₂}
+             {<span class="nv">dm₁</span> : disp_mnd m₁}
+             {<span class="nv">dm₂</span> : disp_mnd m₂}
+             (<span class="nv">ff</span> : ob_of_disp_mnd dm₁ --&gt;[ mor_of_mnd_mor f] ob_of_disp_mnd dm₂)
+             (<span class="nv">Hff</span> : ff ;; endo_of_disp_mnd dm₂
+                    ==&gt;[ mnd_mor_endo f]
+                    endo_of_disp_mnd dm₁ ;; ff)
+    : disp_mnd_mor f dm₁ dm₂
+    := ff ,, Hff.
+
+  <span class="kn">Section</span> <span class="nf">MakeMonadMor</span>.
+    <span class="kn">Context</span> {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+            {<span class="nv">f</span> : m₁ --&gt; m₂}
+            {<span class="nv">dm₁</span> : disp_mnd m₁}
+            {<span class="nv">dm₂</span> : disp_mnd m₂}
+            (<span class="nv">ff</span> : disp_mnd_mor f dm₁ dm₂).
+
+    <span class="kn">Definition</span> <span class="nf">make_mnd_mor_data_total_bicat</span>
+      : mnd_mor_data
+          (make_mnd_total_bicat dm₁)
+          (make_mnd_total_bicat dm₂).
+    <span class="kn">Proof</span>.
+      use make_mnd_mor_data.
+      - <span class="bp">exact</span> (mor_of_mnd_mor f ,, mor_of_disp_mnd_mor ff).
+      - <span class="bp">exact</span> (mnd_mor_endo f ,, disp_mnd_mor_endo ff).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_mnd_mor_laws_total_bicat</span>
+      : mnd_mor_laws make_mnd_mor_data_total_bicat.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span> ; (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> HD | ]) ; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (mnd_mor_unit f).
+      - <span class="bp">exact</span> (mnd_mor_mu f).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_mnd_mor_total_bicat</span>
+      : make_mnd_total_bicat dm₁ --&gt; make_mnd_total_bicat dm₂.
+    <span class="kn">Proof</span>.
+      use make_mnd_mor.
+      - <span class="bp">exact</span> make_mnd_mor_data_total_bicat.
+      - <span class="bp">exact</span> make_mnd_mor_laws_total_bicat.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MakeMonadMor</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Monad cells</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_mnd_cell</span>
+             {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+             {<span class="nv">f</span> <span class="nv">g</span> : m₁ --&gt; m₂}
+             (<span class="nv">α</span> : f ==&gt; g)
+             {<span class="nv">dm₁</span> : disp_mnd m₁}
+             {<span class="nv">dm₂</span> : disp_mnd m₂}
+             (<span class="nv">ff</span> : disp_mnd_mor f dm₁ dm₂)
+             (<span class="nv">gg</span> : disp_mnd_mor g dm₁ dm₂)
+    : UU
+    := mor_of_disp_mnd_mor ff ==&gt;[ cell_of_mnd_cell α] mor_of_disp_mnd_mor gg.
+
+  <span class="kn">Section</span> <span class="nf">MakeMonadCell</span>.
+    <span class="kn">Context</span> {<span class="nv">m₁</span> <span class="nv">m₂</span> : mnd B}
+            {<span class="nv">f</span> <span class="nv">g</span> : m₁ --&gt; m₂}
+            {<span class="nv">α</span> : f ==&gt; g}
+            {<span class="nv">dm₁</span> : disp_mnd m₁}
+            {<span class="nv">dm₂</span> : disp_mnd m₂}
+            {<span class="nv">ff</span> : disp_mnd_mor f dm₁ dm₂}
+            {<span class="nv">gg</span> : disp_mnd_mor g dm₁ dm₂}
+            (<span class="nv">αα</span> : disp_mnd_cell α ff gg).
+
+    <span class="kn">Definition</span> <span class="nf">make_mnd_cell_data_total_bicat</span>
+      : mnd_cell_data
+          (make_mnd_mor_total_bicat ff)
+          (make_mnd_mor_total_bicat gg)
+      := cell_of_mnd_cell α ,, αα.
+
+    <span class="kn">Definition</span> <span class="nf">make_is_mnd_cell_total_bicat</span>
+      : is_mnd_cell make_mnd_cell_data_total_bicat.
+    <span class="kn">Proof</span>.
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> HD | ].
+      <span class="bp">exact</span> (mnd_cell_endo α).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_mnd_cell_total_bicat</span>
+      : make_mnd_mor_total_bicat ff
+        ==&gt;
+        make_mnd_mor_total_bicat gg.
+    <span class="kn">Proof</span>.
+      use make_mnd_cell.
+      - <span class="bp">exact</span> make_mnd_cell_data_total_bicat.
+      - <span class="bp">exact</span> make_is_mnd_cell_total_bicat.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MakeMonadCell</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Projections of monad in total bicategory</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">pr1_of_mnd_total_bicat_data</span>
+             (<span class="nv">m</span> : mnd E)
+    : mnd_data B.
+  <span class="kn">Proof</span>.
+    use make_mnd_data.
+    - <span class="bp">exact</span> (pr1 (ob_of_mnd m)).
+    - <span class="bp">exact</span> (pr1 (endo_of_mnd m)).
+    - <span class="bp">exact</span> (pr1 (unit_of_mnd m)).
+    - <span class="bp">exact</span> (pr1 (mult_of_mnd m)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_of_mnd_total_bicat_is_mnd</span>
+             (<span class="nv">m</span> : mnd E)
+    : is_mnd B (pr1_of_mnd_total_bicat_data m).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (maponpaths pr1 (mnd_unit_left m)).
+    - <span class="bp">exact</span> (maponpaths pr1 (mnd_unit_right m)).
+    - <span class="bp">exact</span> (maponpaths pr1 (mnd_mult_assoc m)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_of_mnd_total_bicat</span>
+             (<span class="nv">m</span> : mnd E)
+    : mnd B.
+  <span class="kn">Proof</span>.
+    use make_mnd.
+    - <span class="bp">exact</span> (pr1_of_mnd_total_bicat_data m).
+    - <span class="bp">exact</span> (pr1_of_mnd_total_bicat_is_mnd m).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_mnd_of_mnd_total_bicat</span>
+             (<span class="nv">m</span> : mnd E)
+    : disp_mnd (pr1_of_mnd_total_bicat m).
+  <span class="kn">Proof</span>.
+    use make_disp_mnd.
+    - <span class="bp">exact</span> (pr2 (ob_of_mnd m)).
+    - <span class="bp">exact</span> (pr2 (endo_of_mnd m)).
+    - <span class="bp">exact</span> (pr2 (unit_of_mnd m)).
+    - <span class="bp">exact</span> (pr2 (mult_of_mnd m)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">MonadInTotalBicat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Monads/Examples/MonadsInTotalBicat.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Projections of monad in total bicategory
+  &gt;
+  &gt;  *********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

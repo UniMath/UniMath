@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PseudoFunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** * Pseudofunctors on bicategories</span>
+<span class="sd">    Benedikt Ahrens, Marco Maggesi</span>
+<span class="sd">    February 2018</span>
+
+<span class="sd">    Modified by: Dan Frumin, Niels van der Weide</span>
+<span class="sd">    Based on https://github.com/nmvdw/groupoids</span>
+<span class="sd"> ********************************************************************************* *)</span>
+
+<span class="sd">(** * Pseudo functors. *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Base.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Identitor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Compositor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Pseudo-functors                                                                 *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">psfunctor</span>
+           (<span class="nv">C</span> <span class="nv">D</span> : bicat)
+  : UU
+  := psfunctor_bicat C D.
+
+<span class="kn">Definition</span> <span class="nf">make_psfunctor_data</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F₀</span> : C → D)
+           (<span class="nv">F₁</span> : ∏ {a b : C}, C⟦a,b⟧ → D⟦F₀ a, F₀ b⟧)
+           (<span class="nv">F₂</span> : ∏ {a b : C} {f g : C⟦a,b⟧}, f ==&gt; g → F₁ f ==&gt; F₁ g)
+           (<span class="nv">Fid</span> : ∏ (a : C), identity (F₀ a) ==&gt; F₁ (identity a))
+           (<span class="nv">Fcomp</span> : (∏ (a b c : C) (f : a --&gt; b) (g : b --&gt; c),
+                     F₁ f · F₁ g ==&gt; F₁ (f · g)))
+  : psfunctor_data C D.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> ((F₀ ,, F₁) ,, (F₂ ,, Fid ,, Fcomp)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_psfunctor</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : psfunctor_data C D)
+           (<span class="nv">HF</span> : psfunctor_laws F)
+           (<span class="nv">Fcells</span> : invertible_cells F)
+  : psfunctor C D
+  := (F ,, (HF ,, Fcells)).
+
+<span class="kn">Coercion</span> <span class="nf">psfunctor_to_psfunctor_data</span>
+         {C D : bicat}
+         (F : psfunctor C D)
+  : psfunctor_data C D
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_on_cells</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : psfunctor C D)
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           (<span class="nv">x</span> : f ==&gt; g)
+  : #F f ==&gt; #F g
+  := pr12 (pr1 F) a b f g x.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_id</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : psfunctor C D)
+           (<span class="nv">a</span> : C)
+  : invertible_2cell (identity (F a)) (#F (identity a)).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (pr122 (pr1 F) a ,, _).
+  <span class="nb">apply</span> F.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_comp</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : psfunctor C D)
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+           (<span class="nv">f</span> : a --&gt; b)
+           (<span class="nv">g</span> : b --&gt; c)
+  : invertible_2cell (#F f · #F g) (#F (f · g)).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (pr222 (pr1 F) a b c f g ,, _).
+  <span class="nb">apply</span> F.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'##'"</span> := (psfunctor_on_cells).
+
+<span class="kn">Section</span> <span class="nf">Projection</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : bicat}.
+  <span class="kn">Variable</span> (<span class="nv">F</span> : psfunctor C D).
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_id2</span>
+    : ∏ {a b : C} (f : a --&gt; b), ##F (id2 f) = id2 (#F f)
+    := pr1(pr12 F).
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_vcomp</span>
+    : ∏ {a b : C} {f g h : C⟦a, b⟧} (η : f ==&gt; g) (φ : g ==&gt; h),
+      ##F (η • φ) = ##F η • ##F φ
+    := pr12(pr12 F).
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_lunitor</span>
+    : ∏ {a b : C} (f : C⟦a, b⟧),
+      lunitor (#F f)
+      =
+      (psfunctor_id F a ▹ #F f)
+        • psfunctor_comp F (identity a) f
+        • ##F (lunitor f)
+    := pr122(pr12 F).
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_runitor</span>
+    : ∏ {a b : C} (f : C⟦a, b⟧),
+      runitor (#F f)
+      =
+      (#F f ◃ psfunctor_id F b)
+        • psfunctor_comp F f (identity b)
+        • ##F (runitor f)
+    := pr1(pr222(pr12 F)).
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_lassociator</span>
+    : ∏ {a b c d : C} (f : C⟦a, b⟧) (g : C⟦b, c⟧) (h : C⟦c, d⟧) ,
+      (#F f ◃ psfunctor_comp F g h)
+        • psfunctor_comp F f (g · h)
+        • ##F (lassociator f g h)
+      =
+      (lassociator (#F f) (#F g) (#F h))
+        • (psfunctor_comp F f g ▹ #F h)
+        • psfunctor_comp F (f · g) h
+    := pr12(pr222(pr12 F)).
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_lwhisker</span>
+    : ∏ {a b c : C} (f : C⟦a, b⟧) {g₁ g₂ : C⟦b, c⟧} (η : g₁ ==&gt; g₂),
+      psfunctor_comp F f g₁ • ##F (f ◃ η)
+      =
+      #F f ◃ ##F η • psfunctor_comp F f g₂
+    := pr122(pr222(pr12 F)).
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_rwhisker</span>
+    : ∏ {a b c : C} {f₁ f₂ : C⟦a, b⟧} (g : C⟦b, c⟧) (η : f₁ ==&gt; f₂),
+      psfunctor_comp F f₁ g • ##F (η ▹ g)
+      =
+      ##F η ▹ #F g • psfunctor_comp F f₂ g
+    := pr222(pr222(pr12 F)).
+<span class="kn">End</span> <span class="nf">Projection</span>.
+
+<span class="sd">(** Isos are preserved *)</span>
+<span class="kn">Definition</span> <span class="nf">psfunctor_is_iso</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : psfunctor C D)
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : C⟦a,b⟧}
+           (<span class="nv">α</span> : invertible_2cell f g)
+  : is_invertible_2cell (##F α).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (##F α^-<span class="mi">1</span>).
+  - <span class="nb">split</span> ; <span class="nb">cbn</span>
+    ; <span class="nb">rewrite</span> &lt;- psfunctor_vcomp, &lt;- psfunctor_id2 ; <span class="nb">apply</span> maponpaths.
+    + <span class="nb">apply</span> vcomp_rinv.
+    + <span class="nb">apply</span> vcomp_linv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_inv2cell</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : psfunctor C D)
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b}
+           (<span class="nv">α</span> : invertible_2cell f g)
+  : invertible_2cell (#F f) (#F g).
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> (##F α).
+  - <span class="nb">apply</span> psfunctor_is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">PseudoFunctorDerivedLaws</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : bicat}.
+  <span class="kn">Variable</span> (<span class="nv">F</span> : psfunctor C D).
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_linvunitor</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : C⟦a, b⟧)
+  : ##F (linvunitor f)
+    =
+    (linvunitor (#F f))
+      • ((psfunctor_id F a) ▹ #F f)
+      • (psfunctor_comp F _ _).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">cbn</span>.
+    use vcomp_move_L_pM.
+    { is_iso. }
+    <span class="nb">cbn</span>.
+    use vcomp_move_R_Mp.
+    {
+      <span class="nb">refine</span> (psfunctor_is_iso F (linvunitor f ,, _)).
+      is_iso.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> psfunctor_lunitor ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_F_linvunitor</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : a --&gt; b)
+    : (linvunitor (#F f))
+      =
+      ##F (linvunitor f)
+      • (psfunctor_comp F _ _)^-<span class="mi">1</span>
+      • ((psfunctor_id F a)^-<span class="mi">1</span> ▹ #F f).
+  <span class="kn">Proof</span>.
+    use vcomp_move_L_Mp ; [ is_iso | ].
+    use vcomp_move_L_Mp ; [ is_iso | ].
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> psfunctor_linvunitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_rinvunitor</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : C⟦a, b⟧)
+    : ##F (rinvunitor f)
+      =
+      (rinvunitor (#F f))
+        • (#F f ◃ psfunctor_id F b)
+        • psfunctor_comp F _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocl.
+    use vcomp_move_L_pM.
+    { is_iso. }
+    <span class="nb">cbn</span>.
+    use vcomp_move_R_Mp.
+    {
+      <span class="nb">refine</span> (psfunctor_is_iso F (rinvunitor f ,, _)).
+      is_iso.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> psfunctor_runitor ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_rassociator</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+             (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧) (<span class="nv">h</span> : C⟦c, d⟧)
+    : (psfunctor_comp F f g ▹ #F h)
+        • psfunctor_comp F (f · g) h
+        • ##F (rassociator f g h)
+      =
+      (rassociator (#F f) (#F g) (#F h))
+        • (#F f ◃ psfunctor_comp F g h)
+        • psfunctor_comp F f (g · h).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocl.
+    use vcomp_move_L_pM.
+    { is_iso. }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    use vcomp_move_R_Mp.
+    { <span class="nb">refine</span> (psfunctor_is_iso F (rassociator f g h ,, _)).
+      is_iso.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">symmetry</span>.
+    <span class="bp">exact</span> (psfunctor_lassociator F f g h).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_comp_natural</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+             {<span class="nv">g₁</span> <span class="nv">g₂</span> : C⟦b,c⟧} {<span class="nv">f₁</span> <span class="nv">f₂</span> : C⟦a,b⟧}
+             (<span class="nv">ηg</span> : g₁ ==&gt; g₂) (<span class="nv">ηf</span> : f₁ ==&gt; f₂)
+    : psfunctor_comp F f₁ g₁ • ##F (ηf ⋆ ηg)
+      =
+      (##F ηf) ⋆ (##F ηg) • psfunctor_comp F f₂ g₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> hcomp.
+    <span class="nb">rewrite</span> !psfunctor_vcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> !psfunctor_rwhisker.
+    <span class="nb">rewrite</span> !vassocl.
+    <span class="nb">rewrite</span> psfunctor_lwhisker.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_F_lunitor</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : C⟦a, b⟧)
+    : ##F (lunitor f)
+      =
+      ((psfunctor_comp F (identity a) f)^-<span class="mi">1</span>)
+        • ((psfunctor_id F a)^-<span class="mi">1</span> ▹ #F f)
+        • lunitor (#F f).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocl.
+    use vcomp_move_L_pM.
+    { is_iso. }
+    use vcomp_move_L_pM.
+    { is_iso. }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="bp">exact</span> (!(psfunctor_lunitor F f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_F_runitor</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : C⟦a,b⟧)
+    : ##F (runitor f)
+      =
+      ((psfunctor_comp F f (identity b))^-<span class="mi">1</span>)
+        • (#F f ◃ (psfunctor_id F b)^-<span class="mi">1</span>)
+        • runitor (#F f).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocl.
+    use vcomp_move_L_pM.
+    { is_iso. }
+    use vcomp_move_L_pM.
+    { is_iso. }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="bp">exact</span> (!(psfunctor_runitor F f)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">psfunctor_lassociator_alt</span>
+             {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+             (<span class="nv">f</span> : C⟦a, b⟧) (<span class="nv">g</span> : C⟦b, c⟧) (<span class="nv">h</span> : C⟦c, d⟧)
+    : (psfunctor_comp F f (g · h))
+        • ##F (lassociator _ _ _)
+        • (psfunctor_comp F (f · g) h)^-<span class="mi">1</span>
+        • ((psfunctor_comp F f g)^-<span class="mi">1</span> ▹ #F h)
+        • rassociator _ _ _
+      =
+      #F f ◃ (psfunctor_comp F g h)^-<span class="mi">1</span>.
+  <span class="kn">Proof</span>.
+    use vcomp_move_R_Mp.
+    { is_iso. }
+    use vcomp_move_R_Mp.
+    { is_iso. }
+    use vcomp_move_R_Mp.
+    { is_iso. }
+    <span class="nb">rewrite</span> !vassocl.
+    use vcomp_move_L_pM.
+    { is_iso. }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">apply</span> (psfunctor_lassociator F f g h).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PseudoFunctorDerivedLaws</span>.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_lassociator_alt'</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           (<span class="nv">F</span> : psfunctor B₁ B₂)
+           {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : B₁}
+           (<span class="nv">f</span> : a --&gt; b)
+           (<span class="nv">g</span> : b --&gt; c)
+           (<span class="nv">h</span> : c --&gt; d)
+  : ##F (lassociator f g h)
+    • (psfunctor_comp F _ _)^-<span class="mi">1</span>
+    • ((psfunctor_comp F _ _)^-<span class="mi">1</span> ▹ #F h)
+    • rassociator _ _ _
+    =
+    (psfunctor_comp F _ _)^-<span class="mi">1</span>
+    • (_ ◃ (psfunctor_comp F _ _)^-<span class="mi">1</span>).
+<span class="kn">Proof</span>.
+  use vcomp_move_L_pM ; [ is_iso | ].
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !vassocr.
+  <span class="nb">apply</span> psfunctor_lassociator_alt.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">PseudoFunctorLocalFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> <span class="nv">C</span> : bicat}.
+  <span class="kn">Variable</span> (<span class="nv">F</span> : psfunctor B C)
+           (<span class="nv">X</span> <span class="nv">Y</span> : B).
+
+  <span class="kn">Definition</span> <span class="nf">Fmor_data</span>
+    : functor_data (hom X Y) (hom (F X) (F Y)).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span>, #F f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">α</span>, ##F α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Fmor_is_functor</span>
+    : is_functor Fmor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> f.
+      <span class="bp">exact</span> (psfunctor_id2 F f).
+    - <span class="nb">intros</span> f g h α β.
+      <span class="bp">exact</span> (psfunctor_vcomp F α β).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Fmor</span>
+    : hom X Y ⟶ hom (F X) (F Y).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> Fmor_data.
+    - <span class="bp">exact</span> Fmor_is_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Fmor_univ</span>
+             (<span class="nv">B_is_univalent_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">C_is_univalent_2_1</span> : is_univalent_2_1 C)
+    : (univ_hom B_is_univalent_2_1 X Y)
+        ⟶
+        univ_hom C_is_univalent_2_1 (F X) (F Y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> Fmor.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">PseudoFunctorLocalFunctor</span>.
+
+<span class="kn">Section</span> <span class="nf">ExtendPseudoFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+          (<span class="nv">HD</span> : is_univalent_2 D)
+          (<span class="nv">F</span> : psfunctor C D)
+          (<span class="nv">G</span> : ob C → ob D)
+          (<span class="nv">η</span> : ∏ (a : C), adjoint_equivalence (F a) (G a)).
+
+
+  <span class="kn">Definition</span> <span class="nf">extend_psfunctor</span> : psfunctor C D.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (adjequiv_base_adjequiv_tot (ps_base_is_univalent_2_0 C D HD) (adjequiv_ps_base C D F G η) (pr211 F)) <span class="k">as</span> m.
+    <span class="nb">induction</span> m <span class="k">as</span> [m1 m2].
+    <span class="nb">pose</span> (adjequiv_base_adjequiv_tot (map1cells_is_univalent_2_0 C D HD) m2 (pr21 F)) <span class="k">as</span> n.
+    <span class="nb">induction</span> n <span class="k">as</span> [n1 n2].
+    <span class="nb">pose</span> (adjequiv_base_adjequiv_tot (psfunctor_data_is_univalent_2_0 C D HD) n2 (pr2 F)) <span class="k">as</span> p.
+    <span class="bp">exact</span> (_ ,, pr1 p).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ExtendPseudoFunctor</span>.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_preserves_adjequiv</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">HC</span> : is_univalent_2_0 C)
+           (<span class="nv">HD</span> : is_univalent_2_1 D)
+           (<span class="nv">F</span> : psfunctor C D)
+           (<span class="nv">a</span> <span class="nv">b</span> : C)
+           (<span class="nv">f</span> : adjoint_equivalence a b)
+  : left_adjoint_equivalence (#F f)
+  := J_2_0 HC
+           (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span>, left_adjoint_equivalence (#F (pr1 f)))
+           (<span class="k">λ</span> <span class="nv">a0</span>,
+            left_adjequiv_invertible_2cell
+              HD _ _
+              (psfunctor_id F a0)
+              (pr2 (internal_adjoint_equivalence_identity (F a0))))
+           f.
+
+<span class="kn">Definition</span> <span class="nf">psfunctor_preserves_adjequiv'</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+           (<span class="nv">F</span> : psfunctor C D)
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">Hf</span> : left_adjoint_equivalence f)
+  : left_adjoint_equivalence (#F f).
+<span class="kn">Proof</span>.
+  use equiv_to_adjequiv.
+  <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, (_ ,, _)).
+  - <span class="bp">exact</span> (#F (left_adjoint_right_adjoint Hf)).
+  - <span class="bp">exact</span> (psfunctor_id F _
+           • ##F (left_equivalence_unit_iso Hf)
+           • (psfunctor_comp F _ _)^-<span class="mi">1</span>).
+  - <span class="bp">exact</span> (psfunctor_comp F _ _
+           • ##F (left_adjoint_counit Hf)
+           • (psfunctor_id F _)^-<span class="mi">1</span>).
+  - <span class="nb">cbn</span>.
+    is_iso.
+    + <span class="nb">apply</span> psfunctor_id.
+    + <span class="bp">exact</span> (psfunctor_is_iso F (left_equivalence_unit_iso Hf)).
+  - <span class="nb">cbn</span>.
+    is_iso.
+    + <span class="nb">apply</span> psfunctor_comp.
+    + <span class="bp">exact</span> (psfunctor_is_iso F (left_equivalence_counit_iso Hf)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">psfunctor_preserve_adj_equiv</span>
+      {<span class="nv">C</span> <span class="nv">D</span> : bicat}
+      (<span class="nv">F</span> : psfunctor C D) (<span class="nv">x</span> <span class="nv">y</span> : C)
+  : adjoint_equivalence x y -&gt; adjoint_equivalence (pr111 F x) (pr111 F y).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> a.
+  <span class="k">exists</span> (<span class="nv">pr211</span> <span class="nv">F</span> <span class="nv">_</span> <span class="nv">_</span> (pr1 a)).
+  use psfunctor_preserves_adjequiv'.
+  <span class="bp">exact</span> (pr2 a).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> `idtoiso_2_1` for pseudofunctors</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">idtoiso_2_1_psfunctor</span>
+           {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+           (<span class="nv">F</span> : psfunctor B₁ B₂)
+           {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           (<span class="nv">p</span> : f = g)
+  : idtoiso_2_1 _ _ (maponpaths #F p)
+    =
+    ##F (idtoiso_2_1 _ _ p) ,, psfunctor_is_iso _ _.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_invertible_2cell.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> psfunctor_id2.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Module</span> <span class="nf">Notations</span>.
+  <span class="kn">Notation</span> <span class="s2">"'##'"</span> := (psfunctor_on_cells).
+<span class="kn">End</span> <span class="nf">Notations</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/PseudoFunctors/PseudoFunctor.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** * Pseudo functors. *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

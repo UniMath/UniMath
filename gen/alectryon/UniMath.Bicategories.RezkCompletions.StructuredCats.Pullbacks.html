@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Pullbacks.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">In this file, we show how the Rezk completion of a category has a suitable terminal object (in terms of preservation) if the original category has a terminal object.</span>
+<span class="c">Hence, categories with terminal objects admit a Rezk completion.</span>
+
+<span class="c">Contents:</span>
+<span class="c">1. [CategoriesWithPullbacksAdmitRezkCompletions]</span>
+<span class="c">   A construction of the Rezk completion of categories equipped with a terminal object (up to propositional truncation).</span>
+<span class="c">2. [CategoriesWithChosenPullbacksAndPreservationUpToIsoHasRezkCompletions]</span>
+<span class="c">   A construction of the Rezk completion of categories equipped with a chosen terminal object.</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Preservation.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Reflection.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Creation.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.LiftPreservation.Pullbacks.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.UniversalArrow.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+
+<span class="kn">Import</span> DispBicat.Notations.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.BicatOfCatToUnivCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOnCatToUniv.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrow.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DisplayedUniversalArrowOnCat.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.RezkCompletions.DisplayedRezkCompletions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.CategoriesWithStructure.Pullbacks.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">CategoriesWithPullbacksAndPreservationUpToIsoHasRezkCompletions</span>.
+
+  <span class="kn">Context</span> (<span class="nv">LUR</span> : left_universal_arrow univ_cats_to_cats)
+    (<span class="nv">η_weak_equiv</span> : ∏ C : category, is_weak_equiv (pr12 LUR C)).
+
+  <span class="kn">Lemma</span> <span class="nf">disp_bicat_have_pullbacks_has_RC</span>
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_have_pullbacks.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="nb">intros</span> C1 C2 C2_univ F Fw [P1 _].
+      <span class="bp">exact</span> (weak_equiv_into_univ_creates_haspullbacks C2_univ Fw P1 ,, tt).
+    - <span class="nb">intros</span> C pb.
+      <span class="nb">refine</span> (tt ,, _).
+      <span class="nb">apply</span> weak_equiv_preserves_pullbacks.
+      <span class="nb">apply</span> η_weak_equiv.
+    - <span class="nb">intros</span> C1 C2 C3 F G H α ? ? ? Gw.
+      <span class="nb">intros</span> [t Fpb].
+      <span class="k">exists</span> <span class="nv">tt</span>.
+      use (weak_equiv_lifts_preserves_pullbacks α Gw Fpb).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">disp_bicat_have_pullbacks_has_Rezk_completions</span>
+    : cat_with_structure_has_RezkCompletion disp_bicat_have_pullbacks.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_RezkCompletion_from_locally_contractible _ _ disp_bicat_have_pullbacks_has_RC).
+    <span class="bp">exact</span> disp_2cells_iscontr_have_pullbacks.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">CategoriesWithPullbacksAndPreservationUpToIsoHasRezkCompletions</span>.
+
+<span class="kn">Section</span> <span class="nf">CategoriesWithChosenPullbacksAndPreservationUpToEqualityHasRezkCompletions</span>.
+
+  <span class="kn">Context</span> {<span class="nv">LUR</span> : left_universal_arrow univ_cats_to_cats}
+    (<span class="nv">η_weak_equiv</span> : ∏ C : category, is_weak_equiv (pr12 LUR C)).
+
+  <span class="kn">Lemma</span> <span class="nf">disp_bicat_chosen_pullbacks_has_RC</span>
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_chosen_pullbacks.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="nb">intros</span> C1 C2 C2_univ F Fw P1.
+      <span class="bp">exact</span> (weak_equiv_into_univ_creates_pullbacks C2_univ Fw (pr1 P1) ,, tt).
+    - <span class="nb">intros</span> C P1.
+      <span class="nb">refine</span> (tt ,, _).
+      use weak_equiv_preserves_pullbacks_eq.
+      + <span class="nb">apply</span> η_weak_equiv.
+      + <span class="bp">exact</span> (pr2 (pr1 LUR C)).
+    - <span class="nb">intros</span> C1 C2 C3 F G H α P1 P2 P3 Gw.
+      <span class="nb">intros</span> [t Fprod].
+      <span class="k">exists</span> <span class="nv">tt</span>.
+      <span class="bp">exact</span> (weak_equiv_lifts_preserves_chosen_pullbacks_eq C2 C3 α (pr1 P1) (pr1 P2) (pr1 P3) Gw Fprod).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">disp_bicat_chosen_pullbacks_has_Rezk_completions</span>
+    : cat_with_structure_has_RezkCompletion disp_bicat_chosen_pullbacks.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_RezkCompletion_from_locally_contractible _ _ disp_bicat_chosen_pullbacks_has_RC).
+    <span class="bp">exact</span> disp_2cells_iscontr_chosen_pullbacks.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">CategoriesWithChosenPullbacksAndPreservationUpToEqualityHasRezkCompletions</span>.
+
+<span class="kn">Section</span> <span class="nf">CategoriesWithChosenPullbacksAndPreservationUpToIsoHasRezkCompletions</span>.
+
+  <span class="kn">Context</span> {<span class="nv">LUR</span> : left_universal_arrow univ_cats_to_cats}
+    (<span class="nv">η_weak_equiv</span> : ∏ C : category, is_weak_equiv (pr12 LUR C)).
+
+  <span class="kn">Lemma</span> <span class="nf">disp_bicat_pullbacks_has_RC</span>
+    : cat_with_struct_has_RC η_weak_equiv disp_bicat_pullbacks.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="nb">intros</span> C1 C2 C2_univ F Fw [P1 ?].
+      <span class="bp">exact</span> (weak_equiv_into_univ_creates_pullbacks C2_univ Fw P1 ,, tt).
+    - <span class="nb">intros</span> C [P1 ?].
+      <span class="nb">refine</span> (tt ,, _).
+      <span class="nb">apply</span> weak_equiv_preserves_pullbacks.
+      <span class="nb">apply</span> η_weak_equiv.
+    - <span class="nb">intros</span> C1 C2 C3 F G H α P1 P2 P3 Gw.
+      <span class="nb">intros</span> [t F_pp].
+      <span class="k">exists</span> <span class="nv">tt</span>.
+      <span class="bp">exact</span> (weak_equiv_lifts_preserves_pullbacks α Gw F_pp).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">disp_bicat_pullbacks_has_Rezk_completions</span>
+    : cat_with_structure_has_RezkCompletion disp_bicat_pullbacks.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_RezkCompletion_from_locally_contractible _ _ disp_bicat_pullbacks_has_RC).
+    <span class="bp">exact</span> disp_2cells_iscontr_pullbacks.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">CategoriesWithChosenPullbacksAndPreservationUpToIsoHasRezkCompletions</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/RezkCompletions/StructuredCats/Pullbacks.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    A construction of the Rezk completion of categories equipped with a chosen terminal object.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

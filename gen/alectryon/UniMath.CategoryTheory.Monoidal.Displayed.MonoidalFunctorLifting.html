@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidalFunctorLifting.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Section</span> <span class="nf">MonoidalFunctorLifting</span>.
+
+  <span class="kn">Import</span> BifunctorNotations.
+  <span class="kn">Import</span> MonoidalNotations.
+  <span class="kn">Import</span> DisplayedBifunctorNotations.
+  <span class="kn">Import</span> DisplayedMonoidalNotations.
+
+  <span class="kn">Context</span> {<span class="nv">C'</span> <span class="nv">C</span> : category} {<span class="nv">F</span> : functor C' C} {<span class="nv">D</span> : disp_cat C}.
+  <span class="kn">Let</span> <span class="nf">TD</span> : category := total_category D.
+  <span class="kn">Context</span> {<span class="nv">M'</span> : monoidal C'}
+          {<span class="nv">M</span> : monoidal C}
+          (<span class="nv">Fm</span> : fmonoidal_lax M' M F)
+          (<span class="nv">DM</span> : disp_monoidal D M).
+  <span class="kn">Let</span> <span class="nf">TM</span> : monoidal TD := total_monoidal DM.
+
+  <span class="kn">Context</span> (<span class="nv">sd</span> : functor_lifting D F).
+
+  <span class="kn">Definition</span> <span class="nf">fl_preserves_tensor_data</span> : UU
+    := ∏ (x y : C'), sd x ⊗⊗_{DM} sd y --&gt;[fmonoidal_preservestensordata Fm x y] sd (x ⊗_{M'} y).
+
+  <span class="kn">Lemma</span> <span class="nf">functorlifting_preserves_tensordata</span>
+        (<span class="nv">sd_pt</span> : fl_preserves_tensor_data)
+    : preserves_tensordata M' TM (lifted_functor sd).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="k">exists</span> (<span class="nv">fmonoidal_preservestensordata</span> <span class="nv">Fm</span> <span class="nv">x</span> <span class="nv">y</span>).
+    <span class="bp">exact</span> (sd_pt x y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fl_preserves_unit</span> : UU
+    := dI_{DM} --&gt;[fmonoidal_preservesunit Fm] sd I_{M'}.
+
+  <span class="kn">Lemma</span> <span class="nf">functorlifting_preserves_unit</span>
+        (<span class="nv">sp_pu</span> : fl_preserves_unit)
+    : preserves_unit M' TM (lifted_functor sd).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">fmonoidal_preservesunit</span> <span class="nv">Fm</span>).
+    <span class="bp">exact</span> sp_pu.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_data</span> : UU
+    := fl_preserves_tensor_data × fl_preserves_unit.
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_preserves_tensor_data</span> (<span class="nv">ms</span> : flmonoidal_data)
+    : fl_preserves_tensor_data := pr1 ms.
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_preserves_unit</span> (<span class="nv">ms</span> : flmonoidal_data)
+    : fl_preserves_unit := pr2 ms.
+
+  <span class="kn">Definition</span> <span class="nf">functorlifting_monoidal_data</span>
+             (<span class="nv">ms</span> : flmonoidal_data)
+    : fmonoidal_data M' TM (lifted_functor sd).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> (functorlifting_preserves_tensordata (flmonoidal_preserves_tensor_data ms)).
+    - <span class="bp">exact</span> (functorlifting_preserves_unit (flmonoidal_preserves_unit ms)).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* This notation comes from Constructions.v, but there is no Notation module, this has to be added *)</span>
+  <span class="kn">Notation</span> <span class="s2">"# F"</span> := (section_disp_on_morphisms F) (<span class="kn">at level</span> <span class="mi">3</span>) : mor_disp_scope.
+
+  <span class="kn">Definition</span> <span class="nf">fl_preserves_tensor_nat_left</span>
+             (<span class="nv">spt</span> : fl_preserves_tensor_data) : UU
+    := ∏ (x y1 y2 : C') (g : C'⟦y1,y2⟧),
+      sd x ⊗⊗^{DM}_{l} # sd g ;; spt x y2
+      = transportb _
+                   (fmonoidal_preservestensornatleft Fm x y1 y2 g)
+                   (spt x y1 ;; # sd (x ⊗^{M'}_{l} g)).
+
+  <span class="kn">Lemma</span> <span class="nf">functorlifting_preserves_tensor_nat_left</span>
+        {<span class="nv">spt</span> : fl_preserves_tensor_data} (<span class="nv">sptnl</span> : fl_preserves_tensor_nat_left spt)
+    : preserves_tensor_nat_left (functorlifting_preserves_tensordata spt).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y1 y2 g.
+    use total2_paths_b.
+    - <span class="bp">exact</span> (fmonoidal_preservestensornatleft Fm x y1 y2 g).
+    - <span class="bp">exact</span> (sptnl x y1 y2 g).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fl_preserves_tensor_nat_right</span>
+             (<span class="nv">spt</span> : fl_preserves_tensor_data)
+    : UU
+    := ∏ (x1 x2 y : C') (f : C'⟦x1,x2⟧),
+      # sd f ⊗⊗^{DM}_{r} sd y ;; spt x2 y
+      = transportb _
+                   (fmonoidal_preservestensornatright Fm x1 x2 y f)
+                   (spt x1 y ;; # sd (f ⊗^{M'}_{r} y)).
+
+  <span class="kn">Lemma</span> <span class="nf">functorlifting_preserves_tensor_nat_right</span>
+        {<span class="nv">spt</span> : fl_preserves_tensor_data}
+        (<span class="nv">sptnl</span> : fl_preserves_tensor_nat_right spt)
+    : preserves_tensor_nat_right (functorlifting_preserves_tensordata spt).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 x2 y f.
+    use total2_paths_b.
+    - <span class="bp">exact</span> (fmonoidal_preservestensornatright Fm x1 x2 y f).
+    - <span class="bp">exact</span> (sptnl x1 x2 y f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fl_preserves_leftunitality</span>
+             (<span class="nv">spt</span> : fl_preserves_tensor_data)
+             (<span class="nv">spu</span> : fl_preserves_unit) : UU
+    := ∏ (x : C'),
+      spu ⊗⊗^{DM}_{r} sd x ;; spt I_{M'} x ;; # sd lu^{M'}_{x}
+      = transportb _
+                   (fmonoidal_preservesleftunitality Fm x)
+                   dlu^{DM}_{sd x}.
+
+  <span class="kn">Definition</span> <span class="nf">functorlifting_preserves_leftunitality</span>
+             {<span class="nv">spt</span> : fl_preserves_tensor_data}
+             {<span class="nv">spu</span> : fl_preserves_unit}
+             (<span class="nv">splu</span> : fl_preserves_leftunitality spt spu)
+    : preserves_leftunitality (functorlifting_preserves_tensordata spt) (functorlifting_preserves_unit spu).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use total2_paths_b.
+    - <span class="bp">exact</span> (fmonoidal_preservesleftunitality Fm x).
+    - <span class="bp">exact</span> (splu x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fl_preserves_rightunitality</span>
+             (<span class="nv">spt</span> : fl_preserves_tensor_data)
+             (<span class="nv">spu</span> : fl_preserves_unit)
+    : UU := ∏ (x : C'),
+      sd x ⊗⊗^{DM}_{l} spu ;; spt x I_{M'} ;; # sd ru^{M'}_{x}
+      = transportb _
+                   (fmonoidal_preservesrightunitality Fm x)
+                   dru^{DM}_{sd x}.
+
+  <span class="kn">Definition</span> <span class="nf">functorlifting_preserves_rightunitality</span>
+             {<span class="nv">spt</span> : fl_preserves_tensor_data}
+             {<span class="nv">spu</span> : fl_preserves_unit}
+             (<span class="nv">spru</span> : fl_preserves_rightunitality spt spu)
+    : preserves_rightunitality
+        (functorlifting_preserves_tensordata spt) (functorlifting_preserves_unit spu).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use total2_paths_b.
+    - <span class="bp">exact</span> (fmonoidal_preservesrightunitality Fm x).
+    - <span class="bp">exact</span> (spru x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fl_preserves_associativity</span>
+             (<span class="nv">spt</span> : fl_preserves_tensor_data ) : UU
+    := ∏ (x y z : C'),
+      spt x y ⊗⊗^{DM}_{r} sd z ;; spt (x ⊗_{M'} y) z ;; # sd α^{M'}_{x, y, z}
+      = transportb _
+          (fmonoidal_preservesassociativity Fm x y z)
+          (dα^{DM}_{sd x, sd y, sd z} ;; sd x ⊗⊗^{DM}_{l} spt y z ;; spt x (y ⊗_{M'} z)).
+
+  <span class="kn">Definition</span> <span class="nf">functorlifting_preserves_associativity</span>
+             {<span class="nv">spt</span> : fl_preserves_tensor_data}
+             (<span class="nv">spa</span> : fl_preserves_associativity spt)
+    : preserves_associativity (functorlifting_preserves_tensordata spt).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z.
+    use total2_paths_b.
+    - <span class="bp">exact</span> (fmonoidal_preservesassociativity Fm x y z).
+    - <span class="bp">exact</span> (spa x y z).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_laxlaws</span> (<span class="nv">ms</span> : flmonoidal_data) : UU
+    := fl_preserves_tensor_nat_left (flmonoidal_preserves_tensor_data ms) ×
+       fl_preserves_tensor_nat_right (flmonoidal_preserves_tensor_data ms) ×
+       fl_preserves_associativity (flmonoidal_preserves_tensor_data ms) ×
+       fl_preserves_leftunitality (flmonoidal_preserves_tensor_data ms) (flmonoidal_preserves_unit ms) ×
+       fl_preserves_rightunitality (flmonoidal_preserves_tensor_data ms) (flmonoidal_preserves_unit ms).
+
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_preserves_tensornatleft</span>
+             {<span class="nv">ms</span> : flmonoidal_data} (<span class="nv">msl</span> : flmonoidal_laxlaws ms)
+    : fl_preserves_tensor_nat_left (flmonoidal_preserves_tensor_data ms)
+    := pr1 msl.
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_preserves_tensornatright</span>
+             {<span class="nv">ms</span> : flmonoidal_data} (<span class="nv">msl</span> : flmonoidal_laxlaws ms)
+    : fl_preserves_tensor_nat_right (flmonoidal_preserves_tensor_data ms)
+    := pr12 msl.
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_preserves_associativity</span>
+             {<span class="nv">ms</span> : flmonoidal_data} (<span class="nv">msl</span> : flmonoidal_laxlaws ms)
+    : fl_preserves_associativity (flmonoidal_preserves_tensor_data ms)
+    := pr122 msl.
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_preserves_leftunitality</span>
+             {<span class="nv">ms</span> : flmonoidal_data} (<span class="nv">msl</span> : flmonoidal_laxlaws ms)
+    : fl_preserves_leftunitality (flmonoidal_preserves_tensor_data ms) (flmonoidal_preserves_unit ms)
+    := pr122 (pr2 msl).
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_preserves_rightunitality</span>
+             {<span class="nv">ms</span> : flmonoidal_data} (<span class="nv">msl</span> : flmonoidal_laxlaws ms)
+    : fl_preserves_rightunitality (flmonoidal_preserves_tensor_data ms) (flmonoidal_preserves_unit ms)
+    := pr222 (pr2 msl).
+
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_lax</span> : UU
+    := ∑ (ms : flmonoidal_data), flmonoidal_laxlaws ms.
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_lax_to_data</span> (<span class="nv">sm</span> : flmonoidal_lax)
+    : flmonoidal_data := pr1 sm.
+  <span class="kn">Coercion</span> <span class="nf">flmonoidal_lax_to_data</span> : flmonoidal_lax &gt;-&gt; flmonoidal_data.
+
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_lax_to_laxlaws</span> (<span class="nv">sm</span> : flmonoidal_lax)
+    : flmonoidal_laxlaws sm := pr2 sm.
+
+  <span class="kn">Definition</span> <span class="nf">functorlifting_monoidal_laxlaws</span>
+             {<span class="nv">ms</span> : flmonoidal_data} (<span class="nv">ml</span> : flmonoidal_laxlaws ms) :
+    fmonoidal_laxlaws (functorlifting_monoidal_data ms)
+    := (functorlifting_preserves_tensor_nat_left (flmonoidal_preserves_tensornatleft ml),,
+        functorlifting_preserves_tensor_nat_right (flmonoidal_preserves_tensornatright ml),,
+        functorlifting_preserves_associativity (flmonoidal_preserves_associativity ml),,
+        functorlifting_preserves_leftunitality (flmonoidal_preserves_leftunitality ml),,
+        functorlifting_preserves_rightunitality (flmonoidal_preserves_rightunitality ml)
+       ).
+
+  <span class="kn">Definition</span> <span class="nf">functorlifting_fmonoidal_lax</span> (<span class="nv">ms</span> : flmonoidal_lax)
+    : fmonoidal_lax M' TM (lifted_functor sd)
+    := _ ,, functorlifting_monoidal_laxlaws (flmonoidal_lax_to_laxlaws ms).
+
+  <span class="c">(* We now define functor liftings of strong monoidal functors and show that they induce a strong monoidal functor *)</span>
+  <span class="kn">Definition</span> <span class="nf">fl_strongtensor</span>
+             (<span class="nv">spt</span> : fl_preserves_tensor_data)
+             (<span class="nv">Fs</span> : preserves_tensor_strongly (fmonoidal_preservestensordata Fm))
+    : UU
+    := ∏ (x y : C'), is_z_iso_disp
+                        (_ ,, Fs x y)
+                        (spt x y).
+
+  <span class="kn">Definition</span> <span class="nf">fl_strongunit</span>
+             (<span class="nv">spu</span> : fl_preserves_unit)
+             (<span class="nv">Fs</span> : preserves_unit_strongly (fmonoidal_preservesunit Fm))
+    : UU
+    := is_z_iso_disp (_,, Fs) spu.
+
+  <span class="kn">Definition</span> <span class="nf">fl_stronglaws</span>
+             (<span class="nv">ms</span> : flmonoidal_lax)
+             (<span class="nv">Fs</span> : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm))
+    : UU
+    := fl_strongtensor
+         (flmonoidal_preserves_tensor_data ms)
+         (fmonoidal_preservestensorstrongly ((Fm,,Fs) : fmonoidal M' M F))
+         ×
+         fl_strongunit
+         (flmonoidal_preserves_unit ms)
+         (fmonoidal_preservesunitstrongly ((Fm,,Fs) : fmonoidal M' M F)).
+
+  <span class="kn">Definition</span> <span class="nf">flmonoidal</span>
+             (<span class="nv">Fs</span> : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm))
+    : UU
+    := ∑ ms : flmonoidal_lax, fl_stronglaws ms Fs.
+
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_to_flmonoidal_lax</span>
+             {<span class="nv">Fs</span> : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm)}
+             (<span class="nv">sm</span> : flmonoidal Fs)
+    : flmonoidal_lax := pr1 sm.
+  <span class="kn">Coercion</span> <span class="nf">flmonoidal_to_flmonoidal_lax</span> : flmonoidal &gt;-&gt; flmonoidal_lax.
+
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_to_fl_stronglaws</span>
+             {<span class="nv">Fs</span> : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm)}
+             (<span class="nv">sm</span> : flmonoidal Fs)
+    : fl_stronglaws sm Fs := pr2 sm.
+
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_to_flmonoidalstrongtensor</span>
+             {<span class="nv">Fs</span> : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm)}
+             (<span class="nv">sm</span> : flmonoidal Fs)
+    : fl_strongtensor
+         (flmonoidal_preserves_tensor_data sm)
+         (fmonoidal_preservestensorstrongly ((Fm,,Fs) : fmonoidal M' M F))
+    := pr1 (flmonoidal_to_fl_stronglaws sm).
+  <span class="kn">Definition</span> <span class="nf">flmonoidal_to_flmonoidalstrongunit</span>
+             {<span class="nv">Fs</span> : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm)}
+             (<span class="nv">sm</span> : flmonoidal Fs)
+    : fl_strongunit
+         (flmonoidal_preserves_unit sm)
+         (fmonoidal_preservesunitstrongly ((Fm,,Fs) : fmonoidal M' M F))
+    := pr2 (flmonoidal_to_fl_stronglaws sm).
+
+  <span class="kn">Definition</span> <span class="nf">functorlifting_preservestensorstrongly</span>
+             {<span class="nv">Fs</span> : preserves_tensor_strongly (fmonoidal_preservestensordata Fm)}
+             {<span class="nv">ms</span> : flmonoidal_lax}
+             (<span class="nv">pfstrong</span> : fl_strongtensor (flmonoidal_preserves_tensor_data ms) Fs)
+    : preserves_tensor_strongly (functorlifting_preserves_tensordata (flmonoidal_preserves_tensor_data ms)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use tpair.
+    - <span class="k">exists</span> (<span class="nv">pr1</span> (Fs x y)).
+      <span class="bp">exact</span> (pr1 (pfstrong x y)).
+    - use tpair.
+      + use total2_paths_b.
+        * <span class="bp">exact</span> (pr12 (Fs x y)).
+        * <span class="bp">exact</span> (pr22 (pfstrong x y)).
+      + use total2_paths_b.
+        * <span class="bp">exact</span> (pr22 (Fs x y)).
+        * <span class="bp">exact</span> (pr12 (pfstrong x y)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functorlifting_preservesunitstrongly</span>
+             {<span class="nv">Fs</span> : preserves_unit_strongly (fmonoidal_preservesunit Fm)}
+             {<span class="nv">ms</span> : flmonoidal_lax}
+             (<span class="nv">pfstrong</span> : fl_strongunit (flmonoidal_preserves_unit ms) Fs)
+    : preserves_unit_strongly (functorlifting_preserves_unit (flmonoidal_preserves_unit ms)).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">Fs</span>).
+      <span class="bp">exact</span> (pr1 pfstrong).
+    - use tpair.
+      + use total2_paths_b.
+        * <span class="bp">exact</span> (pr12 Fs).
+        * <span class="bp">exact</span> (pr22 pfstrong).
+      + use total2_paths_b.
+        * <span class="bp">exact</span> (pr22 Fs).
+        * <span class="bp">exact</span> (pr12 pfstrong).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functorlifting_fmonoidal</span>
+             {<span class="nv">Fs</span> : fmonoidal_stronglaws (fmonoidal_preservestensordata Fm)
+                                        (fmonoidal_preservesunit Fm)}
+             (<span class="nv">fls</span> : flmonoidal Fs)
+    : fmonoidal M' TM (lifted_functor sd).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">functorlifting_fmonoidal_lax</span> <span class="nv">fls</span>).
+    use tpair.
+    - use functorlifting_preservestensorstrongly.
+      + <span class="nb">apply</span> Fs.
+      + <span class="nb">apply</span> fls.
+    - use functorlifting_preservesunitstrongly.
+      + <span class="nb">apply</span> Fs.
+      + <span class="nb">apply</span> fls.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_flmonoidal_laxlaws</span> (<span class="nv">fl</span> : flmonoidal_data)
+    : isaprop (flmonoidal_laxlaws fl).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homsets_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_flmonoidal_stronglaws</span>
+        {<span class="nv">Fm_strong</span> : fmonoidal_stronglaws (pr11 Fm) (pr21 Fm)}
+        (<span class="nv">fl</span> : flmonoidal Fm_strong)
+    : isaprop (fl_stronglaws (pr1 fl) Fm_strong).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>) ; <span class="nb">apply</span> Isos.isaprop_is_z_iso_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">flmonoidal_equality</span> (<span class="nv">fl1</span> <span class="nv">fl2</span> : flmonoidal_lax)
+    : (∏ x y : C', pr11 fl1 x y = pr11 fl2 x y) -&gt; (pr21 fl1 = pr21 fl2) -&gt; fl1 = fl2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> pT pU.
+    use total2_paths_f.
+    <span class="mi">2</span>: <span class="nb">apply</span> isaprop_flmonoidal_laxlaws.
+    use total2_paths_f.
+    - <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> pT.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> transportf_const.
+      <span class="bp">exact</span> pU.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">flmonoidal_strong_equality</span>
+        {<span class="nv">Fm_strong</span> : fmonoidal_stronglaws (pr11 Fm) (pr21 Fm)}
+        (<span class="nv">fl1</span> <span class="nv">fl2</span> : flmonoidal Fm_strong)
+    : (∏ x y : C', pr111 fl1 x y = pr111 fl2 x y) -&gt; (pr211 fl1 = pr211 fl2) -&gt; fl1 = fl2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> pT pU.
+    use total2_paths_f.
+    - use flmonoidal_equality.
+      + <span class="bp">exact</span> pT.
+      + <span class="bp">exact</span> pU.
+    - <span class="nb">apply</span> isaprop_flmonoidal_stronglaws.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">MonoidalFunctorLifting</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Displayed/MonoidalFunctorLifting.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

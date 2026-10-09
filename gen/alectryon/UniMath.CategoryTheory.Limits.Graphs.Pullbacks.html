@@ -1,0 +1,577 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Pullbacks.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Pullbacks defined in terms of limits *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require</span>        UniMath.CategoryTheory.Limits.Pullbacks.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">def_pb</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : category.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+<span class="kn">Definition</span> <span class="nf">One</span> : three := ● <span class="mi">0</span>.
+<span class="kn">Definition</span> <span class="nf">Two</span> : three := ● <span class="mi">1</span>.
+<span class="kn">Definition</span> <span class="nf">Three</span> : three := ● <span class="mi">2</span>.
+
+<span class="kn">Definition</span> <span class="nf">pullback_graph</span> : graph.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">three</span>.
+  use three_rec.
+  - <span class="nb">apply</span> three_rec.
+    + <span class="nb">apply</span> empty.
+    + <span class="nb">apply</span> unit.
+    + <span class="nb">apply</span> empty.
+  - <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">_</span>, empty).
+  - <span class="nb">apply</span> three_rec.
+    + <span class="nb">apply</span> empty.
+    + <span class="nb">apply</span> unit.
+    + <span class="nb">apply</span> empty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pullback_diagram</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C ⟦b,a⟧) (<span class="nv">g</span> : C⟦c,a⟧) :
+  diagram pullback_graph C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">three_rec</span> <span class="nv">b</span> <span class="nv">a</span> <span class="nv">c</span>).
+  use three_rec_dep.
+  - use three_rec_dep; <span class="nb">simpl</span>.
+    + <span class="nb">apply</span> fromempty.
+    + <span class="nb">intro</span> x; <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> fromempty.
+  - <span class="nb">intro</span> x; <span class="nb">apply</span> fromempty.
+  - use three_rec_dep; <span class="nb">simpl</span>.
+    + <span class="nb">apply</span> fromempty.
+    + <span class="nb">intro</span> x; <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> fromempty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PullbCone</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C ⟦b,a⟧) (<span class="nv">g</span> : C⟦c,a⟧)
+           (<span class="nv">d</span> : C) (<span class="nv">f'</span> : C ⟦d, b⟧) (<span class="nv">g'</span> : C ⟦d,c⟧)
+           (<span class="nv">H</span> : f' · f = g'· g)
+  : cone (pullback_diagram f g) d.
+<span class="kn">Proof</span>.
+  use make_cone.
+  - use three_rec_dep; <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="nb">apply</span> (f' · f).
+  - use three_rec_dep; use three_rec_dep.
+    + <span class="bp">exact</span> (empty_rect _ ).
+    + <span class="nb">intro</span> x; <span class="nb">apply</span> idpath.
+    + <span class="bp">exact</span> (empty_rect _ ).
+    + <span class="bp">exact</span> (empty_rect _ ).
+    + <span class="bp">exact</span> (empty_rect _ ).
+    + <span class="bp">exact</span> (empty_rect _ ).
+    + <span class="bp">exact</span> (empty_rect _ ).
+    + <span class="nb">intro</span> x; <span class="nb">apply</span> (!H).
+    + <span class="bp">exact</span> (empty_rect _ ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isPullback</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C ⟦b, a⟧) (<span class="nv">g</span> : C ⟦c, a⟧)
+           (<span class="nv">p1</span> : C⟦d,b⟧) (<span class="nv">p2</span> : C⟦d,c⟧) (<span class="nv">H</span> : p1 · f = p2· g) : UU :=
+    isLimCone (pullback_diagram f g) d (PullbCone f g d p1 p2 H).
+<span class="c">(*</span>
+<span class="c">   ∏ e (h : e --&gt; b) (k : e --&gt; c)(H : h · f = k · g ),</span>
+<span class="c">      iscontr (total2 (fun hk : e --&gt; d =&gt; dirprod (hk · p1 = h)(hk · p2 = k))).</span>
+<span class="c"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">make_isPullback</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C ⟦b, a⟧) (<span class="nv">g</span> : C ⟦c, a⟧)
+           (<span class="nv">p1</span> : C⟦d,b⟧) (<span class="nv">p2</span> : C⟦d,c⟧) (<span class="nv">H</span> : p1 · f = p2· g) :
+  (∏ e (h : C ⟦e, b⟧) (k : C⟦e,c⟧)(Hk : h · f = k · g ),
+      iscontr (total2 (<span class="k">fun</span> <span class="nv">hk</span> : C⟦e,d⟧ =&gt; dirprod (hk · p1 = h)(hk · p2 = k))))
+  →
+  isPullback f g p1 p2 H.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H' x cx; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">set</span> (H1 := H' x (coneOut cx One) (coneOut cx Three) ).
+  use (<span class="k">let</span> <span class="nv">p</span> : coneOut cx One · f = coneOut cx Three · g := _ <span class="k">in</span> _ ).
+  { <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> (coneOutCommutes cx One Two tt)|].
+    <span class="nb">apply</span> pathsinv0, (coneOutCommutes cx Three Two tt). }
+  <span class="nb">set</span> (H2 := H1 p).
+  use tpair.
+  + <span class="k">exists</span> (<span class="nv">pr1</span> (pr1 H2)).
+    use three_rec_dep.
+    * <span class="nb">apply</span> (pr1 (pr2 (pr1 H2))).
+    * <span class="nb">simpl</span>.
+      <span class="nb">change</span> (three_rec_dep (<span class="k">λ</span> <span class="nv">n</span>, C⟦d,_⟧) _ _ _ _) <span class="k">with</span> (p1 · f).
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">eapply</span> pathscomp0.
+        <span class="nb">eapply</span> cancel_postcomposition, (pr2 (pr1 H2)).
+      <span class="nb">apply</span> (coneOutCommutes cx One Two tt).
+    * <span class="nb">apply</span> (pr2 (pr2 (pr1 H2))).
+  + <span class="kp">abstract</span> (<span class="nb">intro</span> t; <span class="nb">apply</span> subtypePath;
+              [ <span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> C
+              | <span class="nb">destruct</span> t <span class="k">as</span> [t p0];
+                <span class="nb">apply</span> path_to_ctr; <span class="nb">split</span>; [ <span class="nb">apply</span> (p0 One) | <span class="nb">apply</span> (p0 Three) ]]).
+<span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">Lemma isaprop_isPullback {a b c d : C} (f : b --&gt; a) (g : c --&gt; a)</span>
+<span class="c">        (p1 : d --&gt; b) (p2 : d --&gt; c) (H : p1 · f = p2 · g) :</span>
+<span class="c">       isaprop (isPullback f g p1 p2 H).</span>
+<span class="c">Proof.</span>
+<span class="c">  repeat (apply impred; intro).</span>
+<span class="c">  apply isapropiscontr.</span>
+<span class="c">Qed.</span>
+<span class="c">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">Pullback</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦b, a⟧)(<span class="nv">g</span> : C⟦c, a⟧) :=
+     LimCone (pullback_diagram f g).
+
+<span class="kn">Definition</span> <span class="nf">make_Pullback</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦b, a⟧)(<span class="nv">g</span> : C⟦c, a⟧)
+    (<span class="nv">d</span> : C) (<span class="nv">p1</span> : C⟦d,b⟧) (<span class="nv">p2</span> : C ⟦d,c⟧)
+    (<span class="nv">H</span> : p1 · f = p2 · g)
+    (<span class="nv">ispb</span> : isPullback f g p1 p2 H)
+  : Pullback f g.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use tpair.
+    + <span class="nb">apply</span> d.
+    + use PullbCone; <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> ispb.
+<span class="kn">Defined</span>.
+
+
+<span class="c">(*</span>
+<span class="c">Definition Pullback {a b c : C} (f : b --&gt; a)(g : c --&gt; a) :=</span>
+<span class="c">     total2 (fun pfg : total2 (λ p : C, (p --&gt; b) × (p --&gt; c)) =&gt;</span>
+<span class="c">         total2 (fun H : pr1 (pr2 pfg) · f = pr2 (pr2 pfg) · g =&gt;</span>
+<span class="c">        isPullback f g (pr1 (pr2 pfg)) (pr2 (pr2 pfg)) H)).</span>
+<span class="c"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Pullbacks</span> := ∏ (a b c : C)(f : C⟦b, a⟧)(g : C⟦c, a⟧),
+       Pullback f g.
+
+<span class="kn">Definition</span> <span class="nf">hasPullbacks</span> := ∏ (a b c : C) (f : C⟦b, a⟧) (g : C⟦c, a⟧),
+         ishinh (Pullback f g).
+
+
+<span class="kn">Definition</span> <span class="nf">PullbackObject</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧}:
+   Pullback f g -&gt; C := <span class="k">λ</span> <span class="nv">H</span>, lim H.
+<span class="c">(* Coercion PullbackObject : Pullback &gt;-&gt; ob. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">PullbackPr1</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧}
+   (<span class="nv">Pb</span> : Pullback f g) : C⟦lim Pb, b⟧ := limOut Pb One.
+
+<span class="kn">Definition</span> <span class="nf">PullbackPr2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧}
+   (<span class="nv">Pb</span> : Pullback f g) : C⟦lim Pb, c⟧ := limOut Pb Three.
+
+<span class="kn">Definition</span> <span class="nf">PullbackSqrCommutes</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧}
+           (<span class="nv">Pb</span> : Pullback f g) :
+  PullbackPr1 Pb · f = PullbackPr2 Pb · g .
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> (limOutCommutes Pb One Two tt) |].
+  <span class="nb">apply</span> (!limOutCommutes Pb Three Two tt) .
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">PullbackArrow</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧}
+           (<span class="nv">Pb</span> : Pullback f g) <span class="nv">e</span> (<span class="nv">h</span> : C⟦e, b⟧) (<span class="nv">k</span> : C⟦e, c⟧)(<span class="nv">H</span> : h · f = k · g)
+  : C⟦e, lim Pb⟧.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> use limArrow; use PullbCone.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">PullbackArrow_PullbackPr1</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧}
+   (<span class="nv">Pb</span> : Pullback f g) <span class="nv">e</span> (<span class="nv">h</span> : C⟦e, b⟧) (<span class="nv">k</span> : C⟦e, c⟧)(<span class="nv">H</span> : h · f = k · g) :
+   PullbackArrow Pb e h k H · PullbackPr1 Pb = h.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (limArrowCommutes Pb e _ One).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">PullbackArrow_PullbackPr2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧}
+   (<span class="nv">Pb</span> : Pullback f g) <span class="nv">e</span> (<span class="nv">h</span> : C⟦e, b⟧) (<span class="nv">k</span> : C⟦e, c⟧)(<span class="nv">H</span> : h · f = k · g) :
+   PullbackArrow Pb e h k H · PullbackPr2 Pb = k.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (limArrowCommutes Pb e _ Three).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">PullbackArrowUnique</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C⟦b, a⟧) (<span class="nv">g</span> : C⟦c, a⟧)
+     (<span class="nv">Pb</span> : Pullback f g)
+     <span class="nv">e</span> (<span class="nv">h</span> : C⟦e, b⟧) (<span class="nv">k</span> : C⟦e, c⟧)
+     (<span class="nv">Hcomm</span> : h · f = k · g)
+     (<span class="nv">w</span> : C⟦e, PullbackObject Pb⟧)
+     (<span class="nv">H1</span> : w · PullbackPr1 Pb  = h) (<span class="nv">H2</span> : w · PullbackPr2 Pb = k) :
+  w = PullbackArrow Pb _ h k Hcomm.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> path_to_ctr.
+  use three_rec_dep; <span class="kp">try</span> <span class="bp">assumption</span>.
+  <span class="nb">set</span> (X:= limOutCommutes Pb Three Two tt).
+  <span class="nb">eapply</span> pathscomp0.
+    <span class="nb">eapply</span> maponpaths, pathsinv0, X.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">eapply</span> pathscomp0.
+    <span class="nb">apply</span> cancel_postcomposition, H2.
+  <span class="nb">apply</span> (!Hcomm).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isPullback_Pullback</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦b, a⟧}{<span class="nv">g</span> : C⟦c, a⟧}
+   (<span class="nv">P</span> : Pullback f g) :
+  isPullback f g (PullbackPr1 P) (PullbackPr2 P) (PullbackSqrCommutes P).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_isPullback.
+  <span class="nb">intros</span> e h k HK.
+  use tpair.
+  - use tpair.
+    + <span class="nb">apply</span> (PullbackArrow P _ h k HK).
+    + <span class="nb">split</span>.
+      * <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      * <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+  - <span class="nb">intro</span> t.
+    <span class="nb">apply</span> subtypePath.
+    + <span class="nb">intro</span>. <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> C.
+    + <span class="nb">destruct</span> t <span class="k">as</span> [t p]. <span class="nb">simpl</span>.
+      use (PullbackArrowUnique _ _ P).
+      * <span class="nb">apply</span> e.
+      * <span class="nb">apply</span> (pr1 p).
+      * <span class="nb">apply</span> (pr2 p).
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** ** Maps between pullbacks as special limits and</span>
+<span class="sd">       direct formulation of pullbacks</span>
+<span class="sd">*)</span>
+
+<span class="kn">Lemma</span> <span class="nf">equiv_isPullback_1</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C ⟦b, a⟧) (<span class="nv">g</span> : C ⟦c, a⟧)
+      (<span class="nv">p1</span> : C⟦d,b⟧) (<span class="nv">p2</span> : C⟦d,c⟧) (<span class="nv">H</span> : p1 · f = p2· g) :
+  Limits.Pullbacks.isPullback <span class="c">(*f g p1 p2*)</span> H -&gt; isPullback f g p1 p2 H.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  <span class="nb">intros</span> R cc.
+  <span class="nb">set</span> (XR := Limits.Pullbacks.make_Pullback _ X).
+  use tpair.
+  - use tpair.
+    + use (Limits.Pullbacks.PullbackArrow XR).
+      * <span class="nb">apply</span> (coneOut cc One).
+      * <span class="nb">apply</span> (coneOut cc Three).
+      * <span class="kp">abstract</span> (
+        <span class="nb">assert</span> (XRT := coneOutCommutes cc Three Two tt); <span class="nb">simpl</span> <span class="k">in</span> XRT;
+        <span class="nb">eapply</span> pathscomp0; [| <span class="nb">apply</span> (!XRT)]; <span class="nb">clear</span> XRT;
+        <span class="nb">assert</span> (XRT := coneOutCommutes cc One Two tt); <span class="nb">simpl</span> <span class="k">in</span> XRT;
+        <span class="nb">eapply</span> pathscomp0; [| <span class="nb">apply</span> (XRT)]; <span class="nb">apply</span> idpath
+         ).
+    + use three_rec_dep.
+      * <span class="kp">abstract</span> (<span class="nb">apply</span> (Limits.Pullbacks.PullbackArrow_PullbackPr1 XR)).
+      * <span class="kp">abstract</span> (<span class="nb">simpl</span>;
+        <span class="nb">change</span> (three_rec_dep (<span class="k">λ</span> <span class="nv">n</span>, C⟦d,_⟧) _ _ _ _) <span class="k">with</span> (p1 · f);
+        <span class="nb">rewrite</span> assoc;
+        <span class="nb">rewrite</span>  (Limits.Pullbacks.PullbackArrow_PullbackPr1 XR);
+        <span class="nb">assert</span> (XRT := coneOutCommutes cc One Two tt); <span class="nb">simpl</span> <span class="k">in</span> XRT;
+        <span class="nb">eapply</span> pathscomp0; [| <span class="nb">apply</span> (XRT)]; <span class="nb">apply</span> idpath).
+      * <span class="kp">abstract</span> (<span class="nb">apply</span> (Limits.Pullbacks.PullbackArrow_PullbackPr2 XR)).
+  - <span class="kp">abstract</span> (
+    <span class="nb">intro</span> t;
+    <span class="nb">apply</span> subtypePath;
+    [<span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> C |];
+    <span class="nb">simpl</span>; <span class="nb">destruct</span> t <span class="k">as</span> [t HH];  <span class="nb">simpl</span> <span class="k">in</span> *;
+    <span class="nb">apply</span> Limits.Pullbacks.PullbackArrowUnique;
+    [ <span class="nb">apply</span> (HH One) | <span class="nb">apply</span> (HH Three)] ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">equiv_Pullback_1</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦b, a⟧) (<span class="nv">g</span> : C⟦c, a⟧) :
+  Limits.Pullbacks.Pullback f g -&gt; Pullback f g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  <span class="bp">exact</span> (make_Pullback
+           f g (Limits.Pullbacks.PullbackObject X)
+           (Limits.Pullbacks.PullbackPr1 X)
+           (Limits.Pullbacks.PullbackPr2 X)
+           (Limits.Pullbacks.PullbackSqrCommutes X)
+           (equiv_isPullback_1 _ _ _ _ _ (Limits.Pullbacks.isPullback_Pullback X))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">equiv_Pullbacks_1</span>: @Limits.Pullbacks.Pullbacks C -&gt; Pullbacks.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X' a b c f g.
+  <span class="nb">set</span> (X := X' a b c f g).
+  <span class="bp">exact</span> (make_Pullback
+           f g (Limits.Pullbacks.PullbackObject X)
+           (Limits.Pullbacks.PullbackPr1 X)
+           (Limits.Pullbacks.PullbackPr2 X)
+           (Limits.Pullbacks.PullbackSqrCommutes X)
+           (equiv_isPullback_1 _ _ _ _ _ (Limits.Pullbacks.isPullback_Pullback X))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">equiv_isPullback_2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C ⟦b, a⟧) (<span class="nv">g</span> : C ⟦c, a⟧)
+      (<span class="nv">p1</span> : C⟦d,b⟧) (<span class="nv">p2</span> : C⟦d,c⟧) (<span class="nv">H</span> : p1 · f = p2· g) :
+  Limits.Pullbacks.isPullback <span class="c">(*f g p1 p2*)</span> H &lt;- isPullback f g p1 p2 H.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  <span class="nb">set</span> (XR := make_Pullback _ _ _ _ _  _ X).
+  <span class="nb">intros</span> R k h HH.
+  use tpair.
+  - use tpair.
+    use (PullbackArrow XR); <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> (PullbackArrow_PullbackPr1 XR).
+    + <span class="nb">apply</span> (PullbackArrow_PullbackPr2 XR).
+  - <span class="kp">abstract</span> (
+    <span class="nb">intro</span> t; <span class="nb">apply</span> subtypePath;
+    [ <span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> C |] ;
+    <span class="nb">induction</span> t <span class="k">as</span> [x Hx]; <span class="nb">simpl</span> <span class="k">in</span> * ;
+    use (PullbackArrowUnique _ _ XR);
+    [<span class="nb">apply</span> R | <span class="nb">apply</span> (pr1 Hx) | <span class="nb">apply</span> (pr2 Hx) ]
+    ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">equiv_Pullback_2</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : C⟦b, a⟧) (<span class="nv">g</span> : C⟦c, a⟧) :
+  Limits.Pullbacks.Pullback f g &lt;- Pullback f g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  <span class="bp">exact</span> (Limits.Pullbacks.make_Pullback
+           <span class="c">(*f g</span>
+<span class="c">           (PullbackObject X)</span>
+<span class="c">           (PullbackPr1 X)</span>
+<span class="c">           (PullbackPr2 X)</span>
+<span class="c">            *)</span>
+           (PullbackSqrCommutes X)
+           (equiv_isPullback_2 _ _ _ _ _ (isPullback_Pullback X))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">equiv_Pullbacks_2</span> : @Limits.Pullbacks.Pullbacks C &lt;- Pullbacks.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X' a b c f g.
+  <span class="nb">set</span> (X := X' a b c f g).
+  <span class="bp">exact</span> (Limits.Pullbacks.make_Pullback
+           <span class="c">(*f g</span>
+<span class="c">           (PullbackObject X)</span>
+<span class="c">           (PullbackPr1 X)</span>
+<span class="c">           (PullbackPr2 X)</span>
+<span class="c">            *)</span>
+           (PullbackSqrCommutes X)
+           (equiv_isPullback_2 _ _ _ _ _ (isPullback_Pullback X))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">identity_is_Pullback_input</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}{<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧} (<span class="nv">Pb</span> : Pullback f g) :
+ total2 (<span class="k">fun</span> <span class="nv">hk</span> : C⟦lim Pb, lim Pb⟧ =&gt;
+   dirprod (hk · PullbackPr1 Pb = PullbackPr1 Pb)(hk · PullbackPr2 Pb = PullbackPr2 Pb)).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">identity</span> (lim Pb)).
+  <span class="nb">apply</span> make_dirprod; <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="c">(* was PullbackArrowUnique *)</span>
+<span class="kn">Lemma</span> <span class="nf">PullbackArrowUnique'</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C} (<span class="nv">f</span> : C⟦b, a⟧) (<span class="nv">g</span> : C⟦c, a⟧)
+      (<span class="nv">p1</span> : C⟦d, b⟧) (<span class="nv">p2</span> : C⟦d, c⟧) (<span class="nv">H</span> : p1 · f = p2 · g) (<span class="nv">P</span> : isPullback f g p1 p2 H)
+      (<span class="nv">e</span> : C) (<span class="nv">h</span> : C⟦e, b⟧) (<span class="nv">k</span> : C⟦e, c⟧) (<span class="nv">Hcomm</span> : h · f = k · g) (<span class="nv">w</span> : C⟦e, d⟧)
+      (<span class="nv">H1</span> : w · p1 = h) (<span class="nv">H2</span> : w · p2 = k) :
+  w =  (pr1 (pr1 (P e (PullbCone f g _ h k Hcomm)))).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> path_to_ctr.
+  use three_rec_dep; <span class="kp">try</span> <span class="bp">assumption</span>; <span class="nb">simpl</span>.
+  <span class="nb">change</span> (three_rec_dep (<span class="k">λ</span> <span class="nv">n</span>, C⟦d,_⟧) _ _ _ _) <span class="k">with</span> (p1 · f).
+  <span class="nb">change</span> (three_rec_dep (<span class="k">λ</span> <span class="nv">n</span>, C⟦e,_⟧) _ _ _ _) <span class="k">with</span> (h · f).
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- H1, assoc.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">PullbackEndo_is_identity</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}{<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧} (<span class="nv">Pb</span> : Pullback f g)
+      (<span class="nv">k</span> : C⟦lim Pb, lim Pb⟧) (<span class="nv">kH1</span> : k · PullbackPr1 Pb = PullbackPr1 Pb)
+      (<span class="nv">kH2</span> : k · PullbackPr2 Pb = PullbackPr2 Pb) : identity (lim Pb) = k.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> lim_endo_is_identity.
+  use three_rec_dep.
+  - <span class="nb">apply</span> kH1.
+  - <span class="nb">unfold</span> limOut. <span class="nb">simpl</span>.
+    <span class="nb">assert</span> (T:= coneOutCommutes (limCone Pb) Three Two tt).
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> (!T).
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> cancel_postcomposition.
+       <span class="nb">apply</span> kH2.
+       <span class="nb">apply</span> T.
+ - <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">from_Pullback_to_Pullback</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧}
+           (<span class="nv">Pb</span> <span class="nv">Pb'</span>: Pullback f g) : C⟦lim Pb, lim Pb'⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (PullbackArrow Pb' (lim Pb) (PullbackPr1 _ ) (PullbackPr2 _)).
+  <span class="bp">exact</span> (PullbackSqrCommutes _ ).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">are_inverses_from_Pullback_to_Pullback</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧}
+      (<span class="nv">Pb</span> <span class="nv">Pb'</span>: Pullback f g) :
+  is_inverse_in_precat (from_Pullback_to_Pullback Pb Pb') (from_Pullback_to_Pullback Pb' Pb).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">apply</span> pathsinv0;
+  <span class="nb">apply</span> PullbackEndo_is_identity;
+  <span class="nb">rewrite</span> &lt;- assoc;
+  <span class="nb">unfold</span> from_Pullback_to_Pullback;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> PullbackArrow_PullbackPr1;
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> PullbackArrow_PullbackPr2;
+  <span class="nb">auto</span>.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">isiso_from_Pullback_to_Pullback</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧}
+      (<span class="nv">Pb</span> <span class="nv">Pb'</span>: Pullback f g) : is_iso (from_Pullback_to_Pullback Pb Pb').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (is_iso_qinv _ (from_Pullback_to_Pullback Pb' Pb)).
+  <span class="nb">apply</span> are_inverses_from_Pullback_to_Pullback.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">iso_from_Pullback_to_Pullback</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} {<span class="nv">f</span> : C⟦b, a⟧} {<span class="nv">g</span> : C⟦c, a⟧}
+           (<span class="nv">Pb</span> <span class="nv">Pb'</span>: Pullback f g) : iso (lim Pb) (lim Pb') :=
+  tpair _ _ (isiso_from_Pullback_to_Pullback Pb Pb').
+
+
+<span class="sd">(** pullback lemma *)</span>
+
+<span class="kn">Section</span> <span class="nf">pullback_lemma</span>.
+
+<span class="kn">Variables</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> <span class="nv">x</span> : C.
+<span class="kn">Variables</span> (<span class="nv">f</span> : C⟦b, a⟧) (<span class="nv">g</span> : C⟦c, a⟧) (<span class="nv">h</span> : C⟦e, b⟧) (<span class="nv">k</span> : C⟦e, c⟧)
+          (<span class="nv">i</span> : C⟦d, b⟧) (<span class="nv">j</span> : C⟦x, e⟧) (<span class="nv">m</span> : C⟦x, d⟧).
+<span class="kn">Hypothesis</span> <span class="nv">H1</span> : h · f = k · g.
+<span class="kn">Hypothesis</span> <span class="nv">H2</span> : m · i = j · h.
+<span class="kn">Hypothesis</span> <span class="nv">P1</span> : isPullback _ _ _ _ H1.
+<span class="kn">Hypothesis</span> <span class="nv">P2</span> : isPullback _ _ _ _ H2.
+
+<span class="kn">Lemma</span> <span class="nf">glueSquares</span> : m · (i · f) = (j · k) · g.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> H2.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">rewrite</span> H1.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="c">(*</span>
+<span class="c">Lemma isPullbackGluedSquare : isPullback (i · f) g m (j · k) glueSquares.</span>
+<span class="c">Proof.</span>
+<span class="c">  apply make_isPullback.</span>
+<span class="c">  intros y p q.</span>
+<span class="c">  intro Hrt.</span>
+<span class="c">  assert (ex : (p· i)· f = q· g).</span>
+<span class="c">   { rewrite &lt;- Hrt.</span>
+<span class="c">     rewrite assoc; apply idpath.</span>
+<span class="c">   }</span>
+<span class="c">  set (rt := P1 _ (p · i) q ex).</span>
+<span class="c">  set (Ppiq := pr1 (pr1 (rt))).</span>
+<span class="c">  assert (owiej : p · i = Ppiq · h).</span>
+<span class="c">   { apply pathsinv0. apply (pr1 (pr2 (pr1 rt))). }</span>
+<span class="c">  set (rt' := P2 _ p Ppiq owiej).</span>
+<span class="c">  set (awe := pr1 (pr1 rt')).</span>
+<span class="c">  assert (Hawe1 : awe · m = p).</span>
+<span class="c">   { exact (pr1 (pr2 (pr1 rt'))). }</span>
+<span class="c">  assert (Hawe2 : awe · (j · k) = q).</span>
+<span class="c">   { rewrite assoc.</span>
+<span class="c">     set (X := pr2 (pr2 (pr1 rt'))). simpl in X.</span>
+<span class="c">           unfold awe. rewrite X.</span>
+<span class="c">           exact (pr2 (pr2 (pr1 rt))).</span>
+<span class="c">   }</span>
+<span class="c">  exists (tpair _ awe (make_dirprod Hawe1 Hawe2)).</span>
+<span class="c">  intro t.</span>
+<span class="c">  apply subtypePath.</span>
+<span class="c">  - intro a0. apply isapropdirprod;</span>
+<span class="c">    apply hs.</span>
+<span class="c">  - simpl. destruct t as [t [Ht1 Ht2]].</span>
+<span class="c">    simpl in *.</span>
+<span class="c">    apply PullbackArrowUnique.</span>
+<span class="c">    + assumption.</span>
+<span class="c">    + apply PullbackArrowUnique.</span>
+<span class="c">      * rewrite &lt;- Ht1.</span>
+<span class="c">        repeat rewrite &lt;- assoc.</span>
+<span class="c">        rewrite H2.</span>
+<span class="c">        apply idpath.</span>
+<span class="c">      * rewrite &lt;- assoc.</span>
+<span class="c">        assumption.</span>
+<span class="c">Qed.</span>
+<span class="c"> *)</span>
+
+<span class="kn">End</span> <span class="nf">pullback_lemma</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inv_from_iso_iso_from_Pullback</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C) (<span class="nv">f</span> : C⟦b, a⟧) (<span class="nv">g</span> : C⟦c, a⟧)
+  (<span class="nv">Pb</span> : Pullback f g) (<span class="nv">Pb'</span> : Pullback f g):
+    inv_from_iso (iso_from_Pullback_to_Pullback Pb Pb') = from_Pullback_to_Pullback Pb' Pb.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> inv_iso_unique'.
+  <span class="nb">set</span> (T:= are_inverses_from_Pullback_to_Pullback Pb Pb').
+  <span class="nb">apply</span> (pr1 T).
+<span class="kn">Qed</span>.
+
+<span class="c">(*</span>
+<span class="c">Lemma isaprop_Pullbacks: isaprop Pullbacks.</span>
+<span class="c">Proof.</span>
+<span class="c">  apply impred; intro a;</span>
+<span class="c">  apply impred; intro b;</span>
+<span class="c">  apply impred; intro c;</span>
+<span class="c">  apply impred; intro f;</span>
+<span class="c">  apply impred; intro g;</span>
+<span class="c">  apply invproofirrelevance.</span>
+<span class="c">  intros Pb Pb'.</span>
+<span class="c">  apply subtypePath.</span>
+<span class="c">  - intro; apply isofhleveltotal2.</span>
+<span class="c">    + apply hs.</span>
+<span class="c">    + intros; apply isaprop_isPullback.</span>
+<span class="c">  - apply (total2_paths_f  (isotoid _ H (iso_from_Pullback_to_Pullback Pb Pb' ))).</span>
+<span class="c">    rewrite transportf_dirprod, transportf_isotoid.</span>
+<span class="c">    rewrite inv_from_iso_iso_from_Pullback.</span>
+<span class="c">    rewrite transportf_isotoid.</span>
+<span class="c">    rewrite inv_from_iso_iso_from_Pullback.</span>
+<span class="c">    destruct Pb as [Cone bla];</span>
+<span class="c">    destruct Pb' as [Cone' bla'];</span>
+<span class="c">    simpl in *.</span>
+<span class="c">    destruct Cone as [p [h k]];</span>
+<span class="c">    destruct Cone' as [p' [h' k']];</span>
+<span class="c">    simpl in *.</span>
+<span class="c">    unfold from_Pullback_to_Pullback;</span>
+<span class="c">    rewrite PullbackArrow_PullbackPr2, PullbackArrow_PullbackPr1.</span>
+<span class="c">    apply idpath.</span>
+<span class="c">Qed.</span>
+<span class="c"> *)</span>
+
+
+<span class="kn">End</span> <span class="nf">def_pb</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Pullbacks_from_Lims</span> (<span class="nv">C</span> : category) :
+  Lims C -&gt; Pullbacks C.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H a b c f g; <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Graphs/Pullbacks.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** Pullbacks defined in terms of limits *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

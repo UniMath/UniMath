@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MixedDistributiveLaws.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************</span>
+
+<span class="sd"> Mixed distributive laws distributive laws in bicategories</span>
+
+<span class="sd"> Monads in the bicategory of comonads are the same as mixed distributive laws</span>
+
+<span class="sd"> ******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpCellBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.MonadsLax.
+<span class="kn">Require Import</span> UniMath.Bicategories.Monads.Examples.MonadsInOp2Bicat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">MixedDistributiveLaw</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">m₁</span> : comnd B)
+          (<span class="nv">m₂</span> : disp_mnd B (ob_of_comnd m₁)).
+
+  <span class="kn">Let</span> <span class="nf">x</span> : B := ob_of_comnd m₁.
+  <span class="kn">Let</span> <span class="nf">e</span> : x --&gt; x := endo_of_comnd m₁.
+  <span class="kn">Let</span> <span class="nf">ε</span> : e ==&gt; id₁ _ := counit_of_comnd m₁.
+  <span class="kn">Let</span> <span class="nf">δ</span> : e ==&gt; e · e := comult_of_comnd m₁.
+
+  <span class="kn">Let</span> <span class="nf">f</span> : x --&gt; x := pr11 m₂.
+  <span class="kn">Let</span> <span class="nf">η</span> : id₁ _ ==&gt; f := pr121 m₂.
+  <span class="kn">Let</span> <span class="nf">μ</span> : f · f ==&gt; f := pr221 m₂.
+
+  <span class="kn">Definition</span> <span class="nf">mixed_distr_law_data</span>
+    : UU
+    := e · f ==&gt; f · e.
+
+  <span class="kn">Definition</span> <span class="nf">mixed_distr_law_laws</span>
+             (<span class="nv">τ</span> : mixed_distr_law_data)
+    : UU
+    := ((ε ▹ f)
+        • lunitor f
+        =
+        τ
+        • (f ◃ ε)
+        • runitor f)
+       ×
+       ((δ ▹ f)
+        • rassociator e e f
+        • (e ◃ τ)
+        • lassociator e f e
+        • (τ ▹ e)
+        • rassociator f e e
+        =
+        τ
+        • (f ◃ δ))
+       ×
+       ((e ◃ η)
+        • τ
+        =
+        runitor e
+        • linvunitor e
+        • (η ▹ e))
+       ×
+       ((e ◃ μ)
+        • τ
+        =
+        lassociator e f f
+        • (τ ▹ f)
+        • rassociator f e f
+        • (f ◃ τ)
+        • lassociator f f e
+        • (μ ▹ e)).
+
+  <span class="kn">Definition</span> <span class="nf">mixed_distr_law</span>
+    : UU
+    := ∑ (τ : mixed_distr_law_data), mixed_distr_law_laws τ.
+
+  <span class="kn">Definition</span> <span class="nf">make_mixed_distr_law</span>
+             (<span class="nv">τ</span> : mixed_distr_law_data)
+             (<span class="nv">Hτ</span> : mixed_distr_law_laws τ)
+    : mixed_distr_law
+    := τ ,, Hτ.
+
+  <span class="kn">Coercion</span> <span class="nf">mixed_distr_law_to_cell</span>
+           (τ : mixed_distr_law)
+    : e · f ==&gt; f · e
+    := pr1 τ.
+<span class="kn">End</span> <span class="nf">MixedDistributiveLaw</span>.
+
+<span class="kn">Section</span> <span class="nf">FromBicatToMixedDistrLaw</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">m</span> : mnd (op2_bicat (mnd (op2_bicat B)))).
+
+  <span class="kn">Let</span> <span class="nf">x</span> : B := pr1 (ob_of_mnd m).
+  <span class="kn">Let</span> <span class="nf">e</span> : x --&gt; x := pr112 (ob_of_mnd m).
+  <span class="kn">Let</span> <span class="nf">ε</span> : e ==&gt; id₁ _ := pr1 (pr212 (ob_of_mnd m)).
+  <span class="kn">Let</span> <span class="nf">δ</span> : e ==&gt; e · e := pr2 (pr212 (ob_of_mnd m)).
+
+  <span class="kn">Let</span> <span class="nf">f</span> : x --&gt; x := pr1 (endo_of_mnd m).
+  <span class="kn">Let</span> <span class="nf">η</span> : id₁ _ ==&gt; f := pr1 (unit_of_mnd m).
+  <span class="kn">Let</span> <span class="nf">μ</span> : f · f ==&gt; f := pr1 (mult_of_mnd m).
+
+  <span class="kn">Definition</span> <span class="nf">to_comnd_data_of_mixed_distr_law</span>
+    : comnd_data B.
+  <span class="kn">Proof</span>.
+    use make_comnd_data.
+    - <span class="bp">exact</span> x.
+    - <span class="bp">exact</span> e.
+    - <span class="bp">exact</span> ε.
+    - <span class="bp">exact</span> δ.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_comnd_laws_of_mixed_distr_law</span>
+    : comnd_laws to_comnd_data_of_mixed_distr_law.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">unfold</span> comnd_counit_left_law.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="bp">exact</span> (pr122 (ob_of_mnd m)).
+    - <span class="nb">unfold</span> comnd_counit_right_law.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="bp">exact</span> (pr1 (pr222 (ob_of_mnd m))).
+    - <span class="nb">unfold</span> comnd_comult_assoc_law.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="bp">exact</span> (pr2 (pr222 (ob_of_mnd m))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_comnd_of_mixed_distr_law</span>
+    : comnd B.
+  <span class="kn">Proof</span>.
+    use make_comnd.
+    - <span class="bp">exact</span> to_comnd_data_of_mixed_distr_law.
+    - <span class="bp">exact</span> to_comnd_laws_of_mixed_distr_law.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_mnd_data_of_mixed_distr_law</span>
+    : mnd_data B.
+  <span class="kn">Proof</span>.
+    use make_mnd_data.
+    - <span class="bp">exact</span> x.
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span> η.
+    - <span class="bp">exact</span> μ.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_is_mnd_of_mixed_distr_law</span>
+    : is_mnd B to_mnd_data_of_mixed_distr_law.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (maponpaths pr1 (mnd_unit_left m)).
+    - <span class="bp">exact</span> (maponpaths pr1 (mnd_unit_right m)).
+    - <span class="bp">exact</span> (maponpaths pr1 (mnd_mult_assoc m)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_mnd_of_mixed_distr_law</span>
+    : mnd B.
+  <span class="kn">Proof</span>.
+    use make_mnd.
+    - <span class="bp">exact</span> to_mnd_data_of_mixed_distr_law.
+    - <span class="bp">exact</span> to_is_mnd_of_mixed_distr_law.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_cell_of_mixed_distr_law</span>
+    : mixed_distr_law_data
+        to_comnd_of_mixed_distr_law
+        (pr2 to_mnd_of_mixed_distr_law)
+    := pr112 (endo_of_mnd m).
+
+  <span class="kn">Definition</span> <span class="nf">to_laws_of_mixed_distr_law</span>
+    : mixed_distr_law_laws _ _ to_cell_of_mixed_distr_law.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="bp">exact</span> (pr1 (pr212 (endo_of_mnd m))).
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="bp">exact</span> (pr2 (pr212 (endo_of_mnd m))).
+    - <span class="bp">exact</span> (pr112 (unit_of_mnd m)).
+    - <span class="nb">refine</span> (pr112 (mult_of_mnd m) @ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_mixed_distr_law</span>
+    : mixed_distr_law
+        to_comnd_of_mixed_distr_law
+        (pr2 to_mnd_of_mixed_distr_law).
+  <span class="kn">Proof</span>.
+    use make_mixed_distr_law.
+    - <span class="bp">exact</span> to_cell_of_mixed_distr_law.
+    - <span class="bp">exact</span> to_laws_of_mixed_distr_law.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FromBicatToMixedDistrLaw</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Monads/MixedDistributiveLaws.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  Monads in the bicategory of comonads are the same as mixed distributive laws
+  &gt;
+  &gt;  ******************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

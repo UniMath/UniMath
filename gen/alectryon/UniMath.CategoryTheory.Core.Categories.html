@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Categories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Categories</span>
+
+<span class="sd">  Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman</span>
+<span class="sd">  January 2013</span>
+<span class="sd"> *)</span>
+
+
+<span class="sd">(** ** Contents :</span>
+
+<span class="sd">  - precategories: homs are arbitrary types [precategory]</span>
+<span class="sd">  - categories: hom-types are sets [category]</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.
+
+<span class="sd">(** * Definition of a precategory *)</span>
+
+<span class="kn">Definition</span> <span class="nf">precategory_ob_mor</span> : UU
+  := ∑ ob : UU, ob -&gt; ob -&gt; UU.
+
+<span class="kn">Definition</span> <span class="nf">make_precategory_ob_mor</span> (<span class="nv">ob</span> : UU)(<span class="nv">mor</span> : ob -&gt; ob -&gt; UU) :
+    precategory_ob_mor := tpair _ ob mor.
+
+<span class="kn">Definition</span> <span class="nf">ob</span> (<span class="nv">C</span> : precategory_ob_mor) : UU := @pr1 _ _ C.
+<span class="kn">Coercion</span> <span class="nf">ob</span> : precategory_ob_mor &gt;-&gt; UU.
+
+<span class="kn">Definition</span> <span class="nf">precategory_morphisms</span> { <span class="nv">C</span> : precategory_ob_mor } :
+       C -&gt;  C -&gt; UU := pr2 C.
+
+<span class="sd">(** We introduce notation for morphisms *)</span>
+<span class="sd">(** in order for this notation not to pollute subsequent files,</span>
+<span class="sd">    we define this notation within the scope "cat" *)</span>
+
+<span class="kn">Declare Scope</span> cat.
+<span class="kn">Delimit Scope</span> cat <span class="k">with</span> cat.     <span class="c">(* for precategories *)</span>
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Notation</span> <span class="s2">"a --&gt; b"</span> := (precategory_morphisms a b) : cat.
+<span class="kn">Notation</span> <span class="s2">"b &lt;-- a"</span> := (precategory_morphisms a b) (<span class="kn">only parsing</span>) : cat.
+
+<span class="kn">Notation</span> <span class="s2">"C ⟦ a , b ⟧"</span> := (precategory_morphisms (C:=C) a b) : cat.
+<span class="c">(* ⟦   to input: type "\[[" or "\(" with Agda input method</span>
+<span class="c">   ⟧   to input: type "\]]" or "\)" with Agda input method *)</span>
+
+<span class="sd">(** ** [precategory_data] *)</span>
+<span class="sd">(** data of a precategory :</span>
+<span class="sd">    - objects</span>
+<span class="sd">    - morphisms</span>
+<span class="sd">    - identity morphisms</span>
+<span class="sd">    - composition</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">precategory_id_comp</span> (<span class="nv">C</span> : precategory_ob_mor) : UU
+  :=
+    (∏ c : C, c --&gt; c) <span class="c">(* identities *)</span>
+      ×
+    (∏ a b c : C, a --&gt; b -&gt; b --&gt; c -&gt; a --&gt; c). <span class="c">(* composition *)</span>
+
+<span class="kn">Definition</span> <span class="nf">precategory_data</span> : UU
+  := ∑ C : precategory_ob_mor, precategory_id_comp C.
+
+<span class="kn">Definition</span> <span class="nf">make_precategory_data</span> (<span class="nv">C</span> : precategory_ob_mor)
+    (<span class="nv">id</span> : ∏ c : C, c --&gt; c)
+    (<span class="nv">comp</span>: ∏ a b c : C, a --&gt; b -&gt; b --&gt; c -&gt; a --&gt; c)
+  : precategory_data
+  := tpair _ C (make_dirprod id comp).
+
+<span class="kn">Definition</span> <span class="nf">precategory_ob_mor_from_precategory_data</span> (<span class="nv">C</span> : precategory_data) :
+     precategory_ob_mor := pr1 C.
+<span class="kn">Coercion</span> <span class="nf">precategory_ob_mor_from_precategory_data</span> :
+  precategory_data &gt;-&gt; precategory_ob_mor.
+
+<span class="kn">Definition</span> <span class="nf">identity</span> {<span class="nv">C</span> : precategory_data}
+  : ∏ c : C, c --&gt; c
+  := pr1 (pr2 C).
+
+<span class="kn">Definition</span> <span class="nf">compose</span> {<span class="nv">C</span> : precategory_data} { <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C }
+  : a --&gt; b -&gt; b --&gt; c -&gt; a --&gt; c
+  := pr2 (pr2 C) a b c.
+
+<span class="kn">Notation</span> <span class="s2">"f · g"</span> := (compose f g) : cat.
+<span class="c">(* to input: type "\centerdot" or "\cdot" with Agda input method *)</span>
+
+<span class="kn">Notation</span> <span class="s2">"g ∘ f"</span> := (compose f g) (<span class="kn">only parsing</span>) : cat.
+<span class="c">(* agda input \circ *)</span>
+
+<span class="kn">Definition</span> <span class="nf">postcompose</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">g</span> : b --&gt; c) (<span class="nv">f</span> : a --&gt; b)
+  : a --&gt; c
+  := compose f g.
+
+<span class="sd">(** ** Axioms of a precategory *)</span>
+<span class="sd">(**</span>
+<span class="sd">        - identity is left and right neutral for composition</span>
+<span class="sd">        - composition is associative</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_precategory</span> (<span class="nv">C</span> : precategory_data) : UU
+  :=
+    ((∏ (a b : C) (f : a --&gt; b), identity a · f = f)
+     ×
+     (∏ (a b : C) (f : a --&gt; b), f · identity b = f))
+    ×
+    ((∏ (a b c d : C) (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d), f · (g · h) = (f · g) · h)
+       ×
+     (∏ (a b c d : C) (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d), (f · g) · h = f · (g · h))).
+
+<span class="kn">Definition</span> <span class="nf">is_precategory_one_assoc</span> (<span class="nv">C</span> : precategory_data) : UU
+  :=
+    ((∏ (a b : C) (f : a --&gt; b), identity a · f = f)
+     ×
+     (∏ (a b : C) (f : a --&gt; b), f · identity b = f))
+    ×
+    (∏ (a b c d : C) (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d), f · (g · h) = (f · g) · h).
+
+<span class="kn">Definition</span> <span class="nf">is_precategory_one_assoc_to_two</span> (<span class="nv">C</span> : precategory_data) :
+  is_precategory_one_assoc C -&gt; is_precategory C
+  := <span class="k">λ</span> <span class="nv">i</span>, (pr11 i,,pr21 i),,(pr2 i,,<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, pathsinv0 (pr2 i a b c d f g h)).
+
+<span class="kn">Definition</span> <span class="nf">make_is_precategory</span> {<span class="nv">C</span> : precategory_data}
+           (<span class="nv">H1</span> : ∏ (a b : C) (f : a --&gt; b), identity a · f = f)
+           (<span class="nv">H2</span> : ∏ (a b : C) (f : a --&gt; b), f · identity b = f)
+           (<span class="nv">H3</span> : ∏ (a b c d : C) (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d), f · (g · h) = (f · g) · h)
+           (<span class="nv">H4</span> : ∏ (a b c d : C) (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d), (f · g) · h = f · (g · h))
+  : is_precategory C
+  := (H1,,H2),,(H3,,H4).
+
+<span class="kn">Definition</span> <span class="nf">make_is_precategory_one_assoc</span> {<span class="nv">C</span> : precategory_data}
+           (<span class="nv">H1</span> : ∏ (a b : C) (f : a --&gt; b), identity a · f = f)
+           (<span class="nv">H2</span> : ∏ (a b : C) (f : a --&gt; b), f · identity b = f)
+           (<span class="nv">H3</span> : ∏ (a b c d : C) (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d), f · (g · h) = (f · g) · h)
+  : is_precategory C
+  := (H1,,H2),,(H3,,<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, pathsinv0 (H3 a b c d f g h)).
+
+<span class="kn">Definition</span> <span class="nf">precategory</span> := total2 is_precategory.
+
+<span class="kn">Definition</span> <span class="nf">make_precategory</span> (<span class="nv">C</span> : precategory_data) (<span class="nv">H</span> : is_precategory C)
+  : precategory
+  := tpair _ C H.
+
+<span class="kn">Definition</span> <span class="nf">make_precategory_one_assoc</span> (<span class="nv">C</span> : precategory_data) (<span class="nv">H</span> : is_precategory_one_assoc C)
+  : precategory
+  := tpair _ C (is_precategory_one_assoc_to_two C H).
+
+<span class="kn">Definition</span> <span class="nf">precategory_data_from_precategory</span> (<span class="nv">C</span> : precategory) :
+       precategory_data := pr1 C.
+<span class="kn">Coercion</span> <span class="nf">precategory_data_from_precategory</span> : precategory &gt;-&gt; precategory_data.
+
+<span class="kn">Definition</span> <span class="nf">has_homsets</span> (<span class="nv">C</span> : precategory_ob_mor) : UU := ∏ a b : C, isaset (a --&gt; b).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_has_homsets</span> (<span class="nv">C</span> : precategory_ob_mor) : isaprop (has_homsets C).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropisaset.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">category</span> := ∑ C:precategory, has_homsets C.
+<span class="kn">Definition</span> <span class="nf">make_category</span> <span class="nv">C</span> <span class="nv">h</span> : category := C,,h.
+<span class="kn">Definition</span> <span class="nf">category_to_precategory</span> : category -&gt; precategory := pr1.
+<span class="kn">Coercion</span> <span class="nf">category_to_precategory</span> : category &gt;-&gt; precategory.
+<span class="kn">Coercion</span> <span class="nf">homset_property</span> (C : category) : has_homsets C := pr2 C.
+
+<span class="kn">Definition</span> <span class="nf">homset</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">x</span> <span class="nv">y</span> : C)
+  : hSet
+  := x --&gt; y ,, homset_property C x y.
+
+<span class="kn">Definition</span> <span class="nf">makecategory</span>
+    (<span class="nv">obj</span> : UU)
+    (<span class="nv">mor</span> : obj -&gt; obj -&gt; UU)
+    (<span class="nv">homsets</span> : ∏ a b, isaset (mor a b))
+    (<span class="nv">identity</span> : ∏ i, mor i i)
+    (<span class="nv">compose</span> : ∏ i j k (f:mor i j) (g:mor j k), mor i k)
+    (<span class="nv">right</span> : ∏ i j (f:mor i j), compose _ _ _ (identity i) f = f)
+    (<span class="nv">left</span>  : ∏ i j (f:mor i j), compose _ _ _ f (identity j) = f)
+    (<span class="nv">associativity</span> : ∏ a b c d (f:mor a b) (g:mor b c) (h:mor c d),
+        compose _ _ _ f (compose _ _ _ g h) = compose _ _ _ (compose _ _ _ f g) h)
+    (<span class="nv">associativity'</span> : ∏ a b c d (f:mor a b) (g:mor b c) (h:mor c d),
+        compose _ _ _ (compose _ _ _ f g) h = compose _ _ _ f (compose _ _ _ g h))
+  : category
+  := (make_precategory
+           (make_precategory_data
+              (make_precategory_ob_mor
+                 obj
+                 (<span class="k">λ</span> <span class="nv">i</span> <span class="nv">j</span>, mor i j))
+              identity compose)
+           ((<span class="nb">right</span>,,<span class="nb">left</span>),,(associativity,,associativity'))),,homsets.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_precategory</span> (<span class="nv">C</span> : precategory_data)(<span class="nv">hs</span>: has_homsets C)
+  : isaprop (is_precategory C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isofhleveltotal2.
+  { <span class="nb">apply</span> isofhleveltotal2. { <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>). <span class="nb">apply</span> hs. }
+    <span class="nb">intros</span> _. <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> hs. }
+  <span class="nb">intros</span> _. <span class="nb">apply</span> isofhleveltotal2.
+  { <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> hs. }
+  { <span class="nb">intros</span>. <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>). <span class="nb">apply</span> hs. }
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">category_eq</span> (<span class="nv">C</span> <span class="nv">D</span> : category) :
+  (C:precategory_data) = (D:precategory_data) -&gt; C=D.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> e. <span class="nb">apply</span> subtypePath. <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_has_homsets.
+  <span class="nb">apply</span> subtypePath'.
+  { <span class="bp">assumption</span>. }
+  <span class="nb">apply</span> isaprop_is_precategory.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_left</span> (<span class="nv">C</span> : precategory) :
+   ∏ (a b : C) (f : a --&gt; b),
+           identity a · f = f := pr112 C.
+
+<span class="kn">Definition</span> <span class="nf">id_right</span> (<span class="nv">C</span> : precategory) :
+   ∏ (a b : C) (f : a --&gt; b),
+           f · identity b = f := pr212 C.
+
+<span class="kn">Definition</span> <span class="nf">assoc</span> (<span class="nv">C</span> : precategory) :
+   ∏ (a b c d : C)
+          (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d),
+                     f · (g · h) = (f · g) · h := pr122 C.
+
+<span class="kn">Definition</span> <span class="nf">assoc'</span> (<span class="nv">C</span> : precategory) :
+   ∏ (a b c d : C)
+          (f : a --&gt; b) (g : b --&gt; c) (h : c --&gt; d),
+                     (f · g) · h = f · (g · h) := pr222 C.
+
+<span class="kn">Arguments</span> id_left [C a b] f.
+<span class="kn">Arguments</span> id_right [C a b] f.
+<span class="kn">Arguments</span> assoc [C a b c d] f g h.
+<span class="kn">Arguments</span> assoc' [C a b c d] f g h.
+
+<span class="kn">Lemma</span> <span class="nf">assoc4</span> (<span class="nv">C</span> : precategory) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : C) (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c)
+       (<span class="nv">h</span> : c --&gt; d) (<span class="nv">i</span> : d --&gt; e) :
+     ((f · g) · h) · i = f · (g · h) · i.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">remove_id_left</span> (<span class="nv">C</span> : precategory) (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b) (<span class="nv">h</span> : a --&gt; a):
+  h = identity _ -&gt; f = g -&gt; h · f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H eq.
+  intermediate_path (identity _ · f).
+  - <span class="nb">destruct</span> H. <span class="nb">apply</span> idpath.
+  - intermediate_path f.
+    + <span class="nb">apply</span> id_left.
+    + <span class="nb">apply</span> eq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">remove_id_right</span> (<span class="nv">C</span> : precategory) (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b) (<span class="nv">h</span> : b --&gt; b):
+  h = identity _ -&gt; f = g -&gt; f · h = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H eq.
+  intermediate_path (f · identity _).
+  - <span class="nb">destruct</span> H. <span class="nb">apply</span> idpath.
+  - intermediate_path f.
+    + <span class="nb">apply</span> id_right.
+    + <span class="nb">apply</span> eq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">id_conjugation</span> {<span class="nv">A</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : A} (<span class="nv">f</span> : a --&gt; b)
+      (<span class="nv">g</span> : b --&gt; a)  (<span class="nv">x</span> : b --&gt; b)
+  : x = identity _ -&gt; f · g = identity _ -&gt; f · x · g = identity _ .
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H H'.
+  <span class="nb">rewrite</span> H. <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> H'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cancel_postcomposition</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>: C}
+   (<span class="nv">f</span> <span class="nv">f'</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c) : f = f' -&gt; f · g = f' · g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>; <span class="nb">apply</span> maponpaths_2; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cancel_precomposition</span> (<span class="nv">C</span> : precategory_data) (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>: C)
+   (<span class="nv">f</span> <span class="nv">f'</span> : b --&gt; c) (<span class="nv">g</span> : a --&gt; b) : f = f' -&gt; g · f = g · f'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> maponpaths.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">maponpaths_compose</span>
+      {<span class="nv">C</span> : category} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f1</span> <span class="nv">f2</span> : C⟦x,y⟧) (<span class="nv">g1</span> <span class="nv">g2</span> : C⟦y,z⟧)
+  : f1 = f2 -&gt; g1 = g2 -&gt; f1 · g1 = f2 · g2.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span> <span class="nv">q</span>, maponpaths_12 compose p q).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Any equality on objects a and b induces a morphism from a to b *)</span>
+
+<span class="kn">Definition</span> <span class="nf">idtomor</span> {<span class="nv">C</span> : precategory_data}
+   (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">H</span> : a = b) : a --&gt; b.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> H.
+  <span class="bp">exact</span> (identity a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">idtomor_inv</span> {<span class="nv">C</span> : precategory_data}
+    (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">H</span> : a = b) : b --&gt; a.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> H.
+  <span class="bp">exact</span> (identity a).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Core/Categories.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Propositions.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   - categories: hom-types are sets [category]
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Propositions.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

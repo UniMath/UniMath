@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FinalLayer.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">This is the last file which concludes that the bicategory of univalent monoidal categories is again univalent.</span>
+<span class="c">In this file we conclude that both the bicategory of univalent monoidal categories with lax monoidal functors, denoted by UMONCAT, is univalent</span>
+<span class="c">and that the result still holds when we replace lax by strong monoidal functors, we denote this bicategory by UMONCAT_strong.</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.TensorLayer.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.UnitLayer.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.TensorUnitLayer.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.AssociatorUnitorsLayer.
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Import</span> Bicat.Notations.
+
+<span class="kn">Import</span> AssociatorUnitorsNotations.
+
+<span class="kn">Local Definition</span> <span class="nf">bicat_univlaxmon_noprop</span> : bicat := total_bicat disp_tensor_unit_unitors_associator.
+
+<span class="kn">Section</span> <span class="nf">MonoidalCategoryLayer</span>.
+
+  <span class="kn">Definition</span> <span class="nf">P_triangle_pentagon</span> : bicat_univlaxmon_noprop -&gt; UU
+    :=  <span class="k">λ</span> <span class="nv">C</span>,
+        triangle_pentagon (pr2 (assunitors_from_layer (uc (pr1 C,, pr12 C))  (pr2 C))).
+
+  <span class="kn">Definition</span> <span class="nf">P_assinv</span> : bicat_univlaxmon_noprop -&gt; UU
+    :=  <span class="k">λ</span> <span class="nv">C</span>,
+        associator_invertible (pr2 (assunitors_from_layer (pr1 C)  (pr2 C))).
+
+   <span class="kn">Definition</span> <span class="nf">P_luinv</span> : bicat_univlaxmon_noprop -&gt; UU
+    :=  <span class="k">λ</span> <span class="nv">C</span>,
+        lunitor_invertible (pr2 (assunitors_from_layer (pr1 C)  (pr2 C))).
+    <span class="kn">Definition</span> <span class="nf">P_ruinv</span> : bicat_univlaxmon_noprop -&gt; UU
+    :=  <span class="k">λ</span> <span class="nv">C</span>,
+        runitor_invertible (pr2 (assunitors_from_layer (pr1 C)  (pr2 C))).
+
+  <span class="kn">Definition</span> <span class="nf">P_inv</span> : bicat_univlaxmon_noprop -&gt; UU
+    := <span class="k">λ</span> <span class="nv">C</span>, P_assinv C × P_luinv C × P_ruinv C.
+
+  <span class="kn">Definition</span> <span class="nf">P_prop</span> : bicat_univlaxmon_noprop -&gt; UU
+    := <span class="k">λ</span> <span class="nv">C</span>, P_triangle_pentagon C × P_inv C.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_P_prop</span> (<span class="nv">C</span> : bicat_univlaxmon_noprop) : isaprop (P_prop C).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod).
+    - <span class="nb">apply</span> isaprop_triangle.
+    - <span class="nb">apply</span> isaprop_pentagon.
+    - <span class="nb">apply</span> isaprop_associator_invertible.
+    - <span class="nb">apply</span> isaprop_lunitor_invertible.
+    - <span class="nb">apply</span> isaprop_runitor_invertible.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_bicat_univmon</span> : disp_bicat bicat_univlaxmon_noprop
+    := disp_fullsubbicat bicat_univlaxmon_noprop P_prop.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_bicat_tripent_is_univalent_2</span> : disp_univalent_2 disp_bicat_univmon.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> disp_univalent_2_0_fullsubbicat.
+      + <span class="nb">apply</span> bidisp_assunitors_is_univalent_2.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_P_prop.
+    - <span class="nb">apply</span> disp_fullsubbicat_univalent_2_1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_univmon</span> : disp_bicat bicat_of_univ_cats
+    := sigma_bicat _ _ disp_bicat_univmon.
+
+  <span class="kn">Definition</span> <span class="nf">disp_univmon_is_univalent_2</span>
+    : disp_univalent_2 disp_univmon.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> sigma_disp_univalent_2_with_props.
+    - <span class="nb">apply</span> univalent_cat_is_univalent_2.
+    - <span class="nb">apply</span> disp_tensor_unit_unitors_associator_disp_2cells_isaprop.
+    - <span class="nb">apply</span> disp_2cells_isaprop_fullsubbicat.
+    - <span class="nb">apply</span> disp_tensor_unit_unitors_associator_is_disp_univalent_2.
+    - <span class="nb">apply</span> disp_fullsubbicat_univalent_2_1.
+    - <span class="nb">apply</span> disp_tensor_unit_unitors_associator_disp_locally_groupoid.
+    - <span class="nb">apply</span> disp_locally_groupoid_fullsubbicat.
+    - <span class="nb">apply</span> disp_tensor_unit_unitors_associator_is_disp_univalent_2.
+    - <span class="nb">apply</span> disp_bicat_tripent_is_univalent_2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_univmon_disp_2cells_isaprop</span> :  disp_2cells_isaprop disp_univmon.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_2cells_isaprop_sigma.
+    + <span class="nb">apply</span> disp_tensor_unit_unitors_associator_disp_2cells_isaprop.
+    + <span class="nb">apply</span> disp_2cells_isaprop_fullsubbicat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_univmon_disp_locally_groupoid</span> :  disp_locally_groupoid disp_univmon.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_locally_groupoid_sigma.
+    - <span class="nb">apply</span> univalent_cat_is_univalent_2.
+    - <span class="nb">apply</span> disp_tensor_unit_unitors_associator_disp_2cells_isaprop.
+    - <span class="nb">apply</span> disp_2cells_isaprop_fullsubbicat.
+    - <span class="nb">apply</span> disp_tensor_unit_unitors_associator_disp_locally_groupoid.
+    - <span class="nb">apply</span> disp_locally_groupoid_fullsubbicat.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* UMONCAT is the bicategory defined as follows:</span>
+<span class="c">     - Objects: Monoidal categories (over univalent categories).</span>
+<span class="c">     - Morphisms: Lax monoidal functors.</span>
+<span class="c">     - 2-cells: Monoidal natural transformations.</span>
+
+<span class="c">     This bicategory is constructed precisely such that</span>
+<span class="c">     we are able to carry out a modular proof of univalence,</span>
+<span class="c">     as seen in UMONCAT_is_univalent_2.</span>
+<span class="c">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">UMONCAT</span> : bicat := total_bicat disp_univmon.
+
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_is_univalent_2</span> : is_univalent_2 UMONCAT.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> total_is_univalent_2.
+    - <span class="nb">apply</span> disp_univmon_is_univalent_2.
+    - <span class="nb">apply</span> univalent_cat_is_univalent_2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_category</span> (<span class="nv">C</span> : UMONCAT) : univalent_category := pr1 C.
+
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_tensorunit</span> (<span class="nv">C</span> : UMONCAT) : tensor_unit (UMONCAT_category C)
+    := (pr112 C).
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_tensor</span> (<span class="nv">C</span> : UMONCAT) : tensor (UMONCAT_category C)
+    := pr1 (UMONCAT_tensorunit C).
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_unit</span> (<span class="nv">C</span> : UMONCAT) : UMONCAT_category C
+    := pr2 (UMONCAT_tensorunit C).
+
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_lunitor</span> (<span class="nv">C</span> : UMONCAT) : CurriedMonoidalCategories.lunitor (UMONCAT_tensorunit C)
+    := pr11 (pr212 C).
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_runitor</span> (<span class="nv">C</span> : UMONCAT) : CurriedMonoidalCategories.runitor (UMONCAT_tensorunit C)
+    := (pr21 (pr212 C)).
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_associator</span> (<span class="nv">C</span> : UMONCAT) : CurriedMonoidalCategories.associator (UMONCAT_tensorunit C)
+    := (pr2 (pr212 C)).
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_unitorsassociator</span> (<span class="nv">C</span> : UMONCAT)
+    : unitors_associator (UMONCAT_tensorunit C)
+    := UMONCAT_lunitor C ,, UMONCAT_runitor C ,, UMONCAT_associator C.
+
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_functor</span> {<span class="nv">C</span> <span class="nv">D</span> : UMONCAT} (<span class="nv">F</span> : UMONCAT⟦C,D⟧)
+    : functor (UMONCAT_category C) (UMONCAT_category D)
+    := pr1 F.
+
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_functortensorunit</span> {<span class="nv">C</span> <span class="nv">D</span> : UMONCAT} (<span class="nv">F</span> : UMONCAT⟦C,D⟧)
+    : functor_tensor_unit (UMONCAT_tensorunit C) (UMONCAT_tensorunit D) (UMONCAT_functor F)
+    := (pr112 F).
+
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_functortensor</span> {<span class="nv">C</span> <span class="nv">D</span> : UMONCAT} (<span class="nv">F</span> : UMONCAT⟦C,D⟧)
+    : preserves_tensor (UMONCAT_tensor C) (UMONCAT_tensor D) (UMONCAT_functor F)
+    := pr1 (UMONCAT_functortensorunit F).
+
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_functorunit</span> {<span class="nv">C</span> <span class="nv">D</span> : UMONCAT} (<span class="nv">F</span> : UMONCAT⟦C,D⟧)
+    : preserves_unit (UMONCAT_unit C) (UMONCAT_unit D) (UMONCAT_functor F)
+    := pr2 (UMONCAT_functortensorunit F).
+
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_functorlunitor</span> {<span class="nv">C</span> <span class="nv">D</span> : UMONCAT} (<span class="nv">F</span> : UMONCAT⟦C,D⟧)
+    : preserves_lunitor (UMONCAT_functortensorunit F) (UMONCAT_lunitor C) (UMONCAT_lunitor D)
+    :=  pr11 (pr212 F).
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_functorrunitor</span> {<span class="nv">C</span> <span class="nv">D</span> : UMONCAT} (<span class="nv">F</span> : UMONCAT⟦C,D⟧)
+    : preserves_runitor (UMONCAT_functortensorunit F) (UMONCAT_runitor C) (UMONCAT_runitor D)
+    := pr21 (pr212 F).
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_functorassociator</span> {<span class="nv">C</span> <span class="nv">D</span> : UMONCAT} (<span class="nv">F</span> : UMONCAT⟦C,D⟧)
+    : preserves_associator (UMONCAT_functortensorunit F) (UMONCAT_associator C) (UMONCAT_associator D)
+    := pr2 (pr212 F).
+
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_functorunitorsassociator</span> {<span class="nv">C</span> <span class="nv">D</span> : UMONCAT} (<span class="nv">F</span> : UMONCAT⟦C,D⟧)
+    : functor_unitors_associator (UMONCAT_unitorsassociator C) (UMONCAT_unitorsassociator D) (UMONCAT_functortensorunit F)
+    := UMONCAT_functorlunitor F ,, UMONCAT_functorrunitor F ,, UMONCAT_functorassociator F.
+
+<span class="kn">End</span> <span class="nf">MonoidalCategoryLayer</span>.
+
+<span class="kn">Module</span> <span class="nf">UMONCAT_Notations</span>.
+
+  <span class="kn">Notation</span> <span class="s2">"cat( C )"</span> := (UMONCAT_category C).
+  <span class="kn">Notation</span> <span class="s2">"tensor( C )"</span> := (UMONCAT_tensor C).
+  <span class="kn">Notation</span> <span class="s2">"unit( C )"</span> := (UMONCAT_unit C).
+  <span class="kn">Notation</span> <span class="s2">"lunitor( C )"</span> := (UMONCAT_lunitor C).
+  <span class="kn">Notation</span> <span class="s2">"runitor( C )"</span> := (UMONCAT_runitor C).
+  <span class="kn">Notation</span> <span class="s2">"associator( C )"</span> := (UMONCAT_associator C).
+
+  <span class="kn">Notation</span> <span class="s2">"functor( F )"</span> := (UMONCAT_functor F).
+  <span class="kn">Notation</span> <span class="s2">"functortensorunit( F )"</span> := (UMONCAT_functortensorunit F).
+  <span class="kn">Notation</span> <span class="s2">"functortensor( F )"</span> := (UMONCAT_functortensor F).
+  <span class="kn">Notation</span> <span class="s2">"functorunit( F )"</span> := (UMONCAT_functorunit F).
+  <span class="kn">Notation</span> <span class="s2">"functorunitorsassociator( F )"</span> := (UMONCAT_functorunitorsassociator F).
+  <span class="kn">Notation</span> <span class="s2">"functorlunitor( F )"</span> := (UMONCAT_functorlunitor F).
+  <span class="kn">Notation</span> <span class="s2">"functorrunitor( F )"</span> := (UMONCAT_functorrunitor F).
+  <span class="kn">Notation</span> <span class="s2">"functorassociator( F )"</span> := (UMONCAT_functorassociator F).
+
+<span class="kn">End</span> <span class="nf">UMONCAT_Notations</span>.
+
+<span class="kn">Section</span> <span class="nf">StrongLayer</span>.
+
+  <span class="kn">Import</span> UMONCAT_Notations.
+  <span class="kn">Import</span> Bicat.Notations.
+
+  <span class="kn">Definition</span> <span class="nf">P_strong_preserving</span> : ∏ (C D : UMONCAT), UMONCAT⟦C,D⟧ -&gt; UU
+    := <span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span>, functor_strong functorunitorsassociator(F).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_P_strong_preserving</span> {<span class="nv">C</span> <span class="nv">D</span> : UMONCAT} (<span class="nv">F</span> : UMONCAT⟦C,D⟧)
+    : isaprop (P_strong_preserving C D F).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> isaprop_is_z_isomorphism.
+    - <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Pid_strong_preserving</span> :
+    ∏ (C : UMONCAT), P_strong_preserving _ _ (id₁ C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> C.
+    use tpair.
+    - <span class="nb">apply</span> identity_is_z_iso.
+    - <span class="nb">intro</span> ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> identity_is_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Pcomp_strong_preserving</span> :
+    ∏ (C D E : UMONCAT) (F : UMONCAT⟦C,D⟧) (G : UMONCAT⟦D,E⟧),
+      P_strong_preserving _ _ F → P_strong_preserving _ _ G -&gt; P_strong_preserving _ _ (F·G).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C D E F G sF sG.
+    use tpair.
+    - <span class="nb">apply</span> is_z_isomorphism_comp.
+      + <span class="nb">apply</span> sG.
+      + <span class="nb">apply</span> functor_on_is_z_isomorphism.
+        <span class="nb">apply</span> sF.
+    - <span class="nb">intro</span> ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> is_z_isomorphism_comp.
+      + <span class="nb">apply</span> sG.
+      + <span class="nb">simpl</span>.
+        <span class="nb">apply</span> functor_on_is_z_isomorphism.
+        <span class="nb">apply</span> sF.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_bicat_univstrongfunctor</span> : disp_bicat UMONCAT
+    := disp_sub1cell_bicat UMONCAT P_strong_preserving Pid_strong_preserving Pcomp_strong_preserving.
+
+  <span class="kn">Definition</span> <span class="nf">disp_bicat_univstrongfunctor_is_univalent_2</span> : disp_univalent_2 disp_bicat_univstrongfunctor.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_sub1cell_univalent_2.
+    - <span class="nb">apply</span> UMONCAT_is_univalent_2.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaprop_P_strong_preserving.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_univstrongfunctor</span> : disp_bicat bicat_of_univ_cats
+    := sigma_bicat _ _ disp_bicat_univstrongfunctor.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_univstrongfunctor_disp_2cells_isaprop</span> : disp_2cells_isaprop disp_bicat_univstrongfunctor.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_2cells_isaprop_sub1cell_bicat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">disp_univstrongfunctor_disp_locally_groupoid</span> : disp_locally_groupoid disp_bicat_univstrongfunctor.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_locally_groupoid_sub1cell_bicat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_univstrongfunctor_is_univalent_2</span>
+    : disp_univalent_2 disp_univstrongfunctor.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> sigma_disp_univalent_2_with_props ; <span class="kp">try</span> (<span class="nb">apply</span> disp_univmon_is_univalent_2).
+    - <span class="nb">apply</span> univalent_cat_is_univalent_2.
+    - <span class="nb">apply</span> disp_univmon_disp_2cells_isaprop.
+    - <span class="nb">apply</span> disp_univstrongfunctor_disp_2cells_isaprop.
+    - <span class="nb">apply</span> disp_sub1cell_univalent_2.
+      + <span class="nb">apply</span> UMONCAT_is_univalent_2.
+      + <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isaprop_P_strong_preserving.
+    - <span class="nb">apply</span> disp_univmon_disp_locally_groupoid.
+    - <span class="nb">apply</span> disp_univstrongfunctor_disp_locally_groupoid.
+    - <span class="nb">apply</span> disp_bicat_univstrongfunctor_is_univalent_2.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* UMONCAT_strong is the bicategory defined as follows:</span>
+<span class="c">     - Objects: Monoidal categories (over univalent categories).</span>
+<span class="c">     - Morphisms: Strong monoidal functors (not requiring any functorial strength).</span>
+<span class="c">     - 2-cells: Monoidal natural transformations.</span>
+
+<span class="c">     This bicategory is constructed precisely such that</span>
+<span class="c">     we are able to carry out a modular proof of univalence,</span>
+<span class="c">     as seen in UMONCAT_strong_is_univalent_2.</span>
+<span class="c">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_strong</span> : bicat := total_bicat disp_univstrongfunctor.
+
+  <span class="kn">Definition</span> <span class="nf">UMONCAT_strong_is_univalent_2</span> : is_univalent_2 UMONCAT_strong.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> total_is_univalent_2.
+    - <span class="nb">apply</span> disp_univstrongfunctor_is_univalent_2.
+    - <span class="nb">apply</span> univalent_cat_is_univalent_2.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">StrongLayer</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/UnivalenceMonCat/FinalLayer.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Bicategories/MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; and that the result still holds when we replace lax by strong monoidal functors, we denote this bicategory by UMONCAT_strong.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.TensorLayer.
+  &gt; Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.UnitLayer.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

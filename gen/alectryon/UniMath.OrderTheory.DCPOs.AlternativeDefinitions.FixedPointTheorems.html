@@ -1,0 +1,1450 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FixedPointTheorems.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Fixed-point theorems on posets</span>
+
+<span class="sd">This file aims to state and develop various fixed-point theorems on posets; in particular, the classical Tarski, Bourbaki-Witt, and Knaster–Tarski fixed-point theorems and their variants, especially constructively provable ones.</span>
+
+<span class="sd">In particular, it aims to formalise some of the results of Pataraia, Dacar, Bauer, and Lumsdaine, given in https://arxiv.org/abs/1201.0340 .</span>
+
+<span class="sd">Note: There is some duplication with material on posets elsewhere in the library, e.g. [Algebra.Dcpo] and [OrderTheory.OrderedSets.WellOrderedSets], which should ideally be refactored. (Indeed, there is some duplication of material also between those files.)</span>
+
+<span class="sd">****************************************************************************</span>
+<span class="sd">Note: a newer and different implementation of DCPOs and fixed point theorems</span>
+<span class="sd">can be found in OrderTheory.DCPOs.</span>
+<span class="sd">****************************************************************************</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.OrderTheory.OrderedSets.WellOrderedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.AlternativeDefinitions.Dcpo.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Subposets.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> poset. <span class="c">(* for ≤, &lt; *)</span>
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic. <span class="c">(* for logic in hProp *)</span>
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subtype.
+
+
+<span class="sd">(** ** Overview *)</span>
+<span class="kn">Section</span> <span class="nf">Overview</span>.
+<span class="sd">(** The following are the main results of the file (stated for now with some black boxes, for concepts not yet defined).</span>
+
+<span class="sd">In [Section Check_Overview] at the end of the file, we confirm that these statements have been proven. *)</span>
+
+  <span class="kn">Context</span> (<span class="nv">is_complete</span> : Poset -&gt; UU)
+          (<span class="nv">is_directed_complete</span> : Poset -&gt; UU)
+          (<span class="nv">is_chain_complete</span> : Poset -&gt; UU)
+          (<span class="nv">Progressive_map</span> : <span class="k">forall</span> <span class="nv">P</span>:Poset, hsubtype (P -&gt; P))
+          (<span class="nv">Postfixedpoint</span> : <span class="k">forall</span> <span class="nv">P</span>:Poset, (P -&gt; P) -&gt; hsubtype P)
+          (<span class="nv">Fixedpoint</span> : <span class="k">forall</span> <span class="nv">P</span>:Poset, (P -&gt; P) -&gt; hsubtype P).
+
+  <span class="kn">Arguments</span> Postfixedpoint {_} _.
+  <span class="kn">Arguments</span> Fixedpoint {_} _.
+
+  <span class="sd">(** The master form of the Tarski/Knaster fixed-point theorems:</span>
+<span class="sd">  the fixed points of a monotone map on a complete poset</span>
+<span class="sd">  are themselves complete. *)</span>
+  <span class="kn">Definition</span> <span class="nf">Tarski_fixpoint_theorem_statement</span>
+    := <span class="k">forall</span> (<span class="nv">P</span>:Poset) (<span class="nv">P_complete</span> : is_complete P) (<span class="nv">f</span> : posetmorphism P P),
+         is_complete (Fixedpoint f : Subposet P).
+
+  <span class="sd">(** A constructive fixed-point theorem, due to Pataraia. *)</span>
+  <span class="kn">Definition</span> <span class="nf">fixpoint_for_monotone_on_dcpo_statement</span>
+    := <span class="k">forall</span> (<span class="nv">P</span> : Poset) (<span class="nv">P_dir</span>: is_directed_complete P)
+              (<span class="nv">f</span> : posetmorphism P P) (<span class="nv">x</span> : Postfixedpoint f),
+         ∑ y : Fixedpoint f, pr1 x ≤ pr1 y.
+
+  <span class="sd">(** Classical theorem, usually attrib. Bourbaki (1949) and Witt (1951). *)</span>
+  <span class="kn">Definition</span> <span class="nf">Bourbaki_Witt_fixpoint_theorem_statement</span>
+    := LEM -&gt;
+     <span class="k">forall</span> (<span class="nv">P</span> : Poset) (<span class="nv">_</span> : is_chain_complete P) (<span class="nv">f</span> : Progressive_map P),
+       Fixedpoint (pr1 f).
+
+<span class="kn">End</span> <span class="nf">Overview</span>.
+
+<span class="sd">(** ** Background material</span>
+
+<span class="sd">Material not really belonging to this file.</span>
+
+<span class="sd">All could (?should) eventually be upstreamed, and (in a few cases) unified with overlapping material upstream. *)</span>
+<span class="kn">Section</span> <span class="nf">Auxiliary</span>.
+
+<span class="sd">(** *** Partial orders *)</span>
+
+<span class="kn">Definition</span> <span class="nf">lt_to_nleq</span> {<span class="nv">P</span> : Poset} {<span class="nv">x</span> <span class="nv">y</span> : P} : x &lt; y ⇒ ¬ (y ≤ x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [leq_xy neq_xy] leq_yx.
+  <span class="nb">apply</span> neq_xy.
+  <span class="nb">apply</span> isantisymm_posetRelation; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isrefl'_posetRelation</span> {<span class="nv">P</span> : Poset} {<span class="nv">x</span> <span class="nv">y</span> : P} : x = y ⇒ x ≤ y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e; <span class="nb">destruct</span> e. <span class="nb">apply</span> isrefl_posetRelation.
+<span class="kn">Defined</span>.
+
+
+<span class="c">(* [isaposetmorphism] is defined as in [Foundations.Sets], but (a) isn’t an hProp, and (b) lacks access function. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isaposetmorphism_hProp</span> {<span class="nv">P</span> <span class="nv">Q</span> : Poset} (<span class="nv">f</span> : P -&gt; Q) : hProp
+  := <span class="k">∀</span> <span class="nv">x</span> <span class="nv">x'</span> : P, x ≤ x' ⇒ f x ≤ f x'.
+
+<span class="kn">Definition</span> <span class="nf">posetmorphism_property</span> {<span class="nv">P</span> <span class="nv">Q</span>} (<span class="nv">f</span> : posetmorphism P Q)
+  : isaposetmorphism f
+:= pr2 f.
+
+<span class="kn">Lemma</span> <span class="nf">isaposetmorphism_idfun</span> {<span class="nv">P</span> : Poset} : isaposetmorphism (idfun P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ?; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaposetmorphism_compose</span> {<span class="nv">P</span> <span class="nv">P'</span> <span class="nv">P''</span> : Poset}
+    {<span class="nv">f</span> : P -&gt; P'} (<span class="nv">f_monot</span> : isaposetmorphism f)
+    {<span class="nv">g</span> : P' -&gt; P''} (<span class="nv">g_monot</span> : isaposetmorphism g)
+  : isaposetmorphism (g ∘ f).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y le_xy.
+  <span class="nb">apply</span> g_monot, f_monot, le_xy.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** HProp logic *)</span>
+
+<span class="c">(* TODO: look for naming convention for similar lemmas *)</span>
+<span class="kn">Definition</span> <span class="nf">hdisj_monot</span> {<span class="nv">p</span> <span class="nv">q</span> <span class="nv">p'</span> <span class="nv">q'</span>} : (p ⇒ p') ⇒ (q ⇒ q') ⇒ (p ∨ q ⇒ p' ∨ q').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ?.
+  <span class="nb">apply</span> hconjtohdisj; <span class="nb">split</span>; <span class="nb">intro</span>;
+    <span class="nb">auto using</span> hdisj_in1, hdisj_in2.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** This order of arguments is often more convenient to use than the original [hdisj_monot] *)</span>
+<span class="c">(* TODO: consider naming *)</span>
+<span class="kn">Definition</span> <span class="nf">hdisj_monot'</span> {<span class="nv">p</span> <span class="nv">q</span> <span class="nv">p'</span> <span class="nv">q'</span>} : (p ∨ q) ⇒ (p ⇒ p') ⇒ (q ⇒ q') ⇒ (p' ∨ q').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ?. <span class="nb">eapply</span> hdisj_monot; <span class="bp">eassumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** This order of arguments is often more convenient to use than the original [hconjtohdisj] *)</span>
+<span class="c">(* TODO: consider naming *)</span>
+<span class="kn">Definition</span> <span class="nf">hconjtohdisj'</span> {<span class="nv">p</span> <span class="nv">q</span> <span class="nv">r</span>} : (p ∨ q) ⇒ (p ⇒ r) ⇒ (q ⇒ r) ⇒ r.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ?. <span class="nb">apply</span> (hconjtohdisj p q r); <span class="kp">try</span> <span class="nb">split</span>; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="c">(* TODO: look for naming convention for similar lemmas *)</span>
+<span class="kn">Definition</span> <span class="nf">hdisj_comm</span> {<span class="nv">p</span> <span class="nv">q</span>} : (p ∨ q) ⇒ (q ∨ p).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hconjtohdisj; <span class="nb">split</span>; <span class="nb">intro</span>; <span class="nb">auto using</span> hdisj_in1, hdisj_in2.
+<span class="kn">Defined</span>.
+
+<span class="c">(* TODO: consider naming *)</span>
+<span class="kn">Definition</span> <span class="nf">exists_monotone</span> {<span class="nv">X</span>:UU} (<span class="nv">A</span> <span class="nv">B</span> : X -&gt; UU)
+  : (<span class="k">forall</span> <span class="nv">x</span>, A x -&gt; B x) -&gt; (<span class="k">∃</span> <span class="nv">x</span>, A x) -&gt; <span class="k">∃</span> <span class="nv">x</span>, B x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> le_A_B.
+  <span class="nb">apply</span> hinhfun, totalfun, le_A_B.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Hsubtypes *)</span>
+
+<span class="c">(* TODO: upstream, and factor out rest of [subtype_containment_isPartialOrder] too? *)</span>
+<span class="kn">Definition</span> <span class="nf">istrans_subtype_containment</span> {<span class="nv">X</span>} {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : hsubtype X}
+    (<span class="nv">leq_AB</span> : A ⊆ B) (<span class="nv">leq_BC</span> : B ⊆ C)
+  : A ⊆ C.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span> <span class="k">in</span> *; <span class="nb">auto</span>.
+<span class="kn">Defined</span>.
+
+<span class="c">(* A restricted-quantifier version of [neghexisttoforallneg] *)</span>
+<span class="kn">Definition</span> <span class="nf">negexists_to_forallneg_restricted</span>
+    {<span class="nv">X</span>:UU} {<span class="nv">A</span> <span class="nv">B</span> : hsubtype X}
+  : ¬ (<span class="k">∃</span> <span class="nv">x</span>, A x ∧ B x) ⇒ (<span class="k">∀</span> <span class="nv">x</span>, A x ⇒ ¬ B x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H_nex x A_x B_x.
+  use H_nex. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">x</span>. <span class="nb">split</span>; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="c">(* A restricted-quantifier version of [negforall_to_existsneg] *)</span>
+<span class="kn">Definition</span> <span class="nf">negforall_to_existsneg_restricted</span> (<span class="nv">H_LEM</span> : LEM)
+    {<span class="nv">X</span>:UU} {<span class="nv">A</span> <span class="nv">B</span> : hsubtype X}
+  : ¬ (<span class="k">∀</span> <span class="nv">x</span>, A x ⇒ B x) ⇒ <span class="k">∃</span> <span class="nv">x</span>, A x ∧ ¬ B x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H_forall. <span class="nb">apply</span> (proof_by_contradiction H_LEM).
+  <span class="nb">intros</span> H_nex.
+  use H_forall. <span class="nb">intros</span> x A_x. <span class="nb">apply</span> (proof_by_contradiction H_LEM).
+  use (negexists_to_forallneg_restricted H_nex); <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subtype_binaryintersection</span> {<span class="nv">X</span>} (<span class="nv">A</span> <span class="nv">B</span> : hsubtype X) : hsubtype X
+  := <span class="k">fun</span> <span class="nv">x</span> =&gt; A x ∧ B x.
+
+<span class="kn">Notation</span> <span class="s2">"A ∩ B"</span> := (subtype_binaryintersection A B)
+                              (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>) : subtype.
+  <span class="c">(* precedence tighter than "⊆", also than "-" [subtype_difference].  *)</span>
+  <span class="c">(* in agda-input method, type \cap *)</span>
+
+<span class="kn">Definition</span> <span class="nf">subtype_binaryintersection_leq1</span> {<span class="nv">X</span>} (<span class="nv">A</span> <span class="nv">B</span> : hsubtype X)
+    : A ∩ B ⊆ A
+:= <span class="k">fun</span> <span class="nv">x</span> =&gt; pr1.
+
+<span class="kn">Definition</span> <span class="nf">subtype_binaryintersection_leq2</span> {<span class="nv">X</span>} (<span class="nv">A</span> <span class="nv">B</span> : hsubtype X)
+    : A ∩ B ⊆ B
+:= <span class="k">fun</span> <span class="nv">x</span> =&gt; pr2.
+
+<span class="c">(* TODO: upstream; rename to eg [binaryintersection_equiv]? *)</span>
+<span class="kn">Definition</span> <span class="nf">hconj_equiv</span> {<span class="nv">X</span>:UU}
+    {<span class="nv">A</span> <span class="nv">A'</span> <span class="nv">B</span> <span class="nv">B'</span> : hsubtype X} (<span class="nv">e_A</span> : A ≡ A') (<span class="nv">e_B</span> : B ≡ B')
+  : (A ∩ B) ≡ (A' ∩ B').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x; <span class="nb">split</span>; <span class="nb">intros</span> [? ?]; <span class="nb">split</span>;
+    <span class="kp">try</span> <span class="nb">apply</span> e_A; <span class="kp">try</span> <span class="nb">apply</span> e_B; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subtype_binaryintersection_univ</span> {<span class="nv">X</span>} (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : hsubtype X)
+  : C ⊆ A ∩ B &lt;-&gt; C ⊆ A ∧ C ⊆ B.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> C_AB. <span class="nb">split</span>; <span class="nb">apply</span> (istrans_subtype_containment C_AB).
+    + <span class="nb">apply</span> subtype_binaryintersection_leq1.
+    + <span class="nb">apply</span> subtype_binaryintersection_leq2.
+  - <span class="nb">cbn</span>. <span class="nb">intros</span> [? ?]; <span class="nb">split</span>; <span class="nb">auto</span>.
+<span class="kn">Defined</span>.
+
+<span class="c">(* *** Images of functions, as hsubtypes *)</span>
+
+<span class="c">(* TODO: surely this must be in the library somewhere, along with its essential properties?? *)</span>
+<span class="kn">Definition</span> <span class="nf">image</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) : hsubtype Y
+  := <span class="k">fun</span> <span class="nv">y</span> =&gt; ∥ hfiber f y ∥.
+
+<span class="kn">Definition</span> <span class="nf">value_in_image</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">x</span> : X) : image f (f x)
+  := hinhpr (x ,, idpath _).
+
+<span class="kn">Definition</span> <span class="nf">to_image</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) (<span class="nv">x</span> : X) : image f
+  := (f x,, value_in_image f x).
+
+<span class="sd">(** See [image_univ] below for a version that plays better with [apply]. *)</span>
+<span class="kn">Definition</span> <span class="nf">image_univ</span>
+    {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y)
+    (<span class="nv">A</span> : hsubtype Y )
+  : (<span class="k">∀</span> <span class="nv">x</span>:X, A (f x)) &lt;-&gt; (image f ⊆ A).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> H_A y Hy.
+    <span class="nb">refine</span> (factor_through_squash_hProp _ _ Hy);
+      <span class="nb">intros</span> [x e_xy]; <span class="nb">destruct</span> e_xy.
+    use H_A.
+  - <span class="nb">intros</span> H_A x.
+    use H_A. <span class="nb">apply</span> value_in_image.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Alias of [image_univ] using explicit “forall” instead of “⊆” or “∀”, for easier use with the [apply] tactic. *)</span>
+<span class="kn">Definition</span> <span class="nf">image_univ'</span>
+    {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y)
+    (<span class="nv">A</span> : hsubtype Y )
+  : (<span class="k">forall</span> <span class="nv">x</span>:X, A (f x)) &lt;-&gt; (<span class="k">forall</span> <span class="nv">y</span>:Y, (image f y) -&gt; A y).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> image_univ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">image_carrier_univ</span>
+    {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y)
+    (<span class="nv">A</span> : hsubtype Y )
+  : (<span class="k">∀</span> <span class="nv">x</span>:X, A (f x)) &lt;-&gt; (<span class="k">∀</span> <span class="nv">y</span> : image f, A (pr1 y)).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> H [y im_y]. <span class="nb">eapply</span> image_univ'; <span class="bp">eassumption</span>.
+  - <span class="nb">intros</span> H; <span class="nb">cbn</span>. <span class="nb">apply</span> image_univ'.
+    <span class="nb">intros</span> y im_y. <span class="bp">exact</span> (H (y,,im_y)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Like [image_univ'], alias using explicit “forall” instead of “∀”, for easier use with the [apply] tactic. *)</span>
+<span class="kn">Definition</span> <span class="nf">image_carrier_univ'</span>
+    {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y)
+    (<span class="nv">A</span> : hsubtype Y )
+  : (<span class="k">forall</span> <span class="nv">x</span>:X, A (f x)) &lt;-&gt; (<span class="k">forall</span> <span class="nv">y</span> : image f, A (pr1 y)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> image_carrier_univ.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Auxiliary</span>.
+
+<span class="kn">Notation</span> <span class="s2">"A ∩ B"</span> := (subtype_binaryintersection A B)
+                              (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>) : subtype.
+  <span class="c">(* precedence tighter than "⊆", also than "-" [subtype_difference].  *)</span>
+  <span class="c">(* in agda-input method, type \cap *)</span>
+
+<span class="kn">Notation</span> <span class="s2">"A ∪ B"</span> := (subtype_binaryunion A B)
+                              (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>) : subtype.
+  <span class="c">(* precedence tighter than "⊆", also than "-" [subtype_difference].  *)</span>
+  <span class="c">(* in agda-input method, type \cup or ∪ *)</span>
+
+<span class="sd">(** ** Completeness properties *)</span>
+
+<span class="sd">(** We use the treatment of upper bounds from [Algebra.Dcpo], but give a slightly different treatment of _least_ upper bounds,</span>
+<span class="sd"> factoring out the general definitions of “greatest/least elements” and “upper/lower bounds”, both of a family, or satisfying some predicate. *)</span>
+
+<span class="kn">Section</span> <span class="nf">LowerBounds</span>.
+<span class="c">(* NOTE: this should be kept in sync with [Section UpperBounds] below. *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">P</span> : Poset}.
+
+  <span class="kn">Definition</span> <span class="nf">islowerbound</span> {<span class="nv">I</span>} (<span class="nv">p</span> : I -&gt; P) (<span class="nv">x</span> : P) : hProp
+  := <span class="k">∀</span> <span class="nv">i</span> : I, x ≤ p i.
+
+  <span class="kn">Definition</span> <span class="nf">islowerbound_subtype</span> (<span class="nv">A</span> : hsubtype P) (<span class="nv">x</span> : P) : hProp
+  := islowerbound (pr1carrier A) x.
+
+  <span class="kn">Definition</span> <span class="nf">islowerbound_subtype_equiv</span> {<span class="nv">A</span> <span class="nv">B</span> : hsubtype P}
+    : (A ≡ B)
+    -&gt; islowerbound_subtype A ≡ islowerbound_subtype B.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e_A_B x; <span class="nb">split</span>;
+      <span class="nb">intros</span> x_lb [y H_y]; <span class="nb">refine</span> (x_lb (_,,_)); <span class="nb">apply</span> e_A_B; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* NOTE: For an alternative approach to [is_lower_bound_subfamily] and [image_same_lower_bounds], see analogues for upper bounds below. *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_lower_bound_subfamily</span> {<span class="nv">I</span>} (<span class="nv">f</span> : I -&gt; P) {<span class="nv">J</span>} (<span class="nv">g</span> : J -&gt; P)
+      (<span class="nv">ff</span> : <span class="k">forall</span> <span class="nv">j</span>, (image f) (g j))
+      {<span class="nv">x</span>} (<span class="nv">x_lb</span> : islowerbound f x)
+    : islowerbound g x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> j. <span class="nb">refine</span> (factor_through_squash_hProp _ _ (ff j)).
+    <span class="nb">intros</span> [i e]; <span class="nb">destruct</span> e. use x_lb.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">image_same_lower_bounds</span> {<span class="nv">I</span>} (<span class="nv">f</span> : I -&gt; P) {<span class="nv">x</span> : P}
+    : islowerbound f x
+      &lt;-&gt; islowerbound_subtype (image f) x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (image_carrier_univ' f (<span class="k">fun</span> <span class="nv">y</span> =&gt; _ ≤ y)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LowerBounds</span>.
+
+<span class="kn">Section</span> <span class="nf">UpperBounds</span>.
+<span class="c">(* NOTE: this should be kept in sync with [Section LowerBounds] above. *)</span>
+
+  <span class="c">(* TODO: it would be natural to just refactor [isupperbound] in [Algebra.Dcpo]</span>
+<span class="c">  as an hProp from the start, using [∀] and so on.  However, that turns out</span>
+<span class="c">  to slightly interfere with the use of [apply] on lemmas in that file, especially</span>
+<span class="c">  bidirectional such as [pointwiselub_islubpointwise]. Is that cosmetic cost</span>
+<span class="c">  worth paying?  Or can it be avoided? *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">P</span> : Poset}.
+
+  <span class="kn">Definition</span> <span class="nf">isupperbound_hprop</span> {<span class="nv">I</span>} (<span class="nv">p</span> : I -&gt; P) (<span class="nv">x</span>:P) : hProp
+  := make_hProp _ (isaprop_isupperbound p x).
+
+  <span class="kn">Definition</span> <span class="nf">isupperbound_subtype</span> (<span class="nv">A</span> : hsubtype P) (<span class="nv">x</span> : P) : hProp
+  := isupperbound_hprop (pr1carrier A) x.
+
+  <span class="kn">Definition</span> <span class="nf">isupperbound_subtype_equiv</span> {<span class="nv">A</span> <span class="nv">B</span> : hsubtype P}
+    : (A ≡ B)
+    -&gt; isupperbound_subtype A ≡ isupperbound_subtype B.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e_A_B x; <span class="nb">split</span>;
+      <span class="nb">intros</span> x_ub [y H_y]; <span class="nb">refine</span> (x_ub (_,,_)); <span class="nb">apply</span> e_A_B; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* NOTE: An aternative approach alternative to comparing the upper bounds of families and their images: factor a bit.  Show that for two families, if f ≤ image g, then every upper bound of g is an upper bound for f. Thence: the non-image version.  Thence: image has same upper bounds, so same least upper bound. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_upper_bound_subfamily</span> {<span class="nv">I</span>} (<span class="nv">f</span> : I -&gt; P) {<span class="nv">J</span>} (<span class="nv">g</span> : J -&gt; P)
+      (<span class="nv">ff</span> : <span class="k">forall</span> <span class="nv">j</span>, (image f) (g j))
+      {<span class="nv">x</span>} (<span class="nv">x_ub</span> : isupperbound f x)
+    : isupperbound g x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> j. <span class="nb">refine</span> (factor_through_squash_hProp _ _ (ff j)).
+    <span class="nb">intros</span> [i e]; <span class="nb">destruct</span> e. <span class="nb">apply</span> x_ub.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">image_same_upper_bounds</span> {<span class="nv">I</span>} (<span class="nv">f</span> : I -&gt; P) {<span class="nv">x</span> : P}
+    : isupperbound f x
+      &lt;-&gt; isupperbound_subtype (image f) x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (image_carrier_univ' f (<span class="k">fun</span> <span class="nv">y</span> =&gt; y ≤ _)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">UpperBounds</span>.
+
+<span class="kn">Section</span> <span class="nf">Least</span>.
+<span class="c">(* NOTE: this should generally be kept in sync with [Section Greatest] below. *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">P</span> : Poset}.
+
+  <span class="kn">Definition</span> <span class="nf">least_of_family</span> {<span class="nv">I</span>} (<span class="nv">p</span> : I -&gt; P)
+  := ∑ i : I, islowerbound p (p i).
+
+  <span class="kn">Definition</span> <span class="nf">least_of_family_index</span> {<span class="nv">I</span>} {<span class="nv">p</span> : I -&gt; P}
+    : least_of_family p -&gt; I
+  := pr1.
+  <span class="c">(* Would be nice to make [least_of_family_index] a coercion, but can’t since its target is an arbitrary type. The best we can do instead is [realise_least_of_family]: *)</span>
+  <span class="kn">Coercion</span> <span class="nf">realise_least_of_family</span> {I} (p : I -&gt; P)
+    : least_of_family p -&gt; P
+  := <span class="k">fun</span> <span class="nv">ih</span> =&gt; p (pr1 ih).
+
+  <span class="kn">Definition</span> <span class="nf">least_is_least</span> {<span class="nv">I</span>}  (<span class="nv">p</span> : I -&gt; P) (<span class="nv">x</span> : least_of_family p)
+    : islowerbound p x
+  := pr2 x.
+
+  <span class="kn">Definition</span> <span class="nf">least_suchthat</span> (<span class="nv">A</span> : P -&gt; UU) : UU
+  := least_of_family (pr1 : (∑ x:P, A x) -&gt; P).
+
+  <span class="kn">Identity Coercion</span> <span class="nf">id_least_suchthat</span> : least_suchthat &gt;-&gt; least_of_family.
+
+  <span class="kn">Definition</span> <span class="nf">least_suchthat_satisfies</span> {<span class="nv">A</span> : P -&gt; UU} (<span class="nv">x</span> : least_suchthat A)
+      : A x
+  := pr2 (least_of_family_index x).
+
+  <span class="kn">Definition</span> <span class="nf">least_suchthat_is_least</span> {<span class="nv">A</span> : P -&gt; UU} (<span class="nv">x</span> : least_suchthat A)
+    : ∏ y, A y -&gt; x ≤ y.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y A_y. <span class="bp">exact</span> (least_is_least _ x (_,,A_y)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** It’s useful to define [least_suchthat] as above, for interaction with [least_of_family], etc; but also helpful to have a standalone predicate version. *)</span>
+  <span class="c">(* TODO: is that really useful? could it be better to refactor [least_suchthat] as [carrier (is_least_suchthat …)]? *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_least_suchthat</span> (<span class="nv">A</span> : P -&gt; hProp) (<span class="nv">x</span> : P) : hProp
+  := (A x) ∧ (islowerbound_subtype A x).
+
+  <span class="kn">Definition</span> <span class="nf">least_suchthat_property</span> {<span class="nv">A</span> : P -&gt; hProp} (<span class="nv">x</span> : least_suchthat A)
+    : is_least_suchthat A x.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> @least_suchthat_satisfies.
+    - <span class="nb">apply</span> least_is_least.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_least_suchthat</span> {<span class="nv">A</span> : P -&gt; hProp}
+      (<span class="nv">x</span> : P) (<span class="nv">x_least</span> : is_least_suchthat A x)
+    : least_suchthat A.
+  <span class="kn">Proof</span>.
+    use tpair.
+    { <span class="k">exists</span> <span class="nv">x</span>. <span class="nb">apply</span> x_least. }
+    <span class="nb">apply</span> x_least.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Least</span>.
+
+<span class="kn">Section</span> <span class="nf">Greatest</span>.
+<span class="c">(* NOTE: this should generally be kept in sync with [Section Least] above. *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">P</span> : Poset}.
+
+  <span class="kn">Definition</span> <span class="nf">greatest_of_family</span> {<span class="nv">I</span>} (<span class="nv">p</span> : I -&gt; P)
+  := ∑ i : I, isupperbound p (p i).
+
+  <span class="kn">Definition</span> <span class="nf">greatest_of_family_index</span> {<span class="nv">I</span>} {<span class="nv">p</span> : I -&gt; P}
+    : greatest_of_family p -&gt; I
+  := pr1.
+  <span class="c">(* Would be nice to make [greatest_of_family_index] a coercion, but can’t since its target is an arbitrary type. The best we can do instead is [realise_greatest_of_family]: *)</span>
+  <span class="kn">Coercion</span> <span class="nf">realise_greatest_of_family</span> {I} (p : I -&gt; P)
+    : greatest_of_family p -&gt; P
+  := <span class="k">fun</span> <span class="nv">ih</span> =&gt; p (pr1 ih).
+
+  <span class="kn">Definition</span> <span class="nf">greatest_is_greatest</span> {<span class="nv">I</span>}  (<span class="nv">p</span> : I -&gt; P) (<span class="nv">x</span> : greatest_of_family p)
+    : isupperbound p x
+  := pr2 x.
+
+  <span class="kn">Definition</span> <span class="nf">greatest_suchthat</span> (<span class="nv">A</span> : P -&gt; UU) : UU
+  := greatest_of_family (pr1 : (∑ x:P, A x) -&gt; P).
+
+  <span class="kn">Identity Coercion</span> <span class="nf">id_greatest_suchthat</span> : greatest_suchthat &gt;-&gt; greatest_of_family.
+
+  <span class="kn">Definition</span> <span class="nf">greatest_suchthat_satisfies</span> {<span class="nv">A</span> : P -&gt; UU} (<span class="nv">x</span> : greatest_suchthat A)
+      : A x
+  := pr2 (greatest_of_family_index x).
+
+  <span class="kn">Definition</span> <span class="nf">greatest_suchthat_is_greatest</span> {<span class="nv">A</span> : P -&gt; UU} (<span class="nv">x</span> : greatest_suchthat A)
+    : ∏ y, A y -&gt; y ≤ x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y A_y. <span class="bp">exact</span> (greatest_is_greatest _ x (_,,A_y)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** It’s useful to define [greatest_suchthat] as above, for interaction with [greatest_of_family], etc; but also helpful to have a standalone predicate version. *)</span>
+  <span class="c">(* TODO: is that really useful? could it be better to refactor [greatest_suchthat] as [carrier (is_greatest_suchthat …)]? *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_greatest_suchthat</span> (<span class="nv">A</span> : P -&gt; hProp) (<span class="nv">x</span> : P) : hProp
+  := (A x) ∧ (isupperbound_subtype A x).
+
+  <span class="kn">Definition</span> <span class="nf">greatest_suchthat_property</span> {<span class="nv">A</span> : P -&gt; hProp} (<span class="nv">x</span> : greatest_suchthat A)
+    : is_greatest_suchthat A x.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> @greatest_suchthat_satisfies.
+    - <span class="nb">apply</span> greatest_is_greatest.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_greatest_suchthat</span> {<span class="nv">A</span> : P -&gt; hProp}
+      (<span class="nv">x</span> : P) (<span class="nv">x_greatest</span> : is_greatest_suchthat A x)
+    : greatest_suchthat A.
+  <span class="kn">Proof</span>.
+    use tpair.
+    { <span class="k">exists</span> <span class="nv">x</span>. <span class="nb">apply</span> x_greatest. }
+    <span class="nb">apply</span> x_greatest.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Greatest</span>.
+
+<span class="kn">Section</span> <span class="nf">LeastUpperBounds</span>.
+
+  <span class="kn">Context</span> {<span class="nv">P</span> : Poset}.
+
+  <span class="kn">Definition</span> <span class="nf">least_upper_bound</span> {<span class="nv">I</span>} (<span class="nv">p</span> : I -&gt; P)
+  := least_suchthat (isupperbound_hprop p).
+  <span class="kn">Identity Coercion</span> <span class="nf">id_least_upper_bound</span> : least_upper_bound &gt;-&gt; least_suchthat.
+
+  <span class="kn">Definition</span> <span class="nf">least_upper_bound_is_upper_bound</span> {<span class="nv">I</span>} {<span class="nv">p</span> : I -&gt; P}
+             (<span class="nv">x</span> : least_upper_bound p)
+    : isupperbound p x
+  := least_suchthat_satisfies x.
+
+  <span class="sd">(** It’s useful to define [least_upper_bound] as above, for interaction with [upper_bound], etc; but also helpful to have a standalone predicate version. *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_least_upper_bound</span> {<span class="nv">I</span>} (<span class="nv">p</span> : I -&gt; P) (<span class="nv">x</span> : P) : hProp
+    := is_least_suchthat (isupperbound_hprop p) x.
+
+  <span class="kn">Definition</span> <span class="nf">make_least_upper_bound</span> {<span class="nv">I</span>} {<span class="nv">p</span> : I -&gt; P}
+      (<span class="nv">x</span>:P) (<span class="nv">x_lub</span> : is_least_upper_bound p x)
+    : least_upper_bound p
+  := make_least_suchthat x x_lub.
+
+  <span class="kn">Definition</span> <span class="nf">least_upper_bound_property</span> {<span class="nv">I</span>} {<span class="nv">p</span> : I -&gt; P}
+      (<span class="nv">x</span> : least_upper_bound p)
+    : is_least_upper_bound p x
+  := least_suchthat_property x.
+
+  <span class="sd">(** The universal property of the least upper bound *)</span>
+  <span class="kn">Definition</span> <span class="nf">least_upper_bound_univ</span> {<span class="nv">I</span>} {<span class="nv">p</span> : I -&gt; P}
+             (<span class="nv">x</span> : least_upper_bound p) (<span class="nv">x'</span> : P)
+    : x ≤ x' &lt;-&gt; isupperbound p x'.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> xx' i.
+      <span class="nb">eapply</span> istrans_posetRelation; <span class="kp">try</span> <span class="bp">eassumption</span>.
+      <span class="nb">apply</span> least_upper_bound_is_upper_bound.
+    - <span class="nb">intros</span> H. <span class="nb">refine</span> (least_is_least _ x (_,,H)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Specialisation of the above functions to least upper bounds of _subtypes_</span>
+<span class="sd">   — a common use-case, and the functions are often easier to use in this form. *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_least_upper_bound_subtype</span> (<span class="nv">A</span> : hsubtype P) (<span class="nv">x</span> : P) : hProp
+    := is_least_upper_bound (pr1carrier A) x.
+
+  <span class="kn">Definition</span> <span class="nf">least_upper_bound_subtype</span> (<span class="nv">A</span> : hsubtype P) : UU
+    := least_upper_bound (pr1carrier A).
+
+  <span class="kn">Identity Coercion</span> <span class="nf">id_least_upper_bound_subtype</span>
+    : least_upper_bound_subtype &gt;-&gt; least_upper_bound.
+
+  <span class="kn">Definition</span> <span class="nf">least_upper_bound_subtype_is_upper_bound</span> {<span class="nv">A</span> : hsubtype P}
+      (<span class="nv">x</span> : least_upper_bound_subtype A) {<span class="nv">y</span> : P} (<span class="nv">A_y</span> : A y)
+    : y ≤ x
+  := least_upper_bound_is_upper_bound x (y,,A_y).
+
+  <span class="kn">Definition</span> <span class="nf">least_upper_bound_subtype_univ</span> {<span class="nv">A</span> : hsubtype P}
+             (<span class="nv">x</span> : least_upper_bound (pr1carrier A)) (<span class="nv">x'</span> : P)
+    : x ≤ x' &lt;-&gt; (<span class="k">forall</span> <span class="nv">y</span>, A y -&gt; y ≤ x').
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> H y A_y.
+      <span class="nb">refine</span> (pr1 (least_upper_bound_univ x x') H (_,,_)); <span class="bp">assumption</span>.
+    - <span class="nb">intros</span> H.
+      <span class="nb">apply</span> least_upper_bound_univ.
+      <span class="nb">intros</span> [y A_y]; <span class="nb">apply</span> H; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Comparison of least upper bounds between families and their images *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_least_upper_bound_image</span> {<span class="nv">I</span>} (<span class="nv">f</span> : I -&gt; P) {<span class="nv">x</span> : P}
+    : is_least_upper_bound f x
+      &lt;-&gt; is_least_upper_bound (pr1carrier (image f)) x.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> x. <span class="nb">apply</span> hconj_equiv.
+    - use image_same_upper_bounds.
+    - <span class="nb">apply</span> islowerbound_subtype_equiv. use image_same_upper_bounds.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* TODO: upgrade this to an equivalence?</span>
+<span class="c">     easiest if done once refactoring [least_upper_bound] as</span>
+<span class="c">     [carrier is_least_upper_bound]. *)</span>
+  <span class="kn">Definition</span> <span class="nf">least_upper_bound_image</span> {<span class="nv">I</span>} (<span class="nv">f</span> : I -&gt; P)
+    : least_upper_bound f &lt;-&gt; least_upper_bound (pr1carrier (image f)).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">intros</span> x; <span class="nb">apply</span> (make_least_upper_bound x);
+      <span class="nb">apply</span> is_least_upper_bound_image, least_upper_bound_property.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* A useful miscellaneous lemma *)</span>
+  <span class="kn">Lemma</span> <span class="nf">greatest_if_contains_sup</span>
+      (<span class="nv">A</span> : hsubtype P) (<span class="nv">x</span> : P)
+    : A x -&gt; is_least_upper_bound_subtype A x -&gt; is_greatest_suchthat A x.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> A_x x_lub. <span class="nb">split</span>.
+    - <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> (pr1 x_lub).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LeastUpperBounds</span>.
+
+<span class="c">(* TODO: give [Section GreatestLowerBounds] dual to the above section! *)</span>
+
+<span class="kn">Section</span> <span class="nf">Chains</span>.
+
+  <span class="kn">Definition</span> <span class="nf">comparable</span> {<span class="nv">P</span> : Poset} (<span class="nv">x</span> <span class="nv">y</span> : P) : hProp
+  := (x ≤ y) ∨ (y ≤ x).
+
+  <span class="kn">Definition</span> <span class="nf">is_chain</span> {<span class="nv">P</span> : Poset} {<span class="nv">I</span>} (<span class="nv">p</span> : I -&gt; P) : hProp
+  := <span class="k">∀</span> <span class="nv">i</span> <span class="nv">j</span> : I, comparable (p i) (p j).
+
+  <span class="kn">Definition</span> <span class="nf">Chain</span> (<span class="nv">P</span> : Poset) : UU
+  := ∑ (I : UU), ∑ (p : I -&gt; P), is_chain p.
+
+  <span class="kn">Coercion</span> <span class="nf">chain_index</span> {P} (C : Chain P) : UU
+  := pr1 C.
+
+  <span class="kn">Definition</span> <span class="nf">chain_family</span> {<span class="nv">P</span>} (<span class="nv">C</span> : Chain P) : C -&gt; P
+  := pr1 (pr2 C).
+  <span class="kn">Coercion</span> <span class="nf">chain_family</span> : Chain &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">chain_property</span> {<span class="nv">P</span>} (<span class="nv">C</span> : Chain P) : is_chain C
+  := pr2 (pr2 C).
+
+  <span class="kn">Definition</span> <span class="nf">fmap_is_chain</span> {<span class="nv">P</span> <span class="nv">Q</span>} (<span class="nv">f</span> : posetmorphism P Q)
+      {<span class="nv">I</span> : UU} (<span class="nv">p</span> : I -&gt; P)
+    : is_chain p -&gt; is_chain (f ∘ p).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p_chain x y.
+    <span class="nb">apply</span> (hdisj_monot' (p_chain x y));
+    <span class="nb">intro</span>; <span class="nb">apply</span> posetmorphism_property; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fmap_chain</span> {<span class="nv">P</span> <span class="nv">Q</span>} (<span class="nv">f</span> : posetmorphism P Q)
+    : Chain P -&gt; Chain Q.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funfibtototal; <span class="nb">intros</span> I. use bandfmap.
+    - <span class="nb">apply</span> (<span class="k">fun</span> <span class="nv">C</span> =&gt; f ∘ C).
+    - <span class="nb">apply</span> fmap_is_chain.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Chain_hsubtype</span> (<span class="nv">P</span> : Poset) : UU
+  := ∑ A : hsubtype P, is_chain (pr1carrier A).
+
+  <span class="kn">Coercion</span> <span class="nf">pr1_Chain_hsubtype</span> {P} : Chain_hsubtype P -&gt; hsubtype P
+  := pr1.
+
+  <span class="kn">Coercion</span> <span class="nf">Chain_of_Chain_hsubtype</span> (P : Poset)
+    : Chain_hsubtype P -&gt; Chain P.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C. <span class="bp">exact</span> (carrier C,, (pr1carrier C,, pr2 C)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">image_is_chain</span> {<span class="nv">P</span>:Poset} {<span class="nv">I</span>:UU} (<span class="nv">p</span> : I -&gt; P)
+    : is_chain p -&gt; is_chain (pr1carrier (image p)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p_chain. <span class="nb">unfold</span> is_chain.
+    <span class="nb">apply</span> (image_carrier_univ p (<span class="k">fun</span> <span class="nv">x</span> =&gt; <span class="k">∀</span> <span class="nv">j</span>, comparable x _)); <span class="nb">intros</span> i.
+    <span class="nb">apply</span> (image_carrier_univ p); <span class="nb">intros</span> j.
+    use p_chain.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">image_chain</span> {<span class="nv">P</span>:Poset}
+      : Chain P -&gt; Chain_hsubtype P.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p. <span class="k">exists</span> (<span class="nv">image</span> <span class="nv">p</span>).
+    <span class="nb">apply</span> image_is_chain, chain_property.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Chains</span>.
+
+<span class="kn">Section</span> <span class="nf">Directed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Directed_family</span> (<span class="nv">P</span> : Poset) : UU
+  := ∑ (I : UU), ∑ (p : I -&gt; P), isdirected p.
+
+  <span class="kn">Coercion</span> <span class="nf">directed_index</span> {P} (C : Directed_family P) : UU
+  := pr1 C.
+
+  <span class="kn">Definition</span> <span class="nf">directed_family</span> {<span class="nv">P</span>} (<span class="nv">C</span> : Directed_family P) : C -&gt; P
+  := pr1 (pr2 C).
+  <span class="kn">Coercion</span> <span class="nf">directed_family</span> : Directed_family &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">directed_property</span> {<span class="nv">P</span>} (<span class="nv">C</span> : Directed_family P) : isdirected C
+  := pr2 (pr2 C).
+
+  <span class="c">(* TODO: add similar builder function for chains *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_directed</span> {<span class="nv">P</span>:Poset} {<span class="nv">I</span>} {<span class="nv">p</span> : I -&gt; P} (<span class="nv">p_directed</span> : isdirected p)
+    : Directed_family P
+  := (I,,(p,,p_directed)).
+
+  <span class="kn">Definition</span> <span class="nf">fmap_is_directed</span> {<span class="nv">P</span> <span class="nv">Q</span>} (<span class="nv">f</span> : posetmorphism P Q)
+      {<span class="nv">I</span> : UU} (<span class="nv">p</span> : I -&gt; P)
+    : isdirected p -&gt; isdirected (f ∘ p).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p_directed; <span class="nb">split</span>.
+    - <span class="nb">eapply</span> isdirected_inhabited, p_directed.
+    - <span class="nb">intros</span> i j.
+      <span class="nb">eapply</span> exists_monotone.
+      <span class="mi">2</span>: { <span class="bp">exact</span> (isdirected_compatible p_directed i j). }
+      <span class="nb">intros</span> x [le_i_x le_j_x].
+      <span class="nb">split</span>; <span class="nb">apply</span> posetmorphism_property; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fmap_directed</span> {<span class="nv">P</span> <span class="nv">Q</span>} (<span class="nv">f</span> : posetmorphism P Q)
+    : Directed_family P -&gt; Directed_family Q.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funfibtototal; <span class="nb">intros</span> I. use bandfmap.
+    - <span class="nb">apply</span> (<span class="k">fun</span> <span class="nv">C</span> =&gt; f ∘ C).
+    - <span class="nb">apply</span> fmap_is_directed.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Directed_hsubtype</span> (<span class="nv">P</span> : Poset) : UU
+  := ∑ A : hsubtype P, isdirected (pr1carrier A).
+
+  <span class="kn">Coercion</span> <span class="nf">pr1_Directed_hsubtype</span> {P} : Directed_hsubtype P -&gt; hsubtype P
+  := pr1.
+
+  <span class="kn">Coercion</span> <span class="nf">Directed_of_Directed_hsubtype</span> (P : Poset)
+    : Directed_hsubtype P -&gt; Directed_family P.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C. <span class="bp">exact</span> (carrier C,, (pr1carrier C,, pr2 C)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">image_is_directed</span> {<span class="nv">P</span>:Poset} {<span class="nv">I</span>:UU} (<span class="nv">p</span> : I -&gt; P)
+    : isdirected p -&gt; isdirected (pr1carrier (image p)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p_directed. <span class="nb">split</span>.
+    - <span class="nb">apply</span> (squash_to_hProp (isdirected_inhabited p_directed)).
+      <span class="nb">intros</span> i; <span class="nb">apply</span> hinhpr.
+      <span class="nb">apply</span> to_image; <span class="bp">assumption</span>.
+    - use (pr1 (image_carrier_univ' p (<span class="k">fun</span> <span class="nv">x</span> =&gt; <span class="k">∀</span> <span class="nv">j</span>, <span class="k">∃</span> <span class="nv">k</span>, x ≤ _ ∧ _))). <span class="nb">intros</span> i.
+      use (pr1 (image_carrier_univ' p (<span class="k">fun</span> <span class="nv">y</span> =&gt; <span class="k">∃</span> <span class="nv">k</span>, _ ∧ y ≤ _))); <span class="nb">intros</span> j.
+      <span class="nb">apply</span> (squash_to_hProp (isdirected_compatible p_directed i j)).
+      <span class="nb">intros</span> [k [le_ik le_jk]].
+      <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">to_image</span> <span class="nv">_</span> <span class="nv">k</span>).
+      <span class="nb">split</span>; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">image_directed</span> {<span class="nv">P</span>:Poset}
+      : Directed_family P -&gt; Directed_hsubtype P.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p. <span class="k">exists</span> (<span class="nv">image</span> <span class="nv">p</span>).
+    <span class="nb">apply</span> image_is_directed, directed_property.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Directed</span>.
+
+<span class="kn">Section</span> <span class="nf">Completeness</span>.
+
+  <span class="c">(* TODO: show that completeness is a property,</span>
+<span class="c">     once we’ve shown above that least upper bounds are unique. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_complete</span> (<span class="nv">P</span> : Poset) : UU
+  := ∏ A : hsubtype P, least_upper_bound (pr1carrier A).
+
+  <span class="sd">(** [is_complete] is defined just in terms of hsubtypes, to agree with the classical definition and keep its quantification “small”.</span>
+
+<span class="sd">  However, it implies completeness for arbitrarily families. *)</span>
+  <span class="c">(* TODO: consider naming! *)</span>
+  <span class="kn">Definition</span> <span class="nf">family_lub</span> {<span class="nv">P</span>:Poset} (<span class="nv">P_complete</span> : is_complete P)
+      {<span class="nv">I</span>:UU} (<span class="nv">f</span> : I -&gt; P)
+    : least_upper_bound f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> least_upper_bound_image, P_complete.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_chain_complete</span> (<span class="nv">P</span> : Poset) : UU
+  := ∏ C : Chain_hsubtype P, least_upper_bound_subtype C.
+
+  <span class="sd">(** Like [is_complete], [is_chain_complete] is defined just in terms of hsubtype-chains, to keep quantification small.</span>
+
+<span class="sd">  However, it implies least upper bounds for arbitarily-indexed chains. *)</span>
+  <span class="kn">Definition</span> <span class="nf">chain_lub</span> {<span class="nv">P</span> : Poset} (<span class="nv">P_CC</span> : is_chain_complete P)
+      (<span class="nv">p</span> : Chain P)
+    : least_upper_bound p.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> least_upper_bound_image.
+    <span class="bp">exact</span> (P_CC (image_chain p)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Version with [is_chain] split out, for easier application *)</span>
+  <span class="kn">Definition</span> <span class="nf">chain_lub'</span> {<span class="nv">P</span> : Poset} (<span class="nv">P_CC</span> : is_chain_complete P)
+      {<span class="nv">I</span>:UU} (<span class="nv">p</span>:I-&gt;P)
+    : is_chain p -&gt; least_upper_bound p.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> p_chain. <span class="bp">exact</span> (chain_lub P_CC (I,,(p,,p_chain))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_directed_complete</span> (<span class="nv">P</span> : Poset) : UU
+  := ∏ A : Directed_hsubtype P, least_upper_bound (directed_family A).
+
+  <span class="sd">(** Like [is_complete], [is_directed_complete] is defined just in terms of directed subtypes, to keep quantification small.</span>
+
+<span class="sd">  However, it implies least upper bounds for arbitary directed families. *)</span>
+  <span class="kn">Definition</span> <span class="nf">directed_lub</span> {<span class="nv">P</span> : Poset} (<span class="nv">P_DC</span> : is_directed_complete P)
+      (<span class="nv">p</span> : Directed_family P)
+    : least_upper_bound p.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> least_upper_bound_image.
+    <span class="bp">exact</span> (P_DC (image_directed p)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isdirected_lub</span> {<span class="nv">P</span> : Poset} (<span class="nv">P_DC</span> : is_directed_complete P)
+      {<span class="nv">I</span>} (<span class="nv">p</span> : I -&gt; P) (<span class="nv">p_directed</span> : isdirected p)
+    : least_upper_bound p.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (directed_lub P_DC (make_directed p_directed)).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* TODO: unify this treatment of directed completeness with that given in [Algebra.Dcpo] *)</span>
+<span class="kn">End</span> <span class="nf">Completeness</span>.
+
+<span class="sd">(** ** Upper bounds, completeness, etc in sub-posets *)</span>
+<span class="kn">Section</span> <span class="nf">Subposets</span>.
+
+  <span class="c">(* TODO: upstream to [Posets.Subposets]? *)</span>
+  <span class="kn">Definition</span> <span class="nf">subposet_incl</span> {<span class="nv">P</span> : Poset} {<span class="nv">A</span> : Subposet' P} : posetmorphism A P
+  := pr1 (pr2 A).
+
+  <span class="kn">Definition</span> <span class="nf">is_upper_bound_in_subposet</span> {<span class="nv">P</span> : Poset} {<span class="nv">A</span> : Subposet P}
+      {<span class="nv">I</span>} {<span class="nv">p</span> : I -&gt; A} {<span class="nv">x</span> : A}
+    : isupperbound (subposet_incl ∘ p) (subposet_incl x)
+    &lt;-&gt; isupperbound p x.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">auto</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* TODO: unsure which arguments should be implicit. Revisit this after some use downstream! *)</span>
+  <span class="sd">(** Given a chain in a sub-poset with a least upper bound in the ambient poset,</span>
+<span class="sd">  if the l.u.b. lies in the sub-poset, then it’s an l.u.b. there. *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_least_upper_bound_in_subposet</span> {<span class="nv">P</span> : Poset} {<span class="nv">A</span> : Subposet P}
+      {<span class="nv">I</span>} {<span class="nv">p</span> : I -&gt; A} {<span class="nv">x</span> : A}
+      (<span class="nv">x_lub</span> : is_least_upper_bound (subposet_incl ∘ p) (subposet_incl x))
+    : is_least_upper_bound p x.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> is_upper_bound_in_subposet, x_lub.
+    - <span class="nb">intros</span> [x' x'_ub].
+      <span class="nb">apply</span> (least_upper_bound_univ (make_least_upper_bound _ x_lub)).
+      <span class="nb">apply</span> is_upper_bound_in_subposet; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">least_upper_bound_in_subposet</span> {<span class="nv">P</span> : Poset} {<span class="nv">A</span> : Subposet P}
+      {<span class="nv">I</span>} {<span class="nv">p</span> : I -&gt; A}
+      (<span class="nv">x</span> : least_upper_bound (pr1 ∘ p)) (<span class="nv">x_A</span> : A x)
+    : least_upper_bound p.
+  <span class="kn">Proof</span>.
+    use make_least_upper_bound.
+    { <span class="k">exists</span> <span class="nv">x</span>. <span class="nb">apply</span> x_A. }
+    <span class="nb">apply</span> is_least_upper_bound_in_subposet, least_upper_bound_property.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_chain_in_subposet</span> {<span class="nv">P</span> : Poset} {<span class="nv">A</span> : Subposet P}
+      {<span class="nv">I</span> : <span class="kt">Type</span>} (<span class="nv">p</span> : I -&gt; A)
+    : is_chain p &lt;-&gt; is_chain (subposet_incl ∘ p).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">auto</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* This lemma can be given in several alternative forms,</span>
+<span class="c">  e.g. in terms of the canonical given lubs, or arbitrary lubs;</span>
+<span class="c">  and in terms of chains in [A], or chains in [P] satisfying [A];</span>
+<span class="c">  and in terms of general chains, or subtype-chains.</span>
+
+<span class="c">  TODO: once it’s in use, reconsider which form might be best. *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_chain_complete_subposet</span>
+      {<span class="nv">P</span> : Poset} (<span class="nv">P_CC</span> : is_chain_complete P) {<span class="nv">A</span> : Subposet P}
+      (<span class="nv">A_chain_closed</span> : <span class="k">forall</span> <span class="nv">C</span> : Chain_hsubtype A,
+          A (chain_lub P_CC (fmap_chain subposet_incl C)))
+    : is_chain_complete A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C.
+    use make_least_upper_bound.
+    { <span class="k">exists</span> (<span class="nv">chain_lub</span> <span class="nv">P_CC</span> (fmap_chain subposet_incl C)).
+      <span class="nb">apply</span> A_chain_closed. }
+    <span class="nb">apply</span> is_least_upper_bound_in_subposet.
+    <span class="nb">apply</span> least_upper_bound_property.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* TODO: add similar treatment of directed-completeness in subsets. *)</span>
+
+<span class="kn">End</span> <span class="nf">Subposets</span>.
+
+<span class="sd">(** ** Function posets</span>
+
+<span class="sd">Products of posets; posets of (classes of) functions *)</span>
+
+<span class="kn">Section</span> <span class="nf">Function_Posets</span>.
+
+  <span class="sd">(** The most general poset of functions is just the product of a family of posets.</span>
+
+<span class="sd">  We set this up first, and then give other posets of functions (e.g. the poset of poset maps) as subposets of this general one. *)</span>
+<span class="c">(* TODO: possibly some examples upstream could eventually be unified with this,</span>
+<span class="c">e.g. [dcpoofdcpomorphisms]? *)</span>
+  <span class="kn">Definition</span> <span class="nf">pointwiseorder</span> {<span class="nv">X</span>:UU} (<span class="nv">P</span> : X -&gt; Poset) : hrel (∏ x, P x)
+  := <span class="k">fun</span> <span class="nv">f</span> <span class="nv">g</span> =&gt; <span class="k">∀</span> <span class="nv">x</span>, f x ≤ g x.
+
+  <span class="kn">Lemma</span> <span class="nf">ispartialorder_pointwiseorder</span> {<span class="nv">X</span>:UU} (<span class="nv">P</span> : X -&gt; Poset)
+    : isPartialOrder (pointwiseorder P).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="kp">repeat</span> <span class="nb">intro</span>. <span class="nb">eapply</span> istrans_posetRelation; <span class="nb">auto</span>.
+    - <span class="kp">repeat</span> <span class="nb">intro</span>. <span class="nb">apply</span> isrefl_posetRelation.
+    - <span class="nb">intros</span> f g le_f_g le_g_f.
+      use funextsec; <span class="nb">intro</span>.
+      <span class="nb">apply</span> isantisymm_posetRelation; <span class="nb">auto</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Note: could also be called e.g. [Poset_product], or various other names. *)</span>
+  <span class="c">(* TODO: consider naming convention. Are there analogous constructions elsewhere in UniMath that this should fit with?</span>
+<span class="c">  This name fits with type-theoretical lemmas in UniMath, but is less natural from a classical mathematical perspective.</span>
+<span class="c">*)</span>
+  <span class="kn">Definition</span> <span class="nf">forall_Poset</span> {<span class="nv">X</span>:UU} (<span class="nv">P</span> : X -&gt; Poset) : Poset.
+  <span class="kn">Proof</span>.
+    use make_Poset. { <span class="bp">exact</span> (forall_hSet P). }
+    use make_PartialOrder. { <span class="nb">apply</span> pointwiseorder. }
+    <span class="nb">apply</span> ispartialorder_pointwiseorder.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">arrow_Poset</span> (<span class="nv">X</span>:UU) (<span class="nv">P</span> : Poset) : Poset
+    := forall_Poset (<span class="k">fun</span> <span class="nv">_</span>:X =&gt; P).
+
+  <span class="kn">Definition</span> <span class="nf">isupperbound_if_pointwise</span> {<span class="nv">X</span>:UU} {<span class="nv">P</span> : X -&gt; Poset}
+      {<span class="nv">I</span>} {<span class="nv">f</span> : I -&gt; forall_Poset P}
+      {<span class="nv">g</span> : forall_Poset P}
+    : isupperbound f g &lt;-&gt; <span class="k">forall</span> <span class="nv">x</span>, isupperbound (<span class="k">fun</span> <span class="nv">i</span> =&gt; f i x) (g x).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>; <span class="nb">intro</span> H; <span class="kp">repeat</span> <span class="nb">intro</span>; use H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_least_upper_bound_pointwise</span> {<span class="nv">X</span>:UU} {<span class="nv">P</span> : X -&gt; Poset}
+      {<span class="nv">I</span>} (<span class="nv">f</span> : I -&gt; forall_Poset P)
+      (<span class="nv">g</span> : forall_Poset P)
+    : hProp
+  := <span class="k">∀</span> <span class="nv">x</span>, is_least_upper_bound (<span class="k">fun</span> <span class="nv">i</span> =&gt; f i x) (g x).
+
+  <span class="kn">Definition</span> <span class="nf">is_least_upper_bound_if_pointwise</span> {<span class="nv">X</span>:UU} {<span class="nv">P</span> : X -&gt; Poset}
+      {<span class="nv">I</span>} {<span class="nv">f</span> : I -&gt; forall_Poset P}
+      {<span class="nv">g</span> : forall_Poset P}
+    : is_least_upper_bound_pointwise f g
+      -&gt; is_least_upper_bound f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> pointwise_lub.
+    <span class="nb">set</span> (g_pwlub := <span class="k">fun</span> <span class="nv">x</span> =&gt; make_least_upper_bound _ (pointwise_lub x)).
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> i x.
+      <span class="nb">apply</span> (least_upper_bound_is_upper_bound (g_pwlub x)).
+    - <span class="nb">intros</span> [g' g'_ub] x.
+      <span class="nb">apply</span> (least_upper_bound_univ (g_pwlub x)).
+      <span class="nb">apply</span> isupperbound_if_pointwise, g'_ub.
+  <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaposetmorphism_pointwise_lub</span> {<span class="nv">P</span> : Poset}
+    {<span class="nv">I</span>} {<span class="nv">f</span> : I -&gt; P -&gt; P} (<span class="nv">f_monot</span> : <span class="k">forall</span> <span class="nv">i</span>, isaposetmorphism (f i))
+    {<span class="nv">g</span>} (<span class="nv">g_pw_lub</span> : is_least_upper_bound_pointwise f g)
+  : isaposetmorphism g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y le_x_y.
+  <span class="nb">apply</span> (least_upper_bound_univ (make_least_upper_bound _ (g_pw_lub _))).
+  <span class="nb">intros</span> i.
+  <span class="nb">eapply</span> istrans_posetRelation.
+  <span class="mi">2</span>: { <span class="nb">apply</span> (least_upper_bound_is_upper_bound
+                (make_least_upper_bound _ (g_pw_lub _))). }
+  <span class="nb">apply</span> f_monot; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Function_Posets</span>.
+
+
+<span class="sd">(** ** Classes of maps *)</span>
+
+<span class="sd">(** Progressive maps as also known as ascending, inflationary, increasing, and more.</span>
+
+<span class="sd">Note these are just endo-_functions_, not “maps” in the sense of morphisms of posets. *)</span>
+
+<span class="kn">Section</span> <span class="nf">ProgressiveMaps</span>.
+
+<span class="kn">Definition</span> <span class="nf">isprogressive</span> {<span class="nv">P</span> : Poset} : hsubtype (P -&gt; P) : UU
+  := <span class="k">fun</span> <span class="nv">f</span> =&gt; <span class="k">∀</span> (<span class="nv">x</span> : P), x ≤ f x.
+
+<span class="kn">Definition</span> <span class="nf">Progressive_map</span> (<span class="nv">P</span> : Poset) := carrier (@isprogressive P).
+
+<span class="kn">Definition</span> <span class="nf">pr1_Progressive_map</span> {<span class="nv">P</span> : Poset} : Progressive_map P -&gt; (P -&gt; P)
+:= pr1carrier _.
+<span class="kn">Coercion</span> <span class="nf">pr1_Progressive_map</span> : Progressive_map &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">progressive_property</span> {<span class="nv">P</span>} (<span class="nv">f</span> : Progressive_map P)
+  : isprogressive f
+:= pr2 f.
+
+<span class="kn">Lemma</span> <span class="nf">isprogressive_idfun</span> {<span class="nv">P</span> : Poset} : isprogressive (idfun P).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>; <span class="nb">apply</span> isrefl_posetRelation.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isprogressive_compose</span> {<span class="nv">P</span> : Poset}
+    {<span class="nv">f</span> <span class="nv">g</span> : P -&gt; P} (<span class="nv">f_prog</span> : isprogressive f) (<span class="nv">g_prog</span> : isprogressive g)
+  : isprogressive (f ∘ g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x. <span class="nb">eapply</span> istrans_posetRelation.
+  - use g_prog.
+  - use f_prog.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">progressive_pointwise_lub</span> {<span class="nv">P</span> : Poset}
+    {<span class="nv">I</span>} {<span class="nv">f</span> : I -&gt; P -&gt; P} (<span class="nv">f_prog</span> : <span class="k">forall</span> <span class="nv">i</span>, isprogressive (f i))
+    {<span class="nv">g</span>} (<span class="nv">g_pw_lub</span> : is_least_upper_bound_pointwise f g)
+    (<span class="nv">I_inhab</span> : ∥ I ∥)
+  : isprogressive g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x. <span class="nb">eapply</span> factor_through_squash_hProp. <span class="mi">2</span>: { <span class="nb">apply</span> I_inhab. }
+  <span class="nb">intros</span> i.
+  <span class="nb">eapply</span> istrans_posetRelation. { use f_prog; <span class="nb">apply</span> i. }
+  <span class="nb">revert</span> i.
+  <span class="c">(* TODO: make version that takes the [is_lub] as separate input *)</span>
+  <span class="nb">refine</span> (@least_upper_bound_is_upper_bound _ _ _ (make_least_upper_bound _ _)).
+  use g_pw_lub.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ProgressiveMaps</span>.
+
+<span class="sd">(** ** Fixpoints of endofunctions *)</span>
+
+<span class="kn">Section</span> <span class="nf">Fixpoints</span>.
+
+<span class="c">(* TODO: this approach to types of fixedpoints doesn’t play well with the setup of subposets. Perhaps try refactoring? But working with hsubtypes/subposets throughout creates so much extra [pr1] overhead, impacting readability; this approach avoids that nicely. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isfixedpoint</span> {<span class="nv">P</span> : Poset} (<span class="nv">f</span> : P -&gt; P) : hsubtype P
+  := <span class="k">fun</span> (<span class="nv">x</span>:P) =&gt; f x = x.
+
+<span class="kn">Definition</span> <span class="nf">Fixedpoint</span> {<span class="nv">P</span> : Poset} (<span class="nv">f</span> : P -&gt; P) : UU := carrier (isfixedpoint f).
+
+<span class="kn">Coercion</span> <span class="nf">pr1_Fixedpoint</span> {P : Poset} {f : P -&gt; P} : Fixedpoint f -&gt; P
+:= pr1carrier _.
+
+<span class="kn">Definition</span> <span class="nf">fixedpoint_property</span>  {<span class="nv">P</span> : Poset} {<span class="nv">f</span> : P -&gt; P} (<span class="nv">x</span> : Fixedpoint f)
+  : f x = x
+:= pr2 x.
+
+<span class="kn">Definition</span> <span class="nf">ispostfixedpoint</span> {<span class="nv">P</span> : Poset} (<span class="nv">f</span> : P -&gt; P) : hsubtype P
+  := <span class="k">fun</span> (<span class="nv">x</span>:P) =&gt; x ≤ f x.
+
+<span class="kn">Definition</span> <span class="nf">Postfixedpoint</span> {<span class="nv">P</span> : Poset} (<span class="nv">f</span> : P -&gt; P) : UU
+  := carrier (ispostfixedpoint f).
+
+<span class="kn">Coercion</span> <span class="nf">pr1_Postfixedpoint</span> {P : Poset} {f : P -&gt; P} : Postfixedpoint f -&gt; P
+:= pr1carrier _.
+
+<span class="kn">Definition</span> <span class="nf">postfixedpoint_property</span>  {<span class="nv">P</span> : Poset} {<span class="nv">f</span> : P -&gt; P} (<span class="nv">x</span> : Postfixedpoint f)
+  : x ≤ f x
+:= pr2 x.
+
+<span class="kn">End</span> <span class="nf">Fixpoints</span>.
+
+
+<span class="sd">(** ** The (Knaster–)Tarski fixpoint theorems</span>
+
+<span class="sd">This classical theorem is in several forms.  The strong general form, due to Tarski, states that given a monotone endo-map [f] on a complete poset [P], the sub-poset of fixed points of [f] is again complete.  The key lemma for this is close to the earlier weaker form, due essentially to Knaster and Tarski independently: a monotone endo-map [f] on a complete poset [P] has a least fixed point above any post-fixed point.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">Tarski</span>.
+
+<span class="kn">Theorem</span> <span class="nf">Knaster_Tarski_fixpoint</span> {<span class="nv">P</span>:Poset} (<span class="nv">P_complete</span> : is_complete P)
+    (<span class="nv">f</span> : posetmorphism P P) {<span class="nv">x0</span>} (<span class="nv">x0_postfix</span> : x0 ≤ f x0)
+  : least_suchthat (<span class="k">fun</span> <span class="nv">x</span>:P =&gt; f x = x ∧ x0 ≤ x).
+<span class="kn">Proof</span>.
+  <span class="c">(* Let C be the least subset containing x0 that is closed under f and taking least upper bounds.</span>
+<span class="c">   We take some time to set up C and its universal property cleanly. *)</span>
+  <span class="nb">set</span> (is_f_closed := (<span class="k">fun</span> <span class="nv">A</span> =&gt; (<span class="k">∀</span> <span class="nv">y</span>, A y ⇒ A (f y)))
+    : hsubtype P -&gt; hProp).
+  <span class="nb">set</span> (is_sup_closed
+      := (<span class="k">fun</span> <span class="nv">A</span> =&gt; <span class="k">∀</span> <span class="nv">C'</span> : hsubtype P, C' ⊆ A ⇒ A (P_complete C'))
+    : hsubtype P -&gt; hProp).
+  <span class="nb">set</span> (C := (<span class="k">fun</span> <span class="nv">x</span> =&gt;
+      <span class="k">∀</span> <span class="nv">A</span> : hsubtype P, A x0 ⇒ is_f_closed A ⇒ is_sup_closed A ⇒ A x)
+    : hsubtype P).
+  <span class="nb">assert</span> (C_x0 : C x0).
+  { <span class="nb">intros</span> A A_x0 A_f_closed A_sup_closed; <span class="bp">assumption</span>. }
+  <span class="nb">assert</span> (C_f_closed : is_f_closed C).
+  { <span class="nb">intros</span> x C_x A A_x0 A_f_closed A_sup_closed.
+    use A_f_closed. use C_x; <span class="bp">assumption</span>. }
+  <span class="nb">assert</span> (C_sup_closed : is_sup_closed C).
+  { <span class="nb">intros</span> X C_X A A_x0 A_f_closed A_sup_closed.
+    use A_sup_closed; <span class="nb">intros</span> ? ?; use C_X; <span class="bp">assumption</span>. }
+  <span class="nb">assert</span> (C_induction : <span class="k">∀</span> (<span class="nv">A</span> : hsubtype P),
+    A x0 ⇒ is_f_closed (A ∩ C) ⇒ is_sup_closed (A ∩ C) ⇒ C ⊆ A).
+  { <span class="nb">intros</span> A A_x0 A_sup_closed A_f_closed x Cx.
+    <span class="nb">apply</span> (Cx (<span class="k">fun</span> <span class="nv">x</span> =&gt; A x ∧ C x)); [ <span class="nb">split</span> | | ]; <span class="bp">assumption</span>. }
+  <span class="c">(* Now establish a few facts about C and (post-)fixed points *)</span>
+  <span class="nb">assert</span> (postfix_supclosed : is_sup_closed (<span class="k">fun</span> <span class="nv">x</span> =&gt; x ≤ f x)).
+  { <span class="nb">intros</span> A A_postfix.
+    <span class="nb">apply</span> least_upper_bound_subtype_univ. <span class="nb">intros</span> x A_x.
+    <span class="nb">eapply</span> istrans_posetRelation. { use A_postfix; <span class="nb">apply</span> A_x. }
+    <span class="nb">apply</span> posetmorphism_property.
+    <span class="nb">apply</span> least_upper_bound_subtype_is_upper_bound, A_x.
+  }
+  <span class="nb">assert</span> (postfix_C : C ⊆  (<span class="k">fun</span> <span class="nv">x</span> =&gt; x ≤ f x)).
+  { use C_induction.
+    - <span class="nb">apply</span> x0_postfix.
+    - <span class="nb">intros</span> x [x_postfix C_x]. <span class="nb">split</span>. <span class="mi">2</span>: { use C_f_closed; <span class="bp">assumption</span>. }
+      <span class="nb">apply</span> posetmorphism_property, x_postfix.
+    - <span class="nb">intros</span> A IH_A. <span class="nb">split</span>.
+      <span class="mi">2</span>: { use C_sup_closed;
+           <span class="nb">apply</span> (istrans_subtype_containment IH_A),
+                 subtype_binaryintersection_leq2. }
+      use postfix_supclosed.
+      <span class="nb">apply</span> (istrans_subtype_containment IH_A).
+      <span class="nb">apply</span> subtype_binaryintersection_leq1.
+  }
+  <span class="nb">assert</span> (C_below_allfix : ∏ x, (f x = x) ⇒ x0 ≤ x ⇒ C ⊆ (<span class="k">fun</span> <span class="nv">y</span> =&gt; y ≤ x)).
+  { <span class="nb">intros</span> x x_fix leq_x0_x.
+    use C_induction.
+    - <span class="bp">assumption</span>.
+    - <span class="nb">intros</span> y [le_yx C_y]. <span class="nb">split</span>. <span class="mi">2</span>: { use C_f_closed; <span class="bp">assumption</span>. }
+      <span class="nb">eapply</span> istrans_posetRelation. { <span class="nb">apply</span> posetmorphism_property, le_yx. }
+      <span class="nb">apply</span> isrefl'_posetRelation, x_fix.
+    - <span class="nb">intros</span> A IH_A. <span class="nb">split</span>.
+      <span class="mi">2</span>: { use C_sup_closed.
+           <span class="nb">apply</span> (istrans_subtype_containment IH_A),
+                 subtype_binaryintersection_leq2. }
+      <span class="nb">apply</span> least_upper_bound_subtype_univ.
+      <span class="nb">apply</span> (istrans_subtype_containment IH_A), subtype_binaryintersection_leq1.
+  }
+  <span class="c">(* From these, it follows that sup C is a least fixed point. *)</span>
+  <span class="nb">set</span> (sup_C := P_complete C).
+  <span class="nb">assert</span> (C_sup_C : C sup_C). { use C_sup_closed. <span class="nb">intros</span> ? ?; <span class="bp">assumption</span>. }
+  <span class="nb">simple refine</span> (((sup_C : P),,(_,,_)),,_); <span class="nb">simpl</span>.
+  - <span class="nb">apply</span> isantisymm_posetRelation.
+    + <span class="nb">refine</span> (least_upper_bound_is_upper_bound sup_C (_,,_)).
+      use C_f_closed. <span class="nb">apply</span> C_sup_C.
+    + use postfix_C. <span class="nb">apply</span> C_sup_C.
+  - <span class="nb">refine</span> (least_upper_bound_is_upper_bound sup_C (_,,_)); <span class="bp">assumption</span>.
+  - <span class="nb">intros</span> [x [x_fix leq_x0_x]]; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> least_upper_bound_subtype_univ, C_below_allfix; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">Tarski_fixpoint_theorem</span>
+    {<span class="nv">P</span>:Poset} (<span class="nv">P_complete</span> : is_complete P) (<span class="nv">f</span> : posetmorphism P P)
+  : is_complete ((<span class="k">fun</span> <span class="nv">x</span>:P =&gt; f x = x) : Subposet P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A.
+  <span class="nb">set</span> (A_in_P := (<span class="k">fun</span> <span class="nv">x</span>:P =&gt; ∑ x_fix : (f x = x)%logic, A (x,,x_fix))%prop).
+  <span class="nb">set</span> (sup_P_A := P_complete A_in_P).
+  <span class="nb">assert</span> (sup_fix_A : least_suchthat (<span class="k">fun</span> <span class="nv">x</span>:P =&gt; f x = x ∧ sup_P_A ≤ x)).
+  { <span class="nb">apply</span> Knaster_Tarski_fixpoint; <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="nb">apply</span> least_upper_bound_subtype_univ.
+    <span class="nb">intros</span> y [y_fix A_y].
+    <span class="nb">apply</span> (istrans_posetRelation _ _ (f y)).
+    { <span class="nb">apply</span> isrefl'_posetRelation, pathsinv0; <span class="bp">assumption</span>. }
+    <span class="nb">apply</span> posetmorphism_property, least_upper_bound_subtype_is_upper_bound.
+    use tpair; <span class="bp">assumption</span>.
+  }
+  <span class="nb">assert</span> (sup_A_isfix : f sup_fix_A = sup_fix_A).
+  { <span class="nb">apply</span> (least_suchthat_satisfies sup_fix_A). }
+  use make_least_upper_bound.
+  { <span class="k">exists</span> <span class="nv">sup_fix_A</span>. <span class="bp">assumption</span>. }
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> [[x x_fix] A_x]. <span class="nb">simpl</span>.
+    <span class="nb">apply</span> (istrans_posetRelation _ _ (sup_P_A)).
+    + <span class="nb">apply</span> least_upper_bound_subtype_is_upper_bound. use tpair; <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> (least_suchthat_satisfies sup_fix_A).
+  - <span class="nb">intros</span> [[x x_fix] x_ub]. <span class="nb">cbn</span>.
+    <span class="nb">apply</span> least_suchthat_is_least.
+    <span class="nb">split</span>; <span class="kp">try</span> <span class="bp">assumption</span>.
+    <span class="nb">apply</span> least_upper_bound_subtype_univ.
+    <span class="nb">intros</span> y [y_fix A_y].
+    use (x_ub ((_,,_),,_)); <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Tarski</span>.
+
+<span class="sd">(** ** Bourbaki-Witt</span>
+
+<span class="sd">The classical Bourbaki–Witt theorem says: Any progressive map on a chain-complete partial order has a fixed point.</span>
+
+<span class="sd">Constructively, this may fail, as shown in Bauer–Lumsdaine https://arxiv.org/abs/1201.0340. Here we aim to give both the classical theorem, and some weaker constructively-provable results.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Section</span> <span class="nf">Bourbaki_Witt</span>.
+
+<span class="kn">Definition</span> <span class="nf">Bourbaki_Witt_property</span> (<span class="nv">P</span> : Poset)
+  := ∏ (f : Progressive_map P), Fixedpoint f.
+
+<span class="sd">(** Theorem traditionally credited to Bourbaki (1949) and Witt (1951). This proof is based on Lang, Algebra (2002), Appendix 2, Thm 2.1. *)</span>
+<span class="kn">Theorem</span> <span class="nf">Bourbaki_Witt_fixpoint</span>
+  : LEM -&gt; ∏ P : Poset, is_chain_complete P -&gt; Bourbaki_Witt_property P.
+<span class="kn">Proof</span>.
+<span class="c">(* Let C be the least subset closed under f and suprema of chains.</span>
+<span class="c">   We take some time to set up C and its universal property cleanly. *)</span>
+  <span class="nb">intros</span> H_LEM P P_CC f.
+  <span class="nb">set</span> (is_f_closed := (<span class="k">fun</span> <span class="nv">A</span> =&gt; (<span class="k">∀</span> <span class="nv">y</span>, A y ⇒ A (f y)))
+    : hsubtype P -&gt; hProp).
+  <span class="nb">set</span> (is_chain_closed
+      := (<span class="k">fun</span> <span class="nv">A</span> =&gt; (<span class="k">∀</span> <span class="nv">C'</span> : Chain_hsubtype P, (∏ y:C', A (pr1 y)) ⇒ A (P_CC C')))
+    : hsubtype P -&gt; hProp).
+  <span class="nb">set</span> (C := (<span class="k">fun</span> <span class="nv">x</span> =&gt;
+      <span class="k">∀</span> <span class="nv">A</span> : hsubtype P, is_f_closed A ⇒ is_chain_closed A ⇒ A x)
+    : hsubtype P).
+  <span class="nb">assert</span> (C_f_closed : is_f_closed C).
+  { <span class="nb">intros</span> x C_x A A_f_closed A_chain_closed.
+    use A_f_closed. use C_x; <span class="bp">assumption</span>. }
+  <span class="nb">assert</span> (C_chain_closed : is_chain_closed C).
+  { <span class="nb">intros</span> x C_x A A_f_closed A_chain_closed.
+    use A_chain_closed. <span class="nb">intro</span>; use C_x; <span class="bp">assumption</span>. }
+  <span class="nb">assert</span> (C_induction : <span class="k">∀</span> (<span class="nv">A</span> : hsubtype P),
+    is_f_closed (A ∩ C) ⇒ is_chain_closed (A ∩ C) ⇒ C ⊆ A).
+  { <span class="nb">intros</span> A A_chain_closed A_f_closed x Cx.
+    <span class="nb">apply</span> (Cx (<span class="k">fun</span> <span class="nv">x</span> =&gt; A x ∧ C x)); <span class="bp">assumption</span>. }
+  <span class="c">(* Now, if C is a chain, then its least upper bound will be a fixed point. *)</span>
+  <span class="nb">assert</span> (C_is_chain : is_chain (pr1carrier C)).
+  <span class="mi">2</span>: {
+    <span class="nb">set</span> (C_Chain := (C,, C_is_chain) : Chain_hsubtype P).
+    <span class="k">exists</span> (<span class="nv">P_CC</span> <span class="nv">C_Chain</span>).
+    <span class="nb">apply</span> isantisymm_posetRelation. <span class="mi">2</span>: { use progressive_property. }
+    <span class="nb">refine</span> (least_upper_bound_is_upper_bound (P_CC _) (_,,_)).
+    use C_f_closed.
+    use C_chain_closed.
+    <span class="nb">intros</span> [? ?]; <span class="bp">assumption</span>.
+  }
+  <span class="c">(* It remains to show C is a chain. This is the hard (and nonconstructive) part.</span>
+<span class="c">  Say [x ∈ C] is a _bottleneck_ if for all y ≤ x in C, either [f y ≤ x] or [y = x].</span>
+<span class="c">  We show, in each case by C-induction:</span>
+<span class="c">  (1) if x is a bottleneck, then for all y in C, y ≤ x or f x ≤ y;</span>
+<span class="c">  (2) every x ∈ C is a bottleneck.</span>
+<span class="c">  It follows that C is a chain.</span>
+<span class="c">  *)</span>
+  <span class="nb">set</span> (is_bottleneck := (<span class="k">fun</span> <span class="nv">x</span> =&gt; <span class="k">∀</span> <span class="nv">y</span>, C y ⇒ y ≤ x ⇒ (f y ≤ x) ∨ (y = x))
+    : hsubtype P).
+  <span class="nb">assert</span> (bottleneck_comparison : <span class="k">∀</span> <span class="nv">x</span>, C x ⇒ is_bottleneck x
+                                     ⇒ <span class="k">∀</span> <span class="nv">y</span>, C y ⇒ (y ≤ x) ∨ (f x ≤ y)).
+  { <span class="nb">intros</span> x C_x x_bottleneck. use C_induction.
+    - <span class="nb">intros</span> y [y_comp C_y]. <span class="nb">split</span>. <span class="mi">2</span>: { use C_f_closed; <span class="bp">assumption</span>. }
+      <span class="nb">apply</span> (hconjtohdisj' y_comp).
+      <span class="mi">2</span>: { <span class="nb">intros</span> leq_fx_y. <span class="nb">apply</span> hdisj_in2.
+           <span class="nb">eapply</span> istrans_posetRelation; <span class="kp">try</span> <span class="bp">eassumption</span>.
+           use progressive_property. }
+      <span class="nb">intros</span> leq_y_x.
+      use (hdisj_monot' (x_bottleneck y _ _)); <span class="kp">try</span> <span class="bp">assumption</span>.
+      + <span class="nb">intro</span>; <span class="bp">assumption</span>.
+      + <span class="nb">intro</span> e_yx; <span class="nb">destruct</span> e_yx; <span class="nb">apply</span> isrefl_posetRelation.
+    - <span class="nb">intros</span> C' IH_C'. <span class="nb">split</span>. <span class="mi">2</span>: { use C_chain_closed; <span class="nb">intros</span>; <span class="nb">apply</span> IH_C'. }
+      <span class="nb">destruct</span> (H_LEM (<span class="k">∃</span> <span class="nv">y</span>, C' y ∧ f x ≤ y)) <span class="k">as</span> [C'_passes_fx | C'_notpasses_fx ].
+      + <span class="nb">apply</span> hdisj_in2.
+        <span class="nb">refine</span> (factor_through_squash_hProp _ _ C'_passes_fx);
+          <span class="nb">intros</span> [y [C'_y leq_fx_y]].
+        <span class="nb">eapply</span> istrans_posetRelation; <span class="kp">try</span> <span class="bp">eassumption</span>.
+        use least_upper_bound_subtype_is_upper_bound; <span class="bp">assumption</span>.
+      + <span class="nb">apply</span> hdisj_in1.
+        <span class="nb">apply</span> least_upper_bound_univ. <span class="nb">intros</span> [y C'_y].
+        <span class="nb">eapply</span> hdisjtoimpl. <span class="nb">apply</span> hdisj_comm, IH_C'.
+        <span class="nb">intros</span> leq_fx_y. <span class="nb">apply</span> C'_notpasses_fx.
+        <span class="nb">apply</span> hinhpr; <span class="k">exists</span> <span class="nv">y</span>. <span class="nb">split</span>; <span class="bp">assumption</span>.
+  }
+  <span class="nb">assert</span> (all_C_bottleneck : <span class="k">forall</span> <span class="nv">x</span>, C x ⇒ is_bottleneck x).
+  { use C_induction.
+    - <span class="nb">intros</span> x [x_bottleneck C_x]. <span class="nb">split</span>. <span class="mi">2</span>: { use C_f_closed; <span class="bp">assumption</span>. }
+      <span class="nb">intros</span> y C_y le_y_fx.
+      use (hconjtohdisj' (bottleneck_comparison x _ _ y _));
+        <span class="kp">try</span> <span class="bp">assumption</span>.
+      <span class="mi">2</span>: { <span class="nb">intro</span>. <span class="nb">apply</span> hdisj_in2, isantisymm_posetRelation; <span class="bp">assumption</span>. }
+      <span class="nb">intro</span> le_yx. <span class="nb">apply</span> hdisj_in1.
+      use (hconjtohdisj' (x_bottleneck y _ _)); <span class="kp">try</span> <span class="bp">assumption</span>.
+      + <span class="nb">intro</span>. <span class="nb">eapply</span> istrans_posetRelation; <span class="kp">try</span> <span class="bp">eassumption</span>.
+        use progressive_property.
+      + <span class="nb">intros</span> e_yx; <span class="nb">destruct</span> e_yx. <span class="nb">apply</span> isrefl_posetRelation.
+    - <span class="nb">intros</span> C' IH_C'. <span class="nb">split</span>. <span class="mi">2</span>: { use C_chain_closed; <span class="nb">intros</span>; <span class="nb">apply</span> IH_C'. }
+      <span class="nb">intros</span> x C_x le_x_supC'.
+      <span class="nb">destruct</span> (H_LEM (<span class="k">∃</span> <span class="nv">y</span>, C' y ∧ f x ≤ y)) <span class="k">as</span> [ C'_passes_fx | C'_notpasses_fx ].
+      { <span class="nb">apply</span> hdisj_in1.
+        <span class="nb">refine</span> (factor_through_squash_hProp _ _ C'_passes_fx); <span class="nb">intros</span> [y [? ?]].
+        <span class="nb">eapply</span> istrans_posetRelation;
+          <span class="nb">eauto using</span> least_upper_bound_subtype_is_upper_bound.
+      }
+      <span class="nb">apply</span> hdisj_in2.
+      <span class="nb">apply</span> isantisymm_posetRelation; <span class="kp">try</span> <span class="bp">assumption</span>.
+      <span class="nb">apply</span> least_upper_bound_subtype_univ. <span class="nb">intros</span> y C'_y.
+      <span class="nb">destruct</span> (IH_C' (y,,C'_y)) <span class="k">as</span> [y_bottleneck C_y].
+      use (hconjtohdisj' (bottleneck_comparison y _ _ x _)); <span class="kp">try</span> <span class="bp">assumption</span>.
+      <span class="mi">2</span>: { <span class="nb">intro</span>. <span class="nb">eapply</span> istrans_posetRelation; <span class="kp">try</span> <span class="bp">eassumption</span>.
+           use progressive_property. }
+      <span class="nb">intro</span> le_x_y. <span class="nb">apply</span> isrefl'_posetRelation, pathsinv0.
+      <span class="nb">refine</span> (hdisjtoimpl (y_bottleneck x C_x _) _); <span class="kp">try</span> <span class="bp">assumption</span>.
+        use (negexists_to_forallneg_restricted C'_notpasses_fx); <span class="bp">assumption</span>.
+  }
+  <span class="nb">intros</span> [x Cx] [y Cy]; <span class="nb">simpl</span> pr1carrier.
+  <span class="nb">assert</span> (comparison : x ≤ y ∨ f y ≤ x).
+  { use bottleneck_comparison; <span class="kp">try</span> <span class="nb">apply</span> all_C_bottleneck; <span class="bp">assumption</span>. }
+  <span class="nb">apply</span> (hdisj_monot' comparison). { <span class="nb">intro</span>; <span class="bp">assumption</span>. }
+  <span class="nb">intro</span>. <span class="nb">eapply</span> istrans_posetRelation; <span class="kp">try</span> <span class="bp">eassumption</span>.
+  use progressive_property.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** “Pataraia’s Lemma”: on any DCPO, there is a maximal monotone+progressive endo-map.</span>
+<span class="sd"> This is the main lemma for Pataraia’s theorem, [fixpoint_for_monotone_on_dcpo]. *)</span>
+<span class="kn">Lemma</span> <span class="nf">maximal_progressive_endomorphism_on_dcpo</span>
+    {<span class="nv">P</span> : Poset} (<span class="nv">P_DC</span> : is_directed_complete P)
+  : greatest_suchthat (<span class="k">fun</span> <span class="nv">f</span> : arrow_Poset P P
+      =&gt; isaposetmorphism_hProp f ∧ isprogressive f).
+<span class="kn">Proof</span>.
+  <span class="c">(* Outline:</span>
+<span class="c">  The monotone progressive maps form a directed set, so have a pointwise sup.</span>
+<span class="c">  Also, they are closed under (inhabited) sups.</span>
+<span class="c">  So their sup is a maximal such map.</span>
+<span class="c">  The proof follows this outline, but reasoning bottom-up/backwards. *)</span>
+  <span class="nb">set</span> (mon_prog_maps := (<span class="k">fun</span> <span class="nv">f</span> : arrow_Poset P P
+                              =&gt; isaposetmorphism_hProp f ∧ isprogressive f)
+                                                                 : hsubtype _).
+  <span class="nb">cut</span> (carrier (is_greatest_suchthat mon_prog_maps)). <span class="c">(* just munging the goal *)</span>
+  { <span class="nb">intros</span> f. <span class="bp">exact</span> (make_greatest_suchthat (pr1 f) (pr2 f)). }
+  <span class="nb">cut</span> (carrier (mon_prog_maps ∩ is_least_upper_bound_subtype mon_prog_maps)).
+  { use subtype_inc.
+    <span class="nb">intros</span> ? [? ?]. <span class="nb">apply</span> greatest_if_contains_sup; <span class="bp">assumption</span>. }
+  <span class="nb">cut</span> (carrier (is_least_upper_bound_pointwise (@pr1carrier _ mon_prog_maps))).
+  { use subtype_inc.
+    <span class="nb">intros</span> f f_pw_lub; <span class="nb">split</span>; [ <span class="nb">split</span> | ].
+    - <span class="nb">eapply</span> isaposetmorphism_pointwise_lub; <span class="kp">try</span> <span class="bp">eassumption</span>.
+      <span class="nb">intros</span> [g [g_mon g_prog]]; <span class="bp">exact</span> g_mon.
+    - <span class="nb">eapply</span> progressive_pointwise_lub; <span class="kp">try</span> <span class="bp">eassumption</span>.
+      { <span class="nb">intros</span> [g [g_mon g_prog]]; <span class="bp">exact</span> g_prog. }
+      <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">idfun</span> <span class="nv">_</span>); <span class="nb">split</span>.
+      + <span class="nb">apply</span> isaposetmorphism_idfun.
+      + <span class="nb">apply</span> isprogressive_idfun.
+    - <span class="nb">apply</span> is_least_upper_bound_if_pointwise; <span class="bp">assumption</span>.
+  }
+  <span class="c">(* TODO: perhaps factor the following as “a directed set of functions has a pointwise l.u.b.”? *)</span>
+  use (foralltototal _ (<span class="k">fun</span> <span class="nv">_</span> <span class="nv">y</span> =&gt; is_least_upper_bound _ y)). <span class="c">(* munge goal again *)</span>
+  <span class="nb">intros</span> x.
+  <span class="nb">cut</span> (least_upper_bound (<span class="k">fun</span> <span class="nv">g</span> : mon_prog_maps =&gt; pr1 g x)).
+  { <span class="nb">intros</span> p. <span class="k">exists</span> <span class="nv">p</span>. <span class="nb">apply</span> least_upper_bound_property. }
+  <span class="nb">apply</span> isdirected_lub; <span class="kp">try</span> <span class="bp">assumption</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">idfun</span> <span class="nv">_</span>); <span class="nb">split</span>.
+    + <span class="nb">apply</span> isaposetmorphism_idfun.
+    + <span class="nb">apply</span> isprogressive_idfun.
+  - <span class="nb">intros</span> [f [f_mon f_prog]] [g [g_mon g_prog]].
+    <span class="nb">apply</span> hinhpr.
+    use tpair.
+    { <span class="k">exists</span> (<span class="nv">f</span> ∘ g); <span class="nb">split</span>.
+      + <span class="nb">apply</span> isaposetmorphism_compose; <span class="bp">assumption</span>.
+      + <span class="nb">apply</span> isprogressive_compose; <span class="bp">assumption</span>.
+    }
+    <span class="nb">split</span>; <span class="nb">simpl</span>.
+    + use f_mon; use g_prog.
+    + use f_prog.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A constructive fixed-point theorem, due to Pataraia.</span>
+<span class="sd">  This proof transmitted via Dacar and Bauer–Lumsdaine (where it is Thm 3.2). *)</span>
+<span class="kn">Theorem</span> <span class="nf">fixpoint_for_monotone_on_dcpo</span>
+    {<span class="nv">P</span> : Poset} (<span class="nv">P_dir</span>: is_directed_complete P)
+    (<span class="nv">f</span> : posetmorphism P P) (<span class="nv">x</span> : Postfixedpoint f)
+  : ∑ y : Fixedpoint f, x ≤ y.
+<span class="kn">Proof</span>.
+  <span class="c">(* Outline:</span>
+<span class="c">  - restrict attention to the sub-poset of post-fixed-points of P</span>
+<span class="c">  - by Pataraia’s Lemma [maximal_progressive_endomorphism_on_dcpo], there is a maximal monotone progressive map on this sub-poset</span>
+<span class="c">  - note that values of this maximal map are fixed points of f</span>
+<span class="c">  *)</span>
+  <span class="nb">revert</span> x.
+  <span class="nb">set</span> (postfix_f := (<span class="k">fun</span> <span class="nv">x</span> =&gt; x ≤ f x) : Subposet P).
+  <span class="nb">assert</span> (postfix_dc : is_directed_complete postfix_f).
+  { <span class="nb">intros</span> [A A_dir].
+    use least_upper_bound_in_subposet.
+    { use (isdirected_lub P_dir). <span class="bp">assumption</span>. }
+    <span class="c">(* Uncannily, [A_dir] works off the bat, without needing to be converted from</span>
+<span class="c">    directedness in Q to directedness in P!</span>
+<span class="c">    It’s clear that these types are convertible, but impressive that Coq recognises it so easily. *)</span>
+    <span class="nb">apply</span> least_upper_bound_univ. <span class="nb">intros</span> [[x x_postfix] x_A].
+    <span class="nb">eapply</span> istrans_posetRelation. { <span class="nb">apply</span> x_postfix. }
+    <span class="nb">apply</span> posetmorphism_property.
+    <span class="nb">refine</span> (least_upper_bound_is_upper_bound _ (_,,_)).
+    <span class="nb">simple refine</span> (value_in_image _ ((_,,_),,_)); <span class="bp">assumption</span>.
+  }
+  <span class="nb">set</span> (max_monprog_map := maximal_progressive_endomorphism_on_dcpo postfix_dc).
+  <span class="nb">destruct</span> max_monprog_map <span class="k">as</span> [[max_map [max_is_mon max_is_prog]] max_is_max].
+  transparent <span class="nb">assert</span> (f_restr_postfix : (arrow_Poset postfix_f postfix_f)).
+  { <span class="nb">intros</span> x. <span class="k">exists</span> (<span class="nv">f</span> (pr1 x)).
+    <span class="nb">apply</span> posetmorphism_property, postfixedpoint_property.
+  }
+  <span class="nb">assert</span> (max_map_gives_fixedpoints : f_restr_postfix ∘ max_map ~ max_map).
+  { <span class="nb">intros</span> x; <span class="nb">apply</span> isantisymm_posetRelation.
+    <span class="mi">2</span>: { <span class="nb">apply</span> postfixedpoint_property. }
+    <span class="nb">revert</span> x. <span class="nb">refine</span> (max_is_max (_,,_)); <span class="nb">split</span>.
+    - <span class="nb">refine</span> (@isaposetmorphism_compose _ _ _ max_map _ f_restr_postfix _).
+      { <span class="bp">assumption</span>. }
+      <span class="nb">intros</span> ? ?; <span class="nb">apply</span> (posetmorphism_property f).
+      <span class="c">(* TODO: make argument order consistent on the [_compose] lemmas *)</span>
+    - <span class="nb">refine</span> (@isprogressive_compose _ f_restr_postfix max_map _ _).
+      <span class="mi">2</span>: { <span class="bp">assumption</span>. }
+      <span class="nb">intro</span>; <span class="nb">apply</span> postfixedpoint_property.
+  }
+  <span class="nb">intros</span> x. <span class="nb">simple refine</span> ((pr1 (max_map x),,_),,_); <span class="nb">simpl</span>.
+  - <span class="bp">exact</span> (maponpaths _ (max_map_gives_fixedpoints x)).
+  - use max_is_prog.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Bourbaki_Witt</span>.
+
+
+<span class="sd">(** Finally, we check that the promises listed in the overview have been fulfilled.</span>
+
+<span class="sd">  Note: we give these here to ensure that the overview always accurately reflects the theorems of the file.  However, we make them local, since they should probably not be used outside this file — the original versions proved above are the versions intended for use. *)</span>
+<span class="kn">Section</span> <span class="nf">Check_Overview</span>.
+
+  <span class="kn">Local Theorem</span> <span class="nf">fulfil_Tarski_fixpoint_theorem</span>
+    : Tarski_fixpoint_theorem_statement (is_complete) (@isfixedpoint).
+  <span class="kn">Proof</span>.
+    use @Tarski_fixpoint_theorem.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Theorem</span> <span class="nf">fulfil_fixpoint_for_monotone_on_dcpo</span>
+    : fixpoint_for_monotone_on_dcpo_statement
+        (is_directed_complete) (@ispostfixedpoint) (@isfixedpoint).
+  <span class="kn">Proof</span>.
+    use @fixpoint_for_monotone_on_dcpo.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Classical theorem, usually attrbi. Bourbaki (1949) and Witt (1951). *)</span>
+  <span class="kn">Local Theorem</span> <span class="nf">fulfil_Bourbaki_Witt_fixpoint_theorem</span>
+    : Bourbaki_Witt_fixpoint_theorem_statement
+        (is_chain_complete) (@isprogressive) (@isfixedpoint).
+  <span class="kn">Proof</span>.
+    use @Bourbaki_Witt_fixpoint.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Check_Overview</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/AlternativeDefinitions/FixedPointTheorems.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

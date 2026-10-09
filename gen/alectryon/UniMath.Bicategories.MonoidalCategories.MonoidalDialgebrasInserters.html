@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidalDialgebrasInserters.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Ralph Matthes</span>
+
+<span class="sd">August 2022, simplified by Kobe Wullaert in December 2022</span>
+<span class="sd">*)</span>
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- identifies monoidal dialgebras as inserters in the bicategory of whiskered monoidal categories</span>
+
+<span class="sd"> ************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Dialgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Inserters.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.MonoidalDialgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.MonoidalFunctorLifting.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.BicatOfWhiskeredMonCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.BicatOfCatsLimits.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local Lemma</span> <span class="nf">equality_2cells_monbicat</span>
+  {<span class="nv">Mon_V</span> <span class="nv">Mon_W</span> : monbicat} {<span class="nv">Fm</span> <span class="nv">Gm</span> : monbicat ⟦ Mon_V, Mon_W ⟧}
+  (<span class="nv">αm</span> <span class="nv">βm</span> : (hom Mon_V Mon_W)⟦Fm, Gm⟧)
+  : (∏ x : pr11 Mon_V, pr11 αm x = pr11 βm x) -&gt; αm = βm.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> p.
+  <span class="nb">apply</span> subtypePath.
+  { <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_is_mon_nat_trans. }
+  <span class="nb">apply</span> subtypePath.
+  { <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_is_nat_trans. <span class="nb">apply</span> homset_property. }
+  <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> ; <span class="nb">apply</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">FixTwoMonoidalFunctors</span>.
+
+<span class="kn">Context</span> {<span class="nv">Mon_V</span> <span class="nv">Mon_W</span> : monbicat} (<span class="nv">Fm</span> <span class="nv">Gm</span> : monbicat⟦ Mon_V, Mon_W ⟧).
+
+  <span class="kn">Definition</span> <span class="nf">monbicat_inserter_cone</span> :
+    inserter_cone Fm Gm.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> Fm, Gm.
+    use make_inserter_cone.
+    - <span class="bp">exact</span> (dialgebra (pr1 Fm) (pr1 Gm) ,, dialgebra_monoidal (pr2 Fm) (pr2 Gm)).
+    - <span class="k">exists</span> (<span class="nv">dialgebra_pr1</span> (pr1 Fm) (pr1 Gm)).
+      <span class="nb">apply</span> dialgebra_monoidal_pr1.
+    - <span class="k">exists</span> (<span class="nv">dialgebra_nat_trans</span> (pr1 Fm) (pr1 Gm)).
+      <span class="nb">apply</span> dialgebra_nat_trans_is_mon_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">underlying_inserter_cone</span> (<span class="nv">q</span> : inserter_cone Fm Gm) : inserter_cone (pr1 Fm) (pr1 Gm).
+  <span class="kn">Proof</span>.
+    use make_inserter_cone.
+    - <span class="bp">exact</span> (pr11 q).
+    - <span class="bp">exact</span> (pr1 (inserter_cone_pr1 q)).
+    - <span class="bp">exact</span> (pr1 (inserter_cone_cell q)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">underlying_inserter_1cell</span> (<span class="nv">q</span> : inserter_cone Fm Gm) :
+    inserter_1cell (underlying_inserter_cone q) (dialgebra_inserter_cone (pr1 Fm) (pr1 Gm))
+    := dialgebra_inserter_ump_1 (pr1 Fm) (pr1 Gm) (underlying_inserter_cone q).
+
+  <span class="sd">(** now comes the very efficient use of monoidal functor lifting *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">fmonoidal_underlying_inserter_1cell</span> (<span class="nv">q</span> : inserter_cone Fm Gm) :
+    fmonoidal (pr21 q)
+              (dialgebra_monoidal (pr2 Fm) ((pr12 Gm): fmonoidal_lax (pr2 Mon_V) (pr2 Mon_W) _))
+              (pr1 (underlying_inserter_1cell q)).
+  <span class="kn">Proof</span>.
+    use functorlifting_fmonoidal.
+    <span class="mi">3</span>: {
+      use monoidal_nat_trans_to_dialgebra_lifting_strong.
+      + use tpair.
+        * <span class="nb">apply</span> (pr12 q).
+        * <span class="nb">apply</span> (pr212 q).
+      + <span class="nb">apply</span> (pr22 q).
+    }
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_mon_nat_trans_underlying_inserter_1cell_pr1</span> (<span class="nv">q</span> : inserter_cone Fm Gm) :
+    is_mon_nat_trans
+      (comp_fmonoidal (fmonoidal_underlying_inserter_1cell q) (dialgebra_monoidal_pr1 (pr2 Fm) (pr12 Gm)))
+      (pr12 (inserter_cone_pr1 q))
+      (pr1 (inserter_1cell_pr1 (underlying_inserter_1cell q))).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> projection_preserves_tensordata, fmonoidal_preservestensordata.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> id_right.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+           <span class="nb">apply</span> pathsinv0, tensor_id_id. }
+      <span class="nb">apply</span> pathsinv0, id_left.
+    - <span class="nb">red</span>. <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> projection_preserves_unit, fmonoidal_preservesunit.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monbicat_inserter_ump_1_inv_2cell</span>
+             (<span class="nv">q</span> : inserter_cone Fm Gm)
+    : invertible_2cell
+    ((_,, fmonoidal_underlying_inserter_1cell q : monbicat ⟦q, monbicat_inserter_cone⟧)
+       · inserter_cone_pr1 monbicat_inserter_cone) (inserter_cone_pr1 q).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="k">exists</span> (<span class="nv">pr112</span> (underlying_inserter_1cell q)).
+      <span class="nb">apply</span> (is_mon_nat_trans_underlying_inserter_1cell_pr1 q).
+    - use tpair.
+      + use tpair.
+        * <span class="bp">exact</span> (pr12 (inserter_1cell_pr1 (underlying_inserter_1cell q))).
+        * <span class="nb">apply</span> is_mon_nat_trans_pointwise_inverse.
+          <span class="nb">apply</span> (is_mon_nat_trans_underlying_inserter_1cell_pr1 q).
+      + <span class="kp">abstract</span> (<span class="nb">split</span> ; use equality_2cells_monbicat ; <span class="nb">intro</span> ; <span class="nb">apply</span> id_left).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monbicat_inserter_ump_1</span> :
+    has_inserter_ump_1 monbicat_inserter_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> q.
+    use make_inserter_1cell.
+    - <span class="k">exists</span> (<span class="nv">underlying_inserter_1cell</span> <span class="nv">q</span>).
+      <span class="bp">exact</span> (fmonoidal_underlying_inserter_1cell q).
+    - <span class="bp">exact</span> (monbicat_inserter_ump_1_inv_2cell q).
+    - <span class="kp">abstract</span> (
+          use equality_2cells_monbicat ;
+          <span class="nb">intro</span> ;
+          <span class="nb">cbn</span> ;
+          <span class="nb">rewrite</span> id_right, id_left ;
+          etrans ;
+          [ <span class="nb">apply</span> maponpaths ;
+            <span class="nb">apply</span> functor_id | <span class="nb">rewrite</span> id_right] ;
+          <span class="nb">refine</span> (! id_left _ @ _) ;
+          <span class="nb">apply</span> maponpaths_2, pathsinv0, functor_id).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">UMP2Prep</span>.
+
+  <span class="kn">Context</span> {<span class="nv">Mon_U</span> : monbicat}
+  {<span class="nv">Hm</span> <span class="nv">H'm</span> : monbicat ⟦Mon_U, monbicat_inserter_cone⟧}
+  (<span class="nv">α</span> : prebicat_cells monbicat (Hm · inserter_cone_pr1 monbicat_inserter_cone) (H'm · inserter_cone_pr1 monbicat_inserter_cone))
+  (<span class="nv">Hyp</span> : vcomp2
+          (vcomp2 (vcomp2 (rassociator Hm (inserter_cone_pr1 monbicat_inserter_cone) Fm) (lwhisker Hm (inserter_cone_cell monbicat_inserter_cone)))
+             (lassociator Hm (inserter_cone_pr1 monbicat_inserter_cone) Gm)) (rwhisker Gm α) =
+        vcomp2 (vcomp2 (vcomp2 (rwhisker Fm α) (rassociator H'm (inserter_cone_pr1 monbicat_inserter_cone) Fm)) (lwhisker H'm (inserter_cone_cell monbicat_inserter_cone)))
+          (lassociator H'm (inserter_cone_pr1 monbicat_inserter_cone) Gm)).
+
+  <span class="kn">Local Definition</span> <span class="nf">underlying_inserter_ump_2</span>
+    : ∑ ζ : prebicat_cells bicat_of_cats (pr1 Hm) (pr1 H'm),
+        rwhisker (inserter_cone_pr1 (dialgebra_inserter_cone (pr1 Fm) (pr1 Gm))) ζ = pr1 α
+    := dialgebra_inserter_ump_2 (pr1 Fm) (pr1 Gm) (pr1 Mon_U) (pr1 Hm) (pr1 H'm)
+         (pr1 α) (maponpaths pr1 Hyp).
+
+  <span class="kn">Local Definition</span> <span class="nf">underlying_inserter_ump_cell</span> : prebicat_cells bicat_of_cats (pr1 Hm) (pr1 H'm)
+    := pr1 underlying_inserter_ump_2.
+
+  <span class="kn">Local Lemma</span> <span class="nf">is_mon_nat_trans_underlying_inserter_ump_cell</span> :
+    is_mon_nat_trans (pr2 Hm : fmonoidal (pr2 Mon_U) _ _)
+                     (pr2 H'm : fmonoidal (pr2 Mon_U) _ _)
+                     underlying_inserter_ump_cell.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y.
+      use total2_paths_f; [<span class="nb">cbn</span> | <span class="nb">apply</span> (pr1 Mon_W)].
+      <span class="nb">assert</span> (aux := pr12 α x y). <span class="nb">cbn</span> <span class="k">in</span> aux.
+      <span class="nb">unfold</span> projection_preserves_tensordata <span class="k">in</span> aux.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left <span class="k">in</span> aux.
+      <span class="bp">exact</span> aux.
+    - use total2_paths_f; [<span class="nb">cbn</span> | <span class="nb">apply</span> (pr1 Mon_W)].
+      <span class="nb">assert</span> (aux := pr22 α). <span class="nb">red</span> <span class="k">in</span> aux; <span class="nb">cbn</span> <span class="k">in</span> aux.
+      <span class="nb">unfold</span> projection_preserves_unit <span class="k">in</span> aux.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left <span class="k">in</span> aux.
+      <span class="bp">exact</span> aux.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">UMP2Prep</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monbicat_inserter_ump_2</span> :
+    has_inserter_ump_2 monbicat_inserter_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Mon_U Hm H'm α Hyp.
+    <span class="k">exists</span> (<span class="nv">underlying_inserter_ump_cell</span> <span class="nv">α</span> <span class="nv">Hyp</span>,,
+                                    <span class="nv">is_mon_nat_trans_underlying_inserter_ump_cell</span> <span class="nv">α</span> <span class="nv">Hyp</span>).
+    <span class="kp">abstract</span> (use equality_2cells_monbicat ; <span class="nb">intro</span> ; <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monbicat_inserter_ump_eq</span> :
+    has_inserter_ump_eq monbicat_inserter_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Mon_U Hm H'm α Hyp ϕ1 ϕ2 eqϕ1 eqϕ2.
+    use total2_paths_f; [<span class="nb">cbn</span> | <span class="nb">apply</span> isaprop_is_mon_nat_trans].
+    use (dialgebra_inserter_ump_eq (pr1 Fm) (pr1 Gm) (pr1 Mon_U) (pr1 Hm) (pr1 H'm)
+         (pr1 α) (maponpaths pr1 Hyp)).
+    - <span class="bp">exact</span> (maponpaths pr1 eqϕ1).
+    - <span class="bp">exact</span> (maponpaths pr1 eqϕ2).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">FixTwoMonoidalFunctors</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_inserters_monbicat</span> : has_inserters monbicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Mon_V Mon_W Fm Gm.
+    <span class="nb">cbn</span> <span class="k">in</span> Fm, Gm.
+    <span class="k">exists</span> (<span class="nv">dialgebra</span> (pr1 Fm) (pr1 Gm) ,, dialgebra_monoidal (pr2 Fm) (pr2 Gm)).
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="nb">cbn</span>. <span class="k">exists</span> (<span class="nv">dialgebra_pr1</span> (pr1 Fm) (pr1 Gm)).
+      <span class="nb">apply</span> dialgebra_monoidal_pr1.
+    - <span class="nb">cbn</span>. <span class="k">exists</span> (<span class="nv">dialgebra_nat_trans</span> (pr1 Fm) (pr1 Gm)).
+      <span class="nb">apply</span> dialgebra_nat_trans_is_mon_nat_trans.
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (monbicat_inserter_ump_1 Fm Gm).
+      + <span class="bp">exact</span> (monbicat_inserter_ump_2 Fm Gm).
+      + <span class="bp">exact</span> (monbicat_inserter_ump_eq Fm Gm).
+  <span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/MonoidalDialgebrasInserters.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

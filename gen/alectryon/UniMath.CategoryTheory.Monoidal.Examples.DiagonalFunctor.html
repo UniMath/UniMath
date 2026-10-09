@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DiagonalFunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">Let V be a symmetric monoidal category,</span>
+<span class="sd">we show how the "diagonal functor" V → V : x ↦ x ⊗ x is part of a strong monoidal functor.</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Import</span> BifunctorNotations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.SymmetricDiagonal.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">DiagFunctor</span>.
+
+  <span class="kn">Context</span> (<span class="nv">V</span> : monoidal_cat).
+
+  <span class="kn">Definition</span> <span class="nf">diag_functor_data</span>
+    : functor_data V V.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, x ⊗ x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, f #⊗ f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">diag_is_functor</span>
+    : is_functor diag_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> tensor_id_id.
+    - <span class="nb">apply</span> tensor_comp_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">diag_functor</span>
+    : functor V V.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">diag_functor_data</span>.
+    <span class="bp">exact</span> diag_is_functor.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">DiagFunctor</span>.
+
+<span class="kn">Section</span> <span class="nf">DiagFunctorMonoidal</span>.
+
+  <span class="kn">Context</span> (<span class="nv">V</span> : sym_monoidal_cat).
+
+  <span class="kn">Let</span> <span class="nf">diag</span> := diag_functor V.
+
+  <span class="kn">Definition</span> <span class="nf">diag_preserves_tensor_data</span>
+    : preserves_tensordata V V diag.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, inner_swap V x x y y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">diag_preserves_unit</span>
+    : preserves_unit V V diag.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> mon_linvunitor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">diag_functor_fmonoidal_data</span>
+    : fmonoidal_data V V diag.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">diag_preserves_tensor_data</span>.
+    <span class="bp">exact</span> diag_preserves_unit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">diag_functor_fmonoidal_nat_left</span>
+    : preserves_tensor_nat_left (fmonoidal_preservestensordata diag_functor_fmonoidal_data).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y x1 x2 f.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">refine</span> (_ @ naturality_inner_swap V (identity y) (identity y) f f @ _).
+    - <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, (when_bifunctor_becomes_leftwhiskering V).
+      }
+      <span class="nb">cbn</span> ; <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (when_bifunctor_becomes_leftwhiskering V).
+    - <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering V).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> tensor_id_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">diag_functor_fmonoidal_nat_right</span>
+    : preserves_tensor_nat_right (fmonoidal_preservestensordata diag_functor_fmonoidal_data).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 x2 y f.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">refine</span> (_ @ naturality_inner_swap V f f (identity y) (identity y) @ _).
+    - <span class="nb">apply</span> maponpaths.
+      etrans.
+      <span class="mi">2</span>: {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0, (when_bifunctor_becomes_rightwhiskering V).
+      }
+      <span class="nb">cbn</span> ; <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> pathsinv0, (when_bifunctor_becomes_rightwhiskering V).
+    - <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_rightwhiskering V).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> tensor_id_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">diag_functor_fmonoidal_assoc</span>
+    : preserves_associativity (fmonoidal_preservestensordata diag_functor_fmonoidal_data).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z.
+    <span class="nb">refine</span> (_ @ inner_swap_hexagon'_3 V x y z @ _).
+    - <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_rightwhiskering V).
+    - <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (when_bifunctor_becomes_leftwhiskering V).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">diag_functor_fmonoidal_leftunitality</span>
+    : preserves_leftunitality
+        (fmonoidal_preservestensordata diag_functor_fmonoidal_data)
+        (fmonoidal_preservesunit diag_functor_fmonoidal_data).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (! precompose_inner_swap_with_lunitors_on_right V x x).
+    }
+    etrans. {
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> inner_swap_is_z_isomorphism.
+    }
+    <span class="nb">rewrite</span> id_right.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (! bifunctor_rightcomp V _ _ _ _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> monoidal_leftunitorisolaw.
+    }
+    <span class="nb">rewrite</span> bifunctor_rightid.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">diag_functor_fmonoidal_rightunitality</span>
+    : preserves_rightunitality
+        (fmonoidal_preservestensordata diag_functor_fmonoidal_data)
+        (fmonoidal_preservesunit diag_functor_fmonoidal_data).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> diag_preserves_unit.
+    <span class="nb">unfold</span> diag_preserves_tensor_data.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> precompose_inner_swap_with_lunitors_and_runitor.
+    }
+    etrans. {
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> inner_swap_is_z_isomorphism.
+    }
+    <span class="nb">rewrite</span> id_right.
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (! bifunctor_leftcomp V _ _ _ _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> monoidal_leftunitorisolaw.
+    }
+    <span class="nb">rewrite</span> (bifunctor_leftid V).
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">diag_functor_fmonoidal_laxlaws</span>
+    : fmonoidal_laxlaws diag_functor_fmonoidal_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> diag_functor_fmonoidal_nat_left.
+    - <span class="bp">exact</span> diag_functor_fmonoidal_nat_right.
+    - <span class="bp">exact</span> diag_functor_fmonoidal_assoc.
+    - <span class="bp">exact</span> diag_functor_fmonoidal_leftunitality.
+    - <span class="bp">exact</span> diag_functor_fmonoidal_rightunitality.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">diag_functor_fmonoidal_lax</span>
+    : fmonoidal_lax V V diag.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">diag_functor_fmonoidal_data</span>.
+    <span class="bp">exact</span> diag_functor_fmonoidal_laxlaws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">diag_functor_is_strong_fmonoidal</span>
+    : fmonoidal_stronglaws
+         (fmonoidal_preservestensordata diag_functor_fmonoidal_lax)
+         (fmonoidal_preservesunit diag_functor_fmonoidal_lax).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> fmonoidal_stronglaws.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> inner_swap_is_z_isomorphism.
+    - <span class="nb">refine</span> (_ ,, _).
+      <span class="nb">split</span> ; <span class="nb">apply</span> (monoidal_leftunitorisolaw V I_{V}).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">diag_functor_fmonoidal</span>
+    : fmonoidal V V diag.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">diag_functor_fmonoidal_lax</span>.
+    <span class="bp">exact</span> diag_functor_is_strong_fmonoidal.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">diag_functor_is_symmetric</span>
+    : is_symmetric_monoidal_functor V V diag_functor_fmonoidal.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (inner_swap_commute_with_swap V).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Definition diag_functor_lax_monoidal_functor</span>
+<span class="c">    : lax_monoidal_functor V V.</span>
+<span class="c">  Proof.</span>
+<span class="c">    use make_lax_monoidal_functor.</span>
+<span class="c">    - exact diag.</span>
+<span class="c">    - exact diag_preserves_tensor_data.</span>
+<span class="c">    - exact diag_preserves_unit.</span>
+<span class="c">    - . *)</span>
+
+<span class="kn">End</span> <span class="nf">DiagFunctorMonoidal</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Examples/DiagonalFunctor.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

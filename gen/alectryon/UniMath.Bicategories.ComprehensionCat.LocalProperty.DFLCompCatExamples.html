@@ -1,0 +1,781 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DFLCompCatExamples.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Local properties in DFL full comprehension categories</span>
+
+<span class="sd"> Local properties are used to express that a comprehension categories support a certain</span>
+<span class="sd"> type former. For instance, fiberwise initial objects are used to express that a</span>
+<span class="sd"> comprehension category is equipped with an empty types, and fiberwise regularity is used</span>
+<span class="sd"> to express that a comprehension is equipped with a propositional truncation operation.</span>
+<span class="sd"> In this file, we give accessors for comprehension categories that support some local</span>
+<span class="sd"> property. Specifically, we look at the type former, preservation under substitution, and</span>
+<span class="sd"> functoriality operations.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Accessors for basic constructions of local properties</span>
+<span class="sd"> 2. Accessors for DFL comprehension categories with a fiberwise strict initial object</span>
+<span class="sd"> 3. Accessors for DFL comprehension categories with fiberwise binary coproducts</span>
+<span class="sd"> 4. Accessors for DFL comprehension categories with a fiberwise subobject classifier</span>
+<span class="sd"> 5. Accessors for DFL comprehension categories with a fiberwise parameterized NNO</span>
+<span class="sd"> 6. Accessors for DFL comprehension categories that are fiberwise regular</span>
+
+<span class="sd">                                                                                         *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.StrictInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpiFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.ParameterizedNNO.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.HPropMono.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.LocalProperties.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.LocalProperty.Examples.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.DFLCompCatToFinLim.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.LocalProperty.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. Accessors for basic constructions of local properties *)</span>
+<span class="kn">Definition</span> <span class="nf">local_property_conj_left</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           {<span class="nv">P₁</span> <span class="nv">P₂</span> : local_property}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   (local_property_conj P₁ P₂)
+                   C)
+  : fiberwise_cat_property P₁ C.
+<span class="kn">Proof</span>.
+  use make_fiberwise_cat_property.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span>, pr1 (fiberwise_cat_property_ob HC Γ)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">Δ</span> <span class="nv">s</span>, pr1 (fiberwise_cat_property_mor HC s)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_property_conj_right</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           {<span class="nv">P₁</span> <span class="nv">P₂</span> : local_property}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   (local_property_conj P₁ P₂)
+                   C)
+  : fiberwise_cat_property P₂ C.
+<span class="kn">Proof</span>.
+  use make_fiberwise_cat_property.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span>, pr2 (fiberwise_cat_property_ob HC Γ)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">Δ</span> <span class="nv">s</span>, pr2 (fiberwise_cat_property_mor HC s)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_property_sub_left</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           {<span class="nv">P</span> : local_property}
+           {<span class="nv">Q</span> : sub_property_of_local_property P}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   (sub_local_property P Q)
+                   C)
+  : fiberwise_cat_property P C.
+<span class="kn">Proof</span>.
+  use make_fiberwise_cat_property.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span>, pr1 (fiberwise_cat_property_ob HC Γ)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">Δ</span> <span class="nv">s</span>, fiberwise_cat_property_mor HC s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_property_sub_right</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           {<span class="nv">P</span> : local_property}
+           {<span class="nv">Q</span> : sub_property_of_local_property P}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   (sub_local_property P Q)
+                   C)
+           (<span class="nv">Γ</span> : C)
+  : Q (dfl_full_comp_cat_fiber Γ) (fiberwise_cat_property_ob (local_property_sub_left HC) Γ)
+  := pr2 (fiberwise_cat_property_ob HC Γ).
+
+<span class="kn">Definition</span> <span class="nf">local_property_functor_conj_left</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           {<span class="nv">P₁</span> <span class="nv">P₂</span> : local_property}
+           {<span class="nv">HC₁</span> : fiberwise_cat_property
+                    (local_property_conj P₁ P₂)
+                    C₁}
+           {<span class="nv">HC₂</span> : fiberwise_cat_property
+                    (local_property_conj P₁ P₂)
+                    C₂}
+           {<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂}
+           (<span class="nv">HF</span> : fiberwise_cat_property_functor F HC₁ HC₂)
+  : fiberwise_cat_property_functor
+      F
+      (local_property_conj_left HC₁)
+      (local_property_conj_left HC₂)
+  := <span class="k">λ</span> <span class="nv">Γ</span>, pr1 (HF Γ).
+
+<span class="kn">Definition</span> <span class="nf">local_property_functor_conj_right</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           {<span class="nv">P₁</span> <span class="nv">P₂</span> : local_property}
+           {<span class="nv">HC₁</span> : fiberwise_cat_property
+                    (local_property_conj P₁ P₂)
+                    C₁}
+           {<span class="nv">HC₂</span> : fiberwise_cat_property
+                    (local_property_conj P₁ P₂)
+                    C₂}
+           {<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂}
+           (<span class="nv">HF</span> : fiberwise_cat_property_functor F HC₁ HC₂)
+  : fiberwise_cat_property_functor
+      F
+      (local_property_conj_right HC₁)
+      (local_property_conj_right HC₂)
+  := <span class="k">λ</span> <span class="nv">Γ</span>, pr2 (HF Γ).
+
+<span class="kn">Definition</span> <span class="nf">local_property_functor_sub_left</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           {<span class="nv">P</span> : local_property}
+           {<span class="nv">Q</span> : sub_property_of_local_property P}
+           {<span class="nv">HC₁</span> : fiberwise_cat_property
+                    (sub_local_property P Q)
+                    C₁}
+           {<span class="nv">HC₂</span> : fiberwise_cat_property
+                    (sub_local_property P Q)
+                    C₂}
+           {<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂}
+           (<span class="nv">HF</span> : fiberwise_cat_property_functor F HC₁ HC₂)
+  : fiberwise_cat_property_functor
+      F
+      (local_property_sub_left HC₁)
+      (local_property_sub_left HC₂)
+  := HF.
+
+<span class="sd">(** * 2. Accessors for DFL comprehension categories with a fiberwise strict initial object *)</span>
+<span class="kn">Definition</span> <span class="nf">strict_initial_local_property_strict_initial</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   strict_initial_local_property
+                   C)
+           (<span class="nv">Γ</span> : C)
+  : strict_initial_object (dfl_full_comp_cat_fiber Γ)
+  := fiberwise_cat_property_ob HC Γ.
+
+<span class="kn">Definition</span> <span class="nf">strict_initial_local_property_empty</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   strict_initial_local_property
+                   C)
+           (<span class="nv">Γ</span> : C)
+  : ty Γ
+  := InitialObject (strict_initial_local_property_strict_initial HC Γ).
+
+<span class="kn">Proposition</span> <span class="nf">initial_local_property_subst_preserve_initial</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">HC</span> : fiberwise_cat_property
+                   strict_initial_local_property
+                   C)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+  : preserves_initial (dfl_full_comp_cat_fiber_functor s).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (fiberwise_cat_property_mor HC s).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">initial_local_property_subst_z_iso</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   strict_initial_local_property
+                   C)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+  : z_iso
+      (C := fiber_category _ _)
+      (strict_initial_local_property_empty HC Δ [[ s ]])
+      (strict_initial_local_property_empty HC Γ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (preserves_initial_to_z_iso
+           _
+           (initial_local_property_subst_preserve_initial HC s)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Accessors for DFL comprehension categories with fiberwise binary coproducts *)</span>
+<span class="kn">Definition</span> <span class="nf">dfl_full_comp_cat_to_finlim_bincoproducts</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+  : BinCoproducts (dfl_full_comp_cat_to_finlim C)
+  := pr1 (local_property_in_dfl_comp_cat _ _ HC).
+
+<span class="kn">Definition</span> <span class="nf">coprod_local_property_bincoproduct</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> <span class="nv">B</span> : ty Γ)
+  : BinCoproduct (C := fiber_category _ _) A B
+  := pr1 (fiberwise_cat_property_ob HC Γ) A B.
+
+<span class="kn">Definition</span> <span class="nf">coprod_local_property_sum</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> <span class="nv">B</span> : ty Γ)
+  : ty Γ
+  := BinCoproductObject (coprod_local_property_bincoproduct HC A B).
+
+<span class="kn">Definition</span> <span class="nf">coprod_local_property_inl</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> <span class="nv">B</span> : ty Γ)
+           (<span class="nv">t</span> : tm Γ A)
+  : tm Γ (coprod_local_property_sum HC A B).
+<span class="kn">Proof</span>.
+  use make_comp_cat_tm.
+  - <span class="bp">exact</span> (t · comp_cat_comp_mor
+                 (BinCoproductIn1 (coprod_local_property_bincoproduct HC A B))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">rewrite</span> comp_cat_comp_mor_comm ;
+       <span class="nb">apply</span> comp_cat_tm_eq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coprod_local_property_inr</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> <span class="nv">B</span> : ty Γ)
+           (<span class="nv">t</span> : tm Γ B)
+  : tm Γ (coprod_local_property_sum HC A B).
+<span class="kn">Proof</span>.
+  use make_comp_cat_tm.
+  - <span class="bp">exact</span> (t · comp_cat_comp_mor
+                 (BinCoproductIn2 (coprod_local_property_bincoproduct HC A B))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">rewrite</span> comp_cat_comp_mor_comm ;
+       <span class="nb">apply</span> comp_cat_tm_eq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coprod_local_property_sum_functor</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A</span> <span class="nv">A'</span> <span class="nv">B</span> <span class="nv">B'</span> : ty Γ}
+           (<span class="nv">f</span> : A &lt;: A')
+           (<span class="nv">g</span> : B &lt;: B')
+  : coprod_local_property_sum HC A B &lt;: coprod_local_property_sum HC A' B'.
+<span class="kn">Proof</span>.
+  use BinCoproductArrow.
+  - <span class="bp">exact</span> (f · BinCoproductIn1 _).
+  - <span class="bp">exact</span> (g · BinCoproductIn2 _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coprod_local_property_sum_functor_on_id</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> <span class="nv">B</span> : ty Γ)
+  : coprod_local_property_sum_functor HC (identity _) (identity _)
+    =
+    identity (C := fiber_category _ _) (coprod_local_property_sum HC A B).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> coprod_local_property_sum_functor.
+  use BinCoproductArrowsEq.
+  - <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">coprod_local_property_sum_functor_on_comp</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A₁</span> <span class="nv">A₂</span> <span class="nv">A₃</span> <span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> : ty Γ}
+           (<span class="nv">f₁</span> : A₁ &lt;: A₂)
+           (<span class="nv">f₂</span> : A₂ &lt;: A₃)
+           (<span class="nv">g₁</span> : B₁ &lt;: B₂)
+           (<span class="nv">g₂</span> : B₂ &lt;: B₃)
+  : coprod_local_property_sum_functor HC (f₁ · f₂) (g₁ · g₂)
+    =
+    coprod_local_property_sum_functor HC f₁ g₁
+    · coprod_local_property_sum_functor HC f₂ g₂.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> coprod_local_property_sum_functor.
+  use BinCoproductArrowsEq.
+  - <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> !BinCoproductIn1Commutes.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> BinCoproductIn1Commutes.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> !BinCoproductIn2Commutes.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> BinCoproductIn2Commutes.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">coprod_local_property_subst_preserve_bincoproduct</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+  : preserves_bincoproduct (dfl_full_comp_cat_fiber_functor s).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (fiberwise_cat_property_mor HC s).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">coprod_local_property_subst_z_iso</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   stable_bincoproducts_local_property
+                   C)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           (<span class="nv">A</span> <span class="nv">B</span> : ty Δ)
+  : z_iso
+      (C := fiber_category _ _)
+      ((coprod_local_property_sum HC A B) [[ s ]])
+      (coprod_local_property_sum HC (A [[ s ]]) (B [[ s ]])).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (preserves_bincoproduct_to_z_iso
+           _
+           (coprod_local_property_subst_preserve_bincoproduct HC s)
+           (coprod_local_property_bincoproduct HC A B)
+           (coprod_local_property_bincoproduct HC (A [[ s ]]) (B [[ s ]]))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Accessors for DFL comprehension categories with a fiberwise subobject classifier *)</span>
+<span class="kn">Definition</span> <span class="nf">subobj_classifier_local_property_subobj_classifier</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   subobject_classifier_local_property
+                   C)
+           (<span class="nv">Γ</span> : C)
+  : subobject_classifier
+      (terminal_univ_cat_with_finlim (dfl_full_comp_cat_fiber Γ))
+  := fiberwise_cat_property_ob HC Γ.
+
+<span class="kn">Definition</span> <span class="nf">subobj_classifier_local_property_type</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   subobject_classifier_local_property
+                   C)
+           (<span class="nv">Γ</span> : C)
+  : ty Γ
+  := subobject_classifier_object (subobj_classifier_local_property_subobj_classifier HC Γ).
+
+<span class="kn">Proposition</span> <span class="nf">subobj_classifier_local_property_preserves_subobj_classifier</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">HC</span> : fiberwise_cat_property
+                   subobject_classifier_local_property
+                   C)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+  : preserves_subobject_classifier
+      _
+      (terminal_univ_cat_with_finlim (dfl_full_comp_cat_fiber Δ))
+      (terminal_univ_cat_with_finlim (dfl_full_comp_cat_fiber Γ))
+      (functor_finlim_preserves_terminal (dfl_full_comp_cat_fiber_functor s)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (fiberwise_cat_property_mor HC s).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">subobj_classifier_local_property_subst_z_iso</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   subobject_classifier_local_property
+                   C)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+  : z_iso
+      (C := fiber_category _ _)
+      (subobj_classifier_local_property_type HC Δ [[ s ]])
+      (subobj_classifier_local_property_type HC Γ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (preserves_subobject_classifier_z_iso
+           (subobj_classifier_local_property_preserves_subobj_classifier HC s)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Accessors for DFL comprehension categories with a fiberwise parameterized NNO *)</span>
+<span class="kn">Definition</span> <span class="nf">pnno_local_property_pnno</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   parameterized_NNO_local_property
+                   C)
+           (<span class="nv">Γ</span> : C)
+  : parameterized_NNO
+      (terminal_univ_cat_with_finlim (dfl_full_comp_cat_fiber Γ))
+      (binproducts_univ_cat_with_finlim (dfl_full_comp_cat_fiber Γ))
+  := fiberwise_cat_property_ob HC Γ.
+
+<span class="kn">Definition</span> <span class="nf">pnno_local_property_type</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   parameterized_NNO_local_property
+                   C)
+           (<span class="nv">Γ</span> : C)
+  : ty Γ
+  := parameterized_NNO_carrier (pnno_local_property_pnno HC Γ).
+
+<span class="kn">Proposition</span> <span class="nf">pnno_local_property_preserves_pnno</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">HC</span> : fiberwise_cat_property
+                   parameterized_NNO_local_property
+                   C)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+  : preserves_parameterized_NNO
+      (pnno_local_property_pnno HC Δ)
+      (pnno_local_property_pnno HC Γ)
+      _
+      (functor_finlim_preserves_terminal (dfl_full_comp_cat_fiber_functor s)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (fiberwise_cat_property_mor HC s).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pnno_local_property_subst_z_iso</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property
+                   parameterized_NNO_local_property
+                   C)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+  : z_iso
+      (C := fiber_category _ _)
+      (pnno_local_property_type HC Δ [[ s ]])
+      (pnno_local_property_type HC Γ).
+<span class="kn">Proof</span>.
+  use z_iso_inv.
+  <span class="nb">refine</span> (_ ,, _).
+  <span class="bp">exact</span> (pnno_local_property_preserves_pnno HC s).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Accessors for DFL comprehension categories that are fiberwise regular *)</span>
+<span class="kn">Definition</span> <span class="nf">regular_local_property_fiber_regular</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+           (<span class="nv">Γ</span> : C)
+  : is_regular_category (dfl_full_comp_cat_fiber Γ).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">exact</span> (terminal_univ_cat_with_finlim (dfl_full_comp_cat_fiber Γ)).
+  - <span class="bp">exact</span> (pullbacks_univ_cat_with_finlim (dfl_full_comp_cat_fiber Γ)).
+  - <span class="bp">exact</span> (pr1 (fiberwise_cat_property_ob HC Γ)).
+  - <span class="bp">exact</span> (pr2 (fiberwise_cat_property_ob HC Γ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_local_property_base_regular</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+  : is_regular_category C.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">exact</span> (terminal_univ_cat_with_finlim (dfl_full_comp_cat_to_finlim C)).
+  - <span class="bp">exact</span> (pullbacks_univ_cat_with_finlim (dfl_full_comp_cat_to_finlim C)).
+  - <span class="bp">exact</span> (pr1 (local_property_in_dfl_comp_cat _ _ HC)).
+  - <span class="bp">exact</span> (pr2 (local_property_in_dfl_comp_cat _ _ HC)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">regular_local_property_subst_preserves_regular_epi</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+            {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+            (<span class="nv">s</span> : Γ --&gt; Δ)
+            {<span class="nv">A</span> <span class="nv">B</span> : ty Δ}
+            {<span class="nv">f</span> : A &lt;: B}
+            (<span class="nv">Hf</span> : is_regular_epi f)
+  : is_regular_epi (#(dfl_full_comp_cat_fiber_functor s) f).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (fiberwise_cat_property_mor HC s _ _ _ Hf).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_local_property_subst_preserves_monic</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           {<span class="nv">A</span> <span class="nv">B</span> : ty Δ}
+           (<span class="nv">f</span> : Monic (fiber_category _ _) A B)
+  : Monic (fiber_category _ _) (A [[ s ]]) (B [[ s ]])
+  := functor_preserves_pb_on_monic
+       (functor_finlim_preserves_pullback (dfl_full_comp_cat_fiber_functor s))
+       f.
+
+<span class="kn">Definition</span> <span class="nf">regular_local_property_trunc</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+  : ty Γ
+  := regular_category_im
+       (regular_local_property_fiber_regular HC Γ)
+       (TerminalArrow
+          (dfl_full_comp_cat_terminal (Γ : C))
+          A).
+
+<span class="kn">Definition</span> <span class="nf">regular_local_property_trunc_Monic</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+  : Monic
+      ((disp_cat_of_types C)[{Γ}])
+      (regular_local_property_trunc HC A)
+      (dfl_full_comp_cat_terminal (Γ : C))
+  := regular_category_im_Monic
+       (regular_local_property_fiber_regular HC Γ)
+       (TerminalArrow
+          (dfl_full_comp_cat_terminal (Γ : C))
+          A).
+
+<span class="kn">Definition</span> <span class="nf">to_regular_local_property_trunc</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+           {<span class="nv">Γ</span> : C}
+           (<span class="nv">A</span> : ty Γ)
+  : (disp_cat_of_types C)[{Γ}] ⟦ A , regular_local_property_trunc HC A ⟧
+  := regular_category_to_im
+       (regular_local_property_fiber_regular HC Γ)
+       (TerminalArrow
+          (dfl_full_comp_cat_terminal (Γ : C))
+          A).
+
+<span class="kn">Proposition</span> <span class="nf">is_regular_to_regular_local_property_trunc</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">A</span> : ty Γ)
+  : is_regular_epi (to_regular_local_property_trunc HC A).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_regular_epi_regular_category_to_im.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_hprop_ty_trunc</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">A</span> : ty Γ)
+  : is_hprop_ty (regular_local_property_trunc HC A).
+<span class="kn">Proof</span>.
+  use mono_ty_to_hprop_ty.
+  use subsingleton_to_mono_ty.
+  <span class="nb">refine</span> (transportf
+            (<span class="k">λ</span> <span class="nv">f</span>, isMonic f)
+            _
+            (MonicisMonic
+               _
+               (regular_local_property_trunc_Monic HC A))).
+  <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_local_property_trunc_stable</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           (<span class="nv">A</span> : ty Δ)
+  : (regular_local_property_trunc HC A) [[ s ]]
+    &lt;:
+    regular_local_property_trunc HC (A [[ s ]]).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (H := regular_local_property_fiber_regular HC Γ).
+  <span class="nb">pose</span> (regular_local_property_subst_preserves_regular_epi
+          HC
+          s
+          (is_regular_epi_regular_category_to_im
+             (regular_local_property_fiber_regular HC Δ)
+             (TerminalArrow
+                (dfl_full_comp_cat_terminal (Δ : C))
+                A)))
+    <span class="k">as</span> Hf.
+  use (pr11 (is_strong_epi_regular_epi
+               Hf
+               _ _
+               (regular_category_im_Monic _ _)
+               _ _ _
+               (MonicisMonic _ _))).
+  - <span class="nb">apply</span> regular_category_to_im.
+  - <span class="nb">apply</span> TerminalArrow.
+  - <span class="nb">apply</span> TerminalArrowEq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_local_property_trunc_stable_inv</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+           {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+           (<span class="nv">s</span> : Γ --&gt; Δ)
+           (<span class="nv">A</span> : ty Δ)
+  : regular_local_property_trunc HC (A [[ s ]])
+    &lt;:
+    (regular_local_property_trunc HC A) [[ s ]].
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (is_regular_epi_regular_category_to_im
+          (regular_local_property_fiber_regular HC Γ)
+          (TerminalArrow
+             (dfl_full_comp_cat_terminal (Γ : C))
+             (A [[ s ]])))
+    <span class="k">as</span> Hf.
+  <span class="nb">pose</span> (regular_local_property_subst_preserves_monic
+          s
+          (regular_category_im_Monic
+             (regular_local_property_fiber_regular HC Δ)
+             (TerminalArrow
+                (dfl_full_comp_cat_terminal (Δ : C))
+                A)))
+    <span class="k">as</span> m.
+  <span class="nb">pose</span> (preserves_terminal_to_terminal
+          _
+          (functor_finlim_preserves_terminal (dfl_full_comp_cat_fiber_functor s))
+          (dfl_full_comp_cat_terminal (Δ : C)))
+    <span class="k">as</span> T.
+  use (pr11 (is_strong_epi_regular_epi
+               Hf
+               _ _
+               m
+               _ _ _
+               (MonicisMonic _ _))).
+  - use coerce_subst_ty.
+    <span class="nb">apply</span> regular_category_to_im.
+  - <span class="nb">apply</span> (TerminalArrow T).
+  - <span class="nb">apply</span> (TerminalArrowEq (T := T)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_local_property_trunc_functor</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+           (<span class="nv">f</span> : A &lt;: B)
+  : regular_local_property_trunc HC A
+    &lt;:
+    regular_local_property_trunc HC B.
+<span class="kn">Proof</span>.
+  use regular_category_im_map.
+  - <span class="bp">exact</span> f.
+  - <span class="nb">apply</span> identity.
+  - <span class="kp">abstract</span>
+      (<span class="nb">apply</span> TerminalArrowEq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">regular_local_property_trunc_id</span>
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+            {<span class="nv">Γ</span> : C}
+            (<span class="nv">A</span> : ty Γ)
+  : regular_local_property_trunc_functor HC (identity (C := fiber_category _ _) A)
+    =
+    identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> regular_category_im_map_on_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_local_property_trunc_functor_comp</span>
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">HC</span> : fiberwise_cat_property regular_local_property C)
+           {<span class="nv">Γ</span> : C}
+           {<span class="nv">A₁</span> <span class="nv">A₂</span> <span class="nv">A₃</span> : ty Γ}
+           (<span class="nv">f</span> : A₁ &lt;: A₂)
+           (<span class="nv">g</span> : A₂ &lt;: A₃)
+  : regular_local_property_trunc_functor HC (f · g)
+    =
+    regular_local_property_trunc_functor HC f
+    · regular_local_property_trunc_functor HC g.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">unfold</span> regular_local_property_trunc_functor.
+  etrans.
+  {
+    use (regular_category_im_map_on_comp _).
+    <span class="nb">apply</span> TerminalArrowEq.
+  }
+  use (regular_category_mor_to_im_eq (regular_local_property_fiber_regular HC _)).
+  - <span class="bp">exact</span> (f · g).
+  - <span class="nb">apply</span> identity.
+  - <span class="nb">apply</span> TerminalArrowEq.
+  - <span class="nb">apply</span> TerminalArrowEq.
+  - <span class="nb">apply</span> TerminalArrowEq.
+  - <span class="nb">rewrite</span> regular_category_im_map_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> regular_category_im_map_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/LocalProperty/DFLCompCatExamples.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Accessors for DFL comprehension categories that are fiberwise regular
+  &gt;
+  &gt;                                                                                          *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Initial.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

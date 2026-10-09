@@ -1,0 +1,821 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Monads.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">Monads as a bicategory. The construction has 3 layers.</span>
+<span class="sd">In the first layer: we take algebras on the identity functor.</span>
+<span class="sd">In the second layer: we add η an μ. This is done by adding 2-cells (as in Add2Cell)</span>
+<span class="sd">In the third layer: we take the full subcategory and we add the monad laws.</span>
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Projection.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.AlgebraMap.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Algebras.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Add2Cell.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">monad_support</span> (<span class="nv">C</span> : bicat)
+  : bicat
+  := bicat_algebra (id_psfunctor C).
+
+<span class="kn">Definition</span> <span class="nf">monad_support_is_univalent_2_1</span> {<span class="nv">C</span> : bicat}
+           (<span class="nv">HC_1</span> : is_univalent_2_1 C)
+  : is_univalent_2_1 (monad_support C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> bicat_algebra_is_univalent_2_1.
+  <span class="bp">exact</span> HC_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monad_support_is_univalent_2_0</span> {<span class="nv">C</span> : bicat}
+           (<span class="nv">HC</span> : is_univalent_2 C)
+  : is_univalent_2_0 (monad_support C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> bicat_algebra_is_univalent_2_0.
+  <span class="bp">exact</span> HC.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monad_support_is_univalent_2</span> {<span class="nv">C</span> : bicat}
+           (<span class="nv">HC</span> : is_univalent_2 C)
+  : is_univalent_2 (monad_support C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> monad_support_is_univalent_2_0; <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> monad_support_is_univalent_2_1.
+    <span class="bp">exact</span> (pr2 HC).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">add_unit</span> (<span class="nv">C</span> : bicat)
+  : disp_bicat (monad_support C).
+<span class="kn">Proof</span>.
+  use add_cell_disp_cat.
+  - <span class="bp">exact</span> (id_psfunctor _).
+  - <span class="bp">exact</span> (id_psfunctor _).
+  - <span class="bp">exact</span> (var _ _).
+  - <span class="bp">exact</span> (alg_map _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">add_mu</span> (<span class="nv">C</span> : bicat)
+  : disp_bicat (monad_support C).
+<span class="kn">Proof</span>.
+  use add_cell_disp_cat.
+  - <span class="bp">exact</span> (id_psfunctor _).
+  - <span class="bp">exact</span> (id_psfunctor _).
+  - <span class="bp">exact</span> ((alg_map _) · (alg_map _)).
+  - <span class="bp">exact</span> (alg_map _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monad_data</span> (<span class="nv">C</span> : bicat)
+  : disp_bicat C
+  := sigma_bicat _ _ (disp_dirprod_bicat (add_unit C) (add_mu C)).
+
+<span class="kn">Definition</span> <span class="nf">lawless_monad</span> (<span class="nv">C</span> : bicat) := total_bicat (monad_data C).
+
+<span class="kn">Definition</span> <span class="nf">lawless_monad_is_univalent_2_1</span> (<span class="nv">C</span> : bicat)
+           (<span class="nv">HC_1</span> : is_univalent_2_1 C)
+  : is_univalent_2_1 (lawless_monad C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> sigma_is_univalent_2_1.
+  - <span class="bp">exact</span> HC_1.
+  - <span class="nb">apply</span> disp_alg_bicat_univalent_2_1.
+  - <span class="nb">apply</span> is_univalent_2_1_dirprod_bicat.
+    + <span class="nb">apply</span> add_cell_disp_cat_univalent_2_1.
+    + <span class="nb">apply</span> add_cell_disp_cat_univalent_2_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lawless_monad_is_univalent_2_0</span> (<span class="nv">C</span> : bicat)
+           (<span class="nv">HC</span> : is_univalent_2 C)
+  : is_univalent_2_0 (lawless_monad C).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (HC_1 := pr2 HC).
+  <span class="nb">apply</span> sigma_is_univalent_2_0.
+  - <span class="bp">exact</span> HC.
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> disp_alg_bicat_univalent_2_0.
+      <span class="nb">apply</span> HC.
+    + <span class="nb">apply</span> disp_alg_bicat_univalent_2_1.
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> is_univalent_2_0_dirprod_bicat.
+      * <span class="nb">apply</span> total_is_univalent_2_1.
+        ** <span class="bp">exact</span> (pr2 HC).
+        ** <span class="nb">apply</span> disp_alg_bicat_univalent_2_1.
+      * <span class="nb">apply</span> add_cell_disp_cat_univalent_2.
+        ** <span class="bp">exact</span> (pr2 HC).
+          ** <span class="nb">apply</span> disp_alg_bicat_univalent_2_1.
+      * <span class="nb">apply</span> add_cell_disp_cat_univalent_2.
+        ** <span class="bp">exact</span> (pr2 HC).
+        ** <span class="nb">apply</span> disp_alg_bicat_univalent_2_1.
+    + <span class="nb">apply</span> is_univalent_2_1_dirprod_bicat.
+      * <span class="nb">apply</span> add_cell_disp_cat_univalent_2_1.
+      * <span class="nb">apply</span> add_cell_disp_cat_univalent_2_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lawless_monad_is_univalent_2</span> (<span class="nv">C</span> : bicat)
+           (<span class="nv">HC</span> : is_univalent_2 C)
+  : is_univalent_2 (lawless_monad C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> lawless_monad_is_univalent_2_0; <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> lawless_monad_is_univalent_2_1.
+    <span class="bp">exact</span> (pr2 HC).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">BigProjections</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+
+  <span class="kn">Definition</span> <span class="nf">bigmonad_obj</span> : lawless_monad C → C
+    := <span class="k">λ</span> <span class="nv">m</span>, pr1 m.
+
+  <span class="kn">Definition</span> <span class="nf">bigmonad_map</span> : ∏ (m : lawless_monad C), bigmonad_obj m --&gt; bigmonad_obj m
+    := <span class="k">λ</span> <span class="nv">m</span>, pr12 m.
+
+  <span class="kn">Definition</span> <span class="nf">bigmonad_unit</span> : ∏ (m : lawless_monad C), id₁ (bigmonad_obj m) ==&gt; bigmonad_map m
+    := <span class="k">λ</span> <span class="nv">m</span>, pr122 m.
+
+  <span class="kn">Definition</span> <span class="nf">bigmonad_mu</span>
+    : ∏ (m : lawless_monad C), bigmonad_map m · bigmonad_map m ==&gt; bigmonad_map m
+    := <span class="k">λ</span> <span class="nv">m</span>, pr222 m.
+
+  <span class="kn">Definition</span> <span class="nf">bigmonad_laws</span> (<span class="nv">m</span> : lawless_monad C) : UU
+    := ((bigmonad_unit m ▹ bigmonad_map m)
+          • bigmonad_mu m
+        =
+        lunitor (bigmonad_map m))
+         ×
+       ((bigmonad_map m ◃ bigmonad_unit m)
+          • bigmonad_mu m
+        =
+        runitor (bigmonad_map m))
+         ×
+       ((bigmonad_map m ◃ bigmonad_mu m)
+          • bigmonad_mu m
+        =
+        lassociator (bigmonad_map m) (bigmonad_map m) (bigmonad_map m)
+          • (bigmonad_mu m ▹ bigmonad_map m)
+          • bigmonad_mu m).
+<span class="kn">End</span> <span class="nf">BigProjections</span>.
+
+<span class="kn">Definition</span> <span class="nf">monad</span> (<span class="nv">C</span> : bicat) : disp_bicat C
+  := sigma_bicat _ _ (disp_fullsubbicat (lawless_monad C) bigmonad_laws).
+
+<span class="sd">(** Projections *)</span>
+
+<span class="kn">Section</span> <span class="nf">Projections</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat} {<span class="nv">x</span> : C} (<span class="nv">m</span> : monad C x).
+
+<span class="kn">Definition</span> <span class="nf">monad_endo</span> : x --&gt; x
+  := pr11 m.
+
+<span class="kn">Definition</span> <span class="nf">monad_unit</span> : id₁ x ==&gt; monad_endo
+  := pr121 m.
+
+<span class="kn">Definition</span> <span class="nf">monad_mu</span> : monad_endo · monad_endo ==&gt; monad_endo
+  := pr221 m.
+
+<span class="kn">Definition</span> <span class="nf">monad_ημ</span>
+  : linvunitor monad_endo • (monad_unit ▹ monad_endo) • monad_mu = id₂ monad_endo.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (vassocl _ _ _ @ _ @ linvunitor_lunitor _ ).
+  <span class="nb">refine</span> (maponpaths _ _).
+  <span class="bp">exact</span> (pr12 m).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monad_μη</span>
+  : rinvunitor monad_endo • (monad_endo ◃ monad_unit) • monad_mu = id₂ monad_endo.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (vassocl _ _ _ @ _ @ rinvunitor_runitor _ ).
+  <span class="nb">refine</span> (maponpaths _ _).
+  <span class="bp">exact</span> (pr122 m).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monad_μμ</span>
+  : (monad_endo ◃ monad_mu) • monad_mu
+    =
+    lassociator monad_endo monad_endo monad_endo • (monad_mu ▹ monad_endo) • monad_mu
+  := pr222 m.
+
+<span class="kn">End</span> <span class="nf">Projections</span>.
+
+<span class="kn">Section</span> <span class="nf">Projections2</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat} {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">mx</span> : monad C x} {<span class="nv">my</span> : monad C y}
+        {<span class="nv">f</span> : x --&gt; y}
+        (<span class="nv">mf</span> : mx --&gt;[f] my).
+
+<span class="kn">Definition</span> <span class="nf">monad_mor_natural</span>
+  : invertible_2cell (monad_endo mx · f) (f · monad_endo my)
+  := pr11 mf.
+
+<span class="kn">Definition</span> <span class="nf">monad_mor_unit</span>
+  : (monad_unit mx ▹ f) • monad_mor_natural
+    =
+    (lunitor f • rinvunitor f) • (f ◃ monad_unit my)
+  := pr121 mf.
+
+<span class="kn">Definition</span> <span class="nf">monad_mor_mu</span>
+  : (monad_mu mx ▹ _) • monad_mor_natural
+    =
+    ((((rassociator _ _ _ • (_ ◃ monad_mor_natural))
+         • lassociator _ _ _) • (monad_mor_natural ▹ _))
+       • rassociator _ _ _) • (_ ◃ monad_mu my)
+  := pr221 mf.
+
+<span class="kn">End</span> <span class="nf">Projections2</span>.
+
+<span class="kn">Section</span> <span class="nf">Projections3</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat} {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">mx</span> : monad C x} {<span class="nv">my</span> : monad C y}
+        {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y} {<span class="nv">α</span> : f ==&gt; g}
+        {<span class="nv">mf</span> : mx --&gt;[f] my}
+        {<span class="nv">mg</span> : mx --&gt;[g] my}
+        (<span class="nv">αα</span> : mf ==&gt;[α] mg).
+
+<span class="kn">Definition</span> <span class="nf">monad_cell_natural</span>
+  : (monad_endo mx ◃ α) • monad_mor_natural mg
+    =
+    monad_mor_natural mf • (α ▹ monad_endo my)
+  := pr11 αα.
+
+<span class="kn">End</span> <span class="nf">Projections3</span>.
+
+<span class="sd">(** Builders. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">make_monad</span> {<span class="nv">C</span> : bicat}
+           (<span class="nv">X</span> : C)
+           (<span class="nv">f</span> : C⟦X,X⟧)
+           (<span class="nv">η</span> : id₁ X ==&gt; f)
+           (<span class="nv">μ</span> : f · f ==&gt; f)
+           (<span class="nv">ημ</span> : (η ▹ f) • μ
+                 =
+                 lunitor f)
+           (<span class="nv">μη</span> : (f ◃ η) • μ
+                 =
+                 runitor f)
+           (<span class="nv">μμ</span> : (f ◃ μ) • μ
+                 =
+                 lassociator f f f • (μ ▹ f) • μ)
+  : monad C X.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use tpair.
+    + <span class="bp">exact</span> f.
+    + <span class="nb">split</span>.
+      * <span class="bp">exact</span> η.
+      * <span class="bp">exact</span> μ.
+  - <span class="kp">repeat</span> <span class="nb">split</span>.
+    + <span class="bp">exact</span> ημ.
+    + <span class="bp">exact</span> μη.
+    + <span class="bp">exact</span> μμ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_monad_mor</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">mx</span> : monad C x} {<span class="nv">my</span> : monad C y}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">mf_nat</span> : invertible_2cell (monad_endo mx · f) (f · monad_endo my))
+           (<span class="nv">mfη</span> : (monad_unit mx ▹ f) • mf_nat
+                     =
+                     (lunitor f • rinvunitor f) • (f ◃ monad_unit my))
+           (<span class="nv">mfμ</span> : (monad_mu mx ▹ _) • mf_nat
+                  =
+                  ((((rassociator _ _ _ • (_ ◃ mf_nat))
+                       • lassociator _ _ _) • (mf_nat ▹ _))
+                     • rassociator _ _ _) • (_ ◃ monad_mu my))
+  : mx --&gt;[f] my.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_,, tt).
+  use tpair.
+  - <span class="bp">exact</span> mf_nat.
+  - <span class="nb">apply</span> make_dirprod.
+    + <span class="bp">exact</span> mfη.
+    + <span class="bp">exact</span> mfμ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_monad_cell</span>
+           {<span class="nv">C</span> : bicat} {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">mx</span> : monad C x} {<span class="nv">my</span> : monad C y}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y} {<span class="nv">α</span> : f ==&gt; g}
+           {<span class="nv">mf</span> : mx --&gt;[f] my}
+           {<span class="nv">mg</span> : mx --&gt;[g] my}
+           (<span class="nv">α_nat</span> : (monad_endo mx ◃ α) • monad_mor_natural mg
+                    =
+                    monad_mor_natural mf • (α ▹ monad_endo my))
+  : mf ==&gt;[ α ] mg
+  := ((α_nat ,, (tt,,tt)),, tt).
+
+<span class="kn">Definition</span> <span class="nf">bigmonad</span> (<span class="nv">C</span> : bicat) := total_bicat (monad C).
+
+<span class="kn">Definition</span> <span class="nf">base</span> {<span class="nv">C</span> : bicat} (<span class="nv">m</span> : bigmonad C) : C := pr1 m.
+
+<span class="kn">Definition</span> <span class="nf">bigmonad_to_monad</span> (<span class="nv">C</span> : bicat) (<span class="nv">m</span> : bigmonad C) : monad C (base m)
+  := pr2 m.
+
+<span class="kn">Definition</span> <span class="nf">make_bigmonad</span> {<span class="nv">C</span> : bicat}
+           (<span class="nv">X</span> : C)
+           (<span class="nv">f</span> : C⟦X,X⟧)
+           (<span class="nv">η</span> : id₁ X ==&gt; f)
+           (<span class="nv">μ</span> : f · f ==&gt; f)
+           (<span class="nv">ημ</span> : (η ▹ f) • μ
+                 =
+                 lunitor f)
+           (<span class="nv">μη</span> : (f ◃ η) • μ
+                 =
+                 runitor f)
+           (<span class="nv">μμ</span> : (f ◃ μ) • μ
+                 =
+                 lassociator f f f • (μ ▹ f) • μ)
+  : bigmonad C.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> X.
+  - use make_monad.
+    + <span class="bp">exact</span> f.
+    + <span class="bp">exact</span> η.
+    + <span class="bp">exact</span> μ.
+    + <span class="bp">exact</span> ημ.
+    + <span class="bp">exact</span> μη.
+    + <span class="bp">exact</span> μμ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monad_is_univalent_2_1</span>
+           (<span class="nv">C</span> : bicat)
+  : disp_univalent_2_1 (monad_data C).
+<span class="kn">Proof</span>.
+  use sigma_disp_univalent_2_1_with_props.
+  - <span class="nb">apply</span> disp_2cells_isaprop_alg.
+  - <span class="nb">apply</span> disp_2cells_isaprop_prod ; <span class="nb">apply</span> disp_2cells_isaprop_add_cell.
+  - <span class="nb">apply</span> disp_alg_bicat_univalent_2_1.
+  - <span class="nb">apply</span> is_univalent_2_1_dirprod_bicat ; <span class="nb">apply</span> add_cell_disp_cat_univalent_2_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monad_is_univalent_2_0</span>
+           (<span class="nv">C</span> : bicat)
+           (<span class="nv">HC</span> : is_univalent_2 C)
+  : disp_univalent_2_0 (monad_data C).
+<span class="kn">Proof</span>.
+  use sigma_disp_univalent_2_0_with_props.
+  - <span class="bp">exact</span> HC.
+  - <span class="nb">apply</span> disp_2cells_isaprop_alg.
+  - <span class="nb">apply</span> disp_2cells_isaprop_prod ; <span class="nb">apply</span> disp_2cells_isaprop_add_cell.
+  - <span class="nb">apply</span> disp_alg_bicat_univalent_2_1.
+  - <span class="nb">apply</span> is_univalent_2_1_dirprod_bicat ; <span class="nb">apply</span> add_cell_disp_cat_univalent_2_1.
+  - <span class="nb">apply</span> disp_locally_groupoid_alg.
+  - <span class="nb">apply</span> disp_locally_groupoid_prod ; <span class="nb">apply</span> disp_locally_groupoid_add_cell.
+  - <span class="nb">apply</span> disp_alg_bicat_univalent_2_0.
+    <span class="bp">exact</span> (pr2 HC).
+  - <span class="nb">apply</span> is_univalent_2_0_dirprod_bicat.
+    + <span class="nb">apply</span> total_is_univalent_2_1.
+      * <span class="bp">exact</span> (pr2 HC).
+      * <span class="nb">apply</span> disp_alg_bicat_univalent_2_1.
+    + <span class="nb">apply</span> add_cell_disp_cat_univalent_2.
+      * <span class="bp">exact</span> (pr2 HC).
+      * <span class="nb">apply</span> disp_alg_bicat_univalent_2_1.
+    + <span class="nb">apply</span> add_cell_disp_cat_univalent_2.
+      * <span class="bp">exact</span> (pr2 HC).
+      * <span class="nb">apply</span> disp_alg_bicat_univalent_2_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bigmonad_is_univalent_2_1</span>
+           (<span class="nv">C</span> : bicat)
+           (<span class="nv">HC_1</span> : is_univalent_2_1 C)
+  : is_univalent_2_1 (bigmonad C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> sigma_is_univalent_2_1.
+  - <span class="bp">exact</span> HC_1.
+  - <span class="nb">apply</span> monad_is_univalent_2_1.
+  - <span class="nb">apply</span> disp_fullsubbicat_univalent_2_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bigmonad_is_univalent_2_0</span>
+           (<span class="nv">C</span> : bicat)
+           (<span class="nv">HC</span> : is_univalent_2 C)
+  : is_univalent_2_0 (bigmonad C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> sigma_is_univalent_2_0.
+  - <span class="bp">exact</span> HC.
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> monad_is_univalent_2_0.
+      <span class="bp">exact</span> HC.
+    + <span class="nb">apply</span> monad_is_univalent_2_1.
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> disp_univalent_2_0_fullsubbicat.
+      * <span class="bp">exact</span> (lawless_monad_is_univalent_2 C HC).
+      * <span class="nb">intro</span> ; <span class="nb">simpl</span>.
+        <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ; <span class="nb">apply</span> C.
+    + <span class="nb">apply</span> disp_fullsubbicat_univalent_2_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bigmonad_is_univalent_2</span>
+           (<span class="nv">C</span> : bicat)
+           (<span class="nv">HC</span> : is_univalent_2 C)
+  : is_univalent_2 (bigmonad C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> bigmonad_is_univalent_2_0; <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> bigmonad_is_univalent_2_1.
+    <span class="bp">exact</span> (pr2 HC).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_monad</span>
+           (<span class="nv">C</span> : bicat)
+           (<span class="nv">HC</span> : is_univalent_2 C)
+  : disp_2cells_isaprop (monad C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_2cells_isaprop_sigma.
+  - <span class="nb">apply</span> disp_2cells_isaprop_sigma.
+    + <span class="nb">apply</span> disp_2cells_isaprop_alg.
+    + <span class="nb">apply</span> disp_2cells_isaprop_prod.
+      * <span class="nb">apply</span> disp_2cells_isaprop_add_cell.
+      * <span class="nb">apply</span> disp_2cells_isaprop_add_cell.
+  - <span class="nb">apply</span> disp_2cells_isaprop_fullsubbicat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_monad</span>
+           (<span class="nv">C</span> : bicat)
+           (<span class="nv">HC</span> : is_univalent_2 C)
+  : disp_locally_groupoid (monad C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_locally_groupoid_sigma.
+  - <span class="bp">exact</span> HC.
+  - <span class="nb">apply</span> disp_2cells_isaprop_sigma.
+    + <span class="nb">apply</span> disp_2cells_isaprop_alg.
+    + <span class="nb">apply</span> disp_2cells_isaprop_prod.
+      * <span class="nb">apply</span> disp_2cells_isaprop_add_cell.
+      * <span class="nb">apply</span> disp_2cells_isaprop_add_cell.
+  - <span class="nb">apply</span> disp_2cells_isaprop_fullsubbicat.
+  - <span class="nb">apply</span> disp_locally_groupoid_sigma.
+    + <span class="bp">exact</span> HC.
+    + <span class="nb">apply</span> disp_2cells_isaprop_alg.
+    + <span class="nb">apply</span> disp_2cells_isaprop_prod.
+      * <span class="nb">apply</span> disp_2cells_isaprop_add_cell.
+      * <span class="nb">apply</span> disp_2cells_isaprop_add_cell.
+    + <span class="nb">apply</span> disp_locally_groupoid_alg.
+    + <span class="nb">apply</span> disp_locally_groupoid_prod.
+      * <span class="nb">apply</span> disp_locally_groupoid_add_cell.
+      * <span class="nb">apply</span> disp_locally_groupoid_add_cell.
+  - <span class="nb">apply</span> disp_locally_groupoid_fullsubbicat.
+<span class="kn">Qed</span>.
+
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="c">(* C = bicat_of_univ_cats.                                                        *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">make_cat_monad</span>
+           (<span class="nv">C</span> : univalent_category)
+           (<span class="nv">M</span> : C ⟶ C)
+           (<span class="nv">η</span> : functor_identity C ⟹ M)
+           (<span class="nv">μ</span> : M ∙ M ⟹ M)
+           (<span class="nv">lid</span> : ∏ (X : C), #M (η X) · μ X = id₁ (M X))
+           (<span class="nv">rid</span> : ∏ (X : C), η (M X) · μ X = id₁ (M X))
+           (<span class="nv">massoc</span> :  ∏ (X : C), μ (M X) · μ X = #M (μ X) · μ X)
+  : monad bicat_of_univ_cats C.
+<span class="kn">Proof</span>.
+  use make_monad.
+  - <span class="bp">exact</span> M.
+  - <span class="bp">exact</span> η.
+  - <span class="bp">exact</span> μ.
+  - <span class="kp">abstract</span>
+      (use nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> homset_property;
+       <span class="nb">intros</span> X ; <span class="nb">cbn</span>;
+       <span class="nb">apply</span> lid).
+  - <span class="kp">abstract</span>
+      (use nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> homset_property;
+       <span class="nb">intros</span> X ; <span class="nb">cbn</span>;
+       <span class="nb">apply</span> rid).
+  - <span class="kp">abstract</span>
+      (use nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> homset_property;
+       <span class="nb">intros</span> X ; <span class="nb">cbn</span>;
+       <span class="nb">rewrite</span> id_left;
+       <span class="nb">apply</span> massoc).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_monad_ημ</span> {<span class="nv">C</span> : univalent_category} (<span class="nv">M</span> : monad bicat_of_univ_cats C)
+  : ∏ (X : C), #(pr1(monad_endo M)) (pr1(monad_unit M) X) · pr1(monad_mu M) X = id₁ _.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  <span class="nb">pose</span> (nat_trans_eq_pointwise (monad_ημ M) X) <span class="k">as</span> p.
+  <span class="nb">cbn</span> <span class="k">in</span> p.
+  <span class="nb">rewrite</span> id_left <span class="k">in</span> p.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_monad_μη</span> {<span class="nv">C</span> : univalent_category} (<span class="nv">M</span> : monad bicat_of_univ_cats C)
+  : ∏ (X : C), pr1(monad_unit M) (pr1(monad_endo M) X) · pr1(monad_mu M) X = id₁ _.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  <span class="nb">pose</span> (nat_trans_eq_pointwise (monad_μη M) X) <span class="k">as</span> p.
+  <span class="nb">cbn</span> <span class="k">in</span> p.
+  <span class="nb">rewrite</span> id_left <span class="k">in</span> p.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_monad_μμ</span> {<span class="nv">C</span> : univalent_category} (<span class="nv">M</span> : monad bicat_of_univ_cats C)
+  : ∏ (X : C),
+    pr1(monad_mu M) (pr1(monad_endo M) X) · pr1(monad_mu M) X
+    =
+    #(pr1(monad_endo M)) (pr1(monad_mu M) X) · pr1(monad_mu M) X.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  <span class="nb">pose</span> (nat_trans_eq_pointwise (monad_μμ M) X) <span class="k">as</span> p.
+  <span class="nb">cbn</span> <span class="k">in</span> p.
+  <span class="nb">rewrite</span> id_left <span class="k">in</span> p.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="c">(* Bind and associated fusion laws.                                          *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">Bind</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : univalent_category}
+        (<span class="nv">M</span> : monad bicat_of_univ_cats C).
+
+<span class="kn">Definition</span> <span class="nf">monad_bind</span>
+           {<span class="nv">A</span> <span class="nv">B</span> : C}
+           (<span class="nv">f</span> : C⟦A, (monad_endo M : _ ⟶ _) B⟧)
+  : C⟦(monad_endo M : _ ⟶ _) A, (monad_endo M : _ ⟶ _) B⟧
+  := #(monad_endo M : _ ⟶ _) f · pr1 (monad_mu M) B.
+
+<span class="kn">Definition</span> <span class="nf">cat_monad_map_as_bind</span>
+           {<span class="nv">x</span> <span class="nv">y</span> : pr1 C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : #(monad_endo M : _ ⟶ _) f = monad_bind (f · pr1 (monad_unit M) y).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> monad_bind.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> functor_comp.
+  }
+  <span class="nb">rewrite</span> assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> cat_monad_ημ.
+  }
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cat_monad_bind_unit</span>
+      {<span class="nv">A</span> <span class="nv">B</span> : C}
+      (<span class="nv">f</span> : C⟦A, (monad_endo M : _ ⟶ _) B⟧)
+  : (monad_unit M : _ ⟹ _) A · monad_bind f = f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> monad_bind.
+  etrans.
+  { <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (!(nat_trans_ax ((monad_unit M : _ ⟹ _)) A _ f)).
+  }
+  etrans.
+  <span class="mi">2</span>: <span class="nb">apply</span> id_right.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (cat_monad_μη M).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cat_monad_unit_bind</span>
+      {<span class="nv">A</span> : C}
+  : monad_bind ((monad_unit M : _ ⟹ _) A) = id₁ _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (cat_monad_ημ M).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cat_monad_bind_bind</span>
+      {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C}
+      (<span class="nv">f</span> : C⟦a, (monad_endo M : _ ⟶ _) b⟧)
+      (<span class="nv">g</span> : C⟦b, (monad_endo M : _ ⟶ _) c⟧)
+  : monad_bind f · monad_bind g = monad_bind (f · monad_bind g).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> monad_bind.
+  etrans.
+  <span class="mi">2</span>: {
+    <span class="nb">rewrite</span> (functor_comp (monad_endo M : _ ⟶ _)).
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> (functor_comp (monad_endo M : _ ⟶ _)).
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (cat_monad_μμ M).
+  }
+  <span class="nb">pose</span> (nat_trans_ax ((monad_mu M : _ ⟹ _)) _ _ g) <span class="k">as</span> Hμ.
+  <span class="nb">simpl</span> <span class="k">in</span> Hμ.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  { <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (!Hμ).
+  }
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Bind</span>.
+
+
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="c">(* Monad morphism on C = bicat_of_cats.                                      *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">make_cat_monad_mor</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : univalent_category}
+           {<span class="nv">mx</span> : monad bicat_of_univ_cats C} {<span class="nv">my</span> : monad bicat_of_univ_cats D}
+           {<span class="nv">F</span> : C ⟶ D}
+           (<span class="nv">mf_nat</span> : nat_z_iso (monad_endo mx ∙ F) (F ∙ monad_endo my))
+           (<span class="nv">mfη</span> : ∏ (X : C), # F (pr1 (monad_unit mx) X) · mf_nat X
+                             =
+                             pr1 (monad_unit my) (F X))
+           (<span class="nv">mfμ</span> : ∏ (X : C),
+                  # F (pr1 (monad_mu mx) X) · mf_nat X
+                  =
+                  mf_nat (pr1 (monad_endo mx) X)
+                         · # (pr1 (monad_endo my)) (mf_nat X)
+                         · pr1 (monad_mu my) (F X))
+  : mx --&gt;[F] my.
+<span class="kn">Proof</span>.
+  use make_monad_mor.
+  - <span class="nb">apply</span> nat_z_iso_to_invertible_2cell.
+    <span class="bp">exact</span> mf_nat.
+  - <span class="kp">abstract</span>
+      (use nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> homset_property;
+       <span class="nb">intros</span> X ; <span class="nb">cbn</span>;
+       <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left;
+       <span class="nb">apply</span> mfη).
+  - <span class="kp">abstract</span>
+      (use nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> homset_property;
+       <span class="nb">intros</span> X ; <span class="nb">cbn</span>;
+       <span class="nb">rewrite</span> id_left, !id_right;
+       <span class="nb">apply</span> mfμ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_cat_monad_cell</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : univalent_category}
+           {<span class="nv">mx</span> : monad bicat_of_univ_cats C}
+           {<span class="nv">my</span> : monad bicat_of_univ_cats D}
+           {<span class="nv">f</span> <span class="nv">g</span> : C ⟶ D}
+           {<span class="nv">α</span> : f ⟹ g}
+           {<span class="nv">mf</span> : mx --&gt;[f] my}
+           {<span class="nv">mg</span> : mx --&gt;[g] my}
+           (<span class="nv">H</span> : ∏ (X : C),
+                α (pr1 (monad_endo mx) X) · (pr11 (monad_mor_natural mg)) X
+                =
+                (pr11 (monad_mor_natural mf)) X · # (pr1 (monad_endo my)) (pr1 α X))
+  : mf ==&gt;[α: prebicat_cells bicat_of_univ_cats _ _] mg.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_monad_cell.
+  use nat_trans_eq; <span class="kp">try</span> <span class="nb">apply</span> homset_property.
+  <span class="nb">intros</span> X; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monad_mor_nat_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">M₁</span> : monad bicat_of_univ_cats C₁}
+           {<span class="nv">M₂</span> : monad bicat_of_univ_cats C₂}
+           (<span class="nv">FF</span> : M₁ --&gt;[F] M₂)
+  : nat_z_iso (monad_endo M₁ ∙ F) (F ∙ monad_endo M₂)
+  := invertible_2cell_to_nat_z_iso _ _ (monad_mor_natural FF).
+
+<span class="kn">Definition</span> <span class="nf">monad_mor_natural_pointwise</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">M₁</span> : monad bicat_of_univ_cats C₁}
+           {<span class="nv">M₂</span> : monad bicat_of_univ_cats C₂}
+           (<span class="nv">FF</span> : M₁ --&gt;[F] M₂)
+           (<span class="nv">X</span> : C₁)
+  : z_iso ((monad_endo M₂ : C₂ ⟶ C₂) (F X)) (F ((monad_endo M₁ : C₁ ⟶ C₁) X))
+  := CompositesAndInverses.nat_z_iso_to_pointwise_z_iso
+       (nat_z_iso_inv (monad_mor_nat_z_iso FF)) X.
+
+<span class="kn">Definition</span> <span class="nf">monad_mor_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">M₁</span> : monad bicat_of_univ_cats C₁}
+           {<span class="nv">M₂</span> : monad bicat_of_univ_cats C₂}
+           (<span class="nv">FF</span> : M₁ --&gt;[F] M₂)
+  : ∏ X : C₁, z_iso (F ((monad_endo M₁ : C₁ ⟶ C₁) X)) ((monad_endo M₂ : C₂ ⟶ C₂) (F X))
+  := CompositesAndInverses.nat_z_iso_to_pointwise_z_iso (monad_mor_nat_z_iso FF).
+
+<span class="kn">Lemma</span> <span class="nf">monad_mor_bind</span>
+      {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+      {<span class="nv">F</span> : C₁ ⟶ C₂}
+      {<span class="nv">M₁</span> : monad bicat_of_univ_cats C₁}
+      {<span class="nv">M₂</span> : monad bicat_of_univ_cats C₂}
+      (<span class="nv">FF</span> : M₁ --&gt;[F] M₂)
+      {<span class="nv">A</span> <span class="nv">B</span> : C₁}
+      (<span class="nv">f</span> : A --&gt; (monad_endo M₁ : _ ⟶ _) B)
+  : #F (monad_bind M₁ f) · monad_mor_z_iso FF B
+    =
+    monad_mor_z_iso FF A · monad_bind M₂ (# F f · pr1 (monad_mor_z_iso FF B)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> monad_bind, monad_mor_z_iso.
+  <span class="nb">simpl</span>.
+  etrans.
+  <span class="mi">2</span>: {
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> (functor_comp (monad_endo M₂ : _ ⟶ _)).
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (nat_trans_ax (pr1 (monad_mor_natural FF)) _ _ f).
+  }
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> functor_comp.
+  <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  { <span class="nb">pose</span> (nat_trans_eq_pointwise (monad_mor_mu FF) B) <span class="k">as</span> H.
+    <span class="nb">simpl</span> <span class="k">in</span> H.
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> H.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right <span class="k">in</span> H.
+    <span class="nb">apply</span> H.
+  }
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">monad_mor_bind_alt</span>
+      {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+      {<span class="nv">F</span> : C₁ ⟶ C₂}
+      {<span class="nv">M₁</span> : monad bicat_of_univ_cats C₁}
+      {<span class="nv">M₂</span> : monad bicat_of_univ_cats C₂}
+      (<span class="nv">FF</span> : M₁ --&gt;[F] M₂)
+      {<span class="nv">A</span> <span class="nv">B</span> : C₁}
+      (<span class="nv">f</span> : A --&gt; (monad_endo M₁ : _ ⟶ _) B)
+  : #F (monad_bind M₁ f)
+    =
+    monad_mor_z_iso FF A
+      · monad_bind M₂ (# F f · pr1 (monad_mor_z_iso FF B))
+      · inv_from_z_iso (monad_mor_z_iso FF B).
+<span class="kn">Proof</span>.
+  use z_iso_inv_on_left.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> monad_mor_bind.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/Monads.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; In the second layer: we add η an μ. This is done by adding 2-cells (as in Add2Cell)
+  &gt; In the third layer: we take the full subcategory and we add the monad laws.
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

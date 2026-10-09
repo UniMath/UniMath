@@ -1,0 +1,183 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Presheaves.PiConstant</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Presheaves.PiConstant</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+ ∏-types of constant presheaves
+
+<div class="paragraph"> </div>
+
+ Each set `X` induces a constant presheaf on `C`, which maps every object in `C`
+ to the set `X`. We show that the dependent product of constant presheaves is
+ again a constant presheaf given by the function type. We instantiate this fact
+ to sequences of natural numbers (aka the Baire space).
+
+<div class="paragraph"> </div>
+
+ Content
+ 1. ∏-types of constant presheaves
+ 2. The presheaf of sequences of natural numbers (the Baire space)
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiber</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.DependentPresheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.DependentPresheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.TotalPresheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.TotalPresheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.Constructions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.PiTypes</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.NaturalNumbers.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.NaturalNumbers</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="PiOfConstant" class="idref" href="#PiOfConstant"><span class="id" title="section">PiOfConstant</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="PiOfConstant.C" class="idref" href="#PiOfConstant.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3408"></a><h1 class="section">1. ∏-types of constant presheaves</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="pi_dep_psh_of_constant_mor" class="idref" href="#pi_dep_psh_of_constant_mor"><span class="id" title="definition">pi_dep_psh_of_constant_mor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="da7a5918a812e0216f4a54d21f7406c4" class="idref" href="#da7a5918a812e0216f4a54d21f7406c4"><span class="id" title="binder">Γ</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#PiOfConstant.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="X:3" class="idref" href="#X:3"><span class="id" title="binder">X</span></a> <a id="Y:4" class="idref" href="#Y:4"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.DependentPresheaf.html#dep_psh_nat_trans"><span class="id" title="definition">dep_psh_nat_trans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#pi_dep_psh"><span class="id" title="definition">pi_dep_psh</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#da7a5918a812e0216f4a54d21f7406c4"><span class="id" title="variable">Γ</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#X:3"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.TotalPresheaf.html#total_psh"><span class="id" title="definition">total_psh</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#da7a5918a812e0216f4a54d21f7406c4"><span class="id" title="variable">Γ</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#X:3"><span class="id" title="variable">X</span></a>)) <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#Y:4"><span class="id" title="variable">Y</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.MoreFoundations.PartA.html#funset"><span class="id" title="definition">funset</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#X:3"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#Y:4"><span class="id" title="variable">Y</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_id"><span class="id" title="definition">nat_trans_id</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.DependentPresheaf.html#make_dep_psh_nat_trans"><span class="id" title="definition">make_dep_psh_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">xx</span> φ <span class="id" title="var">a</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (φ <span class="id" title="var">x</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">_</span>) <span class="id" title="var">a</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">xx</span> <span class="id" title="var">yy</span> <span class="id" title="var">f</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> φ ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">a</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#dep_pi_psh_function_natural"><span class="id" title="lemma">dep_pi_psh_function_natural</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> φ <span class="id" title="var">f</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">_</span>) <span class="id" title="var">a</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_left"><span class="id" title="definition">id_left</span></a>, <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="pi_dep_psh_of_constant_inv" class="idref" href="#pi_dep_psh_of_constant_inv"><span class="id" title="definition">pi_dep_psh_of_constant_inv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="a66eb0e7c85ea280f33904e5ac83af54" class="idref" href="#a66eb0e7c85ea280f33904e5ac83af54"><span class="id" title="binder">Γ</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#PiOfConstant.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="X:6" class="idref" href="#X:6"><span class="id" title="binder">X</span></a> <a id="Y:7" class="idref" href="#Y:7"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.DependentPresheaf.html#dep_psh_nat_trans"><span class="id" title="definition">dep_psh_nat_trans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.MoreFoundations.PartA.html#funset"><span class="id" title="definition">funset</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#X:6"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#Y:7"><span class="id" title="variable">Y</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#pi_dep_psh"><span class="id" title="definition">pi_dep_psh</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#a66eb0e7c85ea280f33904e5ac83af54"><span class="id" title="variable">Γ</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#X:6"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.TotalPresheaf.html#total_psh"><span class="id" title="definition">total_psh</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#a66eb0e7c85ea280f33904e5ac83af54"><span class="id" title="variable">Γ</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#X:6"><span class="id" title="variable">X</span></a>)) <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#Y:7"><span class="id" title="variable">Y</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_id"><span class="id" title="definition">nat_trans_id</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.DependentPresheaf.html#make_dep_psh_nat_trans"><span class="id" title="definition">make_dep_psh_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">xx</span> φ ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#make_dep_pi_psh_function"><span class="id" title="definition">make_dep_pi_psh_function</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">a</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (φ <span class="id" title="var">a</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">y₁</span> <span class="id" title="var">y₂</span> <span class="id" title="var">f₁</span> <span class="id" title="var">f₂</span> <span class="id" title="var">a</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">xx</span> <span class="id" title="var">yy</span> <span class="id" title="var">f</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> φ ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#dep_pi_psh_function_eq"><span class="id" title="lemma">dep_pi_psh_function_eq</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">g</span> <span class="id" title="var">a</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="pi_dep_psh_of_constant" class="idref" href="#pi_dep_psh_of_constant"><span class="id" title="definition">pi_dep_psh_of_constant</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="d5be501d00a8c9c4c28302f544699b7d" class="idref" href="#d5be501d00a8c9c4c28302f544699b7d"><span class="id" title="binder">Γ</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#PiOfConstant.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="X:9" class="idref" href="#X:9"><span class="id" title="binder">X</span></a> <a id="Y:10" class="idref" href="#Y:10"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">C</span> := <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#9fb98d533bf1a83883f724f8d08887c1"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#disp_cat_dep_psh"><span class="id" title="definition">disp_cat_dep_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#PiOfConstant.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#9fb98d533bf1a83883f724f8d08887c1"><span class="id" title="notation">)[{</span></a><a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#d5be501d00a8c9c4c28302f544699b7d"><span class="id" title="variable">Γ</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#9fb98d533bf1a83883f724f8d08887c1"><span class="id" title="notation">}]</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#pi_dep_psh"><span class="id" title="definition">pi_dep_psh</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#d5be501d00a8c9c4c28302f544699b7d"><span class="id" title="variable">Γ</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#X:9"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.TotalPresheaf.html#total_psh"><span class="id" title="definition">total_psh</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#d5be501d00a8c9c4c28302f544699b7d"><span class="id" title="variable">Γ</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#X:9"><span class="id" title="variable">X</span></a>)) <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#Y:10"><span class="id" title="variable">Y</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#d5be501d00a8c9c4c28302f544699b7d"><span class="id" title="variable">Γ</span></a> (<a class="idref" href="UniMath.MoreFoundations.PartA.html#funset"><span class="id" title="definition">funset</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#X:9"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#Y:10"><span class="id" title="variable">Y</span></a>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#make_z_iso"><span class="id" title="definition">make_z_iso</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#pi_dep_psh_of_constant_mor"><span class="id" title="definition">pi_dep_psh_of_constant_mor</span></a> <span class="id" title="var">Γ</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#pi_dep_psh_of_constant_inv"><span class="id" title="definition">pi_dep_psh_of_constant_inv</span></a> <span class="id" title="var">Γ</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">split</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.DependentPresheaf.html#dep_psh_nat_trans_eq"><span class="id" title="lemma">dep_psh_nat_trans_eq</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">xx</span> φ ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#dep_psh_fiber_comp"><span class="id" title="lemma">dep_psh_fiber_comp</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ | <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#dep_pi_psh_function_eq"><span class="id" title="lemma">dep_pi_psh_function_eq</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">a</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#dep_pi_psh_function_natural"><span class="id" title="lemma">dep_pi_psh_function_natural</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> φ <span class="id" title="var">f</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">_</span>) <span class="id" title="var">a</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> * ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#id_right"><span class="id" title="definition">id_right</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3409"></a><h1 class="section">2. The presheaf of sequences of natural numbers (the Baire space)</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="dep_psh_baire_space" class="idref" href="#dep_psh_baire_space"><span class="id" title="definition">dep_psh_baire_space</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="8a5fb5e1be55058be9aa6b31d1a8bfab" class="idref" href="#8a5fb5e1be55058be9aa6b31d1a8bfab"><span class="id" title="binder">Γ</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#PiOfConstant.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">C</span> := <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#9fb98d533bf1a83883f724f8d08887c1"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#disp_cat_dep_psh"><span class="id" title="definition">disp_cat_dep_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#PiOfConstant.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#9fb98d533bf1a83883f724f8d08887c1"><span class="id" title="notation">)[{</span></a><a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#8a5fb5e1be55058be9aa6b31d1a8bfab"><span class="id" title="variable">Γ</span></a><a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#9fb98d533bf1a83883f724f8d08887c1"><span class="id" title="notation">}]</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#pi_dep_psh"><span class="id" title="definition">pi_dep_psh</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.NaturalNumbers.html#nno_dep_psh"><span class="id" title="definition">nno_dep_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#8a5fb5e1be55058be9aa6b31d1a8bfab"><span class="id" title="variable">Γ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.NaturalNumbers.html#nno_dep_psh"><span class="id" title="definition">nno_dep_psh</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.TotalPresheaf.html#total_psh"><span class="id" title="definition">total_psh</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.NaturalNumbers.html#nno_dep_psh"><span class="id" title="definition">nno_dep_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#8a5fb5e1be55058be9aa6b31d1a8bfab"><span class="id" title="variable">Γ</span></a>))))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#constant_dep_psh"><span class="id" title="definition">constant_dep_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#8a5fb5e1be55058be9aa6b31d1a8bfab"><span class="id" title="variable">Γ</span></a> (<a class="idref" href="UniMath.MoreFoundations.PartA.html#funset"><span class="id" title="definition">funset</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natset"><span class="id" title="definition">natset</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natset"><span class="id" title="definition">natset</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#pi_dep_psh_of_constant"><span class="id" title="definition">pi_dep_psh_of_constant</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#8a5fb5e1be55058be9aa6b31d1a8bfab"><span class="id" title="variable">Γ</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natset"><span class="id" title="definition">natset</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natset"><span class="id" title="definition">natset</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiConstant.html#PiOfConstant"><span class="id" title="section">PiOfConstant</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

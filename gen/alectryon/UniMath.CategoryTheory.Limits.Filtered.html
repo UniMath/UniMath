@@ -1,0 +1,444 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Filtered.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ***********************************************************************</span>
+<span class="sd"> *   Filtered Categories                                                  *</span>
+<span class="sd"> *                                                                        *</span>
+<span class="sd"> *     Definition of filtered categories and compact/finitely presentable *</span>
+<span class="sd"> *     objects. Two definitions of filtered categories are given,         *</span>
+<span class="sd"> *              [is_filtered]                                             *</span>
+<span class="sd"> *              [is_filtered_alt]                                         *</span>
+<span class="sd"> *     and a proof that they are equivalent is given in [weq_filtered].   *</span>
+<span class="sd"> *                                                                        *</span>
+<span class="sd"> *     Contents                                                           *</span>
+<span class="sd"> *     1) Filtered categories                                             *</span>
+<span class="sd"> *     2) Compact objects                                                 *</span>
+<span class="sd"> *     3) Properties                                                      *</span>
+<span class="sd"> *     4) Equivalence between [is_filtered] and [is_filtered_alt].        *</span>
+<span class="sd"> *                                                                        *</span>
+<span class="sd"> *************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.covyoneda.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.FiniteSets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.StandardDiagrams.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+<span class="kn">Section</span> <span class="nf">filtered_categories</span>.
+  <span class="sd">(**</span>
+<span class="sd">   1. A category is filtered if it admits cocones for every diagram of</span>
+<span class="sd">      finite graphs, or equivalently if it admits cocones for diagrams</span>
+<span class="sd">      of the empty graph, the two-point graph and the graph with two</span>
+<span class="sd">      parallell edges.</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">is_filtered</span> (<span class="nv">J</span> : category) : UU
+    := ∏ (g : graph)
+         (d : diagram g J),
+      (is_finite_graph g) -&gt; ∥ ∑ (z : J), cocone d z ∥.
+
+  <span class="kn">Definition</span> <span class="nf">is_filtered_alt</span>
+    (<span class="nv">J</span> : category)
+    : UU
+    := ∥ J ∥
+         × (∏ (d : diagram bool_graph J), <span class="k">∃</span> <span class="nv">z</span> : J, cocone d z)
+         × (∏ (d : diagram pair_graph J), <span class="k">∃</span> <span class="nv">z</span> : J, cocone d z).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_filtered_colimits</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D) : UU
+    := ∏ (J : category),
+      is_filtered J -&gt; preserves_colimits_of_shape F J.
+
+<span class="kn">End</span> <span class="nf">filtered_categories</span>.
+
+
+<span class="kn">Section</span> <span class="nf">compact</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Compact / finitely presentable objects.</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">hom</span> {<span class="nv">C</span> : category} (<span class="nv">x</span> : C) : C ⟶ SET
+  := (covyoneda C x).
+
+  <span class="kn">Definition</span> <span class="nf">is_compact</span> {<span class="nv">C</span> : category} (<span class="nv">x</span> : C) : UU
+    := preserves_filtered_colimits (hom x).
+
+<span class="kn">End</span> <span class="nf">compact</span>.
+
+<span class="kn">Section</span> <span class="nf">properties</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Properties.</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_filtered</span> {<span class="nv">J</span> : category}
+    : isaprop (is_filtered J).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropimpl, propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_filtered_alt</span> {<span class="nv">J</span> : category}
+    : isaprop (is_filtered_alt J).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod;
+      [<span class="nb">apply</span> propproperty
+      |<span class="nb">apply</span> isapropdirprod;
+       <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>; <span class="kp">try</span> <span class="nb">apply</span> propproperty)].
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_iscompact</span> {<span class="nv">C</span> : category} (<span class="nv">X</span> : C) : isaprop (is_compact X).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">6</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_isColimCocone.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">properties</span>.
+
+<span class="kn">Section</span> <span class="nf">alternate_formulation</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">    4. The equivalence between [is_filtered] and [is_filtered_alt].</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">filtered_is_inhabited</span> {<span class="nv">J</span> : category}
+    (<span class="nv">filtered</span> : is_filtered J)
+    : ∥ J ∥.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span>(hinhfun pr1 (filtered empty_graph make_empty_diagram is_finite_graph_empty)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">filtered_has_bool_cocones</span> {<span class="nv">J</span> : category}
+    (<span class="nv">filtered</span> : is_filtered J)
+    (<span class="nv">d</span> : diagram bool_graph J)
+    : <span class="k">∃</span> <span class="nv">z</span> : J, cocone d z.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span>(filtered bool_graph _ is_finite_graph_bool).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">filtered_has_pair_cocones</span> {<span class="nv">J</span> : category}
+    (<span class="nv">filtered</span> : is_filtered J)
+    (<span class="nv">d</span> : diagram pair_graph J)
+    : <span class="k">∃</span> <span class="nv">z</span> : J, cocone d z.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span>(filtered pair_graph d is_finite_graph_pair).
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* The implication [is_filtered] -&gt; [is_filtered_alt] is the easy one. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">filtered_to_filtered_alt</span> {<span class="nv">J</span> : category}
+    (<span class="nv">filtered</span> : is_filtered J)
+    : is_filtered_alt J.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span>(filtered_is_inhabited filtered).
+    - <span class="bp">exact</span>(filtered_has_bool_cocones filtered).
+    - <span class="bp">exact</span>(filtered_has_pair_cocones filtered).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">filtered_alt_has_discrete_cocones_stn</span> {<span class="nv">J</span> : category}
+    (<span class="nv">filtalt</span> : is_filtered_alt J)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">d</span> : diagram (discrete_graph (⟦ n ⟧)) J)
+    : <span class="k">∃</span> <span class="nv">z</span> : J, cocone d z.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> filtalt <span class="k">as</span> [inhab [boolcc paircc]].
+    <span class="nb">induction</span> n <span class="k">as</span> [| n IHn].
+    - use(hinhfun _ inhab).
+      <span class="nb">intro</span> j. <span class="k">exists</span> <span class="nv">j</span>.
+      use make_discrete_cocone.
+      <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">x</span> : ⟦ <span class="mi">0</span> ⟧, fromempty (negstn0 x)).
+    - <span class="nb">set</span> (d₁ := make_discrete_diagram (<span class="k">λ</span> <span class="nv">k</span> : ⟦ n ⟧, dob d (dni lastelement k))).
+      use(IHn d₁); <span class="nb">intros</span> [P Pcc].
+
+      <span class="nb">set</span> (d₂ := make_bool_diagram P (dob d lastelement)).
+      use(boolcc d₂); <span class="nb">intros</span> [Q Qcc]; <span class="nb">apply</span> hinhpr.
+
+      <span class="k">exists</span> <span class="nv">Q</span>.
+      use make_discrete_cocone.
+      + <span class="nb">apply</span>(weqonsecbase (<span class="k">λ</span> (<span class="nv">v</span> : ⟦ S n ⟧), J ⟦ dob d v, Q ⟧) (weqdnicoprod n lastelement)).
+        <span class="nb">apply</span> coprod_rect.
+        * <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">k</span> : ⟦ n ⟧, coconeIn Pcc k · coconeIn Qcc true).
+        * <span class="nb">apply</span> unit_rect.
+          <span class="bp">exact</span>(coconeIn Qcc false).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">filtered_alt_has_discrete_cocones</span> {<span class="nv">J</span> : category}
+    (<span class="nv">filtalt</span> : is_filtered_alt J)
+    (<span class="nv">X</span> : UU)
+    (<span class="nv">d</span> : diagram (discrete_graph X) J)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">w</span> : X ≃ ⟦ n ⟧)
+    : <span class="k">∃</span> <span class="nv">z</span> : J, cocone d z.
+  <span class="kn">Proof</span>.
+    use(filtered_alt_has_discrete_cocones_stn filtalt n).
+    - <span class="bp">exact</span>(make_discrete_diagram (<span class="k">λ</span> <span class="nv">k</span> : ⟦ n ⟧, dob d (invmap w k))).
+    - <span class="nb">intros</span> [P Pcc]; <span class="nb">apply</span> hinhpr.
+      <span class="k">exists</span> <span class="nv">P</span>.
+      use make_discrete_cocone.
+      + <span class="nb">intro</span> x.
+        <span class="nb">apply</span>(transportf
+                (<span class="k">fun</span> <span class="nv">y</span> : X =&gt; J⟦ dob d y, P ⟧)
+                (homotinvweqweq w x)).
+        <span class="bp">exact</span>(coconeIn Pcc (w x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">filtered_alt_has_parallell_stn</span> {<span class="nv">J</span> : category}
+    (<span class="nv">filtalt</span> : is_filtered_alt J)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">d</span> : diagram (parallell_graph (⟦ n ⟧)) J)
+    : <span class="k">∃</span> <span class="nv">z</span> : J, cocone d z.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> filtalt <span class="k">as</span> [inhab [bool_cc pair_cc]].
+
+    <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+    - <span class="nb">set</span> (d₁ := make_bool_diagram (dob d parallell_start) (dob d parallell_end)).
+      use(hinhfun _ (bool_cc d₁)); <span class="nb">intros</span> [P Pcc].
+      <span class="k">exists</span> <span class="nv">P</span>.
+      use make_parallell_cocone.
+      + <span class="bp">exact</span>(coconeIn Pcc true).
+      + <span class="bp">exact</span>(coconeIn Pcc false).
+      + <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">k</span> : ⟦ <span class="mi">0</span> ⟧, fromempty (negstn0 k)).
+    -
+      <span class="c">(* dₙ is the restriction of d to ⟦ n ⟧ *)</span>
+      transparent <span class="nb">assert</span>(dₙ : (diagram (parallell_graph (⟦ n ⟧)) J)). {
+        use make_parallell_diagram.
+        - <span class="bp">exact</span>(dob d parallell_start).
+        - <span class="bp">exact</span>(dob d parallell_end).
+        - <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">k</span> : ⟦ n ⟧, dmor d (parallell_edge (dni lastelement k))).
+      }
+
+      use(IHn dₙ); <span class="nb">intros</span> [Dₙ Dcc]. <span class="c">(* Dₙ/Dcc is the cocone over the parallell arrows {0, ..., n} *)</span>
+      transparent <span class="nb">assert</span>(pairing: (diagram pair_graph J)). {
+        use make_pair_diagram.
+        - <span class="bp">exact</span>(dob d parallell_start).
+        - <span class="bp">exact</span> Dₙ.
+        - <span class="bp">exact</span>(coconeIn Dcc parallell_start).
+        - <span class="bp">exact</span>(dmor d (parallell_edge lastelement) · coconeIn Dcc parallell_end).
+      }
+      use(hinhfun _ (pair_cc pairing)); <span class="nb">intros</span> [Q Qcc].
+      <span class="k">exists</span> <span class="nv">Q</span>.
+      use make_parallell_cocone.
+      + <span class="bp">exact</span>(coconeIn Dcc parallell_start · coconeIn Qcc pair_dst).
+      + <span class="bp">exact</span>(coconeIn Dcc parallell_end · coconeIn Qcc pair_dst).
+      + <span class="nb">apply</span>(weqonsecbase _ (weqdnicoprod n lastelement)).
+        <span class="nb">apply</span> coprod_rect.
+        * <span class="nb">intro</span>.
+          etrans;[<span class="nb">apply</span> assoc |].
+          <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span>(parallell_cocone_commutes Dcc _).
+        * <span class="nb">apply</span> unit_rect.
+          etrans;[<span class="nb">apply</span> assoc |]. <span class="nb">cbn</span>.
+          etrans;[<span class="bp">exact</span>(pair_cocone_commutes Qcc pair_right) |].
+          <span class="bp">exact</span>(!pair_cocone_commutes Qcc pair_left).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">filtered_alt_has_parallell_cocones</span> {<span class="nv">J</span> : category}
+    (<span class="nv">filtalt</span> : is_filtered_alt J)
+    (<span class="nv">X</span> : UU)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">w</span> : X ≃ ⟦ n ⟧)
+    (<span class="nv">d</span> : diagram (parallell_graph X) J)
+    : <span class="k">∃</span> <span class="nv">z</span> : J, cocone d z.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (dₙ := make_parallell_diagram (⟦ n ⟧)
+                 (dob d parallell_start)
+                 (dob d parallell_end)
+                 (<span class="k">λ</span> <span class="nv">k</span> : ⟦ n ⟧, dmor d (parallell_edge (invmap w k)))).
+
+    use(hinhfun _ (filtered_alt_has_parallell_stn filtalt n dₙ)).
+    <span class="nb">intros</span> [P Pcc].
+    <span class="k">exists</span> <span class="nv">P</span>.
+    use make_parallell_cocone.
+    - <span class="bp">exact</span>(coconeIn Pcc parallell_start).
+    - <span class="bp">exact</span>(coconeIn Pcc parallell_end).
+    - <span class="nb">apply</span>(weqonsecbase _ (invweq w)).
+      <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">k</span> : ⟦ n ⟧, parallell_cocone_commutes Pcc k).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">filtered_alt_has_finite_multispan_cocones</span> {<span class="nv">J</span> : category}
+    (<span class="nv">filtalt</span> : is_filtered_alt J)
+    (<span class="nv">X</span> : UU)
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">w</span> : X ≃ ⟦ n ⟧)
+    (<span class="nv">d</span> : diagram (multispan_graph X) J)
+    : <span class="k">∃</span> <span class="nv">z</span> : J, cocone d z.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (base := dob d multispan_base).
+
+    <span class="nb">set</span> (point_diagram := make_discrete_diagram' d).
+
+    <span class="nb">assert</span>(r : (X ⨿ unit) ≃ ⟦ (S n) ⟧). {
+      use(weqcomp (weqcoprodf1 w)).
+      <span class="bp">exact</span>(weqdnicoprod n lastelement).
+    }
+
+    use(filtered_alt_has_discrete_cocones filtalt _ point_diagram (S n) r).
+    <span class="nb">intros</span> [P Pcc].
+
+    transparent <span class="nb">assert</span>(edge_diagram : (diagram (parallell_graph (X ⨿ unit)) J)). {
+      use make_parallell_diagram.
+      - <span class="bp">exact</span> base.
+      - <span class="bp">exact</span> P.
+      - <span class="nb">apply</span> sumofmaps.
+        * <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">x</span> : X, dmor d (multispan_edge x) · (coconeIn Pcc (multispan_vertex x))).
+        * <span class="bp">exact</span>(unit_rect _ (coconeIn Pcc multispan_base)).
+    }
+
+    use(filtered_alt_has_parallell_cocones filtalt (X ⨿ unit) (S n) r edge_diagram).
+    <span class="nb">intros</span> [Q Qcc]; <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> <span class="nv">Q</span>.
+    use make_multispan_cocone.
+    - <span class="bp">exact</span>(coconeIn Qcc parallell_start).
+    - <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">x</span> : X, coconeIn Pcc (multispan_vertex x) · coconeIn Qcc parallell_end).
+    - <span class="nb">intro</span> x. etrans;[<span class="nb">apply</span> assoc |].
+      <span class="bp">exact</span>(parallell_cocone_commutes Qcc (inl x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">filtered_alt_to_filtered</span> {<span class="nv">J</span> : category}
+    (<span class="nv">filtalt</span> : is_filtered_alt J)
+    : is_filtered J.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> g d gfinite.
+    use (finite_vertexset gfinite); <span class="nb">intros</span> finitevert.
+    <span class="nb">set</span> (n := pr1 finitevert).
+    <span class="nb">set</span> (w := pr2 finitevert).
+    <span class="nb">set</span> (finite_edges := finite_edgeset gfinite).
+
+    <span class="c">(* Start by creating a point P above d with cocone injections, but no commutativity. *)</span>
+    <span class="nb">set</span> (points := make_discrete_diagram (dob d)).
+    use(filtered_alt_has_discrete_cocones filtalt (vertex g) points n (invweq w)).
+    <span class="nb">intros</span> [P Pcc].
+
+    <span class="nb">assert</span>(edgechoice : ∥ ∏ (a b : vertex g), finstruct (edge a b) ∥). {
+      <span class="kp">do</span> <span class="mi">2</span> (use(ischoicebasefiniteset (finite_vertexset gfinite)); <span class="nb">intro</span>).
+      <span class="nb">apply</span> finite_edges.
+    }
+    use edgechoice; <span class="nb">clear</span> edgechoice.
+    <span class="nb">intros</span> edgeset.
+
+    transparent <span class="nb">assert</span>(ediagram : (∏ (a b : vertex g), diagram (parallell_graph ((edge a b) ⨿ unit)) J)).
+    {
+      <span class="nb">intros</span> a b.
+      use(make_parallell_diagram _ (dob d a) P).
+      <span class="nb">apply</span> sumofmaps.
+      - <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">e</span>, dmor d e · coconeIn Pcc b).
+      - <span class="bp">exact</span>(unit_rect _ (coconeIn Pcc a)).
+    }
+
+    <span class="nb">assert</span>(D : (∏ (a b : vertex g), <span class="k">∃</span> (<span class="nv">Pab</span> : J), cocone (ediagram a b) Pab)).
+    {
+      <span class="nb">intros</span> a b.
+      <span class="nb">set</span> (k := pr1 (edgeset a b)).
+      <span class="nb">set</span> (i := pr2 (edgeset a b)).
+      use(filtered_alt_has_parallell_cocones filtalt ((edge a b) ⨿ unit) (S k)).
+      <span class="nb">refine</span>(weqcomp _ (weqdnicoprod k lastelement)).
+      <span class="bp">exact</span>(weqcoprodf1 (invweq i)).
+    }
+
+    <span class="nb">assert</span>(D' : ∥ (∏ (a b : vertex g), ∑ (Pab : J), cocone (ediagram a b) Pab) ∥). {
+      <span class="kp">do</span> <span class="mi">2</span> (use(ischoicebasefiniteset (finite_vertexset gfinite)); <span class="nb">intro</span>).
+      <span class="nb">apply</span> D.
+    }
+
+    <span class="c">(* For each pair (u, v) ∈ vertex g × vertex g there is an object D(u,v) in J,</span>
+<span class="c">       and a cocone over the diagram of (edges u v) composed with the injection</span>
+<span class="c">       into P. *)</span>
+    use D'; <span class="nb">clear</span> D'; <span class="nb">clear</span> D; <span class="nb">intros</span> D.
+
+    transparent <span class="nb">assert</span>(spandiagram : (diagram (multispan_graph (vertex g × vertex g)) J)). {
+      use make_multispan_diagram.
+      - <span class="bp">exact</span> P.
+      - <span class="nb">intros</span> [a b]. <span class="bp">exact</span>(pr1 (D a b)).
+      - <span class="nb">intros</span> [a b]. <span class="bp">exact</span>(coconeIn (pr2 (D a b)) parallell_end).
+    }
+
+    <span class="c">(* The objects D(u, v) together with their cocone injections from P is a finite multi</span>
+<span class="c">       span. Since J is filtered there is a cocone [Q Qcc] over this span. *)</span>
+
+    use(filtered_alt_has_finite_multispan_cocones filtalt (vertex g × vertex g) (n * n)).
+    - <span class="nb">apply</span>(weqcomp (invweq (weqdirprodf w w))).
+      <span class="nb">apply</span> weqfromprodofstn.
+    - <span class="bp">exact</span> spandiagram.
+    - <span class="nb">intros</span> [Q Qcc]; <span class="nb">apply</span> hinhpr.
+
+      <span class="c">(* Using Q together with the cocones D(u,v) and P to construct a cocone over d</span>
+<span class="c">         with apex Q. *)</span>
+      <span class="k">exists</span> <span class="nv">Q</span>.
+      use make_cocone.
+      + <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">v</span> : vertex g, coconeIn Pcc v · coconeIn Qcc multispan_base).
+      + <span class="nb">intros</span> u v e.
+
+        etrans. {
+          <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span>(!multispan_cocone_commutes Qcc (u ,, v)).
+        }
+
+        etrans;[<span class="nb">apply</span> assoc |].
+        etrans;[<span class="nb">apply</span> assoc |].
+        <span class="nb">set</span> (Duv := pr2 (D u v)).
+
+        etrans. { <span class="nb">apply</span> maponpaths_2. <span class="bp">exact</span>(parallell_cocone_commutes Duv (inl e)). }
+        etrans. { <span class="nb">apply</span> maponpaths_2. <span class="bp">exact</span>(!parallell_cocone_commutes Duv (inr tt)). }
+
+        etrans;[<span class="nb">apply</span> assoc'|].
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="bp">exact</span>(multispan_cocone_commutes Qcc (u ,, v)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_filtered</span> (<span class="nv">J</span> : category)
+    : is_filtered J ≃ is_filtered_alt J.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> filtered_to_filtered_alt.
+    - <span class="bp">exact</span> filtered_alt_to_filtered.
+    - <span class="bp">exact</span> isaprop_is_filtered.
+    - <span class="bp">exact</span> isaprop_is_filtered_alt.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">alternate_formulation</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Filtered.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  *                                                                        *
+  &gt;  *************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AlgebraicTheoryCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Properties of the category of algebraic theories</span>
+
+<span class="sd">  The displayed category structure is leveraged to show that the category is univalent and has all</span>
+<span class="sd">  limits.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. A characterization of iso's of algebraic theories [make_algebraic_theory_z_iso]</span>
+<span class="sd">  2. Univalence [is_univalent_algebraic_theory_cat]</span>
+<span class="sd">  3. Limits [limits_algebraic_theory_cat]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Export</span> UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.IndexedSetCategory.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryMorphisms.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+
+<span class="sd">(** * 1. A characterization of iso's of algebraic theories *)</span>
+
+<span class="kn">Section</span> <span class="nf">Iso</span>.
+
+  <span class="kn">Context</span> (<span class="nv">a</span> <span class="nv">b</span> : algebraic_theory).
+  <span class="kn">Context</span> (<span class="nv">F</span> : ∏ (n : nat), z_iso (C := HSET) (a n) (b n)).
+  <span class="kn">Context</span> (<span class="nv">Hvar</span> : ∏ n i, mor_var_ax (<span class="k">λ</span> <span class="nv">n</span>, z_iso_mor (F n)) n i).
+  <span class="kn">Context</span> (<span class="nv">Hsubst</span> : ∏ m n f g, mor_subst_ax (<span class="k">λ</span> <span class="nv">n</span>, z_iso_mor (F n)) m n f g).
+
+  <span class="kn">Definition</span> <span class="nf">make_algebraic_theory_z_iso_mor</span>
+    : algebraic_theory_morphism a b
+    := (_ ,, Hvar ,, Hsubst) ,, tt.
+
+  <span class="kn">Definition</span> <span class="nf">make_algebraic_theory_z_iso_inv_data</span>
+    : indexed_set_cat _ ⟦b, a⟧
+    := <span class="k">λ</span> <span class="nv">n</span>, inv_from_z_iso (F n).
+
+  <span class="kn">Lemma</span> <span class="nf">make_algebraic_theory_z_iso_inv_var_ax</span>
+    : ∏ n i, mor_var_ax make_algebraic_theory_z_iso_inv_data n i.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n i.
+    <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (z_iso_inv_after_z_iso (F n))).
+    <span class="nb">apply</span> (maponpaths (inv_from_z_iso (F n))).
+    <span class="nb">apply</span> Hvar.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">make_algebraic_theory_z_iso_inv_subst_ax</span>
+    : ∏ m n f g, mor_subst_ax make_algebraic_theory_z_iso_inv_data m n f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m n f g.
+    <span class="nb">refine</span> (!_ @ maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x _) (z_iso_inv_after_z_iso (F n))).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, inv_from_z_iso (F n) x) (Hsubst _ _ _ _) @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, (x f) • _) (z_iso_after_z_iso_inv (F m)) @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span>.
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x (g _)) (z_iso_after_z_iso_inv (F n))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_algebraic_theory_z_iso_inv</span>
+    : algebraic_theory_morphism b a
+    := (_ ,, make_algebraic_theory_z_iso_inv_var_ax ,, make_algebraic_theory_z_iso_inv_subst_ax) ,, tt.
+
+  <span class="kn">Lemma</span> <span class="nf">make_algebraic_theory_z_iso_is_iso</span>
+    : is_inverse_in_precat (C := algebraic_theory_cat)
+      make_algebraic_theory_z_iso_mor
+      make_algebraic_theory_z_iso_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>;
+      <span class="nb">apply</span> algebraic_theory_morphism_eq;
+      <span class="nb">intros</span> n f;
+      <span class="nb">refine</span> (eqtohomot _ f).
+    - <span class="nb">apply</span> (z_iso_inv_after_z_iso (F n)).
+    - <span class="nb">apply</span> (z_iso_after_z_iso_inv (F n)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_algebraic_theory_z_iso</span>
+    : z_iso (C := algebraic_theory_cat) a b
+    := make_z_iso (C := algebraic_theory_cat)
+      make_algebraic_theory_z_iso_mor
+      make_algebraic_theory_z_iso_inv
+      make_algebraic_theory_z_iso_is_iso.
+
+<span class="kn">End</span> <span class="nf">Iso</span>.
+
+<span class="sd">(** * 2. Univalence *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_algebraic_theory_data_disp_cat</span>
+  : is_univalent_disp algebraic_theory_data_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_disp_iff_fibers_are_univalent.
+  <span class="nb">intros</span> T Tdata Tdata'.
+  use isweq_iso.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> pathsdirprod;
+      <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>);
+      <span class="nb">apply</span> (pr1 f).
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isasetdirprod;
+      <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaset; <span class="nb">intro</span>);
+      <span class="nb">apply</span> setproperty.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> z_iso_eq.
+    <span class="nb">apply</span> subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+    <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_algebraic_theory_data_cat</span>
+  : is_univalent algebraic_theory_data_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_category.
+  - <span class="nb">apply</span> is_univalent_indexed_set_cat.
+  - <span class="bp">exact</span> is_univalent_disp_algebraic_theory_data_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_algebraic_theory_disp_cat</span>
+  : is_univalent_disp algebraic_theory_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_full_sub_univalent.
+  <span class="bp">exact</span> isaprop_is_algebraic_theory.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_algebraic_theory_cat</span>
+  : is_univalent algebraic_theory_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_category.
+  - <span class="bp">exact</span> is_univalent_algebraic_theory_data_cat.
+  - <span class="bp">exact</span> is_univalent_disp_algebraic_theory_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Limits *)</span>
+
+<span class="kn">Section</span> <span class="nf">AlgebraicTheoryLimits</span>.
+
+  <span class="kn">Context</span> (<span class="nv">D</span> := algebraic_theory_data_disp_cat).
+  <span class="kn">Context</span> {<span class="nv">J</span> : graph}.
+  <span class="kn">Context</span> (<span class="nv">d</span> : diagram J (total_category D)).
+  <span class="kn">Context</span> (<span class="nv">L</span> := limits_indexed_set_cat _ J (mapdiagram (pr1_category _) d)).
+
+  <span class="kn">Definition</span> <span class="nf">tip_algebraic_theory_data_disp_cat</span>
+    : D (lim L).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> n i.
+      use tpair.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">u</span>, var i).
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">u</span> <span class="nv">v</span> <span class="nv">e</span>, pr12 (dmor d e) _ i).
+    - <span class="nb">intros</span> m n f g.
+      use tpair.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, (pr1 f i) • (<span class="k">λ</span> <span class="nv">j</span>, pr1 (g j) i)).
+      + <span class="kp">abstract</span> (
+          <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">u</span> <span class="nv">v</span> <span class="nv">e</span>, pr22 (dmor d e) _ _ _ _ @ _);
+          <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) _ @ maponpaths _ _);
+          [ <span class="bp">exact</span> (pr2 f u v e)
+          | <span class="nb">apply</span> funextfun;
+            <span class="nb">intro</span>;
+            <span class="bp">exact</span> (pr2 (g _) u v e) ]
+        ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">cone_algebraic_theory_data_disp_cat</span>
+    (<span class="nv">j</span> : vertex J)
+    : tip_algebraic_theory_data_disp_cat --&gt;[limOut L j] pr2 (dob d j).
+  <span class="kn">Proof</span>.
+    <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">uniqueness_algebraic_theory_data_disp_cat</span>
+    (<span class="nv">d'</span> : D (lim L))
+    (<span class="nv">cone_out</span> : ∏ (j : vertex J), d' --&gt;[limOut L j] (pr2 (dob d j)))
+    : d' = tip_algebraic_theory_data_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> pathsdirprod.
+    - <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+      <span class="nb">apply</span> subtypePairEquality.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span>.
+      <span class="bp">exact</span> (pr1 (cone_out _) _ _).
+    - <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+      <span class="nb">apply</span> subtypePairEquality.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span>.
+      <span class="bp">exact</span> (pr2 (cone_out _) _ _ _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_limit_algebraic_theory_data_disp_cat</span>
+    (<span class="nv">d'</span> : total_category D)
+    (<span class="nv">cone_out</span> : ∏ (u : vertex J), d' --&gt; (dob d u))
+    (<span class="nv">is_cone</span> : ∏ (u v : vertex J) (e : edge u v), cone_out u · (dmor d e) = cone_out v)
+    : pr2 d' --&gt;[limArrow L _ (make_cone
+        (d := (mapdiagram (pr1_category D) d)) _
+        (<span class="k">λ</span> <span class="nv">u</span> <span class="nv">v</span> <span class="nv">e</span>, (maponpaths pr1 (is_cone u v e))))
+      ] tip_algebraic_theory_data_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> n i.
+      <span class="nb">apply</span> subtypePairEquality.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span> u.
+      <span class="bp">exact</span> (pr12 (cone_out u) n i).
+    - <span class="nb">intros</span> m n f g.
+      <span class="nb">apply</span> subtypePairEquality.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">apply</span> funextsec.
+      <span class="nb">intro</span> i.
+      <span class="bp">exact</span> (pr22 (cone_out i) m n f g).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">AlgebraicTheoryLimits</span>.
+
+<span class="kn">Definition</span> <span class="nf">creates_limits_algebraic_theory_data_disp_cat</span>
+  {<span class="nv">J</span> : graph}
+  (<span class="nv">d</span> : diagram J (total_category algebraic_theory_data_disp_cat))
+  : creates_limit d (limits_indexed_set_cat _ J (mapdiagram (pr1_category _) d))
+  := creates_limit_disp_struct _
+    (tip_algebraic_theory_data_disp_cat _)
+    (cone_algebraic_theory_data_disp_cat _)
+    (is_limit_algebraic_theory_data_disp_cat _).
+
+<span class="kn">Definition</span> <span class="nf">creates_limits_unique_algebraic_theory_data_disp_cat</span>
+  {<span class="nv">J</span> : graph}
+  (<span class="nv">d</span> : diagram J (total_category algebraic_theory_data_disp_cat))
+  : creates_limit_unique d (limits_indexed_set_cat _ J (mapdiagram (pr1_category _) d))
+  := creates_limit_unique_disp_struct
+    (creates_limits_algebraic_theory_data_disp_cat _)
+    (uniqueness_algebraic_theory_data_disp_cat _).
+
+<span class="kn">Definition</span> <span class="nf">limits_algebraic_theory_data_cat</span>
+  : Lims algebraic_theory_data_cat
+  := <span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, total_limit _ (creates_limits_algebraic_theory_data_disp_cat _).
+
+<span class="kn">Definition</span> <span class="nf">creates_limits_algebraic_theory_disp_cat</span>
+  {<span class="nv">J</span> : graph}
+  (<span class="nv">d</span> : diagram J (total_category algebraic_theory_disp_cat))
+  : creates_limit d (limits_algebraic_theory_data_cat _ _).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> creates_limit_disp_full_sub.
+  - <span class="nb">apply</span> isaprop_is_algebraic_theory.
+  - <span class="kp">abstract</span> (
+      use (_ ,, _ ,, _);
+        <span class="kp">repeat</span> <span class="nb">intro</span>;
+        (use total2_paths_f;
+        [ <span class="nb">apply</span> funextsec;
+          <span class="nb">intro</span>
+        | <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+          <span class="nb">apply</span> setproperty ]);
+      [ <span class="nb">apply</span> subst_subst
+      | <span class="nb">apply</span> var_subst
+      | <span class="nb">apply</span> subst_var ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">limits_algebraic_theory_cat</span>
+  : Lims algebraic_theory_cat
+  := <span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, total_limit
+    (limits_algebraic_theory_data_cat _ _)
+    (creates_limits_algebraic_theory_disp_cat _).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/AlgebraicTheoryCategory.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/AlgebraicTheories/AlgebraicTheoryCategoryCore.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   3. Limits [limits_algebraic_theory_cat]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Export UniMath.AlgebraicTheories.AlgebraicTheoryCategoryCore.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.Foundations.All.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

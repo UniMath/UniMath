@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Naturals.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ** Natural numbers</span>
+
+<span class="sd">    The natural numbers are a motivating example of W-types, and one of the only</span>
+<span class="sd">    W-types readily available in UniMath. We show that they are an initial</span>
+<span class="sd">    algebra for a polynomial functor, and satisfy a few other properties.</span>
+
+<span class="sd">    Author: Langston Barrett (@siddharthist)</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.Preamble.
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Nat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.<span class="kt">Type</span>.Core.
+<span class="kn">Require Import</span> UniMath.Induction.FunctorAlgebras_legacy.
+<span class="kn">Require Import</span> UniMath.Induction.PolynomialFunctors.
+<span class="kn">Require Import</span> UniMath.Induction.W.Core.
+<span class="kn">Require Import</span> UniMath.Induction.W.Fibered.
+
+<span class="sd">(** The signature for the nat functor is (bool, [true ↦ empty; false ↦ unit])</span>
+<span class="sd">    since the naturals have two constructors: one for zero and one for successor.</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">nat_functor</span> : functor type_precat type_precat :=
+  polynomial_functor bool (bool_rect (<span class="k">λ</span> <span class="nv">_</span>, UU) empty unit).
+
+<span class="sd">(** The functor deals with functions from ∅ and unit; these lemmas will come in</span>
+<span class="sd">    handy in several proofs. *)</span>
+<span class="kn">Lemma</span> <span class="nf">eqfromempty</span> {<span class="nv">X</span> : UU} (<span class="nv">f</span> : empty -&gt; X) : f = fromempty.
+<span class="kn">Proof</span>. <span class="nb">apply</span> proofirrelevancecontr, iscontrfunfromempty. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">eta_unit</span> {<span class="nv">X</span> : UU} (<span class="nv">f</span> : unit -&gt; X) : f = <span class="k">λ</span> <span class="nv">_</span>, f tt.
+<span class="kn">Proof</span>. <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">induction</span> _; <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="sd">(** Simplifying the action of the functor on arrows *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">nat_functor_arr_true</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) <span class="nv">g</span> :
+  (functor_on_morphisms nat_functor) f (true,, g) = (true,, fromempty).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>; <span class="nb">unfold</span> polynomial_functor_arr; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> maponpaths, eqfromempty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_functor_arr_false</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X -&gt; Y) <span class="nv">g</span> :
+  (functor_on_morphisms nat_functor) f (false,, g) = (false,, <span class="k">λ</span> <span class="nv">_</span>, f (g tt)).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>; <span class="nb">unfold</span> polynomial_functor_arr; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> maponpaths, eta_unit.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Here's how to prove two functions from a nat_functor are equal:</span>
+<span class="sd">    check both cases. *)</span>
+<span class="kn">Lemma</span> <span class="nf">from_nat_functor_eq</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} :
+  ∏ f g : nat_functor X → Y,
+    (f (true,, fromempty) = g (true,, fromempty)) -&gt;
+    (∏ h, f (false,, <span class="k">λ</span> <span class="nv">_</span>, h tt) = g (false,, <span class="k">λ</span> <span class="nv">_</span>, h tt)) -&gt; f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g ? eqfalse.
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> pair.
+  <span class="nb">induction</span> pair <span class="k">as</span> [b bfun].
+  <span class="nb">induction</span> b.
+  - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, f (true,, z)) (eqfromempty bfun) @ _).
+    <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">z</span>, g (true,, z)) (eqfromempty bfun)).
+    <span class="bp">assumption</span>.
+  - <span class="nb">cbn</span> <span class="k">in</span> eqfalse.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, f (false,, z)) (eta_unit bfun) @ _).
+    <span class="nb">refine</span> (_ @ !maponpaths (<span class="k">λ</span> <span class="nv">z</span>, g (false,, z)) (eta_unit bfun)).
+    <span class="nb">apply</span> eqfalse.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The intuition is that an algebra X for this functor is given by a constant</span>
+<span class="sd">    x : X and a function X → X. The following equivalence verifies this. *)</span>
+<span class="kn">Definition</span> <span class="nf">nat_functor_equiv</span> :
+  ∏ {X : UU}, (X × (X → X)) ≃ (nat_functor X -&gt; X).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  use weq_iso.
+  * <span class="nb">intros</span> dprodpair.
+    <span class="nb">intros</span> pairfun.
+    <span class="nb">induction</span> pairfun <span class="k">as</span> [b bfun]; <span class="nb">induction</span> b.
+    - <span class="bp">exact</span> (pr1 dprodpair).
+    - <span class="bp">exact</span> (pr2 dprodpair (bfun tt)).
+  * <span class="nb">intro</span> pairfun.
+    <span class="bp">exact</span> (make_dirprod (pairfun (true,, fromempty))
+                       (<span class="k">λ</span> <span class="nv">x</span>, pairfun (false,, <span class="k">λ</span> <span class="nv">_</span>, x))).
+  * <span class="bp">reflexivity</span>.
+  * <span class="nb">intro</span> Y; <span class="nb">apply</span> from_nat_functor_eq; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Using our equivalence, we can consisely define the algebra corresponding to</span>
+<span class="sd">    ℕ. Any choice of zero results in an isomorphic algebra.</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">nat_alg</span> (<span class="nv">n</span> : ℕ) : algebra_ob nat_functor :=
+  (ℕ,, nat_functor_equiv (make_dirprod n S)).
+
+<span class="kn">Definition</span> <span class="nf">nat_alg_z</span> : algebra_ob nat_functor := nat_alg <span class="mi">0</span>.
+
+<span class="sd">(** We may also define it directly. This will be judgmentally equal</span>
+<span class="sd">    to [nat_alg_z]. *)</span>
+<span class="kn">Example</span> <span class="nf">nat_alg'</span> : algebra_ob nat_functor.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> algebra_ob, nat_functor; <span class="nb">cbn</span>; <span class="nb">unfold</span> polynomial_functor_obj; <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (ℕ,, <span class="k">λ</span> <span class="nv">pair</span>, _).
+  <span class="nb">induction</span> pair <span class="k">as</span> [b rect].
+  <span class="nb">induction</span> b; <span class="nb">cbn</span> <span class="k">in</span> rect.
+  - <span class="bp">exact</span> <span class="mi">0</span>.
+  - <span class="bp">exact</span> (S (rect tt)).
+<span class="kn">Defined</span>.
+<span class="kn">Lemma</span> <span class="nf">nat_algs_eq</span> : nat_alg_z = nat_alg'. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="sd">(** An algebra morphism between algebras for the nat functor is a</span>
+<span class="sd">    function that respects all the relevant structure. *)</span>
+<span class="kn">Definition</span> <span class="nf">make_nat_functor_algebra_mor</span> {<span class="nv">X</span> <span class="nv">Y</span> : algebra_ob nat_functor} :
+  <span class="k">let</span> <span class="nv">X'</span> := invmap nat_functor_equiv (pr2 X) <span class="k">in</span>
+  <span class="k">let</span> <span class="nv">Y'</span> := invmap nat_functor_equiv (pr2 Y) <span class="k">in</span>
+  ∏ (f : pr1 X → pr1 Y),
+    (f (pr1 X') = (pr1 Y')) × (f ∘ (pr2 X') = (pr2 Y') ∘ f)
+  → is_algebra_mor _ X Y f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X' Y' f p.
+  <span class="nb">apply</span> from_nat_functor_eq.
+  + <span class="nb">refine</span> (_ @ !maponpaths _ (nat_functor_arr_true f _)).
+    <span class="nb">refine</span> (pr1 p @ _).
+    <span class="nb">apply</span> (maponpaths (pr2 Y)), maponpaths.
+    <span class="bp">reflexivity</span>.
+  + <span class="nb">intro</span>; <span class="nb">apply</span> (eqtohomot (pr2 p)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Define the unique algebra morphism out of ℕ *)</span>
+<span class="kn">Lemma</span> <span class="nf">nat_alg_is_preinitial</span> : is_preinitial nat_alg_z.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X; <span class="nb">pose</span> (x := pr2 X).
+
+  <span class="sd">(** X has a "zero" and a "successor", just like ℕ, given by the algebra</span>
+<span class="sd">      structure. We use these to define the unique morphism ℕ -&gt; X</span>
+<span class="sd">      by induction. *)</span>
+  <span class="nb">pose</span> (x0    := x (true,, fromempty)).
+  <span class="nb">pose</span> (xsucc := (<span class="k">λ</span> <span class="nv">y</span>, x (false,, <span class="k">λ</span> <span class="nv">_</span>, y)) : pr1 X -&gt; pr1 X).
+
+  <span class="sd">(** The recursor for ℕ gets an extra argument of type ℕ, which we don't pass</span>
+<span class="sd">      to xsucc. Compare to [CategoryTheory.FunctorAlgebras.nat_ob_rec]. *)</span>
+  <span class="nb">refine</span> ((nat_rect _ x0 (<span class="k">λ</span> <span class="nv">_</span>, xsucc)),, _).
+  <span class="nb">apply</span> make_nat_functor_algebra_mor; <span class="nb">split</span>; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The first projection of the morphism out of ℕ (the actual function)</span>
+<span class="sd">    is unique. *)</span>
+<span class="kn">Lemma</span> <span class="nf">nat_alg_func_is_unique</span> :
+  ∏ X, ∏ (mor : algebra_mor _ nat_alg_z X), pr1 mor = pr1 (nat_alg_is_preinitial X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X mor.
+  <span class="nb">induction</span> X <span class="k">as</span> [X x]; <span class="nb">induction</span> mor <span class="k">as</span> [mor is_mor]; <span class="nb">cbn</span> <span class="k">in</span> x.
+  <span class="nb">cbn</span> <span class="k">in</span> mor.
+  <span class="nb">apply</span> funextfun; <span class="nb">intros</span> n; <span class="nb">induction</span> n; <span class="nb">cbn</span>.
+  - <span class="nb">unfold</span> is_algebra_mor <span class="k">in</span> is_mor; <span class="nb">cbn</span> <span class="k">in</span> mor, is_mor.
+    <span class="sd">(** Use the condition that mor is an algebra morphism *)</span>
+    <span class="nb">refine</span> ((eqtohomot is_mor (true,, fromempty)) @ _).
+    <span class="nb">apply</span> (maponpaths x).
+    <span class="nb">apply</span> nat_functor_arr_true.
+  - <span class="sd">(** Use the condition that mor is an algebra morphism *)</span>
+    <span class="nb">refine</span> ((eqtohomot is_mor (false,, _)) @ _); <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (maponpaths x).
+    <span class="nb">unfold</span> polynomial_functor_arr; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> funextsec; <span class="nb">intros</span> ttt; <span class="nb">induction</span> ttt.
+    <span class="nb">apply</span> IHn.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Since fibered algebras are the "dependent version" of normal algebras,</span>
+<span class="sd">    we need some kind of "dependent version" of the lemmas above.</span>
+<span class="sd"> *)</span>
+<span class="kn">Lemma</span> <span class="nf">sec_fromempty</span> {<span class="nv">X</span> : UU} {<span class="nv">Y</span> : X -&gt; UU}
+      (<span class="nv">f</span> : ∅ -&gt; X)
+      (<span class="nv">t</span> : ∏ z : ∅, Y (f z)) : t = <span class="k">λ</span> <span class="nv">e</span>, fromempty e.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextsec; <span class="nb">intro</span>; <span class="nb">induction</span> _.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A fibered algebra over ℕ consists of a family ℕ → UU, a point x0 : X 0,</span>
+<span class="sd">    and a function from each X n to X (S n).</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">fibered_algebra_nat</span> :
+  fibered_alg nat_alg_z ≃ ∑ (X : ∏ n : ℕ, UU), (X <span class="mi">0</span>) × (∏ n, X n → X (S n)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> X; <span class="nb">cbn</span> <span class="k">in</span> X.
+  use weq_iso.
+  - <span class="nb">intro</span> x.
+    <span class="nb">apply</span> make_dirprod.
+    + <span class="bp">exact</span> (x (true,, fromempty) (<span class="k">λ</span> <span class="nv">e</span>, fromempty e)).
+    + <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">n</span> <span class="nv">xn</span>, _).
+      <span class="nb">unfold</span> fibered_alg <span class="k">in</span> x; <span class="nb">cbn</span> <span class="k">in</span> x.
+      <span class="nb">apply</span> (x (false,, <span class="k">λ</span> <span class="nv">_</span>, n) (<span class="k">λ</span> <span class="nv">_</span>, xn)).
+  - <span class="nb">intro</span> x.
+    <span class="nb">unfold</span> fibered_alg; <span class="nb">cbn</span>.
+    <span class="nb">intros</span> pair <span class="kn">from</span>; <span class="nb">induction</span> pair <span class="k">as</span> [b bfun].
+    <span class="nb">induction</span> b; <span class="nb">cbn</span> <span class="k">in</span> *.
+    + <span class="bp">exact</span> (pr1 x).
+    + <span class="bp">exact</span> (pr2 x (bfun tt) (<span class="kn">from</span> tt)).
+  - <span class="nb">cbn</span>. <span class="nb">intro</span> g.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> pair.
+    <span class="nb">induction</span> pair <span class="k">as</span> [b bfun].
+    <span class="nb">induction</span> b; <span class="nb">cbn</span>; <span class="nb">cbn</span> <span class="k">in</span> bfun.
+    + <span class="nb">apply</span> funextsec; <span class="nb">intro</span> z.
+      <span class="nb">rewrite</span> (sec_fromempty bfun z).
+      <span class="nb">rewrite</span> (eqfromempty bfun).
+      <span class="bp">reflexivity</span>.
+    + <span class="nb">rewrite</span> (eta_unit bfun).
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> z.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!eta_unit z).
+  - <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A section from ℕ consists of a "point" x : ∏ n, X n such that</span>
+<span class="sd">    x agrees with the function which is a part of the fibered</span>
+<span class="sd">    algebra (see above).</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">make_nat_alg_sec</span> :
+  ∏ (FA : fibered_alg nat_alg_z),
+  <span class="k">let</span> <span class="nv">FA'</span> := fibered_algebra_nat FA
+  <span class="k">in</span> ∏ (x : ∏ n : ℕ, pr1 FA' n)
+       (p1 : x <span class="mi">0</span> = pr1 (pr2 FA'))
+       (p2 : (∏ n, pr2 (pr2 FA') n (x n) = x (S n))),
+  algebra_section FA.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> FA FA' x p1 p2.
+  <span class="nb">unfold</span> algebra_section.
+  <span class="nb">refine</span> (x,, _).
+  <span class="nb">intro</span> pair.
+  <span class="nb">induction</span> pair <span class="k">as</span> [b bfun].
+  <span class="nb">induction</span> b; <span class="nb">cbn</span>; <span class="nb">cbn</span> <span class="k">in</span> bfun.
+  - <span class="sd">(** They are equal at 0 by hypothesis p1, the rest is noise. *)</span>
+    <span class="nb">refine</span> (p1 @ _).
+    <span class="nb">unfold</span> FA', fibered_algebra_nat; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (eqfromempty bfun).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> e; <span class="nb">induction</span> e.
+  - <span class="nb">refine</span> (!p2 (bfun tt) @ _).
+    <span class="nb">rewrite</span> (eta_unit (bfun)).
+    <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Another way to make an algebra section given different starting data. *)</span>
+<span class="kn">Definition</span> <span class="nf">make_nat_alg_sec'</span> {<span class="nv">X</span> : ℕ -&gt; UU} {<span class="nv">ρ</span> : ∏ n, X n → X (S n)}
+           (<span class="nv">x</span> : ∏ n : ℕ, X n) (<span class="nv">H</span> : ∏ n : ℕ, x (S n) = ρ n (x n)) :
+  algebra_section
+    (invmap fibered_algebra_nat (X,, (x <span class="mi">0</span>,, ρ))).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (x,, _).
+  <span class="nb">intros</span> pair; <span class="nb">induction</span> pair <span class="k">as</span> [b bfun]; <span class="nb">induction</span> b.
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Define the section out of ℕ, prove it's really a section *)</span>
+<span class="kn">Lemma</span> <span class="nf">nat_alg_is_preinitial_sec</span> : is_preinitial_sec nat_alg_z.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> E. <span class="nb">pose</span> (x := pr2 E).
+  <span class="nb">unfold</span> is_preinitial, algebra_section.
+  use make_nat_alg_sec.
+  - <span class="nb">apply</span> nat_rect.
+    + <span class="bp">exact</span> (x (true,, fromempty) (empty_rect (pr1 E ∘ fromempty))).
+    + <span class="nb">intros</span> ? fn.
+      <span class="nb">refine</span> (x (false,, <span class="k">λ</span> <span class="nv">_</span>, n) (<span class="k">λ</span> <span class="nv">b</span> : unit, fn)).
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> e; <span class="nb">induction</span> e.
+  - <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Induction/W/Naturals.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Preamble.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;     Author: Langston Barrett (&#64;siddharthist)
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.Preamble.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.PartA.
+  &gt; Require Import UniMath.Foundations.PartD.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

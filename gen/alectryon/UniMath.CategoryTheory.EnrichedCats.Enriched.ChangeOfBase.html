@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ChangeOfBase.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enriched.Enriched.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">Change_Of_Base</span>.
+
+<span class="kn">Context</span> {<span class="nv">Mon_V</span> <span class="nv">Mon_V'</span> : monoidal_cat} (<span class="nv">F</span> : lax_monoidal_functor Mon_V Mon_V').
+
+<span class="kn">Definition</span> <span class="nf">change_of_base_enriched_precat_data</span> (<span class="nv">A</span> : enriched_precat Mon_V) : enriched_precat_data Mon_V'.
+<span class="kn">Proof</span>.
+  use make_enriched_precat_data.
+  - <span class="bp">exact</span> A.
+  - <span class="nb">intros</span> x y.
+    <span class="bp">exact</span> (F (enriched_cat_mor x y)).
+  - <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (mon_functor_unit F · #F (enriched_cat_identity _)).
+  - <span class="nb">intros</span> x y z.
+    <span class="bp">exact</span> (mon_functor_tensor F _ _ · #F (enriched_cat_comp _ y _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">change_of_base_enriched_id_ax</span> (<span class="nv">A</span> : enriched_precat Mon_V) : enriched_id_ax (change_of_base_enriched_precat_data A).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b.
+  <span class="nb">split</span>; <span class="nb">cbn</span>.
+  - <span class="nb">rewrite</span> &lt;- (functor_id F).
+    <span class="nb">rewrite</span> &lt;- (id_left (#F (identity _))).
+    <span class="nb">rewrite</span> tensor_comp_mor.
+    <span class="nb">rewrite</span> assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_mon_functor_tensor.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- (functor_comp F).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> enriched_id_left.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="bp">exact</span> (!(mon_functor_lunitor F _)).
+  - <span class="nb">rewrite</span> &lt;- (functor_id F).
+    <span class="nb">rewrite</span> &lt;- (id_left (#F (identity _))).
+    <span class="nb">rewrite</span> tensor_comp_mor.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> tensor_mon_functor_tensor.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- (functor_comp F).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> enriched_id_right.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="bp">exact</span> (!(mon_functor_runitor F _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">change_of_base_enriched_assoc_ax</span> (<span class="nv">A</span> : enriched_precat Mon_V) : enriched_assoc_ax (change_of_base_enriched_precat_data A).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b c d.
+  <span class="nb">simpl</span> <span class="k">in</span> a, b, c, d.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> &lt;- (functor_id F).
+  <span class="nb">rewrite</span> &lt;- (id_left (#F (identity _))).
+  <span class="nb">rewrite</span> tensor_comp_mor.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> tensor_mon_functor_tensor.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">rewrite</span> enriched_assoc.
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> mon_functor_lassociator.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> tensor_comp_id_l.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> &lt;- tensor_mon_functor_tensor.
+  <span class="nb">rewrite</span> functor_id.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">change_of_base_enriched_precat</span> (<span class="nv">A</span> : enriched_precat Mon_V) : enriched_precat Mon_V'.
+<span class="kn">Proof</span>.
+  use make_enriched_precat.
+  - <span class="bp">exact</span> (change_of_base_enriched_precat_data A).
+  - <span class="bp">exact</span> (change_of_base_enriched_id_ax A).
+  - <span class="bp">exact</span> (change_of_base_enriched_assoc_ax A).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">change_of_base_enriched_functor_data</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat Mon_V} (<span class="nv">G</span> : enriched_functor A B) : enriched_functor_data (change_of_base_enriched_precat A) (change_of_base_enriched_precat B).
+<span class="kn">Proof</span>.
+  use make_enriched_functor_data.
+  + <span class="bp">exact</span> G.
+  + <span class="nb">intros</span> x y.
+    <span class="bp">exact</span> (#F (enriched_functor_on_morphisms G _ _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">change_of_base_enriched_functor_unit_ax</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat Mon_V} (<span class="nv">G</span> : enriched_functor A B) : enriched_functor_unit_ax (change_of_base_enriched_functor_data G).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> a.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">rewrite</span> &lt;- (functor_comp F).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> enriched_functor_on_identity.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">change_of_base_enriched_functor_comp_ax</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat Mon_V} (<span class="nv">G</span> : enriched_functor A B) : enriched_functor_comp_ax (change_of_base_enriched_functor_data G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b c.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">rewrite</span> tensor_mon_functor_tensor.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> &lt;- !(functor_comp F).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> enriched_functor_on_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">change_of_base_enriched_functor</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat Mon_V} (<span class="nv">G</span> : enriched_functor A B) : enriched_functor (change_of_base_enriched_precat A) (change_of_base_enriched_precat B).
+<span class="kn">Proof</span>.
+  use make_enriched_functor.
+  - <span class="bp">exact</span> (change_of_base_enriched_functor_data G).
+  - <span class="bp">exact</span> (change_of_base_enriched_functor_unit_ax G).
+  - <span class="bp">exact</span> (change_of_base_enriched_functor_comp_ax G).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lax_monoidal_functor_on_postcompose_underlying_morphism</span> {<span class="nv">A</span> : enriched_precat Mon_V} (<span class="nv">x</span> : A) {<span class="nv">y</span> <span class="nv">z</span> : A} (<span class="nv">f</span> : underlying_morphism y z) : # F (postcompose_underlying_morphism x f) = @postcompose_underlying_morphism _ (change_of_base_enriched_precat _) _ _ _ (mon_functor_unit F · # F f).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> postcompose_underlying_morphism.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (functor_comp F).
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> &lt;- (functor_id F).
+  <span class="nb">rewrite</span> &lt;- (id_left (#F (identity _))).
+  <span class="nb">rewrite</span> tensor_comp_mor.
+  <span class="nb">rewrite</span> assoc, assoc'.
+  <span class="nb">rewrite</span> tensor_mon_functor_tensor.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">change</span> (# F (is_z_isomorphism_mor <span class="nl">?f</span>)) <span class="k">with</span> (is_z_isomorphism_mor (functor_on_is_z_isomorphism F f)).
+  <span class="nb">change</span> (is_z_isomorphism_mor <span class="nl">?x</span>) <span class="k">with</span> (inv_from_z_iso (_,,x)).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">rewrite</span> mon_functor_linvunitor.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lax_monoidal_functor_on_precompose_underlying_morphism</span> {<span class="nv">A</span> : enriched_precat Mon_V} {<span class="nv">x</span> <span class="nv">y</span> : A} (<span class="nv">z</span> : A) (<span class="nv">f</span> : underlying_morphism x y) : # F (precompose_underlying_morphism z f) = @precompose_underlying_morphism _ (change_of_base_enriched_precat _) _ _ _ (mon_functor_unit F · # F f).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> precompose_underlying_morphism.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (functor_comp F).
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">rewrite</span> &lt;- (functor_id F).
+  <span class="nb">rewrite</span> &lt;- (id_left (#F (identity _))).
+  <span class="nb">rewrite</span> tensor_comp_mor.
+  <span class="nb">rewrite</span> assoc, assoc'.
+  <span class="nb">apply</span> (transportb (<span class="k">λ</span> <span class="nv">g</span>, _ = _ · g) (tensor_mon_functor_tensor F _ _)).
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">change</span> (# F (is_z_isomorphism_mor <span class="nl">?f</span>)) <span class="k">with</span> (is_z_isomorphism_mor (functor_on_is_z_isomorphism F f)).
+  <span class="nb">change</span> (is_z_isomorphism_mor <span class="nl">?x</span>) <span class="k">with</span> (inv_from_z_iso (_,,x)).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">rewrite</span> mon_functor_rinvunitor.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">change_of_base_enriched_nat_trans</span> {<span class="nv">A</span> <span class="nv">B</span> : enriched_precat Mon_V} {<span class="nv">G</span> <span class="nv">H</span> : enriched_functor A B} (<span class="nv">a</span> : enriched_nat_trans G H) : enriched_nat_trans (change_of_base_enriched_functor G) (change_of_base_enriched_functor H).
+<span class="kn">Proof</span>.
+  use make_enriched_nat_trans.
+  - <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (mon_functor_unit F · #F (a x)).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> x y;
+    <span class="nb">cbn</span>;
+    <span class="nb">rewrite</span> &lt;- lax_monoidal_functor_on_postcompose_underlying_morphism;
+    <span class="nb">rewrite</span> &lt;- lax_monoidal_functor_on_precompose_underlying_morphism;
+    <span class="nb">rewrite</span> &lt;- !(functor_comp F);
+    <span class="nb">apply</span> maponpaths;
+    <span class="nb">apply</span> enriched_nat_trans_ax).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Change_Of_Base</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Enriched/ChangeOfBase.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

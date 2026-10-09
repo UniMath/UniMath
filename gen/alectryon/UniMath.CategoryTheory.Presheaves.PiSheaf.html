@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PiSheaf.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> ∏-types of sheaves</span>
+
+<span class="sd"> We show that sheaves are closed under ∏-types. Specifically, we show that if `A` is</span>
+<span class="sd"> a dependent presheaf over `Γ` and that `B` is a dependent sheaf over the total space</span>
+<span class="sd"> of `A`, then their ∏-type is a sheaf. Note that we only require the codomain to be a</span>
+<span class="sd"> sheaf and that we do not assume anything about the domain. Intuitively, the reason</span>
+<span class="sd"> why we only need to assume that `B` is a dependent sheaf, is because the amalgamations</span>
+<span class="sd"> in the ∏-type are solely computed using amalgamations in `B`. This is because they are</span>
+<span class="sd"> defined pointwise.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The amalgamations in the ∏-type</span>
+<span class="sd"> 2. Uniqueness</span>
+<span class="sd"> 3. The ∏-type for sheaves</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.TotalPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ConstructionsSheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.PiTypes.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">PiSheaf</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : site}
+          {<span class="nv">Γ</span> : C^op ⟶ HSET}
+          (<span class="nv">A</span> : dep_psh Γ)
+          {<span class="nv">B</span> : dep_psh (total_psh A)}
+          (<span class="nv">HB</span> : is_dep_sheaf B).
+
+  <span class="sd">(** * 1. The amalgamations in the ∏-type *)</span>
+  <span class="kn">Section</span> <span class="nf">Amalgamation</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> : C}
+            {<span class="nv">ω</span> : sieve x}
+            (<span class="nv">p</span> : C x ω)
+            {<span class="nv">z</span> : matching_family Γ ω}
+            {<span class="nv">a</span> : amalgamation z}
+            (<span class="nv">zz</span> : matching_family_dep (pi_dep_psh A B) z).
+
+    <span class="kn">Definition</span> <span class="nf">subst_matching_family_total</span>
+               (<span class="nv">y</span> : C)
+               (<span class="nv">f</span> : y --&gt; x)
+               (<span class="nv">aa</span> : A y (#Γ f a))
+      : matching_family (total_psh A) (f ^* ω).
+    <span class="kn">Proof</span>.
+      use make_matching_family.
+      - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">y'</span> <span class="nv">f'</span> <span class="nv">p'</span>, z y' _ p' ,, _).
+        <span class="nb">refine</span> (#d A f' _ aa).
+        <span class="kp">abstract</span>
+          (<span class="nb">refine</span> (eqtohomot (!(functor_comp Γ _ _)) _ @ _) ;
+           <span class="bp">exact</span> (amalgamation_restr a _ p')).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> y₁ y₂ f₁ f₂ g p' q₁ q₂ ;
+           use dep_psh_total_space_path ;
+           [ <span class="nb">cbn</span> ;
+             <span class="nb">refine</span> (matching_family_restr z _ _ _) ;
+             <span class="nb">rewrite</span> assoc ;
+             <span class="nb">rewrite</span> p' ;
+             <span class="nb">apply</span> idpath
+           | <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !dep_psh_mor_comp' ;
+             use dep_psh_mor_path_eq ;
+             <span class="nb">rewrite</span> id_left ;
+             <span class="bp">exact</span> p' ]).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">subst_matching_family_total_law</span>
+                (<span class="nv">y</span> : C)
+                (<span class="nv">f</span> : y --&gt; x)
+                (<span class="nv">aa</span> : A y (#Γ f a))
+      : amalgamation_law (subst_matching_family_total y f aa) (#Γ f a ,, aa).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w g q.
+      use dep_psh_total_space_path.
+      - <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (eqtohomot (!(functor_comp Γ _ _)) _ @ _).
+        <span class="bp">exact</span> (amalgamation_restr a _ q).
+      - <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> dep_psh_mor_comp'.
+        use dep_psh_mor_path_eq.
+        <span class="nb">apply</span> id_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">subst_matching_family_amalgamation</span>
+                (<span class="nv">y</span> : C)
+                (<span class="nv">f</span> : y --&gt; x)
+                (<span class="nv">aa</span> : A y (#Γ f a))
+      : amalgamation (subst_matching_family_total y f aa).
+    <span class="kn">Proof</span>.
+      use make_amalgamation.
+      - <span class="bp">exact</span> (#Γ f a ,, aa).
+      - <span class="bp">exact</span> (subst_matching_family_total_law y f aa).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">pi_matching_family_dep_pt_eq1</span>
+                {<span class="nv">w</span> <span class="nv">y</span> : C}
+                {<span class="nv">f</span> : y --&gt; x}
+                {<span class="nv">g</span> : w --&gt; y}
+                (<span class="nv">q</span> : ω w (g · f))
+      : #Γ g (#Γ f a) = #Γ (identity w) (z w (g · f) q).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (eqtohomot (!(functor_comp Γ _ _)) _ @ _).
+      <span class="nb">refine</span> (amalgamation_restr a (g · f) q @ !_).
+      <span class="bp">exact</span> (eqtohomot (functor_id Γ _) _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">pi_matching_family_dep_pt_eq2</span>
+                {<span class="nv">w</span> <span class="nv">y</span> : C}
+                {<span class="nv">f</span> : y --&gt; x}
+                {<span class="nv">g</span> : w --&gt; y}
+                (<span class="nv">aa</span> : A y (#Γ f a))
+                (<span class="nv">q</span> : ω w (g · f))
+      : # (total_psh A)
+          (identity w)
+          (#Γ (identity w) (z w (g · f) q)
+           ,,
+           #d A g (pi_matching_family_dep_pt_eq1 q) aa)
+        =
+        subst_matching_family_total y f aa w g q.
+    <span class="kn">Proof</span>.
+      use dep_psh_total_space_path.
+      - <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (eqtohomot (functor_id Γ _) _ @ _).
+        <span class="nb">apply</span> (eqtohomot (functor_id Γ _) _).
+      - <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+        use dep_psh_mor_path_eq.
+        <span class="nb">rewrite</span> !id_left.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pi_matching_family_dep_pt</span>
+               {<span class="nv">w</span> <span class="nv">y</span> : C}
+               {<span class="nv">f</span> : y --&gt; x}
+               {<span class="nv">g</span> : w --&gt; y}
+               (<span class="nv">aa</span> : A y (#Γ f a))
+               (<span class="nv">q</span> : ω w (g · f))
+      : B w (subst_matching_family_total y f aa w g q)
+      := #d B
+            (identity _)
+            (pi_matching_family_dep_pt_eq2 aa q)
+            ((zz _ _ q : dep_pi_psh_function _ _ _ _)
+               _
+               (identity _)
+               (#d A g (pi_matching_family_dep_pt_eq1 q) aa)).
+
+    <span class="kn">Proposition</span> <span class="nf">pi_matching_family_dep_restr</span>
+                {<span class="nv">w₁</span> <span class="nv">w₂</span> <span class="nv">y</span> : C}
+                {<span class="nv">f</span> : y --&gt; x}
+                {<span class="nv">g₁</span> : w₁ --&gt; y}
+                {<span class="nv">g₂</span> : w₂ --&gt; y}
+                {<span class="nv">h</span> : w₁ --&gt; w₂}
+                (<span class="nv">q</span> : h · g₂ = g₁)
+                (<span class="nv">r₁</span> : ω w₁ (g₁ · f))
+                (<span class="nv">r₂</span> : ω w₂ (g₂ · f))
+                (<span class="nv">aa</span> : A y (#Γ f a))
+                (<span class="nv">p'</span> : # (total_psh A) h (subst_matching_family_total y f aa w₂ g₂ r₂)
+                      =
+                      subst_matching_family_total y f aa w₁ g₁ r₁)
+      :  #d B h p' (pi_matching_family_dep_pt aa r₂)
+         =
+         pi_matching_family_dep_pt aa r₁.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> pi_matching_family_dep_pt.
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">refine</span> (maponpaths
+                  (<span class="k">λ</span> (<span class="nv">φ</span> : dep_pi_psh_function _ _ _ _), φ w₁ _ _)
+                  (matching_family_dep_restr zz _ r₁ r₂)).
+        <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> q ;
+           <span class="nb">apply</span> idpath).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (dep_pi_psh_function_on_fun_eq _ _ _ _ _ _).
+        <span class="bp">exact</span> (id_left _ @ !(id_right _)).
+      }
+      <span class="nb">rewrite</span> dep_psh_mor_comp'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (dep_pi_psh_function_on_pt_eq _ _ _ _ _ _).
+        etrans.
+        {
+          <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+          use dep_psh_mor_path_eq.
+          - <span class="bp">exact</span> (h · g₂).
+          - <span class="nb">refine</span> (eqtohomot (!(functor_comp Γ _ _)) _ @ _).
+            <span class="nb">cbn</span>.
+            <span class="nb">rewrite</span> q.
+            <span class="nb">refine</span> (amalgamation_restr a _ r₁ @ _).
+            <span class="nb">refine</span> (!_).
+            <span class="nb">rewrite</span> id_right.
+            <span class="nb">apply</span> (matching_family_restr z).
+            <span class="nb">rewrite</span> assoc.
+            <span class="nb">rewrite</span> q.
+            <span class="nb">apply</span> idpath.
+          - <span class="nb">rewrite</span> !id_left.
+            <span class="bp">exact</span> (!q).
+        }
+        <span class="nb">apply</span> dep_psh_mor_comp.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> dep_psh_mor_comp'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (!(dep_pi_psh_function_natural _ _ (zz w₂ (g₂ · f) r₂) h (identity _) _)).
+      }
+      <span class="nb">rewrite</span> dep_psh_mor_comp'.
+      use dep_psh_mor_path_eq.
+      <span class="nb">rewrite</span> !id_left, id_right.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pi_matching_family_dep</span>
+               (<span class="nv">y</span> : C)
+               (<span class="nv">f</span> : y --&gt; x)
+               (<span class="nv">aa</span> : A y (#Γ f a))
+      : matching_family_dep B (subst_matching_family_total y f aa).
+    <span class="kn">Proof</span>.
+      use make_matching_family_dep.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">g</span> <span class="nv">q</span>, pi_matching_family_dep_pt aa q).
+      - <span class="nb">intros</span> w₁ w₂ g₁ g₂ h q r₁ r₂.
+        <span class="nb">apply</span> pi_matching_family_dep_restr.
+        <span class="bp">exact</span> q.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pi_sheaf_amalgamation_fun</span>
+               (<span class="nv">y</span> : C)
+               (<span class="nv">f</span> : y --&gt; x)
+               (<span class="nv">aa</span> : A y (#Γ f a))
+      : B y (#Γ f a ,, aa)
+      := dep_sheaf_amalgamation
+           HB
+           (site_sieve_stable f p)
+           (subst_matching_family_total y f aa)
+           (subst_matching_family_amalgamation y f aa)
+           (pi_matching_family_dep y f aa).
+
+    <span class="kn">Proposition</span> <span class="nf">pi_sheaf_amalgamation_natural</span>
+      : is_natural_dep_pi_psh_function A B pi_sheaf_amalgamation_fun.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> y₁ y₂ f₁ f₂ aa.
+      <span class="nb">unfold</span> pi_sheaf_amalgamation_fun.
+      use (dep_sheaf_amalgamation_unique'
+               HB
+               (site_sieve_stable (f₁ · f₂) p)
+               (a := subst_matching_family_amalgamation _ _ _)).
+      <span class="nb">intros</span> y₃ g q.
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> pi_matching_family_dep_pt ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+      <span class="nb">cbn</span> <span class="k">in</span> q.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (maponpaths
+                  (<span class="k">λ</span> (<span class="nv">φ</span> : dep_pi_psh_function _ _ _ _), φ y₃ _ _)
+                  (matching_family_dep_fam_fun_eq zz _ _)).
+        <span class="nb">apply</span> assoc.
+      }
+      <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">pose proof</span> (dep_sheaf_amalgamation_restr
+                    HB
+                    (site_sieve_stable f₂ p)
+                    (subst_matching_family_total y₁ f₂ aa)
+                    (subst_matching_family_amalgamation y₁ f₂ aa)
+                    (pi_matching_family_dep y₁ f₂ aa)
+                    (#ω ω (identity y₃) (id_left (g · (f₁ · f₂)) @ assoc g f₁ f₂) q))
+        <span class="k">as</span> r.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">simple refine</span> (_ @ maponpaths (#d B (identity _) _) r).
+        {
+          <span class="nb">rewrite</span> dep_psh_mor_comp'.
+          use dep_psh_mor_path_eq.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        }
+        use dep_psh_total_space_path.
+        - <span class="nb">refine</span> (eqtohomot (functor_id Γ _) _ @ _).
+          <span class="nb">cbn</span>.
+          use matching_family_fam_fun_eq.
+          <span class="nb">apply</span> assoc'.
+        - <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+          use dep_psh_mor_path_eq.
+          <span class="nb">rewrite</span> !id_left.
+          <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> pi_matching_family_dep_pt.
+      <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (dep_pi_psh_function_on_fun_eq _ _ _ _ _ _).
+        <span class="nb">apply</span> id_left.
+      }
+      <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (dep_pi_psh_function_on_pt_eq _ _ _ _ _ _).
+        <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+        <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+        <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+        <span class="nb">refine</span> (dep_psh_mor_path_eq _ _ (pi_matching_family_dep_pt_eq1 _) _ _).
+        <span class="nb">rewrite</span> !id_left.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+      <span class="nb">cbn</span>.
+      use dep_psh_mor_path_eq.
+      <span class="nb">rewrite</span> !id_left.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pi_sheaf_amalgamation_ob</span>
+      : dep_pi_psh_function A B x a.
+    <span class="kn">Proof</span>.
+      use make_dep_pi_psh_function.
+      - <span class="bp">exact</span> pi_sheaf_amalgamation_fun.
+      - <span class="bp">exact</span> pi_sheaf_amalgamation_natural.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">pi_sheaf_amalgamation_law</span>
+      : amalgamation_dep_law zz pi_sheaf_amalgamation_ob.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> y₁ f₁ q.
+      use dep_pi_psh_function_eq.
+      <span class="nb">intros</span> y₂ f₂ b.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> pi_sheaf_amalgamation_fun.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">pose</span> (r := #ω ω f₂ (!(id_left _)) q).
+      <span class="nb">pose</span> (dep_sheaf_amalgamation_restr
+              HB
+              (site_sieve_stable (f₂ · f₁) p)
+              (subst_matching_family_total
+                 y₂
+                 (f₂ · f₁)
+                 (#d A (identity y₂)
+                       (dep_pi_psh_function_mor_eq1 f₂ f₁ (amalgamation_restr a f₁ q)) b))
+              (subst_matching_family_amalgamation
+                 y₂
+                 (f₂ · f₁)
+                 (#d A (identity y₂)
+                       (dep_pi_psh_function_mor_eq1 f₂ f₁ (amalgamation_restr a f₁ q)) b))
+              (pi_matching_family_dep
+                 y₂
+                 (f₂ · f₁)
+                 (#d A (identity y₂)
+                    (dep_pi_psh_function_mor_eq1 f₂ f₁ (amalgamation_restr a f₁ q)) b))
+              r)
+        <span class="k">as</span> eq.
+      <span class="nb">simple refine</span> (_ @ maponpaths (#d B (identity _) _) eq @ _) ; <span class="nb">clear</span> eq.
+      - <span class="nb">rewrite</span> dep_psh_mor_comp'.
+        use dep_psh_mor_path_eq.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      - use dep_psh_total_space_path.
+        + <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (eqtohomot (functor_id Γ _) _ @ _).
+          <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (matching_family_restr z).
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+          <span class="nb">apply</span> dep_psh_mor_id'.
+          <span class="nb">rewrite</span> !id_left.
+          <span class="nb">apply</span> idpath.
+      - <span class="nb">cbn</span> ; <span class="nb">unfold</span> pi_matching_family_dep_pt.
+        <span class="nb">rewrite</span> dep_psh_mor_comp'.
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (maponpaths
+                   (<span class="k">λ</span> (<span class="nv">φ</span> : dep_pi_psh_function _ _ _ _), φ y₂ _ _)
+                   (matching_family_dep_fam_fun_eq zz (id_left _) _)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> dep_psh_mor_comp'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (maponpaths
+                    (<span class="k">λ</span> (<span class="nv">φ</span> : dep_pi_psh_function _ _ _ _), φ y₂ _ _)
+                    _).
+          <span class="nb">pose</span> (matching_family_dep_restr zz (idpath (f₂ · f₁)) (#ω ω _ (idpath _) q) q)
+            <span class="k">as</span> eq.
+          etrans.
+          {
+            use (matching_family_dep_el_eq zz).
+            <span class="bp">exact</span> (#ω ω f₂ (idpath (f₂ · f₁)) q).
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!eq).
+        }
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (dep_psh_mor_comp' _ _ _ _ _ _ @ _).
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (dep_pi_psh_function_on_fun_eq _ _ _ _ _ _).
+          <span class="nb">rewrite</span> !id_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> dep_psh_mor_comp'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (dep_pi_psh_function_on_pt_eq _ _ _ _ _ _).
+          <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+          <span class="nb">apply</span> dep_psh_mor_id'.
+          <span class="nb">rewrite</span> !id_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> dep_psh_mor_comp'.
+        <span class="nb">apply</span> dep_psh_mor_id'.
+        <span class="nb">rewrite</span> !id_left.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">pi_sheaf_amalgamation</span>
+      : amalgamation_dep a zz.
+    <span class="kn">Proof</span>.
+      use make_amalgamation_dep.
+      - <span class="bp">exact</span> pi_sheaf_amalgamation_ob.
+      - <span class="bp">exact</span> pi_sheaf_amalgamation_law.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** * 2. Uniqueness *)</span>
+    <span class="kn">Proposition</span> <span class="nf">pi_sheaf_amalgamation_unique</span>
+                (<span class="nv">aa</span> : amalgamation_dep a zz)
+      : pr1 aa = pi_sheaf_amalgamation.
+    <span class="kn">Proof</span>.
+      use dep_pi_psh_function_eq ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> y f b.
+      <span class="nb">unfold</span> pi_sheaf_amalgamation_fun.
+      use (dep_sheaf_amalgamation_unique' HB _ (a := make_amalgamation _ _)).
+      <span class="nb">intros</span> y' f' q' ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> pi_matching_family_dep_pt.
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">pose</span> (amalgamation_dep_restr aa (f' · f) q') <span class="k">as</span> r.
+        <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> (<span class="nv">φ</span> : dep_pi_psh_function _ _ _ _), φ y' _ _) r).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> dep_psh_mor_comp'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (dep_pi_psh_function_on_fun_eq _ _ (pr1 aa) _ _ _).
+        <span class="nb">apply</span> id_left.
+      }
+      <span class="nb">rewrite</span> dep_psh_mor_comp'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (dep_pi_psh_function_on_pt_eq _ _ (pr1 aa) _ _ _).
+        <span class="nb">rewrite</span> !dep_psh_mor_comp'.
+        <span class="nb">refine</span> (dep_psh_mor_path_eq _ _ _ _ _).
+        <span class="mi">2</span>: <span class="nb">rewrite</span> !id_left ; <span class="nb">apply</span> idpath.
+        <span class="bp">exact</span> (!(eqtohomot (functor_comp Γ _ _) _)).
+      }
+      <span class="nb">rewrite</span> dep_psh_mor_comp'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (dep_pi_psh_function_natural _ _ (pr1 aa) f' f).
+      }
+      <span class="nb">rewrite</span> dep_psh_mor_comp'.
+      <span class="nb">apply</span> dep_psh_mor_path_eq.
+      <span class="nb">rewrite</span> !id_left.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Amalgamation</span>.
+
+  <span class="sd">(** * 3. The ∏-type for sheaves *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_dep_sheaf_pi_dep_psh</span>
+    : is_dep_sheaf (pi_dep_psh A B).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x ω p z a zz.
+    use make_iscontr.
+    - <span class="bp">exact</span> (pi_sheaf_amalgamation p zz).
+    - <span class="nb">intro</span> aa.
+      use amalgamation_dep_eq.
+      <span class="bp">exact</span> (pi_sheaf_amalgamation_unique p zz aa).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">PiSheaf</span>.
+
+<span class="kn">Definition</span> <span class="nf">pi_dep_sheaf</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> : sheaf C}
+           (<span class="nv">A</span> : dep_sheaf Γ)
+           (<span class="nv">B</span> : dep_sheaf (total_sheaf A))
+  : dep_sheaf Γ.
+<span class="kn">Proof</span>.
+  use make_dep_sheaf.
+  - <span class="bp">exact</span> (pi_dep_psh A B).
+  - <span class="nb">refine</span> (is_dep_sheaf_pi_dep_psh A _).
+    <span class="bp">exact</span> (is_dep_sheaf_dep_sheaf B).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">exp_sheaf</span>
+           {<span class="nv">C</span> : site}
+           (<span class="nv">A</span> : C^op ⟶ HSET)
+           (<span class="nv">B</span> : sheaf C)
+  : sheaf C.
+<span class="kn">Proof</span>.
+  use make_sheaf.
+  - <span class="bp">exact</span> (exp_psh A B).
+  - <span class="kp">abstract</span>
+      (<span class="nb">unfold</span> exp_psh ;
+       use is_sheaf_total_psh ; [ <span class="nb">apply</span> is_sheaf_terminal | ] ;
+       use is_dep_sheaf_pi_dep_psh ;
+       use is_dep_sheaf_dep_psh_subst ;
+       use is_dep_sheaf_psh_to_dep_psh ;
+       <span class="bp">exact</span> (is_sheaf_sheaf B)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/PiSheaf.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. The ∏-type for sheaves
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

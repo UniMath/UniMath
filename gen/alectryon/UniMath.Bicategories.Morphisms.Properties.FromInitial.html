@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FromInitial.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************</span>
+
+<span class="sd"> Morphism from biinitial objects</span>
+
+<span class="sd"> If a bicategory has a strict biinitial object, then we can deduce</span>
+<span class="sd"> a number of intersting properties of 1-cells from the biinitial</span>
+<span class="sd"> object to any other object.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Faithfulness</span>
+<span class="sd"> 2. Fully faithfulness</span>
+<span class="sd"> 3. Pseudomonic</span>
+<span class="sd"> 4. Conservativity</span>
+<span class="sd"> 4. Discreteness</span>
+<span class="sd"> 5. It's an internal Street fibration</span>
+<span class="sd"> 6. Preservation of cartesian cells</span>
+<span class="sd"> 7. It's an internal Street opfibration</span>
+<span class="sd"> 8. Preservation of opcartesian cells</span>
+
+<span class="sd"> ******************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.OpCellBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.DiscreteMorphisms.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Colimits.Initial.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">FromInitial</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">x</span> <span class="nv">y</span> : B}
+          (<span class="nv">Hx</span> : is_biinitial x)
+          (<span class="nv">Sx</span> : biinitial_is_strict_biinitial_obj Hx)
+          (<span class="nv">f</span> : x --&gt; y).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Faithfulness</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_faithful_1cell</span>
+    : faithful_1cell f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z g₁ g₂ α₁ α₂ p.
+    <span class="nb">enough</span> (Hz : is_biinitial z).
+    {
+      <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+    }
+    <span class="bp">exact</span> (equiv_to_biinitial Hx (Sx z g₁)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Fully faithfulness</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_fully_faithful_1cell</span>
+    : fully_faithful_1cell f.
+  <span class="kn">Proof</span>.
+    use make_fully_faithful.
+    - <span class="bp">exact</span> from_biinitial_faithful_1cell.
+    - <span class="nb">intros</span> z g₁ g₂ αf.
+      <span class="nb">assert</span>(Hz : is_biinitial z).
+      {
+        <span class="bp">exact</span> (equiv_to_biinitial Hx (Sx z g₁)).
+      }
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="nb">apply</span> (is_biinitial_2cell_property Hz).
+      + <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Pseudomonic</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_pseudomonic_1cell</span>
+    : pseudomonic_1cell f.
+  <span class="kn">Proof</span>.
+    use make_pseudomonic.
+    - <span class="bp">exact</span> from_biinitial_faithful_1cell.
+    - <span class="nb">intros</span> z g₁ g₂ αf Hαf.
+      <span class="nb">assert</span>(Hz : is_biinitial z).
+      {
+        <span class="bp">exact</span> (equiv_to_biinitial Hx (Sx z g₁)).
+      }
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="nb">apply</span> (is_biinitial_2cell_property Hz).
+      + use make_is_invertible_2cell.
+        * <span class="nb">apply</span> (is_biinitial_2cell_property Hz).
+        * <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+        * <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+      + <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Conservativity</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_conservative_1cell</span>
+    : conservative_1cell f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z g₁ g₂ α Hα.
+    <span class="nb">assert</span>(Hz : is_biinitial z).
+    {
+      <span class="bp">exact</span> (equiv_to_biinitial Hx (Sx z g₁)).
+    }
+    use make_is_invertible_2cell.
+    - <span class="nb">apply</span> (is_biinitial_2cell_property Hz).
+    - <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+    - <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Discreteness</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_discrete_1cell</span>
+    : discrete_1cell f.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> from_biinitial_faithful_1cell.
+    - <span class="bp">exact</span> from_biinitial_conservative_1cell.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. It's an internal Street fibration</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_is_cartesian_2cell_sfib</span>
+             {<span class="nv">z</span> : B}
+             {<span class="nv">g₁</span> <span class="nv">g₂</span> : z --&gt; x}
+             (<span class="nv">α</span> : g₁ ==&gt; g₂)
+    : is_cartesian_2cell_sfib f α.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span>(Hz : is_biinitial z).
+    {
+      <span class="bp">exact</span> (equiv_to_biinitial Hx (Sx z g₁)).
+    }
+    <span class="nb">intros</span> w γ δp p.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ] ;
+         <span class="nb">apply</span> (is_biinitial_eq_property Hz)).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="nb">apply</span> (is_biinitial_2cell_property Hz).
+      + <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+      + <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_internal_sfib_cleaving</span>
+    : internal_sfib_cleaving f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z g h α.
+    <span class="nb">assert</span>(Hz : is_biinitial z).
+    {
+      <span class="bp">exact</span> (equiv_to_biinitial Hx (Sx z h)).
+    }
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> h.
+    - <span class="nb">apply</span> id2.
+    - use make_invertible_2cell.
+      + <span class="nb">apply</span> (is_biinitial_2cell_property Hz).
+      + use make_is_invertible_2cell.
+        * <span class="nb">apply</span> (is_biinitial_2cell_property Hz).
+        * <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+        * <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+    - <span class="nb">apply</span> id_is_cartesian_2cell_sfib.
+    - <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_lwhisker_is_cartesian</span>
+    : lwhisker_is_cartesian f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> from_biinitial_is_cartesian_2cell_sfib.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_internal_sfib</span>
+    : internal_sfib f.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> from_biinitial_internal_sfib_cleaving.
+    - <span class="bp">exact</span> from_biinitial_lwhisker_is_cartesian.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   7. Preservation of cartesian cells</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_mor_preserves_cartesian</span>
+             {<span class="nv">x'</span> <span class="nv">y'</span> : B}
+             (<span class="nv">f'</span> : x' --&gt; y')
+    : mor_preserves_cartesian
+        f
+        f'
+        (is_biinitial_1cell_property Hx x').
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z h₁ h₂ γ Hγ.
+    <span class="nb">assert</span>(Hz : is_biinitial z).
+    {
+      <span class="bp">exact</span> (equiv_to_biinitial Hx (Sx z h₁)).
+    }
+    <span class="nb">intros</span> w ζ δp p.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ] ;
+         <span class="nb">apply</span> (is_biinitial_eq_property Hz)).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="nb">apply</span> (is_biinitial_2cell_property Hz).
+      + <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+      + <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   8. It's an internal Street opfibration</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_is_opcartesian_2cell_sopfib</span>
+             {<span class="nv">z</span> : B}
+             {<span class="nv">g₁</span> <span class="nv">g₂</span> : z --&gt; x}
+             (<span class="nv">α</span> : g₁ ==&gt; g₂)
+    : is_opcartesian_2cell_sopfib f α.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span>(Hz : is_biinitial z).
+    {
+      <span class="bp">exact</span> (equiv_to_biinitial Hx (Sx z g₁)).
+    }
+    <span class="nb">intros</span> w γ δp p.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ] ;
+         <span class="nb">apply</span> (is_biinitial_eq_property Hz)).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="nb">apply</span> (is_biinitial_2cell_property Hz).
+      + <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+      + <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_internal_sopfib_cleaving</span>
+    : internal_sopfib_opcleaving f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z g h α.
+    <span class="nb">assert</span>(Hz : is_biinitial z).
+    {
+      <span class="bp">exact</span> (equiv_to_biinitial Hx (Sx z g)).
+    }
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> g.
+    - <span class="nb">apply</span> id2.
+    - use make_invertible_2cell.
+      + <span class="nb">apply</span> (is_biinitial_2cell_property Hz).
+      + use make_is_invertible_2cell.
+        * <span class="nb">apply</span> (is_biinitial_2cell_property Hz).
+        * <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+        * <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+    - <span class="nb">apply</span> id_is_opcartesian_2cell_sopfib.
+    - <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_lwhisker_is_opcartesian</span>
+    : lwhisker_is_opcartesian f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> from_biinitial_is_opcartesian_2cell_sopfib.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_internal_sopfib</span>
+    : internal_sopfib f.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> from_biinitial_internal_sopfib_cleaving.
+    - <span class="bp">exact</span> from_biinitial_lwhisker_is_opcartesian.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   9. Preservation of opcartesian cells</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">from_biinitial_mor_preserves_opcartesian</span>
+             {<span class="nv">x'</span> <span class="nv">y'</span> : B}
+             (<span class="nv">f'</span> : x' --&gt; y')
+    : mor_preserves_opcartesian
+        f
+        f'
+        (is_biinitial_1cell_property Hx x').
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z h₁ h₂ γ Hγ.
+    <span class="nb">assert</span>(Hz : is_biinitial z).
+    {
+      <span class="bp">exact</span> (equiv_to_biinitial Hx (Sx z h₁)).
+    }
+    <span class="nb">intros</span> w ζ δp p.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ] ;
+         <span class="nb">apply</span> (is_biinitial_eq_property Hz)).
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="nb">apply</span> (is_biinitial_2cell_property Hz).
+      + <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+      + <span class="nb">apply</span> (is_biinitial_eq_property Hz).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FromInitial</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Morphisms/Properties/FromInitial.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Preservation of opcartesian cells
+  &gt;
+  &gt;  ******************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

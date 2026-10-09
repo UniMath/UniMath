@@ -1,0 +1,94 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.MoreFoundations.DoubleNegation</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.MoreFoundations.DoubleNegation</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+When proving a negation, we may undo a double negation. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="wma_dneg" class="idref" href="#wma_dneg"><span class="id" title="lemma">wma_dneg</span></a> {<a id="X:1" class="idref" href="#X:1"><span class="id" title="binder">X</span></a>:<span class="id" title="keyword">Type</span>} (<a id="P:2" class="idref" href="#P:2"><span class="id" title="binder">P</span></a>:<span class="id" title="keyword">Type</span>) : <a class="idref" href="UniMath.Foundations.PartA.html#370eba44133e2c9b7fa17dc66c818703"><span class="id" title="notation">¬¬</span></a> <a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#P:2"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#P:2"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#X:1"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#X:1"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">dnp</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#dnegnegtoneg"><span class="id" title="definition">dnegnegtoneg</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">q</span> := <a class="idref" href="UniMath.Foundations.PartA.html#dnegf"><span class="id" title="definition">dnegf</span></a> <span class="id" title="var">p</span>); <span class="id" title="tactic">clear</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">q</span>; <span class="id" title="tactic">clear</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <span class="id" title="var">dnp</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+It's not false that a type is decidable. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="dneg_decidable" class="idref" href="#dneg_decidable"><span class="id" title="lemma">dneg_decidable</span></a> (<a id="P:3" class="idref" href="#P:3"><span class="id" title="binder">P</span></a>:<span class="id" title="keyword">Type</span>) : <a class="idref" href="UniMath.Foundations.PartA.html#370eba44133e2c9b7fa17dc66c818703"><span class="id" title="notation">¬¬</span></a> <a class="idref" href="UniMath.Foundations.PartB.html#decidable"><span class="id" title="definition">decidable</span></a> <a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#P:3"><span class="id" title="variable">P</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">ndec</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Foundations.PartB.html#decidable"><span class="id" title="definition">decidable</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">ndec</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">q</span> := <a class="idref" href="UniMath.Foundations.Propositions.html#fromnegcoprod"><span class="id" title="lemma">fromnegcoprod</span></a> <span class="id" title="var">ndec</span>); <span class="id" title="tactic">clear</span> <span class="id" title="var">ndec</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">contradicts</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">q</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">q</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+When proving a negation, we may assume a type is decidable. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="wma_decidable" class="idref" href="#wma_decidable"><span class="id" title="lemma">wma_decidable</span></a> {<a id="X:4" class="idref" href="#X:4"><span class="id" title="binder">X</span></a>:<span class="id" title="keyword">Type</span>} (<a id="P:5" class="idref" href="#P:5"><span class="id" title="binder">P</span></a>:<span class="id" title="keyword">Type</span>) : <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.PartB.html#decidable"><span class="id" title="definition">decidable</span></a> <a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#P:5"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#X:4"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#89335bb7773696a226bf41e8343e6c3f"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#X:4"><span class="id" title="variable">X</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#wma_dneg"><span class="id" title="lemma">wma_dneg</span></a> (<a class="idref" href="UniMath.Foundations.PartB.html#decidable"><span class="id" title="definition">decidable</span></a> <span class="id" title="var">P</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#dneg_decidable"><span class="id" title="lemma">dneg_decidable</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">logic</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Compare with <span class="inlinecode"><a class="idref" href="UniMath.MoreFoundations.DecidablePropositions.html#negforall_to_existsneg"><span class="id" title="lemma">negforall_to_existsneg</span></a></span>, which uses LEM instead. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Lemma</span> <a id="negforall_to_existsneg'" class="idref" href="#negforall_to_existsneg'"><span class="id" title="lemma">negforall_to_existsneg'</span></a> {<a id="X:6" class="idref" href="#X:6"><span class="id" title="binder">X</span></a>:<span class="id" title="keyword">Type</span>} (<a id="P:7" class="idref" href="#P:7"><span class="id" title="binder">P</span></a>:<a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#X:6"><span class="id" title="variable">X</span></a><a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a><span class="id" title="keyword">Type</span>) : <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="x:8" class="idref" href="#x:8"><span class="id" title="binder">x</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#370eba44133e2c9b7fa17dc66c818703"><span class="id" title="notation">¬¬</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#370eba44133e2c9b7fa17dc66c818703"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#P:7"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#x:8"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.PartA.html#370eba44133e2c9b7fa17dc66c818703"><span class="id" title="notation">)</span></a><a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#370eba44133e2c9b7fa17dc66c818703"><span class="id" title="notation">¬¬</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#370eba44133e2c9b7fa17dc66c818703"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">∃</span></a> <a id="x:9" class="idref" href="#x:9"><span class="id" title="binder">x</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#94e052c6337a815c52cda44eea9df276"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#P:7"><span class="id" title="variable">P</span></a> <a class="idref" href="UniMath.MoreFoundations.DoubleNegation.html#x:9"><span class="id" title="variable">x</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">)</span></a><a class="idref" href="UniMath.Foundations.PartA.html#370eba44133e2c9b7fa17dc66c818703"><span class="id" title="notation">)</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">nf</span> <span class="id" title="var">c</span>. <span class="id" title="var">use</span> <span class="id" title="var">nf</span>; <span class="id" title="tactic">clear</span> <span class="id" title="var">nf</span>. <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<span class="id" title="var">q</span> := <a class="idref" href="UniMath.Foundations.Propositions.html#neghexisttoforallneg"><span class="id" title="lemma">neghexisttoforallneg</span></a> <span class="id" title="var">_</span> <span class="id" title="var">c</span> <span class="id" title="var">x</span>); <span class="id" title="tactic">clear</span> <span class="id" title="var">c</span>; <span class="id" title="tactic">simpl</span> <span class="id" title="tactic">in</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">q</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

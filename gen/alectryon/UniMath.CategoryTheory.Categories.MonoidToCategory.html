@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidToCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Constructing an one-object category from a monoid</span>
+
+<span class="sd">  If we have a monoid, we can construct a one-object category from it. This is the one-dimensional</span>
+<span class="sd">  version of what happens in `Bicategories/MonoidalCategories/MonoidalFromBicategory.v`. In fact,</span>
+<span class="sd">  this gives a fully faithful functor from monoids to setcategories. Presheaves on such a one-object</span>
+<span class="sd">  category are equivalent to sets with a right monoid action.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The functor from monoids to categories [monoid_to_category]</span>
+<span class="sd">  1.2. Fully faithful [monoid_to_category_fully_faithful]</span>
+<span class="sd">  2. The equivalence between presheaves and monoid actions [monoid_presheaf_action_equivalence]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Monoid.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.FundamentalTheorem.CommonUtilities.MonoidActions.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> multmonoid.
+
+<span class="kn">Section</span> <span class="nf">MonoidToCategory</span>.
+
+<span class="sd">(** * 1. The functor from monoids to categories*)</span>
+
+  <span class="kn">Section</span> <span class="nf">Ob</span>.
+
+    <span class="kn">Context</span> (<span class="nv">M</span> : monoid).
+
+    <span class="kn">Definition</span> <span class="nf">monoid_to_category_ob_data</span>
+      : precategory_data.
+    <span class="kn">Proof</span>.
+      use make_precategory_data.
+      - use make_precategory_ob_mor.
+        + <span class="bp">exact</span> unit.
+        + <span class="nb">intros</span> t t'.
+          <span class="bp">exact</span> M.
+      - <span class="nb">intro</span> c.
+        <span class="bp">exact</span> <span class="mi">1</span>.
+      - <span class="nb">intros</span> a b c m m'.
+        <span class="bp">exact</span> (m' * m).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">monoid_to_category_ob_is_precategory</span>
+      : is_precategory_one_assoc monoid_to_category_ob_data.
+    <span class="kn">Proof</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      - <span class="nb">intros</span> a b f.
+        <span class="nb">apply</span> runax.
+      - <span class="nb">intros</span> a b f.
+        <span class="nb">apply</span> lunax.
+      - <span class="nb">intros</span> t t' t'' t''' f g h.
+        <span class="nb">apply</span> assocax.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">monoid_to_category_ob_precategory</span>
+      : precategory
+      := make_precategory_one_assoc
+        monoid_to_category_ob_data
+        monoid_to_category_ob_is_precategory.
+
+    <span class="kn">Lemma</span> <span class="nf">monoid_to_category_is_setcategory</span>
+      : is_setcategory monoid_to_category_ob_precategory.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">apply</span> isasetunit.
+      - <span class="nb">intros</span> t t'.
+        <span class="nb">apply</span> setproperty.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">monoid_to_category_ob</span>
+      : setcategory
+      := monoid_to_category_ob_precategory ,, monoid_to_category_is_setcategory.
+
+  <span class="kn">End</span> <span class="nf">Ob</span>.
+
+  <span class="kn">Section</span> <span class="nf">Mor</span>.
+
+    <span class="kn">Context</span> {<span class="nv">M</span> <span class="nv">M'</span> : monoid}.
+    <span class="kn">Context</span> (<span class="nv">f</span> : monoidfun M M').
+
+    <span class="kn">Definition</span> <span class="nf">monoid_to_category_mor_data</span>
+      : functor_data (monoid_to_category_ob M) (monoid_to_category_ob M').
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (idfun _).
+      - <span class="nb">intros</span> t t' m.
+        <span class="bp">exact</span> (f m).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">monoid_to_category_mor_is_functor</span>
+      : is_functor monoid_to_category_mor_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> t.
+        <span class="nb">apply</span> monoidfununel.
+      - <span class="nb">intros</span> t t' t'' m m'.
+        <span class="nb">apply</span> monoidfunmul.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">monoid_to_category_mor</span>
+      : monoid_to_category_ob M ⟶ monoid_to_category_ob M'
+      := make_functor _ monoid_to_category_mor_is_functor.
+
+  <span class="kn">End</span> <span class="nf">Mor</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_category_data</span>
+    : functor_data monoid_category cat_of_setcategory
+    := make_functor_data (C := monoid_category) (C' := cat_of_setcategory)
+      monoid_to_category_ob
+      (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, monoid_to_category_mor).
+
+  <span class="kn">Lemma</span> <span class="nf">monoid_to_category_is_functor</span>
+    : is_functor monoid_to_category_data.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> <span class="nb">split</span>;
+      <span class="kp">repeat</span> <span class="nb">intro</span>;
+      <span class="nb">apply</span> (functor_eq _ _ (homset_property _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_category</span>
+    : monoid_category ⟶ cat_of_setcategory
+    := make_functor
+      monoid_to_category_data
+      monoid_to_category_is_functor.
+
+<span class="sd">(** ** 1.2. Fully faithful *)</span>
+
+  <span class="kn">Section</span> <span class="nf">FullyFaithful</span>.
+
+    <span class="kn">Context</span> (<span class="nv">M</span> <span class="nv">M'</span> : monoid).
+
+    <span class="kn">Section</span> <span class="nf">Mor</span>.
+
+      <span class="kn">Context</span> (<span class="nv">f</span> : monoid_to_category_ob M ⟶ monoid_to_category_ob M').
+
+      <span class="kn">Definition</span> <span class="nf">functor_to_monoidfun_data</span>
+        : M → M'.
+      <span class="kn">Proof</span>.
+        <span class="nb">intro</span> m.
+        <span class="bp">exact</span> (#f (m : monoid_to_category_ob M⟦tt, tt⟧)).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Lemma</span> <span class="nf">functor_to_is_monoidfun</span>
+        : ismonoidfun functor_to_monoidfun_data.
+      <span class="kn">Proof</span>.
+        use make_ismonoidfun.
+        - <span class="nb">intros</span> m m'.
+          <span class="nb">apply</span> (functor_comp f).
+        - <span class="nb">apply</span> (functor_id f).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">functor_to_monoidfun</span>
+        : monoidfun M M'
+        := make_monoidfun functor_to_is_monoidfun.
+
+    <span class="kn">End</span> <span class="nf">Mor</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">monoid_to_category_fully_faithful_monoidfun_iso</span>
+      (<span class="nv">f</span> : monoidfun M M')
+      : functor_to_monoidfun (monoid_to_category_mor f) = f.
+    <span class="kn">Proof</span>.
+      <span class="bp">now</span> <span class="nb">apply</span> monoidfun_paths.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">monoid_to_category_fully_faithful_functor_iso</span>
+      (<span class="nv">f</span> : monoid_to_category_ob M ⟶ monoid_to_category_ob M')
+      : monoid_to_category_mor (functor_to_monoidfun f) = f.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (functor_eq _ _ (homset_property _)).
+      use functor_data_eq.
+      - <span class="nb">intro</span> t.
+        <span class="bp">now</span> <span class="nb">induction</span> t, (pr1 f tt).
+      - <span class="nb">intros</span> t t' m.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (eqtohomot (transportf_const _ _) _ @ _).
+        <span class="bp">now</span> <span class="nb">induction</span> t, t'.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">FullyFaithful</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_to_cat_fully_faithful</span>
+    : fully_faithful monoid_to_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m m'.
+    use isweq_iso.
+    - <span class="nb">apply</span> functor_to_monoidfun.
+    - <span class="nb">apply</span> monoid_to_category_fully_faithful_monoidfun_iso.
+    - <span class="nb">apply</span> monoid_to_category_fully_faithful_functor_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_iso_weq_monoid_category_equiv</span>
+    : ∏ (M M' : monoid),
+      z_iso (C := monoid_category) M M'
+      ≃ z_iso (C := cat_of_setcategory) (monoid_to_category_ob M) (monoid_to_category_ob M')
+    := weq_ff_functor_on_z_iso monoid_to_cat_fully_faithful.
+
+<span class="kn">End</span> <span class="nf">MonoidToCategory</span>.
+
+<span class="sd">(** * 2. The equivalence between presheaves and monoid actions *)</span>
+
+<span class="kn">Section</span> <span class="nf">MonoidCategoryPresheaf</span>.
+
+  <span class="kn">Context</span> (<span class="nv">M</span> : monoid).
+
+  <span class="kn">Definition</span> <span class="nf">monoid_presheaf_to_action</span>
+    : PreShv (monoid_to_category_ob M) ⟶ monoid_action_cat M.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="nb">intro</span> P.
+        use make_monoid_action.
+        * use make_monoid_action_data.
+          -- <span class="bp">exact</span> ((P : _ ⟶ _) tt).
+          -- <span class="nb">intros</span> p m.
+            <span class="bp">exact</span> (# (P : _ ⟶ _) m p).
+        * use make_is_monoid_action.
+          -- <span class="nb">intro</span> x.
+            <span class="bp">exact</span> (eqtohomot (functor_id P _) _).
+          -- <span class="nb">intros</span> x m m'.
+            <span class="bp">exact</span> (eqtohomot (functor_comp P m m') _).
+      + <span class="nb">intros</span> P P' F.
+        use make_monoid_action_morphism.
+        * <span class="bp">exact</span> ((F : _ ⟹ _) tt).
+        * <span class="nb">intros</span> x m.
+          <span class="nb">apply</span> (eqtohomot (nat_trans_ax F _ _ _)).
+    - <span class="kp">abstract</span> <span class="bp">now</span> <span class="nb">split</span>;
+        <span class="kp">repeat</span> <span class="nb">intro</span>;
+          <span class="nb">apply</span> monoid_action_morphism_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_action_to_presheaf_ob</span>
+    (<span class="nv">X</span> : monoid_action M)
+    : PreShv (monoid_to_category_ob M).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - use make_functor_data.
+      + <span class="nb">intro</span>.
+        <span class="bp">exact</span> (X : hSet).
+      + <span class="nb">intros</span> a b m x.
+        <span class="bp">exact</span> (action x m).
+    - <span class="kp">abstract</span> (
+        <span class="nb">split</span>;
+        [ <span class="nb">intro</span> t;
+          <span class="nb">apply</span> funextfun;
+          <span class="nb">intro</span> x;
+          <span class="nb">apply</span> action_unel
+        | <span class="nb">intros</span> t t' t'' m m';
+          <span class="nb">apply</span> funextfun;
+          <span class="nb">intro</span> x;
+          <span class="nb">apply</span> action_op ]
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monoid_presheaf_action_equivalence</span>
+    : adj_equivalence_of_cats monoid_presheaf_to_action.
+  <span class="kn">Proof</span>.
+    use rad_equivalence_of_cats.
+    - <span class="nb">apply</span> is_univalent_functor_category.
+      <span class="nb">apply</span> is_univalent_HSET.
+    - <span class="nb">intros</span> P P'.
+      use isweq_iso.
+      + <span class="nb">intro</span> f.
+        use make_nat_trans.
+        * <span class="nb">intros</span> t.
+          <span class="nb">induction</span> t.
+          <span class="bp">exact</span> (f : monoid_action_morphism _ _).
+        * <span class="kp">abstract</span> (
+            <span class="nb">intros</span> t t';
+            <span class="nb">induction</span> t, t';
+            <span class="nb">intro</span> m;
+            <span class="nb">apply</span> funextfun;
+            <span class="nb">intro</span> x;
+            <span class="nb">apply</span> (mor_action f)
+          ).
+      + <span class="kp">abstract</span> (
+          <span class="nb">intro</span> f;
+          <span class="nb">apply</span> nat_trans_eq_alt;
+          <span class="nb">intro</span> t;
+          <span class="bp">now</span> <span class="nb">induction</span> t
+        ).
+      + <span class="kp">abstract</span> (
+          <span class="nb">intro</span> f;
+          <span class="bp">now</span> <span class="nb">apply</span> monoid_action_morphism_eq
+        ).
+    - <span class="nb">intro</span> X.
+      <span class="nb">apply</span> hinhpr.
+      <span class="k">exists</span> (<span class="nv">monoid_action_to_presheaf_ob</span> <span class="nv">X</span>).
+      use make_z_iso.
+      + <span class="nb">apply</span> (identity X).
+      + <span class="nb">apply</span> (identity X).
+      + <span class="kp">abstract</span> (
+          <span class="nb">split</span>;
+          <span class="bp">now</span> <span class="nb">apply</span> monoid_action_morphism_eq
+        ).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">MonoidCategoryPresheaf</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/MonoidToCategory.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   2. The equivalence between presheaves and monoid actions [monoid_presheaf_action_equivalence]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.Algebra.Monoids.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

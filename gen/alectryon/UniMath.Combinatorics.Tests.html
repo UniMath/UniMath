@@ -1,0 +1,596 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Tests.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.Preamble.
+<span class="kn">Require</span> UniMath.Combinatorics.Lists.
+<span class="kn">Require</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require</span> UniMath.Combinatorics.FiniteSets.
+<span class="kn">Require</span> UniMath.Combinatorics.FiniteSets.
+<span class="kn">Require</span> UniMath.OrderTheory.OrderedSets.OrderedSets.
+<span class="kn">Require</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require</span> UniMath.Combinatorics.BoundedSearch.
+<span class="kn">Require</span> UniMath.MoreFoundations.DecidablePropositions.
+<span class="kn">Require</span> UniMath.MoreFoundations.NegativePropositions.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.NegativePropositions.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+
+<span class="kn">Section</span> <span class="nf">Test_list</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[]"</span> := nil (<span class="kn">at level</span> <span class="mi">0</span>, <span class="kn">format</span> <span class="s2">"[]"</span>).
+  <span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"::"</span> := cons.
+
+  <span class="kn">Local</span> <span class="kn">Goal</span> concatenate (<span class="mi">1</span>::<span class="mi">2</span>::[]) (<span class="mi">3</span>::<span class="mi">4</span>::<span class="mi">5</span>::[]) = (<span class="mi">1</span>::<span class="mi">2</span>::<span class="mi">3</span>::<span class="mi">4</span>::<span class="mi">5</span>::[]).
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Goal</span> flatten ((<span class="mi">1</span>::<span class="mi">2</span>::[])::(<span class="mi">3</span>::<span class="mi">4</span>::<span class="mi">5</span>::[])::(<span class="mi">6</span>::[])::[]) = (<span class="mi">1</span>::<span class="mi">2</span>::<span class="mi">3</span>::<span class="mi">4</span>::<span class="mi">5</span>::<span class="mi">6</span>::[]).
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Test_list</span>.
+
+<span class="kn">Section</span> <span class="nf">Test_stn</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+  <span class="kn">Goal</span> stn <span class="mi">6</span>. <span class="kn">Proof</span>. <span class="bp">exact</span> (stnel(<span class="mi">6</span>,<span class="mi">3</span>)). <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> stn <span class="mi">6</span>. <span class="kn">Proof</span>. <span class="bp">exact</span> (stnpr <span class="mi">3</span>). <span class="kn">Qed</span>.
+
+
+  <span class="kn">Goal</span> (stnel(<span class="mi">6</span>,<span class="mi">3</span>) ≠ stnel(<span class="mi">6</span>,<span class="mi">4</span>)). <span class="kn">Proof</span>. <span class="bp">exact</span> tt. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> ¬(stnel(<span class="mi">6</span>,<span class="mi">3</span>) ≠ stnel(<span class="mi">6</span>,<span class="mi">3</span>)). <span class="kn">Proof</span>. <span class="nb">intro</span> n. <span class="nb">apply</span> n. <span class="kn">Defined</span>.
+
+  <span class="kn">Goal</span> ∏ m n (i:m≤n) (j:stn m), pr1 (stnmtostnn m n i j) = pr1 j.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="nb">induction</span> j <span class="k">as</span> [j J]. <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Goal</span> @sni <span class="mi">6</span> (●<span class="mi">3</span>) (@dni <span class="mi">6</span> (●<span class="mi">3</span>) (●<span class="mi">2</span>)) = ●<span class="mi">2</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> @sni <span class="mi">6</span> (●<span class="mi">3</span>) (@dni <span class="mi">6</span> (●<span class="mi">3</span>) (●<span class="mi">3</span>)) = ●<span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> @sni <span class="mi">6</span> (●<span class="mi">3</span>) (@dni <span class="mi">6</span> (●<span class="mi">3</span>) (●<span class="mi">4</span>)) = ●<span class="mi">4</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+
+  <span class="kn">Goal</span> @sni <span class="mi">6</span> (●<span class="mi">3</span>) (●<span class="mi">2</span>) = ●<span class="mi">2</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> @sni <span class="mi">6</span> (●<span class="mi">3</span>) (●<span class="mi">3</span>) = ●<span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> @sni <span class="mi">6</span> (●<span class="mi">3</span>) (●<span class="mi">4</span>) = ●<span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> @sni <span class="mi">6</span> (●<span class="mi">3</span>) (●<span class="mi">5</span>) = ●<span class="mi">4</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">Test_weqdnicompl</span>.
+
+    <span class="kn">Let</span> <span class="nf">n</span> := <span class="mi">5</span>.
+    <span class="kn">Let</span> <span class="nf">X</span> := stn n.
+    <span class="kn">Let</span> <span class="nf">i</span> := ●<span class="mi">3</span> : stn (S n).
+    <span class="kn">Let</span> <span class="nf">Y</span> := @stn_compl (S n) i.
+    <span class="kn">Let</span> <span class="nf">v</span> := weqdnicompl i : X ≃ Y.
+    <span class="kn">Let</span> <span class="nf">j</span> := ●<span class="mi">4</span> : X.
+    <span class="kn">Let</span> <span class="nf">jni</span> := ●<span class="mi">5</span>,,tt : Y.
+
+    <span class="kn">Goal</span> v j = jni. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap v jni = j. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq v jni = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq v j = idpath _.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>.                <span class="c">(* fixed; 2 seconds *)</span>
+    <span class="kn">Defined</span>.                      <span class="c">(* fixed, 2 seconds *)</span>
+    <span class="kn">Goal</span> homotweqinvweqweq v j = idpath _. <span class="c">(* 2 seconds *)</span>
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>.                         <span class="c">(* 2 seconds *)</span>
+    <span class="kn">Defined</span>.                               <span class="c">(* 3 seconds *)</span>
+
+  <span class="kn">End</span> <span class="nf">Test_weqdnicompl</span>.
+
+  <span class="kn">Section</span> <span class="nf">Test2</span>.
+    <span class="kn">Goal</span> weqdnicoprod <span class="mi">4</span> firstelement (ii1 (●<span class="mi">0</span>)) = ●<span class="mi">1</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> weqdnicoprod <span class="mi">4</span> firstelement (ii1 (●<span class="mi">3</span>)) = ●<span class="mi">4</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap (weqdnicoprod <span class="mi">4</span> firstelement) (●<span class="mi">1</span>) = (ii1 (●<span class="mi">0</span>)). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap (weqdnicoprod <span class="mi">4</span> firstelement) (●<span class="mi">4</span>) = (ii1 (●<span class="mi">3</span>)). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> weqdnicoprod <span class="mi">4</span> lastelement (ii1 (●<span class="mi">3</span>)) = ●<span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> weqdnicoprod <span class="mi">4</span> lastelement (ii2 tt) = ●<span class="mi">4</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap (weqdnicoprod <span class="mi">4</span> lastelement) (●<span class="mi">1</span>) = (ii1 (●<span class="mi">1</span>)). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap (weqdnicoprod <span class="mi">4</span> lastelement) (●<span class="mi">4</span>) = (ii2 tt). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq (weqdnicoprod <span class="mi">4</span> lastelement) (● <span class="mi">0</span>) = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>. <span class="c">(* fixed! *)</span>
+    <span class="kn">Goal</span> homotinvweqweq (weqdnicoprod <span class="mi">4</span> (●<span class="mi">4</span>)) (ii2 tt) = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq (weqdnicoprod <span class="mi">4</span> (●<span class="mi">4</span>)) (ii1 (●<span class="mi">1</span>)) = idpath _.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>.                <span class="c">(* fixed; 5 seconds *)</span>
+    <span class="kn">Defined</span>.                      <span class="c">(* 5 seconds *)</span>
+
+    <span class="c">(* here's an example that shows complications need not impede that sort of computability: *)</span>
+    <span class="kn">Local Definition</span> <span class="nf">w</span> : unit ≃ stn <span class="mi">1</span>.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (weq_iso _ _ _ _).
+      { <span class="nb">intro</span>. <span class="bp">exact</span> firstelement. }
+      { <span class="nb">intro</span>. <span class="bp">exact</span> tt. }
+      { <span class="nb">intro</span> u. <span class="nb">simpl</span>. <span class="nb">induction</span> u. <span class="bp">reflexivity</span>. }
+      { <span class="nb">intro</span> i. <span class="nb">simpl</span>. <span class="nb">apply</span> subtypePath_prop.
+        <span class="nb">simpl</span>. <span class="nb">induction</span> i <span class="k">as</span> [i I]. <span class="nb">simpl</span>. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> natlth1tois0. <span class="bp">exact</span> I. }
+    <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> w tt = firstelement. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap w firstelement = tt. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq w firstelement = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq w tt = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">w'</span> := invweq w.
+    <span class="kn">Goal</span> w' firstelement = tt. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap w' tt= firstelement. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq w' tt = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq w' firstelement = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">ww'</span> := weqcomp w w'.
+    <span class="kn">Goal</span> ww' tt = tt. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap ww' tt = tt. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq ww' tt = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq ww' tt = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">w_w</span> := weqcoprodf w w.
+    <span class="kn">Goal</span> w_w (ii1 tt) = ii1 firstelement. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap w_w (ii2 firstelement) = ii2 tt. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq w_w (ii2 firstelement) = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq w_w (ii1 tt) = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">i</span> := ●<span class="mi">1</span> : stn <span class="mi">4</span>.
+    <span class="kn">Local Definition</span> <span class="nf">j</span> := ●<span class="mi">0</span> : stn <span class="mi">4</span>.
+    <span class="kn">Lemma</span> <span class="nf">ne</span> : ¬ (i = j).
+    <span class="kn">Proof</span>. <span class="nb">apply</span> stnneq_to_nopath. <span class="bp">exact</span> tt. <span class="kn">Defined</span>.
+    <span class="kn">Local Definition</span> <span class="nf">re</span> := weqrecompl (stn <span class="mi">4</span>) i (isisolatedinstn _).
+    <span class="kn">Local Definition</span> <span class="nf">re'</span> := weqrecompl_ne (stn <span class="mi">4</span>) i (isisolatedinstn i) (stnneq i).
+    <span class="kn">Local Definition</span> <span class="nf">c</span> := make_compl (stn <span class="mi">4</span>) i j ne : compl _ i.
+    <span class="kn">Local Definition</span> <span class="nf">c'</span> := make_compl_ne (stn <span class="mi">4</span>) i (stnneq i) j tt : stn_compl i.
+    <span class="kn">Goal</span> re (ii2 tt) = i. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> re (ii1 c) = j. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap re i = (ii2 tt). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap re j = (ii1 c). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq re i = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq re j = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq re (ii2 tt) = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq re (ii1 c) = idpath _.
+    <span class="kn">Proof</span>.
+      <span class="kp">try</span> <span class="bp">reflexivity</span>.
+      <span class="c">(* quickly returns due to the use of funextemptyAxiom in the proof of isweqrecompl. *)</span>
+    <span class="kn">Abort</span>.
+
+    <span class="kn">Goal</span> re' (ii2 tt) = i. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> re' (ii1 c') = j. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap re' i = (ii2 tt). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> invmap re' j = (ii1 c'). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq re' i = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotweqinvweq re' j = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq re' (ii2 tt) = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> homotinvweqweq re' (ii1 c') = idpath _. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>. <span class="c">(* fixed! *)</span>
+
+
+    <span class="kn">Goal</span> @weqdnicoprod_map <span class="mi">4</span> (●<span class="mi">2</span>) (ii2 tt) = (●<span class="mi">2</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> @weqdnicoprod_map <span class="mi">4</span> (●<span class="mi">2</span>) (ii1 (●<span class="mi">2</span>)) = (●<span class="mi">3</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> @weqdnicoprod_map <span class="mi">4</span> (●<span class="mi">2</span>) (ii1 (●<span class="mi">1</span>)) = (●<span class="mi">1</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> @weqdnicoprod_invmap <span class="mi">4</span> (●<span class="mi">2</span>) (●<span class="mi">2</span>) = (ii2 tt). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> @weqdnicoprod_invmap <span class="mi">4</span> (●<span class="mi">2</span>) (●<span class="mi">3</span>) = (ii1 (●<span class="mi">2</span>)). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> @weqdnicoprod_invmap <span class="mi">4</span> (●<span class="mi">2</span>) (●<span class="mi">1</span>) = (ii1 (●<span class="mi">1</span>)). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+
+
+  <span class="kn">End</span> <span class="nf">Test2</span>.
+
+  <span class="c">(* confirm that [stnsum] is associative in the same way as the parser, which is left associative *)</span>
+  <span class="kn">Goal</span> ∏ (f : stn <span class="mi">3</span> -&gt; nat), stnsum f =  f(●<span class="mi">0</span>) + f(●<span class="mi">1</span>)  +  f(●<span class="mi">2</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> ∏ (f : stn <span class="mi">3</span> -&gt; nat), stnsum f = (f(●<span class="mi">0</span>) + f(●<span class="mi">1</span>)) +  f(●<span class="mi">2</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">Test_weqstnsum</span>.
+    <span class="c">(* this module exports nothing *)</span>
+    <span class="kn">Let</span> <span class="nf">X</span> := stnset <span class="mi">7</span>.
+    <span class="kn">Let</span> <span class="nf">Y</span> (<span class="nv">x</span>:X) := stnset (pr1 x).
+    <span class="kn">Let</span> <span class="nf">W</span> := ∑ x, Y x.
+    <span class="kn">Let</span> <span class="nf">f</span> : W ≃ stn _ := weqstnsum1 _.
+    <span class="kn">Let</span> <span class="nf">f'</span> : stn _ ≃ W := invweq f.
+    <span class="kn">Goal</span> f(●<span class="mi">1</span>,,●<span class="mi">0</span>) = ●<span class="mi">0</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>. <span class="c">(* fixed! (formerly, it failed quickly) *)</span>
+    <span class="kn">Goal</span> f(●<span class="mi">2</span>,,●<span class="mi">0</span>) = ●<span class="mi">1</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f(●<span class="mi">2</span>,,●<span class="mi">1</span>) = ●<span class="mi">2</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f(●<span class="mi">3</span>,,●<span class="mi">0</span>) = ●<span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f(●<span class="mi">3</span>,,●<span class="mi">1</span>) = ●<span class="mi">4</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f(●<span class="mi">3</span>,,●<span class="mi">2</span>) = ●<span class="mi">5</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f(●<span class="mi">4</span>,,●<span class="mi">0</span>) = ●<span class="mi">6</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f(●<span class="mi">5</span>,,●<span class="mi">0</span>) = ●<span class="mi">10</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f(●<span class="mi">6</span>,,●<span class="mi">0</span>) = ●<span class="mi">15</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+    <span class="kn">Goal</span> (pr2 (pr2 (f'(●<span class="mi">0</span>)))) = idpath true. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>. <span class="c">(* fixed, Coq bug? *)</span>
+    <span class="kn">Goal</span> f'(●<span class="mi">0</span>) = (●<span class="mi">1</span>,,●<span class="mi">0</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>. <span class="c">(* fixed, Coq bug? *)</span>
+    <span class="kn">Goal</span> f'(●<span class="mi">0</span>) = (●<span class="mi">1</span>,,●<span class="mi">0</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f'(●<span class="mi">1</span>) = (●<span class="mi">2</span>,,●<span class="mi">0</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f'(●<span class="mi">2</span>) = (●<span class="mi">2</span>,,●<span class="mi">1</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f'(●<span class="mi">3</span>) = (●<span class="mi">3</span>,,●<span class="mi">0</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f'(●<span class="mi">4</span>) = (●<span class="mi">3</span>,,●<span class="mi">1</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f'(●<span class="mi">5</span>) = (●<span class="mi">3</span>,,●<span class="mi">2</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f'(●<span class="mi">6</span>) = (●<span class="mi">4</span>,,●<span class="mi">0</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f'(●<span class="mi">10</span>) = (●<span class="mi">5</span>,,●<span class="mi">0</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f'(●<span class="mi">15</span>) = (●<span class="mi">6</span>,,●<span class="mi">0</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">Test_weqstnsum</span>.
+
+  <span class="kn">Section</span> <span class="nf">Test_weqfromprodofstn</span>.
+    <span class="c">(* verify computability in both directions *)</span>
+    <span class="c">(* this module exports nothing *)</span>
+    <span class="kn">Let</span> <span class="nf">f</span> : stn <span class="mi">5</span> × stn <span class="mi">4</span> ≃ stn <span class="mi">20</span> := weqfromprodofstn <span class="mi">5</span> <span class="mi">4</span>.
+    <span class="kn">Goal</span> f(●<span class="mi">0</span>,,●<span class="mi">0</span>) = ●<span class="mi">0</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f(●<span class="mi">0</span>,,●<span class="mi">1</span>) = ●<span class="mi">1</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f(●<span class="mi">2</span>,,●<span class="mi">0</span>) = ●<span class="mi">8</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f(●<span class="mi">4</span>,,●<span class="mi">3</span>) = ●<span class="mi">19</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Let</span> <span class="nf">f'</span> := invweq f.
+    <span class="kn">Goal</span> f'(●<span class="mi">19</span>) = (●<span class="mi">4</span>,,●<span class="mi">3</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f'(●<span class="mi">18</span>) = (●<span class="mi">4</span>,,●<span class="mi">2</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> f'(●<span class="mi">14</span>) = (●<span class="mi">3</span>,,●<span class="mi">2</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Test_weqfromprodofstn</span>.
+
+  <span class="c">(* confirm that [stnprod] is associative in the same way as the parser *)</span>
+  <span class="kn">Goal</span> ∏ (f : stn <span class="mi">3</span> -&gt; nat), stnprod f = f(●<span class="mi">0</span>) * f(●<span class="mi">1</span>) * f(●<span class="mi">2</span>).
+  <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+
+  <span class="kn">Local Definition</span> <span class="nf">testfun</span> : stn <span class="mi">3</span> -&gt; stn <span class="mi">10</span>.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> n.
+      <span class="nb">induction</span> n <span class="k">as</span> [n b].
+      <span class="nb">induction</span> n <span class="k">as</span> [|n].
+      - <span class="bp">exact</span> (<span class="mi">2</span>,,idpath _).
+      - <span class="nb">induction</span> n <span class="k">as</span> [|n].
+        + <span class="bp">exact</span> (<span class="mi">3</span>,,idpath _).
+        + <span class="nb">induction</span> n <span class="k">as</span> [|n].
+          * <span class="bp">exact</span> (<span class="mi">4</span>,,idpath _).
+          * contradicts (negnatlthn0 n) b.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">Goal</span> ∏ n, testfun n &lt; <span class="mi">5</span>.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span>.
+      <span class="nb">induction</span> n <span class="k">as</span> [i c].
+      inductive_reflexivity i c.
+    <span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">Test_stn</span>.
+
+<span class="kn">Section</span> <span class="nf">Test_fin</span>.
+
+  <span class="kn">Import</span> UniMath.Combinatorics.FiniteSets.
+
+  <span class="sd">(** ** Test computations. *)</span>
+  <span class="kn">Goal</span> fincard (isfiniteempty) = <span class="mi">0</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> fincard (isfiniteunit) = <span class="mi">1</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> fincard (isfinitebool) = <span class="mi">2</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> fincard (isfinitecompl true isfinitebool) = <span class="mi">1</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> fincard (isfinitedirprod  isfinitebool isfinitebool) = <span class="mi">4</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> fincard (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool)) = <span class="mi">8</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> cardinalityFiniteSet (isfinite_to_FiniteSet (isfinitedirprod  isfinitebool (isfinitedirprod  isfinitebool isfinitebool))) = <span class="mi">8</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> fincard (isfinitecompl (ii1 tt) (isfinitecoprod  (isfiniteunit) (isfinitebool))) = <span class="mi">2</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> fincard (isfinitecompl (ii1 tt) (isfinitecoprod (isfiniteunit) (isfinitebool))) = <span class="mi">2</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> fincard (isfinitecompl (make_dirprod tt tt) (isfinitedirprod  isfiniteunit isfiniteunit)) = <span class="mi">0</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+  <span class="kn">Goal</span> fincard (isfinitecompl (make_dirprod  true (make_dirprod  true false)) (isfinitedirprod  (isfinitebool) (isfinitedirprod  (isfinitebool) (isfinitebool)))) = <span class="mi">7</span>.
+  <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+
+  <span class="kn">Goal</span> fincard (
+         isfiniteweq (isfinitedirprod isfinitebool isfinitebool)
+    ) = <span class="mi">24</span>.
+  <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+
+  <span class="c">(*</span>
+
+<span class="c">  stack overflow:</span>
+
+<span class="c">  Goal fincard (isfiniteweq ( isfinitedirprod ( isfinitedirprod isfinitebool isfinitebool ) isfinitebool )) = 40320. reflexivity. Qed.</span>
+
+<span class="c">  *)</span>
+
+  <span class="c">(* Eval compute in (carddneg _  (isfinitedirprod _ _ (isfinitestn (S (S (S (S O)))))  (isfinitestn (S (S (S O)))))). *)</span>
+  <span class="c">(* Eval lazy in   (pr1 (finitestructcomplement _ (make_dirprod _ _ tt tt) (finitestructdirprod _ _ (finitestructunit) (finitestructunit)))). *)</span>
+
+  <span class="kn">Section</span> <span class="nf">Test_isfinite_isdeceq</span>.
+
+    <span class="c">(* This module exports nothing. *)</span>
+
+    <span class="kn">Import</span> UniMath.MoreFoundations.DecidablePropositions.
+
+    <span class="c">(* The proofs of isfinite_isdeceq and isfinite_isaset depend on funextfun</span>
+<span class="c">       and funextemptyAxiom, so here we do an experiment to see if that impedes</span>
+<span class="c">       computability of equality using it. *)</span>
+
+    <span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+    <span class="kn">Let</span> <span class="nf">X</span> := stnset <span class="mi">5</span>.
+    <span class="kn">Let</span> <span class="nf">finX</span> : isfinite X := isfinitestn _.
+    <span class="kn">Let</span> <span class="nf">eqX</span> := isfinite_to_DecidableEquality finX.
+    <span class="kn">Let</span> <span class="nf">x</span> := ●<span class="mi">3</span> : X.
+    <span class="kn">Let</span> <span class="nf">x'</span> := ●<span class="mi">4</span> : X.
+    <span class="kn">Let</span> <span class="nf">decide</span> <span class="nv">P</span> := choice P true false.
+    <span class="kn">Goal</span> decide (eqX x x') = false. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> decide (eqX x x) = true. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+    <span class="c">(* test isfinitebool *)</span>
+
+    <span class="kn">Let</span> <span class="nf">eqbool</span> := isfinite_to_DecidableEquality isfinitebool : DecidableRelation bool.
+    <span class="kn">Goal</span> decide (eqbool true true) = true. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> decide (eqbool false true) = false. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+    <span class="c">(* test isfinitecoprod *)</span>
+
+    <span class="kn">Let</span> <span class="nf">C</span> := X ⨿ X.
+    <span class="kn">Let</span> <span class="nf">eqQ</span> : DecidableRelation C :=
+      isfinite_to_DecidableEquality (isfinitecoprod finX finX).
+    <span class="kn">Let</span> <span class="nf">c</span> := ii1 x : C.
+    <span class="kn">Let</span> <span class="nf">c'</span> := ii1 x' : C.
+    <span class="kn">Let</span> <span class="nf">c''</span> := ii2 x : C.
+    <span class="kn">Goal</span> decide (eqQ c c') = false. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> decide (eqQ c c) = true. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> decide (eqQ c c'') = false. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+    <span class="c">(* test isfinitedirprod *)</span>
+    <span class="kn">Let</span> <span class="nf">Y</span> := stnset <span class="mi">4</span>.
+    <span class="kn">Let</span> <span class="nf">y</span> := ●<span class="mi">1</span> : Y.
+    <span class="kn">Let</span> <span class="nf">y'</span> := ●<span class="mi">2</span> : Y.
+    <span class="kn">Let</span> <span class="nf">finY</span> : isfinite Y := isfinitestn _.
+    <span class="kn">Let</span> <span class="nf">V</span> := X × Y.
+    <span class="kn">Let</span> <span class="nf">eqV</span> := isfinite_to_DecidableEquality (isfinitedirprod finX finY).
+    <span class="kn">Goal</span> decide (eqV (x,,y) (x',,y')) = false. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+    <span class="c">(* test isfinitetotal2 *)</span>
+
+    <span class="kn">Let</span> <span class="nf">Y'</span> (<span class="nv">x</span>:X) : hSet := Y.
+    <span class="kn">Let</span> <span class="nf">W</span> := ∑ x, Y' x.
+    <span class="kn">Let</span> <span class="nf">eqW</span> : DecidableRelation W :=
+      isfinite_to_DecidableEquality (isfinitetotal2 Y' finX (<span class="k">λ</span> <span class="nv">_</span>, finY)).
+    <span class="kn">Goal</span> decide (eqW (x,,y) (x',,y')) = false.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>. <span class="c">(* fixed *)</span>
+    <span class="kn">Defined</span>.
+
+    <span class="c">(* test isfiniteforall *)</span>
+    <span class="kn">Let</span> <span class="nf">T</span> := ∏ x, Y' x.
+    <span class="kn">Let</span> <span class="nf">eqT</span> : DecidableRelation T :=
+      isfinite_to_DecidableEquality (isfiniteforall Y' finX (<span class="k">λ</span> <span class="nv">_</span>, finY)).
+    <span class="kn">Goal</span> decide (eqT (<span class="k">λ</span> <span class="nv">_</span>, y) (<span class="k">λ</span> <span class="nv">_</span>, y)) = true.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>. <span class="c">(* fixed *)</span>
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">Test_isfinite_isdeceq</span>.
+
+<span class="kn">End</span> <span class="nf">Test_fin</span>.
+
+<span class="kn">Section</span> <span class="nf">Test_seq</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+<span class="kn">End</span> <span class="nf">Test_seq</span>.
+
+<span class="kn">Section</span> <span class="nf">Test_finite_sets</span>.
+  <span class="kn">Import</span> UniMath.Combinatorics.FiniteSets.
+  <span class="kn">Import</span> UniMath.MoreFoundations.DecidablePropositions.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+  <span class="kn">Goal</span> <span class="mi">3</span> = fincard_standardSubset (<span class="k">λ</span> <span class="nv">i</span>:stn <span class="mi">10</span>, <span class="mi">2</span>*i &lt; <span class="mi">6</span>)%dnat. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Goal</span> <span class="mi">6</span> = tallyStandardSubset (<span class="k">λ</span> <span class="nv">i</span>:stn <span class="mi">10</span>, <span class="mi">3</span> ≤ i ∧ i ≤ <span class="mi">8</span>)%dnat%declog. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Goal</span> <span class="mi">6</span> = tallyStandardSubsetSegment (<span class="k">λ</span> <span class="nv">i</span>:stn <span class="mi">14</span>, <span class="mi">2</span>*i ≠ <span class="mi">4</span>)%dnat (●<span class="mi">7</span>). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Test_finite_sets</span>.
+
+<span class="kn">Section</span> <span class="nf">Test_ord</span>.
+
+  <span class="kn">Import</span> UniMath.OrderTheory.OrderedSets.OrderedSets.
+  <span class="kn">Import</span> UniMath.Combinatorics.StandardFiniteSets.
+  <span class="kn">Import</span> UniMath.MoreFoundations.DecidablePropositions.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+  <span class="kn">Goal</span> <span class="mi">3</span> = height ( ●<span class="mi">3</span> : ⟦ <span class="mi">8</span> ⟧ %foset ). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">TestLex</span>.
+    <span class="c">(* we want lex order to be computable if R and S both are *)</span>
+    <span class="kn">Let</span> <span class="nf">X</span> := stnset <span class="mi">5</span>.
+    <span class="kn">Let</span> <span class="nf">R</span> := <span class="k">λ</span> (<span class="nv">x</span> <span class="nv">x'</span>:X), (pr1 x ≤ pr1 x')%dnat.
+    <span class="kn">Let</span> <span class="nf">Y</span> := <span class="k">λ</span> <span class="nv">x</span>:X, stnset (pr1 x).
+    <span class="kn">Let</span> <span class="nf">S</span> := <span class="k">λ</span> (<span class="nv">x</span>:X) (<span class="nv">y</span> <span class="nv">y'</span>:Y x), (pr1 y ≤ pr1 y')%dnat.
+    <span class="kn">Let</span> <span class="nf">Z</span> := ∑ x, Y x.
+    <span class="kn">Let</span> <span class="nf">T</span> := lexicographicOrder X Y R S.
+
+    <span class="kn">Let</span> <span class="nf">x2</span> := ●<span class="mi">2</span> : X.
+    <span class="kn">Let</span> <span class="nf">x3</span> := ●<span class="mi">3</span> : X.
+
+    <span class="kn">Goal</span> (choice (R x2 x3) true false = true). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> (choice (R x2 x2) true false = true). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> (choice (R x3 x2) true false = false). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">y1</span> := ●<span class="mi">1</span> : Y x2.
+    <span class="kn">Let</span> <span class="nf">y2</span> := ●<span class="mi">2</span> : Y x3.
+    <span class="kn">Let</span> <span class="nf">t</span>  := (x2,,y1) : Z.
+    <span class="kn">Let</span> <span class="nf">t'</span> := (x3,,y2) : Z.
+
+  <span class="kn">End</span> <span class="nf">TestLex</span>.
+
+  <span class="kn">Section</span> <span class="nf">TestLex2</span>.
+
+    <span class="kn">Import</span> UniMath.MoreFoundations.DecidablePropositions.
+
+    <span class="kn">Open Scope</span> foset.
+
+    <span class="kn">Let</span> <span class="nf">i</span> := ●<span class="mi">2</span> : ⟦ <span class="mi">4</span> ⟧.
+    <span class="kn">Let</span> <span class="nf">j</span> := ●<span class="mi">3</span> : ⟦ <span class="mi">4</span> ⟧.
+
+    <span class="kn">Goal</span> choice (i &lt; j)%foset true false = true. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> choice (i ≤ j)%foset true false = true. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+    <span class="kn">Goal</span> choice (i ≐ j)%foset true false = false. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+    <span class="kn">Let</span> <span class="nf">X</span> := (∑ i:⟦ <span class="mi">4</span> ⟧, ⟦ pr1 i ⟧)%foset.
+    <span class="kn">Let</span> <span class="nf">x</span> := ( ●<span class="mi">2</span> ,, ●<span class="mi">1</span> ):X.
+    <span class="kn">Let</span> <span class="nf">y</span> := ( ●<span class="mi">3</span> ,, ●<span class="mi">1</span> ):X.
+
+    <span class="kn">Local Lemma</span> <span class="nf">d</span> : isdeceq X.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> isdeceq_total2.
+      - <span class="nb">apply</span> isdeceqstn.
+      - <span class="nb">intro</span> k. <span class="nb">apply</span> isdeceqstn.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">which</span> {<span class="nv">Y</span>} : Y ⨿ ¬Y -&gt; bool.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> c.
+      <span class="nb">induction</span> c.
+      - <span class="bp">exact</span> true.
+      - <span class="bp">exact</span> false.
+    <span class="kn">Defined</span>.
+
+    <span class="c">(* we want these to work: *)</span>
+
+    <span class="kn">Goal</span> choice (x &lt; y) true false = true.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>.                <span class="c">(* fixed *)</span>
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Goal</span> choice (x ≤ y)%foset true false = true.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Goal</span> choice (y &lt; x)%foset true false = false.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Goal</span> choice (y ≤ x)%foset true false = false.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Goal</span> choice (x ≐ y)%foset true false = false.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Goal</span> choice (x ≐ x)%foset true false = true.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Goal</span> which (d x y) = false.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Goal</span> which (d x x) = true.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Goal</span> choice (x ≠ y)%foset true false = true.
+    <span class="kn">Proof</span>.
+      <span class="bp">reflexivity</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Goal</span> which (isdeceqnat <span class="mi">2</span> (height x)) = true.
+    <span class="kn">Proof</span>.
+      <span class="kp">try</span> <span class="bp">reflexivity</span>.          <span class="c">(* fix *)</span>
+    <span class="kn">Abort</span>.
+
+    <span class="kn">Goal</span> <span class="mi">2</span> = height x.
+    <span class="kn">Proof</span>.
+      <span class="kp">try</span> <span class="bp">reflexivity</span>.                <span class="c">(* fix *)</span>
+    <span class="kn">Abort</span>.
+
+  <span class="kn">End</span> <span class="nf">TestLex2</span>.
+
+  <span class="kn">Goal</span> ∏ X (lt:hrel X), iscotrans lt &lt;-&gt; iswklin lt.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>. <span class="nb">unfold</span> iscotrans, iswklin. <span class="nb">split</span>.
+    { <span class="nb">intros</span> i x1 x3 x2. <span class="nb">apply</span> i. }
+    { <span class="nb">intros</span> i x z y. <span class="nb">apply</span> i. }
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Goal</span> (idweq nat ∘ idweq _ ∘ idweq _)%weq <span class="mi">3</span> = <span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> (idweq nat ∘ invweq (idweq _) ∘ idweq _)%weq <span class="mi">3</span> = <span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> invmap (idweq nat ∘ idweq _ ∘ idweq _)%weq <span class="mi">3</span> = <span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+  <span class="kn">Goal</span> invmap (idweq nat ∘ invweq (idweq _) ∘ idweq _)%weq <span class="mi">3</span> = <span class="mi">3</span>. <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Test_ord</span>.
+
+<span class="kn">Section</span> <span class="nf">Test_search</span>.
+
+  <span class="kn">Import</span> UniMath.Combinatorics.BoundedSearch.
+  <span class="kn">Import</span> UniMath.Foundations.Propositions.
+
+  <span class="kn">Local Definition</span> <span class="nf">someseq</span> (<span class="nv">n</span> : nat) : bool.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> n.
+    - <span class="bp">exact</span> false.
+    - <span class="nb">destruct</span> n.
+      + <span class="bp">exact</span> true.
+      + <span class="nb">destruct</span> n.
+        * <span class="bp">exact</span> true.
+        * <span class="bp">exact</span> false.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">P</span> : nat → hProp.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> n.
+    <span class="nb">refine</span> (make_hProp (someseq n = true) _).
+    <span class="nb">refine</span> (isasetbool _ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">P_dec</span> (<span class="nv">n</span> : nat) : P n ⨿ ¬ P n.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> P, someseq.
+    <span class="nb">destruct</span> n.
+    - <span class="nb">apply</span> ii2. <span class="bp">exact</span> nopathsfalsetotrue.
+    - <span class="nb">destruct</span> n.
+      + <span class="nb">apply</span> ii1. <span class="nb">apply</span> idpath.
+      + <span class="nb">destruct</span> n.
+        * <span class="nb">apply</span> ii1, idpath.
+        * <span class="nb">apply</span> ii2. <span class="bp">exact</span> nopathsfalsetotrue.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">P_inhab</span> : <span class="k">∃</span> <span class="nv">n</span>, P n.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> hinhpr. <span class="nb">refine</span> (<span class="mi">2</span>%nat,,_). <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Goal</span> <span class="mi">1</span> = pr1 (minimal_n P P_dec P_inhab). <span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+  <span class="kn">Variable</span> <span class="nv">P_inhab'</span> : <span class="k">∃</span> <span class="nv">n</span>, P n.
+
+  <span class="kn">Local Definition</span> <span class="nf">new_n'</span> :  ∑ n : nat, P n := minimal_n P P_dec P_inhab'.
+
+<span class="kn">End</span> <span class="nf">Test_search</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Combinatorics/Tests.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Preamble.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Preamble.&lt;&lt;&lt;
+  &gt; Require UniMath.Combinatorics.Lists.
+  &gt; Require UniMath.Combinatorics.StandardFiniteSets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

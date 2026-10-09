@@ -1,0 +1,684 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ConstructiveStructures.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Definition of appartness relationConstructive Algebraic Structures *)</span>
+<span class="sd">(** Catherine Lelay. Sep. 2015 *)</span>
+
+</span><span class="alectryon-sentence"><span class="alectryon-input"><span class="kn">Unset</span> Kernel Term Sharing.</span><span class="alectryon-wsp">
+</span></span><span class="alectryon-txt">
+<span class="kn">Require Export</span> UniMath.Algebra.DivisionRig.
+<span class="kn">Require Export</span> UniMath.Algebra.Domains_and_Fields.
+<span class="kn">Require Export</span> UniMath.Algebra.Apartness.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="sd">(** ** Predicats in a rig with a tight appartness relation *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isnonzeroCR</span> (<span class="nv">X</span> : rig) (<span class="nv">R</span> : tightap X) := R <span class="mi">1</span>%rig <span class="mi">0</span>%rig.
+<span class="kn">Definition</span> <span class="nf">isConstrDivRig</span> (<span class="nv">X</span> : rig) (<span class="nv">R</span> : tightap X) :=
+  isnonzeroCR X R × (∏ x : X, R x <span class="mi">0</span>%rig → multinvpair X x).
+
+<span class="sd">(** ** Constructive rig with division *)</span>
+
+<span class="kn">Definition</span> <span class="nf">ConstructiveDivisionRig</span> :=
+  ∑ X : rig,
+  ∑ R : tightap X,
+        isapbinop (X := (pr1 (pr1 X)) ,, R) BinaryOperations.op1
+      × isapbinop (X := (pr1 (pr1 X)) ,, R) BinaryOperations.op2
+      × isConstrDivRig X R.
+<span class="kn">Definition</span> <span class="nf">ConstructiveDivisionRig_rig</span> : ConstructiveDivisionRig → rig := pr1.
+<span class="kn">Coercion</span> <span class="nf">ConstructiveDivisionRig_rig</span> : ConstructiveDivisionRig &gt;-&gt; rig.
+<span class="kn">Definition</span> <span class="nf">ConstructiveDivisionRig_apsetwith2binop</span> : ConstructiveDivisionRig → apsetwith2binop.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X.
+  <span class="k">exists</span> (<span class="nv">pr1</span> (pr1 (pr1 X)),,(pr1 (pr2 X))).
+  <span class="nb">split</span>.
+  <span class="bp">exact</span> (_,,(pr1 (pr2 (pr2 X)))).
+  <span class="bp">exact</span> (_,,(pr1 (pr2 (pr2 (pr2 X))))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">CDRap</span> {<span class="nv">X</span> : ConstructiveDivisionRig} : hrel X := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, (pr1 (pr2 X)) x y.
+<span class="kn">Definition</span> <span class="nf">CDRzero</span> {<span class="nv">X</span> : ConstructiveDivisionRig} : X := <span class="mi">0</span>%rig.
+<span class="kn">Definition</span> <span class="nf">CDRone</span> {<span class="nv">X</span> : ConstructiveDivisionRig} : X := <span class="mi">1</span>%rig.
+<span class="kn">Definition</span> <span class="nf">CDRplus</span> {<span class="nv">X</span> : ConstructiveDivisionRig} : binop X := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, op1 (X := ConstructiveDivisionRig_apsetwith2binop X) x y.
+<span class="kn">Definition</span> <span class="nf">CDRmult</span> {<span class="nv">X</span> : ConstructiveDivisionRig} : binop X := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, op2 (X := ConstructiveDivisionRig_apsetwith2binop X) x y.
+
+<span class="kn">Declare Scope</span> CDR_scope.
+<span class="kn">Delimit Scope</span> CDR_scope <span class="k">with</span> CDR.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> CDR_scope.
+
+<span class="kn">Notation</span> <span class="s2">"x ≠ y"</span> := (CDRap x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : CDR_scope.
+<span class="kn">Notation</span> <span class="s2">"0"</span> := CDRzero : CDR_scope.
+<span class="kn">Notation</span> <span class="s2">"1"</span> := CDRone : CDR_scope.
+<span class="kn">Notation</span> <span class="s2">"x + y"</span> := (CDRplus x y) : CDR_scope.
+<span class="kn">Notation</span> <span class="s2">"x * y"</span> := (CDRmult x y) : CDR_scope.
+
+<span class="kn">Definition</span> <span class="nf">CDRinv</span> {<span class="nv">X</span> : ConstructiveDivisionRig} (<span class="nv">x</span> : X) (<span class="nv">Hx0</span> : x ≠ <span class="mi">0</span>) : X :=
+  (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 X)))) x Hx0)).
+<span class="kn">Definition</span> <span class="nf">CDRdiv</span> {<span class="nv">X</span> : ConstructiveDivisionRig} (<span class="nv">x</span> <span class="nv">y</span> : X) (<span class="nv">Hy0</span> : y ≠ <span class="mi">0</span>) : X :=
+  CDRmult x (CDRinv y Hy0).
+
+<span class="sd">(** Lemmas *)</span>
+
+<span class="kn">Section</span> <span class="nf">CDR_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : ConstructiveDivisionRig}.
+
+<span class="kn">Lemma</span> <span class="nf">isirrefl_CDRap</span> :
+  ∏ x : X, ¬ (x ≠ x).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr1 (pr2 (pr1 (pr2 X))))).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">issymm_CDRap</span> :
+  ∏ x y : X, x ≠ y → y ≠ x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr2 (pr1 (pr2 (pr1 (pr2 X)))))).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">iscotrans_CDRap</span> :
+  ∏ x y z : X, x ≠ z → x ≠ y ∨ y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (pr2 (pr1 (pr2 (pr1 (pr2 X)))))).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">istight_CDRap</span> :
+  ∏ x y : X, ¬ (x ≠ y) → x = y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (pr2 (pr1 (pr2 X)))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isnonzeroCDR</span> : (<span class="mi">1</span> : X) ≠ (<span class="mi">0</span> : X).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr2 (pr2 (pr2 (pr2 X))))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">islunit_CDRzero_CDRplus</span> :
+  ∏ x : X, <span class="mi">0</span> + x = x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> riglunax1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrunit_CDRzero_CDRplus</span> :
+  ∏ x : X, x + <span class="mi">0</span> = x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigrunax1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isassoc_CDRplus</span> :
+  ∏ x y z : X, x + y + z = x + (y + z).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigassoc1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">iscomm_CDRplus</span> :
+  ∏ x y : X, x + y = y + x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigcomm1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">islunit_CDRone_CDRmult</span> :
+  ∏ x : X, <span class="mi">1</span> * x = x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> riglunax2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrunit_CDRone_CDRmult</span> :
+  ∏ x : X, x * <span class="mi">1</span> = x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigrunax2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isassoc_CDRmult</span> :
+  ∏ x y z : X, x * y * z = x * (y * z).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigassoc2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">islinv_CDRinv</span> :
+  ∏ (x : X) (Hx0 : x ≠ (<span class="mi">0</span> : X)),
+    (CDRinv x Hx0) * x = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx0.
+  <span class="nb">apply</span> (pr1 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 X)))) x Hx0))).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrinv_CDRinv</span> :
+  ∏ (x : X) (Hx0 : x ≠ (<span class="mi">0</span> : X)),
+    x * (CDRinv x Hx0) = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x Hx0.
+  <span class="nb">apply</span> (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 (pr2 X)))) x Hx0))).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">islabsorb_CDRzero_CDRmult</span> :
+  ∏ x : X, <span class="mi">0</span> * x = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigmult0x.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">israbsorb_CDRzero_CDRmult</span> :
+  ∏ x : X, x * <span class="mi">0</span> = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigmultx0.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isldistr_CDRplus_CDRmult</span> :
+  ∏ x y z : X, z * (x + y) = z * x + z * y.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigdistraxs.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">apCDRplus</span> :
+  ∏ x x' y y' : X,
+    x + y ≠ x' + y' → x ≠ x' ∨ y ≠ y'.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isapbinop_op1 (X := ConstructiveDivisionRig_apsetwith2binop X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CDRplus_apcompat_l</span> :
+  ∏ x y z : X, y + x ≠ z + x → y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="bp">exact</span> (islapbinop_op1 (X := ConstructiveDivisionRig_apsetwith2binop X) _ _ _).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CDRplus_apcompat_r</span> :
+  ∏ x y z : X, x + y ≠ x + z → y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (israpbinop_op1 (X := ConstructiveDivisionRig_apsetwith2binop X)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">apCDRmult</span> :
+  ∏ x x' y y' : X,
+    x * y ≠ x' * y' → x ≠ x' ∨ y ≠ y'.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isapbinop_op2 (X := ConstructiveDivisionRig_apsetwith2binop X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CDRmult_apcompat_l</span> :
+  ∏ x y z : X, y * x ≠ z * x → y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="bp">exact</span> (islapbinop_op2 (X := ConstructiveDivisionRig_apsetwith2binop X) _ _ _).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CDRmult_apcompat_l'</span> :
+  ∏ x y z : X, x ≠ <span class="mi">0</span> → y ≠ z → y * x ≠ z * x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hx Hap.
+  <span class="nb">refine</span> (CDRmult_apcompat_l (CDRinv x Hx) _ _ _).
+  <span class="nb">rewrite</span> !isassoc_CDRmult, isrinv_CDRinv, !isrunit_CDRone_CDRmult.
+  <span class="bp">exact</span> Hap.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CDRmult_apcompat_r</span> :
+  ∏ x y z : X, x * y ≠ x * z → y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (israpbinop_op2 (X := ConstructiveDivisionRig_apsetwith2binop X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CDRmult_apcompat_r'</span> :
+  ∏ x y z : X, x ≠ <span class="mi">0</span> → y ≠ z → x * y ≠ x * z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z Hx Hap.
+  <span class="nb">refine</span> (CDRmult_apcompat_r (CDRinv x Hx) _ _ _).
+  <span class="nb">rewrite</span> &lt;- !isassoc_CDRmult, islinv_CDRinv, !islunit_CDRone_CDRmult.
+  <span class="bp">exact</span> Hap.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CDRmultapCDRzero</span> :
+  ∏ x y : X, x * y ≠ <span class="mi">0</span> → x ≠ <span class="mi">0</span> ∧ y ≠ <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y Hmult.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> CDRmult_apcompat_l <span class="k">with</span> y.
+    <span class="nb">rewrite</span> islabsorb_CDRzero_CDRmult.
+    <span class="bp">exact</span> Hmult.
+  - <span class="nb">apply</span> CDRmult_apcompat_r <span class="k">with</span> x.
+    <span class="nb">rewrite</span> israbsorb_CDRzero_CDRmult.
+    <span class="bp">exact</span> Hmult.
+<span class="kn">Qed</span>.
+
+<span class="kn">Close Scope</span> CDR_scope.
+
+<span class="kn">End</span> <span class="nf">CDR_pty</span>.
+
+<span class="sd">(** ** Constructive commutative rig with division *)</span>
+
+<span class="kn">Definition</span> <span class="nf">ConstructiveCommutativeDivisionRig</span> :=
+  ∑ X : commrig,
+  ∑ R : tightap X,
+        isapbinop (X := (pr1 (pr1 X)) ,, R) BinaryOperations.op1
+      × isapbinop (X := (pr1 (pr1 X)) ,, R) BinaryOperations.op2
+      × isConstrDivRig X R.
+<span class="kn">Definition</span> <span class="nf">ConstructiveCommutativeDivisionRig_commrig</span> :
+  ConstructiveCommutativeDivisionRig → commrig := pr1.
+<span class="kn">Coercion</span> <span class="nf">ConstructiveCommutativeDivisionRig_commrig</span> :
+  ConstructiveCommutativeDivisionRig &gt;-&gt; commrig.
+
+<span class="kn">Definition</span> <span class="nf">ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig</span> :
+  ConstructiveCommutativeDivisionRig → ConstructiveDivisionRig :=
+  <span class="k">λ</span> <span class="nv">X</span>, (pr1 (pr1 X),,pr1 (pr2 (pr1 X))) ,, (pr2 X).
+<span class="kn">Coercion</span> <span class="nf">ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig</span> :
+  ConstructiveCommutativeDivisionRig &gt;-&gt; ConstructiveDivisionRig.
+
+<span class="kn">Definition</span> <span class="nf">CCDRap</span> {<span class="nv">X</span> : ConstructiveCommutativeDivisionRig} : hrel X := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X) x y.
+<span class="kn">Definition</span> <span class="nf">CCDRzero</span> {<span class="nv">X</span> : ConstructiveCommutativeDivisionRig} : X := <span class="mi">0</span>%rig.
+<span class="kn">Definition</span> <span class="nf">CCDRone</span> {<span class="nv">X</span> : ConstructiveCommutativeDivisionRig} : X := <span class="mi">1</span>%rig.
+<span class="kn">Definition</span> <span class="nf">CCDRplus</span> {<span class="nv">X</span> : ConstructiveCommutativeDivisionRig} : binop X := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, CDRplus (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X) x y.
+<span class="kn">Definition</span> <span class="nf">CCDRmult</span> {<span class="nv">X</span> : ConstructiveCommutativeDivisionRig} : binop X := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, CDRmult (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X) x y.
+
+<span class="kn">Declare Scope</span> CCDR_scope.
+<span class="kn">Delimit Scope</span> CCDR_scope <span class="k">with</span> CCDR.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> CCDR_scope.
+
+<span class="kn">Notation</span> <span class="s2">"x ≠ y"</span> := (CCDRap x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : CCDR_scope.
+<span class="kn">Notation</span> <span class="s2">"0"</span> := CCDRzero : CCDR_scope.
+<span class="kn">Notation</span> <span class="s2">"1"</span> := CCDRone : CCDR_scope.
+<span class="kn">Notation</span> <span class="s2">"x + y"</span> := (CCDRplus x y) : CCDR_scope.
+<span class="kn">Notation</span> <span class="s2">"x * y"</span> := (CCDRmult x y) : CCDR_scope.
+
+<span class="kn">Definition</span> <span class="nf">CCDRinv</span> {<span class="nv">X</span> : ConstructiveCommutativeDivisionRig} (<span class="nv">x</span> : X) (<span class="nv">Hx0</span> : x ≠ CCDRzero) : X :=
+  CDRinv (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X) x Hx0.
+<span class="kn">Definition</span> <span class="nf">CCDRdiv</span> {<span class="nv">X</span> : ConstructiveCommutativeDivisionRig} (<span class="nv">x</span> <span class="nv">y</span> : X) (<span class="nv">Hy0</span> : y ≠ CCDRzero) : X :=
+  CCDRmult x (CCDRinv y Hy0).
+
+<span class="sd">(** Lemmas *)</span>
+
+<span class="kn">Section</span> <span class="nf">CCDR_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : ConstructiveCommutativeDivisionRig}.
+
+<span class="kn">Lemma</span> <span class="nf">isirrefl_CCDRap</span> :
+  ∏ x : X, ¬ (x ≠ x).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isirrefl_CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">issymm_CCDRap</span> :
+  ∏ x y : X, x ≠ y → y ≠ x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (issymm_CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">iscotrans_CCDRap</span> :
+  ∏ x y z : X, x ≠ z → x ≠ y ∨ y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (iscotrans_CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">istight_CCDRap</span> :
+  ∏ x y : X, ¬ (x ≠ y) → x = y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (istight_CDRap (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isnonzeroCCDR</span> : (<span class="mi">1</span> : X) ≠ (<span class="mi">0</span> : X).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> isnonzeroCDR.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">islunit_CCDRzero_CCDRplus</span> :
+  ∏ x : X, <span class="mi">0</span> + x = x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> riglunax1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrunit_CCDRzero_CCDRplus</span> :
+  ∏ x : X, x + <span class="mi">0</span> = x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigrunax1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isassoc_CCDRplus</span> :
+  ∏ x y z : X, x + y + z = x + (y + z).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigassoc1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">iscomm_CCDRplus</span> :
+  ∏ x y : X, x + y = y + x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigcomm1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">islunit_CCDRone_CCDRmult</span> :
+  ∏ x : X, <span class="mi">1</span> * x = x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> riglunax2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrunit_CCDRone_CCDRmult</span> :
+  ∏ x : X, x * <span class="mi">1</span> = x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigrunax2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isassoc_CCDRmult</span> :
+  ∏ x y z : X, x * y * z = x * (y * z).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigassoc2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">iscomm_CCDRmult</span> :
+  ∏ x y : X, x * y = y * x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigcomm2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">islinv_CCDRinv</span> :
+  ∏ (x : X) (Hx0 : x ≠ (<span class="mi">0</span> : X)),
+    (CDRinv (X := X) x Hx0) * x = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (islinv_CDRinv (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrinv_CCDRinv</span> :
+  ∏ (x : X) (Hx0 : x ≠ (<span class="mi">0</span> : X)),
+    x * (CDRinv (X := X) x Hx0) = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isrinv_CDRinv (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">islabsorb_CCDRzero_CCDRmult</span> :
+  ∏ x : X, <span class="mi">0</span> * x = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigmult0x.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">israbsorb_CCDRzero_CCDRmult</span> :
+  ∏ x : X, x * <span class="mi">0</span> = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigmultx0.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isldistr_CCDRplus_CCDRmult</span> :
+  ∏ x y z : X, z * (x + y) = z * x + z * y.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> rigdistraxs.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrdistr_CCDRplus_CCDRmult</span> :
+  ∏ x y z : X, (x + y) * z = x * z + y * z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="nb">rewrite</span> !(iscomm_CCDRmult _ z).
+  <span class="bp">now</span> <span class="nb">apply</span> rigdistraxs.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">apCCDRplus</span> :
+  ∏ x x' y y' : X,
+    x + y ≠ x' + y' → x ≠ x' ∨ y ≠ y'.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (apCDRplus (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CCDRplus_apcompat_l</span> :
+  ∏ x y z : X, y + x ≠ z + x → y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (CDRplus_apcompat_l (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CCDRplus_apcompat_r</span> :
+  ∏ x y z : X, x + y ≠ x + z → y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (CDRplus_apcompat_r (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">apCCDRmult</span> :
+  ∏ x x' y y' : X,
+    x * y ≠ x' * y' → x ≠ x' ∨ y ≠ y'.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (apCDRmult (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CCDRmult_apcompat_l</span> :
+  ∏ x y z : X, y * x ≠ z * x → y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (CDRmult_apcompat_l (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CCDRmult_apcompat_l'</span> :
+  ∏ x y z : X, x ≠ <span class="mi">0</span> → y ≠ z → y * x ≠ z * x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (CDRmult_apcompat_l' (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CCDRmult_apcompat_r</span> :
+  ∏ x y z : X, x * y ≠ x * z → y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (CDRmult_apcompat_r (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CCDRmult_apcompat_r'</span> :
+  ∏ x y z : X, x ≠ <span class="mi">0</span> → y ≠ z → x * y ≠ x * z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (CDRmult_apcompat_r' (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CCDRmultapCCDRzero</span> :
+  ∏ x y : X, x * y ≠ <span class="mi">0</span> → x ≠ <span class="mi">0</span> ∧ y ≠ <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (CDRmultapCDRzero (X := ConstructiveCommutativeDivisionRig_ConstructiveDivisionRig X)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Close Scope</span> CCDR_scope.
+
+<span class="kn">End</span> <span class="nf">CCDR_pty</span>.
+
+<span class="sd">(** ** Constructive Field *)</span>
+
+<span class="kn">Definition</span> <span class="nf">ConstructiveField</span> :=
+  ∑ X : commring,
+  ∑ R : tightap X,
+        isapbinop (X := (pr1 (pr1 X)) ,, R) BinaryOperations.op1
+      × isapbinop (X := (pr1 (pr1 X)) ,, R) BinaryOperations.op2
+      × isConstrDivRig X R.
+<span class="kn">Definition</span> <span class="nf">ConstructiveField_commring</span> :
+  ConstructiveField → commring := pr1.
+<span class="kn">Coercion</span> <span class="nf">ConstructiveField_commring</span> :
+  ConstructiveField &gt;-&gt; commring.
+<span class="kn">Definition</span> <span class="nf">ConstructiveField_ConstructiveCommutativeDivisionRig</span> :
+  ConstructiveField → ConstructiveCommutativeDivisionRig :=
+  <span class="k">λ</span> <span class="nv">X</span>, (commringtocommrig (pr1 X)) ,, (pr2 X).
+<span class="kn">Coercion</span> <span class="nf">ConstructiveField_ConstructiveCommutativeDivisionRig</span> :
+  ConstructiveField &gt;-&gt; ConstructiveCommutativeDivisionRig.
+
+<span class="kn">Definition</span> <span class="nf">CFap</span> {<span class="nv">X</span> : ConstructiveField} : hrel X := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X) x y.
+<span class="kn">Definition</span> <span class="nf">CFzero</span> {<span class="nv">X</span> : ConstructiveField} : X := <span class="mi">0</span>%<span class="bp">ring</span>.
+<span class="kn">Definition</span> <span class="nf">CFone</span> {<span class="nv">X</span> : ConstructiveField} : X := <span class="mi">1</span>%<span class="bp">ring</span>.
+<span class="kn">Definition</span> <span class="nf">CFplus</span> {<span class="nv">X</span> : ConstructiveField} : binop X := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, CCDRplus (X := ConstructiveField_ConstructiveCommutativeDivisionRig X) x y.
+<span class="kn">Definition</span> <span class="nf">CFopp</span> {<span class="nv">X</span> : ConstructiveField} : unop X := <span class="k">λ</span> <span class="nv">x</span> : X, (- x)%<span class="bp">ring</span>.
+<span class="kn">Definition</span> <span class="nf">CFminus</span> {<span class="nv">X</span> : ConstructiveField} : binop X := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, CFplus x (CFopp y).
+<span class="kn">Definition</span> <span class="nf">CFmult</span> {<span class="nv">X</span> : ConstructiveField} : binop X := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, CCDRmult (X := ConstructiveField_ConstructiveCommutativeDivisionRig X) x y.
+
+<span class="kn">Declare Scope</span> CF_scope.
+<span class="kn">Delimit Scope</span> CF_scope <span class="k">with</span> CF.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> CF_scope.
+
+<span class="kn">Notation</span> <span class="s2">"x ≠ y"</span> := (CFap x y) (<span class="kn">at level</span> <span class="mi">70</span>, <span class="kn">no associativity</span>) : CF_scope.
+<span class="kn">Notation</span> <span class="s2">"0"</span> := CFzero : CF_scope.
+<span class="kn">Notation</span> <span class="s2">"1"</span> := CFone : CF_scope.
+<span class="kn">Notation</span> <span class="s2">"x + y"</span> := (CFplus x y) : CF_scope.
+<span class="kn">Notation</span> <span class="s2">"- x"</span> := (CFopp x) : CF_scope.
+<span class="kn">Notation</span> <span class="s2">"x - y"</span> := (CFminus x y) : CF_scope.
+<span class="kn">Notation</span> <span class="s2">"x * y"</span> := (CFmult x y) : CF_scope.
+
+<span class="kn">Definition</span> <span class="nf">CFinv</span> {<span class="nv">X</span> : ConstructiveField} (<span class="nv">x</span> : X) (<span class="nv">Hx0</span> : x ≠ CFzero) : X :=
+  CCDRinv (X := ConstructiveField_ConstructiveCommutativeDivisionRig X) x Hx0.
+<span class="kn">Definition</span> <span class="nf">CFdiv</span> {<span class="nv">X</span> : ConstructiveField} (<span class="nv">x</span> <span class="nv">y</span> : X) (<span class="nv">Hy0</span> : y ≠ CFzero) : X :=
+  CFmult x (CFinv y Hy0).
+
+<span class="sd">(** Lemmas *)</span>
+
+<span class="kn">Section</span> <span class="nf">CF_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : ConstructiveField}.
+
+<span class="kn">Lemma</span> <span class="nf">isirrefl_CFap</span> :
+  ∏ x : X, ¬ (x ≠ x).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isirrefl_CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">issymm_CFap</span> :
+  ∏ x y : X, x ≠ y → y ≠ x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (issymm_CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">iscotrans_CFap</span> :
+  ∏ x y z : X, x ≠ z → x ≠ y ∨ y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (iscotrans_CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">istight_CFap</span> :
+  ∏ x y : X, ¬ (x ≠ y) → x = y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (istight_CCDRap (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isnonzeroCF</span> : (<span class="mi">1</span> : X) ≠ (<span class="mi">0</span> : X).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isnonzeroCCDR (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">islunit_CFzero_CFplus</span> :
+  ∏ x : X, <span class="mi">0</span> + x = x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringlunax1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrunit_CFzero_CFplus</span> :
+  ∏ x : X, x + <span class="mi">0</span> = x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringrunax1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isassoc_CFplus</span> :
+  ∏ x y z : X, x + y + z = x + (y + z).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringassoc1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">islinv_CFopp</span> :
+  ∏ x : X, - x + x = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringlinvax1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrinv_CFopp</span> :
+  ∏ x : X, x + - x = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringrinvax1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscomm_CFplus</span> :
+  ∏ x y : X, x + y = y + x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringcomm1.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">islunit_CFone_CFmult</span> :
+  ∏ x : X, <span class="mi">1</span> * x = x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringlunax2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrunit_CFone_CFmult</span> :
+  ∏ x : X, x * <span class="mi">1</span> = x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringrunax2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isassoc_CFmult</span> :
+  ∏ x y z : X, x * y * z = x * (y * z).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringassoc2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">iscomm_CFmult</span> :
+  ∏ x y : X, x * y = y * x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringcomm2.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">islinv_CFinv</span> :
+  ∏ (x : X) (Hx0 : x ≠ <span class="mi">0</span>),
+    (CFinv x Hx0) * x = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (islinv_CCDRinv (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrinv_CFinv</span> :
+  ∏ (x : X) (Hx0 : x ≠ <span class="mi">0</span>),
+    x * (CFinv x Hx0) = <span class="mi">1</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isrinv_CCDRinv (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">islabsorb_CFzero_CFmult</span> :
+  ∏ x : X, <span class="mi">0</span> * x = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringmult0x.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">israbsorb_CFzero_CFmult</span> :
+  ∏ x : X, x * <span class="mi">0</span> = <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringmultx0.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isldistr_CFplus_CFmult</span> :
+  ∏ x y z : X, z * (x + y) = z * x + z * y.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ringdistraxs.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">isrdistr_CFplus_CFmult</span> :
+  ∏ x y z : X, (x + y) * z = x * z + y * z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">rewrite</span> !(iscomm_CFmult _ z).
+  <span class="bp">now</span> <span class="nb">apply</span> isldistr_CFplus_CFmult.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">apCFplus</span> :
+  ∏ x x' y y' : X,
+    x + y ≠ x' + y' → x ≠ x' ∨ y ≠ y'.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (apCCDRplus (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CFplus_apcompat_l</span> :
+  ∏ x y z : X, y + x ≠ z + x &lt;-&gt; y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (CCDRplus_apcompat_l (X := ConstructiveField_ConstructiveCommutativeDivisionRig X) _ _ _).
+  - <span class="nb">intros</span> Hap.
+    <span class="nb">apply</span> (CCDRplus_apcompat_l (X := ConstructiveField_ConstructiveCommutativeDivisionRig X) (- x)).
+    <span class="nb">change</span> ((y + x) + - x ≠ (z + x) + - x).
+    <span class="nb">rewrite</span> !isassoc_CFplus, isrinv_CFopp, !isrunit_CFzero_CFplus.
+    <span class="bp">exact</span> Hap.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CFplus_apcompat_r</span> :
+  ∏ x y z : X, x + y ≠ x + z &lt;-&gt; y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y z.
+  <span class="nb">rewrite</span> !(iscomm_CFplus x).
+  <span class="bp">now</span> <span class="nb">apply</span> CFplus_apcompat_l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">apCFmult</span> :
+  ∏ x x' y y' : X,
+    x * y ≠ x' * y' → x ≠ x' ∨ y ≠ y'.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (apCCDRmult (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CFmult_apcompat_l</span> :
+  ∏ x y z : X, y * x ≠ z * x → y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (CCDRmult_apcompat_l (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CFmult_apcompat_l'</span> :
+  ∏ x y z : X, x ≠ <span class="mi">0</span> → y ≠ z → y * x ≠ z * x.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (CCDRmult_apcompat_l' (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CFmult_apcompat_r</span> :
+  ∏ x y z : X, x * y ≠ x * z → y ≠ z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (CCDRmult_apcompat_r (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">CFmult_apcompat_r'</span> :
+  ∏ x y z : X, x ≠ <span class="mi">0</span> → y ≠ z → x * y ≠ x * z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (CCDRmult_apcompat_r' (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CFmultapCFzero</span> :
+  ∏ x y : X, x * y ≠ <span class="mi">0</span> → x ≠ <span class="mi">0</span> ∧ y ≠ <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (CCDRmultapCCDRzero (X := ConstructiveField_ConstructiveCommutativeDivisionRig X)).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">CF_pty</span>.
+
+<span class="kn">Close Scope</span> CF_scope.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/ConstructiveStructures.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Algebra/DivisionRig.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; Unset Kernel Term Sharing.
+  &gt; &gt;&gt;&gt;Require Export UniMath.Algebra.DivisionRig.&lt;&lt;&lt;
+  &gt; Require Export UniMath.Algebra.Domains_and_Fields.
+  &gt; Require Export UniMath.Algebra.Apartness.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

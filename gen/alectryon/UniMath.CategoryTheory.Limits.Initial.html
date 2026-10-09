@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Initial.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">Direct definition of initial object together with:</span>
+
+<span class="sd">- A proof that initial object is a property in a (saturated/univalent) category ([isaprop_Initial])</span>
+<span class="sd">- Construction of initial from the empty coproduct ([initial_from_empty_coproduct])</span>
+<span class="sd">- Initial element in a functor precategory ([Initial_functor_precat])</span>
+
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">def_initial</span>.
+
+<span class="kn">Definition</span> <span class="nf">isInitial</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> : C) : UU := ∏ b : C, iscontr (a --&gt; b).
+
+<span class="kn">Definition</span> <span class="nf">Initial</span> (<span class="nv">C</span> : precategory) : UU := ∑ a, @isInitial C a.
+
+<span class="kn">Definition</span> <span class="nf">InitialObject</span> {<span class="nv">C</span> : precategory} (<span class="nv">O</span> : Initial C) : C := pr1 O.
+<span class="kn">Coercion</span> <span class="nf">InitialObject</span> : Initial &gt;-&gt; ob.
+
+<span class="kn">Definition</span> <span class="nf">InitialArrow</span> {<span class="nv">C</span> : precategory} (<span class="nv">O</span> : Initial C) (<span class="nv">b</span> : C) : O --&gt; b := pr1 (pr2 O b).
+
+<span class="kn">Lemma</span> <span class="nf">InitialArrowUnique</span> {<span class="nv">C</span> : precategory} {<span class="nv">I</span> : Initial C} {<span class="nv">a</span> : C} (<span class="nv">f</span> : C⟦InitialObject I,a⟧) :
+  f = InitialArrow I _.
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (pr2 (pr2 I _ ) _ ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">InitialEndo_is_identity</span> {<span class="nv">C</span> : precategory} {<span class="nv">O</span> : Initial C} (<span class="nv">f</span> : O --&gt; O) : f = identity O.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> proofirrelevancecontr, (pr2 O O).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">InitialArrowEq</span> {<span class="nv">C</span> : precategory} {<span class="nv">O</span> : Initial C} {<span class="nv">a</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : O --&gt; a) : f = g.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">rewrite</span> (InitialArrowUnique f), (InitialArrowUnique g).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_Initial</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> : C) (<span class="nv">H</span> : isInitial a) : Initial C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">a</span>.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_isInitial</span> {<span class="nv">C</span> : precategory} (<span class="nv">a</span> : C) (<span class="nv">H</span> : ∏ (b : C), iscontr (a --&gt; b)) :
+  isInitial a.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isziso_from_Initial_to_Initial</span> {<span class="nv">C</span> : precategory} (<span class="nv">O</span> <span class="nv">O'</span> : Initial C) :
+   is_z_isomorphism (InitialArrow O O').
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">InitialArrow</span> <span class="nv">O'</span> <span class="nv">O</span>).
+  <span class="nb">split</span>; <span class="nb">apply</span> InitialEndo_is_identity.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ziso_Initials</span> {<span class="nv">C</span> : precategory} (<span class="nv">O</span> <span class="nv">O'</span> : Initial C) : z_iso O O' :=
+   InitialArrow O O',,isziso_from_Initial_to_Initial O O'.
+
+<span class="kn">Definition</span> <span class="nf">hasInitial</span> {<span class="nv">C</span> : precategory} : UU := ishinh (Initial C).
+
+<span class="kn">End</span> <span class="nf">def_initial</span>.
+
+<span class="kn">Arguments</span> Initial : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> isInitial : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> InitialObject {_} _.
+<span class="kn">Arguments</span> InitialArrow {_} _ _.
+<span class="kn">Arguments</span> InitialArrowUnique {_} _ _ _.
+<span class="kn">Arguments</span> make_isInitial {_} _ _ _.
+<span class="kn">Arguments</span> make_Initial {_} _ _.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_isInitial</span> {<span class="nv">C</span> : category} (<span class="nv">O</span> : ob C)
+  : isaprop (isInitial _ O).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.
+  <span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * Being initial is a property in a (saturated/univalent) category *)</span>
+<span class="kn">Section</span> <span class="nf">Initial_Unique</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category) (<span class="nv">H</span> : is_univalent C).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_Initial</span> : isaprop (Initial C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invproofirrelevance.
+  <span class="nb">intros</span> O O'.
+  <span class="nb">apply</span> (total2_paths_f (isotoid _ H (ziso_Initials O O')) ).
+  <span class="nb">apply</span> proofirrelevance.
+  <span class="nb">unfold</span> isInitial.
+  <span class="nb">apply</span> impred.
+  <span class="nb">intro</span> t ; <span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Initial_Unique</span>.
+
+
+<span class="kn">Section</span> <span class="nf">Initial_and_EmptyCoprod</span>.
+
+  <span class="sd">(** Construct Initial from empty arbitrary coproduct. *)</span>
+  <span class="kn">Definition</span> <span class="nf">initial_from_empty_coproduct</span> (<span class="nv">C</span> : category):
+    Coproduct empty C fromempty -&gt; Initial C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X.
+    use (make_Initial (CoproductObject _ _ X)).
+    use make_isInitial.
+    <span class="nb">intros</span> b.
+    <span class="nb">assert</span> (H : ∏ i : empty, C⟦fromempty i, b⟧) <span class="bp">by</span>
+        (<span class="nb">intros</span> i; <span class="nb">apply</span> (fromempty i)).
+    <span class="nb">apply</span> (make_iscontr (CoproductArrow _ _ X H)).
+    <span class="kp">abstract</span> (<span class="nb">intros</span> t; <span class="nb">apply</span> CoproductArrowUnique; <span class="nb">intros</span> i; <span class="nb">apply</span> (fromempty i)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Initial_and_EmptyCoprod</span>.
+
+<span class="c">(* Section Initial_from_Colims. *)</span>
+
+<span class="c">(* Require Import UniMath.CategoryTheory.Limits.Graphs.Colimits. *)</span>
+
+<span class="c">(* Variable C : precategory. *)</span>
+
+<span class="c">(* Definition empty_graph : graph. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(*   exists empty. *)</span>
+<span class="c">(*   exact (λ _ _, empty). *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="c">(* Definition initDiagram : diagram empty_graph C. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(* exists fromempty. *)</span>
+<span class="c">(* intros u; induction u. *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="c">(* Definition initCocone (b : C) : cocone initDiagram b. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(* simple refine (make_cocone _ _); intros u; induction u. *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="c">(* Lemma Initial_from_Colims : Colims C -&gt; Initial C. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(* intros H. *)</span>
+<span class="c">(* case (H _ initDiagram); intros cc iscc; destruct cc as [c cc]. *)</span>
+<span class="c">(* apply (make_Initial c); apply make_isInitial; intros b. *)</span>
+<span class="c">(* case (iscc _ (initCocone b)); intros f Hf; destruct f as [f fcomm]. *)</span>
+<span class="c">(* apply (tpair _ f); intro g. *)</span>
+<span class="c">(* transparent assert (X : (∑ x : c --&gt; b, ∏ v, *)</span>
+<span class="c">(*                        coconeIn cc v · x = coconeIn (initCocone b) v)). *)</span>
+<span class="c">(*   { apply (tpair _ g); intro u; induction u. } *)</span>
+<span class="c">(* apply (maponpaths pr1 (Hf X)). *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="c">(* End Initial_from_Colims. *)</span>
+
+<span class="sd">(** * Construction of initial object in a functor category *)</span>
+<span class="kn">Section</span> <span class="nf">InitialFunctorCat</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category) (<span class="nv">ID</span> : Initial D).
+
+<span class="kn">Definition</span> <span class="nf">Initial_functor_precat</span> : Initial [C, D].
+<span class="kn">Proof</span>.
+use make_Initial.
+- <span class="bp">exact</span> (constant_functor _ _ ID).
+- <span class="nb">intros</span> F.
+  use tpair.
+  + use make_nat_trans.
+    * <span class="nb">intro</span> a; <span class="nb">apply</span> InitialArrow.
+    * <span class="kp">abstract</span> (<span class="nb">intros</span> a b f; <span class="nb">apply</span> InitialArrowEq).
+  + <span class="kp">abstract</span> (<span class="nb">intros</span> α; <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> a; <span class="nb">apply</span> InitialArrowUnique).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">InitialFunctorCat</span>.
+
+<span class="sd">(** Morphisms to the initial object are epis *)</span>
+<span class="kn">Section</span> <span class="nf">epis_initial</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : precategory} (<span class="nv">IC</span> : Initial C).
+
+<span class="kn">Lemma</span> <span class="nf">to_initial_isEpi</span> (<span class="nv">a</span> : C) (<span class="nv">f</span> : a --&gt; IC) : isEpi f.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> make_isEpi; <span class="nb">intros</span> b g h H.
+<span class="bp">now</span> <span class="nb">apply</span> InitialArrowEq.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">epis_initial</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_to_Initial</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">I</span> : Initial C)
+           (<span class="nv">x</span> : C)
+           (<span class="nv">i</span> : z_iso I x)
+  : isInitial C x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w.
+  use iscontraprop1.
+  - <span class="kp">abstract</span>
+      (use invproofirrelevance ;
+       <span class="nb">intros</span> φ₁ φ₂ ;
+       <span class="nb">refine</span> (!(id_left _) @ _ @ id_left _) ;
+       <span class="nb">rewrite</span> &lt;- !(z_iso_after_z_iso_inv i) ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">apply</span> InitialArrowEq).
+  - <span class="bp">exact</span> (z_iso_inv i · InitialArrow I w).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Initial.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Initial element in a functor precategory ([Initial_functor_precat])
+  &gt;
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

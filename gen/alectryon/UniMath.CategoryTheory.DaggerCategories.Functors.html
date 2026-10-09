@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Functors.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Categories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">DaggerFunctors</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_dagger_functor</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+             (<span class="nv">dagC</span> : dagger C) (<span class="nv">dagD</span> : dagger D)
+             (<span class="nv">F</span> : functor C D)
+    : UU
+    := ∏ (x y : C) (f : C⟦x,y⟧), #F (dagC _ _ f) = dagD _ _ (#F f).
+
+  <span class="kn">Identity Coercion</span> <span class="nf">is_dagger_functor_to_family_of_equalities</span>
+    : is_dagger_functor &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_dagger_functor</span>
+        {<span class="nv">C</span> <span class="nv">D</span> : category}
+        (<span class="nv">dagC</span> : dagger C) (<span class="nv">dagD</span> : dagger D)
+        (<span class="nv">F</span> : functor C D)
+    : isaprop (is_dagger_functor dagC dagD F).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_functor_id</span>
+             {<span class="nv">C</span> : category} (<span class="nv">dag</span> : dagger C)
+    : is_dagger_functor dag dag (functor_identity C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_dagger_functor_comp</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+             {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D} {<span class="nv">dagE</span> : dagger E}
+             {<span class="nv">F</span> : functor C D} {<span class="nv">G</span> : functor D E}
+             (<span class="nv">dF</span> : is_dagger_functor dagC dagD F)
+             (<span class="nv">dG</span> : is_dagger_functor dagD dagE G)
+    : is_dagger_functor dagC dagE (functor_composite F G).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    <span class="nb">refine</span> (maponpaths #G (dF _ _ _) @ _).
+    <span class="nb">apply</span> dG.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_functor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             (<span class="nv">dagC</span> : dagger C) (<span class="nv">dagD</span> : dagger D)
+    : UU
+    := ∑ F : functor C D, is_dagger_functor dagC dagD F.
+
+  <span class="kn">Lemma</span> <span class="nf">dagger_functor_equality</span>
+        {<span class="nv">C</span> <span class="nv">D</span> : category}
+        {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+        (<span class="nv">F</span> <span class="nv">G</span> : dagger_functor dagC dagD)
+    : pr11 F = pr11 G -&gt; F = G.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> p.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_dagger_functor. }
+    use (functor_eq _ _ (homset_property D)).
+    <span class="bp">exact</span> p.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_functor_to_functor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+             (<span class="nv">F</span> : dagger_functor dagC dagD)
+    : functor C D
+    := pr1 F.
+  <span class="kn">Coercion</span> <span class="nf">dagger_functor_to_functor</span> : dagger_functor &gt;-&gt; functor.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_functor_to_is_dagger_functor</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+             (<span class="nv">F</span> : dagger_functor dagC dagD)
+    : is_dagger_functor dagC dagD F
+    := pr2 F.
+
+  <span class="kn">Definition</span> <span class="nf">make_dagger_functor</span>
+    {<span class="nv">C</span> <span class="nv">D</span> : category}
+    {<span class="nv">F</span> : functor C D}
+    {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+    (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+    : dagger_functor dagC dagD
+    := F ,, dagF.
+
+<span class="kn">End</span> <span class="nf">DaggerFunctors</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DaggerCategories/Functors.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

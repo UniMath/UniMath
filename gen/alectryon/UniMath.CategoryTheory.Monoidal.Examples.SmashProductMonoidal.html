@@ -1,0 +1,1284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SmashProductMonoidal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Monoidal category from smash products</span>
+
+<span class="sd"> We show that every notion of structure that supports a smash</span>
+<span class="sd"> product, gives rise to a symmetric monoidal closed category. Note</span>
+<span class="sd"> that in the construction, we give two (equivalent) definitions</span>
+<span class="sd"> for both of the associators. One of the two definition is</span>
+<span class="sd"> convenient for calculation, while the other is better for proving</span>
+<span class="sd"> that it is a structure preserving map.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Tensor operation</span>
+<span class="sd"> 2. Unitors</span>
+<span class="sd"> 3. The braiding</span>
+<span class="sd"> 4. The associators</span>
+<span class="sd"> 5. The monoidal structure</span>
+<span class="sd"> 6. It is symmetric</span>
+<span class="sd"> 7. It is closed</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">StructureSmashProduct</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : hset_struct_with_smash_closed).
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"∁"</span> := (category_of_hset_struct P).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Tensor operation</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_mor_r</span>
+             (<span class="nv">PX</span> : ∁)
+             {<span class="nv">PY₁</span> <span class="nv">PY₂</span> : ∁}
+             (<span class="nv">f</span> : PY₁ --&gt; PY₂)
+    : PX ∧* PY₁ --&gt; PX ∧* PY₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - use map_from_smash.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, setquotpr _ (x ,, pr1 f y)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> y₁ y₂ ;
+           use iscompsetquotpr ;
+           <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+           use inr ;
+           <span class="bp">exact</span> (inl (idpath _) ,, inl (idpath _))).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y ;
+           use iscompsetquotpr ;
+           <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+           use inr ;
+           <span class="nb">refine</span> (inr _ ,, inl (idpath _)) ;
+           <span class="nb">apply</span> pointed_hset_struct_preserve_point ;
+           <span class="bp">exact</span> (pr2 f)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x₁ x₂ ;
+           use iscompsetquotpr ;
+           <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+           use inr ;
+           <span class="nb">refine</span> (inr _ ,, inr _) ;
+           <span class="nb">apply</span> (pointed_hset_struct_preserve_point _ (pr2 f))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> hset_struct_with_smash_map_from_smash ;
+         <span class="nb">refine</span> (hset_struct_comp
+                   P
+                   _
+                   (hset_struct_with_smash_setquotpr _ (pr2 PX) (pr2 PY₂))) ;
+         use hset_struct_pair ;
+         [ <span class="nb">apply</span> hset_struct_pr1
+         | <span class="nb">refine</span> (hset_struct_comp P _ (pr2 f)) ;
+           <span class="nb">apply</span> hset_struct_pr2 ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_mor_l</span>
+             (<span class="nv">PY</span> : ∁)
+             {<span class="nv">PX₁</span> <span class="nv">PX₂</span> : ∁}
+             (<span class="nv">f</span> : PX₁ --&gt; PX₂)
+    : PX₁ ∧* PY --&gt; PX₂ ∧* PY.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - use map_from_smash.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, setquotpr _ (pr1 f x ,, y)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> y₁ y₂ ;
+           use iscompsetquotpr ;
+           <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+           use inr ;
+           <span class="nb">refine</span> (inl _ ,, inl _) ;
+           <span class="nb">apply</span> (pointed_hset_struct_preserve_point _ (pr2 f))).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y ;
+           use iscompsetquotpr ;
+           <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+           use inr ;
+           <span class="nb">refine</span> (inr (idpath _) ,, inl _) ;
+           <span class="nb">apply</span> pointed_hset_struct_preserve_point ;
+           <span class="bp">exact</span> (pr2 f)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x₁ x₂ ;
+           use iscompsetquotpr ;
+           <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+           use inr ;
+           <span class="bp">exact</span> (inr (idpath _) ,, inr (idpath _))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> hset_struct_with_smash_map_from_smash ;
+         <span class="nb">refine</span> (hset_struct_comp
+                   P
+                   _
+                   (hset_struct_with_smash_setquotpr _ (pr2 PX₂) (pr2 PY))) ;
+         use hset_struct_pair ;
+         [ <span class="nb">refine</span> (hset_struct_comp P _ (pr2 f)) ;
+           <span class="nb">apply</span> hset_struct_pr1
+         | <span class="nb">apply</span> hset_struct_pr2 ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_mor</span>
+             {<span class="nv">PY₁</span> <span class="nv">PY₂</span> : ∁}
+             {<span class="nv">PX₁</span> <span class="nv">PX₂</span> : ∁}
+             (<span class="nv">f</span> : PX₁ --&gt; PX₂)
+             (<span class="nv">g</span> : PY₁ --&gt; PY₂)
+    : PX₁ ∧* PY₁ --&gt; PX₂ ∧* PY₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - use map_from_smash.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, setquotpr _ (pr1 f x ,, pr1 g y)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> y₁ y₂ ;
+           use iscompsetquotpr ;
+           <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+           use inr ;
+           <span class="nb">refine</span> (inl _ ,, inl _) ;
+           <span class="nb">apply</span> (pointed_hset_struct_preserve_point _ (pr2 f))).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y ;
+           use iscompsetquotpr ;
+           <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+           use inr ;
+           <span class="nb">refine</span> (inr _ ,, inl _) ;
+           <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> pointed_hset_struct_preserve_point ;
+           [ <span class="bp">exact</span> (pr2 g)
+           | <span class="bp">exact</span> (pr2 f) ]).
+        + <span class="kp">abstract</span>
+            (<span class="nb">intros</span> x y ;
+             use iscompsetquotpr ;
+             <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+             use inr ;
+             <span class="nb">refine</span> (inr _ ,, inr _) ;
+             <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span> ;
+             <span class="nb">apply</span> pointed_hset_struct_preserve_point ;
+             [ <span class="bp">exact</span> (pr2 g)
+             | <span class="bp">exact</span> (pr2 g) ]).
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> hset_struct_with_smash_map_from_smash ;
+         <span class="nb">refine</span> (hset_struct_comp
+                   P
+                   _
+                   (hset_struct_with_smash_setquotpr _ (pr2 PX₂) (pr2 PY₂))) ;
+         use hset_struct_pair ;
+         [ <span class="nb">refine</span> (hset_struct_comp P _ (pr2 f)) ;
+           <span class="nb">apply</span> hset_struct_pr1
+         | <span class="nb">refine</span> (hset_struct_comp P _ (pr2 g)) ;
+           <span class="nb">apply</span> hset_struct_pr2 ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f '#∧*' g"</span> := (hset_struct_smash_prod_mor f g) (<span class="kn">at level</span> <span class="mi">30</span>).
+
+  <span class="kn">Definition</span> <span class="nf">smash_product_tensor_data</span>
+    : tensor_data ∁.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span>, X ∧* Y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> <span class="nv">f</span>, hset_struct_smash_prod_mor_r X f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">Y</span> <span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">f</span>, hset_struct_smash_prod_mor_l Y f).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Unitors</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_lunitor</span>
+    : leftunitor_data
+        smash_product_tensor_data
+        (hset_struct_with_smash_closed_unit P).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - use map_from_smash.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">b</span> <span class="nv">x</span>, <span class="k">if</span> b <span class="k">then</span> x <span class="k">else</span> hset_struct_point P (pr2 X)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x₁ x₂ ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> hset_struct_with_smash_point_unit ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> b x ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> hset_struct_with_smash_point_unit ;
+           <span class="nb">induction</span> b ; <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> b₁ b₂ ; <span class="nb">cbn</span> ;
+           <span class="nb">induction</span> b₁ ; <span class="nb">induction</span> b₂ ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> idpath).
+    - <span class="nb">apply</span> hset_struct_with_smash_map_from_smash.
+      use (hset_struct_with_smash_map_bool (pr122 P)).
+      + <span class="nb">apply</span> hset_struct_pr1.
+      + <span class="nb">apply</span> hset_struct_pr2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_linvunitor</span>
+    : leftunitorinv_data
+        smash_product_tensor_data
+        (hset_struct_with_smash_closed_unit P).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, setquotpr _ (true ,, x)).
+    - <span class="nb">apply</span> hset_struct_with_smash_setquotpr_r.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_runitor</span>
+    : rightunitor_data
+        smash_product_tensor_data
+        (hset_struct_with_smash_closed_unit P).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - use map_from_smash.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">b</span>, <span class="k">if</span> b <span class="k">then</span> x <span class="k">else</span> hset_struct_point P (pr2 X)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> b₁ b₂ ; <span class="nb">cbn</span> ;
+           <span class="nb">induction</span> b₁ ; <span class="nb">induction</span> b₂ ; <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x b ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> hset_struct_with_smash_point_unit ;
+           <span class="nb">induction</span> b ; <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x₁ x₂ ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> hset_struct_with_smash_point_unit ;
+           <span class="nb">apply</span> idpath).
+    - <span class="nb">apply</span> hset_struct_with_smash_map_from_smash.
+      use (hset_struct_with_smash_map_bool (pr122 P)).
+      + <span class="nb">apply</span> hset_struct_pr2.
+      + <span class="nb">apply</span> hset_struct_pr1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_rinvunitor</span>
+    : rightunitorinv_data
+        smash_product_tensor_data
+        (hset_struct_with_smash_closed_unit P).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, setquotpr _ (x ,, true)).
+    - <span class="nb">apply</span> hset_struct_with_smash_setquotpr_l.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. The braiding</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">smash_product_monoidal_cat_braiding</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> : category_of_hset_struct P)
+    : X ∧* Y --&gt; Y ∧* X.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - use map_from_smash.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, setquotpr _ (y ,, x)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> y₁ y₂ ;
+           use iscompsetquotpr ;
+           <span class="nb">apply</span> hinhpr ;
+           use inr ;
+           <span class="nb">split</span> ; use inr ; <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y ;
+           use iscompsetquotpr ;
+           <span class="nb">apply</span> hinhpr ;
+           use inr ;
+           <span class="nb">split</span> ; [ use inl | use inr  ] ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x₁ x₂ ;
+           use iscompsetquotpr ;
+           <span class="nb">apply</span> hinhpr ;
+           use inr ;
+           <span class="nb">split</span> ; use inl ; <span class="nb">apply</span> idpath).
+    - <span class="nb">apply</span> hset_struct_with_smash_map_from_smash.
+      <span class="nb">refine</span> (hset_struct_comp
+                P
+                _
+                (hset_struct_with_smash_setquotpr _ (pr2 Y) (pr2 X))).
+      use hset_struct_pair.
+      + <span class="nb">apply</span> hset_struct_pr2.
+      + <span class="nb">apply</span> hset_struct_pr1.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. The associators</span>
+<span class="sd">   *)</span>
+
+  <span class="sd">(**</span>
+<span class="sd">   Note: `hset_struct_smash_prod_lassociator_mor` is used to prove</span>
+<span class="sd">   that the associator is structure preserving, whereas</span>
+<span class="sd">   `hset_struct_smash_prod_lassociator_mor_alt_fun` is used for</span>
+<span class="sd">   calculations.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_unlam</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁}
+             (<span class="nv">f</span> : X --&gt; Y --&gt;* Z)
+    : X ∧* Y --&gt; Z
+    := f #∧* identity _ · hset_struct_with_smash_closed_eval Y Z.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_unlam'</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁}
+             (<span class="nv">f</span> : Y --&gt; X --&gt;* Z)
+    : X ∧* Y --&gt; Z
+    := smash_product_monoidal_cat_braiding _ _ · hset_struct_smash_unlam f.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_lassociator_mor</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁)
+    : (X ∧* Y) ∧* Z --&gt; X ∧* (Y ∧* Z).
+  <span class="kn">Proof</span>.
+    use hset_struct_smash_unlam.
+    use hset_struct_smash_unlam.
+    <span class="nb">refine</span> (_ · hset_struct_smash_enriched_uncurry _ _ _).
+    use hset_struct_smash_closed_uncurry.
+    <span class="nb">apply</span> identity.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_lassociator_mor_alt_fun</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁}
+             (<span class="nv">xy</span> : pr11 (X ∧* Y))
+             (<span class="nv">z</span> : pr11 Z)
+    : pr11 (X ∧* Y ∧* Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> xy.
+    use map_from_smash'.
+    - <span class="nb">apply</span> setproperty.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, setquotpr _ (x ,, setquotpr _ (y ,, z))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y₁ y₂ ;
+         use iscompsetquotpr ;
+         <span class="nb">apply</span> hinhpr ;
+         use inr ;
+         <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span> ;
+         <span class="nb">split</span> ; use inl ; <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y ;
+         use iscompsetquotpr ;
+         <span class="nb">apply</span> hinhpr ;
+         use inr ;
+         <span class="nb">unfold</span> product_point_coordinate ;
+         <span class="nb">split</span> ; [ | use inl ; <span class="nb">apply</span> idpath ] ;
+         use inr ;
+         <span class="nb">refine</span> (_ @ !(hset_struct_with_smash_closed_point_smash _ _)) ;
+         use iscompsetquotpr ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> hinhpr ;
+         use inr ;
+         <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span> ;
+         <span class="nb">split</span> ; use inl ; <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x₁ x₂ ;
+         use iscompsetquotpr ;
+         <span class="nb">apply</span> hinhpr ;
+         use inr ;
+         <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">split</span> ; <span class="nb">cbn</span> ; use inr ;
+         <span class="nb">refine</span> (_ @ !(hset_struct_with_smash_closed_point_smash _ _)) ;
+         use iscompsetquotpr ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> hinhpr ; use inr ;
+         <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">split</span> ; <span class="nb">cbn</span> ;
+         use inl ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_smash_prod_lassociator_mor_alt_eq1</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : category_of_hset_struct P}
+              (<span class="nv">z₁</span> <span class="nv">z₂</span> : pr11 Z)
+    : hset_struct_smash_prod_lassociator_mor_alt_fun
+        (hset_struct_point (pr12 P) (pr2 (X ∧* Y)))
+        z₁
+      =
+      hset_struct_smash_prod_lassociator_mor_alt_fun
+        (hset_struct_point (pr12 P) (pr2 (X ∧* Y)))
+        z₂.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> hset_struct_with_smash_closed_point_smash.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> hset_struct_with_smash_closed_point_smash.
+    }
+    use iscompsetquotpr.
+    <span class="nb">apply</span> hinhpr.
+    use inr ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+    <span class="nb">split</span>.
+    - use inl.
+      <span class="nb">apply</span> idpath.
+    - use inl.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_smash_prod_lassociator_mor_alt_eq2</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : category_of_hset_struct P}
+              (<span class="nv">xy</span> : pr11 (X ∧* Y))
+              (<span class="nv">z</span> : pr11 Z)
+    : hset_struct_smash_prod_lassociator_mor_alt_fun
+        xy
+        (hset_struct_point (pr12 P) (pr2 Z))
+      =
+      hset_struct_smash_prod_lassociator_mor_alt_fun
+        (hset_struct_point (pr12 P) (pr2 (X ∧* Y)))
+        z.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> xy.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> xy.
+    <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> hset_struct_with_smash_closed_point_smash.
+    }
+    use iscompsetquotpr.
+    <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+    use inr.
+    <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+    <span class="nb">split</span>.
+    - use inl.
+      <span class="nb">apply</span> idpath.
+    - use inr.
+      <span class="nb">refine</span> (_ @ !(hset_struct_with_smash_closed_point_smash _ _)).
+      use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inr.
+      <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+      <span class="nb">split</span>.
+      + use inr.
+        <span class="nb">apply</span> idpath.
+      + use inr.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_smash_prod_lassociator_mor_alt_eq3</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : category_of_hset_struct P}
+              (<span class="nv">xy₁</span> <span class="nv">xy₂</span> : pr11 (X ∧* Y))
+    : hset_struct_smash_prod_lassociator_mor_alt_fun
+        xy₁
+        (hset_struct_point (pr12 P) (pr2 Z))
+      =
+      hset_struct_smash_prod_lassociator_mor_alt_fun
+        xy₂
+        (hset_struct_point (pr12 P) (pr2 Z)).
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> xy₁.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> xy₁.
+    <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ].
+    <span class="nb">revert</span> xy₂.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> xy₂.
+    <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ].
+    use iscompsetquotpr.
+    <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+    use inr.
+    <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+    <span class="nb">split</span> ; use inr ;
+      <span class="nb">refine</span> (_ @ !(hset_struct_with_smash_closed_point_smash _ _)).
+    - use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inr.
+      <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+      <span class="nb">split</span>.
+      + use inr.
+        <span class="nb">apply</span> idpath.
+      + use inr.
+        <span class="nb">apply</span> idpath.
+    - use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inr.
+      <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+      <span class="nb">split</span>.
+      + use inr.
+        <span class="nb">apply</span> idpath.
+      + use inr.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_lassociator_mor_alt</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁)
+    : pr11 ((X ∧* Y) ∧* Z) → pr11 (X ∧* (Y ∧* Z)).
+  <span class="kn">Proof</span>.
+    use map_from_smash'.
+    - <span class="nb">apply</span> setproperty.
+    - <span class="bp">exact</span> hset_struct_smash_prod_lassociator_mor_alt_fun.
+    - <span class="bp">exact</span> hset_struct_smash_prod_lassociator_mor_alt_eq1.
+    - <span class="bp">exact</span> hset_struct_smash_prod_lassociator_mor_alt_eq2.
+    - <span class="bp">exact</span> hset_struct_smash_prod_lassociator_mor_alt_eq3.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_lassociator_mor_eq_to_alt</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁)
+    : pr1 (hset_struct_smash_prod_lassociator_mor X Y Z)
+      =
+      hset_struct_smash_prod_lassociator_mor_alt X Y Z.
+  <span class="kn">Proof</span>.
+    use funextsec.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> xyz.
+    <span class="nb">induction</span> xyz <span class="k">as</span> [ xy z ].
+    <span class="nb">revert</span> xy.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> xy.
+    <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+    use iscompsetquotpr ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> hinhpr.
+    use inl.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_lassociator</span>
+    : associator_data
+        smash_product_tensor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y Z.
+    <span class="nb">refine</span> (hset_struct_smash_prod_lassociator_mor_alt X Y Z ,, _).
+    <span class="kp">abstract</span>
+      (<span class="bp">exact</span> (transportf
+                (mor_hset_struct P _ _)
+                (hset_struct_smash_prod_lassociator_mor_eq_to_alt X Y Z)
+                (pr2 (hset_struct_smash_prod_lassociator_mor X Y Z)))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   Note: `hset_struct_smash_prod_rassociator_mor` is used to prove</span>
+<span class="sd">   that the associator is structure preserving, whereas</span>
+<span class="sd">   `hset_struct_smash_prod_rassociator_mor_alt_fun` is used for</span>
+<span class="sd">   calculations.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_rassociator_mor</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁)
+    : X ∧* (Y ∧* Z) --&gt; (X ∧* Y) ∧* Z.
+  <span class="kn">Proof</span>.
+    use hset_struct_smash_unlam'.
+    use hset_struct_smash_unlam'.
+    <span class="nb">refine</span> (_ · hset_struct_smash_enriched_uncurry _ _ _).
+    use hset_struct_smash_closed_uncurry.
+    <span class="nb">refine</span> (smash_product_monoidal_cat_braiding _ _ · _ #∧* identity _).
+    <span class="nb">apply</span> smash_product_monoidal_cat_braiding.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_rassociator_mor_alt_fun</span>
+             {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁}
+             (<span class="nv">x</span> : pr11 X)
+             (<span class="nv">yz</span> : pr11 (Y ∧* Z))
+    : pr11 ((X ∧* Y) ∧* Z).
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> yz.
+    use map_from_smash'.
+    - <span class="nb">apply</span> setproperty.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">z</span>, setquotpr _ (setquotpr _ (x ,, y) ,, z)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> z₁ z₂ ;
+         use iscompsetquotpr ;
+         <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+         use inr ;
+         <span class="nb">unfold</span> product_point_coordinate ;
+         <span class="nb">split</span> ; use inl ; <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (_ @ !(hset_struct_with_smash_closed_point_smash _ _)) ;
+         use iscompsetquotpr ;
+         <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+         use inr ;
+         <span class="nb">unfold</span> product_point_coordinate ;
+         <span class="nb">split</span> ;
+         use inr ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y z ;
+         use iscompsetquotpr ;
+         <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+         use inr ;
+         <span class="nb">unfold</span> product_point_coordinate ;
+         <span class="nb">split</span> ; <span class="nb">cbn</span> ; [ use inr ; <span class="nb">apply</span> idpath | ] ;
+         use inl ;
+         <span class="nb">refine</span> (_ @ !(hset_struct_with_smash_closed_point_smash _ _)) ;
+         use iscompsetquotpr ;
+         <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+         use inr ;
+         <span class="nb">unfold</span> product_point_coordinate ;
+         <span class="nb">split</span> ;
+         use inr ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y₁ y₂ ;
+         use iscompsetquotpr ;
+         <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span> ;
+         use inr ;
+         <span class="nb">unfold</span> product_point_coordinate ;
+         <span class="nb">split</span> ; <span class="nb">cbn</span> ;
+         use inr ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_smash_prod_rassociator_mor_alt_eq1</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁}
+              (<span class="nv">yz₁</span> <span class="nv">yz₂</span> : pr11 (Y ∧* Z))
+    : hset_struct_smash_prod_rassociator_mor_alt_fun
+        (hset_struct_point (pr12 P) (pr2 X))
+        yz₁
+      =
+      hset_struct_smash_prod_rassociator_mor_alt_fun
+        (hset_struct_point (pr12 P) (pr2 X))
+        yz₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> yz₁.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> yz₁.
+    <span class="nb">induction</span> yz₁ <span class="k">as</span> [ y₁ z₁ ].
+    <span class="nb">revert</span> yz₂.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> yz₂.
+    <span class="nb">induction</span> yz₂ <span class="k">as</span> [ y₂ z₂ ].
+    use iscompsetquotpr.
+    <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+    use inr.
+    <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+    <span class="nb">split</span> ; use inl ;
+      <span class="nb">refine</span> (_ @ !(hset_struct_with_smash_closed_point_smash _ _)).
+    - use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inr.
+      <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+      <span class="nb">split</span>.
+      + use inl.
+        <span class="nb">apply</span> idpath.
+      + use inr.
+        <span class="nb">apply</span> idpath.
+    - use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inr.
+      <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+      <span class="nb">split</span>.
+      + use inl.
+        <span class="nb">apply</span> idpath.
+      + use inr.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_smash_prod_rassociator_mor_alt_eq2</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁}
+              (<span class="nv">x</span> : pr11 X)
+              (<span class="nv">yz</span> : pr11 (Y ∧* Z))
+    : hset_struct_smash_prod_rassociator_mor_alt_fun
+        x
+        (hset_struct_point (pr12 P) (pr2 (Y ∧* Z)))
+      =
+      hset_struct_smash_prod_rassociator_mor_alt_fun
+        (hset_struct_point (pr12 P) (pr2 X))
+        yz.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> yz.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> yz.
+    <span class="nb">induction</span> yz <span class="k">as</span> [ y z ].
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> hset_struct_with_smash_closed_point_smash.
+    }
+    use iscompsetquotpr.
+    <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+    use inr.
+    <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+    <span class="nb">split</span>.
+    - use inr.
+      <span class="nb">apply</span> idpath.
+    - use inl.
+      <span class="nb">refine</span> (_ @ !(hset_struct_with_smash_closed_point_smash _ _)).
+      use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inr.
+      <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+      <span class="nb">split</span>.
+      + use inl.
+        <span class="nb">apply</span> idpath.
+      + use inl.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">hset_struct_smash_prod_rassociator_mor_alt_eq3</span>
+              {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁}
+              (<span class="nv">x₁</span> <span class="nv">x₂</span> : pr11 X)
+    : hset_struct_smash_prod_rassociator_mor_alt_fun
+        x₁
+        (hset_struct_point (pr12 P) (pr2 (Y ∧* Z)))
+      =
+      hset_struct_smash_prod_rassociator_mor_alt_fun
+        x₂
+        (hset_struct_point (pr12 P) (pr2 (Y ∧* Z))).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> hset_struct_with_smash_closed_point_smash.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> hset_struct_with_smash_closed_point_smash.
+    }
+    use iscompsetquotpr.
+    <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+    use inr.
+    <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+    <span class="nb">split</span>.
+    - use inr.
+      <span class="nb">apply</span> idpath.
+    - use inr.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_rassociator_mor_alt</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁)
+    : pr11 (X ∧* (Y ∧* Z)) → pr11 ((X ∧* Y) ∧* Z).
+  <span class="kn">Proof</span>.
+    use map_from_smash'.
+    - <span class="nb">apply</span> setproperty.
+    - <span class="bp">exact</span> hset_struct_smash_prod_rassociator_mor_alt_fun.
+    - <span class="bp">exact</span> hset_struct_smash_prod_rassociator_mor_alt_eq1.
+    - <span class="bp">exact</span> hset_struct_smash_prod_rassociator_mor_alt_eq2.
+    - <span class="bp">exact</span> hset_struct_smash_prod_rassociator_mor_alt_eq3.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_rassociator_mor_eq_to_alt</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : ∁)
+    : pr1 (hset_struct_smash_prod_rassociator_mor X Y Z)
+      =
+      hset_struct_smash_prod_rassociator_mor_alt X Y Z.
+  <span class="kn">Proof</span>.
+    use funextsec.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> xyz.
+    <span class="nb">induction</span> xyz <span class="k">as</span> [ x yz ].
+    <span class="nb">revert</span> yz.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intros</span> yz.
+    <span class="nb">induction</span> yz <span class="k">as</span> [ y z ].
+    use iscompsetquotpr ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> hinhpr.
+    use inl.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">hset_struct_smash_prod_rassociator</span>
+    : associatorinv_data
+        smash_product_tensor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y Z.
+    <span class="nb">refine</span> (hset_struct_smash_prod_rassociator_mor_alt X Y Z ,, _).
+    <span class="kp">abstract</span>
+      (<span class="bp">exact</span> (transportf
+                (mor_hset_struct P _ _)
+                (hset_struct_smash_prod_rassociator_mor_eq_to_alt X Y Z)
+                (pr2 (hset_struct_smash_prod_rassociator_mor X Y Z)))).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. The monoidal structure</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">smash_product_monoidal_data</span>
+    : monoidal_data (category_of_hset_struct P).
+  <span class="kn">Proof</span>.
+    use make_monoidal_data.
+    - <span class="bp">exact</span> smash_product_tensor_data.
+    - <span class="bp">exact</span> (hset_struct_with_smash_closed_unit P).
+    - <span class="bp">exact</span> hset_struct_smash_prod_lunitor.
+    - <span class="bp">exact</span> hset_struct_smash_prod_linvunitor.
+    - <span class="bp">exact</span> hset_struct_smash_prod_runitor.
+    - <span class="bp">exact</span> hset_struct_smash_prod_rinvunitor.
+    - <span class="bp">exact</span> hset_struct_smash_prod_lassociator.
+    - <span class="bp">exact</span> hset_struct_smash_prod_rassociator.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">smash_product_monoidal_laws</span>
+    : monoidal_laws smash_product_monoidal_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> X Y.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> x.
+      use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inl.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> x.
+      use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inl.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> W X Y Z g₁ g₂.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> x.
+      use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inl.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> W X Y Z f₁ f₂.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> x.
+      use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inl.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X₁ X₂ Y₁ Y₂ f g.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> x.
+      use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inl.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y f.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> x.
+      <span class="nb">induction</span> x <span class="k">as</span> [ b x ].
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> b.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> pointed_hset_struct_preserve_point.
+        <span class="bp">exact</span> (pr2 f).
+    - use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> z.
+      <span class="nb">induction</span> z <span class="k">as</span> [ b z ].
+      use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      <span class="nb">induction</span> b ; <span class="nb">cbn</span>.
+      + use inl.
+        <span class="nb">apply</span> idpath.
+      + use inr.
+        <span class="nb">split</span> ; <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+        * use inr.
+          <span class="nb">apply</span> idpath.
+        * use inl.
+          <span class="nb">rewrite</span> hset_struct_with_smash_point_unit.
+          <span class="nb">apply</span> idpath.
+    - use eq_mor_hset_struct.
+      <span class="nb">intro</span> z ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y f.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> x.
+      <span class="nb">induction</span> x <span class="k">as</span> [ x b ].
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> b.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> pointed_hset_struct_preserve_point.
+        <span class="bp">exact</span> (pr2 f).
+    - use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> z.
+      <span class="nb">induction</span> z <span class="k">as</span> [ z b ].
+      use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      <span class="nb">induction</span> b ; <span class="nb">cbn</span>.
+      + use inl.
+        <span class="nb">apply</span> idpath.
+      + use inr.
+        <span class="nb">split</span> ; <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+        * use inl.
+          <span class="nb">apply</span> idpath.
+        * use inr.
+          <span class="nb">rewrite</span> hset_struct_with_smash_point_unit.
+          <span class="nb">apply</span> idpath.
+    - use eq_mor_hset_struct.
+      <span class="nb">intro</span> z ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y Z₁ Z₂ h.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> z.
+      <span class="nb">induction</span> z <span class="k">as</span> [ xx y ].
+      <span class="nb">revert</span> xx.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> xx.
+      <span class="nb">induction</span> xx <span class="k">as</span> [ x₁ x₂ ].
+      use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> hinhpr.
+      use inl.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X₁ X₂ Y Z f.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> z.
+      <span class="nb">induction</span> z <span class="k">as</span> [ xx y ].
+      <span class="nb">revert</span> xx.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> xx.
+      <span class="nb">induction</span> xx <span class="k">as</span> [ x₁ x₂ ].
+      use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> hinhpr.
+      use inl.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y₁ Y₂ Z g.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> z.
+      <span class="nb">induction</span> z <span class="k">as</span> [ xx y ].
+      <span class="nb">revert</span> xx.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> xx.
+      <span class="nb">induction</span> xx <span class="k">as</span> [ x₁ x₂ ].
+      use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> hinhpr.
+      use inl.
+      <span class="nb">apply</span> idpath.
+    - use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> xyz.
+      <span class="nb">induction</span> xyz <span class="k">as</span> [ xy z' ].
+      <span class="nb">revert</span> xy.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> xy.
+      <span class="nb">induction</span> xy <span class="k">as</span> [ x' y' ].
+      use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inl.
+      <span class="nb">apply</span> idpath.
+    - use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> xyz.
+      <span class="nb">induction</span> xyz <span class="k">as</span> [ x' yz ].
+      <span class="nb">revert</span> yz.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> yz.
+      <span class="nb">induction</span> yz <span class="k">as</span> [ y' z' ].
+      use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      use inl.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> X Y.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> xby.
+      <span class="nb">induction</span> xby <span class="k">as</span> [ xb y ].
+      <span class="nb">revert</span> xb.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> xb.
+      <span class="nb">induction</span> xb <span class="k">as</span> [ x b ].
+      use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">induction</span> b.
+      + <span class="bp">exact</span> (inl (idpath _)).
+      + use inr.
+        <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+        <span class="nb">split</span>.
+        * <span class="bp">exact</span> (inr (idpath _)).
+        * <span class="bp">exact</span> (inl (idpath _)).
+    - <span class="nb">intros</span> W X Y Z.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> wxyz.
+      <span class="nb">induction</span> wxyz <span class="k">as</span> [ wxy z ].
+      <span class="nb">revert</span> wxy.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> wxy.
+      <span class="nb">induction</span> wxy <span class="k">as</span> [ wx y ].
+      <span class="nb">revert</span> wx.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> wx.
+      <span class="nb">induction</span> wx <span class="k">as</span> [ w x ].
+      use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> hinhpr.
+      use inl.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">smash_product_monoidal_cat</span>
+    : monoidal_cat
+    := category_of_hset_struct P
+       ,,
+       smash_product_monoidal_data
+       ,,
+       smash_product_monoidal_laws.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. It is symmetric</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">smash_product_monoidal_cat_symmetric_laws</span>
+    : sym_mon_cat_laws_tensored
+        smash_product_monoidal_cat
+        smash_product_monoidal_cat_braiding.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> X Y.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> xy.
+      <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+      use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> hinhpr.
+      <span class="bp">exact</span> (inl (idpath _)).
+    - <span class="nb">intros</span> X₁ X₂ Y₁ Y₂ f g.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> xy.
+      <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+      use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> hinhpr.
+      <span class="bp">exact</span> (inl (idpath _)).
+    - <span class="nb">intros</span> X Y Z.
+      use eq_mor_hset_struct.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> xyz.
+      <span class="nb">induction</span> xyz <span class="k">as</span> [ xy z ].
+      <span class="nb">revert</span> xy.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intros</span> xy.
+      <span class="nb">induction</span> xy <span class="k">as</span> [ x y ].
+      use iscompsetquotpr ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> hinhpr.
+      <span class="bp">exact</span> (inl (idpath _)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">smash_product_monoidal_cat_symmetric</span>
+    : symmetric smash_product_monoidal_cat.
+  <span class="kn">Proof</span>.
+    use make_symmetric.
+    - <span class="bp">exact</span> smash_product_monoidal_cat_braiding.
+    - <span class="bp">exact</span> smash_product_monoidal_cat_symmetric_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">smash_product_sym_monoidal_cat</span>
+    : sym_monoidal_cat
+    := smash_product_monoidal_cat
+       ,,
+       smash_product_monoidal_cat_symmetric.
+
+  <span class="sd">(**</span>
+<span class="sd">   7. It is closed</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">smash_product_sym_mon_closed_cat</span>
+    : sym_mon_closed_cat.
+  <span class="kn">Proof</span>.
+    use make_sym_mon_closed_cat.
+    - <span class="bp">exact</span> smash_product_sym_monoidal_cat.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span>, X --&gt;* Y).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">PX</span> <span class="nv">PY</span>, hset_struct_with_smash_closed_eval PX PY).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">f</span>, hset_struct_smash_closed_uncurry f).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y Z f ;
+         use eq_mor_hset_struct ;
+         use setquotunivprop' ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+         <span class="nb">intros</span> zx ;
+         <span class="nb">induction</span> zx <span class="k">as</span> [ z x ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y Z f ;
+         use eq_mor_hset_struct ;
+         <span class="nb">intros</span> z ;
+         use eq_mor_hset_struct ;
+         <span class="nb">intros</span> x ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">StructureSmashProduct</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Examples/SmashProductMonoidal.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. It is closed
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

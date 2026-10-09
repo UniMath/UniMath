@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FullSubEnriched.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************</span>
+
+<span class="sd"> The full subcategory of enriched category</span>
+
+<span class="sd"> We show that the full subcategory of an enriched category is again</span>
+<span class="sd"> enriched over the same monoidal category. We also show that the</span>
+<span class="sd"> inclusion is an enriched functor.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The enrichment over the full subcategory</span>
+<span class="sd"> 2. The enrichment of the inclusion</span>
+
+<span class="sd"> **********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">FullSub</span>.
+  <span class="kn">Context</span> (<span class="nv">V</span> : monoidal_cat)
+          {<span class="nv">C</span> : category}
+          (<span class="nv">E</span> : enrichment C V)
+          (<span class="nv">P</span> : C → hProp).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. The enrichment over the full subcategory</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">fullsub_enrichment_data</span>
+    : enrichment_data
+        (subcategory C (full_sub_precategory P))
+        V.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, E ⦃ pr1 x , pr1 y ⦄).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, enriched_id E (pr1 x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span>, enriched_comp E (pr1 x) (pr1 y) (pr1 z)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, enriched_from_arr E (pr1 f)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, enriched_to_arr E f ,, tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fullsub_enrichment_laws</span>
+    : enrichment_laws fullsub_enrichment_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> enrichment_id_left.
+    - <span class="nb">apply</span> enrichment_id_right.
+    - <span class="nb">apply</span> enrichment_assoc.
+    - use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropunit.
+      }
+      <span class="nb">apply</span> enriched_to_from_arr.
+    - <span class="nb">apply</span> enriched_from_to_arr.
+    - use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropunit.
+      }
+      <span class="nb">apply</span> enriched_to_arr_id.
+    - use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropunit.
+      }
+      <span class="nb">apply</span> enriched_to_arr_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fullsub_enrichment</span>
+    : enrichment
+        (subcategory C (full_sub_precategory P))
+        V.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> fullsub_enrichment_data.
+    - <span class="bp">exact</span> fullsub_enrichment_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">fullsub_enrichment_precomp_arr</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : subcategory C (full_sub_precategory P)}
+              (<span class="nv">w</span> : subcategory C (full_sub_precategory P))
+              (<span class="nv">f</span> : x --&gt; y)
+    : precomp_arr fullsub_enrichment w f
+      =
+      precomp_arr E (pr1 w) (pr1 f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">fullsub_enrichment_postcomp_arr</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : subcategory C (full_sub_precategory P)}
+              (<span class="nv">w</span> : subcategory C (full_sub_precategory P))
+              (<span class="nv">f</span> : x --&gt; y)
+    : postcomp_arr fullsub_enrichment w f
+      =
+      postcomp_arr E (pr1 w) (pr1 f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. The enrichment of the inclusion</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">fullsub_inclusion_enrichment</span>
+    : functor_enrichment
+        (sub_precategory_inclusion _ _)
+        fullsub_enrichment
+        E.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, identity _).
+    - <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ; <span class="nb">intro</span> x ;
+           <span class="nb">apply</span> id_right).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ; <span class="nb">intros</span> x y z ;
+           <span class="nb">rewrite</span> id_right ;
+           <span class="nb">rewrite</span> tensor_id_id ;
+           <span class="nb">rewrite</span> id_left ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ; <span class="nb">intros</span> x y f ;
+           <span class="nb">rewrite</span> id_right ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">fullsub_inclusion_enrichment_fully_faithful</span>
+    : fully_faithful_enriched_functor
+        fullsub_inclusion_enrichment.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> is_z_isomorphism_identity.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FullSub</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Examples/FullSubEnriched.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. The enrichment of the inclusion
+  &gt;
+  &gt;  **********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

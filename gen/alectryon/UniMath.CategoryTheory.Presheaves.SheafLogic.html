@@ -1,0 +1,1307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SheafLogic.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Logic in the sheaf model</span>
+
+<span class="sd"> Both presheaves and sheaves form a topos, and hence they give rise to a model of</span>
+<span class="sd"> higher-order logic. One nice feature of their higher-order logic is that we can</span>
+<span class="sd"> give simplified and concrete descriptions of their connectives, and that we can</span>
+<span class="sd"> use Kripke-Joyal semantics to check the validity of a formula by checking whether</span>
+<span class="sd"> it holds at each of the stages (i.e., objects of the site).</span>
+
+<span class="sd"> There is a key difference between the logic of sheaves and of presheaves. Several</span>
+<span class="sd"> connectives, namely `⊤`, `∧`, `⇒`, `∀`, `≡`, are interpreted the same for sheaves</span>
+<span class="sd"> and for presheaves, but some of them, namely `⊥`, `∨`, and `∃`, are different. This</span>
+<span class="sd"> difference is similar to how limits and colimits are constructed in sheaf categories:</span>
+<span class="sd"> while finite limits of sheaves are calculated as finite limits of presheaves, this</span>
+<span class="sd"> is not so for finite colimits. Finite colimits of sheaves are sheafifications of finite</span>
+<span class="sd"> colimits of presheaves. Concretely, the initial sheaf is the sheafification of the initial</span>
+<span class="sd"> presheaf. While the connectives `⊤`, `∧`, `⇒`, `∀`, `≡` are calculated for sheaves the</span>
+<span class="sd"> same way as for presheaves, we need to take a closure of sieves to describe `⊥`, `∨`,</span>
+<span class="sd"> and `∃`. For this reason, these connectives have a more complicated description in the</span>
+<span class="sd"> sheaf model compared to the presheaf model.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Preliminary operations</span>
+<span class="sd"> 2. Predicates and entailment in the sheaf model</span>
+<span class="sd"> 3. The truth formula</span>
+<span class="sd"> 4. The falsity formula</span>
+<span class="sd"> 5. Conjunction</span>
+<span class="sd"> 6. Disjunction</span>
+<span class="sd"> 7. Implication</span>
+<span class="sd"> 8. Universal quantification</span>
+<span class="sd"> 9. Existential quantification</span>
+<span class="sd"> 10. Equality</span>
+<span class="sd"> 11. The forcing relation</span>
+<span class="sd"> 12. Properties of the forcing relation</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.PosetCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.TotalPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.PresheafLogic.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ConstructionsSheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ClosedSieves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifierSheaf.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Declare Scope</span> sh.
+<span class="kn">Delimit Scope</span> sh <span class="k">with</span> sh.
+
+<span class="sd">(** * 1. Preliminary operations *)</span>
+<span class="kn">Definition</span> <span class="nf">sheaf_product</span>
+           {<span class="nv">C</span> : site}
+           (<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C)
+  : sheaf C.
+<span class="kn">Proof</span>.
+  use make_sheaf.
+  - <span class="bp">exact</span> (BinProduct_of_functors C^op SET BinProductsHSET Γ₁ Γ₂).
+  - <span class="nb">apply</span> is_sheaf_binproduct ; <span class="nb">apply</span> is_sheaf_sheaf.
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"Γ₁ ×P Γ₂"</span> := (sheaf_product Γ₁ Γ₂) (<span class="kn">at level</span> <span class="mi">75</span>) : sh.
+
+<span class="kn">Definition</span> <span class="nf">pr1_sheaf</span>
+           {<span class="nv">C</span> : site}
+           (<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C)
+  : sheaf_nat_trans (Γ₁ ×P Γ₂)%sh Γ₁.
+<span class="kn">Proof</span>.
+  use make_sheaf_nat_trans.
+  <span class="bp">exact</span> (binproduct_nat_trans_pr1 _ _ _ _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_sheaf</span>
+           {<span class="nv">C</span> : site}
+           (<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C)
+  : sheaf_nat_trans (Γ₁ ×P Γ₂)%sh Γ₂.
+<span class="kn">Proof</span>.
+  use make_sheaf_nat_trans.
+  <span class="bp">exact</span> (binproduct_nat_trans_pr2 _ _ _ _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"'π₁'"</span> := (pr1_sheaf _ _) : sh.
+<span class="kn">Notation</span> <span class="s2">"'π₂'"</span> := (pr2_sheaf _ _) : sh.
+
+<span class="kn">Definition</span> <span class="nf">pair_sheaf</span>
+           {<span class="nv">C</span> : site}
+           {<span class="nv">Γ</span> <span class="nv">Δ₁</span> <span class="nv">Δ₂</span> : sheaf C}
+           (<span class="nv">τ₁</span> : Γ ⟹ Δ₁)
+           (<span class="nv">τ₂</span> : Γ ⟹ Δ₂)
+  : sheaf_nat_trans Γ (Δ₁ ×P Δ₂)%sh.
+<span class="kn">Proof</span>.
+  use make_sheaf_nat_trans.
+  <span class="bp">exact</span> (binproduct_nat_trans _ _ _ _ _ _ τ₁ τ₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">"⟨ τ₁ , τ₂ ⟩"</span> := (pair_sheaf τ₁ τ₂) : sh.
+
+<span class="kn">Definition</span> <span class="nf">sheaf_binproducts</span>
+           (<span class="nv">C</span> : site)
+  : BinProducts (cat_of_sheaves C).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C), _).
+  use make_BinProduct.
+  - <span class="bp">exact</span> (Γ₁ ×P Γ₂)%sh.
+  - <span class="bp">exact</span> π₁%sh.
+  - <span class="bp">exact</span> π₂%sh.
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">Δ</span> : sheaf C) (<span class="nv">τ₁</span> : sheaf_nat_trans Δ Γ₁) (<span class="nv">τ₂</span> : sheaf_nat_trans Δ Γ₂), _).
+    use make_iscontr.
+    + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      * <span class="bp">exact</span> ⟨ τ₁ , τ₂ ⟩%sh.
+      * <span class="kp">abstract</span>
+          (use sheaf_nat_trans_eq ;
+           use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">intro</span> ;
+           <span class="nb">apply</span> idpath).
+      * <span class="kp">abstract</span>
+          (use sheaf_nat_trans_eq ;
+           use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">intro</span> ;
+           <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> θpq ;
+         use subtypePath ;
+         [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+         use sheaf_nat_trans_eq ;
+         use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> x ;
+         <span class="nb">cbn</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">cbn</span> ;
+         use funextsec ;
+         <span class="nb">intro</span> xx ;
+         <span class="bp">exact</span> (pathsdirprod
+                  (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z x xx) (pr12 θpq))
+                  (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z x xx) (pr22 θpq)))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">SheafLogic</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : site}.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> sh.
+
+  <span class="sd">(** * 2. Predicates and entailment in the sheaf model *)</span>
+  <span class="kn">Definition</span> <span class="nf">sheaf_predicate</span>
+             (<span class="nv">Γ</span> : sheaf C)
+    : UU
+    := psh_term (subobject_classifier_dep_sheaf Γ).
+
+  <span class="kn">Identity Coercion</span> <span class="nf">sheaf_predicate_to_term</span> : sheaf_predicate &gt;-&gt; psh_term.
+
+  <span class="kn">Definition</span> <span class="nf">sheaf_predicate_to_presheaf_predicate</span>
+             {<span class="nv">Γ</span> : sheaf C}
+             (<span class="nv">φ</span> : sheaf_predicate Γ)
+    : presheaf_predicate Γ.
+  <span class="kn">Proof</span>.
+    use make_psh_term.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, ((φ x xx : closed_sieve x) : sieve x)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f xx ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (sieve_eq_from_closed (psh_term_naturality φ f xx))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sheaf_predicate_subst</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+             (<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂)
+             (<span class="nv">φ</span> : sheaf_predicate Γ₂)
+    : sheaf_predicate Γ₁
+    := psh_term_subst s φ.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"φ [ s ]"</span> := (sheaf_predicate_subst s φ) : sh.
+
+  <span class="kn">Definition</span> <span class="nf">sheaf_predicate_entails</span>
+             {<span class="nv">Γ</span> : sheaf C}
+             (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : UU
+    := <span class="k">∀</span> (<span class="nv">x</span> <span class="nv">y</span> : C)
+         (<span class="nv">f</span> : y --&gt; x)
+         (<span class="nv">xx</span> : (Γ x : hSet)),
+       ((φ x xx : closed_sieve x) y f ⇒ (ψ x xx : closed_sieve x) y f)%logic.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"φ ⊢ ψ"</span> := (sheaf_predicate_entails φ ψ) : sh.
+
+  <span class="sd">(** * 3. The truth formula *)</span>
+  <span class="kn">Definition</span> <span class="nf">truth_sheaf_predicate</span>
+             (<span class="nv">Γ</span> : sheaf C)
+    : sheaf_predicate Γ.
+  <span class="kn">Proof</span>.
+    use make_psh_term.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, truth_closed_sieve x).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x₁ x₂ f xx ; <span class="nb">cbn</span> ;
+         use closed_sieve_eq ;
+         use sieve_eq ;
+         <span class="nb">intros</span> ;
+         <span class="bp">exact</span> tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"⊤"</span> := (truth_sheaf_predicate _) : sh.
+
+  <span class="kn">Proposition</span> <span class="nf">truth_sheaf_intro</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> : sheaf_predicate Γ)
+    : φ ⊢ ⊤.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx p ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> tt.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">truth_sheaf_subst</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+              (<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂)
+    : ⊤ ⊢ ⊤ [ s ].
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx _.
+    <span class="bp">exact</span> tt.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. The falsity formula *)</span>
+  <span class="kn">Definition</span> <span class="nf">false_closed_sieve</span>
+             (<span class="nv">x</span> : C)
+    : closed_sieve x.
+  <span class="kn">Proof</span>.
+    use closure_closed_sieve.
+    <span class="bp">exact</span> (false_sieve x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">false_sheaf_predicate_data</span>
+             (<span class="nv">Γ</span> : sheaf C)
+    : psh_term_data (subobject_classifier_dep_sheaf Γ)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, false_closed_sieve x.
+
+  <span class="kn">Proposition</span> <span class="nf">false_sheaf_predicate_laws</span>
+              (<span class="nv">Γ</span> : sheaf C)
+    : psh_term_law (false_sheaf_predicate_data Γ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx ; <span class="nb">cbn</span>.
+    use closed_sieve_eq.
+    use sieve_eq ; <span class="nb">intros</span> ? ? p.
+    - <span class="nb">unfold</span> false_closed_sieve.
+      <span class="nb">cbn</span> -[precomp_sieve].
+      <span class="nb">rewrite</span> precomp_closure_sieve.
+      use (closure_monotone _ _ p).
+      <span class="nb">clear</span> y g p.
+      <span class="nb">cbn</span>.
+      <span class="nb">intros</span> y g z.
+      <span class="bp">exact</span> z.
+    - <span class="nb">unfold</span> false_closed_sieve.
+      <span class="nb">cbn</span> -[precomp_sieve closure_sieve] <span class="k">in</span> p.
+      <span class="nb">rewrite</span> precomp_closure_sieve <span class="k">in</span> p.
+      <span class="nb">cbn</span> -[closure_sieve].
+      use (closure_monotone _ _ p).
+      <span class="nb">clear</span> y g p.
+      <span class="nb">intros</span> y g z.
+      <span class="bp">exact</span> z.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">false_sheaf_predicate</span>
+             (<span class="nv">Γ</span> : sheaf C)
+    : sheaf_predicate Γ.
+  <span class="kn">Proof</span>.
+    use make_psh_term.
+    - <span class="bp">exact</span> (false_sheaf_predicate_data Γ).
+    - <span class="bp">exact</span> (false_sheaf_predicate_laws Γ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"⊥"</span> := (false_sheaf_predicate _) : sh.
+
+  <span class="kn">Proposition</span> <span class="nf">false_sheaf_elim</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> : sheaf_predicate Γ)
+    : ⊥ ⊢ φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> -[closure_sieve].
+    <span class="nb">intros</span> x y f xx.
+    use contains_closure_sieve.
+    <span class="nb">clear</span> y f.
+    <span class="nb">intros</span> y f.
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (false_presheaf_elim (sheaf_predicate_to_presheaf_predicate φ) x y f xx).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">false_sheaf_subst</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+              (<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂)
+    : ⊥ [ s ] ⊢ ⊥.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx p.
+    <span class="nb">cbn</span> <span class="k">in</span> p ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 5. Conjunction *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_closed_conj_sieve</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ω₁</span> <span class="nv">ω₂</span> : closed_sieve x)
+    : is_closed_sieve (conj_sieve ω₁ ω₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y g p.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">refine</span> (closed_sieve_closed ω₁ g _).
+      use (site_trans_sieve p).
+      <span class="nb">cbn</span> ; <span class="nb">intros</span> z h q.
+      <span class="nb">rewrite</span> &lt;- comp_precomp_sieve.
+      use sieve_contains_closed.
+      <span class="bp">exact</span> (pr1 q).
+    - <span class="nb">refine</span> (closed_sieve_closed ω₂ g _).
+      use (site_trans_sieve p).
+      <span class="nb">cbn</span> ; <span class="nb">intros</span> z h q.
+      <span class="nb">rewrite</span> &lt;- comp_precomp_sieve.
+      use sieve_contains_closed.
+      <span class="bp">exact</span> (pr2 q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">conj_closed_sieve</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">ω₁</span> <span class="nv">ω₂</span> : closed_sieve x)
+    : closed_sieve x.
+  <span class="kn">Proof</span>.
+    use make_closed_sieve.
+    - <span class="bp">exact</span> (conj_sieve ω₁ ω₂).
+    - <span class="bp">exact</span> (is_closed_conj_sieve ω₁ ω₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">conj_sheaf_predicate_data</span>
+             {<span class="nv">Γ</span> : sheaf C}
+             (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : psh_term_data (subobject_classifier_dep_sheaf Γ)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, conj_closed_sieve (φ x xx) (ψ x xx).
+
+  <span class="kn">Arguments</span> conj_presheaf_predicate_data /.
+
+  <span class="kn">Proposition</span> <span class="nf">conj_sheaf_predicate_law</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : psh_term_law (conj_sheaf_predicate_data φ ψ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx.
+    use closed_sieve_eq.
+    use sieve_eq ; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span> y g [ p₁ p₂ ].
+      <span class="nb">split</span>.
+      + use (from_sieve_eq_l (sieve_eq_from_closed (psh_term_naturality φ f xx)) g).
+        <span class="bp">exact</span> p₁.
+      + use (from_sieve_eq_l (sieve_eq_from_closed (psh_term_naturality ψ f xx)) g).
+        <span class="bp">exact</span> p₂.
+    - <span class="nb">intros</span> y g [ p₁ p₂ ].
+      <span class="nb">split</span>.
+      + use (from_sieve_eq_r (sieve_eq_from_closed (psh_term_naturality φ f xx)) g).
+        <span class="bp">exact</span> p₁.
+      + use (from_sieve_eq_r (sieve_eq_from_closed (psh_term_naturality ψ f xx)) g).
+        <span class="bp">exact</span> p₂.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">conj_sheaf_predicate</span>
+             {<span class="nv">Γ</span> : sheaf C}
+             (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : sheaf_predicate Γ.
+  <span class="kn">Proof</span>.
+    use make_psh_term.
+    - <span class="bp">exact</span> (conj_sheaf_predicate_data φ ψ).
+    - <span class="bp">exact</span> (conj_sheaf_predicate_law φ ψ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"φ ∧ ψ"</span> := (conj_sheaf_predicate φ ψ) : sh.
+
+  <span class="kn">Proposition</span> <span class="nf">conj_sheaf_intro</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              {<span class="nv">φ</span> <span class="nv">ψ</span> <span class="nv">χ</span> : sheaf_predicate Γ}
+              (<span class="nv">p</span> : χ ⊢ φ)
+              (<span class="nv">q</span> : χ ⊢ ψ)
+    : χ ⊢ φ ∧ ψ.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx r ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (p x y f xx r ,, q x y f xx r).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">conj_sheaf_elim_l</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : φ ∧ ψ ⊢ φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx r ; <span class="nb">cbn</span> <span class="k">in</span> r.
+    <span class="bp">exact</span> (pr1 r).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">conj_sheaf_elim_r</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : φ ∧ ψ ⊢ ψ.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx r ; <span class="nb">cbn</span> <span class="k">in</span> r.
+    <span class="bp">exact</span> (pr2 r).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">conj_sheaf_subst</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+              (<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂)
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ₂)
+    : φ [ s ] ∧ ψ [ s ] ⊢ (φ ∧ ψ) [ s ].
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx p.
+    <span class="nb">cbn</span> <span class="k">in</span> p ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 6. Disjunction *)</span>
+  <span class="kn">Definition</span> <span class="nf">disj_closed_sieve</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">ω₁</span> <span class="nv">ω₂</span> : closed_sieve x)
+    : closed_sieve x
+    := closure_closed_sieve (disj_sieve ω₁ ω₂).
+
+  <span class="kn">Definition</span> <span class="nf">disj_sheaf_predicate_data</span>
+             {<span class="nv">Γ</span> : sheaf C}
+             (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : psh_term_data (subobject_classifier_dep_sheaf Γ)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, disj_closed_sieve (φ x xx) (ψ x xx).
+
+  <span class="kn">Arguments</span> disj_sheaf_predicate_data /.
+
+  <span class="kn">Proposition</span> <span class="nf">disj_sheaf_predicate_law</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : psh_term_law (disj_sheaf_predicate_data φ ψ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx.
+    use closed_sieve_eq.
+    use sieve_eq.
+    - <span class="nb">cbn</span> -[closure_sieve] ; <span class="nb">intros</span> y g.
+      <span class="nb">pose</span> (psh_term_naturality
+              (disj_presheaf_predicate
+                 (sheaf_predicate_to_presheaf_predicate φ)
+                 (sheaf_predicate_to_presheaf_predicate ψ))
+              f
+              xx)
+        <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">unfold</span> disj_presheaf_predicate_data <span class="k">in</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> p.
+      <span class="nb">rewrite</span> &lt;- (precomp_closure_sieve _ f).
+      <span class="nb">cbn</span> -[closure_sieve].
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span>, z).
+    - <span class="nb">cbn</span> -[closure_sieve] ; <span class="nb">intros</span> y g.
+      <span class="nb">pose</span> (psh_term_naturality
+              (disj_presheaf_predicate
+                 (sheaf_predicate_to_presheaf_predicate φ)
+                 (sheaf_predicate_to_presheaf_predicate ψ))
+              f
+              xx)
+        <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">unfold</span> disj_presheaf_predicate_data <span class="k">in</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> p.
+      <span class="nb">rewrite</span> &lt;- (precomp_closure_sieve _ f).
+      <span class="nb">cbn</span> -[closure_sieve].
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span>, z).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disj_sheaf_predicate</span>
+             {<span class="nv">Γ</span> : sheaf C}
+             (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : sheaf_predicate Γ.
+  <span class="kn">Proof</span>.
+    use make_psh_term.
+    - <span class="bp">exact</span> (disj_sheaf_predicate_data φ ψ).
+    - <span class="bp">exact</span> (disj_sheaf_predicate_law φ ψ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"φ ∨ ψ"</span> := (disj_sheaf_predicate φ ψ) : sh.
+
+  <span class="kn">Proposition</span> <span class="nf">disj_sheaf_intro_l</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : φ ⊢ φ ∨ ψ.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx p.
+    use closure_sieve_contains.
+    <span class="bp">exact</span> (disj_presheaf_intro_l
+             (sheaf_predicate_to_presheaf_predicate φ)
+             (sheaf_predicate_to_presheaf_predicate ψ)
+             x y
+             f
+             xx
+             p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disj_sheaf_intro_r</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : ψ ⊢ φ ∨ ψ.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx p.
+    use closure_sieve_contains.
+    <span class="bp">exact</span> (disj_presheaf_intro_r
+             (sheaf_predicate_to_presheaf_predicate φ)
+             (sheaf_predicate_to_presheaf_predicate ψ)
+             x y
+             f
+             xx
+             p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disj_sheaf_elim</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              {<span class="nv">φ</span> <span class="nv">ψ</span> <span class="nv">χ</span> : sheaf_predicate Γ}
+              (<span class="nv">p</span> : φ ⊢ χ)
+              (<span class="nv">q</span> : ψ ⊢ χ)
+    : φ ∨ ψ ⊢ χ.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx.
+    use contains_closure_sieve.
+    <span class="nb">clear</span> y f.
+    <span class="nb">intros</span> y f.
+    use (disj_presheaf_elim
+           (φ := sheaf_predicate_to_presheaf_predicate φ)
+           (ψ := sheaf_predicate_to_presheaf_predicate ψ)
+           (χ  := sheaf_predicate_to_presheaf_predicate χ)).
+    - <span class="bp">exact</span> p.
+    - <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disj_sheaf_subst</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+              (<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂)
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ₂)
+    : (φ ∨ ψ) [ s ] ⊢ φ [ s ] ∨ ψ [ s ].
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx p.
+    <span class="nb">cbn</span> <span class="k">in</span> p ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 7. Implication *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_closed_impl_sieve</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">ω₁</span> <span class="nv">ω₂</span> : closed_sieve x)
+    : is_closed_sieve (impl_sieve ω₁ ω₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y f p z g q.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    use closed_sieve_closed.
+    <span class="nb">rewrite</span> comp_precomp_sieve.
+    <span class="nb">apply</span> sieve_contains_closed <span class="k">in</span> q.
+    <span class="nb">pose</span> (site_sieve_stable g p) <span class="k">as</span> h.
+    use (site_trans_sieve h).
+    <span class="nb">cbn</span> ; <span class="nb">clear</span> h.
+    <span class="nb">intros</span> w h H.
+    <span class="nb">apply</span> sieve_contains_closed.
+    <span class="nb">specialize</span> (H w (identity _)).
+    <span class="nb">rewrite</span> !id_left <span class="k">in</span> H.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> H.
+    use (closed_sieve_closed ω₁).
+    <span class="nb">rewrite</span> !comp_precomp_sieve.
+    use site_sieve_stable.
+    <span class="nb">rewrite</span> comp_precomp_sieve <span class="k">in</span> q.
+    <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">impl_closed_sieve</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">ω₁</span> <span class="nv">ω₂</span> : closed_sieve x)
+    : closed_sieve x.
+  <span class="kn">Proof</span>.
+    use make_closed_sieve.
+    - <span class="bp">exact</span> (impl_sieve ω₁ ω₂).
+    - <span class="nb">apply</span> is_closed_impl_sieve.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">impl_sheaf_predicate_data</span>
+             {<span class="nv">Γ</span> : sheaf C}
+             (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : psh_term_data (subobject_classifier_dep_sheaf Γ)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, impl_closed_sieve (φ x xx) (ψ x xx).
+
+  <span class="kn">Proposition</span> <span class="nf">impl_sheaf_predicate_law</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : psh_term_law (impl_sheaf_predicate_data φ ψ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx.
+    use closed_sieve_eq.
+    <span class="bp">exact</span> (impl_presheaf_predicate_law
+             (sheaf_predicate_to_presheaf_predicate φ)
+             (sheaf_predicate_to_presheaf_predicate ψ)
+             x₁ x₂
+             f
+             xx).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">impl_sheaf_predicate</span>
+             {<span class="nv">Γ</span> : sheaf C}
+             (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : sheaf_predicate Γ.
+  <span class="kn">Proof</span>.
+    use make_psh_term.
+    - <span class="bp">exact</span> (impl_sheaf_predicate_data φ ψ).
+    - <span class="bp">exact</span> (impl_sheaf_predicate_law φ ψ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"φ ⇒ ψ"</span> := (impl_sheaf_predicate φ ψ) : sh.
+
+  <span class="kn">Proposition</span> <span class="nf">impl_sheaf_elim</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : φ ∧ (φ ⇒ ψ) ⊢ ψ.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx [ p q ].
+    <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> p, q.
+    <span class="nb">specialize</span> (q x₂ (identity _)).
+    <span class="nb">rewrite</span> !id_left <span class="k">in</span> q.
+    <span class="nb">apply</span> q.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">impl_sheaf_intro</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              {<span class="nv">φ</span> <span class="nv">ψ</span> <span class="nv">χ</span> : sheaf_predicate Γ}
+              (<span class="nv">p</span> : conj_sheaf_predicate φ χ ⊢ ψ)
+    : χ ⊢ (φ ⇒ ψ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx q z g r.
+    <span class="nb">specialize</span> (p _ _ (g · f) xx).
+    <span class="nb">cbn</span> <span class="k">in</span> p, g, r ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> p.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> r.
+    - <span class="bp">exact</span> (#ω (χ x₁ xx : closed_sieve _) g (idpath _) q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">impl_sheaf_subst</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : sheaf C}
+              (<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂)
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ₂)
+    : (φ [ s ]) ⇒ (ψ [ s ]) ⊢ (φ ⇒ ψ) [ s ].
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx p y g q.
+    <span class="nb">cbn</span> <span class="k">in</span> g, q ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (p y g).
+    <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 8. Universal quantification *)</span>
+  <span class="kn">Proposition</span> <span class="nf">is_closed_forall_sheaf_sieve</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+              (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+              {<span class="nv">x</span> : C}
+              (<span class="nv">xx</span> : (Γ x : hSet))
+    : is_closed_sieve
+        (forall_presheaf_sieve
+           (sheaf_predicate_to_presheaf_predicate φ)
+           xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> ; <span class="nb">intros</span> y f p z g a.
+    use closed_sieve_closed.
+    <span class="nb">rewrite</span> id_precomp_sieve.
+    use (site_trans_sieve (site_sieve_stable g p)) ; <span class="nb">cbn</span>.
+    <span class="nb">intros</span> w h H.
+    <span class="nb">specialize</span> (H w (identity _) (#A h a)).
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> H.
+    use sieve_contains_closed.
+    <span class="nb">pose</span> (from_sieve_eq_l
+            (sieve_eq_from_closed (psh_term_naturality φ h (#Γ (g · f) xx ,, a)))
+            (identity _))
+      <span class="k">as</span> q.
+    <span class="nb">cbn</span> <span class="k">in</span> q ; <span class="nb">unfold</span> prodtofuntoprod <span class="k">in</span> q ; <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> q.
+    <span class="nb">apply</span> q.
+    use (from_sieve_eq_l _ _ H).
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (_ @ eqtohomot (functor_comp Γ (g · f) h) xx).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">forall_sheaf_closed_sieve</span>
+             {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+             (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> : (Γ x : hSet))
+    : closed_sieve x.
+  <span class="kn">Proof</span>.
+    use make_closed_sieve.
+    - <span class="bp">exact</span> (forall_presheaf_sieve (sheaf_predicate_to_presheaf_predicate φ) xx).
+    - <span class="bp">exact</span> (is_closed_forall_sheaf_sieve φ xx).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">forall_sheaf_predicate_data</span>
+             {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+             (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+    : psh_term_data (subobject_classifier_dep_sheaf Γ)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, forall_sheaf_closed_sieve φ xx.
+
+  <span class="kn">Proposition</span> <span class="nf">forall_sheaf_predicate_law</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+              (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+    : psh_term_law (forall_sheaf_predicate_data φ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx.
+    use closed_sieve_eq.
+    <span class="bp">exact</span> (forall_presheaf_predicate_law
+             (sheaf_predicate_to_presheaf_predicate φ)
+             x₁ x₂
+             f
+             xx).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">forall_sheaf_predicate</span>
+             {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+             (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+    : sheaf_predicate Γ.
+  <span class="kn">Proof</span>.
+    use make_psh_term.
+    - <span class="bp">exact</span> (forall_sheaf_predicate_data φ).
+    - <span class="bp">exact</span> (forall_sheaf_predicate_law φ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"∀h φ"</span> := (forall_sheaf_predicate φ) : sh.
+
+  <span class="kn">Proposition</span> <span class="nf">forall_sheaf_intro</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+              (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+    : (<span class="k">∀</span><span class="nv">h</span> <span class="nv">φ</span>) [ π₁ ] ⊢ φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">intros</span> x₁ x₂ f [ xx a ] p.
+    <span class="nb">specialize</span> (p x₂ (identity _) (#A f a)).
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> p.
+    <span class="nb">pose</span> (psh_term_naturality φ f (xx ,, a)) <span class="k">as</span> q.
+    <span class="nb">cbn</span> <span class="k">in</span> q ; <span class="nb">unfold</span> prodtofuntoprod <span class="k">in</span> q ; <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">rewrite</span> q <span class="k">in</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> p.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">forall_sheaf_elim</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+              {<span class="nv">φ</span> : sheaf_predicate (Γ ×P A)}
+              {<span class="nv">ψ</span> : sheaf_predicate Γ}
+              (<span class="nv">p</span> : ψ[ π₁ ]  ⊢ φ)
+    : (ψ ⊢ <span class="k">∀</span><span class="nv">h</span> <span class="nv">φ</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx q y g a.
+    use (p _ _ (identity y) (#Γ (g · f) xx ,, a)).
+    <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (psh_term_naturality ψ (g · f) xx) <span class="k">as</span> r.
+    <span class="nb">cbn</span> <span class="k">in</span> r.
+    <span class="nb">rewrite</span> r.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="bp">exact</span> (#ω (ψ _ _ : closed_sieve _) _ (idpath _) q).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 9. Existential quantification *)</span>
+  <span class="kn">Definition</span> <span class="nf">exists_sheaf_closed_sieve</span>
+             {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+             (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> : (Γ x : hSet))
+    : closed_sieve x.
+  <span class="kn">Proof</span>.
+    use closure_closed_sieve.
+    <span class="bp">exact</span> (exists_presheaf_sieve (sheaf_predicate_to_presheaf_predicate φ) xx).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">exists_sheaf_predicate_data</span>
+             {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+             (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+    : psh_term_data (subobject_classifier_dep_sheaf Γ)
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, exists_sheaf_closed_sieve φ xx.
+
+  <span class="kn">Proposition</span> <span class="nf">exists_sheaf_predicate_law</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+              (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+    : psh_term_law (exists_sheaf_predicate_data φ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx.
+    use closed_sieve_eq.
+    use sieve_eq.
+    - <span class="nb">cbn</span> -[closure_sieve] ; <span class="nb">intros</span> y g.
+      <span class="nb">pose</span> (psh_term_naturality
+              (exists_presheaf_predicate (sheaf_predicate_to_presheaf_predicate φ))
+              f
+              xx)
+        <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">unfold</span> exists_presheaf_predicate_data <span class="k">in</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> p.
+      <span class="nb">rewrite</span> &lt;- (precomp_closure_sieve _ f).
+      <span class="nb">cbn</span> -[closure_sieve].
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span>, z).
+    - <span class="nb">cbn</span> -[closure_sieve] ; <span class="nb">intros</span> y g.
+      <span class="nb">pose</span> (psh_term_naturality
+              (exists_presheaf_predicate (sheaf_predicate_to_presheaf_predicate φ))
+              f
+              xx)
+        <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">unfold</span> exists_presheaf_predicate_data <span class="k">in</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> p.
+      <span class="nb">rewrite</span> &lt;- (precomp_closure_sieve _ f).
+      <span class="nb">cbn</span> -[closure_sieve].
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span>, z).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">exists_sheaf_predicate</span>
+             {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+             (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+    : sheaf_predicate Γ.
+  <span class="kn">Proof</span>.
+    use make_psh_term.
+    - <span class="bp">exact</span> (exists_sheaf_predicate_data φ).
+    - <span class="bp">exact</span> (exists_sheaf_predicate_law φ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"∃h φ"</span> := (exists_sheaf_predicate φ) : sh.
+
+  <span class="kn">Proposition</span> <span class="nf">exists_sheaf_intro</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+              (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+    : φ ⊢ (<span class="k">∃</span><span class="nv">h</span> <span class="nv">φ</span>) [ π₁ ].
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f [ xx a ] p.
+    use closure_sieve_contains.
+    <span class="bp">exact</span> (exists_presheaf_intro
+             (sheaf_predicate_to_presheaf_predicate φ)
+             _ _ _ _
+             p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">exists_sheaf_elim</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+              {<span class="nv">φ</span> : sheaf_predicate (Γ ×P A)}
+              {<span class="nv">ψ</span> : sheaf_predicate Γ}
+              (<span class="nv">p</span> : φ ⊢ ψ [ π₁ ])
+    : (<span class="k">∃</span><span class="nv">h</span> <span class="nv">φ</span> ⊢ ψ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx.
+    use contains_closure_sieve.
+    <span class="nb">intros</span> y g q.
+    <span class="bp">exact</span> (exists_presheaf_elim
+             (φ := sheaf_predicate_to_presheaf_predicate φ)
+             (ψ := sheaf_predicate_to_presheaf_predicate ψ)
+             p
+             _ _ _ _
+             q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">exists_sheaf_subst</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">A</span> : sheaf C}
+              (<span class="nv">s</span> : sheaf_nat_trans Γ₁ Γ₂)
+              (<span class="nv">φ</span> : sheaf_predicate (Γ₂ ×P A))
+    : (<span class="k">∃</span><span class="nv">h</span> <span class="nv">φ</span>) [ s ]
+      ⊢
+      (<span class="k">∃</span><span class="nv">h</span> (<span class="nv">φ</span> [ BinProductOfArrows
+                 _
+                 (sheaf_binproducts C _ _)
+                 (sheaf_binproducts C _ _)
+                 s (identity _) ])).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx.
+    use contains_closure_sieve.
+    <span class="nb">intros</span> y g.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> [ aa p ].
+    <span class="nb">cbn</span> <span class="k">in</span> aa, p.
+    use closure_sieve_contains.
+    use hinhpr.
+    <span class="nb">cbn</span> ; <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (aa ,, _).
+    <span class="nb">refine</span> (from_sieve_eq_r
+              (sieve_eq_from_closed
+                 (psh_term_pt_eq
+                    φ
+                    (maponpaths
+                       (<span class="k">λ</span> <span class="nv">z</span>, z ,, aa)
+                       (eqtohomot (nat_trans_ax (pr1 s) _ _ g) _))))
+              _
+              _).
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 10. Equality *)</span>
+  <span class="kn">Local</span> <span class="kn">Close Scope</span> sh.
+
+  <span class="kn">Proposition</span> <span class="nf">is_closed_eq_sheaf_predicate_sieve</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> : sheaf_predicate Γ)
+              {<span class="nv">x</span> : C}
+              (<span class="nv">xx</span> <span class="nv">yy</span> : (Γ x : hSet))
+    : is_closed_sieve
+        (eq_presheaf_predicate_sieve
+           (sheaf_predicate_to_presheaf_predicate φ)
+           xx
+           yy).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y g p ; <span class="nb">cbn</span>.
+    <span class="nb">split</span>.
+    - use closed_sieve_closed.
+      use (site_trans_sieve p).
+      <span class="nb">cbn</span> ; <span class="nb">intros</span> z h q.
+      use sieve_contains_closed ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (pr1 q).
+    - use (sheaf_amalgamation_unique _ p).
+      + <span class="bp">exact</span> (is_sheaf_sheaf Γ).
+      + use make_matching_family.
+        * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">_</span>, #Γ (h · g) xx).
+        * <span class="nb">cbn</span> ; <span class="nb">intros</span> z₁ z₂ h₁ h₂ h₃ q r₁ r₂.
+          <span class="nb">induction</span> q.
+          <span class="nb">refine</span> (eqtohomot (!(functor_comp Γ _ _)) _ @ _).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> assoc.
+          <span class="nb">apply</span> idpath.
+      + <span class="nb">cbn</span> ; <span class="nb">intros</span> z h q.
+        <span class="bp">exact</span> (eqtohomot (!(functor_comp Γ _ _)) _).
+      + <span class="nb">cbn</span> ; <span class="nb">intros</span> z h q.
+        <span class="nb">refine</span> (eqtohomot (!(functor_comp Γ _ _)) _ @ !_) ; <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (pr2 q).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eq_sheaf_predicate_sieve</span>
+             {<span class="nv">Γ</span> : sheaf C}
+             (<span class="nv">φ</span> : sheaf_predicate Γ)
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx</span> <span class="nv">yy</span> : (Γ x : hSet))
+    : closed_sieve x.
+  <span class="kn">Proof</span>.
+    use make_closed_sieve.
+    - <span class="bp">exact</span> (eq_presheaf_predicate_sieve
+               (sheaf_predicate_to_presheaf_predicate φ)
+               xx yy).
+    - <span class="bp">exact</span> (is_closed_eq_sheaf_predicate_sieve φ xx yy).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> sh.
+
+  <span class="kn">Definition</span> <span class="nf">eq_sheaf_predicate_data</span>
+             {<span class="nv">Γ</span> : sheaf C}
+             (<span class="nv">φ</span> : sheaf_predicate Γ)
+    : psh_term_data (subobject_classifier_dep_sheaf (Γ ×P Γ))
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, eq_sheaf_predicate_sieve φ (pr1 xx) (pr2 xx).
+
+  <span class="kn">Arguments</span> eq_sheaf_predicate_data /.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_sheaf_predicate_law</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> : sheaf_predicate Γ)
+    : psh_term_law (eq_sheaf_predicate_data φ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f xx.
+    use closed_sieve_eq.
+    <span class="nb">apply</span> (eq_presheaf_predicate_law (sheaf_predicate_to_presheaf_predicate φ)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eq_sheaf_predicate</span>
+             {<span class="nv">Γ</span> : sheaf C}
+             (<span class="nv">φ</span> : sheaf_predicate Γ)
+    : sheaf_predicate (Γ ×P Γ).
+  <span class="kn">Proof</span>.
+    use make_psh_term.
+    - <span class="bp">exact</span> (eq_sheaf_predicate_data φ).
+    - <span class="bp">exact</span> (eq_sheaf_predicate_law φ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_sheaf_intro</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">φ</span> : sheaf_predicate Γ)
+    : φ ⊢ (eq_sheaf_predicate φ) [ ⟨ nat_trans_id _ , nat_trans_id _ ⟩ ].
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f xx p ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (p ,, _).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_sheaf_elim</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              {<span class="nv">φ</span> : sheaf_predicate Γ}
+              {<span class="nv">ψ</span> : sheaf_predicate (Γ ×P Γ)}
+              (<span class="nv">p</span> : φ ⊢ ψ [ ⟨ nat_trans_id _ , nat_trans_id _ ⟩ ])
+    : (eq_sheaf_predicate φ) ⊢ ψ.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (eq_presheaf_elim
+             (φ := sheaf_predicate_to_presheaf_predicate φ)
+             (ψ := sheaf_predicate_to_presheaf_predicate ψ)
+             p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equality_sheaf_predicate</span>
+             {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+             (<span class="nv">τ₁</span> <span class="nv">τ₂</span> : Γ ⟹ A)
+    : sheaf_predicate Γ
+    := psh_term_subst
+         (binproduct_nat_trans _ _ _ _ _ _ τ₁ τ₂)
+         (eq_sheaf_predicate (truth_sheaf_predicate A)).
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"τ₁ ≡ τ₂"</span> := (equality_sheaf_predicate τ₁ τ₂) : sh.
+
+  <span class="sd">(** * 11. The forcing relation *)</span>
+  <span class="kn">Definition</span> <span class="nf">sheaf_forces</span>
+             {<span class="nv">Γ</span> : sheaf C}
+             (<span class="nv">x</span> : C)
+             (<span class="nv">xx</span> : (Γ x : hSet))
+             (<span class="nv">φ</span> : sheaf_predicate Γ)
+    : hProp
+    := (φ x xx : closed_sieve x) x (identity _).
+
+  <span class="kn">Notation</span> <span class="s2">"x ⊩_{ xx } φ"</span> := (sheaf_forces x xx φ) (<span class="kn">at level</span> <span class="mi">100</span>) : sh.
+
+  <span class="sd">(** * 12. Properties of the forcing relation *)</span>
+  <span class="kn">Proposition</span> <span class="nf">sheaf_forces_monotone</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">g</span> : y --&gt; x)
+              {<span class="nv">xx</span> : (Γ x : hSet)}
+              {<span class="nv">φ</span> : sheaf_predicate Γ}
+              (<span class="nv">p</span> : x ⊩_{xx} φ)
+    : y ⊩_{#Γ g xx} φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> sheaf_forces <span class="k">in</span> *.
+    <span class="nb">apply</span> (from_sieve_eq_r
+             (sieve_eq_from_closed (psh_term_naturality φ g xx))
+             (identity y)).
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (#ω (φ x xx : closed_sieve _) g _ p).
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">sheaf_forces_local</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              {<span class="nv">x</span> : C}
+              (<span class="nv">xx</span> : (Γ x : hSet))
+              (<span class="nv">φ</span> : sheaf_predicate Γ)
+              (<span class="nv">ω</span> : sieve x)
+              (<span class="nv">p</span> : C x ω)
+              (<span class="nv">H</span> : ∏ (y : C) (f : y --&gt; x), ω y f → y ⊩_{ #Γ f xx } φ)
+    : x ⊩_{xx} φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> sheaf_forces <span class="k">in</span> *.
+    use closed_sieve_closed.
+    <span class="nb">rewrite</span> id_precomp_sieve.
+    use (site_trans_sieve p).
+    <span class="nb">intros</span> y f q.
+    <span class="nb">specialize</span> (H y f q).
+    use sieve_contains_closed.
+    <span class="nb">pose</span> (from_sieve_eq_l
+            (sieve_eq_from_closed (psh_term_naturality φ f xx))
+            _
+            H)
+      <span class="k">as</span> r.
+    <span class="nb">cbn</span> <span class="k">in</span> r.
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> r.
+    <span class="bp">exact</span> r.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">forces_truth_sheaves</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">x</span> : C)
+              (<span class="nv">xx</span> : (Γ x : hSet))
+    : x ⊩_{xx} ⊤.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> tt.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">forces_false_sheaves</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">x</span> : C)
+              (<span class="nv">xx</span> : (Γ x : hSet))
+    : (x ⊩_{xx} ⊥) ≃ C x (false_sieve x).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_precomp_sieve.
+    <span class="bp">exact</span> (idweq _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">forces_and_sheaves</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">x</span> : C)
+              (<span class="nv">xx</span> : (Γ x : hSet))
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : (x ⊩_{xx} φ ∧ ψ)%sh ≃ ((x ⊩_{xx} φ) × (x ⊩_{xx} ψ)).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (idweq _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">forces_or_sheaves</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">x</span> : C)
+              (<span class="nv">xx</span> : (Γ x : hSet))
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : (x ⊩_{xx} φ ∨ ψ)%sh
+      ≃
+      (<span class="k">∃</span> (<span class="nv">ω</span> : sieve x),
+       (C x ω)
+       ×
+       (∏ (y : C) (g : y --&gt; x), ω y g → (y ⊩_{ #Γ g xx } φ) ∨ (y ⊩_{ #Γ g xx } ψ))).
+  <span class="kn">Proof</span>.
+    use logeqweq.
+    - <span class="nb">intro</span> p.
+      use hinhpr.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> id_precomp_sieve <span class="k">in</span> p.
+      <span class="nb">refine</span> (disj_sieve (φ x xx : closed_sieve _) (ψ x xx : closed_sieve _) ,, _).
+      <span class="nb">refine</span> (p ,, _).
+      <span class="nb">intros</span> y g q.
+      use (forces_or_presheaves
+             y
+             (#Γ g xx)
+             (sheaf_predicate_to_presheaf_predicate φ)
+             (sheaf_predicate_to_presheaf_predicate ψ)).
+      <span class="nb">revert</span> q.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ r | r ] ; <span class="nb">cbn</span> <span class="k">in</span> r.
+      + use hdisj_in1 ; <span class="nb">cbn</span>.
+        <span class="nb">pose</span> (psh_term_naturality φ g xx) <span class="k">as</span> r'.
+        <span class="nb">cbn</span> <span class="k">in</span> r'.
+        <span class="nb">rewrite</span> r'.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="bp">exact</span> r.
+      + use hdisj_in2 ; <span class="nb">cbn</span>.
+        <span class="nb">pose</span> (psh_term_naturality ψ g xx) <span class="k">as</span> r'.
+        <span class="nb">cbn</span> <span class="k">in</span> r'.
+        <span class="nb">rewrite</span> r'.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="bp">exact</span> r.
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( ω &amp; p₁ &amp; p₂ ).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_precomp_sieve.
+      use (site_trans_sieve p₁).
+      <span class="nb">intros</span> y h q.
+      <span class="nb">specialize</span> (p₂ y h q).
+      <span class="nb">revert</span> p₂.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ r | r ].
+      + use sieve_contains_closed.
+        use hdisj_in1 ; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> sheaf_forces <span class="k">in</span> r.
+        <span class="nb">pose</span> (from_sieve_eq_l
+                (sieve_eq_from_closed (psh_term_naturality φ h xx))
+                _
+                r)
+          <span class="k">as</span> r'.
+        <span class="nb">cbn</span> <span class="k">in</span> r'.
+        <span class="nb">rewrite</span> id_left <span class="k">in</span> r'.
+        <span class="bp">exact</span> r'.
+      + use sieve_contains_closed.
+        use hdisj_in2 ; <span class="nb">cbn</span>.
+        <span class="nb">unfold</span> sheaf_forces <span class="k">in</span> r.
+        <span class="nb">pose</span> (from_sieve_eq_l
+                (sieve_eq_from_closed (psh_term_naturality ψ h xx))
+                _
+                r)
+          <span class="k">as</span> r'.
+        <span class="nb">cbn</span> <span class="k">in</span> r'.
+        <span class="nb">rewrite</span> id_left <span class="k">in</span> r'.
+        <span class="bp">exact</span> r'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">forces_impl_sheaves</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              (<span class="nv">x</span> : C)
+              (<span class="nv">xx</span> : (Γ x : hSet))
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : sheaf_predicate Γ)
+    : (x ⊩_{xx} φ ⇒ ψ)
+      ≃
+      (<span class="k">∀</span> (<span class="nv">y</span> : C) (<span class="nv">g</span> : y --&gt; x), (y ⊩_{#Γ g xx} φ) ⇒ (y ⊩_{#Γ g xx} ψ))%logic.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (forces_impl_presheaves
+             x xx
+             (sheaf_predicate_to_presheaf_predicate φ)
+             (sheaf_predicate_to_presheaf_predicate ψ)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">forces_equality_sheaves</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+              (<span class="nv">τ₁</span> <span class="nv">τ₂</span> : Γ ⟹ A)
+              (<span class="nv">x</span> : C)
+              (<span class="nv">xx</span> : (Γ x : hSet))
+    : (x ⊩_{xx} τ₁ ≡ τ₂)
+      ≃
+      (τ₁ x xx = τ₂ x xx)%logic.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (forces_equality_presheaves τ₁ τ₂ x xx).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">forces_forall_sheaves</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+              (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+              (<span class="nv">x</span> : C)
+              (<span class="nv">xx</span> : (Γ x : hSet))
+    : (x ⊩_{xx} <span class="k">∀</span><span class="nv">h</span> <span class="nv">φ</span>)
+      ≃
+      (<span class="k">∀</span> (<span class="nv">y</span> : C) (<span class="nv">g</span> : y --&gt; x) (<span class="nv">a</span> : (A y : hSet)),
+       y ⊩_{((#Γ g xx ,, a) : (Γ ×P A) y : hSet)} φ).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (forces_forall_presheaves (sheaf_predicate_to_presheaf_predicate φ) x xx).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">forces_exists_sheaves</span>
+              {<span class="nv">Γ</span> <span class="nv">A</span> : sheaf C}
+              (<span class="nv">φ</span> : sheaf_predicate (Γ ×P A))
+              (<span class="nv">x</span> : C)
+              (<span class="nv">xx</span> : (Γ x : hSet))
+    : (x ⊩_{xx} <span class="k">∃</span><span class="nv">h</span> <span class="nv">φ</span>)
+      ≃
+      (<span class="k">∃</span> (<span class="nv">ω</span> : sieve x),
+       (C x ω)
+       ×
+       (∏ (y : C) (g : y --&gt; x),
+        ω y g
+        → <span class="k">∃</span> (<span class="nv">a</span> : (A y : hSet)), y ⊩_{((#Γ g xx ,, a) : (Γ ×P A) y : hSet)} φ)).
+  <span class="kn">Proof</span>.
+    use logeqweq.
+    - <span class="nb">intro</span> p.
+      use hinhpr.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> id_precomp_sieve <span class="k">in</span> p.
+      <span class="nb">refine</span> (_ ,, p ,, _).
+      <span class="nb">clear</span> p.
+      <span class="nb">intros</span> y g p.
+      <span class="bp">exact</span> p.
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( ω &amp; p &amp; H ) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_precomp_sieve.
+      use (site_trans_sieve p).
+      <span class="nb">intros</span> y g q.
+      <span class="nb">specialize</span> (H y g q).
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( a &amp; r ).
+      use (sieve_contains_closed (exists_presheaf_sieve _ _) g).
+      use hinhpr ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (a ,, r).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">forces_entailment_sheaves</span>
+              {<span class="nv">Γ</span> : sheaf C}
+              {<span class="nv">φ</span> : sheaf_predicate Γ}
+    : (⊤ ⊢ φ)
+      ≃
+      <span class="k">∀</span> (<span class="nv">x</span> : C) (<span class="nv">xx</span> : (Γ x : hSet)), x ⊩_{xx} φ.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (forces_entailment_presheaves (sheaf_predicate_to_presheaf_predicate φ)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">SheafLogic</span>.
+
+<span class="kn">Notation</span> <span class="s2">"x ⊩_{ xx } φ"</span> := (sheaf_forces x xx φ) (<span class="kn">at level</span> <span class="mi">100</span>) : sh.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/SheafLogic.v</tt>, line 38)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  12. Properties of the forcing relation
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.PosetCat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

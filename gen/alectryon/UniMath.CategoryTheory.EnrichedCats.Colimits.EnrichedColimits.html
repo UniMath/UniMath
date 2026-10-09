@@ -1,0 +1,575 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EnrichedColimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Colimits in enriched categories</span>
+
+<span class="sd"> In this file, we define the notion of colimit in enriched</span>
+<span class="sd"> categories. Note that these limits refer to weighted colimits</span>
+<span class="sd"> rather than so-called conical colimits, because the former is</span>
+<span class="sd"> actually the correct notion of colimit in this setting.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Cocones of enriched colimits</span>
+<span class="sd"> 2. Colimits in an enriched category</span>
+<span class="sd"> 3. Being a colimit is a proposition</span>
+<span class="sd"> 4. Instances of colimits</span>
+<span class="sd"> 4.1. Copowers as colimits</span>
+<span class="sd"> 4.2. Conical colimits as colimits</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Ends.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.SelfEnriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedConicalColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Colimits.EnrichedCopowers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Opaque</span> sym_mon_braiding.
+
+<span class="kn">Section</span> <span class="nf">EnrichedColimit</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_mon_closed_cat}
+          {<span class="nv">I</span> <span class="nv">C</span> : category}
+          (<span class="nv">E</span> : enrichment C V)
+          (<span class="nv">D</span> : I ⟶ C)
+          (<span class="nv">W</span> : I^opp ⟶ V).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Coones of enriched colimits</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_colim_cocone</span>
+    : UU
+    := ∑ (a : C),
+       ∑ (fs : ∏ (i : I), W i --&gt; E ⦃ D i , a ⦄),
+       ∏ (i j : I)
+         (f : j --&gt; i),
+       fs i · precomp_arr E a (#D f)
+       =
+       #W f · fs j.
+
+  <span class="kn">Coercion</span> <span class="nf">ob_enriched_colim_cocone</span>
+           (a : enriched_colim_cocone)
+    : C
+    := pr1 a.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_colim_cocone_in</span>
+             (<span class="nv">a</span> : enriched_colim_cocone)
+             (<span class="nv">i</span> : I)
+    : W i --&gt; E ⦃ D i , a ⦄
+    := pr12 a i.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_colim_cocone_commute</span>
+              (<span class="nv">a</span> : enriched_colim_cocone)
+              {<span class="nv">i</span> <span class="nv">j</span> : I}
+              (<span class="nv">f</span> : j --&gt; i)
+    : enriched_colim_cocone_in a i · precomp_arr E a (#D f)
+      =
+      #W f · enriched_colim_cocone_in a j.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 a i j f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_colim_cocone</span>
+             (<span class="nv">a</span> : C)
+             (<span class="nv">fs</span> : ∏ (i : I), W i --&gt; E ⦃ D i , a ⦄)
+             (<span class="nv">eqs</span> : ∏ (i j : I)
+                      (f : j --&gt; i),
+                    fs i · precomp_arr E a (#D f)
+                    =
+                    #W f · fs j)
+    : enriched_colim_cocone
+    := a ,, fs ,, eqs.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Colimits in an enriched category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">weighted_hom_co_data</span>
+             (<span class="nv">w</span> : C)
+    : functor_data (category_binproduct (I^opp) I) V.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, W (pr2 i) ⊸ (E ⦃ D (pr1 i) , w ⦄)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span> <span class="nv">j</span> <span class="nv">k</span>,
+             internal_pre_post_comp
+               (#W (pr2 k))
+               (precomp_arr E w (#D (pr1 k)))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">weighted_hom_co_is_functor</span>
+              (<span class="nv">w</span> : C)
+    : is_functor (weighted_hom_co_data w).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !functor_id.
+      <span class="nb">rewrite</span> precomp_arr_id.
+      <span class="nb">rewrite</span> (functor_id W).
+      <span class="nb">rewrite</span> internal_pre_post_comp_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> i j k f g ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ internal_pre_post_comp_comp _ _ _ _).
+      <span class="nb">rewrite</span> !functor_comp.
+      <span class="nb">rewrite</span> !precomp_arr_comp.
+      <span class="nb">pose</span> (functor_comp W (pr2 g) (pr2 f)) <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> p.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weighted_hom_co</span>
+             (<span class="nv">w</span> : C)
+    : category_binproduct (I^opp) I ⟶ V.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> (weighted_hom_co_data w).
+    - <span class="bp">exact</span> (weighted_hom_co_is_functor w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_colim_enriched_wedge_data</span>
+             (<span class="nv">a</span> : enriched_colim_cocone)
+             (<span class="nv">w</span> : C)
+    : wedge_data (weighted_hom_co w).
+  <span class="kn">Proof</span>.
+    use make_wedge_data.
+    - <span class="bp">exact</span> (E ⦃ a , w ⦄).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>,
+             internal_lam
+               (identity _ #⊗ enriched_colim_cocone_in a i
+                · enriched_comp E _ _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_colim_enriched_is_wedge</span>
+              (<span class="nv">a</span> : enriched_colim_cocone)
+              (<span class="nv">w</span> : C)
+    : is_wedge (weighted_hom_co w) (is_colim_enriched_wedge_data a w).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> i j g ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !functor_id.
+    <span class="nb">rewrite</span> (functor_id W).
+    <span class="nb">rewrite</span> precomp_arr_id.
+    use internal_funext.
+    <span class="nb">intros</span> z h.
+    <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">unfold</span> internal_pre_post_comp.
+    <span class="nb">rewrite</span> !internal_beta.
+    <span class="nb">rewrite</span> !tensor_id_id.
+    <span class="nb">rewrite</span> id_left, id_right.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> tensor_split.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> internal_beta.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> tensor_split.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+    <span class="nb">rewrite</span> internal_beta.
+    <span class="nb">rewrite</span> tensor_comp_id_l.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> enriched_comp_precomp_arr.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- !tensor_comp_id_l.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> enriched_colim_cocone_commute.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_colim_enriched_wedge</span>
+             (<span class="nv">a</span> : enriched_colim_cocone)
+             (<span class="nv">w</span> : C)
+    : wedge (weighted_hom_co w).
+  <span class="kn">Proof</span>.
+    use make_wedge.
+    - <span class="bp">exact</span> (is_colim_enriched_wedge_data a w).
+    - <span class="bp">exact</span> (is_colim_enriched_is_wedge a w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_colim_enriched</span>
+             (<span class="nv">a</span> : enriched_colim_cocone)
+    : UU
+    := ∏ (w : C),
+       is_end (weighted_hom_co w) (is_colim_enriched_wedge a w).
+
+  <span class="kn">Definition</span> <span class="nf">colim_enriched</span>
+    : UU
+    := ∑ (a : enriched_colim_cocone),
+       is_colim_enriched a.
+
+  <span class="kn">Coercion</span> <span class="nf">cocone_of_colim_enriched</span>
+           (a : colim_enriched)
+    : enriched_colim_cocone
+    := pr1 a.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_colim_cocone_is_colim</span>
+             (<span class="nv">a</span> : colim_enriched)
+    : is_colim_enriched a
+    := pr2 a.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Being a colimit is a proposition</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_colim_enriched</span>
+              (<span class="nv">a</span> : enriched_colim_cocone)
+    : isaprop (is_colim_enriched a).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">EnrichedColimit</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Instances of colimits</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(**</span>
+<span class="sd"> 4.1. Copowers as colimits</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ColimitToCopower</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_mon_closed_cat}
+          {<span class="nv">C</span> : category}
+          (<span class="nv">E</span> : enrichment C V)
+          (<span class="nv">v</span> : V)
+          (<span class="nv">x</span> : C).
+
+  <span class="kn">Let</span> <span class="nf">I</span> : category := unit_category.
+  <span class="kn">Let</span> <span class="nf">D</span> : I ⟶ C := constant_functor _ _ x.
+  <span class="kn">Let</span> <span class="nf">W</span> : I^opp ⟶ V := constant_functor _ _ v.
+
+  <span class="kn">Context</span> (<span class="nv">a</span> : colim_enriched E D W).
+
+  <span class="kn">Definition</span> <span class="nf">copower_from_colim_cocone</span>
+    : copower_cocone E v x.
+  <span class="kn">Proof</span>.
+    use make_copower_cocone.
+    - <span class="bp">exact</span> a.
+    - <span class="bp">exact</span> (enriched_colim_cocone_in _ _ _ a tt).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">CopowerUMP</span>.
+    <span class="kn">Context</span> (<span class="nv">w</span> : C).
+
+    <span class="kn">Definition</span> <span class="nf">copower_from_colim_wedge_data</span>
+      : wedge_data (weighted_hom_co E D W w).
+    <span class="kn">Proof</span>.
+      use make_wedge_data ; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (v ⊸ (E ⦃ x , w ⦄)).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, identity _).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">copower_from_colim_is_wedge</span>
+      : is_wedge (weighted_hom_co E D W w) copower_from_colim_wedge_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> i j k.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">copower_from_colim_wedge</span>
+      : wedge (weighted_hom_co E D W w).
+    <span class="kn">Proof</span>.
+      use make_wedge.
+      - <span class="bp">exact</span> copower_from_colim_wedge_data.
+      - <span class="bp">exact</span> copower_from_colim_is_wedge.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">copower_from_colim_wedge_inv_1</span>
+      : is_copower_enriched_map E v x copower_from_colim_cocone w
+        · mor_to_end (weighted_hom_co E D W w) (pr2 a w) copower_from_colim_wedge
+        =
+        identity _.
+    <span class="kn">Proof</span>.
+      use (mor_to_end_eq _ (pr2 a w)).
+      <span class="nb">intro</span> i.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (mor_to_end_comm _ (pr2 a w) copower_from_colim_wedge i).
+      }
+      <span class="nb">refine</span> (id_right _ @ _ @ !(id_left _)).
+      use internal_funext.
+      <span class="nb">intros</span> z h.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">unfold</span> is_copower_enriched_map.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> internal_beta.
+      }
+      <span class="nb">induction</span> i.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">copower_from_colim_wedge_inv_2</span>
+      : mor_to_end (weighted_hom_co E D W w) (pr2 a w) copower_from_colim_wedge
+        · is_copower_enriched_map E v x copower_from_colim_cocone w
+        =
+        identity _.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (mor_to_end_comm (weighted_hom_co E D W w) (pr2 a w) copower_from_colim_wedge tt).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">CopowerUMP</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_copower_enriched_from_colim_cone</span>
+    : is_copower_enriched _ _ _ copower_from_colim_cocone.
+  <span class="kn">Proof</span>.
+    use make_is_copower_enriched.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">w</span>, mor_to_end _ (pr2 a w) (copower_from_colim_wedge w)).
+    - <span class="bp">exact</span> copower_from_colim_wedge_inv_1.
+    - <span class="bp">exact</span> copower_from_colim_wedge_inv_2.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ColimitToCopower</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4.2. Conical limits as limits</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ColimitToConical</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : sym_mon_closed_cat}
+          {<span class="nv">C</span> : category}
+          (<span class="nv">E</span> : enrichment C V)
+          {<span class="nv">I</span> : category}
+          (<span class="nv">D</span> : I ⟶ C).
+
+  <span class="kn">Let</span> <span class="nf">W</span> : I^opp ⟶ V := constant_functor _ _ I_{V}.
+
+  <span class="kn">Context</span> (<span class="nv">a</span> : colim_enriched E D W).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_weighted_to_conical_cocone</span>
+    : enriched_conical_colim_cocone D.
+  <span class="kn">Proof</span>.
+    use make_enriched_conical_colim_cocone.
+    - <span class="bp">exact</span> a.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, enriched_to_arr E (enriched_colim_cocone_in _ _ _ a i)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> i j f ; <span class="nb">cbn</span> ;
+         use (invmaponpathsweq (make_weq _ (isweq_enriched_from_arr E _ _))) ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> enriched_from_to_arr ;
+         <span class="nb">pose</span> (enriched_colim_cocone_commute _ _ _ a f) <span class="k">as</span> p ;
+         <span class="nb">cbn</span> <span class="k">in</span> p ;
+         <span class="nb">rewrite</span> id_left <span class="k">in</span> p ;
+         <span class="nb">rewrite</span> &lt;- p ;
+         <span class="nb">rewrite</span> enriched_from_arr_comp ;
+         <span class="nb">rewrite</span> enriched_from_to_arr ;
+         <span class="nb">rewrite</span> tensor_split ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> &lt;- tensor_linvunitor ;
+         <span class="nb">unfold</span> precomp_arr ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> tensor_rinvunitor ;
+         <span class="nb">rewrite</span> tensor_linvunitor ;
+         <span class="nb">rewrite</span> mon_rinvunitor_I_mon_linvunitor_I ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> &lt;- tensor_split ;
+         <span class="nb">rewrite</span> &lt;- tensor_split' ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">ConicalColimUMP</span>.
+    <span class="kn">Context</span> {<span class="nv">w</span> : C}
+            (<span class="nv">v</span> : V)
+            (<span class="nv">fs</span> : ∏ (i : I), v --&gt; E ⦃ D i , w ⦄)
+            (<span class="nv">ps</span> : ∏ (i j : I) (k : j --&gt; i), fs i · precomp_arr E w (#D k) = fs j).
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_weighted_to_conical_is_conical_colim_unique</span>
+      : isaprop
+          (∑ (g : v --&gt; E ⦃ a , w ⦄),
+           ∏ (i : I),
+           g · precomp_arr E w (enriched_to_arr E (enriched_colim_cocone_in E D W a i))
+           =
+           fs i).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        use impred ; <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      use (mor_to_end_eq _ (pr2 a w)).
+      <span class="nb">intros</span> i ; <span class="nb">cbn</span>.
+      use internal_funext.
+      <span class="nb">intros</span> z h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- !tensor_comp_mor.
+      <span class="nb">rewrite</span> !id_right.
+      <span class="nb">rewrite</span> !tensor_comp_l_id_l.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">pose</span> (p := maponpaths (<span class="k">λ</span> <span class="nv">z</span>, mon_runitor _ · z) (pr2 φ₁ i @ !(pr2 φ₂ i))).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">unfold</span> precomp_arr <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !enriched_from_to_arr <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)) <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !tensor_rinvunitor <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !mon_runitor_rinvunitor <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !id_left <span class="k">in</span> p.
+      <span class="nb">rewrite</span> &lt;- !tensor_split' <span class="k">in</span> p.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_weighted_to_conical_is_conical_colim_wedge_data</span>
+      : wedge_data (weighted_hom_co E D W w).
+    <span class="kn">Proof</span>.
+      use make_wedge_data.
+      - <span class="bp">exact</span> v.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, internal_lam (mon_runitor _ · fs i)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_weighted_to_conical_is_conical_colim_is_wedge</span>
+      : is_wedge
+          (weighted_hom_co E D W w)
+          enriched_weighted_to_conical_is_conical_colim_wedge_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> i j f ; <span class="nb">cbn</span>.
+      use internal_funext.
+      <span class="nb">intros</span> z h.
+      <span class="nb">rewrite</span> !tensor_comp_r_id_r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">unfold</span> internal_pre_post_comp.
+      <span class="nb">rewrite</span> !internal_beta.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">rewrite</span> precomp_arr_id.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> !tensor_id_id.
+      <span class="nb">rewrite</span> !id_left.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+      <span class="nb">rewrite</span> internal_beta.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> ps.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_weighted_to_conical_is_conical_colim_wedge</span>
+      : wedge (weighted_hom_co E D W w).
+    <span class="kn">Proof</span>.
+      use make_wedge.
+      - <span class="bp">exact</span> enriched_weighted_to_conical_is_conical_colim_wedge_data.
+      - <span class="bp">exact</span> enriched_weighted_to_conical_is_conical_colim_is_wedge.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_weighted_to_conical_is_conical_colim_mor</span>
+      : v --&gt; E ⦃ a , w ⦄
+      := mor_to_end
+           _
+           (pr2 a w)
+           enriched_weighted_to_conical_is_conical_colim_wedge.
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_weighted_to_conical_is_conical_colim_mor_eq</span>
+                (<span class="nv">i</span> : I)
+      : enriched_weighted_to_conical_is_conical_colim_mor
+        · precomp_arr E w (enriched_to_arr E (enriched_colim_cocone_in E D W a i))
+        =
+        fs i.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (maponpaths
+              (<span class="k">λ</span> <span class="nv">z</span>, z #⊗ identity _ · internal_eval _ _)
+              (mor_to_end_comm
+                 _
+                 (pr2 a w)
+                 enriched_weighted_to_conical_is_conical_colim_wedge
+                 i))
+        <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> tensor_comp_id_r <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc' <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !internal_beta <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !assoc <span class="k">in</span> p.
+      <span class="nb">rewrite</span> &lt;- tensor_split' <span class="k">in</span> p.
+      <span class="nb">refine</span> (_ @ id_left _).
+      <span class="nb">rewrite</span> &lt;- mon_rinvunitor_runitor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- p.
+      <span class="nb">unfold</span> precomp_arr.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> tensor_rinvunitor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- tensor_split'.
+      <span class="nb">rewrite</span> enriched_from_to_arr.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">ConicalColimUMP</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_weighted_to_conical_is_conical_colim</span>
+    : is_conical_colim_enriched E D enriched_weighted_to_conical_cocone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w v cc.
+    use iscontraprop1.
+    - <span class="bp">exact</span> (enriched_weighted_to_conical_is_conical_colim_unique v (pr1 cc)).
+    - <span class="nb">refine</span> (enriched_weighted_to_conical_is_conical_colim_mor v (pr1 cc) (pr2 cc)
+              ,,
+              _).
+      <span class="nb">intros</span> i.
+      <span class="bp">exact</span> (enriched_weighted_to_conical_is_conical_colim_mor_eq v (pr1 cc) (pr2 cc) i).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ColimitToConical</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Colimits/EnrichedColimits.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4.2. Conical colimits as colimits
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

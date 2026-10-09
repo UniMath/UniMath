@@ -1,0 +1,668 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Subtypes.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Export</span> UniMath.MoreFoundations.Notations.
+<span class="kn">Require Export</span> UniMath.MoreFoundations.Propositions.
+<span class="kn">Require Export</span> UniMath.MoreFoundations.DecidablePropositions.
+<span class="kn">Require Export</span> UniMath.MoreFoundations.Sets.
+
+<span class="kn">Declare Scope</span> subtype.
+<span class="kn">Delimit Scope</span> subtype <span class="k">with</span> subtype.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subtype.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> type.
+
+<span class="sd">(** The powerset, or set of all subsets, of a set. *)</span>
+<span class="kn">Definition</span> <span class="nf">subtype_set</span> <span class="nv">X</span> : hSet := make_hSet (hsubtype X) (isasethsubtype X).
+
+<span class="kn">Definition</span> <span class="nf">subtype_isIn</span> {<span class="nv">X</span>:UU} {<span class="nv">S</span>:hsubtype X} (<span class="nv">s</span>:S) (<span class="nv">T</span>:hsubtype X) : hProp := T (pr1 s).
+
+<span class="kn">Notation</span> <span class="s2">" s ∈ T "</span> := (subtype_isIn s T) (<span class="kn">at level</span> <span class="mi">70</span>) : subtype.
+
+<span class="kn">Notation</span> <span class="s2">" s ∉ T "</span> := (¬ (subtype_isIn s T) : hProp) (<span class="kn">at level</span> <span class="mi">70</span>) : subtype.
+
+<span class="kn">Definition</span> <span class="nf">subtype_containedIn</span> {<span class="nv">X</span>:UU} : hrel (subtype_set X) := <span class="k">λ</span> <span class="nv">S</span> <span class="nv">T</span>, <span class="k">∀</span> <span class="nv">x</span>:X, S x ⇒ T x.
+
+<span class="kn">Notation</span> <span class="s2">" S ⊆ T "</span> := (subtype_containedIn S T) (<span class="kn">at level</span> <span class="mi">70</span>) : subtype.
+
+<span class="kn">Definition</span> <span class="nf">subtype_notContainedIn</span> {<span class="nv">X</span>:UU} (<span class="nv">S</span> <span class="nv">T</span> : hsubtype X) : hProp := <span class="k">∃</span> <span class="nv">x</span>:X, S x ∧ ¬ (T x).
+
+<span class="kn">Definition</span> <span class="nf">subtype_inc</span> {<span class="nv">X</span>:UU} {<span class="nv">S</span> <span class="nv">T</span> : hsubtype X} : S ⊆ T -&gt; S -&gt; T.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> le s. <span class="bp">exact</span> (pr1 s,, le (pr1 s) (pr2 s)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Notation</span> <span class="s2">" S ⊈ T "</span> := (subtype_notContainedIn S T) (<span class="kn">at level</span> <span class="mi">70</span>) : subtype.
+
+<span class="kn">Definition</span> <span class="nf">subtype_smallerThan</span> {<span class="nv">X</span>:UU} (<span class="nv">S</span> <span class="nv">T</span> : hsubtype X) : hProp := (S ⊆ T) ∧ (T ⊈ S).
+
+<span class="kn">Notation</span> <span class="s2">" S ⊊ T "</span> := (subtype_smallerThan S T) (<span class="kn">at level</span> <span class="mi">70</span>) : subtype.
+
+<span class="kn">Definition</span> <span class="nf">subtype_equal</span> {<span class="nv">X</span>:UU} (<span class="nv">S</span> <span class="nv">T</span> : hsubtype X) : hProp := <span class="k">∀</span> <span class="nv">x</span>, S x ⇔ T x.
+
+<span class="kn">Notation</span> <span class="s2">" S ≡ T "</span> := (subtype_equal S T) (<span class="kn">at level</span> <span class="mi">70</span>) : subtype.
+
+<span class="kn">Definition</span> <span class="nf">subtype_notEqual</span> {<span class="nv">X</span>:UU} (<span class="nv">S</span> <span class="nv">T</span> : hsubtype X) : hProp := (S ⊈ T) ∨ (T ⊈ S).
+
+<span class="kn">Notation</span> <span class="s2">" S ≢ T "</span> := (subtype_notEqual S T) (<span class="kn">at level</span> <span class="mi">70</span>) : subtype.
+
+<span class="kn">Lemma</span> <span class="nf">subtype_notEqual_containedIn</span> {<span class="nv">X</span>:UU} (<span class="nv">S</span> <span class="nv">T</span> : hsubtype X) : S ⊆ T -&gt; S ≢ T -&gt; T ⊈ S.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ci ne. <span class="nb">apply</span> (squash_to_hProp ne); <span class="nb">clear</span> ne; <span class="nb">intros</span> [n|n].
+  - <span class="nb">apply</span> (squash_to_hProp n); <span class="nb">clear</span> n; <span class="nb">intros</span> [x [p q]]. <span class="nb">apply</span> fromempty.
+    <span class="nb">change</span> (neg (T x)) <span class="k">in</span> q. <span class="nb">apply</span> q; <span class="nb">clear</span> q. <span class="nb">apply</span> (ci x). <span class="bp">exact</span> p.
+  - <span class="bp">exact</span> n.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subtype_notEqual_to_negEqual</span> {<span class="nv">X</span>:UU} (<span class="nv">S</span> <span class="nv">T</span> : hsubtype X) : S ≢ T -&gt; ¬ (S ≡ T).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> n. <span class="nb">apply</span> (squash_to_prop n).
+  + <span class="nb">apply</span> isapropneg.         <span class="c">(* uses funextemptyAxiom *)</span>
+  + <span class="nb">intros</span> [c|c].
+    * <span class="nb">apply</span> (squash_to_prop c).
+      ** <span class="nb">apply</span> isapropneg.         <span class="c">(* uses funextemptyAxiom *)</span>
+      ** <span class="nb">intros</span> [x [Sx nTx]] e. use nTx; <span class="nb">clear</span> nTx. <span class="bp">exact</span> (pr1 (e x) Sx).
+    * <span class="nb">apply</span> (squash_to_prop c).
+      ** <span class="nb">apply</span> isapropneg.         <span class="c">(* uses funextemptyAxiom *)</span>
+      ** <span class="nb">intros</span> [x [Tx nSx]] e. use nSx; <span class="nb">clear</span> nSx. <span class="bp">exact</span> (pr2 (e x) Tx).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subtype_notEqual_from_negEqual</span> {<span class="nv">X</span>:UU} (<span class="nv">S</span> <span class="nv">T</span> : hsubtype X) : LEM -&gt; (S ≢ T &lt;- ¬ (S ≡ T)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> lem ne. <span class="nb">unfold</span> subtype_equal <span class="k">in</span> ne.
+  <span class="nb">assert</span> (q := negforall_to_existsneg _ lem ne); <span class="nb">clear</span> ne.
+  <span class="nb">apply</span> (squash_to_hProp q); <span class="nb">clear</span> q; <span class="nb">intros</span> [x n].
+  <span class="nb">unfold</span> subtype_notEqual.
+  <span class="nb">assert</span> (r := weak_fromnegdirprod _ _ n); <span class="nb">clear</span> n. <span class="nb">unfold</span> dneg <span class="k">in</span> r.
+  <span class="nb">assert</span> (s := proof_by_contradiction lem r); <span class="nb">clear</span> r.
+  <span class="nb">apply</span> (squash_to_hProp s); <span class="nb">clear</span> s. <span class="nb">intros</span> s. <span class="nb">apply</span> hinhpr. <span class="nb">induction</span> s <span class="k">as</span> [s|s].
+  + <span class="nb">apply</span> ii1, hinhpr. <span class="k">exists</span> <span class="nv">x</span>. <span class="bp">now</span> <span class="nb">apply</span> negimpl_to_conj.
+  + <span class="nb">apply</span> ii2, hinhpr. <span class="k">exists</span> <span class="nv">x</span>. <span class="bp">now</span> <span class="nb">apply</span> negimpl_to_conj.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">emptysubtype</span> (<span class="nv">X</span> : UU) : hsubtype X
+  := <span class="k">λ</span> <span class="nv">x</span>, hfalse.
+
+<span class="kn">Definition</span> <span class="nf">subtype_difference</span> {<span class="nv">X</span>:UU} (<span class="nv">S</span> <span class="nv">T</span> : hsubtype X) : hsubtype X := <span class="k">λ</span> <span class="nv">x</span>, S x ∧ ¬ (T x).
+
+<span class="kn">Notation</span> <span class="s2">" S - T "</span> := (subtype_difference S T) : subtype.
+
+<span class="kn">Definition</span> <span class="nf">subtype_difference_containedIn</span> {<span class="nv">X</span>:UU} (<span class="nv">S</span> <span class="nv">T</span> : hsubtype X) : (S - T) ⊆ S.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x u. <span class="bp">exact</span> (pr1 u).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subtype_equal_cond</span> {<span class="nv">X</span>:UU} (<span class="nv">S</span> <span class="nv">T</span> : hsubtype X) : S ⊆ T ∧ T ⊆ S ⇔ S ≡ T.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> c x. <span class="nb">induction</span> c <span class="k">as</span> [st ts].
+    <span class="nb">split</span>.
+    + <span class="nb">intro</span> s. <span class="bp">exact</span> (st x s).
+    + <span class="nb">intro</span> t. <span class="bp">exact</span> (ts x t).
+  - <span class="nb">intro</span> e. <span class="nb">split</span>.
+    + <span class="nb">intros</span> x s. <span class="bp">exact</span> (pr1 (e x) s).
+    + <span class="nb">intros</span> x t. <span class="bp">exact</span> (pr2 (e x) t).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subtype_union</span> {<span class="nv">X</span> <span class="nv">I</span>:UU} (<span class="nv">S</span> : I -&gt; hsubtype X) : hsubtype X := <span class="k">λ</span> <span class="nv">x</span>, <span class="k">∃</span> <span class="nv">i</span>, S i x.
+
+<span class="kn">Notation</span> <span class="s2">"⋃ S"</span> := (subtype_union S) (<span class="kn">at level</span> <span class="mi">100</span>, <span class="kn">no associativity</span>) : subtype.
+
+<span class="kn">Definition</span> <span class="nf">subtype_binaryunion</span> {<span class="nv">X</span>} (<span class="nv">A</span> <span class="nv">B</span> : hsubtype X) : hsubtype X
+  := <span class="k">fun</span> <span class="nv">x</span> =&gt; A x ∨ B x.
+
+<span class="kn">Notation</span> <span class="s2">"A ∪ B"</span> := (subtype_binaryunion A B)
+                              (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>) : subtype.
+  <span class="c">(* precedence tighter than "⊆", also than "-" [subtype_difference].  *)</span>
+  <span class="c">(* in agda-input method, type \cup or ∪ *)</span>
+
+<span class="kn">Definition</span> <span class="nf">subtype_binaryunion_leq1</span> {<span class="nv">X</span>} (<span class="nv">A</span> <span class="nv">B</span> : hsubtype X) : A ⊆ (A ∪ B)
+  := <span class="k">fun</span> <span class="nv">x</span> =&gt; hdisj_in1.
+
+<span class="kn">Definition</span> <span class="nf">subtype_binaryunion_leq2</span> {<span class="nv">X</span>} (<span class="nv">A</span> <span class="nv">B</span> : hsubtype X) : B ⊆ (A ∪ B)
+  := <span class="k">fun</span> <span class="nv">x</span> =&gt; hdisj_in2.
+
+<span class="kn">Definition</span> <span class="nf">subtype_union_containedIn</span> {<span class="nv">X</span>:hSet} {<span class="nv">I</span>:UU} (<span class="nv">S</span> : I -&gt; hsubtype X) <span class="nv">i</span> : S i ⊆ ⋃ S
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">s</span>, hinhpr (i,,s).
+
+<span class="sd">(** Given a family of subtypes of X indexed by a type I, an element x : X is in</span>
+<span class="sd">    their intersection if it is an element of each subtype.</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">subtype_intersection</span> {<span class="nv">X</span> <span class="nv">I</span>:UU} (<span class="nv">S</span> : I -&gt; hsubtype X) : hsubtype X := <span class="k">λ</span> <span class="nv">x</span>, <span class="k">∀</span> <span class="nv">i</span>, S i x.
+
+<span class="kn">Notation</span> <span class="s2">"⋂ S"</span> := (subtype_intersection S) (<span class="kn">at level</span> <span class="mi">100</span>, <span class="kn">no associativity</span>) : subtype.
+
+<span class="kn">Theorem</span> <span class="nf">hsubtype_univalence</span> {<span class="nv">X</span>:UU} (<span class="nv">S</span> <span class="nv">T</span> : hsubtype X) : (S = T) ≃ (S ≡ T).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. intermediate_weq (∏ x, S x = T x).
+  - <span class="nb">apply</span> weqtoforallpaths.
+  - <span class="nb">unfold</span> subtype_equal. <span class="nb">apply</span> weqonsecfibers; <span class="nb">intro</span> x.
+    <span class="nb">apply</span> weqlogeq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">hsubtype_rect</span> {<span class="nv">X</span>:UU} (<span class="nv">S</span> <span class="nv">T</span> : hsubtype X) (<span class="nv">P</span> : S ≡ T -&gt; UU) :
+  (∏ e : S=T, P (hsubtype_univalence S T e)) ≃ ∏ f, P f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">apply</span> weqinvweq, weqonsecbase.
+<span class="kn">Defined</span>.
+
+<span class="kn">Ltac</span> <span class="nf">hsubtype_induction</span> f e := <span class="nb">generalize</span> f; <span class="nb">apply</span> hsubtype_rect; <span class="nb">intro</span> e; <span class="nb">clear</span> f.
+
+<span class="kn">Lemma</span> <span class="nf">subtype_containment_istrans</span> <span class="nv">X</span> : istrans (@subtype_containedIn X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> S T U i j x. <span class="bp">exact</span> (j x ∘ i x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subtype_containment_isrefl</span> <span class="nv">X</span> : isrefl (@subtype_containedIn X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> S x s. <span class="bp">exact</span> s.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subtype_containment_ispreorder</span> <span class="nv">X</span> : ispreorder (@subtype_containedIn X).
+<span class="kn">Proof</span>.
+  use make_dirprod.
+  - <span class="nb">apply</span> subtype_containment_istrans.
+  - <span class="nb">apply</span> subtype_containment_isrefl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subtype_containment_isantisymm</span> <span class="nv">X</span> : isantisymm (@subtype_containedIn X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> S T i j. <span class="nb">apply</span> (invmap (hsubtype_univalence S T)). <span class="nb">apply</span> subtype_equal_cond.
+  <span class="nb">split</span>; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subtype_containment_isPartialOrder</span> <span class="nv">X</span> : isPartialOrder (@subtype_containedIn X).
+<span class="kn">Proof</span>.
+  use make_dirprod.
+  - <span class="nb">apply</span> subtype_containment_ispreorder.
+  - <span class="nb">apply</span> subtype_containment_isantisymm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subtype_inc_comp</span> {<span class="nv">X</span>:UU} {<span class="nv">S</span> <span class="nv">T</span> <span class="nv">U</span> : hsubtype X} (<span class="nv">i</span>:S⊆T) (<span class="nv">j</span>:T⊆U) (<span class="nv">s</span>:S) :
+  subtype_inc j (subtype_inc i s) = subtype_inc (<span class="k">λ</span> <span class="nv">x</span>, j x ∘ i x) s.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subtype_deceq</span> {<span class="nv">X</span>} (<span class="nv">S</span>:hsubtype X) : isdeceq X -&gt; isdeceq (carrier S).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> i. <span class="nb">intros</span> s t. <span class="nb">induction</span> (i (pr1 s) (pr1 t)) <span class="k">as</span> [eq|ne].
+  - <span class="nb">apply</span> ii1, subtypePath_prop, eq.
+  - <span class="nb">apply</span> ii2. <span class="nb">intro</span> eq. <span class="nb">apply</span> ne. <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> eq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isDecidablePredicate</span> {<span class="nv">X</span>} (<span class="nv">S</span>:X-&gt;hProp) := ∏ x, decidable (S x).
+
+<span class="kn">Definition</span> <span class="nf">subtype_plus</span> {<span class="nv">X</span>} (<span class="nv">S</span>:hsubtype X) (<span class="nv">z</span>:X) : hsubtype X := <span class="k">λ</span> <span class="nv">x</span>, S x ∨ z = x.
+
+<span class="kn">Definition</span> <span class="nf">subtype_plus_incl</span> {<span class="nv">X</span>} (<span class="nv">S</span>:hsubtype X) (<span class="nv">z</span>:X) : S ⊆ subtype_plus S z.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> s Ss. <span class="bp">now</span> <span class="nb">apply</span> hinhpr,ii1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subtype_plus_has_point</span> {<span class="nv">X</span>} (<span class="nv">S</span>:hsubtype X) (<span class="nv">z</span>:X) : subtype_plus S z z.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> hinhpr, ii2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">subtype_plus_in</span> {<span class="nv">X</span>} {<span class="nv">S</span>:hsubtype X} {<span class="nv">z</span>:X} {<span class="nv">T</span>:hsubtype X} :
+  S ⊆ T -&gt; T z -&gt; subtype_plus S z ⊆ T.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> le Tz x S'x. <span class="nb">apply</span> (squash_to_hProp S'x). <span class="nb">intros</span> [Sx|e].
+  - <span class="bp">exact</span> (le x Sx).
+  - <span class="nb">induction</span> e. <span class="bp">exact</span> Tz.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">Complement</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+
+  <span class="kn">Definition</span> <span class="nf">subtype_complement</span> (<span class="nv">S</span> : hsubtype X) : hsubtype X := <span class="k">fun</span> <span class="nv">x</span> =&gt; hneg (S x).
+
+  <span class="sd">(** Something can't be in a subtype and its complement. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">not_in_subtype_and_complement</span> (<span class="nv">S</span> : hsubtype X) :
+    ∏ x, S x -&gt; subtype_complement S x -&gt; empty.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x in_S in_neg_S; <span class="bp">exact</span> (in_neg_S in_S).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** The intersection of a family containing a set and its complement is empty. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">subtype_complement_intersection_empty</span> {<span class="nv">S</span>} {<span class="nv">I</span> : UU} {<span class="nv">f</span> : I -&gt; hsubtype X} :
+    (∑ i : I, f i = S) -&gt;
+    (∑ j : I, f j = subtype_complement S) -&gt;
+    subtype_intersection f ≡ emptysubtype _.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> has_S has_neg_S x; use make_dirprod.
+    - <span class="nb">intros</span> in_intersection.
+      <span class="nb">pose</span> (in_S := in_intersection (pr1 has_S)).
+      <span class="nb">pose</span> (in_neg_S := in_intersection (pr1 has_neg_S)).
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+
+      <span class="nb">pose</span> (in_S' := (eqtohomot (pr2 has_S)) x).
+      <span class="nb">pose</span> (in_neg_S' := (eqtohomot (pr2 has_neg_S)) x).
+
+      <span class="nb">apply</span> (not_in_subtype_and_complement S x).
+      + <span class="kp">abstract</span> (<span class="nb">induction</span> in_S'; <span class="bp">assumption</span>).
+      + <span class="kp">abstract</span> (<span class="nb">induction</span> in_neg_S'; <span class="bp">assumption</span>).
+
+    - <span class="nb">intros</span> empt; <span class="nb">induction</span> empt.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** The union of a family containing a set and its complement is the whole set (assuming LEM). *)</span>
+  <span class="kn">Lemma</span> <span class="nf">subtype_complement_union</span> {<span class="nv">S</span>} (<span class="nv">lem</span> : LEM) {<span class="nv">I</span> : UU} {<span class="nv">f</span> : I -&gt; hsubtype X} :
+    (∑ i : I, f i = S) -&gt;
+    (∑ j : I, f j = subtype_complement S) -&gt;
+    subtype_union f ≡ totalsubtype _.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> has_S has_neg_S x; use make_dirprod.
+    - <span class="nb">intro</span>; <span class="bp">exact</span> tt.
+    - <span class="nb">intro</span>.
+      <span class="nb">induction</span> (lem (S x)).
+      + <span class="nb">apply</span> hinhpr.
+        <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">has_S</span>).
+        <span class="kp">abstract</span> (<span class="nb">rewrite</span> (pr2 has_S); <span class="bp">assumption</span>).
+      + <span class="nb">apply</span> hinhpr.
+        <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">has_neg_S</span>).
+        <span class="kp">abstract</span> (<span class="nb">rewrite</span> (pr2 has_neg_S); <span class="bp">assumption</span>).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Complement</span>.
+
+<span class="c">(* We could define the intersection as follows but this makes it more complicated than it should be *)</span>
+<span class="kn">Definition</span> <span class="nf">binary_intersection'</span> {<span class="nv">X</span> : UU} (<span class="nv">U</span> <span class="nv">V</span> : hsubtype X) : hsubtype X
+  := subtype_intersection (<span class="k">λ</span> <span class="nv">b</span>,  bool_rect (<span class="k">λ</span> <span class="nv">_</span> : bool, hsubtype X) U V b).
+
+<span class="kn">Definition</span> <span class="nf">binary_intersection</span> {<span class="nv">X</span> : UU} (<span class="nv">U</span> <span class="nv">V</span> : hsubtype X) : hsubtype X
+  := <span class="k">λ</span> <span class="nv">x</span>, U x ∧ V x.
+
+<span class="kn">Notation</span> <span class="s2">"A ∩ B"</span> :=
+  (binary_intersection A B)
+  (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>)
+  : subtype.
+
+<span class="kn">Lemma</span> <span class="nf">binary_intersection_commutative</span> {<span class="nv">X</span> : UU} (<span class="nv">U</span> <span class="nv">V</span> : hsubtype X)
+  : U ∩ V ⊆ V ∩ U.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? p.
+  <span class="bp">exact</span> (transportf _ (iscomm_hconj (U x) (V x)) p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">intersection_contained_l</span> {<span class="nv">X</span> : UU} (<span class="nv">U</span> <span class="nv">V</span> : hsubtype X)
+  : U ∩ V ⊆ U.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? xinUV.
+  <span class="nb">apply</span> xinUV.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">intersection_contained_r</span> {<span class="nv">X</span> : UU} (<span class="nv">U</span> <span class="nv">V</span> : hsubtype X)
+  : U ∩ V ⊆ V.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? xinUV.
+  <span class="nb">apply</span> xinUV.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">intersection_contained</span> {<span class="nv">X</span> : UU} {<span class="nv">U</span> <span class="nv">U'</span> <span class="nv">V</span> <span class="nv">V'</span> : hsubtype X}
+           (<span class="nv">uu</span> : U ⊆ U')
+           (<span class="nv">vv</span> : V ⊆ V')
+  : U ∩ V ⊆ U' ∩ V'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x p.
+  <span class="nb">cbn</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> (uu x).
+    <span class="bp">exact</span> ((intersection_contained_l U V) x p).
+  - <span class="nb">apply</span> (vv x).
+    <span class="bp">exact</span> ((intersection_contained_r U V) x p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_subtype_containedIn</span> {<span class="nv">X</span> : UU} (<span class="nv">U</span> <span class="nv">V</span> : hsubtype X)
+  : isaprop (U ⊆ V).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.
+  <span class="nb">apply</span> isapropimpl.
+  <span class="nb">apply</span> V.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">image_hsubtype</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">U</span> : hsubtype X) (<span class="nv">f</span> : X → Y)
+  : hsubtype Y := <span class="k">λ</span> <span class="nv">y</span> : Y, (<span class="k">∃</span> <span class="nv">x</span> : X, f x = y × U x).
+
+<span class="kn">Lemma</span> <span class="nf">image_hsubtype_emptyhsubtype</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X → Y)
+  : image_hsubtype (emptysubtype X) f = emptysubtype Y.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> y.
+  <span class="nb">apply</span> hPropUnivalence.
+  - <span class="nb">intro</span> yinfEmpty.
+    use (factor_through_squash _ _ yinfEmpty).
+    { <span class="nb">apply</span> emptysubtype. }
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> (pr22 x).
+  - <span class="nb">intro</span> yinEmpty.
+    <span class="nb">apply</span> fromempty.
+    <span class="bp">exact</span> (yinEmpty).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">image_hsubtype_id</span> {<span class="nv">X</span> : UU} (<span class="nv">U</span> : hsubtype X)
+  : image_hsubtype U (idfun X) = U.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> x.
+  <span class="nb">apply</span> hPropUnivalence.
+  - <span class="nb">intro</span> xinIdU.
+    use (factor_through_squash _ _ xinIdU).
+    { <span class="nb">apply</span> U. }
+    <span class="nb">intro</span> u0.
+    <span class="nb">assert</span> (p0 : U (pr1 u0) = U x).
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (pr12 u0).
+    }
+    <span class="nb">induction</span> p0.
+    <span class="nb">apply</span> (pr22 u0).
+  - <span class="nb">intro</span> xinU.
+    <span class="nb">apply</span> hinhpr.
+    <span class="bp">exact</span> (x,, idpath x,, xinU).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">image_hsubtype_comp</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU} (<span class="nv">U</span> : hsubtype X)
+           (<span class="nv">f</span> : X → Y) (<span class="nv">g</span> : Y → Z)
+  : image_hsubtype U (funcomp f g) = image_hsubtype (image_hsubtype U f) g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextsec ; <span class="nb">intro</span> z.
+  <span class="nb">apply</span> hPropUnivalence.
+  - <span class="nb">intro</span> zinCompU.
+    use (factor_through_squash _ _ zinCompU).
+    { <span class="nb">apply</span> ishinh. }
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">f</span> (pr1 x)).
+    <span class="k">exists</span> (<span class="nv">pr12</span> <span class="nv">x</span>).
+    <span class="nb">apply</span> hinhpr.
+    <span class="bp">exact</span> (pr1 x,, maponpaths f (idpath (pr1 x)),, pr22 x).
+  - <span class="nb">intro</span> zinCompU.
+    use (factor_through_squash _ _ zinCompU).
+    { <span class="nb">apply</span> ishinh. }
+    <span class="nb">intro</span> y.
+    use (factor_through_squash _ _ (pr22 y)).
+    { <span class="nb">apply</span> ishinh. }
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> hinhpr.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">x</span>).
+    <span class="nb">split</span>.
+    + <span class="nb">refine</span> (_ @ (pr12 y)).
+      <span class="nb">unfold</span> funcomp.
+      <span class="nb">unfold</span> funcomp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pr12 x).
+    + <span class="bp">exact</span> (pr22 x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hsubtype_preserving</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">U</span> : hsubtype X) (<span class="nv">V</span> : hsubtype Y) (<span class="nv">f</span> : X → Y)
+  : UU := (image_hsubtype U f) ⊆ V.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_hsubtype_preserving</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">U</span> : hsubtype X) (<span class="nv">V</span> : hsubtype Y) (<span class="nv">f</span> : X → Y)
+  : isaprop (hsubtype_preserving U V f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.
+  <span class="nb">apply</span> isapropimpl.
+  <span class="nb">apply</span> V.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">id_hsubtype_preserving</span> {<span class="nv">X</span> : UU} (<span class="nv">U</span> : hsubtype X) : hsubtype_preserving U U (idfun X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x xinU.
+  <span class="nb">rewrite</span> image_hsubtype_id <span class="k">in</span> xinU.
+  <span class="bp">exact</span> xinU.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comp_hsubtype_preserving</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : UU}
+      {<span class="nv">U</span> : hsubtype X} {<span class="nv">V</span> : hsubtype Y} {<span class="nv">W</span> : hsubtype Z}
+      {<span class="nv">f</span> : X → Y} {<span class="nv">g</span> : Y → Z}
+      (<span class="nv">fsp</span> : hsubtype_preserving U V f) (<span class="nv">gsp</span> : hsubtype_preserving V W g)
+  : hsubtype_preserving U W (funcomp f g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> z zinU.
+  <span class="nb">rewrite</span> image_hsubtype_comp <span class="k">in</span> zinU.
+  <span class="nb">apply</span> (gsp _).
+  <span class="nb">unfold</span> image_hsubtype.
+  use (factor_through_squash _ _ zinU).
+  { <span class="nb">apply</span> ishinh. }
+  <span class="nb">intro</span> y.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">y</span>).
+  <span class="k">exists</span> (<span class="nv">pr12</span> <span class="nv">y</span>).
+  <span class="nb">apply</span> (fsp _).
+  <span class="bp">exact</span> (pr22 y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">empty_hsubtype_preserving</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X → Y)
+  : hsubtype_preserving (emptysubtype X) (emptysubtype Y) f.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hsubtype_preserving.
+  <span class="nb">rewrite</span> image_hsubtype_emptyhsubtype.
+  <span class="nb">apply</span> subtype_containment_isrefl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">total_hsubtype_preserving</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : X → Y)
+  : hsubtype_preserving (totalsubtype X) (totalsubtype Y) f.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, tt).
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">singletons</span>.
+  <span class="kn">Definition</span> <span class="nf">singleton</span> {<span class="nv">X</span> : UU} (<span class="nv">x</span> : X) : hsubtype X
+    := <span class="k">λ</span> (<span class="nv">a</span> : X), ∥ a = x ∥.
+
+  <span class="c">(* The canonical element of the singleton subtype. *)</span>
+  <span class="kn">Definition</span> <span class="nf">singleton_point</span> {<span class="nv">X</span> : UU} {<span class="nv">x</span> : X} : singleton x
+    := (x ,, hinhpr (idpath x)).
+
+  <span class="kn">Definition</span> <span class="nf">iscontr_singleton</span> {<span class="nv">X</span> : hSet} (<span class="nv">x</span> : X) : iscontr (singleton x).
+  <span class="kn">Proof</span>.
+    use make_iscontr.
+    - <span class="bp">exact</span> singleton_point.
+    - <span class="nb">intros</span> t.
+      <span class="nb">apply</span> subtypePath_prop.
+      <span class="nb">apply</span>(squash_to_prop (pr2 t)).
+      <span class="nb">apply</span> setproperty.
+      <span class="nb">intro</span> ; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">singleton_is_in</span> {<span class="nv">X</span> : UU} (<span class="nv">A</span> : hsubtype X) (<span class="nv">a</span> : A)
+    : (singleton (pr1 a)) ⊆ A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> y.
+    use hinhuniv.
+    <span class="bp">exact</span>(<span class="k">λ</span> (<span class="nv">p</span> : y = (pr1 a)), transportb A p (pr2 a)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">singletons</span>.
+
+<span class="c">(* Map from the coproduct of carriers to the carrier of the binary union. *)</span>
+<span class="kn">Definition</span> <span class="nf">coprod_carrier_binary_union</span> {<span class="nv">X</span>}
+  (<span class="nv">A</span> <span class="nv">B</span> : hsubtype X)
+  : A ⨿ B -&gt; A ∪ B.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> sumofmaps; <span class="nb">apply</span> subtype_inc.
+  - <span class="nb">apply</span> subtype_binaryunion_leq1.
+  - <span class="nb">apply</span> subtype_binaryunion_leq2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">issurjective_coprod_carrier_binary_union</span> {<span class="nv">X</span>}
+  (<span class="nv">A</span> <span class="nv">B</span> : hsubtype X)
+  : issurjective (coprod_carrier_binary_union A B).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> [x aub].
+  use(hinhfun _ aub).
+  <span class="nb">apply</span> sumofmaps
+  ; (<span class="nb">intro</span> y; use make_hfiber)
+  ; <span class="kp">try</span> (<span class="nb">apply</span> subtypePath_prop).
+  - <span class="bp">exact</span>(inl (x ,, y)).
+  - <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span>(inr (x ,, y)).
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">ContainedSubtypes</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+  <span class="kn">Context</span> (<span class="nv">A</span> : hsubtype X).
+
+  <span class="kn">Definition</span> <span class="nf">contained_subtype</span>
+    : UU
+    := carrier (<span class="k">λ</span> (<span class="nv">B</span> : hsubtype X), B ⊆ A).
+
+  <span class="kn">Definition</span> <span class="nf">make_contained_subtype</span>
+    (<span class="nv">B</span> : hsubtype X)
+    (<span class="nv">H</span> : B ⊆ A)
+    : contained_subtype
+    := make_carrier _ B H.
+
+  <span class="kn">Coercion</span> <span class="nf">contained_subtype_to_subtype</span>
+    (B : contained_subtype)
+    : hsubtype X
+    := pr1carrier _ B.
+
+  <span class="kn">Definition</span> <span class="nf">contained_subtype_is_contained</span>
+    (<span class="nv">B</span> : contained_subtype)
+    : B ⊆ A
+    := pr2 B.
+
+  <span class="kn">Definition</span> <span class="nf">contained_subtype_eq</span>
+    (<span class="nv">B</span> <span class="nv">B'</span> : contained_subtype)
+    (<span class="nv">H1</span> : ∏ x, B x -&gt; B' x)
+    (<span class="nv">H2</span> : ∏ x, B' x -&gt; B x)
+    : B = B'.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> carrier_eq.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> hPropUnivalence.
+    - <span class="nb">apply</span> H1.
+    - <span class="nb">apply</span> H2.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">ContainedSubtypes</span>.
+
+<span class="kn">Section</span> <span class="nf">CarrierSubtypes</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+  <span class="kn">Context</span> (<span class="nv">A</span> : hsubtype X).
+
+  <span class="kn">Definition</span> <span class="nf">carrier_subtype_to_contained_subtype</span>
+    (<span class="nv">B</span> : hsubtype A)
+    : contained_subtype A.
+  <span class="kn">Proof</span>.
+    use make_contained_subtype.
+    - <span class="nb">intro</span> x.
+      <span class="k">exists</span> (∑ (H : A x), B (x ,, H)).
+      <span class="kp">abstract</span> (
+        <span class="nb">apply</span> isaproptotal2;
+        <span class="nb">intro</span>;
+        <span class="nb">intros</span>;
+        <span class="nb">apply</span> propproperty
+      ).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">contained_subtype_to_carrier_subtype</span>
+    (<span class="nv">B</span> : contained_subtype A)
+    : hsubtype A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (pr1 B (pr1 x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">carrier_subtype_to_contained_subtype_to_carrier_subtype</span>
+    (<span class="nv">B</span> : hsubtype A)
+    : contained_subtype_to_carrier_subtype (carrier_subtype_to_contained_subtype B) = B.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> hPropUnivalence.
+    - <span class="nb">intro</span> H.
+      <span class="nb">refine</span> (transportf B _ (pr2 H)).
+      <span class="bp">now</span> <span class="nb">apply</span> carrier_eq.
+    - <span class="nb">intro</span> H.
+      <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">x</span>).
+      <span class="nb">refine</span> (transportf B _ H).
+      <span class="bp">now</span> <span class="nb">apply</span> carrier_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">contained_subtype_to_carrier_subtype_to_contained_subtype</span>
+    (<span class="nv">B</span> : contained_subtype A)
+    : carrier_subtype_to_contained_subtype (contained_subtype_to_carrier_subtype B) = B.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> contained_subtype_eq.
+    - <span class="nb">intros</span> x H.
+      <span class="bp">exact</span> (pr2 H).
+    - <span class="nb">intros</span> x H.
+      <span class="k">exists</span> (<span class="nv">pr2</span> <span class="nv">B</span> <span class="nv">x</span> <span class="nv">H</span>).
+      <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">carrier_subtype_weq_contained_subtype</span>
+    : hsubtype A ≃ contained_subtype A
+    := weq_iso
+      carrier_subtype_to_contained_subtype
+      contained_subtype_to_carrier_subtype
+      carrier_subtype_to_contained_subtype_to_carrier_subtype
+      contained_subtype_to_carrier_subtype_to_contained_subtype.
+
+  <span class="kn">Definition</span> <span class="nf">carrier_subtype_carrier_weq_contained_subtype_carrier</span>
+    (<span class="nv">B</span> : hsubtype A)
+    : B ≃ carrier_subtype_weq_contained_subtype B
+    := invweq (totalAssociativity _).
+
+  <span class="kn">Lemma</span> <span class="nf">carrier_subtype_contained_iff_contained_subtype_contained</span>
+    (<span class="nv">B</span> <span class="nv">B'</span> : hsubtype A)
+    : B ⊆ B' ≃ carrier_subtype_weq_contained_subtype B ⊆ carrier_subtype_weq_contained_subtype B'.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (weqiff _ (propproperty _) (propproperty _)).
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> H x Hx.
+      <span class="nb">pose</span> (f := invmap (carrier_subtype_carrier_weq_contained_subtype_carrier B)).
+      <span class="nb">pose</span> (g := subtype_inc H).
+      <span class="nb">pose</span> (h := carrier_subtype_carrier_weq_contained_subtype_carrier B').
+      <span class="bp">exact</span> ((pr2 ∘ h ∘ g ∘ f)%functions (x ,, Hx)).
+    - <span class="nb">intros</span> H x Hx.
+      <span class="nb">pose</span> (f := carrier_subtype_carrier_weq_contained_subtype_carrier B).
+      <span class="nb">pose</span> (g := subtype_inc H).
+      <span class="nb">pose</span> (h := invmap (carrier_subtype_carrier_weq_contained_subtype_carrier B')).
+      <span class="nb">refine</span> (transportf B' _ ((pr2 ∘ h ∘ g ∘ f)%functions (x ,, Hx))).
+      <span class="bp">now</span> <span class="nb">apply</span> carrier_eq.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">CarrierSubtypes</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/Subtypes.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Notations.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Export UniMath.MoreFoundations.Notations.&lt;&lt;&lt;
+  &gt; Require Export UniMath.MoreFoundations.Propositions.
+  &gt; Require Export UniMath.MoreFoundations.DecidablePropositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

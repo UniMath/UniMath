@@ -1,0 +1,271 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.OrderTheory.Posets.html#"><span class="id" title="library">UniMath.OrderTheory.Posets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Equalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Equalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Products.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Products</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. Poset structures of set
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="struct_poset_data" class="idref" href="#struct_poset_data"><span class="id" title="definition">struct_poset_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_struct_data"><span class="id" title="definition">hset_struct_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:1" class="idref" href="#X:1"><span class="id" title="binder"><span id="X:2" class="id">X</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#X:1"><span class="id" title="variable">X</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:3" class="idref" href="#X:3"><span class="id" title="binder"><span id="X:8" class="id">X</span></span></a> <a id="Y:4" class="idref" href="#Y:4"><span class="id" title="binder"><span id="Y:9" class="id">Y</span></span></a> <a id="PX:5" class="idref" href="#PX:5"><span class="id" title="binder"><span id="PX:10" class="id">PX</span></span></a> <a id="PY:6" class="idref" href="#PY:6"><span class="id" title="binder"><span id="PY:11" class="id">PY</span></span></a> <a id="f:7" class="idref" href="#f:7"><span class="id" title="binder"><span id="f:12" class="id">f</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#is_monotone"><span class="id" title="definition">is_monotone</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#PX:5"><span class="id" title="variable">PX</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#PY:6"><span class="id" title="variable">PY</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#f:7"><span class="id" title="variable">f</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="struct_poset_laws" class="idref" href="#struct_poset_laws"><span class="id" title="definition">struct_poset_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_struct_laws"><span class="id" title="definition">hset_struct_laws</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#struct_poset_data"><span class="id" title="definition">struct_poset_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">X</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Sets.html#isaset_PartialOrder"><span class="id" title="definition">isaset_PartialOrder</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">px</span> <span class="id" title="var">py</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#isaprop_is_monotone"><span class="id" title="lemma">isaprop_is_monotone</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">PX</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#idfun_is_monotone"><span class="id" title="lemma">idfun_is_monotone</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> <span class="id" title="var">PZ</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">Pf</span> <span class="id" title="var">Pg</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#comp_is_monotone"><span class="id" title="lemma">comp_is_monotone</span></a> <span class="id" title="var">Pf</span> <span class="id" title="var">Pg</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">PX</span> <span class="id" title="var">PX'</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#eq_PartialOrder"><span class="id" title="lemma">eq_PartialOrder</span></a> <span class="id" title="var">p</span> <span class="id" title="var">q</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="struct_poset" class="idref" href="#struct_poset"><span class="id" title="definition">struct_poset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_struct"><span class="id" title="definition">hset_struct</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#struct_poset_data"><span class="id" title="definition">struct_poset_data</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#struct_poset_laws"><span class="id" title="definition">struct_poset_laws</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. Posets is a cartesian structure
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="cartesian_struct_poset_data" class="idref" href="#cartesian_struct_poset_data"><span class="id" title="definition">cartesian_struct_poset_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_cartesian_struct_data"><span class="id" title="definition">hset_cartesian_struct_data</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#struct_poset"><span class="id" title="definition">struct_poset</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#unit_PartialOrder"><span class="id" title="definition">unit_PartialOrder</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:13" class="idref" href="#X:13"><span class="id" title="binder">X</span></a> <a id="Y:14" class="idref" href="#Y:14"><span class="id" title="binder">Y</span></a> <a id="PX:15" class="idref" href="#PX:15"><span class="id" title="binder">PX</span></a> <a id="PY:16" class="idref" href="#PY:16"><span class="id" title="binder">PY</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#prod_PartialOrder"><span class="id" title="definition">prod_PartialOrder</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#PX:15"><span class="id" title="variable">PX</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#PY:16"><span class="id" title="variable">PY</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_struct_poset_laws" class="idref" href="#cartesian_struct_poset_laws"><span class="id" title="definition">cartesian_struct_poset_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_cartesian_struct_laws"><span class="id" title="definition">hset_cartesian_struct_laws</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#cartesian_struct_poset_data"><span class="id" title="definition">cartesian_struct_poset_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">PX</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">p</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#dirprod_pr1_is_monotone"><span class="id" title="lemma">dirprod_pr1_is_monotone</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#dirprod_pr2_is_monotone"><span class="id" title="lemma">dirprod_pr2_is_monotone</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">W</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">PW</span> <span class="id" title="var">PY</span> <span class="id" title="var">PZ</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">Pf</span> <span class="id" title="var">Pg</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#prodtofun_is_monotone"><span class="id" title="lemma">prodtofun_is_monotone</span></a> <span class="id" title="var">Pf</span> <span class="id" title="var">Pg</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_struct_poset" class="idref" href="#cartesian_struct_poset"><span class="id" title="definition">cartesian_struct_poset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.html#hset_cartesian_struct"><span class="id" title="definition">hset_cartesian_struct</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#cartesian_struct_poset_data"><span class="id" title="definition">cartesian_struct_poset_data</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#cartesian_struct_poset_laws"><span class="id" title="definition">cartesian_struct_poset_laws</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 3. Limits of posets
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="equalizers_struct_poset" class="idref" href="#equalizers_struct_poset"><span class="id" title="definition">equalizers_struct_poset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_equalizer_struct"><span class="id" title="definition">hset_equalizer_struct</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#struct_poset"><span class="id" title="definition">struct_poset</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> <span class="id" title="var">Pf</span> <span class="id" title="var">Pg</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#Equalizer_order"><span class="id" title="definition">Equalizer_order</span></a> <span class="id" title="var">PX</span> <span class="id" title="var">_</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> <span class="id" title="var">Pf</span> <span class="id" title="var">Pg</span> ; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> * ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#Equalizer_pr1_monotone"><span class="id" title="lemma">Equalizer_pr1_monotone</span></a> <span class="id" title="var">PX</span> <span class="id" title="var">Y</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> <span class="id" title="var">Pf</span> <span class="id" title="var">Pg</span> <span class="id" title="var">W</span> <span class="id" title="var">PW</span> <span class="id" title="var">h</span> <span class="id" title="var">Ph</span> <span class="id" title="var">q</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#Equalizer_map_monotone"><span class="id" title="lemma">Equalizer_map_monotone</span></a> <span class="id" title="var">PX</span> <span class="id" title="var">Y</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">PW</span> <span class="id" title="var">Ph</span> (<a class="idref" href="UniMath.Foundations.PartA.html#eqtohomot"><span class="id" title="definition">eqtohomot</span></a> <span class="id" title="var">q</span>))).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="type_products_struct_poset" class="idref" href="#type_products_struct_poset"><span class="id" title="definition">type_products_struct_poset</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="I:17" class="idref" href="#I:17"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_struct_type_prod"><span class="id" title="definition">hset_struct_type_prod</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#struct_poset"><span class="id" title="definition">struct_poset</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#I:17"><span class="id" title="variable">I</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="D:18" class="idref" href="#D:18"><span class="id" title="binder"><span id="D:20" class="id">D</span></span></a> <a id="fs:19" class="idref" href="#fs:19"><span class="id" title="binder"><span id="fs:21" class="id">fs</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#depfunction_poset"><span class="id" title="definition">depfunction_poset</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#fs:19"><span class="id" title="variable">fs</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">D</span> <span class="id" title="var">PD</span> <span class="id" title="var">i</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#is_monotone_depfunction_poset_pr"><span class="id" title="lemma">is_monotone_depfunction_poset_pr</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">D</span> <span class="id" title="var">PD</span> <span class="id" title="var">W</span> <span class="id" title="var">PW</span> <span class="id" title="var">fs</span> <span class="id" title="var">Hfs</span> <span class="id" title="var">i</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#is_monotone_depfunction_poset_pair"><span class="id" title="lemma">is_monotone_depfunction_poset_pair</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">Hfs</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 4. Exponentials of posets
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="poset_fun_space" class="idref" href="#poset_fun_space"><span class="id" title="definition">poset_fun_space</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="X:22" class="idref" href="#X:22"><span class="id" title="binder">X</span></a> <a id="Y:23" class="idref" href="#Y:23"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PX:24" class="idref" href="#PX:24"><span class="id" title="binder">PX</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#X:22"><span class="id" title="variable">X</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="PY:25" class="idref" href="#PY:25"><span class="id" title="binder">PY</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#Y:23"><span class="id" title="variable">Y</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Sets.html#PartialOrder"><span class="id" title="definition">PartialOrder</span></a> (@<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#struct_fun_hSet"><span class="id" title="definition">struct_fun_hSet</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#struct_poset"><span class="id" title="definition">struct_poset</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#X:22"><span class="id" title="variable">X</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#Y:23"><span class="id" title="variable">Y</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#PX:24"><span class="id" title="variable">PX</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#PY:25"><span class="id" title="variable">PY</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.Sets.html#make_PartialOrder"><span class="id" title="definition">make_PartialOrder</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="f:26" class="idref" href="#f:26"><span class="id" title="binder"><span id="f:29" class="id">f</span></span></a> <a id="g:27" class="idref" href="#g:27"><span class="id" title="binder"><span id="g:30" class="id">g</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">∀</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">(</span></a><a id="x:28" class="idref" href="#x:28"><span class="id" title="binder"><span id="x:31" class="id">x</span></span></a> : <span class="id" title="var">X</span><a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">),</span></a> <span class="id" title="var">PY</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#f:26"><span class="id" title="variable">f</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#x:28"><span class="id" title="variable">x</span></a>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#g:27"><span class="id" title="variable">g</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#x:28"><span class="id" title="variable">x</span></a>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">(</span></a><span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">h</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> <span class="id" title="var">x</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#trans_PartialOrder"><span class="id" title="lemma">trans_PartialOrder</span></a> <span class="id" title="var">PY</span> (<span class="id" title="var">p</span> <span class="id" title="var">x</span>) (<span class="id" title="var">q</span> <span class="id" title="var">x</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">x</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#refl_PartialOrder"><span class="id" title="lemma">refl_PartialOrder</span></a> <span class="id" title="var">PY</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">f</span> <span class="id" title="var">x</span>))).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.OrderTheory.Posets.MonotoneFunctions.html#eq_monotone_function"><span class="id" title="lemma">eq_monotone_function</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#antisymm_PartialOrder"><span class="id" title="lemma">antisymm_PartialOrder</span></a> <span class="id" title="var">PY</span> (<span class="id" title="var">p</span> <span class="id" title="var">x</span>) (<span class="id" title="var">q</span> <span class="id" title="var">x</span>))).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_closed_struct_poset_data" class="idref" href="#cartesian_closed_struct_poset_data"><span class="id" title="definition">cartesian_closed_struct_poset_data</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_cartesian_closed_struct_data"><span class="id" title="definition">hset_cartesian_closed_struct_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#cartesian_struct_poset"><span class="id" title="definition">cartesian_struct_poset</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> <span class="id" title="var">y</span> <span class="id" title="var">x₁</span> <span class="id" title="var">x₂</span> <span class="id" title="var">p</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#refl_PartialOrder"><span class="id" title="lemma">refl_PartialOrder</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:32" class="idref" href="#X:32"><span class="id" title="binder"><span id="X:36" class="id">X</span></span></a> <a id="Y:33" class="idref" href="#Y:33"><span class="id" title="binder"><span id="Y:37" class="id">Y</span></span></a> <a id="PX:34" class="idref" href="#PX:34"><span class="id" title="binder"><span id="PX:38" class="id">PX</span></span></a> <a id="PY:35" class="idref" href="#PY:35"><span class="id" title="binder"><span id="PY:39" class="id">PY</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#poset_fun_space"><span class="id" title="definition">poset_fun_space</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#PX:34"><span class="id" title="variable">PX</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#PY:35"><span class="id" title="variable">PY</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="cartesian_closed_struct_poset_laws" class="idref" href="#cartesian_closed_struct_poset_laws"><span class="id" title="lemma">cartesian_closed_struct_poset_laws</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#closed_under_fun_laws"><span class="id" title="definition">closed_under_fun_laws</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#cartesian_closed_struct_poset_data"><span class="id" title="definition">cartesian_closed_struct_poset_data</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">repeat</span> <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> <span class="id" title="var">xf</span> <span class="id" title="var">yg</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">xf</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">x</span> [ <span class="id" title="var">f</span> <span class="id" title="var">Hf</span> ]].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">yg</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">y</span> [ <span class="id" title="var">g</span> <span class="id" title="var">Hg</span> ]].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">p</span> <span class="id" title="var">q</span> ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#trans_PartialOrder"><span class="id" title="lemma">trans_PartialOrder</span></a> <span class="id" title="var">PY</span> (<span class="id" title="var">q</span> <span class="id" title="var">x</span>) (<span class="id" title="var">Hg</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">p</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> <span class="id" title="var">PZ</span> <span class="id" title="var">f</span> <span class="id" title="var">Pf</span> <span class="id" title="var">z₁</span> <span class="id" title="var">z₂</span> <span class="id" title="var">p</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">Pf</span> (<span class="id" title="var">x</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">z₁</span>) (<span class="id" title="var">x</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">z₂</span>) (<a class="idref" href="UniMath.OrderTheory.Posets.Basics.html#refl_PartialOrder"><span class="id" title="lemma">refl_PartialOrder</span></a> <span class="id" title="var">PX</span> <span class="id" title="var">x</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">p</span>)).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="cartesian_closed_struct_poset" class="idref" href="#cartesian_closed_struct_poset"><span class="id" title="definition">cartesian_closed_struct_poset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_cartesian_closed_struct"><span class="id" title="definition">hset_cartesian_closed_struct</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#cartesian_closed_struct_poset_data"><span class="id" title="definition">cartesian_closed_struct_poset_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#cartesian_closed_struct_poset_laws"><span class="id" title="lemma">cartesian_closed_struct_poset_laws</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 5. Binary coproducts of posets
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="binary_coproducts_struct_poset" class="idref" href="#binary_coproducts_struct_poset"><span class="id" title="definition">binary_coproducts_struct_poset</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_binary_coprod_struct"><span class="id" title="definition">hset_binary_coprod_struct</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#struct_poset"><span class="id" title="definition">struct_poset</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="X:40" class="idref" href="#X:40"><span class="id" title="binder"><span id="X:44" class="id">X</span></span></a> <a id="Y:41" class="idref" href="#Y:41"><span class="id" title="binder"><span id="Y:45" class="id">Y</span></span></a> <a id="PX:42" class="idref" href="#PX:42"><span class="id" title="binder"><span id="PX:46" class="id">PX</span></span></a> <a id="PY:43" class="idref" href="#PY:43"><span class="id" title="binder"><span id="PY:47" class="id">PY</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.PosetSum.html#coproduct_PartialOrder"><span class="id" title="definition">coproduct_PartialOrder</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#PX:42"><span class="id" title="variable">PX</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#PY:43"><span class="id" title="variable">PY</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>) ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.PosetSum.html#is_monotone_inl"><span class="id" title="definition">is_monotone_inl</span></a> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.PosetSum.html#is_monotone_inr"><span class="id" title="definition">is_monotone_inr</span></a> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">X</span> <span class="id" title="var">Y</span> <span class="id" title="var">Z</span> <span class="id" title="var">PX</span> <span class="id" title="var">PY</span> <span class="id" title="var">PZ</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> <span class="id" title="var">Pf</span> <span class="id" title="var">Pg</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.PosetSum.html#is_monotone_sumofmaps"><span class="id" title="definition">is_monotone_sumofmaps</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">Pf</span> <span class="id" title="var">Pg</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 6. Set-indexed coproducts of posets
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="set_coproducts_struct_poset" class="idref" href="#set_coproducts_struct_poset"><span class="id" title="definition">set_coproducts_struct_poset</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="I:48" class="idref" href="#I:48"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.html#hset_struct_set_coprod"><span class="id" title="definition">hset_struct_set_coprod</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#struct_poset"><span class="id" title="definition">struct_poset</span></a> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#I:48"><span class="id" title="variable">I</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="Y:49" class="idref" href="#Y:49"><span class="id" title="binder"><span id="Y:51" class="id">Y</span></span></a> <a id="PY:50" class="idref" href="#PY:50"><span class="id" title="binder"><span id="PY:52" class="id">PY</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.OrderTheory.Posets.PosetSum.html#coproduct_set_PartialOrder"><span class="id" title="definition">coproduct_set_PartialOrder</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Examples.PosetStructures.html#PY:50"><span class="id" title="variable">PY</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>) ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">Y</span> <span class="id" title="var">PY</span> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.PosetSum.html#is_monotone_set_in"><span class="id" title="definition">is_monotone_set_in</span></a> <span class="id" title="var">_</span> <span class="id" title="var">PY</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="Y:53" class="idref" href="#Y:53"><span class="id" title="binder"><span id="Y:59" class="id">Y</span></span></a> <a id="PY:54" class="idref" href="#PY:54"><span class="id" title="binder"><span id="PY:60" class="id">PY</span></span></a> <a id="W:55" class="idref" href="#W:55"><span class="id" title="binder"><span id="W:61" class="id">W</span></span></a> <a id="PW:56" class="idref" href="#PW:56"><span class="id" title="binder"><span id="PW:62" class="id">PW</span></span></a> <a id="f:57" class="idref" href="#f:57"><span class="id" title="binder"><span id="f:63" class="id">f</span></span></a> <a id="Pf:58" class="idref" href="#Pf:58"><span class="id" title="binder"><span id="Pf:64" class="id">Pf</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">_</span>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.OrderTheory.Posets.PosetSum.html#is_monotone_set_coproduct_map"><span class="id" title="definition">is_monotone_set_coproduct_map</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">Pf</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CoordinateContinuity.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Scott Continuity can be checked coordinatewise</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottContinuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.FubiniTheorem.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Examples.BinaryProducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="kn">Section</span> <span class="nf">Coordinates</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : dcpo}
+          (<span class="nv">f</span> : X × Y → Z)
+          (<span class="nv">Hf₁</span> : ∏ (x : X), is_scott_continuous Y Z (<span class="k">λ</span> <span class="nv">y</span>, f (x ,, y)))
+          (<span class="nv">Hf₂</span> : ∏ (y : Y), is_scott_continuous X Z (<span class="k">λ</span> <span class="nv">x</span>, f (x ,, y))).
+
+  <span class="kn">Lemma</span> <span class="nf">scott_continuous_map_coordinates_monotone</span>
+    : is_monotone (X × Y) Z f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> xy₁ xy₂ pq.
+    <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ].
+    <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ].
+    <span class="nb">induction</span> pq <span class="k">as</span> [ p q ].
+    <span class="nb">pose</span> (is_scott_continuous_monotone (Hf₁ x₁) _ _ q) <span class="k">as</span> r₁.
+    <span class="nb">pose</span> (is_scott_continuous_monotone (Hf₂ y₂) _ _ p) <span class="k">as</span> r₂.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (trans_PartialOrder Z r₁ r₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Let</span> <span class="nf">F</span> : monotone_function (X × Y) Z
+    := _ ,, scott_continuous_map_coordinates_monotone.
+  <span class="kn">Let</span> <span class="nf">Fy</span> (<span class="nv">D</span> : directed_set (X × Y)) : scott_continuous_map X Z
+    := _ ,, Hf₂ (⨆ (π₂ {{ D }})).
+
+  <span class="kn">Lemma</span> <span class="nf">scott_continuous_map_coordinates_lub</span>
+        (<span class="nv">D</span> : directed_set (X × Y))
+    : F (⨆ D) = ⨆ (F {{ D }}).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> prod_dcpo_lub.
+    etrans.
+    {
+      <span class="bp">exact</span> (scott_continuous_map_on_lub (Fy D) (π₁ {{ D }})).
+    }
+    <span class="nb">refine</span> (_ @ !(monotone_prod_map_fubini_pair_l _ _)).
+    use dcpo_lub_eq_pointwise.
+    <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="bp">exact</span> (scott_continuous_map_on_lub (_ ,, Hf₁ i) (π₂ {{ D }})).
+    }
+    use dcpo_lub_eq_pointwise.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">scott_continuous_map_coordinates</span>
+    : scott_continuous_map (X × Y) Z.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (f ,, _).
+    use is_scott_continuous_chosen_lub.
+    - <span class="bp">exact</span> scott_continuous_map_coordinates_monotone.
+    - <span class="nb">intros</span> I D HD.
+      <span class="bp">exact</span> (scott_continuous_map_coordinates_lub (I ,, D ,, HD)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Coordinates</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_scott_continuous_coordinates</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : hSet}
+            (<span class="nv">DX</span> : dcpo_struct X)
+            (<span class="nv">DY</span> : dcpo_struct Y)
+            (<span class="nv">DZ</span> : dcpo_struct Z)
+            (<span class="nv">f</span> : X × Y → Z)
+            (<span class="nv">Hf₁</span> : ∏ (x : X), is_scott_continuous DY DZ (<span class="k">λ</span> <span class="nv">y</span>, f (x ,, y)))
+            (<span class="nv">Hf₂</span> : ∏ (y : Y), is_scott_continuous DX DZ (<span class="k">λ</span> <span class="nv">x</span>, f (x ,, y)))
+  : is_scott_continuous
+      (prod_dcpo_struct DX DY)
+      DZ
+      f.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (@scott_continuous_map_coordinates
+                (X ,, DX)
+                (Y ,, DY)
+                (Z ,, DZ)
+                f
+                Hf₁
+                Hf₂)).
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Core/CoordinateContinuity.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  Scott Continuity can be checked coordinatewise
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+  &gt; Require Import UniMath.OrderTheory.Posets.MonotoneFunctions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,973 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Terms.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Terms for a given signature. *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2022 *)</span>
+<span class="sd">(**</span>
+<span class="sd">This file contains a formalization of terms over a signature, implemented as a sequence of</span>
+<span class="sd">operation symbols. This sequence is though to be executed by a stack machine: each</span>
+<span class="sd">symbol of arity _n_ virtually pops _n_ elements from the stack and pushes a new element.</span>
+<span class="sd">A sequence of function symbols is a term when the result of the execution is a stack</span>
+<span class="sd">with a single element and no stack underflow or type errors occur.</span>
+
+<span class="sd">Here we only define ground terms, while terms with variables will be defined in &lt;&lt;VTerms.v&gt;&gt;.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.Maybe.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.SortedTypes.
+<span class="kn">Require Export</span> UniMath.Algebra.Universal.Signatures.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> sorted.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hvec.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> list.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> transport.
+
+<span class="sd">(** ** Definition of [oplist] (operations list). *)</span>
+<span class="sd">(**</span>
+<span class="sd">An [oplist] is a list of operation symbols, interpreted as commands to be executed by a stack</span>
+<span class="sd">machine. Elements of the stack are sorts. When an operation symbol is executed  its arity is</span>
+<span class="sd">popped out from the stack and replaced by its range. When a stack underflow occurs,</span>
+<span class="sd">or when the sorts present in the stack are not the ones expected by the operator, the stack goes into an</span>
+<span class="sd">error condition which is propagated by successive operations. A term is an [oplist] that produces</span>
+<span class="sd">a stack of length one, when execution starts from the empty stack. Operation symbols are executed in</span>
+<span class="sd">order from the last element of the [oplist] to the first.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">oplist</span> (<span class="nv">σ</span>: signature):= list (names σ).
+
+<span class="kn">Bind Scope</span> list_scope <span class="k">with</span> oplist.
+
+<span class="kn">Identity Coercion</span> <span class="nf">oplistislist</span>: oplist &gt;-&gt; list.
+
+<span class="kn">Local Corollary</span> <span class="nf">isasetoplist</span> (<span class="nv">σ</span>: signature): isaset (oplist σ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isofhlevellist.
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">stack</span> (<span class="nv">σ</span>: signature): UU := maybe (list (sorts σ)).
+
+<span class="kn">Local Lemma</span> <span class="nf">isasetstack</span> (<span class="nv">σ</span>: signature): isaset (stack σ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isasetmaybe.
+  <span class="nb">apply</span> isofhlevellist.
+  <span class="nb">apply</span> isasetifdeceq.
+  <span class="nb">apply</span> decproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">Oplists</span>.
+
+  <span class="kn">Context</span> {<span class="nv">σ</span>: signature}.
+
+  <span class="sd">(** *** The [opexec] and [oplistexec] functions. *)</span>
+  <span class="sd">(**</span>
+<span class="sd">     The function [opexec nm] is the stack transformation corresponding to the execution of</span>
+<span class="sd">     the operation symbol [nm], while [oplistexec l] returns the stack corresponding to the</span>
+<span class="sd">     execution of the entire oplist [l] starting from the empty stack. The list is executed from the last</span>
+<span class="sd">     to the first operation symbol. Finally [isaterm l] holds when the result of [oplistexec l]</span>
+<span class="sd">     is a stack of length one.</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">opexec</span> (<span class="nv">nm</span>: names σ): stack σ → stack σ
+    := flatmap (<span class="k">λ</span> <span class="nv">ss</span>, just (sort nm :: ss)) ∘ flatmap (<span class="k">λ</span> <span class="nv">ss</span>, prefix_remove (arity nm) ss).
+
+  <span class="kn">Local Definition</span> <span class="nf">oplistexec</span> (<span class="nv">l</span>: oplist σ): stack σ := foldr opexec (just []) l.
+
+  <span class="kn">Local Definition</span> <span class="nf">isaterm</span> (<span class="nv">s</span>: sorts σ) (<span class="nv">l</span>: oplist σ): UU := oplistexec l = just ([s]).
+
+  <span class="kn">Local Lemma</span> <span class="nf">isapropisaterm</span> (<span class="nv">s</span>: sorts σ) (<span class="nv">l</span>: oplist σ): isaprop (isaterm s l).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isasetstack.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">opexec_dec</span> (<span class="nv">nm</span>: names σ) (<span class="nv">ss</span>: list (sorts σ))
+    : ((opexec nm (just ss) = nothing) × (prefix_remove (arity nm) ss = nothing))
+              ⨿  ∑ (ss': list (sorts σ)), (opexec nm (just ss) = just ((sort nm) :: ss')) × (prefix_remove (arity nm) ss = just ss').
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> opexec, just.
+    <span class="nb">simpl</span>.
+    <span class="nb">induction</span> (prefix_remove (arity nm) ss) <span class="k">as</span> [ ss' | error ].
+    - <span class="nb">apply</span> ii2.
+      <span class="k">exists</span> <span class="nv">ss'</span>.
+      <span class="nb">split</span>; <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> ii1.
+      <span class="nb">split</span>.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">induction</span> error.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">opexec_just_f</span> (<span class="nv">nm</span>: names σ) (<span class="nv">ss</span>: list (sorts σ)) (<span class="nv">arityok</span>: isprefix (arity nm) ss)
+    : ∑ ss': list (sorts σ), opexec nm (just ss) = just ((sort nm) :: ss') ×  prefix_remove (arity nm) ss = just ss'.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> (opexec_dec nm ss) <span class="k">as</span> [err | ok].
+    - <span class="nb">induction</span> err <span class="k">as</span> [_  err].
+      contradicts arityok err.
+    - <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">opexec_just_b</span> (<span class="nv">nm</span>: names σ) (<span class="nv">st</span>: stack σ) (<span class="nv">ss</span>: list (sorts σ))
+    : opexec nm st = just ss → ∑ ss', ss = sort nm :: ss' × st = just ((arity nm) ++ ss').
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> scons.
+    <span class="nb">induction</span> st <span class="k">as</span> [stok | sterror].
+    - <span class="nb">induction</span> (opexec_dec nm stok) <span class="k">as</span> [scons_err | scons_ok].
+      + <span class="nb">induction</span> scons_err <span class="k">as</span> [scons_err _].
+        <span class="nb">set</span> (H := ! scons @ scons_err).
+        <span class="bp">contradiction</span> (negpathsii1ii2 _ _ H).
+      + <span class="nb">induction</span> scons_ok <span class="k">as</span> [ss' [X1 X2]].
+        <span class="k">exists</span> <span class="nv">ss'</span>.
+        <span class="nb">split</span>.
+        * <span class="nb">apply</span> just_injectivity.
+          <span class="bp">exact</span> (!scons @ X1).
+        * <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> prefix_remove_back.
+          <span class="bp">assumption</span>.
+   -  <span class="bp">contradiction</span> (negpathsii2ii1 _ _ scons).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">opexec_zero_b</span> (<span class="nv">nm</span>: names σ) (<span class="nv">st</span>: stack σ)
+    : ¬ (opexec nm st = just nil).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> st <span class="k">as</span> [stok | sterror].
+    - <span class="nb">induction</span> (opexec_dec nm stok) <span class="k">as</span> [scons_err| scons_ok].
+      + <span class="nb">induction</span> scons_err <span class="k">as</span> [scons_err _].
+        <span class="nb">intro</span> H.
+        <span class="nb">set</span> (H' :=  (!! scons_err @ H)).
+        <span class="nb">apply</span> negpathsii1ii2 <span class="k">in</span> H'.
+        <span class="bp">assumption</span>.
+      + <span class="nb">induction</span> scons_ok <span class="k">as</span> [p [proofp _]].
+        <span class="nb">intro</span> H.
+        <span class="nb">set</span> (H' :=  (!proofp @ H)).
+        <span class="nb">apply</span> ii1_injectivity <span class="k">in</span> H'.
+        <span class="nb">apply</span> negpathsconsnil <span class="k">in</span> H'.
+        <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> negpathsii2ii1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">oplistexec_nil</span>
+    : oplistexec (nil: oplist σ) = just nil.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">oplistexec_cons</span> (<span class="nv">nm</span>: names σ) (<span class="nv">l</span>: oplist σ)
+    : oplistexec (nm :: l) = opexec nm (oplistexec l).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">oplistexec_zero_b</span> (<span class="nv">l</span>: oplist σ): oplistexec l = just nil → l = nil.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> l.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    - <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> x xs _ lstack.
+      <span class="nb">apply</span> opexec_zero_b <span class="k">in</span> lstack.
+      <span class="bp">contradiction</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">oplistexec_positive_b</span> (<span class="nv">l</span>: oplist σ) (<span class="nv">s</span>: sorts σ) (<span class="nv">ss</span>: list (sorts σ))
+    : oplistexec l = just (s :: ss) → ∑ (x: names σ) (xs: oplist σ), l = x :: xs.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> l.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    - <span class="nb">intro</span> nilstack.
+      <span class="nb">cbn</span> <span class="k">in</span> nilstack.
+      <span class="nb">apply</span> ii1_injectivity <span class="k">in</span> nilstack.
+      <span class="nb">apply</span> negpathsnilcons <span class="k">in</span> nilstack.
+      <span class="bp">contradiction</span>.
+    - <span class="nb">intros</span> x xs _ lstack.
+      <span class="k">exists</span> <span class="nv">x</span>.
+      <span class="k">exists</span> <span class="nv">xs</span>.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** The [stackconcatenate] function. *)</span>
+
+  <span class="sd">(**</span>
+<span class="sd">  [stackconcatenate] simply appends the two lists which make the stacks, possibly propagating</span>
+<span class="sd">  erroneous states.</span>
+<span class="sd">  *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">stackconcatenate</span> (<span class="nv">st1</span> <span class="nv">st2</span>: stack σ): stack σ
+    := flatmap (<span class="k">λ</span> <span class="nv">st2'</span>, flatmap (<span class="k">λ</span> <span class="nv">st1'</span>, just (st1' ++ st2')) st1) st2.
+
+  <span class="kn">Local Lemma</span> <span class="nf">stackconcatenate_opexec</span> (<span class="nv">nm</span>: names σ) (<span class="nv">st1</span> <span class="nv">st2</span>: stack σ)
+    : opexec nm st1 != nothing
+       → stackconcatenate (opexec nm st1) st2 = opexec nm (stackconcatenate st1 st2).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> st1 <span class="k">as</span> [ss1 | ].
+    <span class="mi">2</span>: <span class="bp">contradiction</span>.
+    <span class="nb">induction</span> st2 <span class="k">as</span> [ss2| ].
+    <span class="mi">2</span>: <span class="bp">reflexivity</span>.
+    <span class="nb">intro</span> H.
+    <span class="nb">induction</span> (opexec_dec nm ss1) <span class="k">as</span> [Xerr | Xok].
+    - contradicts H (pr1 Xerr).
+    - <span class="nb">induction</span> Xok <span class="k">as</span> [tl [scons pref]].
+      <span class="nb">unfold</span> just <span class="k">in</span> scons.
+      <span class="nb">rewrite</span> scons.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> concatenateStep.
+      <span class="nb">unfold</span> opexec.
+      <span class="nb">simpl</span>.
+      <span class="nb">erewrite</span> prefix_remove_concatenate.
+      * <span class="nb">apply</span> idpath.
+      * <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+ <span class="kn">Local Lemma</span> <span class="nf">oplistexec_concatenate</span> (<span class="nv">l1</span> <span class="nv">l2</span>: oplist σ)
+    : oplistexec l1 != nothing
+      → oplistexec (concatenate l1 l2)
+        = stackconcatenate (oplistexec l1) (oplistexec l2).
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> l1.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    - <span class="nb">intros</span>.
+      <span class="nb">change</span> ([] ++ l2) <span class="k">with</span> (l2).
+      <span class="nb">induction</span> (oplistexec l2) <span class="k">as</span> [l2ok | l2error].
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">induction</span> l2error.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x xs IHxs noerror.
+      <span class="nb">change</span> (oplistexec (x :: xs)) <span class="k">with</span> (opexec x (oplistexec xs))  <span class="k">in</span> *.
+      <span class="nb">rewrite</span> stackconcatenate_opexec <span class="bp">by</span> (<span class="bp">assumption</span>).
+      <span class="nb">rewrite</span> &lt;- IHxs.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">intro</span> error.
+        <span class="nb">rewrite</span> error <span class="k">in</span> noerror.
+        <span class="bp">contradiction</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** The [oplistsplit] function. *)</span>
+
+  <span class="sd">(**</span>
+<span class="sd">     [oplistsplit] splits an oplist into an oplist of up to [n] terms and an oplist of the remaining</span>
+<span class="sd">     terms.</span>
+<span class="sd">   *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">oplistsplit</span> (<span class="nv">l</span>: oplist σ) (<span class="nv">n</span>: nat): oplist σ × oplist σ.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> l n.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    - <span class="nb">intros</span>.
+      <span class="bp">exact</span> (nil ,, nil).
+    - <span class="nb">intros</span> x xs IHxs n.
+      <span class="nb">induction</span> n.
+      + <span class="bp">exact</span> (nil,, (x :: xs)).
+      + <span class="nb">induction</span> (IHxs (length (arity x) + n)) <span class="k">as</span> [IHfirst IHsecond].
+        <span class="bp">exact</span> ((x :: IHfirst) ,, IHsecond).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">oplistsplit_zero</span> (<span class="nv">l</span>: oplist σ): oplistsplit l <span class="mi">0</span> = nil,, l.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> l.
+    <span class="nb">refine</span> (list_ind _ _ _) ; <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">oplistsplit_nil</span> (<span class="nv">n</span>: nat): oplistsplit nil n = nil,, nil.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">oplistsplit_cons</span> (<span class="nv">x</span>: names σ) (<span class="nv">xs</span>: oplist σ) (<span class="nv">n</span>: nat)
+    : oplistsplit (x :: xs) (S n)
+      = (x :: (pr1 (oplistsplit xs (length (arity x) + n)))) ,, (pr2 (oplistsplit xs (length (arity x) + n))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">oplistsplit_concatenate</span> (<span class="nv">l1</span> <span class="nv">l2</span>: oplist σ) (<span class="nv">n</span>: nat) (<span class="nv">ss</span>: list (sorts σ))
+    : oplistexec l1 = just ss → n ≤ length ss
+      → oplistsplit (l1 ++ l2) n
+        = make_dirprod (pr1 (oplistsplit l1 n)) (pr2 (oplistsplit l1 n) ++ l2).
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> l1 ss n.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    - <span class="nb">intros</span> ss n l1stack nlehss.
+      <span class="nb">apply</span> ii1_injectivity <span class="k">in</span> l1stack.
+      <span class="nb">rewrite</span> &lt;- l1stack <span class="k">in</span> nlehss.
+      <span class="nb">apply</span> natleh0tois0 <span class="k">in</span> nlehss.
+      <span class="nb">rewrite</span> nlehss.
+      <span class="nb">rewrite</span> oplistsplit_zero.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x1 xs1 IHxs1 ss n l1stack nlehss.
+      <span class="nb">change</span> ((x1 :: xs1) ++ l2) <span class="k">with</span> (x1 :: (xs1 ++ l2)).
+      <span class="nb">induction</span> n.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">change</span> (oplistexec (x1 :: xs1)) <span class="k">with</span> (opexec x1 (oplistexec xs1)) <span class="k">in</span> l1stack.
+        <span class="nb">apply</span> opexec_just_b <span class="k">in</span> l1stack.
+        <span class="nb">induction</span> l1stack <span class="k">as</span> [sstail [ssdef xs1stack]].
+        <span class="nb">eset</span> (IHinst := IHxs1 (arity x1 ++ sstail) (length (arity x1) + n) xs1stack _).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> oplistsplit_cons.
+        <span class="nb">apply</span> pathsdirprod.
+        * <span class="nb">cbn</span>.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> IHinst.
+          <span class="nb">cbn</span> <span class="k">in</span> IHinst.
+          <span class="bp">assumption</span>.
+        * <span class="nb">apply</span> (maponpaths dirprod_pr2) <span class="k">in</span> IHinst.
+          <span class="bp">assumption</span>.
+     <span class="kn">Unshelve</span>.
+     <span class="nb">rewrite</span> length_concatenate.
+     <span class="nb">apply</span> natlehandplusl.
+     <span class="nb">rewrite</span> ssdef <span class="k">in</span> nlehss.
+     <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">concatenate_oplistsplit</span> (<span class="nv">l</span>: oplist σ) (<span class="nv">n</span>: nat): pr1 (oplistsplit l n) ++ pr2 (oplistsplit l n) = l.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> l n.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    - <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> x xs IHxs n.
+      <span class="nb">induction</span> n.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> oplistsplit_cons.
+        <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> concatenateStep.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> IHxs.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">oplistexec_oplistsplit</span> (<span class="nv">l</span>: oplist σ) {<span class="nv">ss</span>: list (sorts σ)} (<span class="nv">n</span>: nat)
+    : oplistexec l = just ss → n ≤ length ss
+      → ∑ t1 t2: list (sorts σ),
+          ss = t1 ++ t2
+          × oplistexec (pr1 (oplistsplit l n)) = just t1
+          × oplistexec (pr2 (oplistsplit l n)) = just t2
+          × length t1 = n.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> l ss n.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    - <span class="nb">intros</span> m ss nilstack nlehss.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> ii1_injectivity <span class="k">in</span> nilstack.
+      <span class="nb">rewrite</span> &lt;- nilstack <span class="k">in</span> *.
+      <span class="nb">apply</span> natleh0tois0 <span class="k">in</span> nlehss.
+      <span class="nb">rewrite</span> nlehss.
+      <span class="k">exists</span> <span class="nv">nil</span>.
+      <span class="k">exists</span> <span class="nv">nil</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x xs IHxs ss n lstack nlehss.
+      <span class="nb">induction</span> n.
+      + <span class="nb">rewrite</span> oplistsplit_zero.
+        <span class="k">exists</span> <span class="nv">nil</span>.
+        <span class="k">exists</span> <span class="nv">ss</span>.
+        <span class="kp">repeat</span> <span class="nb">split</span>.
+        <span class="bp">assumption</span>.
+      + <span class="nb">rewrite</span> oplistsplit_cons.
+        <span class="nb">simpl</span>.
+        <span class="nb">change</span> (oplistexec (x :: xs)) <span class="k">with</span> (opexec x (oplistexec xs)) <span class="k">in</span> lstack.
+        <span class="nb">apply</span> opexec_just_b <span class="k">in</span> lstack.
+        <span class="nb">induction</span> lstack <span class="k">as</span> [sstail [ssdef xsstack]].
+        <span class="nb">eset</span> (IHinst := IHxs (arity x ++ sstail) (length (arity x) + n) xsstack _).
+        <span class="nb">induction</span> IHinst <span class="k">as</span>  [t1 [ t2 [ t1t2concat [ t1def [ t2def t1len ] ] ] ] ].
+        <span class="k">exists</span> ((sort x) :: MoreLists.drop t1 (length (arity x))).
+        <span class="k">exists</span> <span class="nv">t2</span>.
+        <span class="kp">repeat</span> <span class="nb">split</span>.
+        * <span class="nb">rewrite</span> concatenateStep.
+          <span class="nb">rewrite</span> &lt;- drop_concatenate.
+          -- <span class="nb">rewrite</span> &lt;- t1t2concat.
+             <span class="nb">rewrite</span> drop_concatenate.
+             <span class="mi">2</span>: <span class="nb">apply</span> isreflnatleh.
+             <span class="nb">rewrite</span> drop_full.
+             <span class="bp">assumption</span>.
+          -- <span class="nb">rewrite</span> t1len.
+             <span class="nb">apply</span> natlehnplusnm.
+        * <span class="nb">rewrite</span> oplistexec_cons.
+          <span class="nb">rewrite</span> t1def.
+          <span class="nb">unfold</span> opexec.
+          <span class="nb">simpl</span>.
+          <span class="nb">rewrite</span> prefix_remove_drop.
+          -- <span class="nb">simpl</span>.
+             <span class="nb">apply</span> maponpaths.
+             <span class="nb">apply</span> idpath.
+          -- <span class="nb">intro</span> H.
+             <span class="nb">apply</span> (prefix_remove_concatenate2 _ _ t2) <span class="k">in</span> H.
+             ++ <span class="nb">rewrite</span> &lt;- t1t2concat <span class="k">in</span> H.
+                <span class="nb">rewrite</span> prefix_remove_prefix <span class="k">in</span> H.
+                <span class="bp">exact</span> (negpathsii1ii2 _ _ H).
+             ++ <span class="nb">rewrite</span> t1len.
+                <span class="nb">apply</span> natlehnplusnm.
+        * <span class="nb">apply</span> t2def.
+        * <span class="nb">rewrite</span> length_cons.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> length_drop.
+          <span class="nb">rewrite</span> t1len.
+          <span class="nb">rewrite</span> natpluscomm.
+          <span class="nb">apply</span> plusminusnmm.
+   <span class="kn">Unshelve</span>.
+   <span class="nb">rewrite</span> length_concatenate.
+   <span class="nb">apply</span> natlehandplusl.
+   <span class="nb">rewrite</span> ssdef <span class="k">in</span> nlehss.
+   <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Corollary</span> <span class="nf">oplistsplit_self</span> {<span class="nv">l</span>: oplist σ} {<span class="nv">ss</span>: list (sorts σ)}
+    : oplistexec l = just ss → oplistsplit l (length ss) = l ,, nil.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> lstack.
+    <span class="nb">set</span> (H := oplistexec_oplistsplit l (length ss) lstack (isreflnatleh (length ss))).
+    <span class="nb">induction</span> H <span class="k">as</span> [t1 [t2 [t1t2 [t1def [t2def t1len]]]]].
+    <span class="nb">set</span> (normalization := concatenate_oplistsplit l (length ss)).
+    <span class="nb">apply</span> (maponpaths length) <span class="k">in</span> t1t2.
+    <span class="nb">rewrite</span> length_concatenate <span class="k">in</span> t1t2.
+    <span class="nb">rewrite</span> t1len <span class="k">in</span> t1t2.
+    <span class="nb">apply</span> pathsinv0 <span class="k">in</span> t1t2.
+    <span class="nb">rewrite</span> natpluscomm <span class="k">in</span> t1t2.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">a</span>, a - length ss)) <span class="k">in</span> t1t2.
+    <span class="nb">rewrite</span> plusminusnmm <span class="k">in</span> t1t2.
+    <span class="nb">rewrite</span> minuseq0' <span class="k">in</span> t1t2.
+    <span class="nb">apply</span> length_zero_back <span class="k">in</span> t1t2.
+    <span class="nb">rewrite</span> t1t2 <span class="k">in</span> t2def.
+    <span class="nb">apply</span> oplistexec_zero_b <span class="k">in</span> t2def.
+    <span class="nb">rewrite</span> t2def <span class="k">in</span> normalization.
+    <span class="nb">rewrite</span> concatenate_nil <span class="k">in</span> normalization.
+    <span class="nb">induction</span> (oplistsplit l (length ss)) <span class="k">as</span> [l1 l2].
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> t2def.
+    <span class="nb">rewrite</span> normalization.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Oplists</span>.
+
+<span class="kn">Section</span> <span class="nf">Term</span>.
+
+  <span class="sd">(** ** Terms and related constructors and destructors. *)</span>
+
+  <span class="sd">(**  A [term] is an oplist together with the proof it is a term. *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">term</span> (<span class="nv">σ</span>: signature) (<span class="nv">s</span>: sorts σ): UU
+    := ∑ t: oplist σ, isaterm s t.
+
+  <span class="kn">Definition</span> <span class="nf">make_term</span> {<span class="nv">σ</span>: signature} {<span class="nv">s</span>: sorts σ} {<span class="nv">l</span>: oplist σ} (<span class="nv">lstack</span>: isaterm s l)
+    : term σ s := l ,, lstack.
+
+  <span class="kn">Coercion</span> <span class="nf">term2oplist</span> {σ: signature} {s: sorts σ}: term σ s → oplist σ := pr1.
+
+  <span class="kn">Definition</span> <span class="nf">term2proof</span> {<span class="nv">σ</span>: signature} {<span class="nv">s</span>: sorts σ}: ∏ t: term σ s, isaterm s t := pr2.
+
+  <span class="kn">Lemma</span> <span class="nf">isasetterm</span> {<span class="nv">σ</span>: signature} (<span class="nv">s</span>: sorts σ): isaset (term σ s).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> isasetoplist.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isasetstack.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">termset</span> (<span class="nv">σ</span>: signature) (<span class="nv">s</span>: sorts σ): hSet
+    := make_hSet (term σ s) (isasetterm s).
+
+  <span class="kn">Context</span> {<span class="nv">σ</span>: signature}.
+
+  <span class="kn">Lemma</span> <span class="nf">term_extens</span> {<span class="nv">s</span>: sorts σ} {<span class="nv">t1</span> <span class="nv">t2</span> : term σ s} (<span class="nv">p</span> : term2oplist t1 = term2oplist t2)
+    : t1 = t2.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypePairEquality'.
+    <span class="mi">2</span>: <span class="nb">apply</span> isapropisaterm.
+    <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** The [vecoplist2oplist] and [oplist2vecoplist] functions *)</span>
+  <span class="sd">(**</span>
+<span class="sd">  These functions transform a vec of [n] oplists into an oplists of stack [n]</span>
+<span class="sd">  ([vecoplist2oplist]) and viceversa ([oplist2vecoplist]).</span>
+<span class="sd">  *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">vecoplist2oplist</span> {<span class="nv">n</span>: nat} (<span class="nv">v</span>: vec (oplist σ) n): oplist σ
+    := vec_foldr concatenate nil v.
+
+  <span class="kn">Local Lemma</span> <span class="nf">vecoplist2oplist_vcons</span> {<span class="nv">n</span>: nat} (<span class="nv">x</span>: oplist σ) (<span class="nv">v</span>: vec (oplist σ) n)
+    : vecoplist2oplist (x ::: v) = concatenate x (vecoplist2oplist v).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">vecoplist2oplist_inj</span> {<span class="nv">n</span>: nat} {<span class="nv">ar</span>: vec (sorts σ) n} {<span class="nv">v1</span> <span class="nv">v2</span>: hvec (vec_map (term σ) ar)}
+    : vecoplist2oplist (h1map_vec (<span class="k">λ</span> <span class="nv">_</span>, term2oplist) v1) = vecoplist2oplist (h1map_vec (<span class="k">λ</span> <span class="nv">_</span>, term2oplist) v2)
+      → v1 = v2.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> n ar v1 v2.
+    <span class="nb">refine</span> (vec_ind _ _ _).
+    - <span class="nb">intros</span>.
+      <span class="nb">induction</span> v1.
+      <span class="nb">induction</span> v2.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x n xs IHxs v1 v2 eq.
+      <span class="nb">induction</span> v1 <span class="k">as</span> [v1x v1xs].
+      <span class="nb">induction</span> v2 <span class="k">as</span> [v2x v2xs].
+      <span class="nb">simpl</span> <span class="k">in</span> eq.
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">l</span>, oplistsplit l <span class="mi">1</span>)) <span class="k">in</span> eq.
+      <span class="nb">rewrite</span> (oplistsplit_concatenate _ _ <span class="mi">1</span> [x] (term2proof v1x) (isreflnatleh _)) <span class="k">in</span> eq.
+      <span class="nb">rewrite</span> (oplistsplit_concatenate _ _ <span class="mi">1</span> [x] (term2proof v2x) (isreflnatleh _)) <span class="k">in</span> eq.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">change</span> <span class="mi">1</span> <span class="k">with</span> (length (hd (x ::: xs) :: [])) <span class="k">in</span> eq <span class="nb">at</span> <span class="mi">1</span>.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">change</span> <span class="mi">1</span> <span class="k">with</span> (length (hd (x ::: xs) :: [])) <span class="k">in</span> eq <span class="nb">at</span> <span class="mi">1</span>.
+      <span class="nb">rewrite</span> (oplistsplit_self (term2proof v1x)) <span class="k">in</span> eq.
+      <span class="nb">rewrite</span> (oplistsplit_self (term2proof v2x)) <span class="k">in</span> eq.
+      <span class="nb">cbn</span> <span class="k">in</span> eq.
+      <span class="nb">simpl</span>.
+      <span class="nb">apply</span> map_on_two_paths.
+      + <span class="nb">apply</span> subtypePairEquality'.
+        * <span class="nb">apply</span> (maponpaths pr1 eq).
+        * <span class="nb">apply</span> isapropisaterm.
+      + <span class="nb">apply</span> IHxs.
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">l</span>, pr2 l: oplist σ) eq).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">oplistexec_vecoplist2oplist</span> {<span class="nv">n</span>: nat} {<span class="nv">ar</span>: vec (sorts σ) n} {<span class="nv">v</span>: hvec (vec_map (term σ) ar)}
+    : oplistexec (vecoplist2oplist (h1map_vec (<span class="k">λ</span> <span class="nv">_</span>, term2oplist) v)) = just (n ,, ar).
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> n ar v.
+    <span class="nb">refine</span> (vec_ind _ _ _).
+    - <span class="nb">induction</span> v.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> x n xs IHxs v.
+      <span class="nb">induction</span> v <span class="k">as</span> [vx vxs].
+      <span class="nb">simpl</span> <span class="k">in</span> *.
+      <span class="nb">rewrite</span> oplistexec_concatenate.
+      <span class="nb">unfold</span> h1map_vec <span class="k">in</span> IHxs.
+      + <span class="nb">rewrite</span> IHxs.
+        <span class="nb">rewrite</span> (term2proof vx).
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> (term2proof vx).
+        <span class="nb">apply</span> negpathsii1ii2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">oplist2vecoplist</span> {<span class="nv">n</span>: nat} {<span class="nv">ar</span>: vec (sorts σ) n} (<span class="nv">l</span>: oplist σ) (<span class="nv">lstack</span>: oplistexec l = just (n,, ar))
+    : ∑ (v: hvec (vec_map (term σ) ar))
+        , (hvec (h1map_vec (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">t</span>, hProptoType (length (term2oplist t) ≤ length l)) v))
+          × vecoplist2oplist (h1map_vec (<span class="k">λ</span> <span class="nv">_</span>, term2oplist) v) = l.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> n ar l lstack.
+    <span class="nb">refine</span> (vec_ind _ _ _).
+    - <span class="nb">intros</span>.
+      <span class="k">exists</span> [()].
+      <span class="k">exists</span> [()].
+      <span class="nb">apply</span> oplistexec_zero_b <span class="k">in</span> lstack.
+      <span class="nb">rewrite</span> lstack.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x n xs IHxs l lstack.
+      <span class="nb">induction</span> (oplistexec_oplistsplit l <span class="mi">1</span> lstack (natleh0n <span class="mi">0</span>))
+         <span class="k">as</span> [firststack [reststack [concstack [firststackp [reststackp firstlen]]]]].
+      <span class="nb">change</span> (S n,, (x ::: xs)%vec) <span class="k">with</span> (x :: (n ,, xs)) <span class="k">in</span> concstack.
+      <span class="nb">set</span> (<span class="kp">first</span> := pr1 (oplistsplit l <span class="mi">1</span>)) <span class="k">in</span> *.
+      <span class="nb">set</span> (rest := pr2 (oplistsplit l <span class="mi">1</span>)) <span class="k">in</span> *.
+      <span class="nb">apply</span> length_one_back <span class="k">in</span> firstlen.
+      <span class="nb">induction</span> firstlen <span class="k">as</span> [a firststack'].
+      <span class="nb">induction</span> (!firststack').
+      <span class="nb">change</span> ((a :: []) ++ reststack) <span class="k">with</span> (a :: reststack) <span class="k">in</span> concstack.
+      <span class="nb">pose</span> (concstack' := concstack).
+      <span class="nb">apply</span> cons_inj1 <span class="k">in</span> concstack'.
+      <span class="nb">apply</span> cons_inj2 <span class="k">in</span> concstack.
+      <span class="nb">induction</span> (!concstack).
+      <span class="nb">induction</span> (!concstack').
+      <span class="nb">induction</span> (IHxs rest reststackp) <span class="k">as</span> [v [vlen vflatten]].
+      <span class="k">exists</span> ((make_term firststackp) ::: v).
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="nb">change</span> (length <span class="kp">first</span> ≤ length l).
+        <span class="nb">rewrite</span> &lt;- (concatenate_oplistsplit l <span class="mi">1</span>).
+        <span class="nb">apply</span> length_sublist1.
+      + <span class="nb">change</span> (hvec (h1map_vec (<span class="k">λ</span> (<span class="nv">s</span>: sorts σ) (<span class="nv">t</span>: term σ s), hProptoType (length (term2oplist t) ≤ length l)) v)).
+        <span class="nb">eapply</span> (h2map (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">p</span>, istransnatleh p _) vlen).
+        <span class="kn">Unshelve</span>.
+        <span class="nb">rewrite</span> &lt;- (concatenate_oplistsplit l <span class="mi">1</span>).
+        <span class="nb">apply</span> length_sublist2.
+      + <span class="nb">simpl</span>.
+        <span class="nb">unfold</span> h1map_vec <span class="k">in</span> vflatten.
+        <span class="nb">rewrite</span> vflatten.
+        <span class="nb">apply</span> concatenate_oplistsplit.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** ** Constructors and destuctors. *)</span>
+
+  <span class="sd">(** [build_term] builds a term starting from principal operation symbol and subterms, while</span>
+<span class="sd">  [princop] and [subterms] are the corresponding destructors. *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">oplist_build</span> (<span class="nv">nm</span>: names σ) (<span class="nv">v</span>: vec (oplist σ) (length (arity nm)))
+    : oplist σ := cons nm (vecoplist2oplist v).
+
+  <span class="kn">Local Lemma</span> <span class="nf">oplist_build_isaterm</span> (<span class="nv">nm</span>: names σ) (<span class="nv">v</span>: (term σ)⋆ (arity nm))
+    : isaterm (sort nm) (oplist_build nm (h1map_vec (<span class="k">λ</span> <span class="nv">_</span>, term2oplist) v)).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> oplist_build, isaterm.
+    <span class="nb">rewrite</span> oplistexec_cons.
+    <span class="nb">rewrite</span> oplistexec_vecoplist2oplist.
+    <span class="nb">change</span> (length (arity nm),, pr2 (arity nm)) <span class="k">with</span> (arity nm).
+    <span class="nb">induction</span> (opexec_just_f nm (arity nm) (isprefix_self _)) <span class="k">as</span> [rest [p1 p2]].
+    <span class="nb">rewrite</span> prefix_remove_self <span class="k">in</span> p2.
+    <span class="nb">apply</span> just_injectivity <span class="k">in</span> p2.
+    <span class="nb">induction</span> p2.
+    <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">build_term</span> (<span class="nv">nm</span>: names σ) (<span class="nv">v</span>: (term σ)⋆ (arity nm)): term σ (sort nm).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">oplist_build</span> <span class="nv">nm</span> (h1map_vec (<span class="k">λ</span> <span class="nv">_</span>, term2oplist) v)).
+    <span class="nb">apply</span> oplist_build_isaterm.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">term_decompose</span> {<span class="nv">s</span>: sorts σ} (<span class="nv">t</span>: term  σ s):
+    ∑ (nm:names σ) (v: (term σ)⋆ (arity nm))
+      , (hvec (h1map_vec (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">t'</span>, hProptoType (length (term2oplist t') &lt; length t)) v))
+         × sort nm = s
+         × oplist_build nm (h1map_vec (<span class="k">λ</span> <span class="nv">_</span>, term2oplist) v) = t.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> t <span class="k">as</span> [l lstack].
+    <span class="nb">cbv</span> [pr1 term2oplist].
+    <span class="nb">revert</span> l lstack.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    - <span class="nb">intro</span> lstack.
+      <span class="nb">apply</span> ii1_injectivity <span class="k">in</span> lstack.
+      <span class="nb">apply</span> (maponpaths length) <span class="k">in</span> lstack.
+      <span class="nb">apply</span> negpaths0sx <span class="k">in</span> lstack.
+      <span class="bp">contradiction</span>.
+    - <span class="nb">intros</span> x xs IHxs lstack.
+      <span class="k">exists</span> <span class="nv">x</span>.
+      <span class="nb">unfold</span> isaterm <span class="k">in</span> lstack.
+      <span class="nb">rewrite</span> oplistexec_cons <span class="k">in</span> lstack.
+      <span class="nb">apply</span> opexec_just_b <span class="k">in</span> lstack.
+      <span class="nb">induction</span> lstack <span class="k">as</span> [xssort [xsdef stackxs]].
+      <span class="nb">pose</span> (xsdef' := xsdef).
+      <span class="nb">apply</span> cons_inj1 <span class="k">in</span> xsdef'.
+      <span class="nb">apply</span> cons_inj2 <span class="k">in</span> xsdef.
+      <span class="nb">induction</span> xsdef'.
+      <span class="nb">induction</span> xsdef.
+      <span class="nb">rewrite</span> concatenate_nil <span class="k">in</span> stackxs.
+      <span class="nb">induction</span> (oplist2vecoplist xs stackxs) <span class="k">as</span> [vtail [vlen vflatten]].
+      <span class="k">exists</span> <span class="nv">vtail</span>.
+      <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="bp">exact</span> (h2map (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">p</span>, natlehtolthsn _ _ p) vlen).
+      + <span class="nb">unfold</span> oplist_build.
+        <span class="nb">rewrite</span> &lt;- vflatten.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">princop</span> {<span class="nv">s</span>: sorts σ} (<span class="nv">t</span>: term σ s): names σ
+    := pr1 (term_decompose t).
+
+  <span class="kn">Definition</span> <span class="nf">subterms</span> {<span class="nv">s</span>: sorts σ} (<span class="nv">t</span>: term σ s): (term σ)⋆ (arity (princop t))
+    := pr12 (term_decompose t).
+
+  <span class="kn">Local Definition</span> <span class="nf">subterms_length</span> {<span class="nv">s</span>: sorts σ} (<span class="nv">t</span>: term σ s)
+    : hvec (h1map_vec (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">t'</span>, hProptoType (length (term2oplist t') &lt; length t)) (subterms t))
+    := pr122 (term_decompose t).
+
+  <span class="kn">Local Definition</span> <span class="nf">princop_sorteq</span> {<span class="nv">s</span>: sorts σ} (<span class="nv">t</span>: term σ s): sort (princop t) = s
+    := pr122 (pr2 (term_decompose t)).
+
+  <span class="kn">Local Definition</span> <span class="nf">oplist_normalization</span> {<span class="nv">s</span>: sorts σ} (<span class="nv">t</span>: term σ s)
+     : term2oplist (build_term (princop t) (subterms t)) = t
+     := pr222 (pr2 (term_decompose t)).
+
+  <span class="sd">(** *** Term normalization *)</span>
+  <span class="sd">(**</span>
+<span class="sd">    We prove that [princop (build_term nm v) = nm], [subterms (build_term nm v) = v] and</span>
+<span class="sd">    [build_term (princop t) (subterms t))] is equal to [t] modulo [transport].</span>
+<span class="sd">  *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">princop_sorteq_buildterm</span> (<span class="nv">nm</span>: names σ) (<span class="nv">v</span>: (term σ)⋆ (arity nm))
+     : princop_sorteq (build_term nm v) = idpath (sort nm).
+  <span class="kn">Proof</span>.
+     <span class="nb">apply</span> proofirrelevance.
+     <span class="nb">apply</span> isasetifdeceq.
+     <span class="nb">apply</span> decproperty.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">term_normalization</span> {<span class="nv">s</span>: sorts σ} (<span class="nv">t</span>: term σ s)
+     : princop_sorteq t # (build_term (princop t) (subterms t)) = t.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> princop, subterms, princop_sorteq.
+    <span class="nb">induction</span> (term_decompose t) <span class="k">as</span> [nm [v [vlen [nmsort normalization]]]].
+    <span class="nb">induction</span> nmsort.
+    <span class="nb">change</span> (build_term nm v = t).
+    <span class="nb">apply</span> subtypePairEquality'.
+    - <span class="nb">apply</span> normalization.
+    - <span class="nb">apply</span> isapropisaterm.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">princop_build_term</span> (<span class="nv">nm</span>: names σ) (<span class="nv">v</span>: (term σ)⋆ (arity nm))
+    : princop (build_term nm v) = nm.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">subterms_build_term</span> (<span class="nv">nm</span>: names σ) (<span class="nv">v</span>: (term σ)⋆ (arity nm))
+    : subterms (build_term nm v) = v.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (tnorm := term_normalization (build_term nm v)).
+    <span class="nb">rewrite</span> princop_sorteq_buildterm <span class="k">in</span> tnorm.
+    <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> tnorm.
+    <span class="nb">simpl</span> <span class="k">in</span> tnorm.
+    <span class="nb">apply</span> cons_inj2 <span class="k">in</span> tnorm.
+    <span class="nb">apply</span> vecoplist2oplist_inj <span class="k">in</span> tnorm.
+    <span class="nb">apply</span> tnorm.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Miscellanea properties for terms. *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">length_term</span> {<span class="nv">s</span>: sorts σ} (<span class="nv">t</span>: term σ s): length t &gt; <span class="mi">0</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> t <span class="k">as</span> [l stackl].
+    <span class="nb">induction</span> (oplistexec_positive_b _ _ _ stackl) <span class="k">as</span> [x [xs lstruct]].
+    <span class="nb">induction</span> (! lstruct).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">term_notnil</span> {<span class="nv">X</span>: UU} {<span class="nv">s</span>: sorts σ} {<span class="nv">t</span>: term σ s}: length t ≤ <span class="mi">0</span> → X.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> tlen.
+    <span class="nb">apply</span> natlehneggth <span class="k">in</span> tlen.
+    contradicts tlen (length_term t).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Term</span>.
+
+<span class="sd">(** ** Term induction. *)</span>
+
+<span class="sd">(**</span>
+<span class="sd">If [P] is a map from terms to properties, then [term_ind_HP P] is the inductive hypothesis for terms:</span>
+<span class="sd">given an operation symbol [nm], a sequence of terms of type specified by the arity of [nm], a proof of</span>
+<span class="sd">the property [P] for eache of the terms in [v], we need a proof of [P] for the term built from [nm] and [v].</span>
+<span class="sd">*)</span>
+
+<span class="kn">Section</span> <span class="nf">TermInduction</span>.
+
+  <span class="kn">Context</span> {<span class="nv">σ</span>: signature}.
+
+  <span class="kn">Definition</span> <span class="nf">term_ind_HP</span> (<span class="nv">P</span>: ∏ (s: sorts σ), term σ s → UU) :=
+    ∏ (nm: names σ)
+      (v: (term σ)⋆ (arity nm))
+      (IH: hvec (h1map_vec P v))
+    , P (sort nm) (build_term nm v).
+
+  <span class="sd">(**</span>
+<span class="sd">  The proof of the induction principle [term_ind] for terms proceeds by induction on the lenght of</span>
+<span class="sd">  the oplist forming the terms in [term_ind_onlength].</span>
+<span class="sd">  *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">term_ind_onlength</span> (<span class="nv">P</span>: ∏ (s: sorts σ), term σ s → UU) (<span class="nv">R</span>: term_ind_HP P)
+    : ∏ (n: nat) (s: sorts σ) (t: term σ s), length t ≤ n →  P s t.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> n.
+    - <span class="nb">intros</span> s t tlen.
+      <span class="bp">exact</span> (term_notnil tlen).
+    - <span class="nb">intros</span> s t tlen.
+      <span class="nb">apply</span> (transportf _ (term_normalization t)).
+      <span class="nb">induction</span> (princop_sorteq t).
+      <span class="nb">change</span> (P (sort (princop t)) (build_term (princop t) (subterms t))).
+      <span class="nb">apply</span> (R (princop t) (subterms t)).
+      <span class="nb">refine</span> (h2map _ (subterms_length t)).
+      <span class="nb">intros</span>.
+      <span class="nb">apply</span> IHn.
+      <span class="nb">apply</span> natlthsntoleh.
+      <span class="nb">eapply</span> natlthlehtrans.
+      + <span class="bp">exact</span> X.
+      + <span class="bp">exact</span> tlen.
+  <span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">  I would like to prove something like the following:</span>
+
+<span class="c">  Lemma term_ind_onlength_step (P: ∏ (s: sorts σ), term σ s → UU) (R: term_ind_HP P) (nm: names σ) (v: (term σ)⋆ (arity nm))</span>
+<span class="c">    : ∏ (n: nat) (tlehn:  length (build_term nm v) ≤ n),</span>
+<span class="c">        term_ind_onlength P R n _ _ tlehn</span>
+<span class="c">        =  R nm v (transportf (λ x, hvec (hmap_vec P x))</span>
+<span class="c">                              (subterms_build_term nm v)</span>
+<span class="c">                              (hhmap (subterms_length (build_term nm v)) (λ s t p, term_ind_onlength P R n s t (istransnatleh (natlthtoleh _ _ p) tlehn)))).</span>
+<span class="c">*)</span>
+
+  <span class="kn">Theorem</span> <span class="nf">term_ind</span> (<span class="nv">P</span>: ∏ (s: sorts σ), term σ s → UU) (<span class="nv">R</span>: term_ind_HP P) {<span class="nv">s</span>: sorts σ} (<span class="nv">t</span>: term σ s)
+    : P s t.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (term_ind_onlength P R (length t) s t (isreflnatleh _)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Term induction step *)</span>
+
+  <span class="sd">(** In order to use term_induction, we need to prove an unfolding property. For example, for natural</span>
+<span class="sd">  number induction the unfolding property is [nat_rect P a IH (S n) = IH n (nat_rect P a IH n)], in our</span>
+<span class="sd">  case is given by [term_ind_step].</span>
+<span class="sd">  *)</span>
+
+  <span class="kn">Local Lemma</span> <span class="nf">term_ind_onlength_nirrelevant</span> (<span class="nv">P</span>: ∏ (s: sorts σ), term σ s → UU) (<span class="nv">R</span>: term_ind_HP P)
+    : ∏ (n m1 m2: nat)
+        (m1lehn: m1 ≤ n) (m2lehn: m2 ≤ n)
+        (s: sorts σ) (t: term σ s)
+        (lenm1: length t ≤ m1) (lenm2: length t ≤ m2)
+      , term_ind_onlength P R m1 s t lenm1 = term_ind_onlength P R m2 s t lenm2.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> n.
+    - <span class="nb">intros</span>.
+      <span class="bp">exact</span> (term_notnil (istransnatleh lenm1 m1lehn)).
+    - <span class="nb">intros</span>.
+      <span class="nb">induction</span> m1.
+      + <span class="bp">exact</span> (term_notnil lenm1).
+      + <span class="nb">induction</span> m2.
+        * <span class="bp">exact</span> (term_notnil lenm2).
+        * <span class="nb">simpl</span>.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">set</span> (f := paths_rect _ _ _).
+          <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, f x _ _)).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, h2map x _)).
+          <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+          <span class="nb">apply</span> IHn.
+          -- <span class="nb">apply</span> m1lehn.
+          -- <span class="nb">apply</span> m2lehn.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">nat_rect_step</span> {<span class="nv">P</span>: nat → UU} (<span class="nv">a</span>: P <span class="mi">0</span>) (<span class="nv">IH</span>: ∏ n: nat, P n → P (S n)) (<span class="nv">n</span>: nat):
+    nat_rect P a IH (S n) = IH n (nat_rect P a IH n).
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">paths_rect_step</span> (<span class="nv">A</span> : UU) (<span class="nv">a</span> : A) (<span class="nv">P</span> : ∏ a0 : A, a = a0 → UU) (<span class="nv">x</span>: P a (idpath a))
+     : paths_rect A a P x a (idpath a) = x.
+  <span class="kn">Proof</span>. <span class="nb">apply</span> idpath. <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">term_ind_step</span> (<span class="nv">P</span>: ∏ (s: sorts σ), term σ s → UU) (<span class="nv">R</span>: term_ind_HP P) (<span class="nv">nm</span>: names σ) (<span class="nv">v</span>: (term σ)⋆ (arity nm))
+    : term_ind P R (build_term nm v) = R nm v (h2map (<span class="k">λ</span> <span class="nv">s</span> <span class="nv">t</span> <span class="nv">q</span>, term_ind P R t) (h1lift v)).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> term_ind.
+    <span class="nb">set</span> (princop_sorteq_idpath := princop_sorteq_buildterm nm v).
+    <span class="nb">set</span> (t := build_term nm v) <span class="k">in</span> *.
+    <span class="nb">simpl</span> (length t).
+    <span class="nb">unfold</span> term_ind_onlength <span class="nb">at</span> <span class="mi">1</span>.
+    <span class="nb">rewrite</span> nat_rect_step.
+    <span class="nb">set</span> (v0len := subterms_length t).
+    <span class="nb">set</span> (v0norm := term_normalization t).
+    <span class="nb">clearbody</span> v0len v0norm.  <span class="c">(* Needed to make induction work *)</span>
+    <span class="nb">change</span> (princop t) <span class="k">with</span> nm <span class="k">in</span> *.
+    <span class="nb">induction</span> (! (subterms_build_term nm v: subterms t = v)).
+    <span class="nb">induction</span> (! princop_sorteq_idpath).
+    <span class="nb">change</span> (build_term nm v = t) <span class="k">in</span> v0norm.
+    <span class="nb">assert</span> (v0normisid: v0norm = idpath _).
+    {
+      <span class="nb">apply</span> proofirrelevance.
+      <span class="nb">apply</span> isasetterm.
+    }
+    <span class="nb">induction</span> (! v0normisid).
+    <span class="nb">rewrite</span> idpath_transportf.
+    <span class="nb">rewrite</span> paths_rect_step.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> (h1map_h1lift_as_h2map v v0len).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, h2map x _)).
+    <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+    <span class="nb">apply</span> (term_ind_onlength_nirrelevant P R  (pr1 (vecoplist2oplist (h1map_vec (<span class="k">λ</span> <span class="nv">x2</span> : sorts σ, term2oplist) v)))).
+    - <span class="nb">apply</span> isreflnatleh.
+    - <span class="nb">apply</span> natlthsntoleh.
+      <span class="nb">apply</span> x1.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Immediate applications of term induction *)</span>
+
+  <span class="sd">(**</span>
+<span class="sd">  [depth] returns the depth of a term, while [fromterm] is the evaluation map from terms</span>
+<span class="sd">  to an algebra. Finally, [fromtermstep] is the unfolding property for [fromterm].</span>
+<span class="sd">  *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">depth</span> {<span class="nv">s</span>: sorts σ}: term σ s → nat
+    := term_ind (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, nat)
+                (<span class="k">λ</span> (<span class="nv">nm</span>: names σ) (<span class="nv">v</span>: (term σ)⋆ (arity nm)) (<span class="nv">depths</span>: hvec (h1map_vec (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, nat) v)),
+                   <span class="mi">1</span> + h2foldr (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, max) <span class="mi">0</span> depths).
+
+  <span class="kn">Local Definition</span> <span class="nf">fromterm</span> {<span class="nv">A</span>: sUU (sorts σ)} (<span class="nv">op</span> : ∏ (nm : names σ), A⋆ (arity nm) → A (sort nm)) {<span class="nv">s</span>: sorts σ}
+    : term σ s → A s
+    := term_ind (<span class="k">λ</span> <span class="nv">s</span> <span class="nv">_</span>, A s) (<span class="k">λ</span> <span class="nv">nm</span> <span class="nv">v</span> <span class="nv">rec</span>, op nm (h2lower rec)).
+
+  <span class="kn">Lemma</span> <span class="nf">fromtermstep</span> {<span class="nv">A</span>: sUU (sorts σ)} (<span class="nv">nm</span>: names σ)
+                     (<span class="nv">op</span> : ∏ (nm : names σ), A⋆ (arity nm) → A (sort nm))
+                     (<span class="nv">v</span>: (term σ)⋆ (arity nm))
+    : fromterm op (build_term nm v) = op nm (h1map (@fromterm A op) v).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> fromterm.
+    <span class="nb">rewrite</span> term_ind_step.
+    <span class="nb">rewrite</span> h2lower_h1map_h1lift.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">build_term_inj</span> (<span class="nv">nm1</span> <span class="nv">nm2</span>: names σ) (<span class="nv">v1</span>: (term σ)⋆ (arity nm1)) (<span class="nv">v2</span>: (term σ)⋆ (arity nm2)) (<span class="nv">p</span>: sort nm1 = sort nm2)
+    : p # build_term nm1 v1 = build_term nm2 v2 → ∑ eqnm: nm1 = nm2, (transportf (<span class="k">λ</span> <span class="nv">op</span>, (term σ)⋆ (arity op)) eqnm v1) = v2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> X.
+    <span class="c">(* The following three lines are in the place of a rewrite *)</span>
+    <span class="nb">set</span> (Y := transportf_total2_const _ _ (<span class="k">λ</span> <span class="nv">t</span> <span class="nv">s</span>, isaterm s t)  _ _ _ p  (oplist_build_isaterm nm1 v1)).
+    <span class="nb">apply</span> (pathscomp0 (!Y)) <span class="k">in</span> X.
+    <span class="nb">clear</span> Y.
+    <span class="nb">unfold</span> build_term <span class="k">in</span> X.
+    <span class="nb">unfold</span> oplist_build <span class="k">in</span> X.
+    <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> X.
+    <span class="nb">simpl</span> <span class="k">in</span> X.
+    <span class="nb">pose</span> (eqnm := X).
+    <span class="nb">apply</span> cons_inj1 <span class="k">in</span> eqnm.
+    <span class="k">exists</span> <span class="nv">eqnm</span>.
+    <span class="nb">induction</span> eqnm.
+    <span class="nb">apply</span> cons_inj2 <span class="k">in</span> X.
+    <span class="nb">apply</span> vecoplist2oplist_inj <span class="k">in</span> X.
+    <span class="bp">exact</span> X.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">TermInduction</span>.
+
+<span class="sd">(** ** Notations for ground terms. *)</span>
+<span class="sd">(**</span>
+<span class="sd">Since [term], [termset], [fromterm] and [fromtermstep]  will be redefined in</span>
+<span class="sd">[UniMath.Algebra.Universal.VTerms] in their more general form with variables, we introduce</span>
+<span class="sd">here notations [gterm], [make_gterm] and similar to make the ground version publically</span>
+<span class="sd">available with special names.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Notation</span> <span class="nf">gterm</span> := term.
+
+<span class="kn">Notation</span> <span class="nf">gtermset</span> := termset.
+
+<span class="kn">Notation</span> <span class="nf">fromgterm</span> := fromterm.
+
+<span class="kn">Notation</span> <span class="nf">fromgtermstep</span> := fromtermstep.
+
+<span class="kn">Notation</span> <span class="nf">build_gterm</span> := build_term.
+
+<span class="sd">(** *** Helpers for working with curried functions. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">build_gterm'</span> {<span class="nv">σ</span>: signature} (<span class="nv">nm</span>: names σ)
+  : iterfun (vec_map (term σ) (arity nm)) (term σ (sort nm))
+  := currify (build_term nm).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Universal/Terms.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Notations.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Here we only define ground terms, while terms with variables will be defined in &lt;&lt;VTerms.v&gt;&gt;.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.Notations.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

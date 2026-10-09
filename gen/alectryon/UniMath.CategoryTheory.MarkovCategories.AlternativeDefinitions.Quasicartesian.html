@@ -1,0 +1,472 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Quasicartesian.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">An Alternative Axiomatization of Markov Categories</span>
+
+<span class="sd">Cartesian categories with chosen products have an equational presentation</span>
+<span class="sd">using pairing and projections. This presentation is convenient because</span>
+<span class="sd">deciding coherence is easily automated using η-laws and rewriting.</span>
+
+<span class="sd">We adapt this style of presentation to give an alternative axiomatization </span>
+<span class="sd">for Markov categories, which we dub "quasicartesian". </span>
+<span class="sd">This has a series of advantages over the original axiomatization</span>
+<span class="sd">1. The same automation strategy for coherence remains functional, which is a </span>
+<span class="sd">   big improvement over reasoning with the original Markov category axioms. </span>
+<span class="sd">   We give a tactic [qcart_coherence] which works much the same way as [markov_coherence].</span>
+<span class="sd">2. The quasicartesian axioms are simpler than the full Markov category axioms,</span>
+<span class="sd">   which helps in constructing explicit instances. Unlike for cartesian categories where</span>
+<span class="sd">   picking a monoidal structure requires a choice of product, no choice is needed here. </span>
+
+<span class="sd">The only difference to the cartesian axioms is that η-laws only hold for</span>
+<span class="sd">deterministic morphisms, so we need to axiomatize determinism separately. </span>
+<span class="sd">But again, discharging these determinism assumptions is easily automated. </span>
+
+<span class="sd">We show that the two axiomatizations of Markov categories are equivalent</span>
+<span class="sd">in EquivalenceQuasicartesianMarkov.v.</span>
+
+<span class="sd">Table of Contents</span>
+<span class="sd">1. Definition of quasicartesian categories</span>
+<span class="sd">2. Accessors</span>
+<span class="sd">3. Derived laws</span>
+<span class="sd">4. Automation</span>
+<span class="sd">5. Further laws and definitions</span>
+<span class="sd">**)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Declare Scope</span> quasicartesian.
+<span class="kn">Delimit Scope</span> quasicartesian <span class="k">with</span> quasicartesian.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> quasicartesian.
+
+<span class="sd">(** * 1. Definition of quasicartesian categories *)</span>
+
+<span class="kn">Definition</span> <span class="nf">quasicartesian_data</span> : UU :=
+  ∑ (C : category),
+      (∑ (Unit : C), ∏ (x : C), x --&gt; Unit)
+      × 
+      ∑ (tensor : C -&gt; C -&gt; C),
+        (∏ (x y z : C), (x --&gt; y) -&gt; (x --&gt; z) -&gt; (x --&gt; tensor y z))
+        ×
+        (∏ x y, tensor x y --&gt; x)
+        × 
+        (∏ x y, tensor x y --&gt; y).
+
+<span class="kn">Coercion</span> <span class="nf">quasicartesian_data_to_cat</span> (Q : quasicartesian_data) : category := pr1 Q.
+
+<span class="sd">(** * 2. Accessors *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Unit</span> {<span class="nv">C</span> : quasicartesian_data} : C := pr112 C.
+
+<span class="kn">Definition</span> <span class="nf">del</span> {<span class="nv">C</span> : quasicartesian_data} (<span class="nv">x</span> : C) : x --&gt; Unit := pr212 C x.
+
+<span class="kn">Definition</span> <span class="nf">tensor</span> {<span class="nv">C</span> : quasicartesian_data} (<span class="nv">x</span> <span class="nv">y</span> : C) : C := pr122 C x y.
+
+<span class="kn">Notation</span> <span class="s2">"x ⊗ y"</span> := (tensor x y) : quasicartesian.
+
+<span class="kn">Definition</span> <span class="nf">pairing</span> {<span class="nv">C</span> : quasicartesian_data} {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} 
+                   (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : x --&gt; z) : x --&gt; y ⊗ z
+           := pr1 (pr222 C) x y z f g.
+
+<span class="kn">Notation</span> <span class="s2">"⟨ f , g ⟩"</span> := (pairing f g) : quasicartesian.
+
+<span class="kn">Definition</span> <span class="nf">proj1</span> {<span class="nv">C</span> : quasicartesian_data} {<span class="nv">x</span> <span class="nv">y</span> : C} : x ⊗ y --&gt; x
+  := pr12 (pr222 C) x y.
+
+<span class="kn">Definition</span> <span class="nf">proj2</span> {<span class="nv">C</span> : quasicartesian_data} {<span class="nv">x</span> <span class="nv">y</span> : C} : x ⊗ y --&gt; y
+  := pr22 (pr222 C) x y.
+
+<span class="c">(* Determinism *)</span>
+
+<span class="kn">Definition</span> <span class="nf">det</span> {<span class="nv">C</span> : quasicartesian_data} {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) :=
+  f · ⟨identity _, identity _⟩ = ⟨f, f⟩.
+
+<span class="sd">(** Laws *)</span>
+
+<span class="kn">Definition</span> <span class="nf">quasicartesian_laws</span> (<span class="nv">C</span> : quasicartesian_data) : UU :=
+  (∏ (x y z : C) (f : x --&gt; y) (g : x --&gt; z), ⟨f,g⟩ · proj1 = f)
+  ×
+  (∏ (x y z : C) (f : x --&gt; y) (g : x --&gt; z), ⟨f,g⟩ · proj2 = g)
+  ×
+  (∏ (x : C) (f : x --&gt; Unit), f = del x)
+  ×
+  (∏ (x y : C), det (@proj1 C x y))
+  ×
+  (∏ (x y : C), det (@proj2 C x y))
+  ×
+  (∏ (x : C), det (del x))
+  ×
+  (∏ (x y z : C) (f : x --&gt; y) (g : x --&gt; z),
+      det f -&gt; det g -&gt; det ⟨f,g⟩)
+  ×
+  (∏ (x y : C), identity (x ⊗ y) = ⟨proj1, proj2⟩)
+  ×
+  (∏ (a x1 x2 y1 y2 : C) (f1 : a --&gt; x1) (f2 : a --&gt; x2)
+                         (g1 : x1 --&gt; y1) (g2 : x2 --&gt; y2),
+      ⟨f1,f2⟩ · ⟨proj1 · g1, proj2 · g2⟩ = ⟨f1·g1, f2·g2⟩)
+  ×
+  (∏ (x y z w : C) (f : x --&gt; y) (g : x --&gt; z) (h : x --&gt; w),
+      ⟨ ⟨ f, g ⟩, h ⟩ · ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩
+      = ⟨ f , ⟨ g, h ⟩ ⟩)
+  ×
+  (∏ (a x y : C) (f : a --&gt; x) (g : a --&gt; y),
+      ⟨ f , g ⟩ · ⟨ proj2, proj1 ⟩ = ⟨ g , f ⟩).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_quasicartesian_laws</span> 
+            (<span class="nv">C</span> : quasicartesian_data)
+     : isaprop (quasicartesian_laws C).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> quasicartesian_laws.
+  (<span class="kp">repeat</span> <span class="nb">apply</span> isapropdirprod)
+  ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span>)
+  ; <span class="kp">try</span> <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">quasicartesian_category</span> : UU
+  := ∑ (C : quasicartesian_data),
+     quasicartesian_laws C.
+
+<span class="kn">Coercion</span> <span class="nf">quasicartesian_category_to_data</span> (C : quasicartesian_category) : quasicartesian_data 
+  := pr1 C.
+
+<span class="kn">Notation</span> <span class="s2">"f #⊗ g"</span> := (⟨ proj1 · f, proj2 · g⟩) (<span class="kn">at level</span> <span class="mi">31</span>) : quasicartesian.
+
+<span class="kn">Section</span> <span class="nf">QuasicartesianLaws</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : quasicartesian_category}.
+
+  <span class="sd">(** Accessors for the laws *)</span>
+
+  <span class="kn">Proposition</span> <span class="nf">pairing_proj1</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : x --&gt; z) :
+    ⟨f, g⟩ · proj1 = f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> ((pr12 C) x y z f g).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pairing_proj2</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : x --&gt; z) :
+    ⟨f, g⟩ · proj2 = g.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> ((pr122 C) x y z f g).
+  <span class="kn">Qed</span>.
+  
+  <span class="kn">Proposition</span> <span class="nf">del_unique</span> {<span class="nv">x</span> : C} (<span class="nv">f</span> : x --&gt; Unit) : f = del x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr222 C) x f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">det_proj1</span> {<span class="nv">x</span> <span class="nv">y</span> : C} : det (@proj1 C x y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 (pr222 C) x y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">det_proj2</span> {<span class="nv">x</span> <span class="nv">y</span> : C} : det (@proj2 C x y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 (pr222 C) x y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">det_del</span> {<span class="nv">x</span> : C} : det (del x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr222 (pr222 C)) x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">det_pairing</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : x --&gt; z) :
+      det f -&gt; det g -&gt; det ⟨f, g⟩.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 (pr222 (pr222 C)) x y z f g).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pairing_id</span> {<span class="nv">x</span> <span class="nv">y</span> : C} :  identity (x ⊗ y) = ⟨proj1, proj2⟩.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 (pr222 (pr222 C)) x y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pairing_tensor</span> {<span class="nv">a</span> <span class="nv">x1</span> <span class="nv">x2</span> <span class="nv">y1</span> <span class="nv">y2</span> : C} 
+                             (<span class="nv">f1</span> : a --&gt; x1) (<span class="nv">f2</span> : a --&gt; x2)
+                             (<span class="nv">g1</span> : x1 --&gt; y1) (<span class="nv">g2</span> : x2 --&gt; y2) :
+      ⟨f1, f2⟩ · ⟨proj1 · g1, proj2 · g2⟩ = ⟨f1 · g1, f2 · g2⟩.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr222 (pr222 (pr222 C))) a x1 x2 y1 y2 f1 f2 g1 g2).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pairing_assoc</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : x --&gt; z) (<span class="nv">h</span> : x --&gt; w) :
+        ⟨ ⟨ f, g ⟩, h ⟩ · ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩
+      = ⟨ f , ⟨ g, h ⟩ ⟩.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 (pr222 (pr222 (pr222 C))) x y z w f g h).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pairing_swap</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : a --&gt; x) (<span class="nv">g</span> : a --&gt; y) :
+      ⟨ f , g ⟩ · ⟨ proj2, proj1 ⟩ = ⟨ g , f ⟩.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 (pr222 (pr222 (pr222 C))) a x y f g).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. Derived laws *)</span>
+
+  <span class="kn">Proposition</span> <span class="nf">det_id</span> {<span class="nv">x</span> : C} : det (identity x).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> det.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">det_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) :
+    det f -&gt; det g -&gt; det (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> df dg. <span class="nb">unfold</span> det <span class="k">in</span> *.
+    <span class="nb">rewrite</span> assoc', dg.
+    <span class="nb">transitivity</span> (f · ⟨ identity y · g, identity y · g⟩). { <span class="nb">rewrite</span> id_left. <span class="bp">reflexivity</span>. }
+    <span class="nb">rewrite</span> &lt;- pairing_tensor, assoc.
+    <span class="nb">rewrite</span> df.
+    <span class="nb">apply</span> pairing_tensor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">det_proj</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) (<span class="nv">f</span> : x --&gt; y ⊗ z) :
+    det f -&gt; ⟨f · proj1, f · proj2⟩ = f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> df.
+    <span class="nb">rewrite</span> &lt;- pairing_tensor.
+    <span class="nb">rewrite</span> &lt;- df.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">rewrite</span> pairing_tensor.
+    <span class="nb">rewrite</span> !id_left.
+    <span class="nb">rewrite</span> &lt;- pairing_id.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eta_det</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y ⊗ z) :
+    det f -&gt; det g -&gt;
+    (f · proj1 = g · proj1) -&gt; (f · proj2 = g · proj2) -&gt; f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> df dg e1 e2.
+    <span class="nb">rewrite</span> &lt;- (det_proj _ _ _ f df), &lt;- (det_proj _ _ _ g dg) .
+    <span class="nb">rewrite</span> e1, e2. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eta_Unit</span> {<span class="nv">x</span> : C} (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; Unit) : f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> (del_unique f), (del_unique g).
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Auxiliary lemmas *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">proj1_inner</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; x) (<span class="nv">h</span> : b --&gt; y) :
+    f · ⟨ g , h ⟩ · proj1 = f · g.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc', pairing_proj1. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">proj2_inner</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; x) (<span class="nv">h</span> : b --&gt; y) :
+    f · ⟨ g , h ⟩ · proj2 = f · h.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc', pairing_proj2. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_nat_det</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) (<span class="nv">h</span> : y --&gt; w) :
+    det f -&gt; ⟨ f · g, f · h ⟩ = f · ⟨ g, h ⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> df.
+    <span class="nb">rewrite</span> &lt;- pairing_tensor, &lt;- df, !assoc'.
+    <span class="nb">rewrite</span> pairing_tensor, !id_left.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_nat_l</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f1</span> : a --&gt; x) (<span class="nv">f2</span> : a --&gt; y) (<span class="nv">g</span> : x --&gt; z) :
+    ⟨ f1 , f2 ⟩ · ⟨ proj1 · g, proj2 ⟩ = ⟨ f1 · g, f2 ⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (id_right proj2), pairing_tensor, id_right. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_nat_r</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f1</span> : a --&gt; x) (<span class="nv">f2</span> : a --&gt; y) (<span class="nv">g</span> : y --&gt; z) :
+    ⟨ f1 , f2 ⟩ · ⟨ proj1 , proj2 · g ⟩ = ⟨ f1 , f2 · g ⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (id_right proj1), pairing_tensor, id_right. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">QuasicartesianLaws</span>.
+
+<span class="sd">(** * 4. Automation *)</span>
+
+<span class="kn">Create HintDb</span> autodet.
+<span class="kn">Hint Resolve</span> det_id : autodet.
+<span class="kn">Hint Resolve</span> det_proj1 : autodet.
+<span class="kn">Hint Resolve</span> det_proj2 : autodet.
+<span class="kn">Hint Resolve</span> det_del : autodet.
+<span class="kn">Hint Resolve</span> det_comp : autodet.
+<span class="kn">Hint Resolve</span> det_pairing : autodet. 
+
+<span class="c">(* Normalize by right-associating everything *)</span>
+<span class="kn">Ltac</span> <span class="nf">normalize</span> := <span class="kp">repeat</span> (<span class="nb">rewrite</span> assoc).
+
+<span class="c">(* A single simplification step *)</span>
+<span class="kn">Ltac</span> <span class="nf">qcart_simpl_step</span> :=
+     (<span class="nb">rewrite</span> id_left)
+  || (<span class="nb">rewrite</span> id_right) 
+  || (<span class="nb">rewrite</span> pairing_proj1)
+  || (<span class="nb">rewrite</span> pairing_proj2)
+  || (<span class="nb">rewrite</span> proj1_inner)
+  || (<span class="nb">rewrite</span> proj2_inner).
+
+<span class="c">(* Simplify by repeated steps *)</span>
+<span class="kn">Ltac</span> <span class="nf">qcart_simpl</span> := <span class="kp">repeat</span> (normalize; qcart_simpl_step).
+
+<span class="c">(* Try solving some simple goals at unit or ground type *)</span>
+<span class="kn">Ltac</span> <span class="nf">qcart_solve</span> :=
+  (<span class="kp">try</span> <span class="nb">apply</span> eta_Unit) || (qcart_simpl; <span class="kp">try</span> <span class="bp">reflexivity</span>).
+
+<span class="c">(* At tensor type, repeatedly split goals using the eta law *)</span>
+<span class="kn">Ltac</span> <span class="nf">qcart_split</span> :=
+  <span class="kp">repeat</span> (<span class="nb">apply</span> eta_det; <span class="kp">try</span> <span class="nb">auto</span> <span class="mi">20</span> <span class="k">with</span> autodet).
+
+<span class="c">(* Repeatedly split and solve *)</span>
+<span class="kn">Ltac</span> <span class="nf">qcart_coherence</span> :=
+  <span class="kp">abstract</span> (qcart_simpl; qcart_split; qcart_solve).
+
+
+<span class="sd">(** * 5. Further laws and definitions *)</span>
+  
+<span class="kn">Section</span> <span class="nf">MoreLaws</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : quasicartesian_category}.
+
+  <span class="kn">Proposition</span> <span class="nf">proj1_expand</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} :
+    @proj1 C (x ⊗ y) z = ⟨ proj1 · proj1 , proj1 · proj2 ⟩.
+  <span class="kn">Proof</span>.
+    qcart_coherence.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">proj2_expand</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} :
+    @proj2 C z (x ⊗ y) = ⟨ proj2 · proj1 , proj2 · proj2 ⟩.
+  <span class="kn">Proof</span>.
+    qcart_coherence.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pairing_lemma</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : x --&gt; z) : 
+    ⟨ identity x, identity x ⟩ · (⟨ proj1 · f, proj2 ⟩ · ⟨ proj1, proj2 · g ⟩) 
+    = ⟨ f, g ⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> pairing_nat_l, pairing_nat_r.
+    <span class="nb">rewrite</span> !id_left.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pairing_assoc'</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : x --&gt; z) (<span class="nv">h</span> : x --&gt; w) :
+        ⟨ f , ⟨ g, h ⟩ ⟩ · ⟨ ⟨ proj1, proj2 · proj1 ⟩, proj2 · proj2 ⟩ 
+      = ⟨ ⟨ f, g ⟩, h ⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- (id_right ⟨ ⟨ f, g ⟩, h ⟩).
+    <span class="nb">rewrite</span> &lt;- pairing_assoc.
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    qcart_coherence.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Explicit forms for the monoidal coherence maps *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">lassociator</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} : (x ⊗ y) ⊗ z --&gt; x ⊗ (y ⊗ z)
+    :=  ⟨ proj1 · proj1, ⟨ proj1 · proj2, proj2 ⟩ ⟩. 
+
+  <span class="kn">Definition</span> <span class="nf">rassociator</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} : x ⊗ (y ⊗ z) --&gt; (x ⊗ y) ⊗ z 
+    :=   ⟨ ⟨ proj1, proj2 · proj1 ⟩, proj2 · proj2 ⟩.
+
+  <span class="kn">Definition</span> <span class="nf">lunitor</span> {<span class="nv">x</span> : C} : Unit ⊗ x --&gt; x := proj2.
+  <span class="kn">Definition</span> <span class="nf">linvunitor</span> {<span class="nv">x</span> : C} : x --&gt; Unit ⊗ x := ⟨ del x, identity x ⟩.
+  
+  <span class="kn">Definition</span> <span class="nf">runitor</span> {<span class="nv">x</span> : C} : x ⊗ Unit --&gt; x := proj1.
+  <span class="kn">Definition</span> <span class="nf">rinvunitor</span> {<span class="nv">x</span> : C} : x --&gt; x ⊗ Unit := ⟨ identity x, del x ⟩.
+
+  <span class="kn">Definition</span> <span class="nf">swap</span> {<span class="nv">x</span> <span class="nv">y</span> : C} : x ⊗ y --&gt; y ⊗ x := ⟨ proj2, proj1 ⟩.
+
+  <span class="c">(* Example *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">inner_swap</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C} : (x ⊗ y) ⊗ (z ⊗ w) --&gt; (x ⊗ z) ⊗ (y ⊗ w) 
+    := ⟨ proj1 #⊗ proj1, proj2 #⊗ proj2 ⟩.
+  
+  <span class="c">(* Define an equivalent expression for [inner_swap] which is linear </span>
+<span class="c">     in the sense that it is built up only from the monoidal sub-language </span>
+<span class="c">     (this implies it uses variables precisely once) *)</span>
+  <span class="kn">Definition</span> <span class="nf">inner_swap_linear</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C} : (x ⊗ y) ⊗ (z ⊗ w) --&gt; (x ⊗ z) ⊗ (y ⊗ w).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (
+      lassociator
+      · (identity x #⊗ _)
+      · rassociator).
+    <span class="nb">simple refine</span> (rassociator · (_ #⊗ identity w) · lassociator).
+    <span class="bp">exact</span> <span class="nb">swap</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* The proof strategy follows the definition of [inner_swap_linear ]*)</span>
+  <span class="kn">Proposition</span> <span class="nf">pairing_inner_swap_linear</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C} (<span class="nv">f</span> : a --&gt; x) (<span class="nv">g</span> : a --&gt; y) (<span class="nv">h</span> : a --&gt; z) (<span class="nv">i</span> : a --&gt; w) :
+    ⟨ ⟨ f, g ⟩, ⟨ h, i ⟩ ⟩ · inner_swap_linear = ⟨ ⟨ f, h ⟩, ⟨ g, i ⟩ ⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> inner_swap_linear.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">unfold</span> lassociator. <span class="nb">rewrite</span> pairing_assoc. <span class="c">(* lassoc *)</span>
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> pairing_tensor. <span class="c">(* tensor *)</span>
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">unfold</span> rassociator. <span class="nb">rewrite</span> pairing_assoc'. <span class="c">(* rassoc *)</span>
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> pairing_tensor. <span class="c">(* tensor *)</span>
+      <span class="nb">unfold</span> <span class="nb">swap</span>. <span class="nb">rewrite</span> pairing_swap. <span class="c">(* swap *)</span>
+      <span class="nb">rewrite</span> !id_right.
+      <span class="nb">rewrite</span> pairing_assoc. <span class="c">(* lassoc *)</span>
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="nb">unfold</span> rassociator. <span class="nb">rewrite</span> pairing_assoc'. <span class="c">(* rassoc *)</span>
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">pairing_inner_swap</span> {<span class="nv">a</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">w</span> : C} (<span class="nv">f</span> : a --&gt; x) (<span class="nv">g</span> : a --&gt; y) (<span class="nv">h</span> : a --&gt; z) (<span class="nv">i</span> : a --&gt; w) :
+    ⟨ ⟨ f, g ⟩, ⟨ h, i ⟩ ⟩ · inner_swap = ⟨ ⟨ f, h ⟩, ⟨ g, i ⟩ ⟩.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span>(e : @inner_swap x y z w = @inner_swap_linear x y z w). {
+      <span class="nb">unfold</span> inner_swap, inner_swap_linear.
+      <span class="nb">unfold</span> lassociator, rassociator, <span class="nb">swap</span>. 
+      qcart_coherence.
+    }
+    <span class="nb">rewrite</span> e.
+    <span class="nb">apply</span> pairing_inner_swap_linear.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">MoreLaws</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/MarkovCategories/AlternativeDefinitions/Quasicartesian.v</tt>, line 33)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; 5. Further laws and definitions
+  &gt; **)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

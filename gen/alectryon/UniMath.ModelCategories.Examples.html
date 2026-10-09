@@ -1,0 +1,621 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Examples.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SplitMonicsAndEpis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+<span class="kn">Require Import</span> UniMath.ModelCategories.MorphismClass.
+<span class="kn">Require Import</span> UniMath.ModelCategories.NWFS.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Helpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.LiftingWithClass.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Three.
+
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Examples</span>.
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+<span class="kn">Context</span> (<span class="nv">CC</span> : BinCoproducts C).
+
+<span class="kn">Definition</span> <span class="nf">cop_ff_cop</span> (<span class="nv">f</span> : arrow C) : BinCoproduct _ _ :=
+    CC (arrow_dom f) (arrow_cod f).
+<span class="kn">Opaque</span> cop_ff_cop.
+
+<span class="kn">Definition</span> <span class="nf">cop_functorial_factorization_data</span> : section_disp_data (three_disp C).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> f.
+    <span class="k">exists</span> (<span class="nv">BinCoproductObject</span> (cop_ff_cop f)).
+    <span class="k">exists</span> (<span class="nv">BinCoproductIn1</span> (cop_ff_cop f)).
+    <span class="k">exists</span> (<span class="nv">BinCoproductArrow</span> (cop_ff_cop f) f (identity _)).
+    <span class="kp">abstract</span> (
+      <span class="bp">exact</span> (BinCoproductIn1Commutes _ _ _ (cop_ff_cop f) _ _ _)
+    ).
+  - <span class="nb">intros</span> f g γ.
+    use tpair.
+    * <span class="c">(* arrow dom f ∐ cod f --&gt; dom g ∐ cod g</span>
+<span class="c">         simply given by γ: f --&gt; g *)</span>
+      use BinCoproductOfArrows.
+      + <span class="bp">exact</span> (arrow_mor00 γ).
+      + <span class="bp">exact</span> (arrow_mor11 γ).
+    * <span class="kp">abstract</span> (
+        <span class="nb">split</span>; [<span class="nb">apply</span> BinCoproductIn1Commutes|];
+        use BinCoproductArrowsEq; [
+          etrans; [<span class="nb">apply</span> assoc|];
+          etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                  <span class="nb">apply</span> BinCoproductIn1Commutes|];
+          <span class="nb">apply</span> pathsinv0;
+          etrans; [<span class="nb">apply</span> assoc|];
+          etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                  <span class="nb">apply</span> BinCoproductIn1Commutes|];
+          etrans; [<span class="nb">apply</span> assoc'|];
+          etrans; [<span class="nb">apply</span> cancel_precomposition;
+                  <span class="nb">apply</span> BinCoproductIn1Commutes|];
+          <span class="bp">exact</span> (arrow_mor_comm γ)
+        |
+          etrans; [<span class="nb">apply</span> assoc|];
+          etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                  <span class="nb">apply</span> BinCoproductIn2Commutes|];
+          etrans; [<span class="nb">apply</span> id_left|];
+          <span class="nb">apply</span> pathsinv0;
+          etrans; [<span class="nb">apply</span> assoc|];
+          etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                  <span class="nb">apply</span> BinCoproductIn2Commutes|];
+          etrans; [<span class="nb">apply</span> assoc'|];
+          etrans; [<span class="nb">apply</span> cancel_precomposition;
+                  <span class="nb">apply</span> BinCoproductIn2Commutes|];
+          <span class="nb">apply</span> id_right
+        ]
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cop_functorial_factorization_axioms</span> :
+    section_disp_axioms cop_functorial_factorization_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">apply</span> pathsinv0;
+    (<span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|]).
+  - use BinCoproduct_endo_is_identity.
+    * etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+      <span class="nb">apply</span> id_left.
+    * etrans. <span class="nb">apply</span> BinCoproductIn2Commutes.
+      <span class="nb">apply</span> id_left.
+  - use BinCoproductArrowUnique.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      <span class="nb">apply</span> assoc.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cop_functorial_factorization</span> : functorial_factorization C :=
+    (_,, cop_functorial_factorization_axioms).
+
+<span class="kn">Definition</span> <span class="nf">cop_ff_comul_data</span> :
+    nat_trans_data
+        (fact_L cop_functorial_factorization)
+        (functor_composite (fact_L cop_functorial_factorization) (fact_L cop_functorial_factorization)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (identity _).
+  - use BinCoproductArrow.
+    * use BinCoproductIn1.
+    * use (compose (BinCoproductIn2 (cop_ff_cop f))).
+      use BinCoproductIn2.
+  - <span class="kp">abstract</span> (
+      etrans; [<span class="nb">apply</span> id_left|];
+      <span class="nb">apply</span> pathsinv0;
+      <span class="nb">apply</span> BinCoproductIn1Commutes
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cop_ff_comul_ax</span> :
+    is_nat_trans _ _ cop_ff_comul_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g γ.
+  use arrow_mor_eq.
+  - etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+  - use BinCoproductArrowsEq.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+      <span class="bp">reflexivity</span>.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      <span class="nb">apply</span> assoc'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cop_ff_comul</span> :
+    nat_trans _ _ :=
+  (_,, cop_ff_comul_ax).
+
+<span class="kn">Lemma</span> <span class="nf">cop_ff_comul_monad_laws</span> :
+    disp_Comonad_laws (L_monad_data cop_functorial_factorization cop_ff_comul).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span> f; use arrow_mor_eq.
+  - <span class="nb">apply</span> id_left.
+  - use BinCoproductArrowsEq.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_right.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> id_left.
+  - use BinCoproductArrowsEq.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_right.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_right.
+  - <span class="bp">reflexivity</span>.
+  - use BinCoproductArrowsEq.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+      <span class="bp">reflexivity</span>.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cop_lnwfs_over</span> : lnwfs_over cop_functorial_factorization.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">cop_ff_comul</span>.
+  <span class="bp">exact</span> cop_ff_comul_monad_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cop_ff_mul_data</span> :
+    nat_trans_data
+        (functor_composite (fact_R cop_functorial_factorization) (fact_R cop_functorial_factorization))
+        (fact_R cop_functorial_factorization).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  use mors_to_arrow_mor.
+  - use BinCoproductArrow.
+    * use BinCoproductArrow.
+      + use BinCoproductIn1.
+      + use BinCoproductIn2.
+    * use BinCoproductIn2.
+  - <span class="bp">exact</span> (identity _).
+  - <span class="kp">abstract</span> (
+      use BinCoproductArrowsEq; [
+        etrans; [<span class="nb">apply</span> assoc|];
+        etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                <span class="nb">apply</span> BinCoproductIn1Commutes|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> assoc|];
+        etrans; [<span class="nb">apply</span> id_right|];
+        etrans; [<span class="nb">apply</span> BinCoproductIn1Commutes|];
+        use BinCoproductArrowsEq; [
+            etrans; [<span class="nb">apply</span> BinCoproductIn1Commutes|];
+            <span class="nb">apply</span> pathsinv0;
+            etrans; [<span class="nb">apply</span> assoc|];
+            etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                      <span class="nb">apply</span> BinCoproductIn1Commutes|];
+            etrans; [<span class="nb">apply</span> BinCoproductIn1Commutes|];
+            <span class="bp">reflexivity</span>
+        |
+            etrans; [<span class="nb">apply</span> BinCoproductIn2Commutes|];
+            <span class="nb">apply</span> pathsinv0;
+            etrans; [<span class="nb">apply</span> assoc|];
+            etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                      <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ (cop_ff_cop f))|];
+            <span class="nb">apply</span> BinCoproductIn2Commutes
+        ]
+      |
+        etrans; [<span class="nb">apply</span> assoc|];
+        etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                <span class="nb">apply</span> BinCoproductIn2Commutes|];
+        etrans; [<span class="nb">apply</span> BinCoproductIn2Commutes|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> assoc|];
+        etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                <span class="nb">apply</span> BinCoproductIn2Commutes|];
+        <span class="nb">apply</span> id_left
+      ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cop_ff_mul_ax</span> :
+    is_nat_trans _ _ cop_ff_mul_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g γ.
+  use arrow_mor_eq.
+  - use BinCoproductArrowsEq.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      use BinCoproductArrowsEq.
+        + etrans. <span class="nb">apply</span> assoc.
+          etrans. <span class="nb">apply</span> cancel_postcomposition.
+                  <span class="nb">apply</span> BinCoproductIn1Commutes.
+          etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+          <span class="nb">apply</span> pathsinv0.
+          etrans. <span class="nb">apply</span> assoc.
+          etrans. <span class="nb">apply</span> cancel_postcomposition.
+                  <span class="nb">apply</span> BinCoproductIn1Commutes.
+          etrans. <span class="nb">apply</span> assoc'.
+          etrans. <span class="nb">apply</span> cancel_precomposition.
+                  <span class="nb">apply</span> BinCoproductIn1Commutes.
+          <span class="bp">reflexivity</span>.
+        + etrans. <span class="nb">apply</span> assoc.
+          etrans. <span class="nb">apply</span> cancel_postcomposition.
+                  <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ (cop_ff_cop f)).
+          etrans. <span class="nb">apply</span> BinCoproductIn2Commutes.
+          <span class="nb">apply</span> pathsinv0.
+          etrans. <span class="nb">apply</span> assoc.
+          etrans. <span class="nb">apply</span> cancel_postcomposition.
+                  <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ (cop_ff_cop f)).
+          etrans. <span class="nb">apply</span> assoc'.
+          etrans. <span class="nb">apply</span> cancel_precomposition.
+                  <span class="nb">apply</span> BinCoproductIn2Commutes.
+          <span class="bp">reflexivity</span>.
+      * etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> BinCoproductIn2Commutes.
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> BinCoproductIn2Commutes.
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> BinCoproductIn2Commutes.
+        etrans. <span class="nb">apply</span> BinCoproductIn2Commutes.
+        <span class="bp">reflexivity</span>.
+  - etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cop_ff_mul</span> :
+    nat_trans _ _ :=
+  (_,, cop_ff_mul_ax).
+
+<span class="kn">Lemma</span> <span class="nf">cop_ff_mul_monad_laws</span> :
+    disp_Monad_laws (R_monad_data cop_functorial_factorization cop_ff_mul).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span> f; use arrow_mor_eq.
+  - use BinCoproductArrowsEq.
+    * etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_right.
+    * etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> BinCoproductIn2Commutes.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> id_left.
+  - use BinCoproductArrowsEq.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_right.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> id_left.
+      etrans. <span class="nb">apply</span> BinCoproductIn2Commutes.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> id_left.
+  - use BinCoproductArrowsEq.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn1Commutes.
+      use BinCoproductArrowsEq.
+      + etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> BinCoproductIn1Commutes.
+        etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> BinCoproductIn1Commutes.
+        use BinCoproductArrowsEq.
+        -- etrans. <span class="nb">apply</span> assoc.
+           etrans. <span class="nb">apply</span> cancel_postcomposition.
+                   <span class="nb">apply</span> BinCoproductIn1Commutes.
+           etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+           <span class="nb">apply</span> pathsinv0.
+           etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+           <span class="bp">reflexivity</span>.
+        -- etrans. <span class="nb">apply</span> assoc.
+           etrans. <span class="nb">apply</span> cancel_postcomposition.
+                   <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ (cop_ff_cop f)).
+           etrans. <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ (cop_ff_cop f)).
+           <span class="nb">apply</span> pathsinv0.
+           etrans. <span class="nb">apply</span> BinCoproductIn2Commutes.
+           <span class="bp">reflexivity</span>.
+      + etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ (cop_ff_cop (fact_R cop_functorial_factorization f))).
+        etrans. <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ (cop_ff_cop (fact_R cop_functorial_factorization f))).
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ (cop_ff_cop (fact_R cop_functorial_factorization f))).
+        etrans. <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ (cop_ff_cop f)).
+        <span class="bp">reflexivity</span>.
+    * etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> BinCoproductIn2Commutes.
+      etrans. <span class="nb">apply</span> BinCoproductIn2Commutes.
+      <span class="bp">reflexivity</span>.
+  - <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cop_rnwfs_over</span> : rnwfs_over cop_functorial_factorization.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">cop_ff_mul</span>.
+  <span class="bp">exact</span> cop_ff_mul_monad_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cop_nwfs_over</span> : nwfs_over cop_functorial_factorization.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> cop_lnwfs_over.
+  - <span class="bp">exact</span> cop_rnwfs_over.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cop_nwfs</span> : nwfs C :=
+    (_,, cop_nwfs_over).
+
+<span class="kn">Lemma</span> <span class="nf">cop_nwfs_r_map_is_split_epi</span>
+    (<span class="nv">g</span> : arrow C) :
+  nwfs_R_maps cop_nwfs g
+  -&gt; is_split_epi g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Rg.
+  <span class="nb">destruct</span> Rg <span class="k">as</span> [αg αgax].
+  use tpair.
+  - <span class="bp">exact</span> (BinCoproductIn2 _ · (arrow_mor00 αg)).
+  - etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="bp">exact</span> (arrow_mor_comm αg).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (BinCoproductIn2Commutes).
+    <span class="bp">exact</span> (arrow_mor11_eq (pr1 αgax)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cop_nwfs_split_epi_is_r_map</span>
+    (<span class="nv">g</span> : arrow C) :
+  is_split_epi g
+  -&gt; nwfs_R_maps cop_nwfs g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Hg.
+  <span class="nb">destruct</span> Hg <span class="k">as</span> [g' rel].
+  use tpair.
+  - use mors_to_arrow_mor.
+    * use BinCoproductArrow.
+      + <span class="bp">exact</span> (identity _).
+      + <span class="bp">exact</span> g'.
+    * <span class="bp">exact</span> (identity _).
+    * <span class="kp">abstract</span> (
+        use BinCoproductArrowsEq; [
+          etrans; [<span class="nb">apply</span> assoc|];
+          etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                    <span class="nb">apply</span> BinCoproductIn1Commutes|];
+          etrans; [<span class="nb">apply</span> id_left|];
+          <span class="nb">apply</span> pathsinv0;
+          etrans; [<span class="nb">apply</span> assoc|];
+          etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                    <span class="nb">apply</span> BinCoproductIn1Commutes|];
+          <span class="nb">apply</span> id_right
+        | etrans; [<span class="nb">apply</span> assoc|];
+          etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                    <span class="nb">apply</span> BinCoproductIn2Commutes|];
+          etrans; [<span class="bp">exact</span> (rel)|];
+          <span class="nb">apply</span> pathsinv0;
+          etrans; [<span class="nb">apply</span> assoc|];
+          etrans; [<span class="nb">apply</span> id_right|];
+          etrans; [<span class="nb">apply</span> BinCoproductIn2Commutes|];
+          <span class="bp">reflexivity</span>
+        ]
+      ).
+  - <span class="nb">split</span>; use arrow_mor_eq.
+    * etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+      <span class="bp">reflexivity</span>.
+    * <span class="nb">apply</span> id_left.
+    * use BinCoproductArrowsEq.
+      + etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> BinCoproductIn1Commutes.
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> BinCoproductIn1Commutes.
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> BinCoproductIn1Commutes.
+        etrans. <span class="nb">apply</span> id_right.
+        use BinCoproductArrowsEq.
+        --  etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+            <span class="nb">apply</span> pathsinv0.
+            etrans. <span class="nb">apply</span> assoc.
+            etrans. <span class="nb">apply</span> cancel_postcomposition.
+                    <span class="nb">apply</span> BinCoproductIn1Commutes.
+            etrans. <span class="nb">apply</span> BinCoproductIn1Commutes.
+            <span class="bp">reflexivity</span>.
+        --  etrans. <span class="nb">apply</span> BinCoproductIn2Commutes.
+            <span class="nb">apply</span> pathsinv0.
+            etrans. <span class="nb">apply</span> assoc.
+            etrans. <span class="nb">apply</span> cancel_postcomposition.
+                    <span class="nb">apply</span> (BinCoproductIn2Commutes _ _ _ (cop_ff_cop g)).
+            etrans. <span class="nb">apply</span> BinCoproductIn2Commutes.
+            <span class="bp">reflexivity</span>.
+      + etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> BinCoproductIn2Commutes.
+        etrans. <span class="nb">apply</span> BinCoproductIn2Commutes.
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> BinCoproductIn2Commutes.
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> id_left.
+        etrans. <span class="nb">apply</span> BinCoproductIn2Commutes.
+        <span class="bp">reflexivity</span>.
+    * <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cop_nwfs_r_map_iff_split_epi</span>
+    (<span class="nv">g</span> : arrow C) :
+  nwfs_R_maps cop_nwfs g &lt;-&gt; is_split_epi g.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> cop_nwfs_r_map_is_split_epi.
+  - <span class="nb">apply</span> cop_nwfs_split_epi_is_r_map.
+<span class="kn">Qed</span>.
+
+<span class="kn">Transparent</span> cop_ff_cop.
+<span class="kn">End</span> <span class="nf">Examples</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/Examples.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

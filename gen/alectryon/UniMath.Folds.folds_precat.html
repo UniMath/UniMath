@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>folds_precat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Univalent FOLDS</span>
+
+<span class="sd">    Benedikt Ahrens, following notes by Michael Shulman</span>
+
+<span class="sd">Contents of this file:</span>
+
+<span class="sd">  - Definition of the type of FOLDS precategories [folds_precat]</span>
+<span class="sd">  - Definition of functions [id_func] and [comp_func] from a FOLDS precategory</span>
+<span class="sd">  - Proof of the usual axioms of categories for those functions</span>
+
+<span class="sd">*)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Folds.UnicodeNotations.
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="sd">(** * The definition of a FOLDS precategory *)</span>
+
+<span class="sd">(** ** Objects and a dependent type of morphisms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">folds_ob_mor</span> := ∑ a : UU, a → a → UU.
+<span class="kn">Definition</span> <span class="nf">make_folds_ob_mor</span> (<span class="nv">ob</span> : UU)(<span class="nv">mor</span> : ob → ob → UU) :
+    folds_ob_mor := tpair _ ob mor.
+
+<span class="kn">Definition</span> <span class="nf">ob</span> (<span class="nv">C</span> : folds_ob_mor) : UU := @pr1 _ _ C.
+<span class="kn">Coercion</span> <span class="nf">ob</span> : folds_ob_mor &gt;-&gt; UU.
+
+<span class="kn">Definition</span> <span class="nf">folds_morphisms</span> {<span class="nv">C</span> : folds_ob_mor} : C → C → UU := pr2 C.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a ⇒ b"</span> := (folds_morphisms a b).
+
+<span class="kn">Definition</span> <span class="nf">has_folds_homsets</span> (<span class="nv">C</span> : folds_ob_mor) : UU := ∏ a b: C, isaset (a ⇒ b).
+
+<span class="sd">(** ** Identity and composition, given through predicates *)</span>
+
+<span class="kn">Definition</span> <span class="nf">folds_id_T</span> := ∑ C : folds_ob_mor,
+    (∏ a : C, a ⇒ a → hProp)
+ ×  (∏ (a b c : C), (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp).
+
+<span class="kn">Definition</span> <span class="nf">folds_ob_mor_from_folds_id_comp</span> (<span class="nv">C</span> : folds_id_T) : folds_ob_mor := pr1 C.
+<span class="kn">Coercion</span> <span class="nf">folds_ob_mor_from_folds_id_comp</span> : folds_id_T &gt;-&gt; folds_ob_mor.
+
+<span class="kn">Definition</span> <span class="nf">I</span> {<span class="nv">C</span> : folds_id_T} : ∏ {a : C}, a ⇒ a → hProp
+  := pr1 (pr2 C).
+<span class="kn">Definition</span> <span class="nf">T</span> {<span class="nv">C</span> : folds_id_T} : ∏ {a b c : C}, (a ⇒ b) → (b ⇒ c) → (a ⇒ c) → hProp
+  := pr2 (pr2 C).
+
+<span class="sd">(** **  The axioms for identity *)</span>
+
+<span class="kn">Definition</span> <span class="nf">folds_ax_I</span> (<span class="nv">C</span> : folds_id_T) :=
+     (∏ a : C, ∥ ∑ f : a ⇒ a, I f ∥ )  <span class="c">(* there is an id *)</span>
+  × ((∏ (a b : C) (f : a ⇒ b)(i : b ⇒ b), I i → T f i f) <span class="c">(* id is post neutral *)</span>
+   × (∏ (a b : C) (f : a ⇒ b)(i : a ⇒ a), I i → T i f f)). <span class="c">(* id is pre neutral *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_folds_ax_id</span> <span class="nv">C</span> : isaprop (folds_ax_I C).
+<span class="kn">Proof</span>.
+ <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod).
+ - <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> isapropishinh.
+ - <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>). <span class="nb">apply</span> pr2.
+ - <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>). <span class="nb">apply</span> pr2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">folds_ax_T</span> (<span class="nv">C</span> : folds_id_T) :=
+     (∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), ∥ ∑ h : a ⇒ c, T f g h ∥ ) <span class="c">(* there is a composite *)</span>
+ ×  ((∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c) (h k : a ⇒ c),
+                  T f g h → T f g k → h = k )       <span class="c">(* composite is unique *)</span>
+  ×  (∏ (a b c d : C) (f : a ⇒ b) (g : b ⇒ c) (h : c ⇒ d)
+                  (fg : a ⇒ c) (gh : b ⇒ d) (fg_h : a ⇒ d) (f_gh : a ⇒ d),
+               T f g fg → T g h gh →
+                  T fg h fg_h → T f gh f_gh → f_gh = fg_h)). <span class="c">(* composition is assoc *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_folds_ax_T</span> (<span class="nv">C</span>:folds_id_T) (<span class="nv">hs</span>: has_folds_homsets C): isaprop (folds_ax_T C).
+<span class="kn">Proof</span>.
+ <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod).
+ - <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>). <span class="nb">apply</span> isapropishinh.
+ - <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>). <span class="nb">apply</span> hs.
+ - <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>). <span class="nb">apply</span> hs.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">folds_precat</span> := ∑ C : folds_id_T, folds_ax_I C × folds_ax_T C.
+
+<span class="kn">Definition</span> <span class="nf">folds_id_comp_from_folds_precat</span> (<span class="nv">C</span> : folds_precat) : folds_id_T := pr1 C.
+<span class="kn">Coercion</span> <span class="nf">folds_id_comp_from_folds_precat</span> : folds_precat &gt;-&gt; folds_id_T.
+
+<span class="sd">(** * Some lemmas about FOLDS precategories *)</span>
+
+<span class="sd">(** used later to go to precategories; we define</span>
+<span class="sd">  - identity as a function</span>
+<span class="sd">  - composition as a function</span>
+<span class="sd">*)</span>
+
+<span class="kn">Section</span> <span class="nf">some_lemmas_about_folds_precats</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : folds_precat.
+
+<span class="kn">Lemma</span> <span class="nf">I_unique</span> : ∏ (a : C) (i i' : a ⇒ a), I i → I i' → i = i'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a i i' Hi Hi'.
+  <span class="nb">destruct</span> C <span class="k">as</span> [CC [Cid Ccomp]]; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">assert</span> (H1 : T i i' i).
+  { <span class="nb">apply</span> (pr1 (pr2 Cid) _ _ _ _  ).  <span class="bp">assumption</span>. }
+  <span class="nb">assert</span> (H2 : T i i' i').
+  { <span class="nb">apply</span> (pr2 (pr2 Cid) _ _ _ _ ) . <span class="bp">assumption</span>. }
+  <span class="nb">apply</span> (pr1 (pr2 Ccomp) _ _ _ _ _ _ _ H1 H2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">I_contr</span> : ∏ a : C, iscontr (∑ f : a ⇒ a, I f).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> a.
+  <span class="nb">set</span> (H := pr1 (pr1 (pr2 C)) a).
+  <span class="nb">set</span> (H' := make_hProp (iscontr (∑ f : a ⇒ a, I f))
+                      (isapropiscontr _ )).
+  <span class="nb">apply</span> (H H'); <span class="nb">simpl</span>.
+  <span class="nb">intro</span> t; <span class="k">exists</span> <span class="nv">t</span>.
+  <span class="nb">intro</span> t'.
+  <span class="nb">apply</span> subtypePath.
+  - <span class="nb">intro</span> b; <span class="nb">apply</span> pr2.
+  - <span class="nb">destruct</span> t; <span class="nb">destruct</span> t';
+    <span class="nb">apply</span> I_unique; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">I_func</span> (<span class="nv">a</span> : C) : a ⇒ a := pr1 (pr1 (I_contr a)).
+
+<span class="kn">Lemma</span> <span class="nf">I_func_I</span> (<span class="nv">a</span> : C) : I (I_func a).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr2 (pr1 (I_contr a))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">T_contr</span> : ∏ (a b c : C) (f : a ⇒ b) (g : b ⇒ c), iscontr (∑ h, T f g h).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b c f g.
+  <span class="nb">set</span> (H' := make_hProp (iscontr (∑ h : a ⇒ c, T f g h))
+                      (isapropiscontr _ )).
+  <span class="nb">apply</span> (pr1 (pr2 (pr2 C)) a b c f g H').
+  <span class="nb">simpl</span>; <span class="nb">intro</span> t; <span class="k">exists</span> <span class="nv">t</span>.
+  <span class="nb">intro</span> t'.
+  <span class="nb">apply</span> subtypePath.
+  - <span class="nb">intro</span>; <span class="nb">apply</span> pr2.
+  - <span class="nb">destruct</span> t <span class="k">as</span> [t tp]; <span class="nb">destruct</span> t' <span class="k">as</span> [t' tp']; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> (pr1 (pr2 (pr2 (pr2 C))) _ _ _ f g ); <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">T_func</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : a ⇒ b) (<span class="nv">g</span> : b ⇒ c) : a ⇒ c :=
+     pr1 (pr1 (T_contr a b c f g)).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f ∘ g"</span> := (T_func f g).
+
+<span class="kn">Lemma</span> <span class="nf">T_func_T</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : a ⇒ b) (<span class="nv">g</span> : b ⇒ c) : T f g (f ∘ g).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr2 (pr1 (T_contr a b c f g))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">T_I_l</span> (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> : a ⇒ b) : f ∘ (I_func b) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (H : T f (I_func b) f).
+  { <span class="nb">apply</span> (pr1 (pr2 (pr1 (pr2 C)))). <span class="nb">apply</span> I_func_I. }
+  <span class="nb">assert</span> (H' : T f (I_func b) (T_func f (I_func b))).
+  { <span class="nb">apply</span> T_func_T. }
+  <span class="nb">set</span> (H2 := pr1 (pr2 (pr2 (pr2 C)))).
+  <span class="nb">apply</span> (H2 _ _ _ _ _ _ _ H' H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">T_I_r</span> (<span class="nv">a</span> <span class="nv">b</span> : C) (<span class="nv">f</span> : a ⇒ b) : (I_func a) ∘ f = f.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (H : T (I_func a) f f).
+  { <span class="nb">apply</span> (pr2 (pr2 (pr1 (pr2 C)))). <span class="nb">apply</span> I_func_I. }
+  <span class="nb">assert</span> (H' : T (I_func a) f (T_func (I_func a) f)).
+  { <span class="nb">apply</span> T_func_T. }
+  <span class="nb">set</span> (H2 := pr1 (pr2 (pr2 (pr2 C)))).
+  <span class="nb">apply</span> (H2 _ _ _ _ _ _ _ H' H).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">T_assoc</span> (<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C) (<span class="nv">f</span> : a ⇒ b) (<span class="nv">g</span> : b ⇒ c) (<span class="nv">h</span> : c ⇒ d) :
+    f ∘ (g ∘ h) = (f ∘ g) ∘ h.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr2 (pr2 (pr2 (pr2 C))) a b c d f g h (f ∘ g) (g ∘ h)).
+  - <span class="nb">apply</span> T_func_T.
+  - <span class="nb">apply</span> T_func_T.
+  - <span class="nb">apply</span> T_func_T.
+  - <span class="nb">apply</span> T_func_T.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">End</span> <span class="nf">some_lemmas_about_folds_precats</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Folds/folds_precat.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Folds/UnicodeNotations.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Folds.UnicodeNotations.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.Foundations.PartD.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

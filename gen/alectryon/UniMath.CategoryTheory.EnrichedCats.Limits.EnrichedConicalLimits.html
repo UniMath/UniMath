@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EnrichedConicalLimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Enriched conical limits</span>
+
+<span class="sd"> We define conical limits for enriched categories. A conical</span>
+<span class="sd"> limit is the limit of a functor to the underlying category</span>
+<span class="sd"> of an enriched category. Note that in ordinary category theory,</span>
+<span class="sd"> these limits are called limits rather than conical limits.</span>
+<span class="sd"> The reason for that, is that the 'right' notion of limit in</span>
+<span class="sd"> enriched category is that of a weighted limit. The power is</span>
+<span class="sd"> an example of a limit that is not conical.</span>
+
+<span class="sd"> In addition, we show that conical limits can be constructed</span>
+<span class="sd"> from type-indexed products and equalizers. We use a similar</span>
+<span class="sd"> construction as the one used to construct limits from</span>
+<span class="sd"> products and equalizers in ordinary category theory.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Cones of enriched conical limits</span>
+<span class="sd"> 2. Conical limits in an enriched category</span>
+<span class="sd"> 3. Being a conical limit is a proposition</span>
+<span class="sd"> 4. Accessors for conical limits</span>
+<span class="sd"> 5. Conical limits are isomorphic</span>
+<span class="sd"> 6. Construction of conical limits</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Limits.EnrichedEqualizers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Section</span> <span class="nf">EnrichedConicalLimit</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}
+          {<span class="nv">C</span> : category}
+          (<span class="nv">E</span> : enrichment C V)
+          {<span class="nv">I</span> : category}
+          (<span class="nv">D</span> : I ⟶ C).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Cones of enriched conical limits</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_lim_cone</span>
+    : UU
+    := ∑ (a : C),
+       ∑ (ps : ∏ (i : I), a --&gt; D i),
+       ∏ (i j : I) (f : i --&gt; j),
+       ps i · #D f = ps j.
+
+  <span class="kn">Coercion</span> <span class="nf">ob_enriched_conical_lim_cone</span>
+           (a : enriched_conical_lim_cone)
+    : C
+    := pr1 a.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_lim_cone_pr</span>
+             (<span class="nv">a</span> : enriched_conical_lim_cone)
+             (<span class="nv">i</span> : I)
+    : a --&gt; D i
+    := pr12 a i.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_conical_lim_cone_commute</span>
+              (<span class="nv">a</span> : enriched_conical_lim_cone)
+              {<span class="nv">i</span> <span class="nv">j</span> : I}
+              (<span class="nv">f</span> : i --&gt; j)
+    : enriched_conical_lim_cone_pr a i · #D f
+      =
+      enriched_conical_lim_cone_pr a j.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 a i j f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_conical_lim_cone</span>
+             (<span class="nv">a</span> : C)
+             (<span class="nv">ps</span> : ∏ (i : I), a --&gt; D i)
+             (<span class="nv">eqs</span> : ∏ (i j : I)
+                      (f : i --&gt; j),
+                    ps i · #D f = ps j)
+    : enriched_conical_lim_cone
+    := a ,, ps ,, eqs.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Conical limits in an enriched category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_conical_lim_enriched_diagram</span>
+             (<span class="nv">a</span> : enriched_conical_lim_cone)
+             (<span class="nv">w</span> : C)
+    : diagram I V.
+  <span class="kn">Proof</span>.
+    use make_diagram.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, E ⦃ w , D i ⦄).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span> <span class="nv">j</span> <span class="nv">f</span>, postcomp_arr E w (#D f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_conical_lim_enriched_cone</span>
+             (<span class="nv">a</span> : enriched_conical_lim_cone)
+             (<span class="nv">w</span> : C)
+    : cone (is_conical_lim_enriched_diagram a w) (E ⦃ w, a ⦄).
+  <span class="kn">Proof</span>.
+    use make_cone.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, postcomp_arr E w (enriched_conical_lim_cone_pr a i)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> i j f ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> &lt;- postcomp_arr_comp ;
+         <span class="nb">rewrite</span> enriched_conical_lim_cone_commute ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_conical_lim_enriched</span>
+             (<span class="nv">a</span> : enriched_conical_lim_cone)
+    : UU
+    := ∏ (w : C),
+       isLimCone
+         (is_conical_lim_enriched_diagram a w)
+         (E ⦃ w , a ⦄)
+         (is_conical_lim_enriched_cone a w).
+
+  <span class="kn">Definition</span> <span class="nf">is_conical_lim_enriched_to_Lim</span>
+             {<span class="nv">a</span> : enriched_conical_lim_cone}
+             (<span class="nv">Ha</span> : is_conical_lim_enriched a)
+             (<span class="nv">w</span> : C)
+    : LimCone (is_conical_lim_enriched_diagram a w).
+  <span class="kn">Proof</span>.
+    use make_LimCone.
+    - <span class="bp">exact</span> (E ⦃ w , a ⦄).
+    - <span class="bp">exact</span> (is_conical_lim_enriched_cone a w).
+    - <span class="bp">exact</span> (Ha w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">conical_lim_enriched</span>
+    : UU
+    := ∑ (a : enriched_conical_lim_cone),
+       is_conical_lim_enriched a.
+
+  <span class="kn">Coercion</span> <span class="nf">cone_of_conical_lim_enriched</span>
+           (a : conical_lim_enriched)
+    : enriched_conical_lim_cone
+    := pr1 a.
+
+  <span class="kn">Coercion</span> <span class="nf">enriched_conical_lim_cone_is_conical_lim</span>
+           (a : conical_lim_enriched)
+    : is_conical_lim_enriched a
+    := pr2 a.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Being a conical limit is a proposition</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_conical_lim_enriched</span>
+              (<span class="nv">a</span> : enriched_conical_lim_cone)
+    : isaprop (is_conical_lim_enriched a).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isapropiscontr.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Accessors for conical limits</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">ConicalLimAccessors</span>.
+    <span class="kn">Context</span> (<span class="nv">a</span> : conical_lim_enriched).
+
+    <span class="kn">Definition</span> <span class="nf">is_conical_lim_enriched_arrow</span>
+               (<span class="nv">w</span> : C)
+               (<span class="nv">gs</span> : ∏ (i : I), w --&gt; D i)
+               (<span class="nv">qs</span> : ∏ (i j : I)
+                       (f : i --&gt; j),
+                     gs i · # D f = gs j)
+      : w --&gt; a.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (enriched_to_arr E _).
+      use (limArrow (make_LimCone _ _ _ (pr2 a w))).
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, enriched_from_arr E (gs i)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> i j f ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> enriched_from_arr_postcomp ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (qs i j f)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_conical_lim_enriched_map_pr</span>
+                (<span class="nv">w</span> : C)
+                (<span class="nv">gs</span> : ∏ (i : I), w --&gt; D i)
+                (<span class="nv">qs</span> : ∏ (i j : I)
+                        (f : i --&gt; j),
+                      gs i · # D f = gs j)
+                (<span class="nv">i</span> : I)
+      : is_conical_lim_enriched_arrow w gs qs · enriched_conical_lim_cone_pr a i
+        =
+        gs i.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_conical_lim_enriched_arrow, enriched_conical_lim_cone_pr.
+      use (invmaponpathsweq (make_weq _ (isweq_enriched_from_arr E _ _))) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> enriched_from_arr_comp.
+      <span class="nb">rewrite</span> !enriched_from_to_arr.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_linvunitor.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+        <span class="nb">apply</span> (limArrowCommutes
+                 (make_LimCone _ _ _ (pr2 a w))).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_conical_lim_enriched_arrow_eq</span>
+                {<span class="nv">w</span> : C}
+                {<span class="nv">f</span> <span class="nv">g</span> : w --&gt; a}
+                (<span class="nv">q</span> : ∏ (i : I),
+                     f · enriched_conical_lim_cone_pr a i
+                     =
+                     g · enriched_conical_lim_cone_pr a i)
+      : f = g.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!(enriched_to_from_arr E _) @ _ @ enriched_to_from_arr E _).
+      <span class="nb">apply</span> maponpaths.
+      use (arr_to_LimCone_eq (is_conical_lim_enriched_to_Lim (pr2 a) w)).
+      <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !enriched_from_arr_postcomp.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">ConicalLimAccessors</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Conical limits are isomorphic</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">map_between_conical_lim_enriched</span>
+             (<span class="nv">a</span> <span class="nv">b</span> : conical_lim_enriched)
+    : a --&gt; b.
+  <span class="kn">Proof</span>.
+    use (is_conical_lim_enriched_arrow b).
+    - <span class="bp">exact</span> (enriched_conical_lim_cone_pr a).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, enriched_conical_lim_cone_commute a f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iso_between_conical_lim_enriched_inv</span>
+        (<span class="nv">a</span> <span class="nv">b</span> : conical_lim_enriched)
+    : map_between_conical_lim_enriched a b · map_between_conical_lim_enriched b a
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> map_between_conical_lim_enriched.
+    use (is_conical_lim_enriched_arrow_eq a).
+    <span class="nb">intro</span> j.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !is_conical_lim_enriched_map_pr.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_between_conical_lim_enriched</span>
+             (<span class="nv">a</span> <span class="nv">b</span> : conical_lim_enriched)
+    : z_iso a b.
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> (map_between_conical_lim_enriched a b).
+    - <span class="bp">exact</span> (map_between_conical_lim_enriched b a).
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> iso_between_conical_lim_enriched_inv.
+      + <span class="nb">apply</span> iso_between_conical_lim_enriched_inv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_conical_lim_enriched</span>
+              (<span class="nv">HC</span> : is_univalent C)
+    : isaprop (conical_lim_enriched).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_conical_lim_enriched.
+    }
+    use total2_paths_f.
+    - use (isotoid _ HC).
+      <span class="nb">apply</span> iso_between_conical_lim_enriched.
+    - use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">rewrite</span> pr1_transportf.
+      <span class="nb">rewrite</span> transportf_sec_constant.
+      use funextsec.
+      <span class="nb">intro</span> j.
+      <span class="nb">rewrite</span> transportf_isotoid.
+      use z_iso_inv_on_right ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> is_conical_lim_enriched_map_pr.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">EnrichedConicalLimit</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Construction of conical limits</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ConstructionOfConicalLimit</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}
+          {<span class="nv">C</span> : category}
+          (<span class="nv">E</span> : enrichment C V)
+          {<span class="nv">I</span> : category}
+          (<span class="nv">D</span> : I ⟶ C)
+          (<span class="nv">PE</span> : ∏ (J : UU), enrichment_prod E J)
+          (<span class="nv">EE</span> : enrichment_equalizers E).
+
+  <span class="kn">Let</span> <span class="nf">prod_src</span> : C := pr1 (PE I D).
+  <span class="kn">Let</span> <span class="nf">is_prod_src</span> : is_prod_enriched E D prod_src := pr2 (PE I D).
+
+  <span class="kn">Let</span> <span class="nf">prod_tar</span> : C
+    := pr1 (PE (∑ (x : I) (y : I), x --&gt; y) (<span class="k">λ</span> <span class="nv">z</span>, D (pr12 z))).
+  <span class="kn">Let</span> <span class="nf">is_prod_tar</span> : is_prod_enriched E _ prod_tar
+    := pr2 (PE (∑ (x : I) (y : I), x --&gt; y) (<span class="k">λ</span> <span class="nv">z</span>, D (pr12 z))).
+
+  <span class="kn">Local Definition</span> <span class="nf">enriched_conical_lim_from_prod_equalizers_l</span>
+    : prod_src --&gt; prod_tar
+    := is_prod_enriched_arrow _ _ is_prod_tar (<span class="k">λ</span> <span class="nv">j</span>, enriched_prod_cone_pr _ _ _ (pr12 j)).
+
+  <span class="kn">Let</span> <span class="nf">f</span> : prod_src --&gt; prod_tar := enriched_conical_lim_from_prod_equalizers_l.
+
+  <span class="kn">Local Proposition</span> <span class="nf">enriched_conical_lim_from_prod_equalizers_l_pr</span>
+                    {<span class="nv">i</span> <span class="nv">j</span> : I}
+                    (<span class="nv">k</span> : i --&gt; j)
+    : f · enriched_prod_cone_pr _ _ _ (i ,, j ,, k)
+      =
+      enriched_prod_cone_pr _ _ _ j.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_prod_enriched_arrow_pr
+             _ _
+             is_prod_tar
+             (<span class="k">λ</span> <span class="nv">j</span>, enriched_prod_cone_pr _ _ _ (pr12 j))
+             (i ,, j ,, k)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">enriched_conical_lim_from_prod_equalizers_r</span>
+    : prod_src --&gt; prod_tar
+    := is_prod_enriched_arrow
+         _ _
+         is_prod_tar
+         (<span class="k">λ</span> <span class="nv">j</span>, enriched_prod_cone_pr _ _ _ (pr1 j) · #D (pr22 j)).
+
+  <span class="kn">Let</span> <span class="nf">g</span> : prod_src --&gt; prod_tar := enriched_conical_lim_from_prod_equalizers_r.
+
+  <span class="kn">Local Proposition</span> <span class="nf">enriched_conical_lim_from_prod_equalizers_r_pr</span>
+                    {<span class="nv">i</span> <span class="nv">j</span> : I}
+                    (<span class="nv">k</span> : i --&gt; j)
+    : g · enriched_prod_cone_pr _ _ _ (i ,, j ,, k)
+      =
+      enriched_prod_cone_pr _ _ _ i · #D k.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (is_prod_enriched_arrow_pr
+             _ _
+             is_prod_tar
+             _
+             (i ,, j ,, k)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_lim_ob_from_prod_equalizers</span>
+    : C
+    := pr1 (EE _ _ f g).
+
+  <span class="kn">Let</span> <span class="nf">lim</span> : C := enriched_conical_lim_ob_from_prod_equalizers.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_lim_ob_from_prod_equalizers_is_equalizer</span>
+    : is_equalizer_enriched E f g lim
+    := pr2 (EE _ _ f g).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_lim_pr_from_prod_equalizers</span>
+             (<span class="nv">i</span> : I)
+    : lim --&gt; D i
+    := enriched_equalizer_cone_pr _ _ _ (pr1 (EE _ _ f g))
+       · enriched_prod_cone_pr _ _ _ i.
+
+  <span class="kn">Proposition</span> <span class="nf">enriched_conical_lim_eq_from_prod_equalizers</span>
+              {<span class="nv">i</span> <span class="nv">j</span> : I}
+              (<span class="nv">k</span> : i --&gt; j)
+    : enriched_conical_lim_pr_from_prod_equalizers i · # D k
+      =
+      enriched_conical_lim_pr_from_prod_equalizers j.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> enriched_conical_lim_pr_from_prod_equalizers.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- enriched_conical_lim_from_prod_equalizers_r_pr.
+    <span class="nb">rewrite</span> &lt;- (enriched_conical_lim_from_prod_equalizers_l_pr k).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!_).
+    <span class="bp">exact</span> (enriched_equalizer_cone_eq _ _ _ (pr1 (EE _ _ f g))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_lim_from_prod_equalizers_cone</span>
+    : enriched_conical_lim_cone D.
+  <span class="kn">Proof</span>.
+    use make_enriched_conical_lim_cone.
+    - <span class="bp">exact</span> lim.
+    - <span class="bp">exact</span> enriched_conical_lim_pr_from_prod_equalizers.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span> <span class="nv">j</span> <span class="nv">k</span>, enriched_conical_lim_eq_from_prod_equalizers k).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">EnrichedConicalLimUMP</span>.
+    <span class="kn">Context</span> (<span class="nv">w</span> : C)
+            (<span class="nv">v</span> : V)
+            (<span class="nv">fs</span> : ∏ (i : I), v --&gt; E ⦃ w, D i ⦄)
+            (<span class="nv">qs</span> : ∏ (i j : I) (k : i --&gt; j), fs i · postcomp_arr E w (# D k) = fs j).
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_conical_lim_from_prod_equalizers_unique</span>
+      : isaprop
+          (∑ (φ : v --&gt; E ⦃ w, lim ⦄),
+           ∏ (i : I),
+           φ · postcomp_arr E w (enriched_conical_lim_pr_from_prod_equalizers i)
+           =
+           fs i).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        use impred ; <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      use (EqualizerInsEq
+             (is_equalizer_enriched_to_Equalizer
+                _ _ _
+                enriched_conical_lim_ob_from_prod_equalizers_is_equalizer
+                w)).
+      use (ProductArrow_eq
+             _ _ _
+             (is_prod_enriched_to_Product
+                _ _
+                is_prod_src
+                w)).
+      <span class="nb">intro</span> i ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- !postcomp_arr_comp.
+      <span class="bp">exact</span> (pr2 φ₁ i @ !(pr2 φ₂ i)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_conical_lim_from_prod_equalizers_mor</span>
+      : v --&gt; E ⦃ w , lim ⦄.
+    <span class="kn">Proof</span>.
+      use (EqualizerIn
+             (is_equalizer_enriched_to_Equalizer
+                _ _ _
+                enriched_conical_lim_ob_from_prod_equalizers_is_equalizer
+                w)).
+      - <span class="bp">exact</span> (ProductArrow
+                 _ _
+                 (is_prod_enriched_to_Product
+                    _ _
+                    is_prod_src
+                    w)
+                 fs).
+      - <span class="kp">abstract</span>
+          (use (ProductArrow_eq
+                  _ _ _
+                  (is_prod_enriched_to_Product
+                     _ _
+                     is_prod_tar
+                     w)) ;
+           <span class="nb">intros</span> ijk ; <span class="nb">cbn</span> ;
+           <span class="nb">pose</span> (ProductPrCommutes
+                   I V _
+                   (is_prod_enriched_to_Product E D is_prod_src w)
+                   _
+                   fs)
+             <span class="k">as</span> p ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> &lt;- !postcomp_arr_comp ;
+           <span class="nb">rewrite</span> enriched_conical_lim_from_prod_equalizers_l_pr ;
+           <span class="nb">rewrite</span> enriched_conical_lim_from_prod_equalizers_r_pr ;
+           <span class="nb">rewrite</span> postcomp_arr_comp ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> !p ;
+           <span class="nb">refine</span> (!_) ;
+           <span class="nb">apply</span> qs).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">enriched_conical_lim_from_prod_equalizers_commute</span>
+                (<span class="nv">i</span> : I)
+      : enriched_conical_lim_from_prod_equalizers_mor
+        · postcomp_arr E w (enriched_conical_lim_pr_from_prod_equalizers i)
+        =
+        fs i.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> enriched_conical_lim_from_prod_equalizers_mor.
+      <span class="nb">unfold</span> enriched_conical_lim_pr_from_prod_equalizers.
+      <span class="nb">rewrite</span> postcomp_arr_comp.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> (EqualizerCommutes
+                 (is_equalizer_enriched_to_Equalizer E f g
+                    enriched_conical_lim_ob_from_prod_equalizers_is_equalizer w)).
+      <span class="nb">rewrite</span> (ProductPrCommutes
+                 _ _ _
+                 (is_prod_enriched_to_Product E D is_prod_src w)).
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">EnrichedConicalLimUMP</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_lim_from_prod_equalizers_is_lim</span>
+    : is_conical_lim_enriched
+        E D
+        enriched_conical_lim_from_prod_equalizers_cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w v cc ; <span class="nb">cbn</span>.
+    use iscontraprop1.
+    - <span class="bp">exact</span> (enriched_conical_lim_from_prod_equalizers_unique w v (pr1 cc)).
+    - <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (enriched_conical_lim_from_prod_equalizers_mor _ _ (pr1 cc) (pr2 cc)).
+      + <span class="bp">exact</span> (enriched_conical_lim_from_prod_equalizers_commute _ _ (pr1 cc) (pr2 cc)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_conical_lim_from_prod_equalizers</span>
+    : conical_lim_enriched E D
+    := enriched_conical_lim_from_prod_equalizers_cone
+       ,,
+       enriched_conical_lim_from_prod_equalizers_is_lim.
+<span class="kn">End</span> <span class="nf">ConstructionOfConicalLimit</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Limits/EnrichedConicalLimits.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Construction of conical limits
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

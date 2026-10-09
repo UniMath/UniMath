@@ -1,0 +1,572 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PointedPosetStrict.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> The category of pointed posets and strict functions</span>
+
+<span class="sd"> We construct the category of pointed posets and strict monotone</span>
+<span class="sd"> functions as a category of structured sets. In addition, we show</span>
+<span class="sd"> that this category is monoidal closed via the smash product.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Structures of pointed posets</span>
+<span class="sd"> 2. The cartesian structure of pointed posets</span>
+<span class="sd"> 3. Limits of pointed posets</span>
+<span class="sd"> 4. Pointed posets form a pointed structure</span>
+<span class="sd"> 5. The smash product of pointed posets</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Structures of pointed posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">struct_pointed_poset_strict_data</span>
+  : hset_struct_data.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, pointed_PartialOrder X).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">PX</span> <span class="nv">PY</span> <span class="nv">f</span>, is_strict_and_monotone PX PY f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_pointed_poset_strict_laws</span>
+  : hset_struct_laws struct_pointed_poset_strict_data.
+<span class="kn">Proof</span>.
+  split5.
+  - <span class="nb">intro</span> X.
+    use isaset_total2.
+    + <span class="nb">apply</span> isaset_PartialOrder.
+    + <span class="nb">intro</span> PX.
+      use isaset_total2.
+      * <span class="nb">apply</span> setproperty.
+      * <span class="nb">intro</span>.
+        use impred_isaset.
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isasetaprop.
+        <span class="nb">apply</span> propproperty.
+  - <span class="nb">intros</span> X Y PX PY f.
+    <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isaprop_is_monotone.
+    + <span class="nb">apply</span> setproperty.
+  - <span class="nb">intros</span> X PX.
+    <span class="nb">apply</span> idfun_is_strict_and_monotone.
+  - <span class="nb">intros</span> X Y Z PX PY PZ f g Pf Pg.
+    <span class="bp">exact</span> (comp_is_strict_and_monotone Pf Pg).
+  - <span class="nb">intros</span> X PX PX' p q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (eq_pointed_PartialOrder_strict_and_monotone p q).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_pointed_poset_strict</span>
+  : hset_struct
+  := struct_pointed_poset_strict_data ,, struct_pointed_poset_strict_laws.
+
+<span class="kn">Definition</span> <span class="nf">category_of_pointed_poset_strict</span>
+  : category
+  := category_of_hset_struct struct_pointed_poset_strict.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. The cartesian structure of pointed posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">cartesian_struct_pointed_poset_strict_data</span>
+  : hset_cartesian_struct_data
+  := struct_pointed_poset_strict
+     ,,
+     unit_pointed_PartialOrder
+     ,,
+     <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">PX</span> <span class="nv">PY</span>, prod_pointed_PartialOrder PX PY.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_struct_pointed_poset_strict_laws</span>
+  : hset_cartesian_struct_laws cartesian_struct_pointed_poset_strict_data.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ ,, _ ,, _ ,, _).
+  - <span class="nb">intros</span> X PX ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> x y p.
+      <span class="bp">exact</span> tt.
+    + <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y PX PY ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> dirprod_pr1_is_strict_and_monotone.
+  - <span class="nb">intros</span> X Y PX PY ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> dirprod_pr2_is_strict_and_monotone.
+  - <span class="nb">intros</span> W X Y PW PY PZ f g Pf Pg ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (prodtofun_is_strict_and_monotone Pf Pg).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_struct_pointed_poset_strict</span>
+  : hset_cartesian_struct
+  := cartesian_struct_pointed_poset_strict_data
+     ,,
+     cartesian_struct_pointed_poset_strict_laws.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Limits of pointed posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">equalizers_struct_pointed_poset_strict</span>
+  : hset_equalizer_struct struct_pointed_poset_strict.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">intros</span> X Y f g PX PY Pf Pg.
+    <span class="bp">exact</span> (Equalizer_pointed_PartialOrder Pf Pg).
+  - <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y f g PX PY Pf Pg ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="bp">exact</span> (Equalizer_pr1_strict_and_monotone Pf Pg)).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> X Y f g PX PY Pf Pg W PW h Ph q ;
+         <span class="bp">exact</span> (Equalizer_map_strict_and_monotone Pf Pg PW Ph (eqtohomot q))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">type_products_struct_pointed_poset_strict</span>
+           (<span class="nv">I</span> : UU)
+  : hset_struct_type_prod struct_pointed_poset_strict I.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D</span> <span class="nv">fs</span>, depfunction_pointed_poset _ fs).
+  - <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> D PD i ;
+         <span class="nb">apply</span> is_strict_and_monotone_depfunction_pointed_poset_pr).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> D PD W PW fs Hfs ;
+         <span class="nb">apply</span> is_strict_and_monotone_depfunction_pointed_poset_pair ;
+         <span class="bp">exact</span> Hfs).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Pointed posets form a pointed structure</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">pointed_struct_pointed_poset_strict_data</span>
+  : pointed_hset_struct_data struct_pointed_poset_strict
+  := <span class="k">λ</span> <span class="nv">X</span> <span class="nv">RX</span>, ⊥_{RX}.
+
+<span class="kn">Proposition</span> <span class="nf">pointed_struct_pointed_poset_strict_laws</span>
+  : pointed_hset_struct_laws
+      pointed_struct_pointed_poset_strict_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y RX RY.
+    <span class="nb">apply</span> constant_is_strict_and_monotone.
+  - <span class="nb">intros</span> X Y f PX PY Pf ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> Pf.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointed_struct_pointed_poset_strict</span>
+  : pointed_hset_struct struct_pointed_poset_strict
+  := pointed_struct_pointed_poset_strict_data
+     ,,
+     pointed_struct_pointed_poset_strict_laws.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. The smash product of pointed posets</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">pointed_poset_strict_smash_eqrel_equiv</span>
+            {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+            (<span class="nv">PX</span> : pointed_PartialOrder X)
+            (<span class="nv">PY</span> : pointed_PartialOrder Y)
+            (<span class="nv">xy₁</span> <span class="nv">xy₂</span> : X × Y)
+  : smash_eqrel
+      cartesian_struct_pointed_poset_strict
+      pointed_struct_pointed_poset_strict
+      PX PY
+      xy₁ xy₂
+    &lt;-&gt;
+    @downward_closed_to_eqrel (X × Y)%<span class="nb">set</span> (smash_set PX PY) xy₁ xy₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ].
+  <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ].
+  <span class="nb">split</span>.
+  - use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> p.
+    <span class="nb">unfold</span> product_point_coordinate <span class="k">in</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">unfold</span> pointed_struct_pointed_poset_strict_data <span class="k">in</span> p.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">induction</span> p <span class="k">as</span> [ p | p ].
+    + <span class="bp">exact</span> (inl p).
+    + <span class="nb">apply</span> inr.
+      <span class="nb">split</span>.
+      * <span class="bp">exact</span> (hinhpr (pr1 p)).
+      * <span class="bp">exact</span> (hinhpr (pr2 p)).
+  - use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> p.
+    <span class="nb">unfold</span> smash_set <span class="k">in</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">induction</span> p <span class="k">as</span> [ p | p ].
+    + <span class="bp">exact</span> (hinhpr (inl p)).
+    + <span class="nb">assert</span> (p₁ := pr1 p).
+      <span class="nb">revert</span> p₁.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> p₁.
+      <span class="nb">assert</span> (p₂ := pr2 p).
+      <span class="nb">revert</span> p₂.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> p₂.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">apply</span> inr.
+      <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> pointed_struct_pointed_poset_strict_data.
+      <span class="nb">split</span>.
+      * <span class="bp">exact</span> p₁.
+      * <span class="bp">exact</span> p₂.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_pointed_poset_strict_with_smash_data</span>
+  : hset_struct_with_smash_data
+      cartesian_struct_pointed_poset_strict
+      pointed_struct_pointed_poset_strict.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ ,, _).
+  - <span class="bp">exact</span> pointed_PartialOrder_boolset.
+  - <span class="nb">intros</span> X Y PX PY.
+    use (pointed_quotient_poset
+           (prod_pointed_PartialOrder PX PY)
+           (smash_set PX PY)
+           (smash_set_downward_closd PX PY)).
+    <span class="bp">exact</span> (pointed_poset_strict_smash_eqrel_equiv PX PY).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">struct_pointed_poset_strict_with_smash_laws</span>
+  : hset_struct_with_smash_laws
+      struct_pointed_poset_strict_with_smash_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> b₁ b₂ p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">induction</span> b₁, b₂.
+    + <span class="nb">apply</span> refl_PartialOrder.
+    + <span class="nb">induction</span> p.
+    + <span class="nb">apply</span> pointed_PartialOrder_min_point.
+    + <span class="nb">apply</span> refl_PartialOrder.
+  - <span class="nb">intros</span> x y p .
+    <span class="nb">unfold</span> pointed_hset_struct_unit_map ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> pointed_struct_pointed_poset_strict_data.
+    <span class="nb">assert</span> (q := pr1 Pf x y p) ; <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">induction</span> (f x), (f y).
+    + <span class="nb">apply</span> Pg.
+      <span class="bp">exact</span> p.
+    + <span class="nb">induction</span> q.
+    + <span class="nb">apply</span> (pr2 PY).
+    + <span class="nb">apply</span> (pr2 PY).
+  - <span class="nb">unfold</span> pointed_hset_struct_unit_map.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> pointed_struct_pointed_poset_strict_data.
+    <span class="nb">induction</span> (f ⊥_{PX}).
+    + <span class="nb">apply</span> Pg.
+    + <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x₁ x₂ p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> hinhpr.
+    use inr.
+    <span class="nb">refine</span> (p ,, _).
+    <span class="nb">apply</span> refl_PartialOrder.
+  - use iscompsetquotpr ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> hinhpr.
+    use inr.
+    <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> pointed_struct_pointed_poset_strict_data.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (inl (idpath _)).
+    + <span class="bp">exact</span> (inl (idpath _)).
+  - <span class="nb">intros</span> y₁ y₂ p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> hinhpr.
+    use inr.
+    <span class="bp">exact</span> (refl_PartialOrder (pr1 PX) x ,, p).
+  - use iscompsetquotpr ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> hinhpr.
+    use inr.
+    <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> pointed_struct_pointed_poset_strict_data.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (inr (idpath _)).
+    + <span class="bp">exact</span> (inr (idpath _)).
+  - <span class="nb">intros</span> xy₁ xy₂ p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> hinhpr.
+    use inr.
+    <span class="bp">exact</span> p.
+  - use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> xy₁.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span>.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intros</span> xy₂.
+    <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ].
+    <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ] ; <span class="nb">cbn</span>.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> p.
+    <span class="nb">induction</span> p <span class="k">as</span> [ p | p].
+    + <span class="nb">revert</span> p.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p <span class="k">as</span> [ p | p ] ; <span class="nb">rewrite</span> p.
+      * <span class="nb">assert</span> (h ⊥_{PX} y₁ = ⊥_{PZ}) <span class="k">as</span> q.
+        {
+          <span class="nb">refine</span> (!(hp₂ (⊥_{PX}) y₁) @ _).
+          <span class="nb">apply</span> (pr2 Ph).
+        }
+        <span class="nb">rewrite</span> q.
+        <span class="nb">apply</span> (pr2 PZ).
+      * <span class="nb">assert</span> (h x₁ ⊥_{PY} = ⊥_{PZ}) <span class="k">as</span> q.
+        {
+          <span class="nb">refine</span> (hp₂ x₁ (⊥_{PY}) @ _).
+          <span class="nb">apply</span> (pr2 Ph).
+        }
+        <span class="nb">rewrite</span> q.
+        <span class="nb">apply</span> (pr2 PZ).
+    + <span class="bp">exact</span> (pr1 Ph (x₁ ,, y₁) (x₂ ,, y₂) p).
+  - <span class="nb">apply</span> (pr2 Ph).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_pointed_poset_strict_with_smash</span>
+  : hset_struct_with_smash
+      cartesian_struct_pointed_poset_strict
+      pointed_struct_pointed_poset_strict
+  := struct_pointed_poset_strict_with_smash_data
+     ,,
+     struct_pointed_poset_strict_with_smash_laws.
+
+<span class="kn">Definition</span> <span class="nf">struct_pointed_poset_strict_with_smash_closed_pointed_data</span>
+  : hset_struct_with_smash_closed_data
+      struct_pointed_poset_strict_with_smash
+  := <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">PX</span> <span class="nv">PY</span>, strict_and_monotone_pointed_PartialOrder PX PY.
+
+<span class="kn">Proposition</span> <span class="nf">struct_pointed_poset_strict_with_smash_closed_pointed_laws</span>
+  : hset_struct_with_smash_closed_pointed_laws
+      struct_pointed_poset_strict_with_smash_closed_pointed_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y PX PY x.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_pointed_poset_strict_with_smash_closed_pointed</span>
+  : hset_struct_with_smash_closed_pointed
+      struct_pointed_poset_strict_with_smash
+  := struct_pointed_poset_strict_with_smash_closed_pointed_data
+     ,,
+     struct_pointed_poset_strict_with_smash_closed_pointed_laws.
+
+<span class="kn">Proposition</span> <span class="nf">struct_pointed_poset_strict_with_smash_adj_laws</span>
+  : hset_struct_with_smash_closed_adj_laws
+      struct_pointed_poset_strict_with_smash_closed_pointed.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> PX PY PZ f.
+    <span class="nb">induction</span> PX <span class="k">as</span> [ X RX ].
+    <span class="nb">induction</span> PY <span class="k">as</span> [ Y RY ].
+    <span class="nb">induction</span> PZ <span class="k">as</span> [ Z RZ ].
+    <span class="nb">induction</span> f <span class="k">as</span> [ f Hf ].
+    <span class="nb">split</span>.
+    + use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> xy₁.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> xy₂.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ], xy₂ <span class="k">as</span> [ x₂ y₂ ].
+      <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p <span class="k">as</span> [ p | p ].
+      * <span class="nb">revert</span> p.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">intro</span> p.
+        <span class="nb">induction</span> p <span class="k">as</span> [ p | p ].
+        ** <span class="nb">assert</span> (pr1 (f x₁) y₁ = ⊥_{RZ}) <span class="k">as</span> r.
+           {
+             <span class="nb">rewrite</span> p.
+             <span class="bp">exact</span> (eqtohomot (maponpaths pr1 (pr2 Hf)) y₁).
+           }
+           <span class="nb">rewrite</span> r.
+           <span class="nb">apply</span> (pr2 RZ).
+        ** <span class="nb">assert</span> (pr1 (f x₁) y₁ = ⊥_{RZ}) <span class="k">as</span> r.
+           {
+             <span class="nb">rewrite</span> p.
+             <span class="nb">apply</span> (pr2 (f x₁)).
+           }
+           <span class="nb">rewrite</span> r.
+           <span class="nb">apply</span> (pr2 RZ).
+      * <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> p.
+        <span class="nb">refine</span> (trans_PartialOrder RZ _ _).
+        ** <span class="bp">exact</span> (pr12 (f x₁) _ _ (pr2 p)).
+        ** <span class="bp">exact</span> (pr1 Hf _ _ (pr1 p) y₂).
+    + <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (pr2 Hf).
+      }
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> PX PY PZ f.
+    <span class="nb">induction</span> PX <span class="k">as</span> [ X RX ].
+    <span class="nb">induction</span> PY <span class="k">as</span> [ Y RY ].
+    <span class="nb">induction</span> PZ <span class="k">as</span> [ Z RZ ].
+    <span class="nb">induction</span> f <span class="k">as</span> [ f Hf ].
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> x₁ x₂ p y.
+      <span class="nb">apply</span> (pr1 Hf).
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">apply</span> hinhpr.
+      use inr.
+      <span class="nb">refine</span> (p ,, _).
+      <span class="nb">apply</span> refl_PartialOrder.
+    + use eq_strict_and_monotone_function.
+      <span class="nb">intro</span> y.
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ pr2 Hf).
+      <span class="nb">apply</span> maponpaths.
+      use iscompsetquotpr.
+      <span class="nb">apply</span> hinhpr.
+      use inr.
+      <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> pointed_struct_pointed_poset_strict_data.
+      <span class="nb">split</span>.
+      * <span class="bp">exact</span> (inl (idpath _)).
+      * <span class="bp">exact</span> (inl (idpath _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_pointed_poset_strict_with_smash_adj</span>
+  : hset_struct_with_smash_closed_adj
+      struct_pointed_poset_strict_with_smash
+  := struct_pointed_poset_strict_with_smash_closed_pointed
+     ,,
+     struct_pointed_poset_strict_with_smash_adj_laws.
+
+<span class="kn">Proposition</span> <span class="nf">struct_pointed_poset_strict_with_smash_laws_enrich</span>
+  : hset_struct_with_smash_closed_laws_enrich
+      struct_pointed_poset_strict_with_smash_adj.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> PX PY PZ.
+    <span class="nb">induction</span> PX <span class="k">as</span> [ X RX ].
+    <span class="nb">induction</span> PY <span class="k">as</span> [ Y RY ].
+    <span class="nb">induction</span> PZ <span class="k">as</span> [ Z RZ ].
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> f₁ f₂ p.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> xz.
+      <span class="nb">induction</span> xz <span class="k">as</span> [ x z ].
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">apply</span> p.
+    + use eq_strict_and_monotone_function.
+      use setquotunivprop'.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> PX PY PZ.
+    <span class="nb">induction</span> PX <span class="k">as</span> [ X RX ].
+    <span class="nb">induction</span> PY <span class="k">as</span> [ Y RY ].
+    <span class="nb">induction</span> PZ <span class="k">as</span> [ Z RZ ].
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> f₁ f₂ p x y.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="nb">apply</span> p.
+    + use eq_strict_and_monotone_function.
+      <span class="nb">intro</span> x.
+      use eq_strict_and_monotone_function.
+      <span class="nb">intro</span> z.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointed_struct_pointed_poset_strict_with_smash_closed</span>
+  : hset_struct_with_smash_closed
+  := cartesian_struct_pointed_poset_strict
+     ,,
+     pointed_struct_pointed_poset_strict
+     ,,
+     struct_pointed_poset_strict_with_smash
+     ,,
+     struct_pointed_poset_strict_with_smash_adj
+     ,,
+     struct_pointed_poset_strict_with_smash_laws_enrich.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Examples/PointedPosetStrict.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. The smash product of pointed posets
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

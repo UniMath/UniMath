@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LamSignature.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** **********************************************************</span>
+
+<span class="sd">Benedikt Ahrens, Ralph Matthes</span>
+
+<span class="sd">SubstitutionSystems</span>
+
+<span class="sd">2015</span>
+
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="sd">(** **********************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">- Definition of the arities of the constructors of lambda calculus</span>
+<span class="sd">- Definition of the signatures of lambda calculus and lambda calculus with explicit flattening</span>
+
+
+
+
+<span class="sd">************************************************************)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctorsComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.BicatOfCatsElementary.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.BinSumOfSignatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.<span class="kn">Notation</span>.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subsys.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.OmegaCocontFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+
+
+<span class="kn">Section</span> <span class="nf">Preparations</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category) (<span class="nv">CP</span> : BinProducts C) (<span class="nv">CC</span> : BinCoproducts C).
+
+<span class="kn">Definition</span> <span class="nf">square_functor</span> := BinProduct_of_functors C C CP (functor_identity C) (functor_identity C).
+
+<span class="kn">End</span> <span class="nf">Preparations</span>.
+
+<span class="kn">Section</span> <span class="nf">Lambda</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+<span class="sd">(** The category of endofunctors on [C] *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'EndC'"</span>:= ([C, C]) .
+
+<span class="kn">Context</span> (<span class="nv">terminal</span> : Terminal C)
+        (<span class="nv">CC</span> : BinCoproducts C)
+        (<span class="nv">CP</span> : BinProducts C).
+
+<span class="kn">Let</span> <span class="nf">one</span> : C :=  @TerminalObject C terminal.
+
+<span class="sd">(**</span>
+<span class="sd">   [App_H (X) (A) :=  X(A) × X(A)]</span>
+<span class="sd">*)</span>
+<span class="kn">Definition</span> <span class="nf">App_H</span> : functor EndC EndC.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> square_functor.
+  <span class="nb">apply</span> BinProducts_functor_precat.
+  <span class="bp">exact</span> CP.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_App_H</span>
+  (<span class="nv">hE</span> : ∏ x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP) x)) :
+  is_omega_cocont App_H.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> App_H, square_functor.
+  <span class="nb">apply</span> is_omega_cocont_BinProduct_of_functors; <span class="kp">try</span> <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> (BinProducts_functor_precat _ _ CP).
+  - <span class="nb">apply</span> is_omega_cocont_functor_identity.
+  - <span class="nb">apply</span> is_omega_cocont_functor_identity.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd">   [Abs_H (X) := X o option]</span>
+<span class="sd">*)</span>
+
+<span class="c">(* Definition Abs_H_ob (X: EndC): functor C C := functor_composite (option_functor _ CC terminal) X. *)</span>
+
+<span class="c">(* (* works only with -type-in-type: *)</span>
+<span class="c">(* Definition Abs_H_mor_nat_trans_data (X X': EndC)(α: X --&gt; X'): ∏ c, Abs_H_ob X c --&gt; Abs_H_ob X' c. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(*   intro. *)</span>
+<span class="c">(*   unfold Abs_H_ob. *)</span>
+<span class="c">(*   red. simpl. apply α. *)</span>
+<span class="c">(* Defined. *)</span>
+<span class="c">(* *) *)</span>
+
+<span class="c">(* Definition Abs_H_mor_nat_trans_data (X X': functor C C)(α: nat_trans X X'): ∏ c, Abs_H_ob X c --&gt; Abs_H_ob X' c. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(*   intro. *)</span>
+<span class="c">(*   apply α. *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="c">(* Lemma is_nat_trans_Abs_H_mor_nat_trans_data  (X X': EndC)(α: X --&gt; X'): is_nat_trans _ _ (Abs_H_mor_nat_trans_data X X' α). *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(*   red. *)</span>
+<span class="c">(*   intros c c' f. *)</span>
+<span class="c">(*   destruct α as [α α_nat_trans]. *)</span>
+<span class="c">(*   unfold Abs_H_mor_nat_trans_data, Abs_H_ob. *)</span>
+<span class="c">(*   simpl. *)</span>
+<span class="c">(*   apply α_nat_trans. *)</span>
+<span class="c">(*  Qed. *)</span>
+
+<span class="c">(* Definition Abs_H_mor (X X': EndC)(α: X --&gt; X'): (Abs_H_ob X: ob EndC) --&gt; Abs_H_ob X'. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(*   exists (Abs_H_mor_nat_trans_data X X' α). *)</span>
+<span class="c">(*   exact (is_nat_trans_Abs_H_mor_nat_trans_data X X' α). *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="c">(* Definition Abs_H_functor_data: functor_data EndC EndC. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(*   exists Abs_H_ob. *)</span>
+<span class="c">(*   exact Abs_H_mor. *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="c">(* Lemma is_functor_Abs_H_data: is_functor Abs_H_functor_data. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(*   red. *)</span>
+<span class="c">(*   split; red. *)</span>
+<span class="c">(*   + intros X. *)</span>
+<span class="c">(*     unfold Abs_H_functor_data. *)</span>
+<span class="c">(*     simpl. *)</span>
+<span class="c">(*     apply nat_trans_eq; try assumption. *)</span>
+<span class="c">(*     intro c. *)</span>
+<span class="c">(*     unfold Abs_H_mor. *)</span>
+<span class="c">(*     simpl. *)</span>
+<span class="c">(*     apply idpath. *)</span>
+<span class="c">(*   + intros X X' X'' α β. *)</span>
+<span class="c">(*     unfold Abs_H_functor_data. *)</span>
+<span class="c">(*     simpl. *)</span>
+<span class="c">(*     apply nat_trans_eq; try assumption. *)</span>
+<span class="c">(*     intro c. *)</span>
+<span class="c">(*     unfold Abs_H_mor. *)</span>
+<span class="c">(*     simpl. *)</span>
+<span class="c">(*     apply idpath. *)</span>
+<span class="c">(* Qed. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Abs_H</span> : functor [C, C] [C, C] :=
+ <span class="c">(* tpair _ _ is_functor_Abs_H_data. *)</span>
+  pre_composition_functor _ _ _ (option_functor CC terminal).
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_Abs_H</span> (<span class="nv">CLC</span> : Colims_of_shape nat_graph C) : is_omega_cocont Abs_H.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> Abs_H.
+  <span class="nb">apply</span> (is_omega_cocont_pre_composition_functor _ CLC).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(**</span>
+<span class="sd">   [Flat_H (X) := X o X]</span>
+
+<span class="sd"> free in two arguments, then precomposed with diagonal</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">Flat_H</span> : functor [C, C] [C, C] := functor_composite (bindelta_functor [C, C]) (functorial_composition _ _ _).
+
+<span class="sd">(** here definition of suitable θ's together with their strength laws  *)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">App_θ_data</span>: ∏ XZ, (θ_source App_H) XZ --&gt; (θ_target App_H) XZ.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> XZ.
+  <span class="nb">apply</span> nat_trans_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_App_θ_data</span>: is_nat_trans _ _ App_θ_data.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">unfold</span> App_θ_data.
+  <span class="nb">intros</span> XZ XZ' αβ.
+<span class="c">(* the following only for better readability: *)</span>
+  <span class="c">(* destruct XZ as [X Z]; *)</span>
+  <span class="c">(* destruct XZ' as [X' Z']; *)</span>
+  <span class="c">(* destruct αβ as [α β]; *)</span>
+  <span class="c">(* simpl in *. *)</span>
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">unfold</span> binproduct_nat_trans_data, BinProduct_of_functors_mor.
+  <span class="nb">unfold</span> BinProductOfArrows.
+  etrans; [ <span class="nb">apply</span> precompWithBinProductArrow |].
+  <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> binproduct_nat_trans_pr1_data. <span class="nb">unfold</span> binproduct_nat_trans_pr2_data.
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> BinProductArrowUnique.
+  + <span class="nb">rewrite</span> BinProductPr1Commutes.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> BinProductPr1Commutes. }
+    <span class="nb">apply</span> idpath.
+  + <span class="nb">rewrite</span> BinProductPr2Commutes.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">apply</span> BinProductPr2Commutes. }
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">App_θ</span>: PrestrengthForSignature App_H :=
+  tpair _ _ is_nat_trans_App_θ_data.
+
+<span class="kn">Lemma</span> <span class="nf">App_θ_strength1_int</span>: θ_Strength1_int App_θ.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">unfold</span> App_θ, App_H.
+  <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> App_θ_data.
+  <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property |].
+  <span class="nb">intro</span> c.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">unfold</span> binproduct_nat_trans_data.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> BinProductArrowUnique.
+  + <span class="nb">rewrite</span> id_left.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  + <span class="nb">rewrite</span> id_left.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">App_θ_strength2_int</span>: θ_Strength2_int App_θ.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">unfold</span> App_θ, App_H.
+  <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> App_θ_data.
+  <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property |].
+  <span class="nb">intro</span> c.
+  <span class="nb">simpl</span>.
+  <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_left.
+  <span class="nb">unfold</span> binproduct_nat_trans_data.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> BinProductArrowUnique.
+  + <span class="nb">rewrite</span> id_left.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  + <span class="nb">rewrite</span> id_left.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">Abs_θ_data_data</span>: ∏ XZ c, pr1 (θ_source Abs_H XZ) c --&gt; pr1 (θ_target Abs_H XZ) c.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> XZ c.
+<span class="c">(*</span>
+<span class="c">  destruct XZ as [X Z].</span>
+<span class="c">*)</span>
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> (functor_on_morphisms (functor_data_from_functor _ _ (pr1 XZ))).
+  <span class="nb">unfold</span> constant_functor.
+<span class="c">(*</span>
+<span class="c">  destruct Z as [Z e].</span>
+<span class="c">*)</span>
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> BinCoproductArrow.
+  + <span class="bp">exact</span> (BinCoproductIn1 _ ·
+           nat_trans_data_from_nat_trans (pr2 (pr2 XZ)) (BinCoproductObject (CC (TerminalObject terminal) c))).
+  + <span class="bp">exact</span> (# (pr1 (pr2 XZ)) (BinCoproductIn2 (CC (TerminalObject terminal) c))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_Abs_θ_data_data</span> (<span class="nv">XZ</span>: [C, C] ⊠ category_Ptd C): is_nat_trans _ _ (Abs_θ_data_data XZ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c c' f.
+  <span class="nb">unfold</span> Abs_θ_data_data.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  { <span class="nb">apply</span> precompWithBinCoproductArrow. }
+  etrans; [| <span class="nb">apply</span> (!(postcompWithBinCoproductArrow _ _ _ _ _)) ].
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">apply</span> maponpaths_12.
+  + <span class="nb">assert</span> (NN :=  nat_trans_ax (pr2 (pr2 XZ)) _ _ (BinCoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')
+         (identity (TerminalObject terminal)) f)).
+    <span class="k">match goal with</span> |[ H1: _ = <span class="nl">?f</span>·<span class="nl">?g</span> |- _ = <span class="nl">?h</span> · _ ] =&gt;
+         intermediate_path (h·(f·g)) <span class="k">end</span>.
+    * <span class="nb">rewrite</span> &lt;- NN.
+      <span class="nb">clear</span> NN.
+      <span class="nb">unfold</span> functor_identity.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> BinCoproductOfArrowsIn1.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">apply</span> idpath.
+    * <span class="nb">apply</span> idpath.
+  + <span class="nb">apply</span> maponpaths.
+    etrans; [| <span class="nb">apply</span> (!(BinCoproductOfArrowsIn2 _ _ _ _ _ )) ].
+    <span class="nb">apply</span> idpath.
+
+
+<span class="c">(*</span>
+<span class="c">  intros [X [Z e]].</span>
+<span class="c">  red.</span>
+<span class="c">  intros c c' f.</span>
+<span class="c">  simpl.</span>
+<span class="c">  rewrite &lt;- functor_comp.</span>
+<span class="c">  rewrite &lt;- functor_comp.</span>
+<span class="c">  apply maponpaths.</span>
+<span class="c">  unfold coproduct_functor_mor.</span>
+<span class="c">  eapply pathscomp0.</span>
+<span class="c">  apply precompWithBinCoproductArrow.</span>
+<span class="c">  eapply pathscomp0.</span>
+<span class="c">Focus 2.</span>
+<span class="c">  apply (!(postcompWithBinCoproductArrow _ _ _ _ _)).</span>
+<span class="c">  simpl.</span>
+<span class="c">  rewrite id_left.</span>
+<span class="c">  rewrite &lt;- assoc.</span>
+<span class="c">  rewrite &lt;- functor_comp.</span>
+<span class="c">  rewrite &lt;- functor_comp.</span>
+<span class="c">  simpl.</span>
+<span class="c">  apply maponpaths_12.</span>
+<span class="c">  + assert (NN :=  nat_trans_ax e _ _ (BinCoproductOfArrows C (CC (TerminalObject terminal) c) (CC (TerminalObject terminal) c')</span>
+<span class="c">         (identity (TerminalObject terminal)) f)).</span>
+<span class="c">    match goal with |[ H1: _ = ?f·?g |- _ = ?h · _ ] =&gt;</span>
+<span class="c">         intermediate_path (h·(f·g)) end.</span>
+<span class="c">    * rewrite &lt;- NN.</span>
+<span class="c">      clear NN.</span>
+<span class="c">      unfold functor_identity.</span>
+<span class="c">      simpl.</span>
+<span class="c">      rewrite assoc.</span>
+<span class="c">      rewrite BinCoproductOfArrowsIn1.</span>
+<span class="c">      rewrite id_left.</span>
+<span class="c">      apply idpath.</span>
+<span class="c">    * apply idpath.</span>
+<span class="c">  + apply maponpaths.</span>
+<span class="c">    eapply pathscomp0.</span>
+<span class="c">Focus 2.</span>
+<span class="c">    apply (!(BinCoproductOfArrowsIn2 _ _ _ _ _ )).</span>
+<span class="c">    apply idpath.</span>
+<span class="c">*)</span>
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">Abs_θ_data</span> (<span class="nv">XZ</span>: [C, C] ⊠ category_Ptd C): (θ_source Abs_H) XZ --&gt; (θ_target Abs_H) XZ.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (tpair _ _ (is_nat_trans_Abs_θ_data_data XZ)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_Abs_θ_data</span>: is_nat_trans _ _ Abs_θ_data.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>.
+  <span class="nb">intros</span> XZ XZ' αβ.
+  <span class="nb">destruct</span> XZ <span class="k">as</span> [X [Z e]].
+  <span class="nb">destruct</span> XZ' <span class="k">as</span> [X' [Z' e']].
+  <span class="nb">destruct</span> αβ <span class="k">as</span> [α β].
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property |].
+  <span class="nb">intro</span> c.
+  <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> constant_functor.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">unfold</span> Abs_θ_data_data. <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> (nat_trans_ax α).
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+       <span class="nb">apply</span> functor_comp. }
+  <span class="nb">rewrite</span> (nat_trans_ax α).
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  { <span class="nb">apply</span> pathsinv0, functor_comp. }
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">unfold</span> constant_functor_data.
+  <span class="nb">simpl</span>.
+  etrans; [ <span class="nb">apply</span> precompWithBinCoproductArrow |].
+  <span class="nb">rewrite</span> id_left.
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">eapply</span> pathsinv0.
+       <span class="nb">apply</span> postcompWithBinCoproductArrow. }
+  <span class="nb">apply</span> BinCoproductArrowUnique.
+  -  <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+     <span class="nb">rewrite</span> &lt;- assoc.
+     <span class="nb">apply</span> maponpaths.
+     <span class="nb">apply</span> pathsinv0, (ptd_mor_commutes _ β).
+  - <span class="nb">rewrite</span> BinCoproductIn2Commutes.
+    <span class="nb">apply</span> pathsinv0, (nat_trans_ax β).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Abs_θ</span>: PrestrengthForSignature Abs_H :=
+  tpair _ _ is_nat_trans_Abs_θ_data.
+
+<span class="kn">Lemma</span> <span class="nf">Abs_θ_strength1_int</span>: θ_Strength1_int Abs_θ.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  <span class="nb">unfold</span> Abs_θ, Abs_H, Abs_θ_data.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> functor_id_id.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> BinCoproductArrowUnique.
+  + <span class="nb">apply</span> idpath.
+  + <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Abs_θ_strength2_int</span>: θ_Strength2_int Abs_θ.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Z Z'.
+  <span class="nb">unfold</span> Abs_θ, Abs_H, Abs_θ_data.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">unfold</span> Abs_θ_data_data. <span class="nb">simpl</span>. <span class="nb">unfold</span> horcomp_data; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">clear</span> X.
+  <span class="nb">destruct</span> Z <span class="k">as</span> [Z e]; <span class="nb">destruct</span> Z' <span class="k">as</span> [Z' e']; etrans.
+  <span class="mi">2</span>: { <span class="nb">eapply</span> pathsinv0.
+       <span class="nb">apply</span> postcompWithBinCoproductArrow. }
+  <span class="nb">simpl</span>.
+  <span class="nb">apply</span> maponpaths_12.
+  + <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="nb">assert</span> (NN := nat_trans_ax e' _ _ (e (BinCoproductObject (CC (TerminalObject terminal) c)))).
+    <span class="nb">simpl</span> <span class="k">in</span> NN. <span class="c">(* is important for success of the trick *)</span>
+    <span class="k">match goal with</span> |[ H1: _ = <span class="nl">?f</span>·<span class="nl">?g</span> |- <span class="nl">?h</span> · _ = _ ] =&gt;
+         intermediate_path (h·(f·g)) <span class="k">end</span>.
+    * <span class="nb">apply</span> maponpaths, NN.
+    * <span class="nb">assert</span> (NNN := nat_trans_ax e' _ _ (BinCoproductArrow (CC (TerminalObject terminal) (Z c))
+         (BinCoproductIn1 (CC (TerminalObject terminal) c)·
+          e (BinCoproductObject (CC (TerminalObject terminal) c)))
+         (# Z (BinCoproductIn2 (CC (TerminalObject terminal) c))))).
+      <span class="nb">simpl</span> <span class="k">in</span> NNN.
+      <span class="k">match goal with</span> |[ H1: _ = <span class="nl">?f</span>·<span class="nl">?g</span> |- _ = <span class="nl">?h</span> · _] =&gt;
+         intermediate_path (h·(f·g)) <span class="k">end</span>.
+      - <span class="nb">simpl</span>. <span class="nb">rewrite</span> &lt;- NNN.
+        <span class="nb">clear</span> NNN.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">rewrite</span> BinCoproductIn1Commutes.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc.
+        <span class="nb">apply</span> maponpaths, pathsinv0, NN.
+      - <span class="nb">apply</span> idpath.
+  + <span class="nb">rewrite</span> &lt;- functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">eapply</span> pathsinv0.
+         <span class="nb">apply</span> BinCoproductIn2Commutes. }
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">Flat_θ_data</span> (<span class="nv">XZ</span>: [C, C] ⊠ category_Ptd C): [C, C] ⟦θ_source Flat_H XZ, θ_target Flat_H XZ⟧.
+<span class="kn">Proof</span>.
+<span class="c">(*  destruct XZ as [X [Z e]].</span>
+<span class="c">  simpl.</span>
+<span class="c">*)</span>
+  <span class="nb">set</span> (h:= nat_trans_comp (linvunitor_CAT (pr1 XZ)) ((nat_trans_id _) ⋆ (pr2 (pr2 XZ)))).
+  <span class="nb">set</span> (F1' := pr1 (pr2 (left_unit_as_nat_z_iso _ _) (pr1 XZ))).
+  <span class="nb">set</span> (F2' := # (post_comp_functor (pr1 XZ)) (pr2 (pr2 XZ))).
+  <span class="nb">set</span> (h' :=  F1' · F2').
+  <span class="nb">set</span> (obsolete := nat_trans_comp (lassociator_CAT (pr1 (pr2 XZ)) (pr1 XZ) (pr1 XZ)) (h ⋆ (nat_trans_id (functor_composite (pr1 (pr2 XZ)) (pr1 XZ))))).
+  <span class="nb">set</span> (F3' := rassociator_CAT (pr12 XZ) (pr1 XZ) (pr1 XZ)).
+  <span class="nb">set</span> (F4' := # (pre_comp_functor (functor_compose (pr1 (pr2 XZ)) (pr1 XZ))) h').
+  <span class="bp">exact</span> (F3' · F4').
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_Flat_θ_data</span>: is_nat_trans _ _ Flat_θ_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> XZ XZ' αβ.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">simpl</span>.
+  <span class="nb">destruct</span> XZ <span class="k">as</span> [X [Z e]];
+  <span class="nb">destruct</span> XZ' <span class="k">as</span> [X' [Z' e']];
+  <span class="nb">destruct</span> αβ <span class="k">as</span> [α β];
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> (functor_comp Z).
+  <span class="nb">rewrite</span> (functor_comp X).
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+  <span class="kp">do</span> <span class="mi">4</span> <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">rewrite</span> (nat_trans_ax α).
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (nat_trans_ax α).
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+  etrans.
+  <span class="mi">2</span>: { <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+       <span class="nb">apply</span> (nat_trans_ax e). }
+  <span class="nb">cbn</span>.
+  <span class="nb">assert</span> (β_is_pointed := ptd_mor_commutes _ β).
+  <span class="nb">simpl</span> <span class="k">in</span> β_is_pointed.
+  <span class="nb">rewrite</span> &lt;- (nat_trans_ax α).
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> assoc.
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+       <span class="nb">apply</span> (nat_trans_ax e). }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">rewrite</span> β_is_pointed.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Flat_θ</span>: PrestrengthForSignature Flat_H :=
+  tpair _ _ is_nat_trans_Flat_θ_data.
+
+<span class="kn">Lemma</span> <span class="nf">Flat_θ_strength1_int</span>: θ_Strength1_int Flat_θ.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">unfold</span> Flat_θ, Flat_H.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">simpl</span>.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> functor_id.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> functor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Flat_θ_strength2_int</span>: θ_Strength2_int Flat_θ.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ? ? ?.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> id_right.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- functor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> functor_id.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">set</span> (c' := pr1 X (pr1 Z' (pr1 Z c))).
+  <span class="nb">change</span> (pr1 (ptd_pt C Z) c' · pr1 (ptd_pt C Z') (pr1 (pr1 (pr1 Z)) c') =
+            pr1 (pr2 Z') c' · # (pr1 Z') (pr1 (pr2 Z) c')).
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> (nat_trans_ax (pr2 Z')). }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** finally, constitute the 3 signatures *)</span>
+
+<span class="kn">Definition</span> <span class="nf">App_Sig</span>: Signature C C C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">App_H</span>.
+  <span class="k">exists</span> <span class="nv">App_θ</span>.
+  <span class="nb">split</span>.
+  + <span class="bp">exact</span> App_θ_strength1_int.
+  + <span class="bp">exact</span> App_θ_strength2_int.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Abs_Sig</span>: Signature C C C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">Abs_H</span>.
+  <span class="k">exists</span> <span class="nv">Abs_θ</span>.
+  <span class="nb">split</span>.
+  + <span class="bp">exact</span> Abs_θ_strength1_int.
+  + <span class="bp">exact</span> Abs_θ_strength2_int.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Flat_Sig</span>: Signature C C C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">Flat_H</span>.
+  <span class="k">exists</span> <span class="nv">Flat_θ</span>.
+  <span class="nb">split</span>.
+  + <span class="bp">exact</span> Flat_θ_strength1_int.
+  + <span class="bp">exact</span> Flat_θ_strength2_int.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Lam_Sig</span>: Signature C C C :=
+  BinSum_of_Signatures C C C CC App_Sig Abs_Sig.
+
+<span class="kn">Lemma</span> <span class="nf">is_omega_cocont_Lam</span>
+  (<span class="nv">hE</span> : ∏ x, is_omega_cocont (constprod_functor1 (BinProducts_functor_precat C C CP) x))
+  (<span class="nv">LC</span> : Colims_of_shape nat_graph C) : is_omega_cocont (Signature_Functor Lam_Sig).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_omega_cocont_BinCoproduct_of_functors.
+  - <span class="nb">apply</span> (is_omega_cocont_App_H hE).
+  - <span class="nb">apply</span> (is_omega_cocont_Abs_H LC).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">LamE_Sig</span>: Signature C C C :=
+  BinSum_of_Signatures C C C CC Lam_Sig Flat_Sig.
+
+<span class="kn">End</span> <span class="nf">Lambda</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/LamSignature.v</tt>, line 26)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; ************************************************************)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

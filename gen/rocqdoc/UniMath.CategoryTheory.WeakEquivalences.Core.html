@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.WeakEquivalences.Core</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.WeakEquivalences.Core</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+   The basics of weak equivalences
+
+<div class="paragraph"> </div>
+
+   Contents.
+   1. Section ``WeakEquivalences'' contains:
+<ul class="doclist">
+<li> the definition of a weak equivalence (i.e., essentially surjective and fully faithful);
+
+</li>
+<li> together with accessors;
+
+</li>
+<li> a proof that ``is a weak equivalence'' is a proposition;
+
+</li>
+<li> a proof that every identity functor (resp. the composite of weak equivalences) is a weak equivalence
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+   2. Section ``WeakEquivalenceInducesIsoOnUnivalentFunctorCategories'' contains a proof for the statement:
+   Let H : C → D be a weak equivalence (between not-necesssarily univalent categories) and E a univalent category.
+   Then, the functor (H · -) : <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.ModulesFromSignatures.html#SignatureLiftModule.D"><span class="id" title="variable">D</span></a>,</span> <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SignatureExamples.html#d6744c655eb84f5020991b0531f0c99a"><span class="id" title="variable">E</span></a></span> → <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SimplifiedHSS.SubstitutionSystems.html#fix_a_category.C"><span class="id" title="variable">C</span></a>,</span> <span class="inlinecode"><a class="idref" href="UniMath.SubstitutionSystems.SignatureExamples.html#d6744c655eb84f5020991b0531f0c99a"><span class="id" title="variable">E</span></a></span> is an isomorphism of (univalent) categories; and hence an isomorphism.
+
+<div class="paragraph"> </div>
+
+   3. Section ``WeakAndAdjointEquivalences'' contains relations between weak and adjoint equivalences
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Isos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Univalence</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Equivalences.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Equivalences.FullyFaithful.html#"><span class="id" title="library">UniMath.CategoryTheory.Equivalences.FullyFaithful</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.catiso.html#"><span class="id" title="library">UniMath.CategoryTheory.catiso</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.whiskering.html#"><span class="id" title="library">UniMath.CategoryTheory.whiskering</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.PrecompEquivalence.html#"><span class="id" title="library">UniMath.CategoryTheory.PrecompEquivalence</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="WeakEquivalences" class="idref" href="#WeakEquivalences"><span class="id" title="section">WeakEquivalences</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_weak_equiv" class="idref" href="#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:1" class="idref" href="#C:1"><span class="id" title="binder">C</span></a> <a id="D:2" class="idref" href="#D:2"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="H:3" class="idref" href="#H:3"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#C:1"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#D:2"><span class="id" title="variable">D</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#essentially_surjective"><span class="id" title="definition">essentially_surjective</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#H:3"><span class="id" title="variable">H</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#fully_faithful"><span class="id" title="definition">fully_faithful</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#H:3"><span class="id" title="variable">H</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="eso_from_weak_equiv" class="idref" href="#eso_from_weak_equiv"><span class="id" title="definition">eso_from_weak_equiv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:4" class="idref" href="#C:4"><span class="id" title="binder">C</span></a> <a id="D:5" class="idref" href="#D:5"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="F:6" class="idref" href="#F:6"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#C:4"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#D:5"><span class="id" title="variable">D</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#F:6"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#essentially_surjective"><span class="id" title="definition">essentially_surjective</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#F:6"><span class="id" title="variable">F</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="ff_from_weak_equiv" class="idref" href="#ff_from_weak_equiv"><span class="id" title="definition">ff_from_weak_equiv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:7" class="idref" href="#C:7"><span class="id" title="binder">C</span></a> <a id="D:8" class="idref" href="#D:8"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="F:9" class="idref" href="#F:9"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#C:7"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#D:8"><span class="id" title="variable">D</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#F:9"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#fully_faithful"><span class="id" title="definition">fully_faithful</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#F:9"><span class="id" title="variable">F</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="isaprop_is_weak_equiv" class="idref" href="#isaprop_is_weak_equiv"><span class="id" title="lemma">isaprop_is_weak_equiv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:10" class="idref" href="#C:10"><span class="id" title="binder">C</span></a> <a id="D:11" class="idref" href="#D:11"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="H:12" class="idref" href="#H:12"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#C:10"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#D:11"><span class="id" title="variable">D</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.PartB.html#isaprop"><span class="id" title="definition">isaprop</span></a> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#H:12"><span class="id" title="variable">H</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropdirprod"><span class="id" title="definition">isapropdirprod</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#isaprop_essentially_surjective"><span class="id" title="lemma">isaprop_essentially_surjective</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#isaprop_fully_faithful"><span class="id" title="lemma">isaprop_fully_faithful</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="id_is_weak_equiv" class="idref" href="#id_is_weak_equiv"><span class="id" title="lemma">id_is_weak_equiv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:13" class="idref" href="#C:13"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#C:13"><span class="id" title="variable">C</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#identity_functor_is_essentially_surjective"><span class="id" title="lemma">identity_functor_is_essentially_surjective</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#identity_functor_is_fully_faithful"><span class="id" title="lemma">identity_functor_is_fully_faithful</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="comp_is_weak_equiv" class="idref" href="#comp_is_weak_equiv"><span class="id" title="definition">comp_is_weak_equiv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:14" class="idref" href="#C:14"><span class="id" title="binder">C</span></a> <a id="D:15" class="idref" href="#D:15"><span class="id" title="binder">D</span></a> <a id="E:16" class="idref" href="#E:16"><span class="id" title="binder">E</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="H:17" class="idref" href="#H:17"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#C:14"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#D:15"><span class="id" title="variable">D</span></a>) (<a id="I:18" class="idref" href="#I:18"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#D:15"><span class="id" title="variable">D</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#E:16"><span class="id" title="variable">E</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#H:17"><span class="id" title="variable">H</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#I:18"><span class="id" title="variable">I</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#H:17"><span class="id" title="variable">H</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#938ca2d32d8c8186c2d73ab2872ae3c9"><span class="id" title="notation">∙</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#I:18"><span class="id" title="variable">I</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">Hw</span> <span class="id" title="var">Iw</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#comp_essentially_surjective"><span class="id" title="lemma">comp_essentially_surjective</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#eso_from_weak_equiv"><span class="id" title="definition">eso_from_weak_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">Hw</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#eso_from_weak_equiv"><span class="id" title="definition">eso_from_weak_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">Iw</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#comp_ff_is_ff"><span class="id" title="lemma">comp_ff_is_ff</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#ff_from_weak_equiv"><span class="id" title="definition">ff_from_weak_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">Hw</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#ff_from_weak_equiv"><span class="id" title="definition">ff_from_weak_equiv</span></a> <span class="id" title="var">_</span> <span class="id" title="var">Iw</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="weak_equiv" class="idref" href="#weak_equiv"><span class="id" title="definition">weak_equiv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:19" class="idref" href="#C:19"><span class="id" title="binder">C</span></a> <a id="D:20" class="idref" href="#D:20"><span class="id" title="binder">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>) : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="H:21" class="idref" href="#H:21"><span class="id" title="binder">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#C:19"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#D:20"><span class="id" title="variable">D</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#H:21"><span class="id" title="variable">H</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakEquivalences"><span class="id" title="section">WeakEquivalences</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="WeakEquivalenceInducesIsoOnUnivalentFunctorCategories" class="idref" href="#WeakEquivalenceInducesIsoOnUnivalentFunctorCategories"><span class="id" title="section">WeakEquivalenceInducesIsoOnUnivalentFunctorCategories</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.C" class="idref" href="#WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.C"><span class="id" title="variable">C</span></a> <a id="WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.D" class="idref" href="#WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.D"><span class="id" title="variable">D</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.H" class="idref" href="#WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.H"><span class="id" title="variable">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#C:22"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#D:23"><span class="id" title="variable">D</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.Hw" class="idref" href="#WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.Hw"><span class="id" title="variable">Hw</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#H:24"><span class="id" title="variable">H</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="precomp_is_iso" class="idref" href="#precomp_is_iso"><span class="id" title="definition">precomp_is_iso</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="E:26" class="idref" href="#E:26"><span class="id" title="binder">E</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category"><span class="id" title="definition">univalent_category</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.catiso.html#is_catiso"><span class="id" title="definition">is_catiso</span></a> (<a class="idref" href="UniMath.CategoryTheory.whiskering.html#pre_composition_functor"><span class="id" title="definition">pre_composition_functor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#E:26"><span class="id" title="variable">E</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.H"><span class="id" title="variable">H</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">E</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">transparent</span> <span class="id" title="tactic">assert</span> (<span class="id" title="var">a</span> : (<a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#adj_equivalence_of_cats"><span class="id" title="definition">Core.adj_equivalence_of_cats</span></a> (<a class="idref" href="UniMath.CategoryTheory.whiskering.html#pre_composition_functor"><span class="id" title="definition">pre_composition_functor</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">E</span>) <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.H"><span class="id" title="variable">H</span></a>))). {<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.PrecompEquivalence.html#precomp_adjoint_equivalence"><span class="id" title="definition">precomp_adjoint_equivalence</span></a> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.Hw"><span class="id" title="variable">Hw</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.CategoryTheory.catiso.html#adj_equivalence_of_cats_to_cat_iso"><span class="id" title="definition">adj_equivalence_of_cats_to_cat_iso</span></a> <span class="id" title="var">a</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#is_univalent_functor_category"><span class="id" title="lemma">is_univalent_functor_category</span></a> ; <span class="id" title="tactic">apply</span> <span class="id" title="var">E</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="precomp_is_equality" class="idref" href="#precomp_is_equality"><span class="id" title="definition">precomp_is_equality</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a id="E:27" class="idref" href="#E:27"><span class="id" title="binder">E</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#univalent_category"><span class="id" title="definition">univalent_category</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">,</span></a>  <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.D"><span class="id" title="variable">D</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#E:27"><span class="id" title="variable">E</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakEquivalenceInducesIsoOnUnivalentFunctorCategories.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#E:27"><span class="id" title="variable">E</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">E</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.catiso.html#catiso_to_category_path"><span class="id" title="lemma">catiso_to_category_path</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#precomp_is_iso"><span class="id" title="definition">precomp_is_iso</span></a> <span class="id" title="var">E</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakEquivalenceInducesIsoOnUnivalentFunctorCategories"><span class="id" title="section">WeakEquivalenceInducesIsoOnUnivalentFunctorCategories</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="WeakAndAdjointEquivalences" class="idref" href="#WeakAndAdjointEquivalences"><span class="id" title="section">WeakAndAdjointEquivalences</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="WeakAndAdjointEquivalences.A" class="idref" href="#WeakAndAdjointEquivalences.A"><span class="id" title="variable">A</span></a> <a id="WeakAndAdjointEquivalences.B" class="idref" href="#WeakAndAdjointEquivalences.B"><span class="id" title="variable">B</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} {<a id="WeakAndAdjointEquivalences.F" class="idref" href="#WeakAndAdjointEquivalences.F"><span class="id" title="variable">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#A:28"><span class="id" title="variable">A</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#B:29"><span class="id" title="variable">B</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="rad_equivalence_of_cats''" class="idref" href="#rad_equivalence_of_cats''"><span class="id" title="lemma">rad_equivalence_of_cats''</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="A_univ:31" class="idref" href="#A_univ:31"><span class="id" title="binder">A_univ</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Univalence.html#is_univalent"><span class="id" title="definition">is_univalent</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakAndAdjointEquivalences.A"><span class="id" title="variable">A</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F_weq:32" class="idref" href="#F_weq:32"><span class="id" title="binder">F_weq</span></a> : <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakAndAdjointEquivalences.F"><span class="id" title="variable">F</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#adj_equivalence_of_cats"><span class="id" title="definition">adj_equivalence_of_cats</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakAndAdjointEquivalences.F"><span class="id" title="variable">F</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#rad_equivalence_of_cats"><span class="id" title="lemma">rad_equivalence_of_cats</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <span class="id" title="var">A_univ</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="var">F_weq</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <span class="id" title="var">F_weq</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="weak_equiv_from_equiv" class="idref" href="#weak_equiv_from_equiv"><span class="id" title="lemma">weak_equiv_from_equiv</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Fe:33" class="idref" href="#Fe:33"><span class="id" title="binder">Fe</span></a> : <a class="idref" href="UniMath.CategoryTheory.Equivalences.Core.html#adj_equivalence_of_cats"><span class="id" title="definition">adj_equivalence_of_cats</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakAndAdjointEquivalences.F"><span class="id" title="variable">F</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#is_weak_equiv"><span class="id" title="definition">is_weak_equiv</span></a> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakAndAdjointEquivalences.F"><span class="id" title="variable">F</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Equivalences.FullyFaithful.html#functor_from_equivalence_is_essentially_surjective"><span class="id" title="lemma">functor_from_equivalence_is_essentially_surjective</span></a>, <span class="id" title="var">Fe</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Equivalences.FullyFaithful.html#fully_faithful_from_equivalence"><span class="id" title="lemma">fully_faithful_from_equivalence</span></a>, <span class="id" title="var">Fe</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.WeakEquivalences.Core.html#WeakAndAdjointEquivalences"><span class="id" title="section">WeakAndAdjointEquivalences</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

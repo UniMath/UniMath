@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CommaObjects.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(****************************************************************</span>
+<span class="sd"> Comma objects in bicategories</span>
+
+<span class="sd"> In this file we define the notion of comma squares in arbitrary</span>
+<span class="sd"> bicategories. This definition is expressed using universal</span>
+<span class="sd"> properties.</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">CommaObject</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">b₃</span> : B}
+          {<span class="nv">f</span> : b₁ --&gt; b₃}
+          {<span class="nv">g</span> : b₂ --&gt; b₃}.
+
+  <span class="sd">(**</span>
+<span class="sd">    1. Cones</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">comma_cone</span>
+    : UU
+    := ∑ (p : B)
+         (π₁ : p --&gt; b₁)
+         (π₂ : p --&gt; b₂),
+       π₁ · f ==&gt; π₂ · g.
+
+  <span class="kn">Coercion</span> <span class="nf">comma_cone_obj</span>
+           (p : comma_cone)
+    : B
+    := pr1 p.
+
+  <span class="kn">Definition</span> <span class="nf">comma_cone_pr1</span>
+             (<span class="nv">p</span> : comma_cone)
+    : p --&gt; b₁
+    := pr12 p.
+
+  <span class="kn">Definition</span> <span class="nf">comma_cone_pr2</span>
+             (<span class="nv">p</span> : comma_cone)
+    : p --&gt; b₂
+    := pr122 p.
+
+  <span class="kn">Definition</span> <span class="nf">comma_cone_cell</span>
+             (<span class="nv">p</span> : comma_cone)
+    : comma_cone_pr1 p · f ==&gt; comma_cone_pr2 p · g
+    := pr222 p.
+
+  <span class="kn">Definition</span> <span class="nf">make_comma_cone</span>
+             (<span class="nv">p</span> : B)
+             (<span class="nv">π₁</span> : p --&gt; b₁)
+             (<span class="nv">π₂</span> : p --&gt; b₂)
+             (<span class="nv">η</span> : π₁ · f ==&gt; π₂ · g)
+    : comma_cone
+    := (p ,, π₁ ,, π₂ ,, η).
+
+  <span class="sd">(**</span>
+<span class="sd">   2. 1-cells and 2-cells of cones</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">comma_1cell</span>
+             (<span class="nv">p</span> <span class="nv">q</span> : comma_cone)
+    : UU
+    := ∑ (φ : p --&gt; q)
+         (τ : invertible_2cell
+                (φ · comma_cone_pr1 q)
+                (comma_cone_pr1 p))
+         (θ : invertible_2cell
+                (φ · comma_cone_pr2 q)
+                (comma_cone_pr2 p)),
+       φ ◃ comma_cone_cell q
+       =
+       lassociator _ _ _
+       • (τ ▹ f)
+       • comma_cone_cell p
+       • (θ^-<span class="mi">1</span> ▹ g)
+       • rassociator _ _ _.
+
+  <span class="kn">Coercion</span> <span class="nf">comma_1cell_1cell</span>
+           {p q : comma_cone}
+           (φ : comma_1cell p q)
+    : p --&gt; q
+    := pr1 φ.
+
+  <span class="kn">Definition</span> <span class="nf">comma_1cell_pr1</span>
+             {<span class="nv">p</span> <span class="nv">q</span> : comma_cone}
+             (<span class="nv">φ</span> : comma_1cell p q)
+    : invertible_2cell
+        (φ · comma_cone_pr1 q)
+        (comma_cone_pr1 p)
+    := pr12 φ.
+
+  <span class="kn">Definition</span> <span class="nf">comma_1cell_pr2</span>
+             {<span class="nv">p</span> <span class="nv">q</span> : comma_cone}
+             (<span class="nv">φ</span> : comma_1cell p q)
+    : invertible_2cell
+        (φ · comma_cone_pr2 q)
+        (comma_cone_pr2 p)
+    := pr122 φ.
+
+  <span class="kn">Definition</span> <span class="nf">comma_1cell_eq</span>
+             {<span class="nv">p</span> <span class="nv">q</span> : comma_cone}
+             (<span class="nv">φ</span> : comma_1cell p q)
+    : φ ◃ comma_cone_cell q
+      =
+      lassociator _ _ _
+      • (comma_1cell_pr1 φ ▹ f)
+      • comma_cone_cell p
+      • ((comma_1cell_pr2 φ)^-<span class="mi">1</span> ▹ g)
+      • rassociator _ _ _
+    := pr222 φ.
+
+  <span class="kn">Definition</span> <span class="nf">make_comma_1cell</span>
+             {<span class="nv">p</span> <span class="nv">q</span> : comma_cone}
+             (<span class="nv">φ</span> : p --&gt; q)
+             (<span class="nv">τ</span> : invertible_2cell
+                    (φ · comma_cone_pr1 q)
+                    (comma_cone_pr1 p))
+             (<span class="nv">θ</span> : invertible_2cell
+                    (φ · comma_cone_pr2 q)
+                    (comma_cone_pr2 p))
+             (<span class="nv">H</span> : φ ◃ comma_cone_cell q
+                  =
+                  lassociator _ _ _
+                  • (τ ▹ f)
+                  • comma_cone_cell p
+                  • (θ^-<span class="mi">1</span> ▹ g)
+                  • rassociator _ _ _)
+    : comma_1cell p q
+    := (φ ,, τ ,, θ ,, H).
+
+  <span class="kn">Definition</span> <span class="nf">eq_comma_1cell</span>
+             {<span class="nv">p</span> <span class="nv">q</span> : comma_cone}
+             (<span class="nv">φ</span> <span class="nv">ψ</span> : comma_1cell p q)
+             (<span class="nv">r₁</span> : pr1 φ = pr1 ψ)
+             (<span class="nv">r₂</span> : pr1 (comma_1cell_pr1 φ)
+                   =
+                   (idtoiso_2_1 _ _ r₁ ▹ comma_cone_pr1 q) • pr1 (comma_1cell_pr1 ψ))
+             (<span class="nv">r₃</span> : pr1 (comma_1cell_pr2 φ)
+                   =
+                   (idtoiso_2_1 _ _ r₁ ▹ comma_cone_pr2 q) • pr1 (comma_1cell_pr2 ψ))
+    : φ = ψ.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> φ <span class="k">as</span> [ φ₁ [ φ₂ [ φ₃ φ₄ ]]].
+    <span class="nb">induction</span> ψ <span class="k">as</span> [ ψ₁ [ ψ₂ [ ψ₃ ψ₄ ]]].
+    <span class="nb">cbn</span> <span class="k">in</span> r₁.
+    <span class="nb">induction</span> r₁ ; <span class="nb">cbn</span> <span class="k">in</span> r₂.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">assert</span> (φ₂ = ψ₂) <span class="k">as</span> r'.
+    {
+      use subtypePath.
+      {
+        <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+      }
+      <span class="nb">rewrite</span> id2_rwhisker, id2_left <span class="k">in</span> r₂.
+      <span class="bp">exact</span> r₂.
+    }
+    <span class="nb">induction</span> r'.
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> r₃.
+    <span class="nb">rewrite</span> id2_rwhisker, id2_left <span class="k">in</span> r₃.
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+    }
+    <span class="bp">exact</span> r₃.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Statements of universal mapping properties of pullbacks</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">UniversalMappingPropertyStatements</span>.
+    <span class="kn">Variable</span> (<span class="nv">p</span> : comma_cone).
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump_1</span>
+      : UU
+      := ∏ (q : comma_cone), comma_1cell q p.
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump_2</span>
+      : UU
+      := ∏ (q : B)
+           (φ ψ : q --&gt; p)
+           (α : φ · comma_cone_pr1 p ==&gt; ψ · comma_cone_pr1 p)
+           (β : φ · comma_cone_pr2 p ==&gt; ψ · comma_cone_pr2 p)
+           (r : (φ ◃ comma_cone_cell p)
+                • lassociator _ _ _
+                • (β ▹ g)
+                • rassociator _ _ _
+                =
+                lassociator _ _ _
+                • (α ▹ f)
+                • rassociator _ _ _
+                • (ψ ◃ comma_cone_cell p)),
+         <span class="k">∃</span>! (γ : φ ==&gt; ψ),
+         (γ ▹ comma_cone_pr1 p = α)
+         ×
+         (γ ▹ comma_cone_pr2 p = β).
+
+    <span class="kn">Definition</span> <span class="nf">has_comma_ump</span>
+      : UU
+      := comma_ump_1 × comma_ump_2.
+  <span class="kn">End</span> <span class="nf">UniversalMappingPropertyStatements</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_comma_ump_1</span>
+             {<span class="nv">p</span> : comma_cone}
+             (<span class="nv">H</span> : has_comma_ump p)
+    : comma_ump_1 p
+    := pr1 H.
+
+  <span class="kn">Definition</span> <span class="nf">has_comma_ump_2</span>
+             {<span class="nv">p</span> : comma_cone}
+             (<span class="nv">H</span> : has_comma_ump p)
+    : comma_ump_2 p
+    := pr2 H.
+
+  <span class="kn">Section</span> <span class="nf">Projections</span>.
+    <span class="kn">Context</span> {<span class="nv">p</span> : comma_cone}
+            (<span class="nv">Hp</span> : has_comma_ump p).
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump_mor</span>
+               (<span class="nv">q</span> : comma_cone)
+      : q --&gt; p
+      := pr1 Hp q.
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump_mor_pr1</span>
+               (<span class="nv">q</span> : comma_cone)
+      : invertible_2cell
+          (comma_ump_mor q · comma_cone_pr1 p)
+          (comma_cone_pr1 q)
+      := comma_1cell_pr1 (pr1 Hp q).
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump_mor_pr2</span>
+               (<span class="nv">q</span> : comma_cone)
+      : invertible_2cell
+          (comma_ump_mor q · comma_cone_pr2 p)
+          (comma_cone_pr2 q)
+      := comma_1cell_pr2 (pr1 Hp q).
+
+    <span class="kn">Definition</span> <span class="nf">comma_ump_mor_cell</span>
+               (<span class="nv">q</span> : comma_cone)
+      : pr1 Hp q ◃ comma_cone_cell p
+        =
+        lassociator (pr1 Hp q) (comma_cone_pr1 p) f
+        • (comma_1cell_pr1 (pr1 Hp q) ▹ f)
+        • comma_cone_cell q
+        • ((comma_1cell_pr2 (pr1 Hp q)) ^-<span class="mi">1</span> ▹ g)
+        • rassociator (pr1 Hp q) (comma_cone_pr2 p) g
+      := comma_1cell_eq (pr1 Hp q).
+
+    <span class="kn">Section</span> <span class="nf">CellProperty</span>.
+      <span class="kn">Context</span> {<span class="nv">q</span> : B}
+              (<span class="nv">φ</span> <span class="nv">ψ</span> : q --&gt; p)
+              (<span class="nv">α</span> : φ · comma_cone_pr1 p ==&gt; ψ · comma_cone_pr1 p)
+              (<span class="nv">β</span> : φ · comma_cone_pr2 p ==&gt; ψ · comma_cone_pr2 p)
+              (<span class="nv">r</span> : (φ ◃ comma_cone_cell p)
+                   • lassociator _ _ _
+                   • (β ▹ g)
+                   • rassociator _ _ _
+                   =
+                   lassociator _ _ _
+                   • (α ▹ f)
+                   • rassociator _ _ _
+                   • (ψ ◃ comma_cone_cell p)).
+
+      <span class="kn">Definition</span> <span class="nf">comma_ump_cell</span>
+        : φ ==&gt; ψ
+        := pr11 (pr2 Hp q φ ψ α β r).
+
+      <span class="kn">Definition</span> <span class="nf">comma_ump_cell_pr1</span>
+        : comma_ump_cell ▹ comma_cone_pr1 p = α
+        := pr121 (pr2 Hp q φ ψ α β r).
+
+      <span class="kn">Definition</span> <span class="nf">comma_ump_cell_pr2</span>
+        : comma_ump_cell ▹ comma_cone_pr2 p = β
+        := pr221 (pr2 Hp q φ ψ α β r).
+
+      <span class="kn">Definition</span> <span class="nf">comma_ump_eq</span>
+                 (<span class="nv">τ₁</span> <span class="nv">τ₂</span> : φ ==&gt; ψ)
+                 (<span class="nv">τ₁_pr1</span> : τ₁ ▹ comma_cone_pr1 p = α)
+                 (<span class="nv">τ₁_pr2</span> : τ₁ ▹ comma_cone_pr2 p = β)
+                 (<span class="nv">τ₂_pr1</span> : τ₂ ▹ comma_cone_pr1 p = α)
+                 (<span class="nv">τ₂_pr2</span> : τ₂ ▹ comma_cone_pr2 p = β)
+        : τ₁ = τ₂
+        := maponpaths
+             pr1
+             (proofirrelevance
+                _
+                (isapropifcontr (pr2 Hp q φ ψ α β r))
+                (τ₁ ,, τ₁_pr1 ,, τ₁_pr2)
+                (τ₂ ,, τ₂_pr1 ,, τ₂_pr2)).
+      <span class="kn">End</span> <span class="nf">CellProperty</span>.
+  <span class="kn">End</span> <span class="nf">Projections</span>.
+
+  <span class="kn">Section</span> <span class="nf">InvertibleCommaUmpCell</span>.
+    <span class="kn">Context</span> {<span class="nv">p</span> : comma_cone}
+            (<span class="nv">Hp</span> : has_comma_ump p)
+            {<span class="nv">q</span> : B}
+            {<span class="nv">φ</span> <span class="nv">ψ</span> : q --&gt; p}
+            {<span class="nv">α</span> : φ · comma_cone_pr1 p ==&gt; ψ · comma_cone_pr1 p}
+            {<span class="nv">β</span> : φ · comma_cone_pr2 p ==&gt; ψ · comma_cone_pr2 p}
+            (<span class="nv">r</span> : (φ ◃ comma_cone_cell p)
+                   • lassociator _ _ _
+                   • (β ▹ g)
+                   • rassociator _ _ _
+                 =
+                 lassociator _ _ _
+                             • (α ▹ f)
+                             • rassociator _ _ _
+                             • (ψ ◃ comma_cone_cell p))
+            (<span class="nv">Hα</span> : is_invertible_2cell α)
+            (<span class="nv">Hβ</span> : is_invertible_2cell β).
+
+    <span class="kn">Definition</span> <span class="nf">is_invertible_2cell_comma_ump_cell_inv</span> : ψ ==&gt; φ.
+    <span class="kn">Proof</span>.
+      use (comma_ump_cell Hp _ _ Hα^-<span class="mi">1</span> Hβ^-<span class="mi">1</span>).
+      <span class="kp">abstract</span>
+        (<span class="kp">do</span> <span class="mi">3</span> (use vcomp_move_R_Mp ; [ is_iso | ]) ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="kp">do</span> <span class="mi">3</span> (use vcomp_move_L_pM ; [ is_iso | ]) ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="bp">exact</span> (!r)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_comma_ump_cell_left</span>
+      : comma_ump_cell Hp φ ψ α β r • is_invertible_2cell_comma_ump_cell_inv
+        =
+        id₂ φ.
+    <span class="kn">Proof</span>.
+      use (comma_ump_eq Hp).
+      - <span class="nb">apply</span> id2.
+      - <span class="nb">apply</span> id2.
+      - <span class="nb">rewrite</span> !id2_rwhisker, !id2_right.
+        <span class="nb">rewrite</span> lassociator_rassociator, id2_left.
+        <span class="nb">rewrite</span> vassocl.
+        <span class="nb">rewrite</span> lassociator_rassociator.
+        <span class="nb">apply</span> id2_right.
+      - <span class="nb">unfold</span> is_invertible_2cell_comma_ump_cell_inv.
+        <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+        <span class="nb">rewrite</span> !comma_ump_cell_pr1.
+        <span class="nb">apply</span> vcomp_rinv.
+      - <span class="nb">unfold</span> is_invertible_2cell_comma_ump_cell_inv.
+        <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+        <span class="nb">rewrite</span> !comma_ump_cell_pr2.
+        <span class="nb">apply</span> vcomp_rinv.
+      - <span class="nb">apply</span> id2_rwhisker.
+      - <span class="nb">apply</span> id2_rwhisker.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">is_invertible_2cell_comma_ump_cell_right</span>
+      : is_invertible_2cell_comma_ump_cell_inv • comma_ump_cell Hp φ ψ α β r
+        =
+        id₂ _.
+    <span class="kn">Proof</span>.
+      use (comma_ump_eq Hp).
+      - <span class="nb">apply</span> id2.
+      - <span class="nb">apply</span> id2.
+      - <span class="nb">rewrite</span> !id2_rwhisker, !id2_right.
+        <span class="nb">rewrite</span> lassociator_rassociator, id2_left.
+        <span class="nb">rewrite</span> vassocl.
+        <span class="nb">rewrite</span> lassociator_rassociator.
+        <span class="nb">apply</span> id2_right.
+      - <span class="nb">unfold</span> is_invertible_2cell_comma_ump_cell_inv.
+        <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+        <span class="nb">rewrite</span> !comma_ump_cell_pr1.
+        <span class="nb">apply</span> vcomp_linv.
+      - <span class="nb">unfold</span> is_invertible_2cell_comma_ump_cell_inv.
+        <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+        <span class="nb">rewrite</span> !comma_ump_cell_pr2.
+        <span class="nb">apply</span> vcomp_linv.
+      - <span class="nb">apply</span> id2_rwhisker.
+      - <span class="nb">apply</span> id2_rwhisker.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_invertible_2cell_comma_ump_cell</span>
+      : is_invertible_2cell (comma_ump_cell Hp φ ψ α β r).
+    <span class="kn">Proof</span>.
+      use make_is_invertible_2cell.
+      - <span class="bp">exact</span> is_invertible_2cell_comma_ump_cell_inv.
+      - <span class="bp">exact</span> is_invertible_2cell_comma_ump_cell_left.
+      - <span class="bp">exact</span> is_invertible_2cell_comma_ump_cell_right.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">InvertibleCommaUmpCell</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Being a pullback is a property (requires local univalence)</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">isaprop_has_comma_ump</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">p</span> : comma_cone)
+    : isaprop (has_comma_ump p).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> χ₁ χ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="kp">do</span> <span class="mi">6</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isapropiscontr.
+    }
+    use funextsec ; <span class="nb">intro</span> q.
+    use eq_comma_1cell ; <span class="nb">cbn</span>.
+    - use (isotoid_2_1 HB_2_1).
+      use make_invertible_2cell.
+      + use (comma_ump_cell χ₁).
+        * <span class="bp">exact</span> (comma_ump_mor_pr1 χ₁ q • (comma_ump_mor_pr1 χ₂ q)^-<span class="mi">1</span>).
+        * <span class="bp">exact</span> (comma_ump_mor_pr2 χ₁ q • (comma_ump_mor_pr2 χ₂ q)^-<span class="mi">1</span>).
+        * <span class="kp">abstract</span>
+            (<span class="nb">refine</span> (!_) ;
+             <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (comma_ump_mor_cell χ₂ q) @ _) ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">refine</span> (!_) ;
+             <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z • _) (comma_ump_mor_cell χ₁ q) @ _) ;
+             <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • (_ • z)) (vassocr _ _ _)) ;
+             <span class="nb">rewrite</span> rassociator_lassociator ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> rwhisker_vcomp ;
+             <span class="nb">rewrite</span> vcomp_linv ;
+             <span class="nb">rewrite</span> id2_rwhisker ;
+             <span class="nb">rewrite</span> id2_right ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+             <span class="nb">rewrite</span> rassociator_lassociator ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="nb">rewrite</span> rwhisker_vcomp ;
+             <span class="nb">rewrite</span> vcomp_linv ;
+             <span class="nb">rewrite</span> id2_rwhisker ;
+             <span class="nb">rewrite</span> id2_left ;
+             <span class="nb">apply</span> idpath).
+      + use make_is_invertible_2cell.
+        * use (comma_ump_cell χ₁).
+          ** <span class="bp">exact</span> (comma_ump_mor_pr1 χ₂ q • (comma_ump_mor_pr1 χ₁ q)^-<span class="mi">1</span>).
+          ** <span class="bp">exact</span> (comma_ump_mor_pr2 χ₂ q • (comma_ump_mor_pr2 χ₁ q)^-<span class="mi">1</span>).
+          ** <span class="kp">abstract</span>
+               (<span class="nb">refine</span> (!_) ;
+                <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (comma_ump_mor_cell χ₁ q) @ _) ;
+                <span class="nb">rewrite</span> !vassocl ;
+                <span class="nb">refine</span> (!_) ;
+                <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z • _) (comma_ump_mor_cell χ₂ q) @ _) ;
+                <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+                <span class="nb">rewrite</span> !vassocl ;
+                <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+                <span class="nb">rewrite</span> !vassocr ;
+                <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2 ;
+                <span class="nb">rewrite</span> !vassocl ;
+                <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • (_ • z)) (vassocr _ _ _)) ;
+                <span class="nb">rewrite</span> rassociator_lassociator ;
+                <span class="nb">rewrite</span> id2_left ;
+                <span class="nb">rewrite</span> rwhisker_vcomp ;
+                <span class="nb">rewrite</span> vcomp_linv ;
+                <span class="nb">rewrite</span> id2_rwhisker ;
+                <span class="nb">rewrite</span> id2_right ;
+                <span class="nb">rewrite</span> !vassocl ;
+                <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+                <span class="nb">rewrite</span> rassociator_lassociator ;
+                <span class="nb">rewrite</span> id2_left ;
+                <span class="nb">rewrite</span> !vassocr ;
+                <span class="nb">rewrite</span> rwhisker_vcomp ;
+                <span class="nb">rewrite</span> vcomp_linv ;
+                <span class="nb">rewrite</span> id2_rwhisker ;
+                <span class="nb">rewrite</span> id2_left ;
+                <span class="nb">apply</span> idpath).
+        * use (comma_ump_eq χ₁ _ _ (id₂ _) (id₂ _)).
+          ** <span class="kp">abstract</span>
+               (<span class="nb">rewrite</span> !id2_rwhisker ;
+                <span class="nb">rewrite</span> !id2_right ;
+                <span class="nb">rewrite</span> lassociator_rassociator ;
+                <span class="nb">rewrite</span> !vassocl ;
+                <span class="nb">rewrite</span> lassociator_rassociator ;
+                <span class="nb">rewrite</span> id2_left, id2_right ;
+                <span class="nb">apply</span> idpath).
+          ** <span class="kp">abstract</span>
+               (<span class="nb">rewrite</span> &lt;- rwhisker_vcomp ;
+                <span class="nb">rewrite</span> !comma_ump_cell_pr1 ;
+                <span class="nb">rewrite</span> !vassocl ;
+                <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+                <span class="nb">rewrite</span> vcomp_linv ;
+                <span class="nb">rewrite</span> id2_left ;
+                <span class="nb">rewrite</span> vcomp_rinv ;
+                <span class="nb">apply</span> idpath).
+          ** <span class="kp">abstract</span>
+               (<span class="nb">rewrite</span> &lt;- rwhisker_vcomp ;
+                <span class="nb">rewrite</span> !comma_ump_cell_pr2 ;
+                <span class="nb">rewrite</span> !vassocl ;
+                <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+                <span class="nb">rewrite</span> vcomp_linv ;
+                <span class="nb">rewrite</span> id2_left ;
+                <span class="nb">rewrite</span> vcomp_rinv ;
+                <span class="nb">apply</span> idpath).
+          ** <span class="nb">apply</span> id2_rwhisker.
+          ** <span class="nb">apply</span> id2_rwhisker.
+        * use (comma_ump_eq χ₁ _ _ (id₂ _) (id₂ _)).
+          ** <span class="kp">abstract</span>
+               (<span class="nb">rewrite</span> !id2_rwhisker ;
+                <span class="nb">rewrite</span> !id2_right ;
+                <span class="nb">rewrite</span> lassociator_rassociator ;
+                <span class="nb">rewrite</span> !vassocl ;
+                <span class="nb">rewrite</span> lassociator_rassociator ;
+                <span class="nb">rewrite</span> id2_left, id2_right ;
+                <span class="nb">apply</span> idpath).
+          ** <span class="kp">abstract</span>
+               (<span class="nb">rewrite</span> &lt;- rwhisker_vcomp ;
+                <span class="nb">rewrite</span> !comma_ump_cell_pr1 ;
+                <span class="nb">rewrite</span> !vassocl ;
+                <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+                <span class="nb">rewrite</span> vcomp_linv ;
+                <span class="nb">rewrite</span> id2_left ;
+                <span class="nb">rewrite</span> vcomp_rinv ;
+                <span class="nb">apply</span> idpath).
+          ** <span class="kp">abstract</span>
+               (<span class="nb">rewrite</span> &lt;- rwhisker_vcomp ;
+                <span class="nb">rewrite</span> !comma_ump_cell_pr2 ;
+                <span class="nb">rewrite</span> !vassocl ;
+                <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+                <span class="nb">rewrite</span> vcomp_linv ;
+                <span class="nb">rewrite</span> id2_left ;
+                <span class="nb">rewrite</span> vcomp_rinv ;
+                <span class="nb">apply</span> idpath).
+          ** <span class="nb">apply</span> id2_rwhisker.
+          ** <span class="nb">apply</span> id2_rwhisker.
+    - <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1 ; <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">rewrite</span> comma_ump_cell_pr1 ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> vcomp_linv ;
+         <span class="nb">apply</span> id2_right).
+    - <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1 ; <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">rewrite</span> comma_ump_cell_pr2 ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> vcomp_linv ;
+         <span class="nb">apply</span> id2_right).
+    <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">CommaObject</span>.
+
+<span class="kn">Arguments</span> comma_cone {_ _ _ _} _ _.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Bicategories with comma objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">has_comma</span>
+           (<span class="nv">B</span> : bicat)
+  : UU
+  := ∏ (b₁ b₂ b₃ : B)
+       (f : b₁ --&gt; b₃)
+       (g : b₂ --&gt; b₃),
+     ∑ (p : comma_cone f g),
+     has_comma_ump p.
+
+<span class="kn">Definition</span> <span class="nf">bicat_with_comma</span>
+  : UU
+  := ∑ (B : bicat), has_comma B.
+
+<span class="kn">Coercion</span> <span class="nf">bicat_with_comma_to_bicat</span>
+         (B : bicat_with_comma)
+  : bicat
+  := pr1 B.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Limits/CommaObjects.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  properties.
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

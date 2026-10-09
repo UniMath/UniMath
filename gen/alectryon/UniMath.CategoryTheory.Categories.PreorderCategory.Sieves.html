@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Sieves.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  Sieves in a preorder category</span>
+
+<span class="sd">  If we turn a preorder into a category C, a sieve on X : C (a subobject of the Yoneda presheaf of</span>
+<span class="sd">  X) is equivalent to a collection of objects Y with Y ≤ X (the downset of X), such that if Y is in</span>
+<span class="sd">  the collection and Z ≤ Y, then Z is also in the collection (the collection is downward closed).</span>
+<span class="sd">  Note that for the proof that going from a sieve to a subtype and then to a sieve, yields the same</span>
+<span class="sd">  sieve again, we use univalence of the category of sieves (subobjects).</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The equivalence [po_sieve_weq_subtype]</span>
+<span class="sd">  1.1. The construction of a subtype from a sieve [sieve_to_subtype]</span>
+<span class="sd">  1.2. The construction of a sieve from a subtype [subtype_to_sieve]</span>
+<span class="sd">  1.3. The construction of a sieve from a sieve yields the same sieve again</span>
+<span class="sd">    [sieve_to_subtype_to_sieve]</span>
+<span class="sd">  1.4. The construction of a subtype from a subtype yields the same subtype again</span>
+<span class="sd">    [subtype_to_sieve_to_subtype]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckToposes.Sieves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.PreorderCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subobjects.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Preorders.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.yoneda.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.slicecat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The equivalence *)</span>
+
+<span class="kn">Section</span> <span class="nf">PoCategorySieve</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+  <span class="kn">Context</span> {<span class="nv">P</span> : po X}.
+  <span class="kn">Context</span> {<span class="nv">x</span> : X}.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_po_sieve_dom</span>
+    (<span class="nv">y</span> : X)
+    (<span class="nv">f</span> : sieve (C := po_category P) x)
+    : isaprop (sieve_functor f y : hSet).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> invproofirrelevance.
+    <span class="nb">intros</span> z w.
+    <span class="nb">apply</span> (invmaponpathsincl _ (presheaf_monic_isincl (Subobject_isM f) _)).
+    <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+<span class="sd">(** ** 1.1. The construction of a subtype from a sieve *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">sieve_to_subtype</span>
+    (<span class="nv">f</span> : sieve (C := po_category P) x)
+    : downward_closed_subtype (subpreorder P (down_type P x)).
+  <span class="kn">Proof</span>.
+    use make_downward_closed_subtype.
+    - <span class="nb">intro</span> y.
+      <span class="nb">apply</span> (make_hProp (sieve_functor f (pr1carrier _ y) : hSet)).
+      <span class="kp">abstract</span> <span class="nb">apply</span> isaprop_po_sieve_dom.
+    - <span class="kp">abstract</span> (
+        <span class="nb">intros</span> y z;
+        <span class="bp">exact</span> (# (sieve_functor f) (pr2 z) (pr2 y))
+      ).
+  <span class="kn">Defined</span>.
+
+<span class="sd">(** ** 1.2. The construction of a sieve from a subtype *)</span>
+
+  <span class="kn">Section</span> <span class="nf">SubtypeToSieve</span>.
+
+    <span class="kn">Context</span> (<span class="nv">f</span> : downward_closed_subtype (subpreorder P (down_type P x))).
+
+    <span class="kn">Definition</span> <span class="nf">subtype_to_functor</span>
+      : (po_category P)^op ⟶ SET.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - use make_functor_data.
+        + <span class="nb">intro</span> y.
+          <span class="nb">apply</span> (make_hSet (carrier_subtype_weq_contained_subtype _ f y)).
+          <span class="kp">abstract</span> (
+            <span class="nb">apply</span> isasetaprop;
+            <span class="nb">apply</span> propproperty
+          ).
+        + <span class="kp">abstract</span> (
+            <span class="nb">intros</span> y z Hzy Hyx;
+            use tpair;
+            [ <span class="bp">exact</span> (istrans_po P z y x Hzy (pr1carrier _ Hyx))
+            | <span class="bp">exact</span> (downward_closed_is_downward_closed _
+                f
+                (make_carrier _ _ (pr2 Hyx))
+                (make_carrier _ (make_carrier _ z _) Hzy)) ]
+          ).
+      - <span class="kp">abstract</span> (
+          <span class="nb">split</span>;
+          <span class="kp">repeat</span> <span class="nb">intro</span>;
+          <span class="nb">apply</span> funextfun;
+          <span class="nb">intro</span>;
+          <span class="nb">apply</span> isaprop_total2
+        ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">subtype_to_nat_trans</span>
+      : subtype_to_functor ⟹ yoneda_objects (po_category P) x.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      -- <span class="nb">intros</span> y Hyx.
+        <span class="bp">exact</span> (pr1 Hyx).
+      -- <span class="kp">abstract</span> (
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">intro</span>;
+          <span class="nb">apply</span> funextfun;
+          <span class="nb">intro</span>;
+          <span class="nb">apply</span> propproperty
+        ).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">subtype_to_isMonic</span>
+      : isMonic (C := [_, SET]) subtype_to_nat_trans.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> is_nat_trans_monic_from_pointwise_monics.
+      <span class="nb">intro</span> y.
+      <span class="nb">apply</span> (invmap (MonosAreInjective_HSET _)).
+      <span class="nb">apply</span> incl_injectivity.
+      <span class="nb">apply</span> isinclpr1.
+      <span class="nb">intro</span> Hyx.
+      <span class="nb">apply</span> propproperty.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">SubtypeToSieve</span>.
+
+  <span class="kn">Definition</span> <span class="nf">subtype_to_sieve</span>
+    (<span class="nv">f</span> : downward_closed_subtype (subpreorder P (down_type P x)))
+    : sieve (C := po_category P) x
+    := (subtype_to_functor f ,, tt) ,,
+      make_Monic ([_, _]) (subtype_to_nat_trans f) (subtype_to_isMonic f).
+
+<span class="sd">(** ** 1.3. The construction of a sieve from a sieve yields the same sieve again *)</span>
+
+  <span class="kn">Section</span> <span class="nf">SieveToSubtypeToSieve</span>.
+
+    <span class="kn">Context</span> (<span class="nv">f</span> : sieve (C := po_category P) x).
+
+    <span class="kn">Definition</span> <span class="nf">sieve_to_sieve_nat_trans_data</span>
+      : nat_trans_data (sieve_functor (subtype_to_sieve (sieve_to_subtype f))) (sieve_functor f).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> y Hy.
+      <span class="bp">exact</span> (pr2 Hy).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">sieve_to_sieve_is_nat_trans</span>
+      : is_nat_trans _ _ sieve_to_sieve_nat_trans_data.
+    <span class="kn">Proof</span>.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">intro</span>.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_po_sieve_dom.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">sieve_to_sieve_nat_trans</span>
+      : sieve_functor (subtype_to_sieve (sieve_to_subtype f)) ⟹ sieve_functor f
+      := make_nat_trans _ _ _ sieve_to_sieve_is_nat_trans.
+
+    <span class="kn">Section</span> <span class="nf">Inverse</span>.
+
+      <span class="kn">Context</span> (<span class="nv">y</span> : X).
+
+      <span class="kn">Definition</span> <span class="nf">sieve_to_sieve_inv</span>
+        : SET⟦sieve_functor f y, sieve_functor (subtype_to_sieve (sieve_to_subtype f)) y⟧
+        := <span class="k">λ</span> <span class="nv">Hfy</span>, (sieve_nat_trans f y Hfy ,, Hfy).
+
+      <span class="kn">Lemma</span> <span class="nf">sieve_to_sieve_is_inverse</span>
+        : is_inverse_in_precat (sieve_to_sieve_nat_trans y) sieve_to_sieve_inv.
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - <span class="nb">apply</span> funextfun.
+          <span class="nb">intro</span> H.
+          <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x ,, _)).
+          <span class="nb">apply</span> propproperty.
+        - <span class="bp">easy</span>.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">sieve_to_sieve_is_iso</span>
+        : is_z_isomorphism (sieve_to_sieve_nat_trans y)
+        := make_is_z_isomorphism _ sieve_to_sieve_inv sieve_to_sieve_is_inverse.
+
+    <span class="kn">End</span> <span class="nf">Inverse</span>.
+
+    <span class="kn">Definition</span> <span class="nf">sieve_to_sieve_iso</span>
+      : z_iso
+        (slicecat_ob_object _ _ (subtype_to_sieve (sieve_to_subtype f)))
+        (slicecat_ob_object _ _ f).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> iso_in_subcategory_of_monics_weq.
+      use tpair.
+      - <span class="bp">exact</span> sieve_to_sieve_nat_trans.
+      - <span class="nb">apply</span> nat_trafo_z_iso_if_pointwise_z_iso.
+        <span class="bp">exact</span> sieve_to_sieve_is_iso.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">sieve_to_sieve_commutes</span>
+      : slicecat_ob_morphism _ _ (subtype_to_sieve (sieve_to_subtype f))
+      = sieve_to_sieve_iso · slicecat_ob_morphism _ _ f.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> Monic_eq.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> y.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> H.
+      <span class="nb">apply</span> propproperty.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">sieve_to_subtype_to_sieve</span>
+      : subtype_to_sieve (sieve_to_subtype f) = f.
+    <span class="kn">Proof</span>.
+      use isotoid.
+      - <span class="nb">apply</span> is_univalent_Subobjectscategory.
+        <span class="nb">apply</span> is_univalent_functor_category.
+        <span class="nb">apply</span> is_univalent_HSET.
+      - <span class="nb">apply</span> slicecat.weq_z_iso.
+        use tpair.
+        + <span class="bp">exact</span> sieve_to_sieve_iso.
+        + <span class="bp">exact</span> sieve_to_sieve_commutes.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">SieveToSubtypeToSieve</span>.
+
+<span class="sd">(** ** 1.4. The construction of a subtype from a subtype yields the same subtype again *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">subtype_to_sieve_to_subtype</span>
+    (<span class="nv">f</span> : downward_closed_subtype (subpreorder P (down_type P x)))
+    : sieve_to_subtype (subtype_to_sieve f) = f.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">apply</span> hsubtype_univalence.
+    <span class="nb">intro</span> y.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> H.
+      <span class="nb">refine</span> (transportf _ _ (pr2 H)).
+      <span class="nb">apply</span> propproperty.
+    - <span class="nb">intro</span> H.
+      <span class="bp">exact</span> (pr2 y ,, H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">po_sieve_weq_subtype</span>
+    : sieve (C := po_category P) x ≃ downward_closed_subtype (subpreorder P (down_type P x))
+    := weq_iso
+      sieve_to_subtype
+      subtype_to_sieve
+      sieve_to_subtype_to_sieve
+      subtype_to_sieve_to_subtype.
+
+<span class="kn">End</span> <span class="nf">PoCategorySieve</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/PreorderCategory/Sieves.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     [subtype_to_sieve_to_subtype]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.GrothendieckToposes.Sieves.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

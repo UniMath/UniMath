@@ -1,0 +1,1028 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>IsoInserters.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(****************************************************************************</span>
+
+<span class="sd"> Iso-inserters in bicategories</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Cones</span>
+<span class="sd"> 2. The universal mapping property</span>
+<span class="sd"> 3. The universal property gives an equivalence of categories</span>
+<span class="sd"> 4. Bicategories with iso-inserters</span>
+<span class="sd"> 5. Inserters are faithful</span>
+<span class="sd"> 6. Inserters are conservative</span>
+
+<span class="sd"> ****************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CatIsoInserter.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.DiscreteMorphisms.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">IsoInserters</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+          {<span class="nv">f</span> <span class="nv">g</span> : b₁ --&gt; b₂}.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Cones</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_cone</span>
+    : UU
+    := ∑ (i : B)
+         (m : i --&gt; b₁),
+       invertible_2cell (m · f) (m · g).
+
+  <span class="kn">Definition</span> <span class="nf">make_iso_inserter_cone</span>
+             (<span class="nv">i</span> : B)
+             (<span class="nv">m</span> : i --&gt; b₁)
+             (<span class="nv">α</span> : invertible_2cell (m · f) (m · g))
+    : iso_inserter_cone
+    := i ,, m ,, α.
+
+  <span class="kn">Coercion</span> <span class="nf">iso_inserter_cone_ob</span>
+           (cone : iso_inserter_cone)
+    : B
+    := pr1 cone.
+
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_cone_pr1</span>
+             (<span class="nv">cone</span> : iso_inserter_cone)
+    : cone --&gt; b₁
+    := pr12 cone.
+
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_cone_cell</span>
+             (<span class="nv">cone</span> : iso_inserter_cone)
+    : invertible_2cell
+        (iso_inserter_cone_pr1 cone · f)
+        (iso_inserter_cone_pr1 cone · g)
+    := pr22 cone.
+
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_1cell</span>
+             (<span class="nv">cone₁</span> <span class="nv">cone₂</span> : iso_inserter_cone)
+    : UU
+    := ∑ (k : cone₁ --&gt; cone₂)
+         (α : invertible_2cell
+                (k · iso_inserter_cone_pr1 cone₂)
+                (iso_inserter_cone_pr1 cone₁)),
+       (k ◃ iso_inserter_cone_cell cone₂)
+       • lassociator _ _ _
+       • (α ▹ g)
+       =
+       lassociator _ _ _
+       • (α ▹ f)
+       • iso_inserter_cone_cell cone₁.
+
+  <span class="kn">Definition</span> <span class="nf">make_iso_inserter_1cell</span>
+             {<span class="nv">cone₁</span> <span class="nv">cone₂</span> : iso_inserter_cone}
+             (<span class="nv">k</span> : cone₁ --&gt; cone₂)
+             (<span class="nv">α</span> : invertible_2cell
+                    (k · iso_inserter_cone_pr1 cone₂)
+                    (iso_inserter_cone_pr1 cone₁))
+             (<span class="nv">p</span> : (k ◃ iso_inserter_cone_cell cone₂)
+                  • lassociator _ _ _
+                  • (α ▹ g)
+                  =
+                  lassociator _ _ _
+                  • (α ▹ f)
+                  • iso_inserter_cone_cell cone₁)
+    : iso_inserter_1cell cone₁ cone₂
+    := k ,, α ,, p.
+
+  <span class="kn">Coercion</span> <span class="nf">iso_inserter_1cell_mor</span>
+           {cone₁ cone₂ : iso_inserter_cone}
+           (u : iso_inserter_1cell cone₁ cone₂)
+    : cone₁ --&gt; cone₂
+    := pr1 u.
+
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_1cell_pr1</span>
+             {<span class="nv">cone₁</span> <span class="nv">cone₂</span> : iso_inserter_cone}
+             (<span class="nv">u</span> : iso_inserter_1cell cone₁ cone₂)
+    : invertible_2cell
+        (u · iso_inserter_cone_pr1 cone₂)
+        (iso_inserter_cone_pr1 cone₁)
+    := pr12 u.
+
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_1cell_cell</span>
+             {<span class="nv">cone₁</span> <span class="nv">cone₂</span> : iso_inserter_cone}
+             (<span class="nv">u</span> : iso_inserter_1cell cone₁ cone₂)
+    : (_ ◃ iso_inserter_cone_cell cone₂)
+       • lassociator _ _ _
+       • (iso_inserter_1cell_pr1 u ▹ g)
+       =
+       lassociator _ _ _
+       • (iso_inserter_1cell_pr1 u ▹ f)
+       • iso_inserter_cone_cell cone₁
+    := pr22 u.
+
+  <span class="kn">Definition</span> <span class="nf">path_iso_inserter_1cell</span>
+             {<span class="nv">cone₁</span> <span class="nv">cone₂</span> : iso_inserter_cone}
+             (<span class="nv">φ</span> <span class="nv">ψ</span> : iso_inserter_1cell cone₁ cone₂)
+             (<span class="nv">p₁</span> : pr1 φ = pr1 ψ)
+             (<span class="nv">p₂</span> : pr112 φ = (idtoiso_2_1 _ _ p₁ ▹ _) • pr112 ψ)
+    : φ = ψ.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> φ <span class="k">as</span> [ φ₁ [ φ₂ φ₃ ]].
+    <span class="nb">induction</span> ψ <span class="k">as</span> [ ψ₁ [ ψ₂ ψ₃ ]].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p₁.
+    <span class="nb">apply</span> maponpaths.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> cellset_property.
+    }
+    <span class="nb">cbn</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_invertible_2cell.
+    }
+    <span class="nb">cbn</span> <span class="k">in</span> p₂.
+    <span class="nb">rewrite</span> id2_rwhisker, id2_left <span class="k">in</span> p₂.
+    <span class="bp">exact</span> p₂.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. The universal mapping property</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">UniversalMappingProperty</span>.
+    <span class="kn">Context</span> (<span class="nv">cone</span> : iso_inserter_cone).
+
+    <span class="kn">Definition</span> <span class="nf">has_iso_inserter_ump_1</span>
+      : UU
+      := ∏ (other_cone : iso_inserter_cone),
+         iso_inserter_1cell other_cone cone.
+
+    <span class="kn">Definition</span> <span class="nf">has_iso_inserter_ump_2</span>
+      : UU
+      := ∏ (x : B)
+           (u₁ u₂ : x --&gt; cone)
+           (α : u₁ · iso_inserter_cone_pr1 cone
+                ==&gt;
+                u₂ · iso_inserter_cone_pr1 cone)
+           (p : rassociator _ _ _
+                • (u₁ ◃ iso_inserter_cone_cell cone)
+                • lassociator _ _ _
+                • (α ▹ g)
+                =
+                (α ▹ f)
+                • rassociator _ _ _
+                • (u₂ ◃ iso_inserter_cone_cell cone)
+                • lassociator _ _ _),
+         ∑ (ζ : u₁ ==&gt; u₂),
+         ζ ▹ iso_inserter_cone_pr1 cone = α.
+
+    <span class="kn">Definition</span> <span class="nf">has_iso_inserter_ump_eq</span>
+      : UU
+      := ∏ (x : B)
+           (u₁ u₂ : x --&gt; cone)
+           (α : u₁ · iso_inserter_cone_pr1 cone
+                ==&gt;
+                u₂ · iso_inserter_cone_pr1 cone)
+           (p : rassociator _ _ _
+                • (u₁ ◃ iso_inserter_cone_cell cone)
+                • lassociator _ _ _
+                • (α ▹ g)
+                =
+                (α ▹ f)
+                • rassociator _ _ _
+                • (u₂ ◃ iso_inserter_cone_cell cone)
+                • lassociator _ _ _)
+           (φ₁ φ₂ : u₁ ==&gt; u₂)
+           (q₁ : φ₁ ▹ iso_inserter_cone_pr1 cone = α)
+           (q₂ : φ₂ ▹ iso_inserter_cone_pr1 cone = α),
+         φ₁ = φ₂.
+
+    <span class="kn">Definition</span> <span class="nf">has_iso_inserter_ump</span>
+      : UU
+      := has_iso_inserter_ump_1 × has_iso_inserter_ump_2 × has_iso_inserter_ump_eq.
+  <span class="kn">End</span> <span class="nf">UniversalMappingProperty</span>.
+
+  <span class="kn">Section</span> <span class="nf">Projections</span>.
+    <span class="kn">Context</span> {<span class="nv">cone</span> : iso_inserter_cone}
+            (<span class="nv">H</span> : has_iso_inserter_ump cone).
+
+    <span class="kn">Definition</span> <span class="nf">iso_inserter_ump_mor</span>
+               {<span class="nv">i</span> : B}
+               (<span class="nv">m</span> : i --&gt; b₁)
+               (<span class="nv">α</span> : invertible_2cell (m · f) (m · g))
+      : i --&gt; cone
+      := pr1 H (make_iso_inserter_cone i m α).
+
+    <span class="kn">Definition</span> <span class="nf">iso_inserter_ump_mor_pr1</span>
+               {<span class="nv">i</span> : B}
+               (<span class="nv">m</span> : i --&gt; b₁)
+               (<span class="nv">α</span> : invertible_2cell (m · f) (m · g))
+      : invertible_2cell
+          (iso_inserter_ump_mor m α · iso_inserter_cone_pr1 cone)
+          m
+      := iso_inserter_1cell_pr1 (pr1 H (make_iso_inserter_cone i m α)).
+
+    <span class="kn">Definition</span> <span class="nf">iso_inserter_ump_mor_cell</span>
+               {<span class="nv">i</span> : B}
+               (<span class="nv">m</span> : i --&gt; b₁)
+               (<span class="nv">α</span> : invertible_2cell (m · f) (m · g))
+      : (_ ◃ iso_inserter_cone_cell cone)
+        • lassociator _ _ _
+        • (iso_inserter_ump_mor_pr1 m α ▹ g)
+        =
+        lassociator _ _ _
+        • (iso_inserter_ump_mor_pr1 m α ▹ f)
+        • α
+      := iso_inserter_1cell_cell (pr1 H (make_iso_inserter_cone i m α)).
+
+    <span class="kn">Definition</span> <span class="nf">iso_inserter_ump_cell</span>
+               {<span class="nv">x</span> : B}
+               {<span class="nv">u₁</span> <span class="nv">u₂</span> : x --&gt; cone}
+               (<span class="nv">α</span> : u₁ · iso_inserter_cone_pr1 cone
+                    ==&gt;
+                    u₂ · iso_inserter_cone_pr1 cone)
+               (<span class="nv">p</span> : rassociator _ _ _
+                    • (u₁ ◃ iso_inserter_cone_cell cone)
+                    • lassociator _ _ _
+                    • (α ▹ g)
+                    =
+                    (α ▹ f)
+                    • rassociator _ _ _
+                    • (u₂ ◃ iso_inserter_cone_cell cone)
+                    • lassociator _ _ _)
+      : u₁ ==&gt; u₂
+      := pr1 (pr12 H x u₁ u₂ α p).
+
+    <span class="kn">Definition</span> <span class="nf">iso_inserter_ump_cell_pr1</span>
+               {<span class="nv">x</span> : B}
+               {<span class="nv">u₁</span> <span class="nv">u₂</span> : x --&gt; cone}
+               (<span class="nv">α</span> : u₁ · iso_inserter_cone_pr1 cone
+                    ==&gt;
+                    u₂ · iso_inserter_cone_pr1 cone)
+               (<span class="nv">p</span> : rassociator _ _ _
+                    • (u₁ ◃ iso_inserter_cone_cell cone)
+                    • lassociator _ _ _
+                    • (α ▹ g)
+                    =
+                    (α ▹ f)
+                    • rassociator _ _ _
+                    • (u₂ ◃ iso_inserter_cone_cell cone)
+                    • lassociator _ _ _)
+      : iso_inserter_ump_cell α p ▹ iso_inserter_cone_pr1 cone = α
+      := pr2 (pr12 H x u₁ u₂ α p).
+
+    <span class="kn">Definition</span> <span class="nf">iso_inserter_ump_eq</span>
+               {<span class="nv">x</span> : B}
+               {<span class="nv">u₁</span> <span class="nv">u₂</span> : x --&gt; cone}
+               (<span class="nv">α</span> : u₁ · iso_inserter_cone_pr1 cone
+                    ==&gt;
+                    u₂ · iso_inserter_cone_pr1 cone)
+               (<span class="nv">p</span> : rassociator _ _ _
+                    • (u₁ ◃ iso_inserter_cone_cell cone)
+                    • lassociator _ _ _
+                    • (α ▹ g)
+                    =
+                    (α ▹ f)
+                    • rassociator _ _ _
+                    • (u₂ ◃ iso_inserter_cone_cell cone)
+                    • lassociator _ _ _)
+               (<span class="nv">φ₁</span> <span class="nv">φ₂</span> : u₁ ==&gt; u₂)
+               (<span class="nv">q₁</span> : φ₁ ▹ iso_inserter_cone_pr1 cone = α)
+               (<span class="nv">q₂</span> : φ₂ ▹ iso_inserter_cone_pr1 cone = α)
+      : φ₁ = φ₂
+      := pr22 H x u₁ u₂ α p φ₁ φ₂ q₁ q₂.
+
+    <span class="kn">Definition</span> <span class="nf">iso_inserter_ump_eq_alt</span>
+               {<span class="nv">x</span> : B}
+               {<span class="nv">u₁</span> <span class="nv">u₂</span> : x --&gt; cone}
+               (<span class="nv">φ₁</span> <span class="nv">φ₂</span> : u₁ ==&gt; u₂)
+               (<span class="nv">p</span> : rassociator _ _ _
+                    • (u₁ ◃ iso_inserter_cone_cell cone)
+                    • lassociator _ _ _
+                    • (φ₁ ▹ iso_inserter_cone_pr1 cone ▹ g)
+                    =
+                    (φ₁ ▹ iso_inserter_cone_pr1 cone ▹ f)
+                    • rassociator _ _ _
+                    • (u₂ ◃ iso_inserter_cone_cell cone)
+                    • lassociator _ _ _)
+               (<span class="nv">q</span> : φ₁ ▹ iso_inserter_cone_pr1 cone
+                    =
+                    φ₂ ▹ iso_inserter_cone_pr1 cone)
+      : φ₁ = φ₂.
+    <span class="kn">Proof</span>.
+      use iso_inserter_ump_eq.
+      - <span class="bp">exact</span> (φ₁ ▹ iso_inserter_cone_pr1 cone).
+      - <span class="bp">exact</span> p.
+      - <span class="nb">apply</span> idpath.
+      - <span class="bp">exact</span> (!q).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Projections</span>.
+
+  <span class="kn">Section</span> <span class="nf">Invertible2CellIso_inserterUMP</span>.
+    <span class="kn">Context</span> {<span class="nv">cone</span> : iso_inserter_cone}
+            (<span class="nv">H</span> : has_iso_inserter_ump cone)
+            {<span class="nv">x</span> : B}
+            {<span class="nv">u₁</span> <span class="nv">u₂</span> : x --&gt; cone}
+            (<span class="nv">α</span> : u₁ · iso_inserter_cone_pr1 cone
+                 ==&gt;
+                 u₂ · iso_inserter_cone_pr1 cone)
+            (<span class="nv">p</span> : rassociator _ _ _
+                 • (u₁ ◃ iso_inserter_cone_cell cone)
+                 • lassociator _ _ _
+                 • (α ▹ g)
+                 =
+                 (α ▹ f)
+                 • rassociator _ _ _
+                 • (u₂ ◃ iso_inserter_cone_cell cone)
+                 • lassociator _ _ _)
+            (<span class="nv">Hα</span> : is_invertible_2cell α).
+
+    <span class="kn">Local Lemma</span> <span class="nf">is_invertible_2cell_iso_inserter_ump_cell_inv_path</span>
+      : rassociator _ _ _
+        • (u₂ ◃ iso_inserter_cone_cell cone)
+        • lassociator _ _ _
+        • (Hα ^-<span class="mi">1</span> ▹ g)
+        =
+        (Hα ^-<span class="mi">1</span> ▹ f)
+        • rassociator _ _ _
+        • (u₁ ◃ iso_inserter_cone_cell cone)
+        • lassociator _ _ _.
+    <span class="kn">Proof</span>.
+      use vcomp_move_R_Mp ; [ is_iso | ].
+      <span class="nb">rewrite</span> !vassocl.
+      use vcomp_move_L_pM ; [ is_iso | ].
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="bp">exact</span> (!p).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">inv</span> : u₂ ==&gt; u₁
+      := iso_inserter_ump_cell
+           H
+           Hα^-<span class="mi">1</span>
+           is_invertible_2cell_iso_inserter_ump_cell_inv_path.
+
+    <span class="kn">Local Lemma</span> <span class="nf">is_invertible_2cell_iso_inserter_ump_cell_inv_right</span>
+      : iso_inserter_ump_cell H α p • inv = id₂ _.
+    <span class="kn">Proof</span>.
+      use (iso_inserter_ump_eq_alt H).
+      - <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">unfold</span> inv.
+        <span class="nb">rewrite</span> !iso_inserter_ump_cell_pr1.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        <span class="nb">rewrite</span> !vcomp_rinv.
+        <span class="nb">rewrite</span> !id2_rwhisker.
+        <span class="nb">rewrite</span> id2_left, id2_right.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+        <span class="nb">unfold</span> inv.
+        <span class="nb">rewrite</span> !iso_inserter_ump_cell_pr1.
+        <span class="nb">rewrite</span> id2_rwhisker.
+        <span class="nb">apply</span> vcomp_rinv.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">is_invertible_2cell_iso_inserter_ump_cell_inv_left</span>
+      : inv • iso_inserter_ump_cell H α p = id₂ _.
+    <span class="kn">Proof</span>.
+      use (iso_inserter_ump_eq_alt H).
+      - <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">unfold</span> inv.
+        <span class="nb">rewrite</span> !iso_inserter_ump_cell_pr1.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        <span class="nb">rewrite</span> !vcomp_linv.
+        <span class="nb">rewrite</span> !id2_rwhisker.
+        <span class="nb">rewrite</span> id2_left, id2_right.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+        <span class="nb">unfold</span> inv.
+        <span class="nb">rewrite</span> !iso_inserter_ump_cell_pr1.
+        <span class="nb">rewrite</span> id2_rwhisker.
+        <span class="nb">apply</span> vcomp_linv.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_invertible_2cell_iso_inserter_ump_cell</span>
+      : is_invertible_2cell (iso_inserter_ump_cell H α p).
+    <span class="kn">Proof</span>.
+      use make_is_invertible_2cell.
+      - <span class="bp">exact</span> inv.
+      - <span class="bp">exact</span> is_invertible_2cell_iso_inserter_ump_cell_inv_right.
+      - <span class="bp">exact</span> is_invertible_2cell_iso_inserter_ump_cell_inv_left.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Invertible2CellIso_inserterUMP</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_has_iso_inserter_ump</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">cone</span> : iso_inserter_cone)
+    : isaprop (has_iso_inserter_ump cone).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> χ₁ χ₂.
+    use pathsdirprod.
+    - use funextsec.
+      <span class="nb">intro</span> q.
+      use path_iso_inserter_1cell.
+      + <span class="nb">apply</span> (isotoid_2_1 HB_2_1).
+        use make_invertible_2cell.
+        * use (iso_inserter_ump_cell χ₁).
+          ** <span class="bp">exact</span> (iso_inserter_1cell_pr1 (pr1 χ₁ q) • (iso_inserter_1cell_pr1 (pr1 χ₂ q))^-<span class="mi">1</span>).
+          ** <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+             <span class="nb">rewrite</span> !vassocl.
+             etrans.
+             {
+               <span class="nb">apply</span> maponpaths.
+               <span class="nb">rewrite</span> !vassocr.
+               <span class="nb">apply</span> maponpaths_2.
+               <span class="bp">exact</span> (iso_inserter_1cell_cell (pr1 χ₁ q)).
+             }
+             <span class="nb">rewrite</span> !vassocr.
+             <span class="nb">rewrite</span> rassociator_lassociator.
+             <span class="nb">rewrite</span> id2_left.
+             <span class="nb">rewrite</span> !vassocl.
+             <span class="nb">apply</span> maponpaths.
+             use vcomp_move_R_Mp ; [ is_iso | ].
+             <span class="nb">cbn</span>.
+             <span class="nb">rewrite</span> !vassocl.
+             <span class="nb">refine</span> (!_).
+             etrans.
+             {
+               <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+               <span class="nb">rewrite</span> !vassocr.
+               <span class="bp">exact</span> (iso_inserter_1cell_cell (pr1 χ₂ q)).
+             }
+             etrans.
+             {
+               <span class="nb">apply</span> maponpaths.
+               <span class="nb">rewrite</span> !vassocr.
+               <span class="nb">rewrite</span> rassociator_lassociator.
+               <span class="nb">rewrite</span> id2_left.
+               <span class="nb">apply</span> idpath.
+             }
+             <span class="nb">rewrite</span> !vassocr.
+             <span class="nb">rewrite</span> rwhisker_vcomp.
+             <span class="nb">rewrite</span> vcomp_linv.
+             <span class="nb">rewrite</span> id2_rwhisker.
+             <span class="nb">apply</span> id2_left.
+        * use is_invertible_2cell_iso_inserter_ump_cell.
+          is_iso.
+          <span class="nb">apply</span> property_from_invertible_2cell.
+      + <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> iso_inserter_ump_cell_pr1.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> vcomp_linv.
+        <span class="nb">rewrite</span> id2_right.
+        <span class="nb">apply</span> idpath.
+    - use pathsdirprod.
+      + use funextsec ; <span class="nb">intro</span> x.
+        use funextsec ; <span class="nb">intro</span> u₁.
+        use funextsec ; <span class="nb">intro</span> u₂.
+        use funextsec ; <span class="nb">intro</span> φ.
+        use funextsec ; <span class="nb">intro</span> p.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> cellset_property.
+        }
+        use (iso_inserter_ump_eq χ₁).
+        * <span class="bp">exact</span> φ.
+        * <span class="bp">exact</span> p.
+        * <span class="bp">exact</span> (pr2 ((pr12 χ₁) x u₁ u₂ φ p)).
+        * <span class="bp">exact</span> (pr2 ((pr12 χ₂) x u₁ u₂ φ p)).
+      + <span class="kp">do</span> <span class="mi">9</span> (use funextsec ; <span class="nb">intro</span>).
+        <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. The universal property gives an equivalence of categories</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_cone_functor_data</span>
+             (<span class="nv">cone</span> : iso_inserter_cone)
+             (<span class="nv">x</span> : B)
+    : functor_data
+        (hom x cone)
+        (cat_iso_inserter (post_comp x f) (post_comp x g)).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">h</span>, h · iso_inserter_cone_pr1 cone
+                   ,,
+                   _).
+      use inv2cell_to_z_iso.
+      use make_invertible_2cell.
+      + <span class="bp">exact</span> (rassociator _ _ _ • (h ◃ iso_inserter_cone_cell cone) • lassociator _ _ _).
+      + is_iso.
+        <span class="nb">apply</span> property_from_invertible_2cell.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">g</span>, g ▹ _ ,, _) ; <span class="nb">cbn</span>.
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> rwhisker_rwhisker_alt ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> vcomp_whisker ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> rwhisker_rwhisker ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_cone_functor_is_functor</span>
+             (<span class="nv">cone</span> : iso_inserter_cone)
+             (<span class="nv">x</span> : B)
+    : is_functor (iso_inserter_cone_functor_data cone x).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span> h.
+      use eq_cat_iso_inserter ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> z₁ z₂ z₃ h₁ h₂.
+      use eq_cat_iso_inserter ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_cone_functor</span>
+             (<span class="nv">cone</span> : iso_inserter_cone)
+             (<span class="nv">x</span> : B)
+    : hom x cone ⟶ cat_iso_inserter (post_comp x f) (post_comp x g).
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="bp">exact</span> (iso_inserter_cone_functor_data cone x).
+    - <span class="bp">exact</span> (iso_inserter_cone_functor_is_functor cone x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_universal_iso_inserter_cone</span>
+             (<span class="nv">cone</span> : iso_inserter_cone)
+    : UU
+    := ∏ (x : B),
+       adj_equivalence_of_cats (iso_inserter_cone_functor cone x).
+
+  <span class="kn">Section</span> <span class="nf">MakeUniversalIso_inserterCone</span>.
+    <span class="kn">Context</span> (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+            (<span class="nv">cone</span> : iso_inserter_cone)
+            (<span class="nv">H</span> : has_iso_inserter_ump cone)
+            (<span class="nv">x</span> : B).
+
+    <span class="kn">Definition</span> <span class="nf">make_is_universal_iso_inserter_cone_full</span>
+      : full (iso_inserter_cone_functor cone x).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> u₁ u₂ α.
+      <span class="nb">pose</span> (p := pr2 α).
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> !vassocr <span class="k">in</span> p.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - use (iso_inserter_ump_cell H).
+        + <span class="bp">exact</span> (pr1 α).
+        + <span class="bp">exact</span> p.
+      - use eq_cat_iso_inserter ; <span class="nb">cbn</span> <span class="k">in</span> *.
+        <span class="nb">apply</span> iso_inserter_ump_cell_pr1.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_is_universal_iso_inserter_cone_faithful</span>
+      : faithful (iso_inserter_cone_functor cone x).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> u₁ u₂ α.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      use (iso_inserter_ump_eq_alt H).
+      - <span class="nb">pose</span> (pr2 α) <span class="k">as</span> p.
+        <span class="nb">cbn</span> <span class="k">in</span> p.
+        <span class="nb">rewrite</span> !vassocr <span class="k">in</span> p.
+        <span class="nb">refine</span> (_ @ p @ _).
+        + <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (maponpaths pr1 (pr2 φ₁)).
+        + <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(maponpaths pr1 (pr2 φ₁))).
+      - <span class="bp">exact</span> (maponpaths pr1 (pr2 φ₁) @ !(maponpaths pr1 (pr2 φ₂))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_is_universal_iso_inserter_cone_essentially_surjective</span>
+      : essentially_surjective (iso_inserter_cone_functor cone x).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> h.
+      use hinhpr.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (iso_inserter_ump_mor H (pr1 h) (pr2 h)).
+      - use z_iso_cat_iso_inserter.
+        + <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+          * <span class="nb">apply</span> iso_inserter_ump_mor_pr1.
+          * <span class="kp">abstract</span>
+              (<span class="nb">cbn</span> ;
+               <span class="nb">rewrite</span> !vassocl ;
+               use vcomp_move_R_pM ; [ is_iso | ] ;
+               <span class="nb">cbn</span> ;
+               <span class="nb">rewrite</span> !vassocr ;
+               <span class="nb">apply</span> iso_inserter_ump_mor_cell).
+        + use is_inv2cell_to_is_z_iso.
+          <span class="nb">apply</span> property_from_invertible_2cell.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MakeUniversalIso_inserterCone</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_is_universal_iso_inserter_cone</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">cone</span> : iso_inserter_cone)
+             (<span class="nv">H</span> : has_iso_inserter_ump cone)
+    : is_universal_iso_inserter_cone cone.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use rad_equivalence_of_cats.
+    - <span class="nb">apply</span> is_univ_hom.
+      <span class="bp">exact</span> HB_2_1.
+    - use full_and_faithful_implies_fully_faithful.
+      <span class="nb">split</span>.
+      + <span class="nb">apply</span> make_is_universal_iso_inserter_cone_full.
+        <span class="nb">apply</span> H.
+      + <span class="nb">apply</span> make_is_universal_iso_inserter_cone_faithful.
+        <span class="nb">apply</span> H.
+    - <span class="nb">apply</span> make_is_universal_iso_inserter_cone_essentially_surjective.
+      <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_is_universal_iso_inserter_cone</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">cone</span> : iso_inserter_cone)
+    : isaprop (is_universal_iso_inserter_cone cone).
+  <span class="kn">Proof</span>.
+    use impred ; <span class="nb">intro</span> x.
+    use isofhlevelweqf.
+    - <span class="bp">exact</span> (@left_adjoint_equivalence
+               bicat_of_univ_cats
+               (univ_hom HB_2_1 x cone)
+               (@univalent_cat_iso_inserter
+                  (univ_hom HB_2_1 _ _)
+                  (univ_hom HB_2_1 _ _)
+                  (post_comp x f)
+                  (post_comp x g))
+               (iso_inserter_cone_functor cone x)).
+    - <span class="bp">exact</span> (@adj_equiv_is_equiv_cat
+               (univ_hom HB_2_1 x cone)
+               (@univalent_cat_iso_inserter
+                  (univ_hom HB_2_1 _ _)
+                  (univ_hom HB_2_1 _ _)
+                  (post_comp x f)
+                  (post_comp x g))
+               (iso_inserter_cone_functor cone x)).
+    - <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+      <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">UniversalConeHasUMP</span>.
+    <span class="kn">Context</span> {<span class="nv">cone</span> : iso_inserter_cone}
+            (<span class="nv">H</span> : is_universal_iso_inserter_cone cone).
+
+    <span class="kn">Section</span> <span class="nf">UMP1</span>.
+      <span class="kn">Context</span> (<span class="nv">q</span> : iso_inserter_cone).
+
+      <span class="kn">Let</span> <span class="nf">alg</span> : cat_iso_inserter (post_comp q f) (post_comp q g)
+        := iso_inserter_cone_pr1 q ,, iso_inserter_cone_cell q.
+
+      <span class="kn">Definition</span> <span class="nf">universal_iso_inserter_cone_has_ump_1_mor</span>
+        : q --&gt; cone
+        := right_adjoint (H q) alg.
+
+      <span class="kn">Definition</span> <span class="nf">universal_iso_inserter_cone_has_ump_1_pr1</span>
+        : invertible_2cell
+            (universal_iso_inserter_cone_has_ump_1_mor · iso_inserter_cone_pr1 cone)
+            (iso_inserter_cone_pr1 q).
+      <span class="kn">Proof</span>.
+        use z_iso_to_inv2cell.
+        <span class="bp">exact</span> (from_z_iso_cat_iso_inserter
+                 (nat_z_iso_pointwise_z_iso
+                    (counit_nat_z_iso_from_adj_equivalence_of_cats (H q))
+                    alg)).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">universal_iso_inserter_cone_has_ump_1_cell</span>
+        : (_ ◃ iso_inserter_cone_cell cone)
+          • lassociator _ _ _
+          • (universal_iso_inserter_cone_has_ump_1_pr1 ▹ g)
+          =
+          lassociator _ _ _
+          • (universal_iso_inserter_cone_has_ump_1_pr1 ▹ f)
+          • iso_inserter_cone_cell q.
+      <span class="kn">Proof</span>.
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(pr2 (counit_from_left_adjoint (pr1 (H q)) alg))).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lassociator_rassociator.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">UMP1</span>.
+
+    <span class="kn">Definition</span> <span class="nf">universal_iso_inserter_cone_has_ump_1</span>
+      : has_iso_inserter_ump_1 cone.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> q.
+      use make_iso_inserter_1cell.
+      - <span class="bp">exact</span> (universal_iso_inserter_cone_has_ump_1_mor q).
+      - <span class="bp">exact</span> (universal_iso_inserter_cone_has_ump_1_pr1 q).
+      - <span class="bp">exact</span> (universal_iso_inserter_cone_has_ump_1_cell q).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Section</span> <span class="nf">UMP2</span>.
+      <span class="kn">Context</span> {<span class="nv">x</span> : B}
+              {<span class="nv">u₁</span> <span class="nv">u₂</span> : x --&gt; cone}
+              (<span class="nv">α</span> : u₁ · iso_inserter_cone_pr1 cone
+                   ==&gt;
+                   u₂ · iso_inserter_cone_pr1 cone)
+              (<span class="nv">p</span> : rassociator _ _ _
+                   • (u₁ ◃ iso_inserter_cone_cell cone)
+                   • lassociator _ _ _
+                   • (α ▹ g)
+                   =
+                   (α ▹ f)
+                   • rassociator _ _ _
+                   • (u₂ ◃ iso_inserter_cone_cell cone)
+                   • lassociator _ _ _).
+
+      <span class="kn">Definition</span> <span class="nf">universal_iso_inserter_cone_has_ump_2_cell</span>
+        : u₁ ==&gt; u₂.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> (invmap (make_weq _ (fully_faithful_from_equivalence _ _ _ (H x) u₁ u₂))).
+        <span class="nb">simple refine</span> (_ ,, _).
+        - <span class="bp">exact</span> α.
+        - <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> !vassocr ;
+             <span class="bp">exact</span> p).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">universal_iso_inserter_cone_has_ump_2_pr1</span>
+        : universal_iso_inserter_cone_has_ump_2_cell ▹ iso_inserter_cone_pr1 cone
+          =
+          α.
+      <span class="kn">Proof</span>.
+        <span class="bp">exact</span> (maponpaths
+                 pr1
+                 (homotweqinvweq
+                    (make_weq _ (fully_faithful_from_equivalence _ _ _ (H x) u₁ u₂))
+                    _)).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">UMP2</span>.
+
+    <span class="kn">Definition</span> <span class="nf">universal_iso_inserter_cone_has_ump_2</span>
+      : has_iso_inserter_ump_2 cone.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x u₁ u₂ α p.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (universal_iso_inserter_cone_has_ump_2_cell α p).
+      - <span class="bp">exact</span> (universal_iso_inserter_cone_has_ump_2_pr1 α p).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">universal_iso_inserter_cone_has_ump_eq</span>
+      : has_iso_inserter_ump_eq cone.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x u₁ u₂ α p φ₁ φ₂ q₁ q₂.
+      use (invmaponpathsweq
+             (make_weq
+                _
+                (fully_faithful_from_equivalence _ _ _ (H x) u₁ u₂))) ; <span class="nb">cbn</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> cellset_property.
+      }
+      <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (q₁ @ !q₂).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">universal_iso_inserter_cone_has_ump</span>
+      : has_iso_inserter_ump cone.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      - <span class="bp">exact</span> universal_iso_inserter_cone_has_ump_1.
+      - <span class="bp">exact</span> universal_iso_inserter_cone_has_ump_2.
+      - <span class="bp">exact</span> universal_iso_inserter_cone_has_ump_eq.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">UniversalConeHasUMP</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_ump_weq_universal</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">cone</span> : iso_inserter_cone)
+    : has_iso_inserter_ump cone ≃ is_universal_iso_inserter_cone cone.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> (make_is_universal_iso_inserter_cone HB_2_1 cone).
+    - <span class="bp">exact</span> universal_iso_inserter_cone_has_ump.
+    - <span class="bp">exact</span> (isaprop_has_iso_inserter_ump HB_2_1 cone).
+    - <span class="bp">exact</span> (isaprop_is_universal_iso_inserter_cone HB_2_1 cone).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">IsoInserters</span>.
+
+<span class="kn">Arguments</span> iso_inserter_cone {_ _ _} _ _.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Bicategories with iso_inserters</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">has_iso_inserters</span>
+           (<span class="nv">B</span> : bicat)
+  : UU
+  := ∏ (b₁ b₂ : B)
+       (f g : b₁ --&gt; b₂),
+     ∑ (i : B)
+       (m : i --&gt; b₁)
+       (α : invertible_2cell (m · f) (m · g)),
+     has_iso_inserter_ump (make_iso_inserter_cone i m α).
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Iso_inserters are faithful</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">iso_inserter_faithful</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : b₁ --&gt; b₂}
+           {<span class="nv">i</span> : B}
+           (<span class="nv">m</span> : i --&gt; b₁)
+           (<span class="nv">α</span> : invertible_2cell (m · f) (m · g))
+           (<span class="nv">H</span> : has_iso_inserter_ump (make_iso_inserter_cone i m α))
+  : faithful_1cell m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x g₁ g₂ β₁ β₂ p.
+  use (iso_inserter_ump_eq_alt H) ; <span class="nb">cbn</span>.
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> rwhisker_rwhisker_alt ;
+       <span class="nb">rewrite</span> !vassocl ;
+       <span class="nb">apply</span> maponpaths ;
+       <span class="nb">rewrite</span> rwhisker_rwhisker ;
+       <span class="nb">rewrite</span> !vassocr ;
+       <span class="nb">apply</span> maponpaths_2 ;
+       <span class="nb">refine</span> (!_) ;
+       <span class="nb">apply</span> vcomp_whisker).
+  - <span class="bp">exact</span> p.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Iso_inserters are conservative</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">Iso_inserterConservative</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+          {<span class="nv">f</span> <span class="nv">g</span> : b₁ --&gt; b₂}
+          {<span class="nv">i</span> : B}
+          (<span class="nv">m</span> : i --&gt; b₁)
+          (<span class="nv">α</span> : invertible_2cell (m · f) (m · g))
+          (<span class="nv">H</span> : has_iso_inserter_ump (make_iso_inserter_cone i m α))
+          {<span class="nv">x</span> : B}
+          {<span class="nv">g₁</span> <span class="nv">g₂</span> : x --&gt; i}
+          (<span class="nv">β</span> : g₁ ==&gt; g₂)
+          (<span class="nv">Hβ</span> : is_invertible_2cell (β ▹ m)).
+
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_conservative_inv</span>
+    : g₂ ==&gt; g₁.
+  <span class="kn">Proof</span>.
+    use (iso_inserter_ump_cell H).
+    - <span class="bp">exact</span> Hβ^-<span class="mi">1</span>.
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> rwhisker_rwhisker ;
+         use vcomp_move_L_pM ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">rewrite</span> rwhisker_rwhisker_alt ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">rewrite</span> vcomp_whisker ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_conservative_rinv</span>
+    : β • iso_inserter_conservative_inv = id₂ _.
+  <span class="kn">Proof</span>.
+    use (iso_inserter_ump_eq_alt H) ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> rwhisker_rwhisker_alt.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> rwhisker_rwhisker.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> vcomp_whisker.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">unfold</span> iso_inserter_conservative_inv.
+      <span class="nb">rewrite</span> (iso_inserter_ump_cell_pr1 H).
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">apply</span> vcomp_rinv.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_inserter_conservative_linv</span>
+    : iso_inserter_conservative_inv • β = id₂ _.
+  <span class="kn">Proof</span>.
+    use (iso_inserter_ump_eq_alt H) ; <span class="nb">cbn</span>.
+    - <span class="nb">rewrite</span> rwhisker_rwhisker_alt.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> rwhisker_rwhisker.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> vcomp_whisker.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">unfold</span> iso_inserter_conservative_inv.
+      <span class="nb">rewrite</span> (iso_inserter_ump_cell_pr1 H).
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">apply</span> vcomp_linv.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Iso_inserterConservative</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_inserter_conservative</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : b₁ --&gt; b₂}
+           {<span class="nv">i</span> : B}
+           (<span class="nv">m</span> : i --&gt; b₁)
+           (<span class="nv">α</span> : invertible_2cell (m · f) (m · g))
+           (<span class="nv">H</span> : has_iso_inserter_ump (make_iso_inserter_cone i m α))
+  : conservative_1cell m.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x g₁ g₂ β Hβ.
+  use make_is_invertible_2cell.
+  - <span class="bp">exact</span> (iso_inserter_conservative_inv m α H β Hβ).
+  - <span class="bp">exact</span> (iso_inserter_conservative_rinv m α H β Hβ).
+  - <span class="bp">exact</span> (iso_inserter_conservative_linv m α H β Hβ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_inserter_discrete</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : b₁ --&gt; b₂}
+           {<span class="nv">i</span> : B}
+           (<span class="nv">m</span> : i --&gt; b₁)
+           (<span class="nv">α</span> : invertible_2cell (m · f) (m · g))
+           (<span class="nv">H</span> : has_iso_inserter_ump (make_iso_inserter_cone i m α))
+  : discrete_1cell m.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (iso_inserter_faithful m α H).
+  - <span class="bp">exact</span> (iso_inserter_conservative m α H).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Limits/IsoInserters.v</tt>, line 14)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Inserters are conservative
+  &gt;
+  &gt;  ****************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

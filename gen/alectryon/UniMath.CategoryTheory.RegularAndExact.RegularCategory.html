@@ -1,0 +1,557 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RegularCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************************</span>
+
+<span class="sd"> Regular categories</span>
+
+<span class="sd"> In this file, we define regular categories. Regular categories are categories with</span>
+<span class="sd"> - finite limits</span>
+<span class="sd"> - coequalizers for kernel pairs</span>
+<span class="sd"> such that regular epimorphisms are stable under pullback.</span>
+
+<span class="sd"> If we have a morphism `f : X --&gt; Y`, then the kernel pair of `f` is the pullback of `f` and</span>
+<span class="sd"> `f`. In Set, this would represent the collection of all `(x , y) : X × Y` such that `f x = f y`.</span>
+<span class="sd"> In a regular category, we can take the coequalizer of the projections in this pullback.</span>
+<span class="sd"> Concretely, this means that we take `Y` where we identify all `f x` and `f y` where `x` and</span>
+<span class="sd"> `y` are in the aforementioned pullback. This construction allows us to factor every morphism</span>
+<span class="sd"> into a regular epimorphism followed by a monomorphism. In fact, this gives rise to an</span>
+<span class="sd"> orthogonal factorization system, because regular epimorphisms have the left lifting property</span>
+<span class="sd"> with respect to all monomorphisms.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - Chapter 2 in "Handbook of Categorical Algebra, Categories and Structures" by Borceux</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Coequalizers of kernel pairs</span>
+<span class="sd"> 2. Regular categories</span>
+<span class="sd"> 3. Morphisms between kernel pairs (Lemma 2.1.2 in Borceux)</span>
+<span class="sd"> 4. Factorization in regular categories</span>
+
+<span class="sd"> ********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EpiFacts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularEpi.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Coequalizers of kernel pairs *)</span>
+<span class="kn">Definition</span> <span class="nf">coeqs_of_kernel_pair</span>
+           (<span class="nv">C</span> : category)
+  : UU
+  := ∏ (x y : C)
+       (f : x --&gt; y)
+       (K : kernel_pair f),
+     Coequalizer (PullbackPr1 K) (PullbackPr2 K).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_coeqs_of_kernel_pair</span>
+            (<span class="nv">C</span> : univalent_category)
+  : isaprop (coeqs_of_kernel_pair C).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">4</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_Coequalizer.
+  <span class="nb">apply</span> univalent_category_is_univalent.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Regular categories *)</span>
+<span class="kn">Definition</span> <span class="nf">is_regular_category</span>
+           (<span class="nv">C</span> : category)
+  : UU
+  := Terminal C
+     ×
+     Pullbacks C
+     ×
+     coeqs_of_kernel_pair C
+     ×
+     regular_epi_pb_stable C.
+
+<span class="kn">Definition</span> <span class="nf">is_regular_category_terminal</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : is_regular_category C)
+  : Terminal C
+  := pr1 HC.
+
+<span class="kn">Definition</span> <span class="nf">is_regular_category_pullbacks</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : is_regular_category C)
+  : Pullbacks C
+  := pr12 HC.
+
+<span class="kn">Definition</span> <span class="nf">is_regular_category_coeqs_of_kernel_pair</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : is_regular_category C)
+  : coeqs_of_kernel_pair C
+  := pr122 HC.
+
+<span class="kn">Definition</span> <span class="nf">is_regular_category_regular_epi_pb_stable</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : is_regular_category C)
+  : regular_epi_pb_stable C
+  := pr222 HC.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_regular_category</span>
+            (<span class="nv">C</span> : univalent_category)
+  : isaprop (is_regular_category C).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use isapropdirprod).
+  - <span class="nb">apply</span> isaprop_Terminal.
+    <span class="nb">apply</span> univalent_category_is_univalent.
+  - <span class="nb">apply</span> isaprop_Pullbacks.
+    <span class="nb">apply</span> univalent_category_is_univalent.
+  - <span class="nb">apply</span> isaprop_coeqs_of_kernel_pair.
+  - <span class="nb">apply</span> isaprop_regular_epi_pb_stable.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Morphisms between kernel pairs (Lemma 2.1.2 in Borceux) *)</span>
+<span class="kn">Section</span> <span class="nf">KernelPairMap</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">PB</span> : Pullbacks C)
+          (<span class="nv">H</span> : regular_epi_pb_stable C)
+          {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+          (<span class="nv">f</span> : x --&gt; y)
+          (<span class="nv">g</span> : y --&gt; z)
+          (<span class="nv">h</span> : x --&gt; z)
+          (<span class="nv">p</span> : f · g = h).
+
+  <span class="kn">Let</span> <span class="nf">Kgg</span> : Pullback g g := PB _ _ _ g g.
+  <span class="kn">Let</span> <span class="nf">Khh</span> : Pullback h h := PB _ _ _ h h.
+
+  <span class="kn">Definition</span> <span class="nf">kernel_pair_map</span>
+    : Khh --&gt; Kgg.
+  <span class="kn">Proof</span>.
+    use PullbackArrow.
+    - <span class="bp">exact</span> (PullbackPr1 Khh · f).
+    - <span class="bp">exact</span> (PullbackPr2 Khh · f).
+    - <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> !p ;
+         <span class="nb">apply</span> PullbackSqrCommutes).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">Kl</span> : Pullback f (PullbackPr1 Kgg) := PB _ _ _ f (PullbackPr1 Kgg).
+  <span class="kn">Let</span> <span class="nf">Kr</span> : Pullback f (PullbackPr2 Kgg) := PB _ _ _ f (PullbackPr2 Kgg).
+
+  <span class="kn">Context</span> (<span class="nv">Hf</span> : is_regular_epi f).
+
+  <span class="kn">Local Lemma</span> <span class="nf">is_regular_epi_left</span>
+    : is_regular_epi (PullbackPr2 Kl).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (H _ _ _ _ _ _ _ _ _ (isPullback_Pullback Kl) Hf).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">is_regular_epi_right</span>
+    : is_regular_epi (PullbackPr2 Kr).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (H _ _ _ _ _ _ _ _ _ (isPullback_Pullback Kr) Hf).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">map_to_pullback_left</span>
+    : Khh --&gt; Kl.
+  <span class="kn">Proof</span>.
+    use PullbackArrow.
+    - <span class="nb">apply</span> PullbackPr1.
+    - <span class="bp">exact</span> kernel_pair_map.
+    - <span class="kp">abstract</span>
+        (<span class="nb">unfold</span> kernel_pair_map ;
+         <span class="nb">rewrite</span> PullbackArrow_PullbackPr1 ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">map_to_pullback_right</span>
+    : Khh --&gt; Kr.
+  <span class="kn">Proof</span>.
+    use PullbackArrow.
+    - <span class="nb">apply</span> PullbackPr2.
+    - <span class="bp">exact</span> kernel_pair_map.
+    - <span class="kp">abstract</span>
+        (<span class="nb">unfold</span> kernel_pair_map ;
+         <span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">map_to_pullback_sqr</span>
+    : map_to_pullback_left · PullbackPr2 Kl
+      =
+      map_to_pullback_right · PullbackPr2 Kr.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> map_to_pullback_left, map_to_pullback_right.
+    <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">IsPullback</span>.
+    <span class="kn">Context</span> {<span class="nv">w</span> : C}
+            (<span class="nv">k₁</span> : w --&gt; Kl)
+            (<span class="nv">k₂</span> : w --&gt; Kr)
+            (<span class="nv">r</span> : k₁ · PullbackPr2 Kl = k₂ · PullbackPr2 Kr).
+
+    <span class="kn">Local Lemma</span> <span class="nf">is_pullback_sqr_mor_eq</span>
+      : k₁ · PullbackPr1 Kl · h = k₂ · PullbackPr1 Kr · h.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> &lt;- !p.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+      <span class="nb">rewrite</span> (PullbackSqrCommutes Kl).
+      <span class="nb">rewrite</span> (PullbackSqrCommutes Kr).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> r.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> PullbackSqrCommutes.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">is_pullback_sqr_mor</span>
+      : w --&gt; Khh.
+    <span class="kn">Proof</span>.
+      use PullbackArrow.
+      - <span class="bp">exact</span> (k₁ · PullbackPr1 Kl).
+      - <span class="bp">exact</span> (k₂ · PullbackPr1 Kr).
+      - <span class="bp">exact</span> is_pullback_sqr_mor_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Proposition</span> <span class="nf">is_pullback_sqr_mor_pr1</span>
+      : is_pullback_sqr_mor · map_to_pullback_left = k₁.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_pullback_sqr_mor, map_to_pullback_left.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback Kl)).
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+        <span class="nb">unfold</span> kernel_pair_map.
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback Kgg)).
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (PullbackSqrCommutes Kl).
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> r.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (PullbackSqrCommutes Kr).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Proposition</span> <span class="nf">is_pullback_sqr_mor_pr2</span>
+      : is_pullback_sqr_mor · map_to_pullback_right = k₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_pullback_sqr_mor, map_to_pullback_right.
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback Kr)).
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+        <span class="nb">unfold</span> kernel_pair_map.
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback Kgg)).
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> (PullbackSqrCommutes Kl).
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- r.
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> !PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (PullbackSqrCommutes Kr).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Proposition</span> <span class="nf">is_pullback_sqr_unique</span>
+      : isaprop
+          (∑ hk,
+           (hk · map_to_pullback_left = k₁)
+           ×
+           (hk · map_to_pullback_right = k₂)).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+      }
+      use (MorphismsIntoPullbackEqual (isPullback_Pullback Khh)).
+      - <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · PullbackPr1 _) (pr12 φ₁ @ !(pr12 φ₂))) <span class="k">as</span> s.
+        <span class="nb">cbn</span> <span class="k">in</span> s.
+        <span class="nb">unfold</span> map_to_pullback_left <span class="k">in</span> s.
+        <span class="nb">rewrite</span> !assoc' <span class="k">in</span> s.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1 <span class="k">in</span> s.
+        <span class="bp">exact</span> s.
+      - <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · PullbackPr1 _) (pr22 φ₁ @ !(pr22 φ₂))) <span class="k">as</span> s.
+        <span class="nb">cbn</span> <span class="k">in</span> s.
+        <span class="nb">unfold</span> map_to_pullback_right <span class="k">in</span> s.
+        <span class="nb">rewrite</span> !assoc' <span class="k">in</span> s.
+        <span class="nb">rewrite</span> PullbackArrow_PullbackPr1 <span class="k">in</span> s.
+        <span class="bp">exact</span> s.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">IsPullback</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">is_pullback_sqr</span>
+    : isPullback map_to_pullback_sqr.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w k₁ k₂ r.
+    use iscontraprop1.
+    - <span class="nb">apply</span> is_pullback_sqr_unique.
+    - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> (is_pullback_sqr_mor k₁ k₂ r).
+      + <span class="nb">apply</span> is_pullback_sqr_mor_pr1.
+      + <span class="nb">apply</span> is_pullback_sqr_mor_pr2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">isEpi_kernel_pair_map</span>
+    : isEpi kernel_pair_map.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (kernel_pair_map = map_to_pullback_right · PullbackPr2 Kr) <span class="k">as</span> q.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+    }
+    <span class="nb">rewrite</span> q.
+    use isEpi_comp.
+    - use is_epi_regular_epi.
+      <span class="bp">exact</span> (H _ _ _ _ _ _ _ _ _ is_pullback_sqr is_regular_epi_left).
+    - use is_epi_regular_epi.
+      <span class="bp">exact</span> is_regular_epi_right.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">KernelPairMap</span>.
+
+<span class="sd">(** * 4. Factorization in regular categories *)</span>
+<span class="kn">Section</span> <span class="nf">Factorization</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">PB</span> : Pullbacks C)
+          (<span class="nv">QC</span> : coeqs_of_kernel_pair C)
+          (<span class="nv">H</span> : regular_epi_pb_stable C)
+          {<span class="nv">x</span> <span class="nv">y</span> : C}
+          (<span class="nv">f</span> : x --&gt; y).
+
+  <span class="kn">Let</span> <span class="nf">K</span> : kernel_pair f := PB _ _ _ f f.
+
+  <span class="kn">Definition</span> <span class="nf">regular_epi_mono_factorization_image</span>
+    : Coequalizer (PullbackPr1 K) (PullbackPr2 K)
+    := QC x y f K.
+
+  <span class="kn">Let</span> <span class="nf">im</span> := regular_epi_mono_factorization_image.
+
+  <span class="kn">Definition</span> <span class="nf">regular_epi_mono_factorization_epi</span>
+    : x --&gt; im
+    := CoequalizerArrow
+         regular_epi_mono_factorization_image.
+
+  <span class="kn">Let</span> <span class="nf">e</span> := regular_epi_mono_factorization_epi.
+
+  <span class="kn">Definition</span> <span class="nf">regular_epi_mono_factorization_mono</span>
+    : im --&gt; y.
+  <span class="kn">Proof</span>.
+    use CoequalizerOut.
+    - <span class="bp">exact</span> f.
+    - <span class="kp">abstract</span>
+        (<span class="nb">apply</span> PullbackSqrCommutes).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">m</span> := regular_epi_mono_factorization_mono.
+
+  <span class="kn">Proposition</span> <span class="nf">regular_epi_mono_factorization_is_regular_epi</span>
+    : is_regular_epi e.
+  <span class="kn">Proof</span>.
+    use hinhpr.
+    <span class="nb">simple refine</span> (_ ,, PullbackPr1 K ,, PullbackPr2 K ,, _ ,, _).
+    - <span class="bp">exact</span> (CoequalizerEqAr im).
+    - <span class="bp">exact</span> (isCoequalizer_Coequalizer im).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Let</span> <span class="nf">K'</span> : kernel_pair m := PB _ _ _ m m.
+
+  <span class="kn">Proposition</span> <span class="nf">regular_epi_mono_factorization_is_regular_is_monic_eq</span>
+    : PullbackPr1 K · CoequalizerArrow im · m = PullbackPr2 K · CoequalizerArrow im · m.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">unfold</span> m, regular_epi_mono_factorization_mono.
+    <span class="nb">rewrite</span> !CoequalizerCommutes.
+    <span class="bp">exact</span> (PullbackSqrCommutes K).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">regular_epi_mono_factorization_comm</span>
+    : f = e · m.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> e, m.
+    <span class="nb">unfold</span> regular_epi_mono_factorization_epi, regular_epi_mono_factorization_mono.
+    <span class="nb">rewrite</span> CoequalizerCommutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">regular_epi_mono_factorization_is_regular_is_monic_mor</span>
+    : PullbackObject K --&gt; PullbackObject K'.
+  <span class="kn">Proof</span>.
+    use kernel_pair_map.
+    - <span class="bp">exact</span> e.
+    - <span class="bp">exact</span> (!regular_epi_mono_factorization_comm).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">φ</span> : PullbackObject K --&gt; PullbackObject K'
+    := regular_epi_mono_factorization_is_regular_is_monic_mor.
+
+  <span class="kn">Local Proposition</span> <span class="nf">is_epi_monic_mor</span>
+    : isEpi φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isEpi_kernel_pair_map.
+    - <span class="bp">exact</span> H.
+    - <span class="bp">exact</span> regular_epi_mono_factorization_is_regular_epi.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">monic_mor_pr1</span>
+    : φ · PullbackPr1 K' = PullbackPr1 K · CoequalizerArrow im.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">monic_mor_pr2</span>
+    : φ · PullbackPr2 K' = PullbackPr2 K · CoequalizerArrow im.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> PullbackArrow_PullbackPr2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">monic_mor_eq</span>
+    : PullbackPr1 K' = PullbackPr2 K'.
+  <span class="kn">Proof</span>.
+    use is_epi_monic_mor.
+    <span class="nb">rewrite</span> monic_mor_pr1, monic_mor_pr2.
+    <span class="bp">exact</span> (CoequalizerEqAr im).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">regular_epi_mono_factorization_is_regular_is_monic</span>
+    : isMonic m.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w g h p.
+    <span class="nb">pose</span> (ζ := PullbackArrow K' _ g h p).
+    <span class="nb">refine</span> (!(PullbackArrow_PullbackPr1 K' _ g h p) @ _).
+    <span class="nb">refine</span> (_ @ PullbackArrow_PullbackPr2 K' _ g h p).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> monic_mor_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">regular_epi_mono_factorization</span>
+    : ∑ (im : C)
+        (e : x --&gt; im)
+        (m : im --&gt; y),
+      is_regular_epi e
+      ×
+      isMonic m
+      ×
+      f = e · m.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, e ,, m ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> regular_epi_mono_factorization_is_regular_epi.
+    - <span class="bp">exact</span> regular_epi_mono_factorization_is_regular_is_monic.
+    - <span class="bp">exact</span> regular_epi_mono_factorization_comm.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Factorization</span>.
+
+<span class="kn">Definition</span> <span class="nf">regular_category_epi_mono_factorization</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">HC</span> : is_regular_category C)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : ∑ (im : C)
+      (e : x --&gt; im)
+      (m : im --&gt; y),
+     is_regular_epi e
+     ×
+     isMonic m
+     ×
+     f = e · m.
+<span class="kn">Proof</span>.
+  use regular_epi_mono_factorization.
+  - <span class="bp">exact</span> (is_regular_category_pullbacks HC).
+  - <span class="bp">exact</span> (is_regular_category_coeqs_of_kernel_pair HC).
+  - <span class="bp">exact</span> (is_regular_category_regular_epi_pb_stable HC).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">Accessors</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">HC</span> : is_regular_category C)
+          {<span class="nv">x</span> <span class="nv">y</span> : C}
+          (<span class="nv">f</span> : x --&gt; y).
+
+  <span class="kn">Definition</span> <span class="nf">regular_category_im</span>
+    : C
+    := pr1 (regular_category_epi_mono_factorization HC f).
+
+  <span class="kn">Definition</span> <span class="nf">regular_category_to_im</span>
+    : x --&gt; regular_category_im
+    := pr12 (regular_category_epi_mono_factorization HC f).
+
+  <span class="kn">Proposition</span> <span class="nf">is_regular_epi_regular_category_to_im</span>
+    : is_regular_epi regular_category_to_im.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr222 (regular_category_epi_mono_factorization HC f))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">regular_category_im_Monic</span>
+    : Monic C regular_category_im y.
+  <span class="kn">Proof</span>.
+    use make_Monic.
+    - <span class="bp">exact</span> (pr122 (regular_category_epi_mono_factorization HC f)).
+    - <span class="bp">exact</span> (pr12 (pr222 (regular_category_epi_mono_factorization HC f))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">regular_category_im_commutes</span>
+    : f = regular_category_to_im · regular_category_im_Monic.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 (pr222 (regular_category_epi_mono_factorization HC f))).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Accessors</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/RegularAndExact/RegularCategory.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Factorization in regular categories
+  &gt;
+  &gt;  ********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

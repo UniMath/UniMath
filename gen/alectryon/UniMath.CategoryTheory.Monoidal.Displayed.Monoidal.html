@@ -1,0 +1,920 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Monoidal.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************</span>
+
+<span class="sd"> Displayed monoidal categories</span>
+
+<span class="sd"> In this file, we define the notion of a displayed monoidal category. The style of</span>
+<span class="sd"> the definition is similar to the definition of a monoidal category.</span>
+
+<span class="sd">Note: after refactoring on March 10, 2023, the prior Git history of this development is found via</span>
+<span class="sd">git log -- UniMath/CategoryTheory/Monoidal/DisplayedMonoidalWhiskered.v</span>
+
+<span class="sd"> *********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Import</span> DisplayedBifunctorNotations.
+
+<span class="kn">Section</span> <span class="nf">DisplayedMonoidalCategories</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_tensor</span>
+             {<span class="nv">C</span> : category}
+             (<span class="nv">D</span> : disp_cat C)
+             (<span class="nv">M</span> : monoidal C)
+    : UU
+    := disp_bifunctor M D D D.
+
+  <span class="kn">Identity Coercion</span> <span class="nf">disptensor_into_dispbifunctor</span> : disp_tensor &gt;-&gt; disp_bifunctor.
+
+  <span class="kn">Definition</span> <span class="nf">disp_leftunitor_data</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DT</span> : disp_tensor D M)
+             (<span class="nv">i</span> : D I_{M})
+    : UU
+    := ∏ (x : C) (xx : D x), i ⊗⊗_{DT} xx --&gt;[lu^{M}_{x}] xx.
+
+  <span class="kn">Definition</span> <span class="nf">disp_leftunitorinv_data</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DT</span> : disp_tensor D M)
+             (<span class="nv">i</span> : D I_{M})
+    : UU
+    := ∏ (x : C) (xx : D x), xx --&gt;[luinv^{M}_{x}] i ⊗⊗_{DT} xx.
+
+  <span class="kn">Definition</span> <span class="nf">disp_rightunitor_data</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DT</span> : disp_tensor D M)
+             (<span class="nv">i</span> : D I_{M})
+    : UU
+    := ∏ (x : C) (xx : D x), xx ⊗⊗_{DT} i --&gt;[ru^{M}_{x}] xx.
+
+  <span class="kn">Definition</span> <span class="nf">disp_rightunitorinv_data</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DT</span> : disp_tensor D M)
+             (<span class="nv">i</span> : D I_{M})
+    : UU
+    := ∏ (x : C) (xx : D x), xx --&gt;[ruinv^{M}_{x}] xx ⊗⊗_{DT} i.
+
+  <span class="kn">Definition</span> <span class="nf">disp_associator_data</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DT</span> : disp_tensor D M)
+    : UU
+    := ∏ (x y z : C) (xx : D x) (yy : D y) (zz : D z),
+       (xx ⊗⊗_{DT} yy) ⊗⊗_{DT} zz
+       --&gt;[α^{M}_{x,y,z}]
+       xx ⊗⊗_{DT} (yy ⊗⊗_{DT} zz).
+
+  <span class="kn">Definition</span> <span class="nf">disp_associatorinv_data</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DT</span> : disp_tensor D M)
+    : UU
+    := ∏ (x y z : C) (xx : D x) (yy : D y) (zz : D z),
+       xx ⊗⊗_{DT} (yy ⊗⊗_{DT} zz)
+       --&gt;[αinv_{M} x y z]
+       (xx ⊗⊗_{DT} yy) ⊗⊗_{DT} zz.
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_data</span>
+             {<span class="nv">C</span> : category}
+             (<span class="nv">D</span> : disp_cat C)
+             (<span class="nv">M</span> : monoidal C)
+    : UU
+    := ∑ (DT : disp_tensor D M)
+         (i : D I_{M}),
+       (disp_leftunitor_data DT i)
+       × (disp_leftunitorinv_data DT i)
+       × (disp_rightunitor_data DT i)
+       × (disp_rightunitorinv_data DT i)
+       × (disp_associator_data DT)
+       × (disp_associatorinv_data DT).
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_monoidal_data_groupoidal</span>
+             {<span class="nv">C</span> : category}
+             (<span class="nv">D</span> : disp_cat C)
+             (<span class="nv">gdisp</span> : groupoidal_disp_cat D)
+             (<span class="nv">M</span> : monoidal C)
+             (<span class="nv">DT</span> : disp_tensor D M)
+             (<span class="nv">i</span> : D I_{M})
+             (<span class="nv">dlu</span> : disp_leftunitor_data DT i)
+             (<span class="nv">dru</span> : disp_rightunitor_data DT i)
+             (<span class="nv">dα</span> : disp_associator_data DT)
+    : disp_monoidal_data D M.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">DT</span>. <span class="k">exists</span> <span class="nv">i</span>. <span class="k">exists</span> <span class="nv">dlu</span>.
+    use tpair.
+    { <span class="nb">intros</span> x xx.
+      <span class="nb">set</span> (aux := gdisp _ _ _ (pr2 (leftunitor_nat_z_iso M) x) _ _ (dlu x xx)).
+      <span class="bp">exact</span> (pr1 aux).
+    }
+    <span class="k">exists</span> <span class="nv">dru</span>.
+    use tpair.
+    { <span class="nb">intros</span> x xx.
+      <span class="nb">set</span> (aux := gdisp _ _ _ (pr2 (rightunitor_nat_z_iso M) x) _ _ (dru x xx)).
+      <span class="bp">exact</span> (pr1 aux).
+    }
+    <span class="k">exists</span> <span class="nv">dα</span>.
+    <span class="nb">intros</span> x y z xx yy zz.
+    <span class="nb">set</span> (aux := gdisp _ _ _ (pr2 (z_iso_from_associator_iso M x y z)) _ _ (dα x y z xx yy zz)).
+    <span class="bp">exact</span> (pr1 aux).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_tensor</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DMD</span> : disp_monoidal_data D M)
+    : disp_tensor D M
+    := pr1 DMD.
+
+  <span class="kn">Coercion</span> <span class="nf">disp_monoidal_tensor</span> : disp_monoidal_data &gt;-&gt; disp_tensor.
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_unit</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DMD</span> : disp_monoidal_data D M)
+    : D I_{M}
+    := pr12 DMD.
+
+  <span class="kn">Notation</span> <span class="s2">"dI_{ DMD }"</span> := (disp_monoidal_unit DMD).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_leftunitor</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DMD</span> : disp_monoidal_data D M)
+    : disp_leftunitor_data DMD dI_{DMD}
+    := pr122 DMD.
+
+  <span class="kn">Notation</span> <span class="s2">"dlu_{ DMD }"</span> := (disp_monoidal_leftunitor DMD).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_leftunitorinv</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DMD</span> : disp_monoidal_data D M)
+    : disp_leftunitorinv_data DMD dI_{DMD}
+    := pr1 (pr222 DMD).
+
+  <span class="kn">Notation</span> <span class="s2">"dluinv_{ DMD }"</span> := (disp_monoidal_leftunitorinv DMD).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_rightunitor</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DMD</span> : disp_monoidal_data D M)
+    : disp_rightunitor_data DMD dI_{DMD}
+    := pr12 (pr222 DMD).
+
+  <span class="kn">Notation</span> <span class="s2">"dru_{ DMD }"</span> := (disp_monoidal_rightunitor DMD).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_rightunitorinv</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DMD</span> : disp_monoidal_data D M)
+    : disp_rightunitorinv_data DMD dI_{DMD}
+    := pr122 (pr222 DMD).
+
+  <span class="kn">Notation</span> <span class="s2">"druinv_{ DMD }"</span> := (disp_monoidal_rightunitorinv DMD).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_associator</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DMD</span> : disp_monoidal_data D M)
+    : disp_associator_data DMD
+    := pr1 (pr222 (pr222 DMD)).
+
+  <span class="kn">Notation</span> <span class="s2">"dα_{ DMD }"</span> := (disp_monoidal_associator DMD).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_associatorinv</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DMD</span> : disp_monoidal_data D M)
+    : disp_associatorinv_data DMD
+    := pr2 (pr222 (pr222 DMD)).
+
+  <span class="kn">Notation</span> <span class="s2">"dαinv_{ DMD }"</span> := (disp_monoidal_associatorinv DMD).
+
+  <span class="sd">(** PROPERTIES **)</span>
+
+  <span class="kn">Definition</span> <span class="nf">disp_leftunitor_nat</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             (<span class="nv">dlu</span> : disp_leftunitor_data DT i)
+    : UU
+    := ∏ (x y : C)
+         (f : C⟦x,y⟧)
+         (xx : D x) (yy : D y)
+         (ff : xx --&gt;[f] yy),
+       (i ⊗⊗^{DT}_{l} ff) ;; (dlu y yy)
+       =
+       transportb
+         _
+         (pr1 (monoidal_leftunitorlaw M) _ _ _)
+         (dlu x xx ;; ff).
+
+  <span class="kn">Definition</span> <span class="nf">disp_leftunitor_iso</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             (<span class="nv">dlu</span> : disp_leftunitor_data DT i)
+             (<span class="nv">dluinv</span> : disp_leftunitorinv_data DT i)
+    : UU
+    := ∏ (x : C) (xx : D x),
+       is_disp_inverse
+         (pr2 (monoidal_leftunitorlaw M) x)
+         (dlu x xx)
+         (dluinv x xx).
+
+  <span class="kn">Definition</span> <span class="nf">disp_leftunitor_law</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             (<span class="nv">dlu</span> : disp_leftunitor_data DT i)
+             (<span class="nv">dluinv</span> : disp_leftunitorinv_data DT i)
+    : UU
+    := disp_leftunitor_nat dlu × disp_leftunitor_iso dlu dluinv.
+
+  <span class="kn">Definition</span> <span class="nf">disp_leftunitorlaw_nat</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             {<span class="nv">dlu</span> : disp_leftunitor_data DT i}
+             {<span class="nv">dluinv</span> : disp_leftunitorinv_data DT i}
+             (<span class="nv">dlun</span> : disp_leftunitor_law dlu dluinv)
+    : disp_leftunitor_nat dlu
+    := pr1 dlun.
+
+  <span class="kn">Definition</span> <span class="nf">disp_leftunitorlaw_iso</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             {<span class="nv">dlu</span> : disp_leftunitor_data DT i}
+             {<span class="nv">dluinv</span> : disp_leftunitorinv_data DT i}
+             (<span class="nv">dlui</span> : disp_leftunitor_law dlu dluinv)
+    : disp_leftunitor_iso dlu dluinv
+    := pr2 dlui.
+
+  <span class="kn">Definition</span> <span class="nf">disp_rightunitor_nat</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             (<span class="nv">dru</span> : disp_rightunitor_data DT i)
+    : UU
+    := ∏ (x y : C)
+         (f : C⟦x,y⟧)
+         (xx : D x) (yy : D y)
+         (ff : xx --&gt;[f] yy),
+       (ff ⊗⊗^{DT}_{r} i) ;; (dru y yy)
+       =
+       transportb
+         _
+         (pr1 (monoidal_rightunitorlaw M) _ _ _)
+         (dru x xx ;; ff).
+
+  <span class="kn">Definition</span> <span class="nf">disp_rightunitor_iso</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             (<span class="nv">dru</span> : disp_rightunitor_data DT i)
+             (<span class="nv">druinv</span> : disp_rightunitorinv_data DT i)
+    : UU
+    := ∏ (x : C) (xx : D x),
+       is_disp_inverse
+         (pr2 (monoidal_rightunitorlaw M) x)
+         (dru x xx)
+         (druinv x xx).
+
+  <span class="kn">Definition</span> <span class="nf">disp_rightunitor_law</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             (<span class="nv">dru</span> : disp_rightunitor_data DT i)
+             (<span class="nv">druinv</span> : disp_rightunitorinv_data DT i)
+    : UU
+    := disp_rightunitor_nat dru × disp_rightunitor_iso dru druinv.
+
+  <span class="kn">Definition</span> <span class="nf">disp_rightunitorlaw_nat</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             {<span class="nv">dru</span> : disp_rightunitor_data DT i}
+             {<span class="nv">druinv</span> : disp_rightunitorinv_data DT i}
+             (<span class="nv">drun</span> : disp_rightunitor_law dru druinv)
+    : disp_rightunitor_nat dru
+    := pr1 drun.
+
+  <span class="kn">Definition</span> <span class="nf">disp_rightunitorlaw_iso</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             {<span class="nv">dru</span> : disp_rightunitor_data DT i}
+             {<span class="nv">druinv</span> : disp_rightunitorinv_data DT i}
+             (<span class="nv">drui</span> : disp_rightunitor_law dru druinv)
+    : disp_rightunitor_iso dru druinv
+    := pr2 drui.
+
+  <span class="kn">Definition</span> <span class="nf">disp_associator_nat_leftwhisker</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             (<span class="nv">dα</span> : disp_associator_data DT)
+    : UU
+    := ∏ (x y z1 z2 : C)
+         (h : C⟦z1,z2⟧)
+         (xx : D x)
+         (yy : D y)
+         (zz1 : D z1)
+         (zz2 : D z2)
+         (hh : zz1--&gt;[h] zz2),
+       (dα _ _ _ xx yy zz1) ;; (xx ⊗⊗^{DT}_{l} (yy ⊗⊗^{DT}_{l} hh))
+       =
+       transportb
+         _
+         ((associatorlaw_natleft (monoidal_associatorlaw M)) x y z1 z2 h)
+         (((xx ⊗⊗_{DT} yy) ⊗⊗^{DT}_{l} hh) ;; (dα _ _ _ xx yy zz2)).
+
+  <span class="kn">Definition</span> <span class="nf">disp_associator_nat_rightwhisker</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             (<span class="nv">dα</span> : disp_associator_data DT)
+    : UU
+    := ∏ (x1 x2 y z : C)
+         (f : C⟦x1,x2⟧)
+         (xx1 : D x1) (xx2 : D x2) (yy : D y) (zz : D z)
+         (ff : xx1--&gt;[f] xx2),
+       (dα _ _ _ xx1 yy zz) ;; (ff ⊗⊗^{DT}_{r} (yy ⊗⊗_{DT} zz))
+       =
+       transportb
+         _
+         ((associatorlaw_natright (monoidal_associatorlaw M)) x1 x2 y z f)
+         (((ff ⊗⊗^{DT}_{r} yy) ⊗⊗^{DT}_{r} zz) ;; (dα _ _ _ xx2 yy zz)).
+
+  <span class="kn">Definition</span> <span class="nf">disp_associator_nat_leftrightwhisker</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             (<span class="nv">dα</span> : disp_associator_data DT)
+    : UU
+    := ∏ (x y1 y2 z : C)
+         (g : C⟦y1,y2⟧)
+         (xx : D x) (yy1 : D y1) (yy2 : D y2) (zz : D z)
+         (gg : yy1--&gt;[g] yy2),
+       (dα _ _ _ xx yy1 zz) ;; (xx ⊗⊗^{DT}_{l} (gg ⊗⊗^{DT}_{r} zz))
+       =
+       transportb
+         _
+         ((associatorlaw_natleftright (monoidal_associatorlaw M)) x y1 y2 z g)
+         (((xx ⊗⊗^{DT}_{l} gg) ⊗⊗^{DT}_{r} zz) ;; (dα _ _ _ xx yy2 zz)).
+
+  <span class="kn">Definition</span> <span class="nf">disp_associator_nat'</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">dα</span> : disp_associator_data DT}
+             (<span class="nv">dtl</span> :  disp_associator_nat_leftwhisker dα)
+             (<span class="nv">dtr</span> : disp_associator_nat_rightwhisker dα)
+             (<span class="nv">dtlr</span> : disp_associator_nat_leftrightwhisker dα)
+    : ∏ (x1 x2 y1 y2 z1 z2 : C)
+        (xx1 : D x1) (xx2 : D x2)
+        (yy1 : D y1) (yy2 : D y2)
+        (zz1 : D z1) (zz2 : D z2)
+        (f : C⟦x1,x2⟧)
+        (g : C⟦y1,y2⟧)
+        (h : C⟦z1,z2⟧)
+        (ff : xx1--&gt;[f] xx2)
+        (gg : yy1 --&gt;[g] yy2)
+        (hh : zz1 --&gt;[h] zz2),
+       ((dα _ _ _ xx1 yy1 zz1) ;; (ff ⊗⊗^{DT} (gg ⊗⊗^{DT} hh)))
+       =
+       transportb
+         _
+         (associator_nat2
+            M
+            f g h)
+         (((ff ⊗⊗^{DT} gg) ⊗⊗^{DT} hh) ;; dα _ _ _ xx2 yy2 zz2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    <span class="nb">unfold</span> dispfunctoronmorphisms1.
+    etrans. { <span class="nb">apply</span> assoc_disp. }
+    <span class="nb">rewrite</span> dtr.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    }
+    <span class="nb">rewrite</span> transport_b_f.
+    <span class="nb">apply</span> transportf_transpose_left.
+    etrans. { <span class="nb">apply</span> assoc_disp_var. }
+    <span class="nb">apply</span> transportf_transpose_left.
+    <span class="nb">rewrite</span> transport_b_b.
+    <span class="nb">rewrite</span> transport_b_b.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths_1.
+      <span class="nb">apply</span> maponpaths_1.
+      <span class="nb">apply</span> disp_bifunctor_leftcomp.
+    }
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mor_disp_transportf_prewhisker.
+    }
+    etrans. {
+      <span class="nb">apply</span> maponpaths_1.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">rewrite</span> dtlr.
+      <span class="nb">apply</span> transport_f_b.
+    }
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    }
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> transport_f_f.
+    }
+    etrans. { <span class="nb">apply</span> mor_disp_transportf_prewhisker. }
+    <span class="nb">apply</span> transportf_transpose_left.
+
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_1.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">apply</span> maponpaths_1.
+      <span class="nb">apply</span> maponpaths_1.
+      <span class="nb">apply</span> dtl.
+    }
+    etrans. { <span class="nb">apply</span> mor_disp_transportf_prewhisker. }
+    <span class="nb">apply</span> transportf_transpose_left.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mor_disp_transportf_prewhisker.
+    }
+    etrans. { <span class="nb">apply</span> mor_disp_transportf_prewhisker. }
+    <span class="nb">apply</span> transportf_transpose_left.
+    <span class="nb">rewrite</span> assoc_disp.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (pathsinv0
+               (transportb_transpose_left
+                  (disp_bifunctor_rightcomp DT _ _ _ _ _ _ _ _ _ _ _ _))).
+    }
+    <span class="nb">rewrite</span> transport_b_b.
+    <span class="nb">rewrite</span> transport_b_b.
+    <span class="nb">rewrite</span> transport_b_b.
+    etrans. {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    }
+    <span class="nb">rewrite</span> transport_b_f.
+    <span class="nb">apply</span> transportf_transpose_left.
+    <span class="nb">rewrite</span> transport_b_b.
+
+    etrans. { <span class="nb">apply</span> assoc_disp. }
+    <span class="nb">apply</span> transportb_transpose_left.
+
+
+    use pathsinv0.
+    <span class="nb">rewrite</span> transport_f_b.
+    <span class="nb">apply</span> transportf_set.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_associator_iso</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             (<span class="nv">dα</span> : disp_associator_data DT)
+             (<span class="nv">dαinv</span> : disp_associatorinv_data DT)
+    : UU
+    := ∏ (x y z : C)
+         (xx : D x)
+         (yy : D y)
+         (zz : D z),
+       is_disp_inverse
+         (pr222 (monoidal_associatorlaw M) x y z)
+         (dα _ _ _ xx yy zz)
+         (dαinv _ _ _ xx yy zz).
+
+  <span class="kn">Definition</span> <span class="nf">disp_associator_law</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             (<span class="nv">dα</span> : disp_associator_data DT)
+             (<span class="nv">dαinv</span> : disp_associatorinv_data DT)
+    : UU
+    := (disp_associator_nat_leftwhisker dα)
+       × (disp_associator_nat_rightwhisker dα)
+       × (disp_associator_nat_leftrightwhisker dα)
+       × (disp_associator_iso dα dαinv).
+
+  <span class="kn">Definition</span> <span class="nf">disp_associatorlaw_natleft</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">dα</span> : disp_associator_data DT}
+             {<span class="nv">dαinv</span> : disp_associatorinv_data DT}
+             (<span class="nv">dαl</span> : disp_associator_law dα dαinv)
+    : disp_associator_nat_leftwhisker dα
+    := pr1 dαl.
+
+  <span class="kn">Definition</span> <span class="nf">disp_associatorlaw_natright</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">dα</span> : disp_associator_data DT}
+             {<span class="nv">dαinv</span> : disp_associatorinv_data DT}
+             (<span class="nv">dαl</span> : disp_associator_law dα dαinv)
+    : disp_associator_nat_rightwhisker dα
+    := pr12 dαl.
+
+  <span class="kn">Definition</span> <span class="nf">disp_associatorlaw_natleftright</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">dα</span> : disp_associator_data DT}
+             {<span class="nv">dαinv</span> : disp_associatorinv_data DT}
+             (<span class="nv">dαl</span> : disp_associator_law dα dαinv)
+    : disp_associator_nat_leftrightwhisker dα
+    := pr122 dαl.
+
+  <span class="kn">Definition</span> <span class="nf">disp_associatorlaw_iso</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">dα</span> : disp_associator_data DT}
+             {<span class="nv">dαinv</span> : disp_associatorinv_data DT}
+             (<span class="nv">dαl</span> : disp_associator_law dα dαinv)
+    : disp_associator_iso dα dαinv
+    := pr222 dαl.
+
+  <span class="kn">Definition</span> <span class="nf">disp_triangle_identity</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             {<span class="nv">i</span> : D I_{M}}
+             (<span class="nv">dlu</span> : disp_leftunitor_data DT i)
+             (<span class="nv">dru</span> : disp_rightunitor_data DT i)
+             (<span class="nv">dα</span> : disp_associator_data DT)
+    : UU
+    := ∏ (x y : C) (xx : D x) (yy : D y),
+       ((dα x I_{M} y xx i yy) ;; (xx ⊗⊗^{DT}_{l} dlu y yy ))
+       =
+       transportb
+         _
+         ((monoidal_triangleidentity M) x y)
+         ((dru x xx) ⊗⊗^{DT}_{r} yy).
+
+  <span class="kn">Definition</span> <span class="nf">disp_pentagon_identity</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             {<span class="nv">DT</span> : disp_tensor D M}
+             (<span class="nv">dα</span> : disp_associator_data DT)
+    : UU
+    := ∏ (w x y z : C)
+         (ww : D w)
+         (xx : D x)
+         (yy : D y)
+         (zz : D z),
+       ((dα _ _ _ ww xx yy) ⊗⊗^{DT}_{r} zz)
+       ;; (dα _ _ _ ww (xx ⊗⊗_{DT} yy) zz)
+       ;; (ww ⊗⊗^{DT}_{l} (dα _ _ _ xx yy zz))
+       =
+       transportb
+         _
+         ((monoidal_pentagonidentity M) w x y z)
+         ((dα _ _ _ (ww ⊗⊗_{DT} xx) yy zz) ;; (dα _ _ _ ww xx (yy ⊗⊗_{DT} zz))).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_laws</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DMD</span> : disp_monoidal_data D M)
+    : UU
+    := (disp_leftunitor_law dlu_{DMD} dluinv_{DMD})
+       × (disp_rightunitor_law dru_{DMD} druinv_{DMD})
+       × (disp_associator_law dα_{DMD} dαinv_{DMD})
+       × (disp_triangle_identity dlu_{DMD} dru_{DMD} dα_{DMD})
+       × (disp_pentagon_identity dα_{DMD}).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal</span>
+             {<span class="nv">C</span> : category}
+             (<span class="nv">D</span> : disp_cat C)
+             (<span class="nv">M</span> : monoidal C)
+    : UU
+    := ∑ (MD : disp_monoidal_data D M), (disp_monoidal_laws MD).
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_monoidal_locally_prop</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             (<span class="nv">LP</span> : locally_propositional D)
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DMD</span> : disp_monoidal_data D M)
+    : disp_monoidal D M.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">DMD</span>.
+    <span class="kp">abstract</span> (<span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> LP).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_monoidal_groupoidal</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             (<span class="nv">gdisp</span> : groupoidal_disp_cat D)
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DT</span> : disp_tensor D M)
+             (<span class="nv">i</span> : D I_{M})
+             (<span class="nv">dlu</span> : disp_leftunitor_data DT i)
+             (<span class="nv">dru</span> : disp_rightunitor_data DT i)
+             (<span class="nv">dα</span> : disp_associator_data DT) :
+    <span class="k">let</span> <span class="nv">DMD</span> := make_disp_monoidal_data_groupoidal D gdisp M DT i dlu dru dα <span class="k">in</span>
+           ∏ (dlu_nat : disp_leftunitor_nat dlu_{DMD})
+             (dru_nat : disp_rightunitor_nat dru_{DMD})
+             (dα_nat_left : disp_associator_nat_leftwhisker dα_{DMD})
+             (dα_nat_right : disp_associator_nat_rightwhisker dα_{DMD})
+             (dα_nat_left_right : disp_associator_nat_leftrightwhisker dα_{DMD})
+             (dtriangle : disp_triangle_identity dlu_{DMD} dru_{DMD} dα_{DMD})
+             (dpentagon : disp_pentagon_identity dα_{DMD}),
+      disp_monoidal D M.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span>.
+    use tpair.
+    - <span class="bp">exact</span> DMD.
+    - split5.
+      + <span class="nb">split</span>.
+        * <span class="bp">exact</span> dlu_nat.
+        * <span class="nb">intros</span> x xx.
+          <span class="nb">set</span> (aux := gdisp _ _ _ (pr2 (leftunitor_nat_z_iso M) x) _ _ (dlu x xx)).
+          <span class="bp">exact</span> (pr2 aux).
+      + <span class="nb">split</span>.
+        * <span class="bp">exact</span> dru_nat.
+        * <span class="nb">intros</span> x xx.
+          <span class="nb">set</span> (aux := gdisp _ _ _ (pr2 (rightunitor_nat_z_iso M) x) _ _ (dru x xx)).
+          <span class="bp">exact</span> (pr2 aux).
+      + split4.
+        * <span class="bp">exact</span> dα_nat_left.
+        * <span class="bp">exact</span> dα_nat_right.
+        * <span class="bp">exact</span> dα_nat_left_right.
+        * <span class="nb">intros</span> x y z xx yy zz.
+          <span class="nb">set</span> (aux := gdisp _ _ _ (pr2 (z_iso_from_associator_iso M x y z)) _ _ (dα x y z xx yy zz)).
+          <span class="bp">exact</span> (pr2 aux).
+      + <span class="bp">exact</span> dtriangle.
+      + <span class="bp">exact</span> dpentagon.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_mondata</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_monoidal_data D M
+    := pr1 DM.
+
+  <span class="kn">Coercion</span> <span class="nf">disp_monoidal_mondata</span> : disp_monoidal &gt;-&gt; disp_monoidal_data.
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_monlaws</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_monoidal_laws DM
+    := pr2 DM.
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_leftunitorlaw</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_leftunitor_law dlu_{DM} dluinv_{DM}
+    := pr1 (disp_monoidal_monlaws DM).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_leftunitornat</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_leftunitor_nat dlu_{DM}
+    := disp_leftunitorlaw_nat (disp_monoidal_leftunitorlaw DM).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_leftunitoriso</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_leftunitor_iso dlu_{DM} dluinv_{DM}
+    := disp_leftunitorlaw_iso (disp_monoidal_leftunitorlaw DM).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_rightunitorlaw</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_rightunitor_law dru_{DM} druinv_{DM}
+    := pr12 (disp_monoidal_monlaws DM).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_rightunitornat</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_rightunitor_nat dru_{DM}
+    := disp_rightunitorlaw_nat (disp_monoidal_rightunitorlaw DM).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_rightunitoriso</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_rightunitor_iso dru_{DM} druinv_{DM}
+    := disp_rightunitorlaw_iso (disp_monoidal_rightunitorlaw DM).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_associatorlaw</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_associator_law dα_{DM} dαinv_{DM}
+    := pr122 (disp_monoidal_monlaws DM).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_associatornatleft</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_associator_nat_leftwhisker dα_{DM}
+    := disp_associatorlaw_natleft (disp_monoidal_associatorlaw DM).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_associatornatright</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_associator_nat_rightwhisker dα_{DM}
+    := disp_associatorlaw_natright (disp_monoidal_associatorlaw DM).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_associatornatleftright</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_associator_nat_leftrightwhisker dα_{DM}
+    := disp_associatorlaw_natleftright (disp_monoidal_associatorlaw DM).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_associatoriso</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_associator_iso dα_{DM} dαinv_{DM}
+    := disp_associatorlaw_iso (disp_monoidal_associatorlaw DM).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_triangleidentity</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_triangle_identity dlu_{DM} dru_{DM} dα_{DM}
+    := pr1 (pr222 (disp_monoidal_monlaws DM)).
+
+  <span class="kn">Definition</span> <span class="nf">disp_monoidal_pentagonidentity</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">M</span> : monoidal C}
+             (<span class="nv">DM</span> : disp_monoidal D M)
+    : disp_pentagon_identity dα_{DM}
+    := pr2 (pr222 (disp_monoidal_monlaws DM)).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_disp_monoidal_laws</span>
+        {<span class="nv">C</span> : category}
+        {<span class="nv">D</span> : disp_cat C}
+        {<span class="nv">M</span> : monoidal C}
+        (<span class="nv">DM</span> : disp_monoidal_data D M)
+    : isaprop (disp_monoidal_laws DM).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod)
+    ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>)
+    ; <span class="kp">repeat</span> (<span class="kp">try</span> <span class="nb">apply</span> D)
+    ; <span class="kp">repeat</span> (<span class="nb">apply</span> isaprop_is_disp_inverse).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">DisplayedMonoidalCategories</span>.
+
+<span class="kn">Module</span> <span class="nf">DisplayedMonoidalNotations</span>.
+  <span class="kn">Notation</span> <span class="s2">"dI_{ M }"</span> := (disp_monoidal_unit M).
+  <span class="kn">Notation</span> <span class="s2">"dlu^{ M }"</span> := (disp_monoidal_leftunitor M).
+  <span class="kn">Notation</span> <span class="s2">"dru^{ M }"</span> := (disp_monoidal_rightunitor M).
+  <span class="kn">Notation</span> <span class="s2">"dα^{ M }"</span> := (disp_monoidal_associator M).
+
+  <span class="kn">Notation</span> <span class="s2">"dluinv^{ M }"</span> := (disp_monoidal_leftunitorinv M).
+  <span class="kn">Notation</span> <span class="s2">"druinv^{ M }"</span> := (disp_monoidal_rightunitorinv M).
+  <span class="kn">Notation</span> <span class="s2">"dαinv^{ M }"</span> := (disp_monoidal_associatorinv M).
+
+  <span class="kn">Notation</span> <span class="s2">"dlu^{ M }_{ xx }"</span> := (disp_monoidal_leftunitor M _ xx).
+  <span class="kn">Notation</span> <span class="s2">"dru^{ M }_{ xx }"</span> := (disp_monoidal_rightunitor M _ xx).
+  <span class="kn">Notation</span> <span class="s2">"dα^{ M }_{ xx , yy , zz }"</span> := (disp_monoidal_associator M _ _ _ xx yy zz).
+
+  <span class="kn">Notation</span> <span class="s2">"dluinv^{ M }_{ xx }"</span> := (disp_monoidal_leftunitorinv M _ xx).
+  <span class="kn">Notation</span> <span class="s2">"druinv^{ M }_{ xx }"</span> := (disp_monoidal_rightunitorinv M _ xx).
+  <span class="kn">Notation</span> <span class="s2">"dαinv^{ M }_{ xx , yy , zz }"</span> := (disp_monoidal_associatorinv M _ _ _ xx yy zz).
+<span class="kn">End</span> <span class="nf">DisplayedMonoidalNotations</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Displayed/Monoidal.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; git log -- UniMath/CategoryTheory/Monoidal/DisplayedMonoidalWhiskered.v
+  &gt;
+  &gt;  *********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

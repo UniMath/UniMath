@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CoAdamek.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Adámek's theorem</span>
+
+<span class="sd">The main result is Adámek's theorem for constructing terminal coalgebras of</span>
+<span class="sd">omega-continuous functors which is used to construct coinductive types.</span>
+
+<span class="sd">Written by: Kobe Wullaert, 2022</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Propositions.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCoalgebras.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Cochains.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">lim_terminal_coalgebra</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">TerminalC</span> : Terminal C).
+<span class="kn">Context</span> {<span class="nv">F</span> : functor C C} (<span class="nv">HF</span> : is_omega_cont F).
+
+<span class="kn">Let</span> <span class="nf">Fcochain</span> : cochain C := termCochain TerminalC F.
+
+<span class="kn">Variable</span> (<span class="nv">CC</span> : LimCone Fcochain).
+
+<span class="kn">Let</span> <span class="nf">L</span> : C := lim CC.
+<span class="kn">Let</span> <span class="nf">FFcochain</span> : cochain C := mapcochain F Fcochain.
+<span class="kn">Let</span> <span class="nf">Fa</span> : cone FFcochain (F L) := mapcone F _ (limCone CC).
+
+<span class="kn">Let</span> <span class="nf">FHC'</span> : isLimCone FFcochain (F L) Fa :=
+      HF Fcochain L (limCone CC) (isLimCone_LimCone CC).
+<span class="kn">Let</span> <span class="nf">FHC</span> : LimCone FFcochain := make_LimCone _ _ _ FHC'.
+
+<span class="kn">Local Definition</span> <span class="nf">shiftCone</span> : cone FFcochain L.
+<span class="kn">Proof</span>.
+use make_cone.
+- <span class="nb">intro</span> n; <span class="nb">apply</span> (coneOut (limCone CC) (S n)).
+- <span class="nb">intros</span> m n e ; <span class="nb">destruct</span> e.
+  <span class="nb">refine</span> (_ @ coneOutCommutes (limCone CC) _ (S n) (idpath _)).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> ! idpath_transportf.
+  <span class="nb">rewrite</span> ! id_left.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">unshiftCone_forms_cone</span> {<span class="nv">x</span> : C} ( <span class="nv">cc</span> : cone FFcochain x)
+  :  forms_cone Fcochain (<span class="k">λ</span> <span class="nv">n</span> : vertex conat_graph,
+     nat_rect (<span class="k">λ</span> <span class="nv">n0</span> : nat, C ⟦ x, dob Fcochain n0 ⟧) (TerminalArrow TerminalC x)
+              (<span class="k">λ</span> (<span class="nv">n0</span> : nat) (<span class="nv">_</span> : C ⟦ x, dob Fcochain n0 ⟧), coneOut cc n0) n).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> m n e ; <span class="nb">destruct</span> e ; <span class="nb">destruct</span> n <span class="k">as</span> [|n].
+  - <span class="nb">apply</span> TerminalArrowUnique.
+  - <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> idpath_transportf ; <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> (! coneOutCommutes cc _ n  (idpath _)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> idpath_transportf, id_left.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Local Definition</span> <span class="nf">unshiftCone</span> (<span class="nv">x</span> : C) (<span class="nv">cc</span> : cone FFcochain x) : cone Fcochain x.
+<span class="kn">Proof</span>.
+use make_cone.
+- <span class="nb">intro</span> n.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n].
+  + <span class="nb">apply</span> TerminalArrow.
+  + <span class="nb">apply</span> (coneOut cc _).
+- <span class="nb">apply</span> unshiftCone_forms_cone.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">shiftIsLimCone</span> : isLimCone FFcochain L shiftCone.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> x cc; <span class="nb">simpl</span>.
+use tpair.
++ use tpair.
+  * <span class="nb">apply</span> limArrow, (unshiftCone _ cc).
+  * <span class="kp">abstract</span> (<span class="nb">intro</span> n; <span class="nb">apply</span> (limArrowCommutes CC x (unshiftCone x cc) (S n))).
++ <span class="kp">abstract</span> (<span class="nb">intros</span> p; <span class="nb">apply</span> subtypePath;
+             [ <span class="nb">intro</span> f; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property
+             | <span class="nb">apply</span> limArrowUnique; <span class="nb">intro</span> n;
+               <span class="nb">destruct</span> n <span class="k">as</span> [|n]; [ <span class="nb">apply</span> TerminalArrowUnique | <span class="nb">apply</span> (pr2 p) ]]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">shiftLimCone</span> : LimCone FFcochain :=
+  make_LimCone FFcochain L shiftCone shiftIsLimCone.
+
+<span class="kn">Definition</span> <span class="nf">lim_algebra_mor</span> : C⟦L,F L⟧ := limArrow FHC L shiftCone.
+
+<span class="kn">Local Definition</span> <span class="nf">is_z_iso_lim_algebra_mor</span> : is_z_isomorphism lim_algebra_mor :=
+  isLim_is_z_iso _ FHC _ _ shiftIsLimCone.
+
+<span class="kn">Let</span> <span class="nf">α</span> : z_iso L (F L) := make_z_iso' _ is_z_iso_lim_algebra_mor.
+<span class="kn">Let</span> <span class="nf">α_inv</span> : z_iso (F L) L := z_iso_inv_from_z_iso α.
+<span class="kn">Let</span> <span class="nf">α_alg</span> : coalgebra_ob F := tpair (<span class="k">λ</span> <span class="nv">X</span> : C, C ⟦ X , F X⟧) L α.
+
+<span class="kn">Lemma</span> <span class="nf">unfold_inv_from_z_iso_α</span> :
+  inv_from_z_iso α = limArrow shiftLimCone _ (limCone FHC).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Given a coalgebra:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">          a</span>
+<span class="sd">      A ------&gt; F A</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd"> we now define a coalgebra morphism ad:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">        a</span>
+<span class="sd">    A ------&gt;  F A</span>
+<span class="sd">    |          |</span>
+<span class="sd">    | ad       |</span>
+<span class="sd">    |          |</span>
+<span class="sd">    V   α      V</span>
+<span class="sd">    L ------&gt;  F L</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">coalgebra_mor</span>.
+
+<span class="kn">Variable</span> (<span class="nv">Aa</span> : coalgebra_ob F).
+
+<span class="kn">Local Notation</span> <span class="nf">A</span> := (coalg_carrier _ Aa).
+<span class="kn">Local Notation</span> <span class="nf">a</span> := (coalg_map _ Aa).
+
+<span class="kn">Local Definition</span> <span class="nf">cone_over_coalg</span> (<span class="nv">n</span> : nat) : C ⟦ A, iter_functor F n TerminalC⟧.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> n <span class="k">as</span> [|n Fn]; <span class="nb">simpl</span>.
+- <span class="nb">apply</span> TerminalArrow.
+- <span class="nb">apply</span> (a · #F Fn).
+<span class="kn">Defined</span>.
+
+<span class="c">(* a_n : F^n 0 -&gt; A *)</span>
+<span class="kn">Local Notation</span> <span class="nf">an</span> := cone_over_coalg.
+
+<span class="kn">Lemma</span> <span class="nf">isConeOverCoalg</span> {<span class="nv">u</span> <span class="nv">v</span> : nat} (<span class="nv">e</span> : S v = u) : an u · dmor Fcochain e = an v.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> e.
+  <span class="nb">induction</span> v <span class="k">as</span> [| n IHn].
+  - <span class="nb">apply</span> TerminalArrowUnique.
+  - <span class="nb">simpl</span> ; <span class="nb">rewrite</span> assoc' ; <span class="nb">apply</span> cancel_precomposition.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths ; <span class="bp">exact</span> IHn. }
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">simpl</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> dmor.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> ! id_left.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="c">(* ad = a† = a dagger *)</span>
+<span class="kn">Local Definition</span> <span class="nf">ad</span> : C⟦A,L⟧.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> limArrow.
+use make_cone.
+- <span class="nb">apply</span> cone_over_coalg.
+- <span class="nb">red</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isConeOverCoalg.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ad_is_coalgebra_mor</span> (<span class="nv">n</span> : nat) :  a · # F ad · inv_from_z_iso α · limOut CC n = an n.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> n <span class="k">as</span> [|n].
+  - <span class="bp">now</span> <span class="nb">apply</span> TerminalArrowUnique.
+  - <span class="nb">rewrite</span> unfold_inv_from_z_iso_α.
+    <span class="nb">eapply</span> pathscomp0.
+    {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (limArrowCommutes shiftLimCone).
+    }
+    <span class="nb">simpl</span>; <span class="nb">rewrite</span> assoc', &lt;- functor_comp.
+    <span class="nb">apply</span> cancel_precomposition, maponpaths, (limArrowCommutes CC).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">ad_mor</span> : coalgebra_mor F Aa α_alg.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">ad</span>.
+  <span class="kp">abstract</span> (<span class="nb">apply</span> pathsinv0, z_iso_inv_to_right, pathsinv0, limArrowUnique; <span class="nb">simpl</span>; <span class="nb">intro</span> n ; <span class="nb">apply</span> ad_is_coalgebra_mor).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">coalgebra_mor</span>.
+
+<span class="kn">Lemma</span> <span class="nf">limCoAlgIsTerminal_subproof</span> (<span class="nv">Aa</span> : CoAlg_category F)
+        (<span class="nv">Fa'</span> : coalgebra_mor F Aa α_alg) : Fa' = ad_mor Aa.
+<span class="kn">Proof</span>.
+  use total2_paths_f.
+  <span class="mi">2</span>: { <span class="nb">apply</span> homset_property. }
+
+  <span class="nb">apply</span> limArrowUnique ; <span class="nb">intro</span> n.
+  <span class="nb">destruct</span> Fa' <span class="k">as</span> [f hf]; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> is_coalgebra_mor <span class="k">in</span> hf; <span class="nb">simpl</span> <span class="k">in</span> hf.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IHn]; <span class="nb">simpl</span>.
+  - <span class="nb">apply</span> TerminalArrowUnique.
+  - <span class="nb">rewrite</span> &lt;- IHn, functor_comp, assoc.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition ; <span class="nb">apply</span> (! hf). }
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ α).
+    <span class="nb">apply</span> (limArrowCommutes shiftLimCone).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">limCoAlgIsTerminal</span> : isTerminal (CoAlg_category F) α_alg.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_isTerminal; <span class="nb">intros</span> Aa.
+  <span class="k">exists</span> (<span class="nv">ad_mor</span> <span class="nv">Aa</span>).
+  <span class="nb">apply</span> limCoAlgIsTerminal_subproof.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">limCoAlgTerminal</span> : Terminal (CoAlg_category F) :=
+  make_Terminal _ limCoAlgIsTerminal.
+
+<span class="kn">End</span> <span class="nf">lim_terminal_coalgebra</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Chains/CoAdamek.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Written by: Kobe Wullaert, 2022
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

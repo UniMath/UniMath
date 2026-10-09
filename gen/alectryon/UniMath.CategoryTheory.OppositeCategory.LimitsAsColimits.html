@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LimitsAsColimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cones.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Cochains.
+
+
+<span class="kn">Section</span> <span class="nf">ColimitsAsLimits</span>.
+
+  <span class="kn">Definition</span> <span class="nf">graph_op</span> (<span class="nv">g</span> : graph)
+    : graph.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">g</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">v1</span> <span class="nv">v2</span>, pr2 g v2 v1).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">edge_op</span> {<span class="nv">g</span> : graph} {<span class="nv">v</span> <span class="nv">w</span> : pr1 g} (<span class="nv">e</span> : pr2 g v w)
+    : pr2 (graph_op g) w v := e.
+
+  <span class="kn">Definition</span> <span class="nf">diagram_op</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C)
+    : diagram (graph_op g) (opp_cat C).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">v</span>, <span class="nv">pr1</span> <span class="nv">d</span> <span class="nv">v</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">v1</span> <span class="nv">v2</span> <span class="nv">e</span>, pr2 d v2 v1 (edge_op e)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cone_op</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+             {<span class="nv">c</span> : C} (<span class="nv">cc</span> : cone d c)
+    : cocone (diagram_op d) c.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">v</span>, <span class="nv">pr1</span> <span class="nv">cc</span> <span class="nv">v</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">v</span> <span class="nv">w</span> <span class="nv">e</span>, pr2 cc w v e).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cocone_op</span>
+             {<span class="nv">C</span> : category}
+             {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+             {<span class="nv">c</span> : C} (<span class="nv">cc</span> : cocone d c)
+    : cone (diagram_op d) c.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">v</span>, <span class="nv">pr1</span> <span class="nv">cc</span> <span class="nv">v</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">v</span> <span class="nv">w</span> <span class="nv">e</span>, pr2 cc w v e).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iscolimcocone_op</span>
+             {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+             {<span class="nv">c</span> : C} {<span class="nv">cc</span> : cocone d c} (<span class="nv">cc_lim</span> : isColimCocone d c cc)
+    : isLimCone (diagram_op d) c (cocone_op cc).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c0 cc0.
+    <span class="nb">apply</span> (cc_lim c0 (cone_op cc0)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">islimcone_op</span>
+             {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+             {<span class="nv">c</span> : C} {<span class="nv">cc</span> : cone d c} (<span class="nv">cc_lim</span> : isLimCone d c cc)
+    : isColimCocone (diagram_op d) c (cone_op cc).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c0 cc0.
+    <span class="nb">apply</span> (cc_lim c0 (cocone_op cc0)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ColimCocone_op</span>
+             {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+             (<span class="nv">cc</span> : ColimCocone d)
+    : LimCone (diagram_op d).
+  <span class="kn">Proof</span>.
+    use make_LimCone.
+    - <span class="bp">exact</span> (colim cc).
+    - <span class="bp">exact</span> (cocone_op (colimCocone cc)).
+    - <span class="nb">apply</span> (iscolimcocone_op (isColimCocone_from_ColimCocone cc)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">LimCone_op</span>
+             {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+             (<span class="nv">cc</span> : LimCone d)
+    : ColimCocone (diagram_op d).
+  <span class="kn">Proof</span>.
+    use make_ColimCocone.
+    - <span class="bp">exact</span> (lim cc).
+    - <span class="bp">exact</span> (cone_op (limCone cc)).
+    - <span class="nb">apply</span> (islimcone_op (isLimCone_from_LimCone cc)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Colims_op</span>
+    {<span class="nv">C</span> : category}
+    (<span class="nv">H</span> : Colims C)
+    : Lims (C^opp)
+    := <span class="k">λ</span> <span class="nv">g</span> <span class="nv">d</span>, ColimCocone_op (H (graph_op g) (diagram_op d)).
+
+  <span class="kn">Definition</span> <span class="nf">Lims_op</span>
+    {<span class="nv">C</span> : category}
+    (<span class="nv">H</span> : Lims C)
+    : Colims (C^opp)
+    := <span class="k">λ</span> <span class="nv">g</span> <span class="nv">d</span>, LimCone_op (H (graph_op g) (diagram_op d)).
+
+  <span class="kn">Definition</span> <span class="nf">chain_op</span> {<span class="nv">C</span> : category} (<span class="nv">ch</span> : chain C)
+    : cochain (opp_cat C).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">v</span>, <span class="nv">pr1</span> <span class="nv">ch</span> <span class="nv">v</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">v</span> <span class="nv">w</span> <span class="nv">e</span>, pr2 ch w v (edge_op e)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cochain_op</span> {<span class="nv">C</span> : category} (<span class="nv">ch</span> : cochain C)
+    : chain (opp_cat C).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">v</span>, <span class="nv">pr1</span> <span class="nv">ch</span> <span class="nv">v</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">v</span> <span class="nv">w</span> <span class="nv">e</span>, pr2 ch w v (edge_op e)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">islimcone_chain_op</span>
+             {<span class="nv">C</span> : category} {<span class="nv">g</span> : chain C}
+             {<span class="nv">c</span> : C} {<span class="nv">cc</span> : cone g c} (<span class="nv">cc_lim</span> : isLimCone g c cc)
+    : isColimCocone (chain_op g) c (cone_op cc).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (islimcone_op cc_lim).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">islimcone_cochain_op</span>
+             {<span class="nv">C</span> : category} {<span class="nv">g</span> : cochain C}
+             {<span class="nv">c</span> : C} {<span class="nv">cc</span> : cone g c} (<span class="nv">cc_lim</span> : isLimCone g c cc)
+    : isColimCocone (cochain_op g) c (cone_op cc).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (islimcone_op cc_lim).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iscolimcocone_chain_op</span>
+             {<span class="nv">C</span> : category} {<span class="nv">g</span> : chain C}
+             {<span class="nv">c</span> : C} {<span class="nv">cc</span> : cocone g c} (<span class="nv">cc_lim</span> : isColimCocone g c cc)
+    : isLimCone (chain_op g) c (cocone_op cc).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (iscolimcocone_op cc_lim).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_omega_cont_op</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             (<span class="nv">oc</span> : is_omega_cont F)
+    : is_omega_cocont (functor_op F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ch c cc.
+    <span class="nb">set</span> (t := oc (chain_op ch) c (cocone_op cc)).
+    <span class="nb">intro</span> col.
+    <span class="nb">set</span> (tt := iscolimcocone_chain_op col).
+    <span class="nb">intros</span> c0 cc0.
+    <span class="nb">apply</span> (t tt c0 (cocone_op cc0)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_omega_cocont_op</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             (<span class="nv">oc</span> : is_omega_cocont F)
+    : is_omega_cont (functor_op F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ch c cc.
+    <span class="nb">set</span> (t := oc (cochain_op ch) c (cone_op cc)).
+    <span class="nb">intro</span> lm.
+    <span class="nb">set</span> (tt := islimcone_cochain_op lm).
+    <span class="nb">intros</span> c0 cc0.
+    <span class="nb">apply</span> (t tt c0 (cone_op cc0)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_cont_op</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             (<span class="nv">oc</span> : is_cont F)
+    : is_cocont (functor_op F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> g d c cc.
+    <span class="nb">set</span> (t := oc _ _ c (cocone_op cc)).
+    <span class="nb">intro</span> lm.
+    <span class="nb">set</span> (tt := iscolimcocone_op lm).
+    <span class="nb">intros</span> c0 cc0.
+    <span class="nb">apply</span> (t tt c0 (cocone_op cc0)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_cocont_op</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : functor C D}
+             (<span class="nv">oc</span> : is_cocont F)
+    : is_cont (functor_op F).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> g d c cc.
+    <span class="nb">set</span> (t := oc _ _ c (cone_op cc)).
+    <span class="nb">intro</span> lm.
+    <span class="nb">set</span> (tt := islimcone_op lm).
+    <span class="nb">intros</span> c0 cc0.
+    <span class="nb">apply</span> (t tt c0 (cone_op cc0)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ColimitsAsLimits</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/OppositeCategory/LimitsAsColimits.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

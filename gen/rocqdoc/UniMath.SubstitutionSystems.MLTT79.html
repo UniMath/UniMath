@@ -1,0 +1,304 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.SubstitutionSystems.MLTT79</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.SubstitutionSystems.MLTT79</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+This file constructs a substitution monad on Set from a binding signature for the syntax of
+Martin-Löf type theory a la "Constructive Mathematics and Computer Programming" (1979).
+
+<div class="paragraph"> </div>
+
+Written by: Anders Mörtberg, 2016
+
+<div class="paragraph"> </div>
+
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.PartD.html#"><span class="id" title="library">UniMath.Foundations.PartD</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.Sets.html#"><span class="id" title="library">UniMath.Foundations.Sets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.Lists.html#"><span class="id" title="library">UniMath.Combinatorics.Lists</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.Colimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Initial</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinCoproducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinCoproducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorAlgebras</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#"><span class="id" title="library">UniMath.CategoryTheory.Monads.Monads</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.Signatures.html#"><span class="id" title="library">UniMath.SubstitutionSystems.Signatures</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.Notation.html#"><span class="id" title="library">UniMath.SubstitutionSystems.Notation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#"><span class="id" title="library">UniMath.SubstitutionSystems.SubstitutionSystems</span></a>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">subsys</span>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#"><span class="id" title="library">UniMath.SubstitutionSystems.BindingSigToMonad</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.SubstitutionSystems.LiftingInitial_alt.html#"><span class="id" title="library">UniMath.SubstitutionSystems.LiftingInitial_alt</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Infix</span> <a id=":::x_'::'_x" class="idref" href="#:::x_'::'_x"><span class="id" title="notation">&quot;</span></a>::" := (@<a class="idref" href="UniMath.Combinatorics.Lists.html#cons"><span class="id" title="definition">cons</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>).<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="c8619a1e4f7ee366531acb9abd41b255" class="idref" href="#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">&quot;</span></a>[]" := (@<a class="idref" href="UniMath.Combinatorics.Lists.html#nil"><span class="id" title="definition">nil</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) (<span class="id" title="tactic">at</span> <span class="id" title="keyword">level</span> 0, <span class="id" title="var">format</span> "[]").<br/>
+<span class="id" title="keyword">Local Notation</span> <a id=":::'HSET2'" class="idref" href="#:::'HSET2'"><span class="id" title="notation">&quot;</span></a>'HSET2'":= <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">[</span></a><a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a><a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#c0db030205e5fa1c4041c8618720d28b"><span class="id" title="notation">]</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="preamble" class="idref" href="#preamble"><span class="id" title="section">preamble</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="four_rec" class="idref" href="#four_rec"><span class="id" title="definition">four_rec</span></a> {<a id="A:1" class="idref" href="#A:1"><span class="id" title="binder">A</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a>} (<a id="a:2" class="idref" href="#a:2"><span class="id" title="binder">a</span></a> <a id="b:3" class="idref" href="#b:3"><span class="id" title="binder">b</span></a> <a id="c:4" class="idref" href="#c:4"><span class="id" title="binder">c</span></a> <a id="d:5" class="idref" href="#d:5"><span class="id" title="binder">d</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#A:1"><span class="id" title="variable">A</span></a>) : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> 4 <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#A:1"><span class="id" title="variable">A</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">induction</span> 1 <span class="id" title="keyword">as</span> [<span class="id" title="var">n</span> <span class="id" title="var">p</span>].<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">_</span>]; [<span class="id" title="tactic">apply</span> <span class="id" title="var">a</span>|].<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">_</span>]; [<span class="id" title="tactic">apply</span> <span class="id" title="var">b</span>|].<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">_</span>]; [<span class="id" title="tactic">apply</span> <span class="id" title="var">c</span>|].<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">_</span>]; [<span class="id" title="tactic">apply</span> <span class="id" title="var">d</span>|].<br/>
+<span class="id" title="tactic">induction</span> (<a class="idref" href="UniMath.Foundations.PartA.html#nopathsfalsetotrue"><span class="id" title="lemma">nopathsfalsetotrue</span></a> <span class="id" title="var">p</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#preamble"><span class="id" title="section">preamble</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Infix</span> <a id="f03f7a04ef75ff3ac66ca5c23554e52e" class="idref" href="#f03f7a04ef75ff3ac66ca5c23554e52e"><span class="id" title="notation">&quot;</span></a>++" := <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#SumBindingSig"><span class="id" title="definition">SumBindingSig</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="MLTT79" class="idref" href="#MLTT79"><span class="id" title="section">MLTT79</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+This is the syntax as presented on page 158:
+<pre>
+Pi types           (∏x:A)B                     [0,1]
+lambda             (λx)b                       [1]
+application        (c)a                        [0,0]
+
+Sigma types        (∑x:A)B                     [0,1]
+pair               (a,b)                       [0,0]
+pair-elim          (Ex,y)(c,d)                 [0,2]
+
+Sum types          A + B                       [0,0]
+inl                i(a)                        [0]
+inr                j(b)                        [0]
+sum-elim           (Dx,y)(c,d,e)               [0,1,1]
+
+Id types           I(A,a,b)                    [0,0,0]
+refl               r                           []
+J                  J(c,d)                      [0,0]
+
+Fin types          N_i                         []
+Fin elems          0_i ... (i-1)_i             [] ... []    (i times)
+Fin-elim           R_i(c,c_0,...,c_(i-1))      [0,0,...,0]  (i+1 zeroes)
+
+Nat                N                           []
+zero               0                           []
+suc                a'                          [0]
+nat-elim           (Rx,y)(c,d,e)               [0,0,2]
+
+W-types            (Wx∈A)B                     [0,1]
+sup                sup(a,b)                    [0,0]
+W-elim             (Tx,y,z)(c,d)               [0,3]
+
+Universes          U_0,U_1,...                 [],[],...
+</pre>
+
+<div class="paragraph"> </div>
+
+ Some convenient notations 
+</div>
+<div class="code">
+<span class="id" title="keyword">Local Notation</span> <a id="3fc25dad5807728e4ff91cc4b3e3af45" class="idref" href="#3fc25dad5807728e4ff91cc4b3e3af45"><span class="id" title="notation">&quot;</span></a>[0]" := (0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a>).<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="da68e53d490d56fedfc41c4bea24bd45" class="idref" href="#da68e53d490d56fedfc41c4bea24bd45"><span class="id" title="notation">&quot;</span></a>[1]" := (1 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a>).<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="4e67026712f402fe2c162599ff1bd049" class="idref" href="#4e67026712f402fe2c162599ff1bd049"><span class="id" title="notation">&quot;</span></a>[0,0]" := (0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> 0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a>).<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="c2630975f548f7da49b53671934cfa74" class="idref" href="#c2630975f548f7da49b53671934cfa74"><span class="id" title="notation">&quot;</span></a>[0,1]" := (0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> 1 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a>).<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="a7418f051a1914fad9863caa2737ed77" class="idref" href="#a7418f051a1914fad9863caa2737ed77"><span class="id" title="notation">&quot;</span></a>[0,2]" := (0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> 2 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a>).<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="a1f2686684a15f0c5411835b67adafe8" class="idref" href="#a1f2686684a15f0c5411835b67adafe8"><span class="id" title="notation">&quot;</span></a>[0,3]" := (0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> 3 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a>).<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="70239fabb6eef726198ca36ff3b05999" class="idref" href="#70239fabb6eef726198ca36ff3b05999"><span class="id" title="notation">&quot;</span></a>[0,0,0]" := (0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> 0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> 0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a>).<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="d408855a641af3972653f821a3e3b00a" class="idref" href="#d408855a641af3972653f821a3e3b00a"><span class="id" title="notation">&quot;</span></a>[0,0,2]" := (0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> 0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> 2 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a>).<br/>
+<span class="id" title="keyword">Local Notation</span> <a id="00307fdc0d10ed1023302eafa5dd7f9f" class="idref" href="#00307fdc0d10ed1023302eafa5dd7f9f"><span class="id" title="notation">&quot;</span></a>[0,1,1]" := (0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> 1 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> 1 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="PiSig" class="idref" href="#PiSig"><span class="id" title="definition">PiSig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSig"><span class="id" title="definition">BindingSig</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#make_BindingSig"><span class="id" title="definition">make_BindingSig</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isasetstn"><span class="id" title="lemma">isasetstn</span></a> 3) (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#three_rec"><span class="id" title="definition">three_rec</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c2630975f548f7da49b53671934cfa74"><span class="id" title="notation">[0,1]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#da68e53d490d56fedfc41c4bea24bd45"><span class="id" title="notation">[1]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#4e67026712f402fe2c162599ff1bd049"><span class="id" title="notation">[0,0]</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="SigmaSig" class="idref" href="#SigmaSig"><span class="id" title="definition">SigmaSig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSig"><span class="id" title="definition">BindingSig</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#make_BindingSig"><span class="id" title="definition">make_BindingSig</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isasetstn"><span class="id" title="lemma">isasetstn</span></a> 3) (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#three_rec"><span class="id" title="definition">three_rec</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c2630975f548f7da49b53671934cfa74"><span class="id" title="notation">[0,1]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#4e67026712f402fe2c162599ff1bd049"><span class="id" title="notation">[0,0]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#a7418f051a1914fad9863caa2737ed77"><span class="id" title="notation">[0,2]</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="SumSig" class="idref" href="#SumSig"><span class="id" title="definition">SumSig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSig"><span class="id" title="definition">BindingSig</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#make_BindingSig"><span class="id" title="definition">make_BindingSig</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isasetstn"><span class="id" title="lemma">isasetstn</span></a> 4) (<a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#four_rec"><span class="id" title="definition">four_rec</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#4e67026712f402fe2c162599ff1bd049"><span class="id" title="notation">[0,0]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#3fc25dad5807728e4ff91cc4b3e3af45"><span class="id" title="notation">[0]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#3fc25dad5807728e4ff91cc4b3e3af45"><span class="id" title="notation">[0]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#00307fdc0d10ed1023302eafa5dd7f9f"><span class="id" title="notation">[0,1,1]</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="IdSig" class="idref" href="#IdSig"><span class="id" title="definition">IdSig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSig"><span class="id" title="definition">BindingSig</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#make_BindingSig"><span class="id" title="definition">make_BindingSig</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isasetstn"><span class="id" title="lemma">isasetstn</span></a> 3) (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#three_rec"><span class="id" title="definition">three_rec</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#70239fabb6eef726198ca36ff3b05999"><span class="id" title="notation">[0,0,0]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#4e67026712f402fe2c162599ff1bd049"><span class="id" title="notation">[0,0]</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Define the arity of the eliminators for Fin by recursion 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="FinSigElim" class="idref" href="#FinSigElim"><span class="id" title="definition">FinSigElim</span></a> (<a id="n:6" class="idref" href="#n:6"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) : <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">n</span> <span class="id" title="keyword">as</span> [|<span class="id" title="var">n</span> <span class="id" title="var">ih</span>].<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#3fc25dad5807728e4ff91cc4b3e3af45"><span class="id" title="notation">[0]</span></a>.<br/>
+- <span class="id" title="tactic">apply</span> (0 <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::x_'::'_x"><span class="id" title="notation">::</span></a> <span class="id" title="var">ih</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Define the signature of the constructors for Fin 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="FinSigConstructors" class="idref" href="#FinSigConstructors"><span class="id" title="definition">FinSigConstructors</span></a> (<a id="n:7" class="idref" href="#n:7"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) : <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#n:7"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a> := <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a>.<br/>
+
+<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+Uncurried version of the FinSig family 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="FinSigFun" class="idref" href="#FinSigFun"><span class="id" title="definition">FinSigFun</span></a> : <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="n:8" class="idref" href="#n:8"><span class="id" title="binder">n</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">⨿</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#n:8"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">⨿</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">)</span></a><a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Combinatorics.Lists.html#list"><span class="id" title="definition">list</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">induction</span> 1 <span class="id" title="keyword">as</span> [<span class="id" title="var">n</span> <span class="id" title="var">p</span>].<br/>
+<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">_</span>|<span class="id" title="var">p</span>].<br/>
+- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a>.<br/>
+- <span class="id" title="tactic">induction</span> <span class="id" title="var">p</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">p</span>|].<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#FinSigConstructors"><span class="id" title="definition">FinSigConstructors</span></a> <span class="id" title="var">_</span> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#FinSigElim"><span class="id" title="definition">FinSigElim</span></a> <span class="id" title="var">n</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isasetFinSig" class="idref" href="#isasetFinSig"><span class="id" title="lemma">isasetFinSig</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="n:9" class="idref" href="#n:9"><span class="id" title="binder">n</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">⨿</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#n:9"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">⨿</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">)</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isaset_total2"><span class="id" title="lemma">isaset_total2</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#isasetnat"><span class="id" title="lemma">isasetnat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>. <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartC.html#isasetcoprod"><span class="id" title="lemma">isasetcoprod</span></a>; <span class="id" title="tactic">try</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetunit"><span class="id" title="lemma">isasetunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isasetstn"><span class="id" title="lemma">isasetstn</span></a>.<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="isdeceqFinSig" class="idref" href="#isdeceqFinSig"><span class="id" title="lemma">isdeceqFinSig</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isdeceq"><span class="id" title="definition">isdeceq</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="n:10" class="idref" href="#n:10"><span class="id" title="binder">n</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">⨿</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#stn"><span class="id" title="definition">stn</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#n:10"><span class="id" title="variable">n</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">⨿</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#unit"><span class="id" title="inductive">unit</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#8c9923803a6bb61b94f6e77492c563be"><span class="id" title="notation">)</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isdeceq_total2"><span class="id" title="lemma">isdeceq_total2</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#isdeceqnat"><span class="id" title="definition">isdeceqnat</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span>. <span class="id" title="tactic">repeat</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isdeceqcoprod"><span class="id" title="lemma">isdeceqcoprod</span></a>; <span class="id" title="tactic">try</span> <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isdecequnit"><span class="id" title="lemma">isdecequnit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isdeceqstn"><span class="id" title="lemma">isdeceqstn</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="FinSig" class="idref" href="#FinSig"><span class="id" title="definition">FinSig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSig"><span class="id" title="definition">BindingSig</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#make_BindingSig"><span class="id" title="definition">make_BindingSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#isasetFinSig"><span class="id" title="lemma">isasetFinSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#FinSigFun"><span class="id" title="definition">FinSigFun</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="NatSig" class="idref" href="#NatSig"><span class="id" title="definition">NatSig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSig"><span class="id" title="definition">BindingSig</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#make_BindingSig"><span class="id" title="definition">make_BindingSig</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isasetstn"><span class="id" title="lemma">isasetstn</span></a> 4) (<a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#four_rec"><span class="id" title="definition">four_rec</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#3fc25dad5807728e4ff91cc4b3e3af45"><span class="id" title="notation">[0]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#d408855a641af3972653f821a3e3b00a"><span class="id" title="notation">[0,0,2]</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="WSig" class="idref" href="#WSig"><span class="id" title="definition">WSig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSig"><span class="id" title="definition">BindingSig</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#make_BindingSig"><span class="id" title="definition">make_BindingSig</span></a> (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#isasetstn"><span class="id" title="lemma">isasetstn</span></a> 3) (<a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#three_rec"><span class="id" title="definition">three_rec</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c2630975f548f7da49b53671934cfa74"><span class="id" title="notation">[0,1]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#4e67026712f402fe2c162599ff1bd049"><span class="id" title="notation">[0,0]</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#a1f2686684a15f0c5411835b67adafe8"><span class="id" title="notation">[0,3]</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="USig" class="idref" href="#USig"><span class="id" title="definition">USig</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSig"><span class="id" title="definition">BindingSig</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#make_BindingSig"><span class="id" title="definition">make_BindingSig</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#isasetnat"><span class="id" title="lemma">isasetnat</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#c8619a1e4f7ee366531acb9abd41b255"><span class="id" title="notation">[]</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="MLTT79.SigHSET" class="idref" href="#MLTT79.SigHSET"><span class="id" title="variable">SigHSET</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.Signatures.html#Signature"><span class="id" title="definition">Signature</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+The binding signature of MLTT79 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="MLTT79Sig" class="idref" href="#MLTT79Sig"><span class="id" title="definition">MLTT79Sig</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#PiSig"><span class="id" title="definition">PiSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#f03f7a04ef75ff3ac66ca5c23554e52e"><span class="id" title="notation">++</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#SigmaSig"><span class="id" title="definition">SigmaSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#f03f7a04ef75ff3ac66ca5c23554e52e"><span class="id" title="notation">++</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#SumSig"><span class="id" title="definition">SumSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#f03f7a04ef75ff3ac66ca5c23554e52e"><span class="id" title="notation">++</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#IdSig"><span class="id" title="definition">IdSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#f03f7a04ef75ff3ac66ca5c23554e52e"><span class="id" title="notation">++</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#FinSig"><span class="id" title="definition">FinSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#f03f7a04ef75ff3ac66ca5c23554e52e"><span class="id" title="notation">++</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#NatSig"><span class="id" title="definition">NatSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#f03f7a04ef75ff3ac66ca5c23554e52e"><span class="id" title="notation">++</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#WSig"><span class="id" title="definition">WSig</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#f03f7a04ef75ff3ac66ca5c23554e52e"><span class="id" title="notation">++</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#USig"><span class="id" title="definition">USig</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="MLTT79Signature" class="idref" href="#MLTT79Signature"><span class="id" title="definition">MLTT79Signature</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79.SigHSET"><span class="id" title="variable">SigHSET</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSigToSignatureHSET"><span class="id" title="definition">BindingSigToSignatureHSET</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79Sig"><span class="id" title="definition">MLTT79Sig</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="MLTT79.Id_H" class="idref" href="#MLTT79.Id_H"><span class="id" title="variable">Id_H</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#Id_H"><span class="id" title="definition">SubstitutionSystems.Id_H</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Colimits.html#BinCoproductsHSET"><span class="id" title="lemma">BinCoproductsHSET</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="MLTT79Functor" class="idref" href="#MLTT79Functor"><span class="id" title="definition">MLTT79Functor</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor"><span class="id" title="definition">functor</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::'HSET2'"><span class="id" title="notation">HSET2</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::'HSET2'"><span class="id" title="notation">HSET2</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79.Id_H"><span class="id" title="variable">Id_H</span></a> (<a class="idref" href="UniMath.SubstitutionSystems.Signatures.html#Presignature_Signature"><span class="id" title="definition">Presignature_Signature</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79Signature"><span class="id" title="definition">MLTT79Signature</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="MLTT79Monad" class="idref" href="#MLTT79Monad"><span class="id" title="definition">MLTT79Monad</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monads.Monads.html#Monad"><span class="id" title="definition">Monad</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> := <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#BindingSigToMonadHSET"><span class="id" title="definition">BindingSigToMonadHSET</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79Sig"><span class="id" title="definition">MLTT79Sig</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="MLTT79Functor_Initial" class="idref" href="#MLTT79Functor_Initial"><span class="id" title="lemma">MLTT79Functor_Initial</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#Initial"><span class="id" title="definition">Initial</span></a> (<a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#FunctorAlg"><span class="id" title="definition">FunctorAlg</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79Functor"><span class="id" title="definition">MLTT79Functor</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#SignatureInitialAlgebraHSET"><span class="id" title="definition">SignatureInitialAlgebraHSET</span></a>, <a class="idref" href="UniMath.SubstitutionSystems.BindingSigToMonad.html#is_omega_cocont_BindingSigToSignatureHSET"><span class="id" title="lemma">is_omega_cocont_BindingSigToSignatureHSET</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="MLTT79" class="idref" href="#MLTT79"><span class="id" title="definition">MLTT79</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::'HSET2'"><span class="id" title="notation">HSET2</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#alg_carrier"><span class="id" title="definition">alg_carrier</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialObject"><span class="id" title="definition">InitialObject</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79Functor_Initial"><span class="id" title="lemma">MLTT79Functor_Initial</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="MLTT79.MLTT79_mor" class="idref" href="#MLTT79.MLTT79_mor"><span class="id" title="variable">MLTT79_mor</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::'HSET2'"><span class="id" title="notation">HSET2</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79Functor"><span class="id" title="definition">MLTT79Functor</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79"><span class="id" title="definition">MLTT79</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79"><span class="id" title="definition">MLTT79</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#alg_map"><span class="id" title="definition">alg_map</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialObject"><span class="id" title="definition">InitialObject</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79Functor_Initial"><span class="id" title="lemma">MLTT79Functor_Initial</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Let</span> <a id="MLTT79.MLTT79_alg" class="idref" href="#MLTT79.MLTT79_alg"><span class="id" title="variable">MLTT79_alg</span></a> : <a class="idref" href="UniMath.CategoryTheory.FunctorAlgebras.html#algebra_ob"><span class="id" title="definition">algebra_ob</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79Functor"><span class="id" title="definition">MLTT79Functor</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Limits.Initial.html#InitialObject"><span class="id" title="definition">InitialObject</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79Functor_Initial"><span class="id" title="lemma">MLTT79Functor_Initial</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="var_map" class="idref" href="#var_map"><span class="id" title="definition">var_map</span></a> : <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#:::'HSET2'"><span class="id" title="notation">HSET2</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟦</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">,</span></a><a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79"><span class="id" title="definition">MLTT79</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#d8ada6469fb541a06c26fd71a9ef7ac3"><span class="id" title="notation">⟧</span></a> :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.SubstitutionSystems.SubstitutionSystems.html#6f2f7304141c15bf565f34aa10b8e335"><span class="id" title="abbreviation">SubstitutionSystems.η</span></a> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79.MLTT79_alg"><span class="id" title="variable">MLTT79_alg</span></a>.<br/>
+
+<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.SubstitutionSystems.MLTT79.html#MLTT79"><span class="id" title="section">MLTT79</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

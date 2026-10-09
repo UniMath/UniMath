@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MultiSortedEmbeddingIndCoindHSET.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** the embedding of generated inductive syntax into coinductive syntax is a morphism of Sigma-monoids</span>
+
+<span class="sd">    this is only exemplified for [HSET] as base category</span>
+
+<span class="sd">author: Ralph Matthes 2023</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Cochains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Structures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SigmaMonoids.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.SortIndexing.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedBindingSig.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSorted_alt.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.ContinuitySignature.InstantiateHSET.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.MultiSortedMonadConstruction_actegorical.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedMonadConstruction_actegorical.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedMonadConstruction_coind_actegorical.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">A</span>.
+
+  <span class="kn">Context</span> (<span class="nv">sort</span> : UU) (<span class="nv">Hsort</span> : isofhlevel <span class="mi">3</span> sort) (*(Hsort_set : isaset sort)*) (<span class="nv">sig</span> : MultiSortedSig sort).
+
+  <span class="c">(* Let Hsort := hlevelntosn 2 _ Hsort_set. *)</span>
+
+  <span class="kn">Let</span> <span class="nf">θHSET</span> := MultiSortedMonadConstruction_actegorical.MultiSortedSigToStrength' sort Hsort SET
+                 TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET sig.
+
+  <span class="kn">Local Definition</span> <span class="nf">Initialσind</span> := InitialSigmaMonoidOfMultiSortedSig_CAT sort Hsort HSET TerminalHSET InitialHSET
+                                    BinProductsHSET BinCoproductsHSET (<span class="k">fun</span> <span class="nv">s</span> <span class="nv">s'</span> =&gt; ProductsHSET (s=s')) CoproductsHSET
+                                    (EsortToSet2 sort Hsort) (ColimsHSET_of_shape nat_graph) sig.
+
+  <span class="kn">Local Definition</span> <span class="nf">σind</span> : SigmaMonoid θHSET := pr1 Initialσind.
+
+  <span class="kn">Let</span> <span class="nf">sortToSet</span> : category := SortIndexing.sortToSet sort Hsort.
+  <span class="kn">Let</span> <span class="nf">sortToSet2</span> : category := SortIndexing.sortToSet2 sort Hsort.
+
+  <span class="kn">Local Definition</span> <span class="nf">Tind</span> : sortToSet2 := SigmaMonoid_carrier θHSET σind.
+
+  <span class="kn">Local Definition</span> <span class="nf">σcoind</span> : SigmaMonoid θHSET
+    := coindSigmaMonoidOfMultiSortedSig_CAT sort Hsort HSET TerminalHSET
+         BinProductsHSET BinCoproductsHSET CoproductsHSET (LimsHSET_of_shape conat_graph)
+         I_coproduct_distribute_over_omega_limits_HSET sig is_univalent_HSET.
+
+  <span class="kn">Local Definition</span> <span class="nf">Tcoind</span> : sortToSet2 := pr1 σcoind.
+
+  <span class="kn">Local Definition</span> <span class="nf">ind_into_coind</span> : SigmaMonoid θHSET ⟦σind, σcoind⟧ := InitialArrow Initialσind σcoind.
+
+<span class="c">(* TODO: spell out the constituents *)</span>
+
+<span class="kn">End</span> <span class="nf">A</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/MultiSortedEmbeddingIndCoindHSET.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; author: Ralph Matthes 2023
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

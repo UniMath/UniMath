@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BicatOfDaggerCats.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* In this file, we construct the bicategory DAG of dagger categories as a displayed bicategory (over CAT) and we show that the displayed bicategory is univalent. *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Transformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Unitary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.FunctorCategory.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
+
+<span class="kn">Local Definition</span> <span class="nf">CAT</span> : bicat := bicat_of_cats.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">BicatOfDaggerCategories</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DAG_disp_cat_ob_mor</span>
+    : disp_cat_ob_mor CAT.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">C</span>, <span class="nv">dagger</span> <span class="nv">C</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">dC</span> <span class="nv">dD</span> <span class="nv">F</span>, is_dagger_functor dC dD F).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DAG_disp_cat_id_comp</span>
+    : disp_cat_id_comp CAT DAG_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">C</span> <span class="nv">dC</span>, <span class="nv">dagger_functor_id</span> <span class="nv">dC</span>).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> <span class="nv">F</span> <span class="nv">G</span> <span class="nv">dC</span> <span class="nv">dD</span> <span class="nv">dE</span> <span class="nv">dF</span> <span class="nv">dG</span>, is_dagger_functor_comp dF dG).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DAG_disp_cat_data</span>
+    :  disp_cat_data CAT.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">DAG_disp_cat_ob_mor</span>.
+    <span class="bp">exact</span> DAG_disp_cat_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DAG_disp_bicat</span> : disp_bicat CAT
+    := disp_cell_unit_bicat DAG_disp_cat_data.
+
+  <span class="kn">Definition</span> <span class="nf">DAG</span> : bicat
+    := total_bicat DAG_disp_bicat.
+
+  <span class="kn">Definition</span> <span class="nf">is_dagger_univalent</span> (<span class="nv">D</span> : DAG)
+    : UU
+    := is_univalent_dagger (dagger_category_to_dagger D).
+
+  <span class="kn">Definition</span> <span class="nf">UDAG_disp_bicat</span> : disp_bicat DAG
+    := disp_fullsubbicat DAG (<span class="k">λ</span> <span class="nv">D</span>, is_dagger_univalent D).
+
+  <span class="kn">Definition</span> <span class="nf">UDAG_sigma_disp_bicat</span> := sigma_bicat _ _ UDAG_disp_bicat.
+
+<span class="kn">End</span> <span class="nf">BicatOfDaggerCategories</span>.
+
+<span class="kn">Section</span> <span class="nf">Destructors</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DAG_to_cat</span> (<span class="nv">C</span> : DAG) : category := pr1 C.
+  <span class="kn">Coercion</span> <span class="nf">DAG_to_cat</span> : ob &gt;-&gt; category.
+
+  <span class="kn">Definition</span> <span class="nf">DAG_to_dagger</span> (<span class="nv">C</span> : DAG) : dagger C := pr2 C.
+
+<span class="kn">End</span> <span class="nf">Destructors</span>.
+
+<span class="kn">Section</span> <span class="nf">DaggerFunctorCategories</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">hom_equals_dagger_functor_cat</span>
+             (<span class="nv">C</span> <span class="nv">D</span> : DAG)
+    : hom C D = dagger_functor_cat (DAG_to_dagger C) (DAG_to_dagger D).
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_has_homsets. }
+    use total2_paths_f.
+    - <span class="nb">apply</span> idpath.
+    - use proofirrelevance.
+      <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod)
+      ; <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>)
+      ; <span class="nb">apply</span> (cellset_property (C := DAG)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">DaggerFunctorCategories</span>.
+
+<span class="kn">Section</span> <span class="nf">DagDisplayedUnivalence</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">DAG_disp_univalent_2_0</span> : disp_univalent_2_0 DAG_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C1 C2 p dag1 dag2.
+    use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    <span class="nb">intros</span> C udag1 udag2.
+    <span class="nb">apply</span> isweqimplimpl.
+    - <span class="nb">intro</span> a.
+      <span class="nb">apply</span> dagger_equality.
+      <span class="kp">repeat</span> (<span class="nb">apply</span> funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> (pr1 a _).
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> isaset_dagger.
+    - <span class="nb">intro</span> a.
+      <span class="nb">apply</span> (isaprop_disp_adjoint_equivalence_cell_unit_bicat a)
+      ; <span class="nb">apply</span> isaprop_is_dagger_functor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">DAG_disp_univalent_2_1</span> : disp_univalent_2_1 DAG_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_cell_unit_bicat_univalent_2_1.
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isaprop_is_dagger_functor.
+  <span class="kn">Qed</span>.
+
+  <span class="c">(* Notice that for global univalence, we don't use the premade lemma</span>
+<span class="c">     for disp_cell_unit_bicat, as is used in the local univalence.</span>
+<span class="c">     Otherwise, we would have to restrict ourselves to CatUniv instead of Cat</span>
+<span class="c">   *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">DAG_disp_univalent_2</span> : disp_univalent_2 DAG_disp_bicat
+    := DAG_disp_univalent_2_0 ,, DAG_disp_univalent_2_1.
+
+<span class="kn">End</span> <span class="nf">DagDisplayedUnivalence</span>.
+
+<span class="kn">Section</span> <span class="nf">Constructors</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_dagger_transformation</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+             (<span class="nv">α</span> : nat_trans F G)
+             {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+             (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+             (<span class="nv">dagG</span> : is_dagger_functor dagC dagD G)
+    : (hom (C := DAG) (C,,dagC) (D,,dagD))
+        ⟦make_dagger_functor _ _  dagF, make_dagger_functor _ _ dagG⟧
+    := α ,, tt.
+
+  <span class="kn">Definition</span> <span class="nf">make_dagger_transformation'</span>
+             {<span class="nv">C</span> <span class="nv">D</span> : category}
+             {<span class="nv">F</span> <span class="nv">G</span> : functor C D}
+             {<span class="nv">dagC</span> : dagger C} {<span class="nv">dagD</span> : dagger D}
+             (<span class="nv">dagF</span> : is_dagger_functor dagC dagD F)
+             (<span class="nv">dagG</span> : is_dagger_functor dagC dagD G)
+             {<span class="nv">α</span> : nat_trans_data F G}
+             (<span class="nv">αn</span> : is_nat_trans _ _ α)
+    : (hom (C := DAG) (C,,dagC) (D,,dagD))
+        ⟦make_dagger_functor _ _ dagF, make_dagger_functor _ _ dagG⟧
+    := make_nat_trans _ _ α αn ,, tt.
+
+<span class="kn">End</span> <span class="nf">Constructors</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DaggerCategories/BicatOfDaggerCats.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (* In this file, we construct the bicategory DAG of dagger categories as a displayed bicategory (over CAT) and we show that the displayed bicategory is univalent. *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

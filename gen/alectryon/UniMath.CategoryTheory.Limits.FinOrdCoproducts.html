@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FinOrdCoproducts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** A direct definition of finite ordered coproducts by using coproducts *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ProductCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+
+<span class="sd">(** Definition of finite ordered coproducts. *)</span>
+<span class="kn">Section</span> <span class="nf">def_FinOrdCoproducts</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+
+  <span class="kn">Definition</span> <span class="nf">FinOrdCoproducts</span> : UU :=
+    ∏ (n : nat) (a : stn n -&gt; C), Coproduct (stn n) C a.
+  <span class="kn">Definition</span> <span class="nf">hasFinOrdCoproducts</span> : UU :=
+    ∏ (n : nat) (a : stn n -&gt; C), ∥ Coproduct (stn n) C a ∥.
+
+<span class="kn">End</span> <span class="nf">def_FinOrdCoproducts</span>.
+
+
+<span class="sd">(** Construction of FinOrdCoproducts from Initial and BinCoproducts. *)</span>
+<span class="kn">Section</span> <span class="nf">FinOrdCoproduct_criteria</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+
+  <span class="sd">(** Case n = 0 of the theorem. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">InitialToCoproduct</span> (<span class="nv">I</span> : Initial C):
+    ∏ (a : stn <span class="mi">0</span> -&gt; C), Coproduct (stn <span class="mi">0</span>) C a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a.
+    use (make_Coproduct _ _ _ I
+                            (<span class="k">λ</span> <span class="nv">i</span> : stn <span class="mi">0</span>, fromempty (weqstn0toempty i))).
+    <span class="nb">intros</span> c g.
+    use unique_exists.
+    - <span class="nb">apply</span> (InitialArrow I c).
+    - <span class="nb">intros</span> i. <span class="nb">apply</span> (fromempty (weqstn0toempty i)).
+    - <span class="nb">intro</span>; <span class="nb">apply</span> impred_isaprop.
+      <span class="nb">intro</span>; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span>. <span class="nb">apply</span> InitialArrowUnique.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Case n = 1 of the theorem. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">ObjectToCoproduct</span>:
+    ∏ (a : stn <span class="mi">1</span> -&gt; C), Coproduct (stn <span class="mi">1</span>) C a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a.
+    <span class="nb">set</span> (stn1ob := invweq(weqstn1tounit) tt).
+    use (make_Coproduct _ _ _ (a stn1ob)).
+    <span class="nb">intros</span> i. <span class="bp">exact</span> (idtoiso (! (maponpaths a (isconnectedstn1 stn1ob i)))).
+
+    <span class="c">(* isCoproductcocone *)</span>
+    use (make_isCoproduct _ _ C).
+    <span class="nb">intros</span> c g.
+    use (unique_exists (g stn1ob)).
+
+    <span class="c">(* Commutativity. *)</span>
+    <span class="nb">intros</span> i. <span class="nb">rewrite</span> &lt;- (isconnectedstn1 stn1ob i). <span class="nb">apply</span> id_left.
+
+    <span class="c">(* Equality of equalities of morphisms. *)</span>
+    <span class="nb">intros</span> y. <span class="nb">apply</span> impred_isaprop. <span class="nb">intros</span> t. <span class="nb">apply</span> C.
+
+    <span class="c">(* Uniqueness. *)</span>
+    <span class="nb">intros</span> y X. <span class="nb">rewrite</span> &lt;- (X stn1ob). <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">coproducts_stn_unit</span> {<span class="nv">n</span> : nat}
+    (<span class="nv">Ncoprods</span> : Coproducts (⟦ n ⟧) C)
+    (<span class="nv">BinCoprods</span> : BinCoproducts C)
+    : Coproducts (⟦ n ⟧ ⨿ unit) C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> t.
+    <span class="nb">set</span> (N := Ncoprods (t ∘ inl)%functions).
+    <span class="nb">set</span> (E := t (inr tt)).
+    <span class="nb">set</span> (B := BinCoprods (CoproductObject _ _ N) E).
+    use make_Coproduct.
+    - <span class="bp">exact</span>(BinCoproductObject B).
+    - <span class="nb">apply</span> coprod_rect.
+      + <span class="bp">exact</span>(<span class="k">λ</span> <span class="nv">k</span> : ⟦ n ⟧, CoproductIn _ C N k · BinCoproductIn1 B).
+      + <span class="bp">exact</span>(unit_rect _ (BinCoproductIn2 B)).
+    - <span class="nb">intros</span> Q q.
+      use unique_exists.
+      + <span class="nb">apply</span> BinCoproductArrow.
+        * <span class="nb">apply</span> CoproductArrow.
+          <span class="bp">exact</span>(q ∘ inl)%functions.
+        * <span class="bp">exact</span>(q (inr tt)).
+      + use coprod_rect.
+        * <span class="nb">intros</span> k.
+          etrans. { <span class="nb">apply</span> assoc'. }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> BinCoproductIn1Commutes.
+          }
+          use CoproductInCommutes.
+        * <span class="nb">apply</span> unit_rect.
+          <span class="nb">apply</span> BinCoproductIn2Commutes.
+      + <span class="kp">abstract</span>(<span class="nb">intros</span>; <span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property).
+      + <span class="nb">intros</span> f fcommutes.
+        <span class="nb">apply</span> BinCoproductArrowUnique.
+        * <span class="nb">apply</span> CoproductArrowUnique; <span class="nb">intro</span> k.
+          etrans. { <span class="nb">apply</span> assoc. }
+          <span class="bp">exact</span>(fcommutes (inl k)).
+        * <span class="bp">exact</span>(fcommutes (inr tt)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">coproducts_stn_Sn</span>
+    (<span class="nv">n</span> : nat)
+    (<span class="nv">stncoprods</span> : Coproducts (⟦ n ⟧ ⨿ unit) C)
+    : Coproducts (⟦ S n ⟧) C.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span>(w := (weqdnicoprod n lastelement)).
+    <span class="nb">set</span>(q := invmap (univalence _ _) w).
+    <span class="bp">exact</span>(transportf (<span class="k">fun</span> <span class="nv">X</span> : UU =&gt; Coproducts X C) q stncoprods).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Finite ordered coproducts from initial and binary coproducts. *)</span>
+  <span class="kn">Theorem</span> <span class="nf">FinOrdCoproducts_from_Initial_and_BinCoproducts</span> :
+    Initial C -&gt; BinCoproducts C -&gt; FinOrdCoproducts C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> I BinCoprods n.
+    <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+
+    - <span class="bp">exact</span>(InitialToCoproduct I). <span class="c">(* Case n = 0 *)</span>
+    - <span class="nb">apply</span> coproducts_stn_Sn.
+      <span class="bp">exact</span>(coproducts_stn_unit IHn BinCoprods).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">FinOrdCoproduct_criteria</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/FinOrdCoproducts.v</tt>, line 2)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** A direct definition of finite ordered coproducts by using coproducts *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

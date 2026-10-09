@@ -1,0 +1,1263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ActionBasedStrengthOnHomsInBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Constructs instance of action-based strength for the actions of the endomorphisms by precomposition on fixed hom-categories of a bicategory, and from this, a signature.</span>
+
+<span class="sd">Author: Ralph Matthes 2021</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.HorizontalComposition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.PointedFunctorsMonoidal.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.Actions.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ConstructionOfActions.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ActionOfEndomorphismsInBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ActionBasedStrength.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.MonoidalFromBicategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.ActionBasedStrongFunctorCategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfCats.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SignatureCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+
+<span class="kn">Import</span> Bicat.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ActionBased_Strength_Between_Homs_In_Bicat</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+<span class="kn">Context</span> (<span class="nv">c0</span> <span class="nv">d0</span> <span class="nv">d0'</span>: ob C).
+<span class="kn">Context</span> {<span class="nv">Mon_M</span> : monoidal_cat}.
+
+<span class="kn">Local Definition</span> <span class="nf">Mon_endo</span>: monoidal_cat
+  := swapping_of_monoidal_cat (monoidal_cat_from_bicat_and_ob c0).
+
+<span class="kn">Context</span> (<span class="nv">U</span>: strong_monoidal_functor Mon_M Mon_endo).
+
+<span class="kn">Local Definition</span> <span class="nf">ab_strength_domain_action</span> : action Mon_M (hom c0 d0')
+  := reindexed_action Mon_M U (action_from_precomp c0 d0').
+<span class="kn">Local Definition</span> <span class="nf">ab_strength_target_action</span> : action Mon_M (hom c0 d0)
+  := reindexed_action Mon_M U (action_from_precomp c0 d0).
+
+<span class="kn">Context</span> (<span class="nv">F</span>: hom c0 d0' ⟶ hom c0 d0).
+
+<span class="kn">Definition</span> <span class="nf">ab_strength_on_homs_in_bicat</span>: UU
+  := actionbased_strength Mon_M ab_strength_domain_action ab_strength_target_action F.
+
+<span class="kn">Identity Coercion</span> <span class="nf">ab_strength_on_homs_in_bicat_to_actionbased_strength</span> :
+  ab_strength_on_homs_in_bicat  &gt;-&gt; actionbased_strength.
+
+<span class="kn">Context</span> (<span class="nv">ab_str</span> : ab_strength_on_homs_in_bicat).
+
+<span class="kn">Definition</span> <span class="nf">triangle_eq</span> := actionbased_strength_triangle_eq Mon_M
+  ab_strength_domain_action ab_strength_target_action F ab_str.
+<span class="kn">Definition</span> <span class="nf">pentagon_eq</span> := actionbased_strength_pentagon_eq Mon_M
+  ab_strength_domain_action ab_strength_target_action F ab_str.
+
+<span class="kn">Lemma</span> <span class="nf">triangle_eq_readable</span> : triangle_eq = ∏ a : C ⟦ c0, d0' ⟧,
+  ab_str (a,, monoidal_cat_unit Mon_M) • # F (id₂ a ⋆⋆ (strong_monoidal_functor_ϵ_inv U) • lunitor a) =
+  id₂ (F a) ⋆⋆ (strong_monoidal_functor_ϵ_inv U) • lunitor (F a).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">triangle_eq_nice</span> : UU := ∏ X : C ⟦ c0, d0' ⟧,
+  ab_str (X,, monoidal_cat_unit Mon_M) • # F (strong_monoidal_functor_ϵ_inv U ▹ X • lunitor X) =
+  strong_monoidal_functor_ϵ_inv U ▹ F X • lunitor (F X).
+
+<span class="kn">Lemma</span> <span class="nf">triangle_eq_implies_triangle_eq_nice</span> : triangle_eq -&gt; triangle_eq_nice.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Heq.
+  <span class="nb">intro</span> X.
+  <span class="nb">set</span> (HeqX := Heq X).
+  <span class="nb">cbn</span> <span class="k">in</span> HeqX.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> hcomp_identity_right <span class="k">in</span> HeqX.
+  <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">triangle_eq_nice_implies_triangle_eq</span> : triangle_eq_nice -&gt; triangle_eq.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Heq.
+  <span class="nb">intro</span> X.
+  <span class="nb">cbn</span>.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> hcomp_identity_right.
+  <span class="nb">apply</span> Heq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pentagon_eq_readable</span> : pentagon_eq =
+  ∏ (a : C ⟦ c0, d0' ⟧) (x y : Mon_M),
+                        (lassociator (U y) (U x) (F a) • id₂ (F a) ⋆⋆ lax_monoidal_functor_μ U (x,, y))
+                          • ab_str (a,, monoidal_cat_tensor Mon_M (x, y)) =
+                        ab_str (a,, x) ⋆⋆ # U (id₁ y) • ab_str (U x · a,, y)
+                          • # F (lassociator (U y) (U x) a • id₂ a ⋆⋆ lax_monoidal_functor_μ U (x,, y)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="sd">(** the variables chosen in the following make the link with the notion of signature</span>
+<span class="sd">    in the TYPES'15 paper by Ahrens and Matthes more visible - but Z is written insted</span>
+<span class="sd">    of (Z,e), and likewise for Z' *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pentagon_eq_nice</span> : UU :=
+  ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : Mon_M),
+    lassociator (U Z) (U Z') (F X) • (lax_monoidal_functor_μ U (Z',, Z) ▹ F X) • ab_str (X,, monoidal_cat_tensor Mon_M (Z', Z)) =
+    U Z ◃ ab_str (X,, Z') • ab_str (U Z' · X,, Z) • # F (lassociator (U Z) (U Z') X • (lax_monoidal_functor_μ U (Z',, Z) ▹ X)).
+
+<span class="kn">Lemma</span> <span class="nf">pentagon_eq_implies_pentagon_eq_nice</span> : pentagon_eq -&gt; pentagon_eq_nice.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Heq X Z' Z.
+  <span class="nb">assert</span> (Heqinst := Heq X Z' Z).
+  <span class="nb">clear</span> Heq.
+  <span class="nb">revert</span> Heqinst.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> (functor_id U).
+  <span class="nb">intro</span> Heqinst.
+  <span class="nb">refine</span> (!_ @ Heqinst @ _).
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (hcomp_identity_right _ _ (F X) (lax_monoidal_functor_μ U (Z',, Z))).
+  - etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> hcomp_identity_left.
+    }
+    <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> hcomp_identity_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pentagon_eq_nice_implies_pentagon_eq</span> : pentagon_eq_nice -&gt; pentagon_eq.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Heq X Z' Z.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> (functor_id U).
+  <span class="nb">refine</span> (_ @ Heq _ _ _ @ _).
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> hcomp_identity_right.
+  - <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> hcomp_identity_left.
+    }
+    <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> hcomp_identity_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">μ_UZ'Zinv</span> (<span class="nv">Z'</span> <span class="nv">Z</span> : Mon_M) :
+  hom c0 c0 ⟦ monoidal_functor_map_codom Mon_M Mon_endo U (Z',, Z),
+              monoidal_functor_map_dom Mon_M Mon_endo U (Z',, Z) ⟧
+  := strong_monoidal_functor_μ_inv U (Z',,Z).
+
+<span class="kn">Definition</span> <span class="nf">pentagon_eq_nicer</span> : UU :=
+  ∏ (X : C ⟦ c0, d0' ⟧) (Z' Z : Mon_M),
+                         lassociator (U Z) (U Z') (F X) • (lax_monoidal_functor_μ U (Z',, Z) ▹ F X) •
+                         ab_str (X,, monoidal_cat_tensor Mon_M (Z', Z)) •
+                         # F ((μ_UZ'Zinv Z' Z ▹ X) • rassociator (U Z) (U Z') X) =
+                         U Z ◃ ab_str (X,, Z') • ab_str (U Z' · X,, Z).
+
+<span class="kn">Lemma</span> <span class="nf">pentagon_eq_nice_implies_pentagon_eq_nicer</span> : pentagon_eq_nice -&gt; pentagon_eq_nicer.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Heq'.
+  <span class="nb">intros</span> X Z' Z.
+  <span class="nb">assert</span> (Heqinst := Heq' X Z' Z).
+  <span class="nb">clear</span> Heq'.
+  <span class="nb">rewrite</span> Heqinst.
+  <span class="nb">clear</span> Heqinst.
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> id2_right. }
+  <span class="nb">rewrite</span> &lt;- vassocr.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> (functor_comp(C:=hom c0 d0')(C':=hom c0 d0)). }
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (functor_id_id (hom c0 d0') (hom c0 d0)).
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> &lt;- vassocr.
+  <span class="nb">apply</span> (lhs_left_invert_cell _ _ _ (is_invertible_2cell_lassociator _ _ _)).
+  <span class="nb">rewrite</span> id2_right.
+  <span class="nb">rewrite</span> vassocr.
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> id2_left. }
+  <span class="nb">apply</span> maponpaths_2.
+  <span class="nb">rewrite</span> rwhisker_vcomp.
+  etrans.
+  { <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso (strong_monoidal_functor_μ U) (Z',,Z))).
+  }
+  <span class="nb">apply</span> id2_rwhisker.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pentagon_eq_nicer_implies_pentagon_eq_nice</span> : pentagon_eq_nicer -&gt; pentagon_eq_nice.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Heq.
+  <span class="nb">intros</span> X Z' Z.
+  <span class="nb">specialize</span> (Heq X Z' Z).
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths_2.
+       <span class="bp">exact</span> Heq. }
+  <span class="nb">clear</span> Heq.
+  <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- vassocr.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+  etrans.
+  { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id2_right. }
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> (functor_comp(C:=hom c0 d0')(C':=hom c0 d0)). }
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> (functor_id_id (hom c0 d0') (hom c0 d0)).
+  <span class="nb">refine</span> (vassocr _ _ _ @ _).
+  etrans.
+  { <span class="nb">apply</span> maponpaths_2. <span class="nb">apply</span> vassocl. }
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths_2.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> rassociator_lassociator.
+    }
+    <span class="nb">apply</span> id2_right.
+  }
+  <span class="nb">rewrite</span> rwhisker_vcomp.
+  etrans.
+  { <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso (strong_monoidal_functor_μ U) (Z',,Z))).
+  }
+  <span class="nb">apply</span> id2_rwhisker.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">End</span> <span class="nf">ActionBased_Strength_Between_Homs_In_Bicat</span>.
+
+<span class="kn">Section</span> <span class="nf">Instantiation_To_FunctorCategory_And_PointedEndofunctors</span>.
+
+<span class="kn">Section</span> <span class="nf">a_different_type_for_the_forgetful_functor_from_ptd</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">functor_ptd_forget_alt</span>
+    : category_Ptd C
+      ⟶
+      category_from_bicat_and_ob(C:=bicat_of_cats) C.
+  <span class="kn">Proof</span>.
+    use make_functor.
+    - <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">a</span>, <span class="nv">pr1</span> <span class="nv">a</span>).
+      <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span>, pr1 f).
+    - <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">aux</span> : monoidal_functor_map (monoidal_cat_of_pointedfunctors _)
+                                              (monoidal_cat_from_bicat_and_ob(C:=bicat_of_cats) C) functor_ptd_forget_alt.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span> x. <span class="nb">cbn</span>. <span class="nb">apply</span> nat_trans_id.
+    - <span class="kp">abstract</span> ( <span class="nb">intros</span> xy xy' fg; <span class="nb">apply</span> nat_trans_eq_alt;
+                 <span class="nb">intro</span> c; <span class="nb">cbn</span>; <span class="nb">rewrite</span> id_left, id_right; <span class="nb">apply</span> idpath ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">forgetful_functor_from_ptd_as_strong_monoidal_functor_alt</span>
+   : strong_monoidal_functor (monoidal_cat_of_pointedfunctors C)
+                                              (monoidal_cat_from_bicat_and_ob (C:=bicat_of_cats) C).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> (make_lax_monoidal_functor (monoidal_cat_of_pointedfunctors C)
+                       (monoidal_cat_from_bicat_and_ob (C:=bicat_of_cats) C)
+                       functor_ptd_forget_alt (nat_trans_id _) aux).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> PF1 PF2 PF3 ;
+           <span class="nb">apply</span> nat_trans_eq_alt ;
+           <span class="nb">intro</span> c ;
+           <span class="nb">cbn</span> ;
+           <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> functor_id ;
+           <span class="kp">repeat</span> <span class="nb">rewrite</span> id_right ;
+           <span class="nb">apply</span> functor_id).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> PF ;
+           <span class="nb">split</span>; <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">cbn</span> ;
+             [ <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_right ;
+               <span class="nb">apply</span> pathsinv0 ;
+               <span class="nb">apply</span> functor_id
+             | <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_right ;
+               <span class="nb">apply</span> idpath]).
+    - <span class="nb">split</span> ;
+        [ <span class="nb">apply</span> (nat_trafo_z_iso_if_pointwise_z_iso (homset_property _));
+          <span class="nb">apply</span> is_nat_z_iso_nat_trans_id
+        | <span class="nb">red</span> ; <span class="nb">intro</span> c ;
+          <span class="k">exists</span> (<span class="nv">nat_trans_id</span> <span class="nv">_</span>) ;
+          <span class="nb">split</span>; <span class="nb">cbn</span> ;
+          [ <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property |] ; <span class="nb">intro</span> c'; <span class="nb">cbn</span> ;
+            <span class="nb">apply</span> id_left
+          | <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property |]; <span class="nb">intro</span> c'; <span class="nb">cbn</span> ;
+            <span class="nb">apply</span> id_left ]].
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">a_different_type_for_the_forgetful_functor_from_ptd</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">D'</span> : category).
+
+<span class="kn">Local Definition</span> <span class="nf">forget</span> := swapping_of_strong_monoidal_functor(forgetful_functor_from_ptd_as_strong_monoidal_functor_alt C).
+
+
+<span class="c">(* the following in order to understand why [forgetful_functor_from_ptd_as_strong_monoidal_functor_alt] is needed here *)</span>
+<span class="kn">Local Definition</span> <span class="nf">moncat1</span> : monoidal_cat := swapping_of_monoidal_cat (EndofunctorsMonoidal.monoidal_cat_of_endofunctors C).
+<span class="kn">Local Definition</span> <span class="nf">moncat2</span> := Mon_endo (C:=bicat_of_cats) C.
+
+<span class="c">(*</span>
+<span class="c">Lemma same_precategory : pr1 moncat1 = pr1 moncat2.</span>
+<span class="c">Proof.</span>
+<span class="c">  UniMath.MoreFoundations.Tactics.show_id_type.</span>
+<span class="c">  unfold moncat1, moncat2.</span>
+<span class="c">  unfold EndofunctorsMonoidal.monoidal_cat_of_endofunctors, Mon_endo.</span>
+<span class="c">  cbn.</span>
+<span class="c">The unachievable goal is then:</span>
+<span class="c">                  [C, C, hs] = category_from_bicat_and_ob (C,, hs)</span>
+<span class="c">*)</span>
+
+<span class="kn">Lemma</span> <span class="nf">same_precategory_data</span> : pr111 moncat1 = pr111 moncat2.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">same_tensor_data</span> : pr112 moncat1 = pr112 moncat2.
+<span class="kn">Proof</span>.
+  <span class="c">(* show_id_type. *)</span>
+  <span class="nb">unfold</span> moncat1, moncat2.
+  <span class="nb">unfold</span> EndofunctorsMonoidal.monoidal_cat_of_endofunctors, Mon_endo.
+  <span class="nb">cbn</span>.
+  <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+  use functor_data_eq.
+  - <span class="nb">intro</span> x.
+    <span class="nb">cbn</span>.
+  <span class="c">(* The goal is then: pr2 x ∙ pr1 = pr2 x ∙ pr1 x *)</span>
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> C1 C2 f. <span class="nb">cbn</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="c">(* cannot be typechecked any longer</span>
+<span class="c">Lemma same_I : pr222 moncat1 = pr222 moncat2.</span>
+<span class="c"> *)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">Mon_endo'</span> : monoidal_cat := swapping_of_monoidal_cat (monoidal_cat_of_pointedfunctors C).
+<span class="kn">Local Definition</span> <span class="nf">domain_action</span> : action Mon_endo' (hom(C:=bicat_of_cats) C D')
+    := ab_strength_domain_action(C:=bicat_of_cats) C D' forget.
+<span class="kn">Local Definition</span> <span class="nf">target_action</span> : action Mon_endo' (hom(C:=bicat_of_cats) C D)
+    := ab_strength_target_action(C:=bicat_of_cats) C D forget.
+
+
+<span class="kn">Section</span> <span class="nf">Signature_From_ActionBased_Strength</span>.
+
+<span class="kn">Section</span> <span class="nf">IndividualFunctorsWithABStrength</span>.
+
+  <span class="kn">Context</span> (<span class="nv">H</span> : functor [C, D'] [C, D]).
+
+
+  <span class="kn">Definition</span> <span class="nf">ab_strength_for_functors_and_pointed_functors</span> : UU
+    := ab_strength_on_homs_in_bicat(C:=bicat_of_cats) C D D' forget H.
+
+  <span class="kn">Definition</span> <span class="nf">ab_strength_for_functors_and_pointed_functors_to_actionbased_strength</span>
+             (<span class="nv">ab_str</span> : ab_strength_for_functors_and_pointed_functors) :
+    actionbased_strength (swapping_of_monoidal_cat (monoidal_cat_of_pointedfunctors C))
+                         (ab_strength_domain_action(C:=bicat_of_cats) C D' forget)
+                         (ab_strength_target_action(C:=bicat_of_cats) C D forget) H
+    := ab_str.
+  <span class="kn">Coercion</span> <span class="nf">ab_strength_for_functors_and_pointed_functors_to_actionbased_strength</span> :
+    ab_strength_for_functors_and_pointed_functors &gt;-&gt; actionbased_strength.
+
+  <span class="kn">Context</span> (<span class="nv">ab_str</span> : ab_strength_for_functors_and_pointed_functors).
+
+  <span class="c">(* adapt typing of [pr1 ab_str] for use in [Signature] *)</span>
+  <span class="kn">Definition</span> <span class="nf">θ_for_signature_nat_trans_data</span> : nat_trans_data (θ_source H) (θ_target H).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="nb">set</span> (result :=  ab_str x : functor_composite_data (pr12 x) (pr1 (pr1 H (pr1 x))) ⟹ pr1 (pr1 H (functor_compose (pr12 x) (pr1 x)))). <span class="sd">(** this typing is crucial for termination of type-checking *)</span>
+    <span class="bp">exact</span> result.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">θ_for_signature_is_nat_trans</span> : is_nat_trans (θ_source H) (θ_target H) θ_for_signature_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x x' f.
+    <span class="c">(* UniMath.MoreFoundations.Tactics.show_id_type. *)</span>
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (Heq := nat_trans_ax ab_str x x' f).
+    <span class="nb">assert</span> (Heqc := nat_trans_eq_weq (homset_property D) _ _ Heq c).
+    <span class="nb">clear</span> Heq.
+    <span class="nb">cbn</span> <span class="k">in</span> Heqc.
+    <span class="nb">unfold</span> θ_for_signature_nat_trans_data.
+    <span class="bp">exact</span> Heqc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">θ_for_signature</span> : θ_source H ⟹ θ_target H
+    := (θ_for_signature_nat_trans_data,,θ_for_signature_is_nat_trans).
+
+  <span class="kn">Lemma</span> <span class="nf">signature_from_ab_strength_law1</span> : θ_Strength1_int θ_for_signature.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>. <span class="nb">intro</span> X.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (HypX := triangle_eq_implies_triangle_eq_nice _ _ _ _ _ _ (ab_strength_triangle _ ab_str) X).
+    <span class="nb">assert</span> (Heqc := nat_trans_eq_weq (homset_property D) _ _ HypX c).
+    <span class="nb">cbn</span> <span class="k">in</span> Heqc.
+    intermediate_path (# (pr1 (H X)) (id₁ c) · id₁ (pr1(pr1 H X) c)).
+    <span class="mi">2</span>: {  etrans.
+          { <span class="nb">apply</span> id_right. }
+          <span class="nb">apply</span> (functor_id (H X)).
+    }
+    etrans.
+    <span class="mi">2</span>: { <span class="bp">exact</span> Heqc. }
+    <span class="nb">clear</span> HypX Heqc.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> nat_trans_eq_pointwise.
+    <span class="nb">clear</span> c.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> pathsinv0.
+    etrans.
+    { <span class="nb">apply</span> id_right. }
+    <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">test</span>
+             (<span class="nv">X</span> : [C, D'])
+             (<span class="nv">Z</span> <span class="nv">Z'</span> : category_Ptd C)
+             (<span class="nv">c</span> : C)
+    : UU.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (id₁ _
+                   · # (pr1 (H X)) (id₁ _)
+                   · pr1 (ab_str (X,, PointedFunctorsComposition.ptd_compose C Z Z')) c
+                   · pr1 (# H _) c
+                   =
+                   pr1 (θ_for_signature_nat_trans_data (X, Z')) ((pr111 Z) c)
+                       · pr1 (θ_for_signature_nat_trans_data
+                                (functor_compose (pr1 Z') X, Z))
+                       c).
+           <span class="bp">exact</span> (nat_trans_comp
+                    (post_whisker (nat_trans_id _) _)
+                    (nat_trans_id _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">test'</span>
+             (<span class="nv">X</span> : [C, D'])
+             (<span class="nv">Z</span> <span class="nv">Z'</span> : category_Ptd C)
+             (<span class="nv">c</span> : C)
+    : test X Z Z' c.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> test.
+    <span class="nb">simpl</span>.
+    <span class="nb">assert</span> (HypX := pentagon_eq_nice_implies_pentagon_eq_nicer _ _ _ _ _ _
+                    (pentagon_eq_implies_pentagon_eq_nice _ _ _ _ _ _
+                     (ab_strength_pentagon _ ab_str)) X Z' Z).
+    <span class="nb">simpl</span> <span class="k">in</span> HypX.
+    <span class="bp">exact</span> (nat_trans_eq_pointwise HypX c).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">signature_from_ab_strength_law2</span> : θ_Strength2_int θ_for_signature.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Z Z'.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> assoc. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> maponpaths.
+         <span class="bp">exact</span> (test' X Z Z' c).
+    }
+    <span class="nb">simpl</span>.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_left. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">apply</span> pathsinv0.
+         <span class="nb">apply</span> remove_id_left.
+         - etrans.
+           { <span class="nb">apply</span> id_left. }
+           <span class="nb">apply</span> functor_id.
+         - <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> maponpaths_12.
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">apply</span> nat_trans_eq_pointwise.
+      <span class="nb">clear</span> c.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> c.
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0.
+         <span class="nb">apply</span> id_right. }
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">simpl</span>.
+      <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">signature_from_ab_strength</span> : Signature C D D'.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">H</span>.
+    <span class="k">exists</span> <span class="nv">θ_for_signature</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> signature_from_ab_strength_law1.
+    - <span class="bp">exact</span> signature_from_ab_strength_law2.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">IndividualFunctorsWithABStrength</span>.
+
+<span class="kn">Section</span> <span class="nf">IndividualStrongFunctors</span>.
+
+  <span class="kn">Context</span> (<span class="nv">FF</span> : actionbased_strong_functor Mon_endo' domain_action target_action).
+
+  <span class="kn">Definition</span> <span class="nf">signature_from_strong_functor</span> : Signature C D D' :=
+    signature_from_ab_strength FF (pr2 FF).
+
+<span class="kn">End</span> <span class="nf">IndividualStrongFunctors</span>.
+
+<span class="kn">Section</span> <span class="nf">Morphisms</span>.
+
+  <span class="kn">Context</span> {<span class="nv">FF</span> <span class="nv">GG</span> : actionbased_strong_functor Mon_endo' domain_action target_action}.
+  <span class="kn">Context</span> (<span class="nv">sη</span> : Strong_Functor_Category_Mor Mon_endo' domain_action target_action FF GG).
+
+  <span class="kn">Lemma</span> <span class="nf">signature_mor_from_ab_strength_mor_diagram</span> (<span class="nv">X</span> : [C, D']) (<span class="nv">Y</span> : category_Ptd C) :
+    Signature_category_mor_diagram C D D'
+      (signature_from_strong_functor FF) (signature_from_strong_functor GG) sη X Y.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (Hyp := pr2 sη X Y).
+    <span class="nb">red</span> <span class="k">in</span> Hyp. <span class="nb">cbn</span> <span class="k">in</span> Hyp.
+    etrans.
+    { <span class="bp">exact</span> Hyp. }
+    <span class="nb">clear</span> Hyp.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> (horcomp_post_pre _ _ D).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">signature_mor_from_ab_strength_mor</span> :
+    SignatureMor C D D' (signature_from_strong_functor FF) (signature_from_strong_functor GG).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">sη</span>). <span class="c">(* better not first cbn and then omission of pr1 - for the sake of efficiency *)</span>
+    <span class="bp">exact</span> signature_mor_from_ab_strength_mor_diagram.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Morphisms</span>.
+
+<span class="kn">Definition</span> <span class="nf">ActionBasedStrongFunctorCategoryToSignatureCategory_data</span> : functor_data
+   (Strong_Functor_category Mon_endo' domain_action target_action)
+   (Signature_category C D D').
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> signature_from_strong_functor.
+  - <span class="nb">intros</span> FF GG sη. <span class="bp">exact</span> (signature_mor_from_ab_strength_mor sη).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ActionBasedStrongFunctorCategoryToSignatureCategory_is_functor</span> :
+  is_functor ActionBasedStrongFunctorCategoryToSignatureCategory_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> FF.
+    <span class="nb">apply</span> SignatureMor_eq.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> H.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> FF GG HH sη sη'.
+    <span class="nb">apply</span> SignatureMor_eq.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> H.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ActionBasedStrongFunctorCategoryToSignatureCategory</span> : functor
+   (Strong_Functor_category Mon_endo' domain_action target_action)
+   (Signature_category C D D')
+  := (_,,ActionBasedStrongFunctorCategoryToSignatureCategory_is_functor).
+
+<span class="kn">End</span> <span class="nf">Signature_From_ActionBased_Strength</span>.
+
+
+<span class="kn">Section</span> <span class="nf">ActionBased_Strength_From_Signature</span>.
+
+<span class="kn">Section</span> <span class="nf">IndividualSignatures</span>.
+
+  <span class="kn">Context</span> (<span class="nv">sig</span> : Signature C D D').
+
+  <span class="kn">Local Lemma</span> <span class="nf">aux0</span> ( <span class="nv">x</span> : [C, D'] ⊠ Mon_endo') :
+    hom(C:=bicat_of_cats) C D
+       ⟦ actionbased_strength_dom Mon_endo' target_action sig x,
+         actionbased_strength_codom Mon_endo' domain_action sig x ⟧
+    = functor_composite_data (pr12 x) (pr1 (sig (pr1 x))) ⟹  pr1 (sig (pr12 x ∙ pr1 x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">θ_for_ab_strength_data</span>
+    : nat_trans_data (actionbased_strength_dom Mon_endo' target_action sig)
+                     (actionbased_strength_codom Mon_endo' domain_action sig).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (eqweqmap (!aux0 x) (theta sig x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">θ_for_ab_strength_ax</span> : is_nat_trans _ _ θ_for_ab_strength_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x x' f.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">assert</span> (Heq := nat_trans_ax (theta sig) x x' f).
+    <span class="nb">assert</span> (Heqc := nat_trans_eq_weq (homset_property D) _ _ Heq c).
+    <span class="nb">clear</span> Heq.
+    <span class="nb">simpl</span> <span class="k">in</span> Heqc.
+    <span class="nb">simpl</span>.
+    etrans.
+    { <span class="bp">exact</span> Heqc. }
+    <span class="nb">clear</span> Heqc.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">θ_for_ab_strength</span> : actionbased_strength_nat Mon_endo' domain_action target_action sig.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> θ_for_ab_strength_data.
+    - <span class="bp">exact</span> θ_for_ab_strength_ax.
+  <span class="kn">Defined</span>.
+  <span class="c">(* very slow processing of both steps then verification *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">θ_for_ab_strength_law1</span> :
+    actionbased_strength_triangle_eq Mon_endo' domain_action target_action sig θ_for_ab_strength.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>. <span class="nb">intro</span> X.
+    <span class="nb">assert</span> (HypX := Sig_strength_law1 sig X).
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">cbn</span>.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0.
+         etrans.
+         { <span class="nb">apply</span> id_right. }
+         etrans.
+         { <span class="nb">apply</span> id_right. }
+         <span class="nb">apply</span> (functor_id (sig X)).
+    }
+    <span class="nb">assert</span> (Heqc := nat_trans_eq_weq (homset_property D) _ _ HypX c).
+    <span class="nb">clear</span> HypX.
+    <span class="nb">cbn</span> <span class="k">in</span> Heqc.
+    etrans.
+    <span class="mi">2</span>: { <span class="bp">exact</span> Heqc. }
+    <span class="nb">clear</span> Heqc.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> nat_trans_eq_pointwise.
+    <span class="nb">clear</span> c.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">cbn</span>.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> functor_id.
+  <span class="kn">Time</span> <span class="kn">Qed</span>. <span class="c">(* 5.172 seconds *)</span>
+  <span class="c">(* slow verification *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">θ_for_ab_strength_law2</span>
+    : actionbased_strength_pentagon_eq Mon_endo' domain_action target_action sig θ_for_ab_strength.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Z' Z.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">simpl</span>.
+    <span class="nb">assert</span> (HypX := θ_Strength2_int_implies_θ_Strength2_int_nicer _
+                        (Sig_strength_law2 sig) X Z Z').
+    <span class="nb">assert</span> (Heqc := nat_trans_eq_weq (homset_property D) _ _ HypX c).
+    <span class="nb">clear</span> HypX.
+    <span class="nb">cbn</span> <span class="k">in</span> Heqc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">apply</span> id_left.
+    }
+    etrans.
+    {
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> functor_id.
+      }
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> functor_id.
+        }
+        <span class="nb">apply</span> functor_id.
+      }
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">refine</span> (!_).
+    <span class="nb">refine</span> (Heqc @ _).
+    <span class="nb">clear</span> Heqc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> nat_trans_eq_pointwise.
+    <span class="nb">clear</span> c.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> functor_id.
+  <span class="kn">Time</span> <span class="kn">Qed</span>. <span class="c">(* 78.153 secs *)</span>
+
+
+  <span class="kn">Definition</span> <span class="nf">ab_strength_from_signature</span> :
+    ab_strength_for_functors_and_pointed_functors sig.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">θ_for_ab_strength</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> θ_for_ab_strength_law1.
+    - <span class="bp">exact</span> θ_for_ab_strength_law2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ab_strong_functor_from_signature</span> :
+    actionbased_strong_functor Mon_endo' domain_action target_action
+    := (pr1 sig,,ab_strength_from_signature).
+
+<span class="kn">End</span> <span class="nf">IndividualSignatures</span>.
+
+<span class="kn">Section</span> <span class="nf">Morphisms</span>.
+
+  <span class="kn">Context</span> {<span class="nv">sig1</span> <span class="nv">sig2</span> : Signature C D D'}.
+  <span class="kn">Context</span> (<span class="nv">f</span> : SignatureMor C D D' sig1 sig2).
+
+  <span class="kn">Lemma</span> <span class="nf">ab_strength_mor_from_signature_mor_is_nat_trans</span> :
+    is_nat_trans _ _ (pr11 f).
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>.
+    <span class="nb">intros</span> F F' g.
+    <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (Hyp := pr21 f F F' g).
+    <span class="bp">exact</span> Hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ab_strength_mor_from_signature_mor_nat_trans</span> :
+     ab_strong_functor_from_signature sig1 ⟹ ab_strong_functor_from_signature sig2.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">pr11</span> <span class="nv">f</span>).
+    <span class="bp">exact</span> ab_strength_mor_from_signature_mor_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ab_strength_mor_from_signature_mor_diagram</span>
+        (<span class="nv">a</span> : hom(C:=bicat_of_cats) C D')
+        (<span class="nv">v</span> : Mon_endo') :
+   Strong_Functor_Category_mor_diagram Mon_endo' domain_action target_action
+    (ab_strong_functor_from_signature sig1)
+    (ab_strong_functor_from_signature sig2)
+    ab_strength_mor_from_signature_mor_nat_trans a v.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">assert</span> (Hyp := pr2 f a v).
+    <span class="nb">red</span> <span class="k">in</span> Hyp. <span class="nb">cbn</span> <span class="k">in</span> Hyp.
+    etrans.
+    { <span class="bp">exact</span> Hyp. }
+    <span class="nb">clear</span> Hyp.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (horcomp_post_pre _ _ D).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ab_strength_mor_from_signature_mor</span> : Strong_Functor_Category_Mor
+    Mon_endo' domain_action target_action
+    (ab_strong_functor_from_signature sig1)
+    (ab_strong_functor_from_signature sig2).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">ab_strength_mor_from_signature_mor_nat_trans</span>.
+    <span class="bp">exact</span> ab_strength_mor_from_signature_mor_diagram.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Morphisms</span>.
+
+<span class="kn">Definition</span> <span class="nf">SignatureCategoryToActionBasedStrongFunctorCategory_data</span> :
+  functor_data (Signature_category C D D')
+               (Strong_Functor_category Mon_endo' domain_action target_action).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">intro</span> sig. <span class="bp">exact</span> (ab_strong_functor_from_signature sig).
+  - <span class="nb">intros</span> sig1 sig2 f. <span class="bp">exact</span> (ab_strength_mor_from_signature_mor f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">SignatureCategoryToActionBasedStrongFunctorCategory_is_functor</span> :
+  is_functor SignatureCategoryToActionBasedStrongFunctorCategory_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> H.
+    <span class="nb">apply</span> Strong_Functor_Category_Mor_eq.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> X.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> F G H f g.
+    <span class="nb">apply</span> Strong_Functor_Category_Mor_eq.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> X.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">SignatureCategoryToActionBasedStrongFunctorCategory</span> : functor
+  (Signature_category C D D')
+  (Strong_Functor_category Mon_endo' domain_action target_action)
+  := (_,,SignatureCategoryToActionBasedStrongFunctorCategory_is_functor).
+
+
+<span class="kn">End</span> <span class="nf">ActionBased_Strength_From_Signature</span>.
+
+<span class="c">(* the following lemma cannot be used in the construction of the equivalence of categories *)</span>
+<span class="kn">Lemma</span> <span class="nf">roundtrip1_ob_as_equality</span> (<span class="nv">sig</span> : Signature C D D') : signature_from_strong_functor (ab_strong_functor_from_signature sig) = sig.
+<span class="kn">Proof</span>.
+  use total2_paths_f.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    use total2_paths_f.
+    + <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> x; <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> dirprodeq.
+      * <span class="nb">apply</span> isaprop_θ_Strength1_int.
+      * <span class="nb">apply</span> isaprop_θ_Strength2_int.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">roundtrip1_ob_nat_trans_data</span> : nat_trans_data
+  (functor_identity (Signature_category C D D'))
+  (SignatureCategoryToActionBasedStrongFunctorCategory ∙ ActionBasedStrongFunctorCategoryToSignatureCategory).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> sig. <span class="nb">cbn</span>.
+  use tpair.
+  - use make_nat_trans.
+    + <span class="nb">intro</span> X. <span class="bp">exact</span> (identity (pr1(pr1 sig) X)).
+    + <span class="nb">intros</span> X1 X2 f.
+      etrans.
+      { <span class="nb">apply</span> (id_right (# (pr11 sig) f)). }
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> (id_left (# (pr11 sig) f)). }
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y. <span class="nb">red</span>.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    etrans.
+    { <span class="nb">apply</span> id_right. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">cbn</span>.
+         <span class="nb">apply</span> pathsinv0.
+         <span class="nb">apply</span> id_left.
+    }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">apply</span> pathsinv0.
+         <span class="nb">apply</span> (functor_id (pr11 sig X)).
+    }
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">roundtrip1_ob_nat_trans_data_pointwise_inv</span> (<span class="nv">sig</span> : Signature_category C D D') :
+  SignatureMor C D D' (signature_from_strong_functor (ab_strong_functor_from_signature sig)) sig.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use make_nat_trans.
+    + <span class="nb">intro</span> X. <span class="bp">exact</span> (identity (pr11 sig X)).
+    + <span class="nb">intros</span> X1 X2 f.
+      etrans.
+      { <span class="nb">apply</span> id_right. }
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_left. }
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y. <span class="nb">red</span>.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    etrans.
+    { <span class="nb">apply</span> id_right. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">cbn</span>.
+         <span class="nb">apply</span> pathsinv0.
+         <span class="nb">apply</span> id_left.
+    }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">apply</span> pathsinv0.
+         <span class="nb">apply</span> (functor_id (pr11 sig X)).
+    }
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">roundtrip1_ob_data_is_nat_z_iso</span> : is_nat_z_iso roundtrip1_ob_nat_trans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> sig.
+  <span class="k">exists</span> (<span class="nv">roundtrip1_ob_nat_trans_data_pointwise_inv</span> <span class="nv">sig</span>).
+  <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">apply</span> SignatureMor_eq;
+    <span class="nb">apply</span> nat_trans_eq_alt;
+    <span class="nb">intro</span> X;
+    <span class="nb">cbn</span>;
+    <span class="nb">apply</span> (id_left(C:=[C, D]))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">roundtrip1_ob_data_is_nat_trans</span> : is_nat_trans _ _ roundtrip1_ob_nat_trans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> sig1 sig2 f.
+  <span class="nb">apply</span> SignatureMor_eq.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> X.
+  etrans.
+  { <span class="nb">cbn</span>. <span class="nb">apply</span> (id_right(C:=[C, D])). }
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">cbn</span>. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> (id_left(C:=[C, D])). }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">roundtrip1_ob_nat_trans</span> :
+  (functor_identity (Signature_category C D D')) ⟹
+  SignatureCategoryToActionBasedStrongFunctorCategory ∙ ActionBasedStrongFunctorCategoryToSignatureCategory
+  := (roundtrip1_ob_nat_trans_data,,roundtrip1_ob_data_is_nat_trans).
+
+
+<span class="c">(* the following lemma cannot be used in the construction of the equivalence of categories *)</span>
+<span class="kn">Lemma</span> <span class="nf">roundtrip2_ob_as_equality</span> (<span class="nv">FF</span> : actionbased_strong_functor Mon_endo' domain_action target_action) : ab_strong_functor_from_signature (signature_from_strong_functor FF) = FF.
+<span class="kn">Proof</span>.
+  use total2_paths_f.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    use total2_paths_f.
+    + <span class="nb">apply</span> nat_trans_eq_alt.
+      <span class="nb">intro</span> x; <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> dirprodeq.
+      * <span class="nb">apply</span> isaprop_actionbased_strength_triangle_eq.
+      * <span class="nb">apply</span> isaprop_actionbased_strength_pentagon_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">roundtrip2_ob_nat_trans_data</span> : nat_trans_data
+  (ActionBasedStrongFunctorCategoryToSignatureCategory ∙ SignatureCategoryToActionBasedStrongFunctorCategory)
+  (functor_identity (Strong_Functor_category Mon_endo' domain_action target_action)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> FF. <span class="nb">cbn</span>.
+  use tpair.
+  - use make_nat_trans.
+    + <span class="nb">intro</span> X. <span class="bp">exact</span> (identity (pr1 (pr1 FF) X)).
+    + <span class="nb">intros</span> X1 X2 f.
+      etrans.
+      { <span class="nb">apply</span> (id_right (#(pr11 FF) f)). }
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> (id_left (#(pr11 FF) f)). }
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y. <span class="nb">red</span>.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    etrans.
+    { <span class="nb">apply</span> id_right. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">cbn</span>.
+         <span class="nb">apply</span> pathsinv0.
+         <span class="nb">apply</span> id_right.
+    }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">apply</span> pathsinv0.
+         <span class="nb">apply</span> (functor_id (pr11 FF X)).
+    }
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">roundtrip2_ob_nat_trans_data_pointwise_inv</span>
+           (<span class="nv">FF</span> : Strong_Functor_category Mon_endo' domain_action target_action) :
+  Strong_Functor_Category_Mor Mon_endo' domain_action target_action FF
+                              (ab_strong_functor_from_signature (signature_from_strong_functor FF)).
+<span class="kn">Proof</span>.
+  use tpair.
+  - use make_nat_trans.
+    + <span class="nb">intro</span> X. <span class="bp">exact</span> (identity (pr11 FF X)).
+    + <span class="nb">intros</span> X1 X2 f.
+      etrans.
+      { <span class="nb">apply</span> id_right. }
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_left. }
+      <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y. <span class="nb">red</span>.
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> c.
+    etrans.
+    { <span class="nb">apply</span> id_right. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">cbn</span>.
+         <span class="nb">apply</span> pathsinv0.
+         <span class="nb">apply</span> id_right.
+    }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+         <span class="nb">apply</span> pathsinv0.
+         <span class="nb">apply</span> (functor_id (pr11 FF X)).
+    }
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">roundtrip2_ob_data_is_nat_z_iso</span> : is_nat_z_iso roundtrip2_ob_nat_trans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> FF.
+  <span class="k">exists</span> (<span class="nv">roundtrip2_ob_nat_trans_data_pointwise_inv</span> <span class="nv">FF</span>).
+  <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">apply</span> Strong_Functor_Category_Mor_eq;
+    <span class="nb">apply</span> nat_trans_eq_alt;
+    <span class="nb">intro</span> X;
+    <span class="nb">cbn</span>;
+    <span class="nb">apply</span> (id_left(C:=[C, D]))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">roundtrip2_ob_data_is_nat_trans</span> : is_nat_trans _ _ roundtrip2_ob_nat_trans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> FF GG sη.
+  <span class="nb">apply</span> Strong_Functor_Category_Mor_eq.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> X.
+  etrans.
+  { <span class="nb">cbn</span>. <span class="nb">apply</span> (id_right(C:=[C, D])). }
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">cbn</span>. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> (id_left(C:=[C, D])). }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">roundtrip2_ob_nat_trans</span> :
+  ActionBasedStrongFunctorCategoryToSignatureCategory ∙ SignatureCategoryToActionBasedStrongFunctorCategory
+  ⟹ functor_identity
+  (Strong_Functor_category Mon_endo' domain_action target_action)
+  := (roundtrip2_ob_nat_trans_data,,roundtrip2_ob_data_is_nat_trans).
+
+<span class="kn">Definition</span> <span class="nf">EquivalenceSignaturesABStrongFunctors</span>:
+  adj_equivalence_of_cats SignatureCategoryToActionBasedStrongFunctorCategory.
+<span class="kn">Proof</span>.
+  use make_adj_equivalence_of_cats.
+  - <span class="bp">exact</span> ActionBasedStrongFunctorCategoryToSignatureCategory.
+  - <span class="bp">exact</span> roundtrip1_ob_nat_trans.
+  - <span class="bp">exact</span> roundtrip2_ob_nat_trans.
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span> sig.
+      <span class="nb">apply</span> Strong_Functor_Category_Mor_eq.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> nat_trans_eq; [ <span class="nb">apply</span> (has_homsets_hom_data(C:=bicat_of_cats)) |].
+      <span class="nb">intro</span> X.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (id_left(C:=[C, D])).
+    + <span class="nb">intro</span> FF.
+      <span class="nb">apply</span> SignatureMor_eq.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> nat_trans_eq; [ <span class="nb">apply</span> (has_homsets_hom_data(C:=bicat_of_cats)) |].
+      <span class="nb">intro</span> X.
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> (id_left(C:=[C, D])).
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span> sig.
+      <span class="nb">apply</span> (_,,roundtrip1_ob_data_is_nat_z_iso sig).
+    + <span class="nb">intro</span> FF.
+      <span class="nb">apply</span> (_,,roundtrip2_ob_data_is_nat_z_iso FF).
+<span class="kn">Defined</span>.
+
+<span class="c">(* source and target category of the functors are deemed to be univalent if parameter category D is *)</span>
+<span class="kn">Definition</span> <span class="nf">Signature_category_is_univalent</span> (<span class="nv">univD</span> : is_univalent D) :
+  is_univalent (Signature_category C D D').
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (univalentD := make_univalent_category D univD).
+  <span class="bp">exact</span> (is_univalent_Signature_category C univalentD D').
+<span class="kn">Defined</span>.
+
+<span class="sd">(** the remainder of this file documents failing efforts - these problems ought to be gone after merging PR #1402 *)</span>
+
+<span class="c">(*</span>
+
+<span class="c">(* some hopeless efforts *)</span>
+<span class="c">Lemma Strong_Functor_category_is_univalent (univD : is_univalent D) :</span>
+<span class="c">  is_univalent (Strong_Functor_category Mon_endo' domain_action target_action</span>
+<span class="c">                                        (functor_category_has_homsets _ _ hsD)).</span>
+<span class="c">Proof.</span>
+<span class="c">  set (univalentD := make_univalent_category D (make_is_univalent (pr1 univD) hsD)).</span>
+<span class="c">  set (univalentA' := make_univalent_category [C, D, hsD] (make_is_univalent (pr1(is_univalent_functor_category C D (pr1 univD,,hsD))) (functor_category_has_homsets _ _ hsD))).</span>
+<span class="c">  change (is_univalent</span>
+<span class="c">              (Strong_Functor_category Mon_endo' domain_action target_action (homset_property univalentA'))).</span>
+<span class="c">  assert (target_action' := target_action).</span>
+<span class="c">  change (action Mon_endo' (hom(C:=bicat_of_cats) (C,, hs) (univalent_category_to_category univalentD))) in target_action'.</span>
+
+<span class="c">(*</span>
+<span class="c">    exact (is_univalent_Strong_Functor_category Mon_endo' [C, D', hsD'] univalentA' domain_action target_action').</span>
+<span class="c">*)</span>
+
+
+<span class="c"> (* the following lemma can only come from univalence of the involved categories *)</span>
+<span class="c">Lemma SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law :</span>
+<span class="c">  is_inverse_in_precat(C:=bicat_of_cats)</span>
+<span class="c">                      (a:=Signature_category (C,,hs) (D,,hsD) (D',,hsD'))</span>
+<span class="c">                      (b:=Strong_Functor_category Mon_endo' domain_action target_action</span>
+<span class="c">                                                  (functor_category_has_homsets _ _ hsD))</span>
+<span class="c">                      SignatureCategoryToActionBasedStrongFunctorCategory</span>
+<span class="c">                      ActionBasedStrongFunctorCategoryToSignatureCategory.</span>
+<span class="c">Proof.</span>
+
+<span class="c">(*</span>
+<span class="c">Definition SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso :</span>
+<span class="c">  z_iso(C:=bicat_of_cats) (Signature_category (C,,hs) (D,,hsD) (D',,hsD'))</span>
+<span class="c">                      (Strong_Functor_category Mon_endo' domain_action target_action</span>
+<span class="c">                                               (functor_category_has_homsets _ _ hsD)).</span>
+<span class="c">Proof.</span>
+<span class="c">  exists SignatureCategoryToActionBasedStrongFunctorCategory.</span>
+<span class="c">  exists ActionBasedStrongFunctorCategoryToSignatureCategory.</span>
+<span class="c">  exact SignatureCategoryAndActionBasedStrongFunctorCategory_z_iso_law.</span>
+<span class="c">Defined.</span>
+<span class="c"> *)</span>
+
+
+<span class="c">*)</span>
+<span class="kn">End</span> <span class="nf">Instantiation_To_FunctorCategory_And_PointedEndofunctors</span>.
+
+<span class="c">(*</span>
+<span class="c">Section Instantiation_To_FunctorCategory_And_PointedEndofunctors_Univalence.</span>
+<span class="c">  Context (C : category) (D : univalent_category) (D' : category).</span>
+<span class="c">  Definition BothCategoriesUnivalent:</span>
+<span class="c">  is_univalent (Signature_category C D D') ×</span>
+<span class="c">               is_univalent (Strong_Functor_category (Mon_endo' C (homset_property C))</span>
+<span class="c">                                                     (domain_action C (homset_property C) D' (homset_property D'))</span>
+<span class="c">                                                     (target_action C (homset_property C) D (homset_property D))</span>
+<span class="c">                                                     (functor_category_has_homsets _ _ (homset_property D))).</span>
+<span class="c">  Proof.</span>
+<span class="c">    split.</span>
+<span class="c">    - exact (is_univalent_Signature_category C D D').</span>
+<span class="c">    - set (univalentA' := make_univalent_category [C, D, homset_property D]</span>
+<span class="c">                           (is_univalent_functor_category C D (univalent_category_is_univalent D))).</span>
+<span class="c">      change (is_univalent (Strong_Functor_category (Mon_endo' C (homset_property C))</span>
+<span class="c">                                                    (domain_action C (homset_property C) D' (homset_property D'))</span>
+<span class="c">                                                    (target_action C (homset_property C) D (homset_property D))</span>
+<span class="c">                                                    (homset_property univalentA'))).</span>
+<span class="c">      (* for checking purposes: *)</span>
+<span class="c">      assert (target := target_action C (homset_property C) D (homset_property D)).</span>
+<span class="c">      (* the following works but does not help in the sequel:</span>
+<span class="c">      change (action (Mon_endo' C (homset_property C)) (hom(C:=bicat_of_cats) C (univalent_category_to_category D))) in target. *)</span>
+<span class="c">      assert (test1 : pr1 univalentA' = [C, D, homset_property D]).</span>
+<span class="c">      { apply idpath. }</span>
+<span class="c">      clear test1.</span>
+<span class="c">      set (test2 := pr22 univalentA').</span>
+<span class="c">      cbn in test2. unfold functor_category_has_homsets in test2.</span>
+<span class="c">      set (test3 := pr2 bicat_of_cats C (univalent_category_to_category D)).</span>
+<span class="c">      cbn in test3. unfold isaset_cells_prebicat_of_cats in test3.</span>
+<span class="c">      assert (test4 : test3 = test2).</span>
+<span class="c">      { apply idpath. } (* okay thanks to changes in UniMath/Bicategories/Core/Examples/BicatOfCatsWithoutUnivalence.v</span>
+<span class="c">       and UniMath/CategoryTheory/FunctorCategory.v  *)</span>
+<span class="c">      clear test2 test3 test4.</span>
+<span class="c">      (* does not terminate:</span>
+<span class="c">      change (action (Mon_endo' C (homset_property C)) (univalentA')) in target. *)</span>
+
+<span class="c">      (*</span>
+<span class="c">      assert (Hyp: action (Mon_endo' C (homset_property C)) (hom(C:=bicat_of_cats) C (univalent_category_to_category D)) &lt;-&gt;</span>
+<span class="c">                   action (Mon_endo' C (homset_property C)) (univalentA')).</span>
+<span class="c">      { split.</span>
+<span class="c">        intro act.</span>
+<span class="c">        induction act as [odot [ρ [χ [triangle pentagon]]]].</span>
+<span class="c">        exists odot.</span>
+<span class="c">        exists ρ.</span>
+<span class="c">        (* does not terminate: exists χ. *)</span>
+<span class="c">      }</span>
+<span class="c">*)</span>
+<span class="c">      set (what_we_want_without_last_argument := is_univalent_Strong_Functor_category (Mon_endo' C (homset_property C))</span>
+<span class="c">                                                     (hom(C:=bicat_of_cats) C D')</span>
+<span class="c">                                                     univalentA'</span>
+<span class="c">                                                     (domain_action C (homset_property C) D' (homset_property D'))).</span>
+<span class="c">      (* does not terminate</span>
+<span class="c">      set (what_we_want :=  what_we_want_without_last_argument (target_action C (homset_property C) D (homset_property D))).</span>
+<span class="c">       *)</span>
+
+<span class="c">                                     (*</span>
+<span class="c">      exact what_we_want.</span>
+<span class="c">  Defined.*)</span>
+
+
+<span class="c">  End Instantiation_To_FunctorCategory_And_PointedEndofunctors_Univalence.</span>
+<span class="c">*)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/ActionBasedStrengthOnHomsInBicat.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

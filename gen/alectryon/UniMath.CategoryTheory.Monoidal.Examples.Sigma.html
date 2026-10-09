@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Sigma.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">In this file, we construct a displayed monoidal structure on the sigma construction (of displayed categories), given both displayed categories have a displayed monoidal structure.</span>
+<span class="c">For simplicity, we assume that the upper-most displayed category is locally propositional (this assumption is satisfied for the instantiations).</span>
+
+<span class="c">Contents:</span>
+<span class="c">        1. SigmaConstruction: Constructs the monoidal structure [sigma_disp_cat_monoidal];</span>
+<span class="c">        2. SigmaConstructionSymmetric: Constructs a symmetric monoidal structure [sigma_disp_cat_monoidal_symmetric];</span>
+<span class="c">        3. Dirprodconstruction: Explicit construction of the product of displayed monoidal categories [dirprod_disp_cat_monoidal, dirprod_disp_cat_symmetric_monoidal].</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.WhiskeredDisplayedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.Fullsub.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Import</span> DisplayedBifunctorNotations.
+
+<span class="kn">Section</span> <span class="nf">SigmaConstruction</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">M</span> : monoidal C}
+    {<span class="nv">D</span> : disp_cat C} {<span class="nv">DM</span> : disp_monoidal D M}
+    {<span class="nv">E</span> : disp_cat (total_category D)}
+    (<span class="nv">EM</span> : disp_monoidal E (total_monoidal DM)).
+
+  <span class="kn">Context</span> (<span class="nv">E_prop</span> : locally_propositional E).
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_tensor_data</span>
+    : disp_bifunctor_data M (sigma_disp_cat E) (sigma_disp_cat E) (sigma_disp_cat E).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, (_ ,, _)).
+    - <span class="nb">intros</span> x y [xx xxx] [yy yyy].
+      <span class="k">exists</span> (<span class="nv">xx</span> ⊗⊗_{DM} yy).
+      <span class="bp">exact</span> (xxx ⊗⊗_{EM} yyy).
+    - <span class="nb">intros</span> x y1 y2 g [xx xxx] [yy1 yyy1] [yy2 yyy2] [gg ggg].
+      <span class="k">exists</span> (<span class="nv">xx</span> ⊗⊗^{DM}_{l} gg).
+      <span class="bp">exact</span> (xxx ⊗⊗^{EM}_{l} ggg).
+    - <span class="nb">intros</span> y1 y2 x g [yy1 yyy1] [yy2 yyy2] [xx xxx] [gg ggg].
+      <span class="k">exists</span> (<span class="nv">gg</span> ⊗⊗^{DM}_{r} xx).
+      <span class="bp">exact</span> (ggg ⊗⊗^{EM}_{r} xxx).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">sigma_disp_is_tensor</span>
+    : is_disp_bifunctor M sigma_disp_cat_tensor_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y [xx xxx] [yy yyy].
+      use total2_paths_f.
+      + <span class="nb">refine</span> (disp_bifunctor_leftid DM x y xx yy @ _).
+        <span class="nb">apply</span> pathsinv0, pr1_transportf.
+      + <span class="nb">apply</span> E_prop.
+    - <span class="nb">intros</span> x y [xx xxx] [yy yyy].
+      use total2_paths_f.
+      + <span class="nb">refine</span> (disp_bifunctor_rightid DM x y xx yy @ _).
+        <span class="nb">apply</span> pathsinv0, pr1_transportf.
+      + <span class="nb">apply</span> E_prop.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      use total2_paths_f.
+      + <span class="nb">refine</span> (disp_bifunctor_leftcomp DM _ _ _ _ _ _ _ _ _ _ _ _ @ _).
+        <span class="nb">apply</span> pathsinv0, pr1_transportf.
+      + <span class="nb">apply</span> E_prop.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      use total2_paths_f.
+      + <span class="nb">refine</span> (disp_bifunctor_rightcomp DM _ _ _ _ _ _ _ _ _ _ _ _ @ _).
+        <span class="nb">apply</span> pathsinv0, pr1_transportf.
+      + <span class="nb">apply</span> E_prop.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      use total2_paths_f.
+      + etrans. {
+          <span class="nb">apply</span> disp_bifunctor_equalwhiskers.
+        }
+        <span class="nb">apply</span> pathsinv0, pr1_transportf.
+      + <span class="nb">apply</span> E_prop.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_tensor</span>
+    : disp_tensor (sigma_disp_cat E) M.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">sigma_disp_cat_tensor_data</span>.
+    <span class="nb">apply</span> sigma_disp_is_tensor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_unit</span> :
+    sigma_disp_cat E I_{M}
+    := (disp_monoidal_unit DM,, disp_monoidal_unit EM).
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_lunitor</span>
+    : disp_leftunitor_data sigma_disp_cat_tensor sigma_disp_cat_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x [xx xxx].
+    <span class="k">exists</span> (<span class="nv">disp_monoidal_leftunitor</span> <span class="nv">DM</span> <span class="nv">_</span> <span class="nv">xx</span>).
+    <span class="bp">exact</span> (disp_monoidal_leftunitor EM _ xxx).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_lunitorinv</span>
+    : disp_leftunitorinv_data sigma_disp_cat_tensor sigma_disp_cat_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x [xx xxx].
+    <span class="k">exists</span> (<span class="nv">disp_monoidal_leftunitorinv</span> <span class="nv">DM</span> <span class="nv">_</span> <span class="nv">xx</span>).
+    <span class="bp">exact</span> (disp_monoidal_leftunitorinv EM _ xxx).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_runitor</span>
+    : disp_rightunitor_data sigma_disp_cat_tensor sigma_disp_cat_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x [xx xxx].
+    <span class="k">exists</span> (<span class="nv">disp_monoidal_rightunitor</span> <span class="nv">DM</span> <span class="nv">_</span> <span class="nv">xx</span>).
+    <span class="bp">exact</span> (disp_monoidal_rightunitor EM _ xxx).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_runitorinv</span>
+    : disp_rightunitorinv_data sigma_disp_cat_tensor sigma_disp_cat_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x [xx xxx].
+    <span class="k">exists</span> (<span class="nv">disp_monoidal_rightunitorinv</span> <span class="nv">DM</span> <span class="nv">_</span> <span class="nv">xx</span>).
+    <span class="bp">exact</span> (disp_monoidal_rightunitorinv EM _ xxx).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_associator</span>
+    : disp_associator_data sigma_disp_cat_tensor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z [xx xxx] [yy yyy] [zz zzz].
+    <span class="k">exists</span> (<span class="nv">disp_monoidal_associator</span> <span class="nv">DM</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">zz</span>).
+    <span class="bp">exact</span> (disp_monoidal_associator EM _ _ _ xxx yyy zzz).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_associatorinv</span>
+    : disp_associatorinv_data sigma_disp_cat_tensor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z [xx xxx] [yy yyy] [zz zzz].
+    <span class="k">exists</span> (<span class="nv">disp_monoidal_associatorinv</span> <span class="nv">DM</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">zz</span>).
+    <span class="bp">exact</span> (disp_monoidal_associatorinv EM _ _ _ xxx yyy zzz).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_monoidal_data</span>
+    : disp_monoidal_data (sigma_disp_cat E) M.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">sigma_disp_cat_tensor</span>.
+    <span class="k">exists</span> (<span class="nv">disp_monoidal_unit</span> <span class="nv">DM</span> ,, <span class="nv">disp_monoidal_unit</span> <span class="nv">EM</span>).
+    <span class="k">exists</span> <span class="nv">sigma_disp_cat_lunitor</span>.
+    <span class="k">exists</span> <span class="nv">sigma_disp_cat_lunitorinv</span>.
+    <span class="k">exists</span> <span class="nv">sigma_disp_cat_runitor</span>.
+    <span class="k">exists</span> <span class="nv">sigma_disp_cat_runitorinv</span>.
+    <span class="k">exists</span> <span class="nv">sigma_disp_cat_associator</span>.
+    <span class="bp">exact</span> sigma_disp_cat_associatorinv.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">sigma_disp_cat_monoidal_laws</span>
+    : disp_monoidal_laws sigma_disp_cat_monoidal_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">intro</span> ; <span class="nb">intros</span>) ; use total2_paths_f ; <span class="kp">try</span> (<span class="nb">apply</span> E_prop).
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_leftunitornat DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_leftunitoriso DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_leftunitoriso DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_rightunitornat DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_rightunitoriso DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_rightunitoriso DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_associatornatleft DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_associatornatright DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_associatornatleftright DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_associatoriso DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_associatoriso DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_triangleidentity DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_monoidal_pentagonidentity DM).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_monoidal</span>
+    : disp_monoidal (sigma_disp_cat E) M.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">sigma_disp_cat_monoidal_data</span>.
+    <span class="bp">exact</span> sigma_disp_cat_monoidal_laws.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">SigmaConstruction</span>.
+
+<span class="kn">Section</span> <span class="nf">SigmaConstructionSymmetric</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">M</span> : monoidal C} {<span class="nv">S</span> : symmetric M}
+    {<span class="nv">D</span> : disp_cat C} {<span class="nv">DM</span> : disp_monoidal D M} {<span class="nv">DS</span> : disp_symmetric DM S}
+    {<span class="nv">E</span> : disp_cat (total_category D)}
+    {<span class="nv">EM</span> : disp_monoidal E (total_monoidal DM)}
+    (<span class="nv">ES</span> : disp_symmetric EM (total_symmetric DM DS)).
+
+  <span class="kn">Context</span> (<span class="nv">E_prop</span> : locally_propositional E).
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_monoidal_braiding_data</span>
+    : disp_braiding_data (sigma_disp_cat_monoidal EM E_prop) S.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y [xx xxx] [yy yyy].
+    use tpair.
+    - <span class="nb">apply</span> DS.
+    - <span class="bp">exact</span> (pr1 ES _ _ xxx yyy).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">sigma_disp_cat_monoidal_braiding_laws</span>
+    : disp_braiding_laws (sigma_disp_cat_monoidal EM E_prop) sigma_disp_cat_monoidal_braiding_data
+        sigma_disp_cat_monoidal_braiding_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="kp">try</span> (<span class="nb">intro</span> ; <span class="nb">intros</span>) ; use total2_paths_f ; <span class="kp">try</span> (<span class="nb">apply</span> E_prop).
+    - etrans. {
+        <span class="nb">apply</span> pr1_transportf.
+      }
+      <span class="nb">apply</span> (disp_braiding_to_naturality_left DM DS).
+    - etrans. {
+        <span class="nb">apply</span> pr1_transportf.
+      }
+      <span class="nb">apply</span> (disp_braiding_to_naturality_right DM DS).
+    - etrans. {
+        <span class="nb">apply</span> (disp_braiding_to_inverses DM DS).
+      }
+      <span class="nb">apply</span> pathsinv0, pr1_transportf.
+    - etrans. {
+        <span class="nb">apply</span> (disp_braiding_to_inverses DM DS).
+      }
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, pr1_transportf. }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+    - etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> (disp_braiding_to_hexagon1 _ DS). }
+      <span class="nb">apply</span> pr1_transportf.
+    - etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> (disp_braiding_to_hexagon2 _ DS). }
+      <span class="nb">apply</span> pr1_transportf.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">sigma_disp_cat_monoidal_symmetric</span>
+    : disp_symmetric (sigma_disp_cat_monoidal EM E_prop) S.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">sigma_disp_cat_monoidal_braiding_data</span>.
+    <span class="bp">exact</span> sigma_disp_cat_monoidal_braiding_laws.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">SigmaConstructionSymmetric</span>.
+
+<span class="kn">Section</span> <span class="nf">DirprodConstruction</span>.
+
+  <span class="kn">Import</span> DisplayedMonoidalNotations.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">M</span> : monoidal C}
+    {<span class="nv">D</span> : disp_cat C} (<span class="nv">DM</span> : disp_monoidal D M)
+    {<span class="nv">D'</span> : disp_cat C} (<span class="nv">D'M</span> : disp_monoidal D' M).
+
+  <span class="kn">Context</span> (<span class="nv">D_prop</span> : locally_propositional D)
+    (<span class="nv">D'_prop</span> : locally_propositional D').
+
+  <span class="kn">Definition</span> <span class="nf">dirprod_disp_tensor</span>
+    : disp_bifunctor M (D × D') (D × D') (D × D').
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, (_,,_)) ,, _).
+    - <span class="nb">intros</span> x y xx yy.
+      <span class="bp">exact</span> (pr1 xx ⊗⊗_{DM} pr1 yy ,, pr2 xx ⊗⊗_{D'M} pr2 yy).
+    - <span class="nb">intros</span> x y1 y2 g xx yy1 yy2 gg.
+      <span class="bp">exact</span> (pr1 xx ⊗⊗^{DM}_{l} pr1 gg ,, pr2 xx ⊗⊗^{D'M}_{l} pr2 gg).
+    - <span class="nb">intros</span> y1 y2 x f yy1 yy2 xx ff.
+      <span class="bp">exact</span> (pr1 ff ⊗⊗^{DM}_{r} pr1 xx ,, pr2 ff ⊗⊗^{D'M}_{r} pr2 xx).
+    - <span class="kp">abstract</span> (<span class="kp">repeat</span> <span class="nb">split</span> ;
+                (<span class="kp">try</span> (<span class="nb">intro</span> ; <span class="nb">intros</span>) ; use total2_paths_f ; [<span class="nb">apply</span> D_prop | <span class="nb">apply</span> D'_prop])).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dirprod_disp_cat_monoidal_data</span>
+    : disp_monoidal_data (dirprod_disp_cat D D') M.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> dirprod_disp_tensor.
+    - <span class="bp">exact</span> (dI_{DM} ,, dI_{D'M}).
+    - <span class="nb">intros</span> x [x1 x2].
+      <span class="bp">exact</span> (dlu^{DM} _ x1 ,, dlu^{D'M} _ x2).
+    - <span class="nb">intros</span> x [x1 x2].
+      <span class="bp">exact</span> (dluinv^{DM} _ x1 ,, dluinv^{D'M} _ x2).
+    - <span class="nb">intros</span> x [x1 x2].
+      <span class="bp">exact</span> (dru^{DM} _ x1 ,, dru^{D'M} _ x2).
+    - <span class="nb">intros</span> x [x1 x2].
+      <span class="bp">exact</span> (druinv^{DM} _ x1 ,, druinv^{D'M} _ x2).
+    - <span class="nb">intros</span> x y z [x1 x2] [y1 y2] [z1 z2].
+      <span class="bp">exact</span> (dα^{DM} _ _ _ x1 y1 z1 ,, dα^{D'M} _ _ _ x2 y2 z2).
+    - <span class="nb">intros</span> x y z [x1 x2] [y1 y2] [z1 z2].
+      <span class="bp">exact</span> (dαinv^{DM} _ _ _ x1 y1 z1 ,, dαinv^{D'M} _ _ _ x2 y2 z2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dirprod_disp_cat_monoidal</span>
+    : disp_monoidal (dirprod_disp_cat D D') M.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> <span class="nv">dirprod_disp_cat_monoidal_data</span>.
+    <span class="kp">abstract</span> (<span class="kp">repeat</span> <span class="nb">split</span> ;
+              (<span class="kp">try</span> (<span class="nb">intro</span> ; <span class="nb">intros</span>) ; use total2_paths_f ; [<span class="nb">apply</span> D_prop | <span class="nb">apply</span> D'_prop])).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dirprod_disp_cat_symmetric_monoidal</span>
+    {<span class="nv">S</span> : symmetric M}
+    (<span class="nv">SM</span> : disp_symmetric DM S)
+    (<span class="nv">S'M</span> : disp_symmetric D'M S)
+    : disp_symmetric dirprod_disp_cat_monoidal S.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> x y [x1 x2] [y1 y2].
+      <span class="bp">exact</span> (pr1 SM _ _ x1 y1 ,, pr1 S'M _ _ x2 y2).
+    - <span class="kp">abstract</span> (<span class="kp">repeat</span> <span class="nb">split</span> ;
+              (<span class="kp">try</span> (<span class="nb">intro</span> ; <span class="nb">intros</span>) ; use total2_paths_f ; [<span class="nb">apply</span> D_prop | <span class="nb">apply</span> D'_prop])).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">DirprodConstruction</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/Examples/Sigma.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;         3. Dirprodconstruction: Explicit construction of the product of displayed monoidal categories [dirprod_disp_cat_monoidal, dirprod_disp_cat_symmetric_monoidal].
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

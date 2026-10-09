@@ -1,0 +1,1054 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Coreflections.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Coreflections in a 2-category</span>
+
+<span class="sd"> In this file, we construct the double category of coreflections in  a 2-category. Given a</span>
+<span class="sd"> 2-category `C`, we define the following double category:</span>
+<span class="sd"> - Objects: objects in `C`</span>
+<span class="sd"> - Vertical morphisms: coreflections in `C` (i.e., adjunctions in `C` whose unit is given</span>
+<span class="sd">   by an identity)</span>
+<span class="sd"> - Horizontal morphisms: morphisms in `C`</span>
+<span class="sd"> - Squares with vertical sides `f : x₁ --&gt; x₂` and `g : y₁ --&gt; y₂` and horizontal sides</span>
+<span class="sd">   `h : x₁ --&gt; y₁` and `k : x₂ --&gt; y₂` are 2-cells `h · g ==&gt; f · k`</span>
+
+<span class="sd"> Note that we only define this double category for locally univalent 2-categories. This is</span>
+<span class="sd"> to guarantee that being a left adjoint is a property, which we use to prove the laws for</span>
+<span class="sd"> the vertical morphisms. Such 2-categories are given by categories enriched over posets.</span>
+
+<span class="sd"> We also show that this double category is an equipment (i.e., it has all companion pairs</span>
+<span class="sd"> and all conjoints. To do so, we provide several lemmas useful for calculations.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Coreflections in a 2-category</span>
+<span class="sd"> 2. The displayed category of adjunctions</span>
+<span class="sd"> 3. The displayed category of coreflections</span>
+<span class="sd"> 4. The double category of coreflections</span>
+<span class="sd"> 5. Lemmas for calculation</span>
+<span class="sd"> 6. Companions and conjoints</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.TwoCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.SquaresTwoCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Strictness.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Properties.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.CompanionsAndConjoints.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Examples.SquareDoubleCatTwo.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Examples.DoubleCatOnDispCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="kn">Import</span> TwoCategories.Notations.
+
+<span class="sd">(** * 1. Coreflections in a 2-category *)</span>
+<span class="kn">Definition</span> <span class="nf">is_coreflection</span>
+           {<span class="nv">C</span> : two_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">Hf</span> : left_adjoint (B := two_cat_to_bicat C) f)
+  : UU
+  := ∑ p, left_adjoint_unit Hf = idto2mor p.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_coreflection</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> : C}
+            (<span class="nv">f</span> : x --&gt; y)
+            (<span class="nv">Hf</span> : left_adjoint (B := two_cat_to_bicat C) f)
+  : isaprop (is_coreflection f Hf).
+<span class="kn">Proof</span>.
+  use isaproptotal2.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> cellset_property.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> (homset_property C).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_is_coreflection</span>
+            {<span class="nv">C</span> : two_cat}
+            (<span class="nv">x</span> : C)
+  : is_coreflection
+      _
+      (internal_adjoint_equivalence_identity (C := two_cat_to_bicat C) x).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (!(id_left (C := C) _)).
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_is_coreflection</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+            {<span class="nv">f</span> : x --&gt; y}
+            {<span class="nv">Hf</span> : left_adjoint (B := two_cat_to_bicat C) f}
+            (<span class="nv">Hf'</span> : is_coreflection f Hf)
+            {<span class="nv">g</span> : y --&gt; z}
+            {<span class="nv">Hg</span> : left_adjoint (B := two_cat_to_bicat C) g}
+            (<span class="nv">Hg'</span> : is_coreflection g Hg)
+  : is_coreflection
+      _
+      (comp_left_adjoint _ _ Hf Hg).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ assoc (C := C) _ _ _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc (C := C) _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (!(pr1 Hg')).
+      }
+      <span class="nb">apply</span> (id_left (C := C)).
+    }
+    <span class="bp">exact</span> (!(pr1 Hf')).
+  - <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (pr2 Hf'), (pr2 Hg').
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!(TwoCategories.lwhisker_vcomp (C := C) _ _ _) @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> idto2mor_lwhisker.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!(TwoCategories.lwhisker_vcomp (C := C) _ _ _) @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> idto2mor_lwhisker.
+      }
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> idto2mor_rwhisker.
+      }
+      <span class="nb">apply</span> idto2mor_lwhisker.
+    }
+    etrans.
+    {
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> idto2mor_comp.
+          }
+          <span class="nb">apply</span> idto2mor_comp.
+        }
+        <span class="nb">apply</span> idto2mor_comp.
+      }
+      <span class="nb">apply</span> idto2mor_comp.
+    }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (homset_property C).
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">AdjunctionsAndCoreflections</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : two_cat)
+          (<span class="nv">HC</span> : locally_univalent_two_cat C).
+
+  <span class="sd">(** * 2. The displayed category of adjunctions *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_adj_ob_mor</span>
+    : disp_cat_ob_mor (two_cat_square_double_cat C).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, unit).
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : C) <span class="nv">_</span> <span class="nv">_</span> (<span class="nv">f</span> : x --&gt; y), left_adjoint (B := two_cat_to_bicat C) f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_adj_id_comp</span>
+    : disp_cat_id_comp
+        (two_cat_square_double_cat C)
+        disp_cat_of_adj_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">x</span> : C) <span class="nv">_</span>, _) ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (internal_adjoint_equivalence_identity (C := two_cat_to_bicat C) x).
+    - <span class="nb">intros</span> x y z f g xx yy zz Hf Hg.
+      <span class="bp">exact</span> (comp_left_adjoint _ _ Hf Hg).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_adj_data</span>
+    : disp_cat_data (two_cat_square_double_cat C).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_cat_of_adj_ob_mor.
+    - <span class="bp">exact</span> disp_cat_of_adj_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_cat_of_adj_axioms</span>
+    : disp_cat_axioms
+        (two_cat_square_double_cat C)
+        disp_cat_of_adj_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaprop_left_adjoint.
+      <span class="bp">exact</span> (is_univalent_2_1_two_cat_to_bicat HC).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaprop_left_adjoint.
+      <span class="bp">exact</span> (is_univalent_2_1_two_cat_to_bicat HC).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaprop_left_adjoint.
+      <span class="bp">exact</span> (is_univalent_2_1_two_cat_to_bicat HC).
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isaprop_left_adjoint.
+      <span class="bp">exact</span> (is_univalent_2_1_two_cat_to_bicat HC).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_adj</span>
+    : disp_cat (two_cat_square_double_cat C).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_cat_of_adj_data.
+    - <span class="bp">exact</span> disp_cat_of_adj_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_univalent_disp_cat_of_adj</span>
+    : is_univalent_disp disp_cat_of_adj.
+  <span class="kn">Proof</span>.
+    use is_univalent_disp_from_fibers.
+    <span class="nb">intros</span> x xx xx'.
+    use isweqimplimpl.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropunit.
+    - <span class="nb">apply</span> isasetunit.
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_iso_disp.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> isaprop_left_adjoint.
+        <span class="bp">exact</span> (is_univalent_2_1_two_cat_to_bicat HC).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. The displayed category of coreflections *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_adj_is_coreflection_ob_mor</span>
+    : disp_cat_ob_mor (total_category disp_cat_of_adj).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, unit).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, is_coreflection _ (pr2 f)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_adj_is_coreflection_id_comp</span>
+    : disp_cat_id_comp
+        (total_category disp_cat_of_adj)
+        disp_cat_of_adj_is_coreflection_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> id_is_coreflection.
+    - <span class="nb">intros</span> x y z f g xx yy zz Hf Hg.
+      <span class="bp">exact</span> (comp_is_coreflection Hf Hg).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_adj_is_coreflection_data</span>
+    : disp_cat_data (total_category disp_cat_of_adj).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_cat_of_adj_is_coreflection_ob_mor.
+    - <span class="bp">exact</span> disp_cat_of_adj_is_coreflection_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_cat_of_adj_is_coreflection_axioms</span>
+    : disp_cat_axioms
+        (total_category disp_cat_of_adj)
+        disp_cat_of_adj_is_coreflection_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intros</span>.
+    - <span class="nb">apply</span> isaprop_is_coreflection.
+    - <span class="nb">apply</span> isaprop_is_coreflection.
+    - <span class="nb">apply</span> isaprop_is_coreflection.
+    - <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isaprop_is_coreflection.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_adj_is_coreflection</span>
+    : disp_cat (total_category disp_cat_of_adj).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_cat_of_adj_is_coreflection_data.
+    - <span class="bp">exact</span> disp_cat_of_adj_is_coreflection_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_univalent_disp_cat_of_adj_is_coreflection</span>
+    : is_univalent_disp disp_cat_of_adj_is_coreflection.
+  <span class="kn">Proof</span>.
+    use is_univalent_disp_from_fibers.
+    <span class="nb">intros</span> x xx xx'.
+    use isweqimplimpl.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropunit.
+    - <span class="nb">apply</span> isasetunit.
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_iso_disp.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> isaprop_is_coreflection.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_cat_of_coreflections</span>
+    : disp_cat (two_cat_square_double_cat C).
+  <span class="kn">Proof</span>.
+    use sigma_disp_cat.
+    - <span class="bp">exact</span> disp_cat_of_adj.
+    - <span class="bp">exact</span> disp_cat_of_adj_is_coreflection.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_univalent_disp_cat_of_coreflections</span>
+    : is_univalent_disp disp_cat_of_coreflections.
+  <span class="kn">Proof</span>.
+    use is_univalent_sigma_disp.
+    - <span class="bp">exact</span> is_univalent_disp_cat_of_adj.
+    - <span class="bp">exact</span> is_univalent_disp_cat_of_adj_is_coreflection.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 4. The double category of coreflections *)</span>
+  <span class="kn">Definition</span> <span class="nf">coreflections_double_cat</span>
+    : double_cat.
+  <span class="kn">Proof</span>.
+    use double_cat_on_disp_cat.
+    - <span class="bp">exact</span> (two_cat_square_double_cat C).
+    - <span class="bp">exact</span> disp_cat_of_coreflections.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">AdjunctionsAndCoreflections</span>.
+
+<span class="kn">Definition</span> <span class="nf">coreflections_univalent_double_cat</span>
+           (<span class="nv">C</span> : univalent_two_cat)
+           (<span class="nv">HC</span> : locally_univalent_two_cat C)
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use univalent_double_cat_on_disp_cat.
+  - <span class="bp">exact</span> (two_cat_square_univalent_double_cat _ HC).
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (disp_cat_of_coreflections C HC).
+    + <span class="nb">apply</span> is_univalent_disp_cat_of_coreflections.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coreflections_pseudo_double_setcat</span>
+           (<span class="nv">C</span> : two_setcat)
+           (<span class="nv">HC</span> : locally_univalent_two_cat C)
+  : pseudo_double_setcat.
+<span class="kn">Proof</span>.
+  use pseudo_double_set_cat_on_disp_cat.
+  - <span class="bp">exact</span> (strict_two_cat_square_double_cat C).
+  - <span class="bp">exact</span> (disp_cat_of_coreflections C HC).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x ;
+       use isaset_total2 ; <span class="nb">intros</span> ; <span class="nb">apply</span> isasetunit).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. Lemmas for calculation *)</span>
+<span class="kn">Definition</span> <span class="nf">transportf_square_coreflections_double_cat</span>
+           {<span class="nv">C</span> : two_cat}
+           {<span class="nv">HC</span> : locally_univalent_two_cat C}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : coreflections_double_cat C HC}
+           {<span class="nv">v₁</span> <span class="nv">v₁'</span> : x₁ --&gt;v y₁}
+           (<span class="nv">p</span> : v₁ = v₁')
+           {<span class="nv">v₂</span> <span class="nv">v₂'</span> : x₂ --&gt;v y₂}
+           (<span class="nv">q</span> : v₂ = v₂')
+           {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+           {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+           (<span class="nv">s</span> : square v₁ v₂ h₁ h₂)
+  : transportf_square p q s
+    =
+    (_ ◃ idto2mor (maponpaths pr1 (!q)))
+    • s
+    • (idto2mor (maponpaths pr1 p) ▹ _).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q.
+  <span class="nb">cbn</span>.
+  <span class="c">(* Note that we must qualify these identifies due the same names being used for bicategories *)</span>
+  <span class="nb">rewrite</span> TwoCategories.id2_rwhisker.
+  <span class="nb">rewrite</span> TwoCategories.lwhisker_id2.
+  <span class="nb">rewrite</span> TwoCategories.id2_left.
+  <span class="nb">rewrite</span> TwoCategories.id2_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">transportb_square_coreflections_double_cat</span>
+           {<span class="nv">C</span> : two_cat}
+           {<span class="nv">HC</span> : locally_univalent_two_cat C}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : coreflections_double_cat C HC}
+           {<span class="nv">v₁</span> <span class="nv">v₁'</span> : x₁ --&gt;v y₁}
+           (<span class="nv">p</span> : v₁' = v₁)
+           {<span class="nv">v₂</span> <span class="nv">v₂'</span> : x₂ --&gt;v y₂}
+           (<span class="nv">q</span> : v₂' = v₂)
+           {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+           {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+           (<span class="nv">s</span> : square v₁ v₂ h₁ h₂)
+  : transportb_square p q s
+    =
+    (_ ◃ idto2mor (maponpaths pr1 q))
+    • s
+    • (idto2mor (maponpaths pr1 (!p)) ▹ _).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q.
+  <span class="nb">cbn</span>.
+  <span class="c">(* Note that we must qualify these identifies due the same names being used for bicategories *)</span>
+  <span class="nb">rewrite</span> TwoCategories.id2_rwhisker.
+  <span class="nb">rewrite</span> TwoCategories.lwhisker_id2.
+  <span class="nb">rewrite</span> TwoCategories.id2_left.
+  <span class="nb">rewrite</span> TwoCategories.id2_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lunitor_h_coreflections_path</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x</span> <span class="nv">y</span> : coreflections_double_cat C HC}
+            (<span class="nv">h</span> : x --&gt;h y)
+  : (identity_h x ·h h) · pr1 (identity_v y) = pr1 (identity_v x) · h.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> (id_right (C := C)).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lunitor_h_coreflections</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x</span> <span class="nv">y</span> : coreflections_double_cat C HC}
+            (<span class="nv">h</span> : x --&gt;h y)
+  : lunitor_h h
+    =
+    idto2mor (lunitor_h_coreflections_path h).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> two_cat_runitor, two_cat_lunitor, two_cat_linvunitor.
+  <span class="nb">rewrite</span> !idto2mor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (homset_property C).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">linvunitor_h_coreflections_path</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x</span> <span class="nv">y</span> : coreflections_double_cat C HC}
+            (<span class="nv">h</span> : x --&gt;h y)
+  : h · pr1 (identity_v y) = pr1 (identity_v x) · (identity_h x ·h h).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> (id_right (C := C)).
+  <span class="nb">rewrite</span> !(id_left (C := C)).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">linvunitor_h_coreflections</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x</span> <span class="nv">y</span> : coreflections_double_cat C HC}
+            (<span class="nv">h</span> : x --&gt;h y)
+  : linvunitor_h h
+    =
+    idto2mor (linvunitor_h_coreflections_path h).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> two_cat_runitor, two_cat_linvunitor.
+  <span class="nb">rewrite</span> !idto2mor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (homset_property C).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">runitor_h_coreflections_path</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x</span> <span class="nv">y</span> : coreflections_double_cat C HC}
+            (<span class="nv">h</span> : x --&gt;h y)
+  : (h ·h identity_h y) · pr1 (identity_v y) = pr1 (identity_v x) · h.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !(id_right (C := C)).
+  <span class="nb">rewrite</span> (id_left (C := C)).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">runitor_h_coreflections</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x</span> <span class="nv">y</span> : coreflections_double_cat C HC}
+            (<span class="nv">h</span> : x --&gt;h y)
+  : runitor_h h
+    =
+    idto2mor (runitor_h_coreflections_path h).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> two_cat_runitor, two_cat_linvunitor.
+  <span class="nb">rewrite</span> !idto2mor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (homset_property C).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rinvunitor_h_coreflections_path</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x</span> <span class="nv">y</span> : coreflections_double_cat C HC}
+            (<span class="nv">h</span> : x --&gt;h y)
+  : h · pr1 (identity_v y) = pr1 (identity_v x) · (h ·h identity_h y).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> (id_left (C := C)).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rinvunitor_h_coreflections</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x</span> <span class="nv">y</span> : coreflections_double_cat C HC}
+            (<span class="nv">h</span> : x --&gt;h y)
+  : rinvunitor_h h
+    =
+    idto2mor (rinvunitor_h_coreflections_path h).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> two_cat_runitor, two_cat_linvunitor, two_cat_rinvunitor.
+  <span class="nb">rewrite</span> !idto2mor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (homset_property C).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lassociator_h_coreflections_path</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : coreflections_double_cat C HC}
+            (<span class="nv">h₁</span> : w --&gt;h x)
+            (<span class="nv">h₂</span> : x --&gt;h y)
+            (<span class="nv">h₃</span> : y --&gt;h z)
+  : (h₁ ·h (h₂ ·h h₃)) · pr1 (identity_v z)
+    =
+    pr1 (identity_v w) · ((h₁ ·h h₂) ·h h₃).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> (id_right (C := C)).
+  <span class="nb">rewrite</span> (id_left (C := C)).
+  <span class="nb">apply</span> (assoc (C := C)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lassociator_h_coreflections</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : coreflections_double_cat C HC}
+            (<span class="nv">h₁</span> : w --&gt;h x)
+            (<span class="nv">h₂</span> : x --&gt;h y)
+            (<span class="nv">h₃</span> : y --&gt;h z)
+  : lassociator_h h₁ h₂ h₃
+    =
+    idto2mor (lassociator_h_coreflections_path h₁ h₂ h₃).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> two_cat_runitor, two_cat_linvunitor, two_cat_lassociator.
+  <span class="nb">rewrite</span> !idto2mor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (homset_property C).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rassociator_h_coreflections_path</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : coreflections_double_cat C HC}
+            (<span class="nv">h₁</span> : w --&gt;h x)
+            (<span class="nv">h₂</span> : x --&gt;h y)
+            (<span class="nv">h₃</span> : y --&gt;h z)
+  : ((h₁ ·h h₂) ·h h₃) · pr1 (identity_v z)
+    =
+    pr1 (identity_v w) · (h₁ ·h (h₂ ·h h₃)).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> (id_right (C := C)).
+  <span class="nb">rewrite</span> (id_left (C := C)).
+  <span class="nb">apply</span> (assoc' (C := C)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">rassociator_h_coreflections</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : coreflections_double_cat C HC}
+            (<span class="nv">h₁</span> : w --&gt;h x)
+            (<span class="nv">h₂</span> : x --&gt;h y)
+            (<span class="nv">h₃</span> : y --&gt;h z)
+  : rassociator_h h₁ h₂ h₃
+    =
+    idto2mor (rassociator_h_coreflections_path h₁ h₂ h₃).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> two_cat_runitor, two_cat_linvunitor, two_cat_rassociator.
+  <span class="nb">rewrite</span> !idto2mor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (homset_property C).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_v_square_coreflections_path</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x</span> <span class="nv">y</span> : coreflections_double_cat C HC}
+            (<span class="nv">h</span> : x --&gt;h y)
+  : h · pr1 (identity_v y) = pr1 (identity_v x) · h.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> (id_right (C := C)).
+  <span class="nb">rewrite</span> (id_left (C := C)).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_v_square_coreflections</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x</span> <span class="nv">y</span> : coreflections_double_cat C HC}
+            (<span class="nv">h</span> : x --&gt;h y)
+  : id_v_square h
+    =
+    idto2mor (id_v_square_coreflections_path h).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> two_cat_runitor, two_cat_linvunitor.
+  <span class="nb">rewrite</span> !idto2mor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (homset_property C).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_h_square_coreflections_path</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x</span> <span class="nv">y</span> : coreflections_double_cat C HC}
+            (<span class="nv">v</span> : x --&gt;v y)
+  : identity_h x · pr1 v = pr1 v · identity_h y.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> (id_right (C := C)).
+  <span class="nb">rewrite</span> (id_left (C := C)).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">id_h_square_coreflections</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x</span> <span class="nv">y</span> : coreflections_double_cat C HC}
+            (<span class="nv">v</span> : x --&gt;v y)
+  : id_h_square v
+    =
+    idto2mor (id_h_square_coreflections_path v).
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> two_cat_lunitor, two_cat_rinvunitor.
+  <span class="nb">rewrite</span> !idto2mor_comp.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (homset_property C).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_v_square_coreflections</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : coreflections_double_cat C HC}
+            {<span class="nv">v₁</span> : x₁ --&gt;v y₁} {<span class="nv">v₁'</span> : y₁ --&gt;v z₁}
+            {<span class="nv">v₂</span> : x₂ --&gt;v y₂} {<span class="nv">v₂'</span> : y₂ --&gt;v z₂}
+            {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+            {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+            {<span class="nv">h₃</span> : z₁ --&gt;h z₂}
+            (<span class="nv">s₁</span> : square v₁ v₂ h₁ h₂)
+            (<span class="nv">s₂</span> : square v₁' v₂' h₂ h₃)
+  : s₁ ⋆v s₂
+    =
+    idto2mor (assoc (C := C) _ _ _)
+    • (s₁ ▹ _)
+    • idto2mor (!(assoc (C := C) _ _ _))
+    • (_ ◃ s₂)
+    • idto2mor (assoc (C := C) _ _ _).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_h_square_coreflections</span>
+            {<span class="nv">C</span> : two_cat}
+            {<span class="nv">HC</span> : locally_univalent_two_cat C}
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : coreflections_double_cat C HC}
+            {<span class="nv">v₁</span> : x₁ --&gt;v x₂}
+            {<span class="nv">v₂</span> : y₁ --&gt;v y₂}
+            {<span class="nv">v₃</span> : z₁ --&gt;v z₂}
+            {<span class="nv">h₁</span> : x₁ --&gt;h y₁} {<span class="nv">h₂</span> : y₁ --&gt;h z₁}
+            {<span class="nv">k₁</span> : x₂ --&gt;h y₂} {<span class="nv">k₂</span> : y₂ --&gt;h z₂}
+            (<span class="nv">s₁</span> : square v₁ v₂ h₁ k₁)
+            (<span class="nv">s₂</span> : square v₂ v₃ h₂ k₂)
+  : s₁ ⋆h s₂
+    =
+    idto2mor (!(assoc (C := C) _ _ _))
+    • (_ ◃ s₂)
+    • idto2mor (assoc (C := C) _ _ _)
+    • (s₁ ▹ _)
+    • idto2mor (!(assoc (C := C) _ _ _)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Companions and conjoints *)</span>
+<span class="kn">Definition</span> <span class="nf">all_companions_coreflections_double_cat</span>
+           (<span class="nv">C</span> : two_cat)
+           (<span class="nv">HC</span> : locally_univalent_two_cat C)
+  : all_companions_double_cat (coreflections_double_cat C HC).
+<span class="kn">Proof</span>.
+  use all_companions_double_cat_on_disp_cat.
+  <span class="nb">apply</span> all_companions_two_cat_square_double_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">Conjoints</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : two_cat}
+          (<span class="nv">HC</span> : locally_univalent_two_cat C)
+          {<span class="nv">xx</span> <span class="nv">yy</span> : coreflections_double_cat C HC}
+          (<span class="nv">fHf</span> : xx --&gt;v yy).
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'idto2mor'"</span> := (idto2mor _) (<span class="kn">only printing</span>).
+
+  <span class="kn">Let</span> <span class="nf">x</span> : C := pr1 xx.
+  <span class="kn">Let</span> <span class="nf">y</span> : C := pr1 yy.
+  <span class="kn">Let</span> <span class="nf">f</span> : x --&gt; y := pr1 fHf.
+  <span class="kn">Let</span> <span class="nf">Hf</span> : left_adjoint (B := two_cat_to_bicat C) f := pr12 fHf.
+
+  <span class="kn">Let</span> <span class="nf">r</span> : yy --&gt;h xx := left_adjoint_right_adjoint Hf.
+  <span class="kn">Let</span> <span class="nf">η</span> : _ ==&gt; f · r := left_adjoint_unit Hf.
+  <span class="kn">Let</span> <span class="nf">ε</span> : r · f ==&gt; _ := left_adjoint_counit Hf.
+
+  <span class="kn">Let</span> <span class="nf">ηη</span> : square fHf (identity_v xx) (identity_h xx) r := two_cat_runitor _ • η.
+  <span class="kn">Let</span> <span class="nf">εε</span> : square (identity_v yy) fHf r (identity_h yy) := ε • two_cat_rinvunitor _.
+
+  <span class="kn">Proposition</span> <span class="nf">left_triangle</span>
+              (<span class="nv">p</span> : f · r · f = f · (r · f))
+    : (η ▹ f) • idto2mor p • (f ◃ ε)
+      =
+      idto2mor (id_left (C := C) _ @ !(id_right (C := C) _)).
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (identity _ · f = f) <span class="k">as</span> q₁.
+    {
+      <span class="nb">apply</span> (id_left (C := C)).
+    }
+    <span class="nb">assert</span> (f = f · identity _) <span class="k">as</span> q₂.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (id_right (C := C)).
+    }
+    <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, idto2mor q₁ • z • idto2mor q₂) (pr12 Hf) @ _).
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (TwoCategories.vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (TwoCategories.vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (TwoCategories.vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (TwoCategories.vassocr _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (idto2mor_comp _ _ @ _).
+          <span class="nb">apply</span> idto2mor_id.
+        }
+        <span class="nb">apply</span> TwoCategories.id2_left.
+      }
+      <span class="nb">refine</span> (_ @ TwoCategories.vassocr _ _ _).
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">refine</span> (TwoCategories.vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (idto2mor_comp _ _ @ _).
+          <span class="nb">apply</span> idto2mor_id.
+        }
+        <span class="nb">apply</span> TwoCategories.id2_right.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (homset_property C).
+    - <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> TwoCategories.id2_right.
+      }
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (homset_property C).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">right_triangle</span>
+              (<span class="nv">p</span> : r · (f · r) = r · f · r)
+    : (r ◃ η) • idto2mor p • (ε ▹ r)
+      =
+      idto2mor (id_right (C := C) _ @ !(id_left (C := C) _)).
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (r · identity x = r) <span class="k">as</span> q₁.
+    {
+      <span class="nb">apply</span> (id_right (C := C)).
+    }
+    <span class="nb">assert</span> (r = identity y · r) <span class="k">as</span> q₂.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (id_left (C := C)).
+    }
+    <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, idto2mor q₁ • z • idto2mor q₂) (pr22 Hf) @ _).
+    - <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (TwoCategories.vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (TwoCategories.vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (TwoCategories.vassocr _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (TwoCategories.vassocr _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (idto2mor_comp _ _ @ _).
+          <span class="nb">apply</span> idto2mor_id.
+        }
+        <span class="nb">apply</span> TwoCategories.id2_left.
+      }
+      <span class="nb">refine</span> (_ @ TwoCategories.vassocr _ _ _).
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">refine</span> (TwoCategories.vassocl _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (idto2mor_comp _ _ @ _).
+          <span class="nb">apply</span> idto2mor_id.
+        }
+        <span class="nb">apply</span> TwoCategories.id2_right.
+      }
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (homset_property C).
+    - <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> TwoCategories.id2_right.
+      }
+      <span class="nb">rewrite</span> idto2mor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (homset_property C).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">are_conjoints_coreflections_double_cat_left</span>
+    : transportf_square
+        (id_v_left (identity_v yy · identity_v yy) @ id_v_left (identity_v yy))
+        (id_v_left (identity_v xx · identity_v xx) @ id_v_left (identity_v xx))
+        (rinvunitor_h r ⋆v (εε ⋆h ηη ⋆v lunitor_h r))
+      =
+      id_v_square r.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> transportf_square_coreflections_double_cat.
+    <span class="nb">rewrite</span> idto2mor_lwhisker.
+    <span class="nb">rewrite</span> idto2mor_rwhisker.
+    <span class="nb">rewrite</span> rinvunitor_h_coreflections.
+    <span class="nb">rewrite</span> lunitor_h_coreflections.
+    <span class="nb">rewrite</span> comp_h_square_coreflections.
+    <span class="nb">rewrite</span> !comp_v_square_coreflections.
+    <span class="nb">rewrite</span> &lt;- !TwoCategories.rwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- !TwoCategories.lwhisker_vcomp.
+    <span class="nb">rewrite</span> !idto2mor_lwhisker.
+    <span class="nb">rewrite</span> !idto2mor_rwhisker.
+    <span class="nb">rewrite</span> !idto2mor_lwhisker.
+    <span class="nb">rewrite</span> !TwoCategories.vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !TwoCategories.vassocl.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (id1_lwhisker _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> rwhisker_id1.
+    }
+    <span class="nb">unfold</span> two_cat_lunitor, two_cat_runitor, two_cat_rinvunitor, two_cat_linvunitor.
+    <span class="nb">rewrite</span> !TwoCategories.vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !TwoCategories.vassocl.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !TwoCategories.vassocr.
+      <span class="nb">rewrite</span> !idto2mor_comp.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (id1_lwhisker _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> rwhisker_id1.
+    }
+    <span class="nb">unfold</span> two_cat_lunitor, two_cat_runitor, two_cat_rinvunitor, two_cat_linvunitor.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !TwoCategories.vassocr.
+      <span class="nb">rewrite</span> !idto2mor_comp.
+      <span class="nb">rewrite</span> !TwoCategories.vassocl.
+      <span class="nb">rewrite</span> !idto2mor_comp.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">rewrite</span> id_v_square_coreflections.
+    <span class="nb">unfold</span> ηη, εε.
+    <span class="nb">rewrite</span> &lt;- !TwoCategories.rwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- !TwoCategories.lwhisker_vcomp.
+    <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+    <span class="nb">rewrite</span> !idto2mor_lwhisker.
+    <span class="nb">rewrite</span> !idto2mor_rwhisker.
+    <span class="nb">rewrite</span> !TwoCategories.vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !TwoCategories.vassocl.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !TwoCategories.vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> right_triangle.
+    }
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (homset_property C).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">are_conjoints_coreflections_double_cat_right</span>
+    : transportf_square
+        (id_v_right fHf)
+        (id_v_left fHf)
+        (ηη ⋆v εε)
+      =
+      id_h_square fHf.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> transportf_square_coreflections_double_cat.
+    <span class="nb">rewrite</span> idto2mor_lwhisker.
+    <span class="nb">rewrite</span> idto2mor_rwhisker.
+    <span class="nb">rewrite</span> comp_v_square_coreflections.
+    <span class="nb">rewrite</span> !TwoCategories.vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !TwoCategories.vassocl.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">unfold</span> ηη, εε.
+    <span class="nb">rewrite</span> &lt;- !TwoCategories.rwhisker_vcomp.
+    <span class="nb">rewrite</span> &lt;- !TwoCategories.lwhisker_vcomp.
+    <span class="nb">unfold</span> two_cat_runitor, two_cat_rinvunitor.
+    <span class="nb">rewrite</span> !idto2mor_lwhisker.
+    <span class="nb">rewrite</span> !idto2mor_rwhisker.
+    <span class="nb">rewrite</span> !TwoCategories.vassocr.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">rewrite</span> !TwoCategories.vassocl.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !TwoCategories.vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> left_triangle.
+    }
+    <span class="nb">rewrite</span> id_h_square_coreflections.
+    <span class="nb">rewrite</span> !idto2mor_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (homset_property C).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">are_conjoints_coreflections_double_cat</span>
+    : double_cat_are_conjoints r fHf.
+  <span class="kn">Proof</span>.
+    use make_double_cat_are_conjoints'.
+    - <span class="bp">exact</span> ηη.
+    - <span class="bp">exact</span> εε.
+    - <span class="bp">exact</span> are_conjoints_coreflections_double_cat_left.
+    - <span class="bp">exact</span> are_conjoints_coreflections_double_cat_right.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Conjoints</span>.
+
+<span class="kn">Definition</span> <span class="nf">all_conjoints_coreflections_double_cat</span>
+           (<span class="nv">C</span> : two_cat)
+           (<span class="nv">HC</span> : locally_univalent_two_cat C)
+  : all_conjoints_double_cat (coreflections_double_cat C HC).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y fHf.
+  <span class="nb">cbn</span> <span class="k">in</span> x.
+  <span class="nb">pose</span> (f := pr1 fHf).
+  <span class="nb">pose</span> (Hf := pr12 fHf : left_adjoint _).
+  <span class="nb">refine</span> (left_adjoint_right_adjoint Hf ,, _).
+  <span class="bp">exact</span> (are_conjoints_coreflections_double_cat HC fHf).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/Coreflections.v</tt>, line 30)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Companions and conjoints
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+ Natural numbers in the completion of a hyperdoctrine
+
+<div class="paragraph"> </div>
+
+ In a preorder tripos, we have a preorder of formulas in every context. However,
+ in practice it is easier to work with a partial order since various laws of
+ formulas then hold up to equality rather than up to isomorphism. We already
+ showed that every preorder tripos can be completed to a weak tripos. Here we
+ extend this result to include natural numbers.
+
+<div class="paragraph"> </div>
+
+ Recall that a natural numbers type in a first-order hyperdoctrine consists of
+<ul class="doclist">
+<li> a type `N`
+
+</li>
+<li> a term `z : N`
+
+</li>
+<li> a term `s : N → N`
+
+</li>
+</ul>
+ such that we can prove in the first-order hyperdoctrine that `s` is injective
+ and that `z` isn't the successor of any number.
+
+<div class="paragraph"> </div>
+
+ If we take the completion of a first-order hyperdoctrine, then the category of
+ types and terms stays the same: we only change the formulas since we quotient
+ them by isomorphism. For this reason, we can almost directly show that the
+ completion comes with natural numbers. The work lies in showing that the required
+ axioms still hold in the completion. These axioms can also be proved in a rather
+ direct manner, because the functor from a preorder hyperdoctrine to its completion
+ preserves all connectives in first-order logic.
+
+<div class="paragraph"> </div>
+
+ Content
+ 1. The data
+ 2. The laws
+ 3. The natural numbers
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Functors</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Tripos.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.Tripos</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.WeakEquivs.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.Completion.WeakEquivs</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#"><span class="id" title="library">UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Naturals" class="idref" href="#Naturals"><span class="id" title="section">Naturals</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Naturals.H" class="idref" href="#Naturals.H"><span class="id" title="variable">H</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#first_order_preorder_hyperdoctrine"><span class="id" title="definition">first_order_preorder_hyperdoctrine</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Naturals.N" class="idref" href="#Naturals.N"><span class="id" title="variable">N</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.html#first_order_preorder_hyperdoctrine_nats"><span class="id" title="definition">first_order_preorder_hyperdoctrine_nats</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#H:1"><span class="id" title="variable">H</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Naturals.Hc" class="idref" href="#Naturals.Hc"><span class="id" title="variable">Hc</span></a> : <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.html#first_order_hyperdoctrine"><span class="id" title="definition">first_order_hyperdoctrine</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#first_order_preorder_hyperdoctrine_completion"><span class="id" title="definition">first_order_preorder_hyperdoctrine_completion</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#Naturals.H"><span class="id" title="variable">H</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2920"></a><h1 class="section">1. The data</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="first_order_preorder_hyperdoctrine_completion_nats_data" class="idref" href="#first_order_preorder_hyperdoctrine_completion_nats_data"><span class="id" title="definition">first_order_preorder_hyperdoctrine_completion_nats_data</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.html#first_order_hyperdoctrine_nats_data"><span class="id" title="definition">first_order_hyperdoctrine_nats_data</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#Naturals.Hc"><span class="id" title="variable">Hc</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.html#make_first_order_hyperdoctrine_nats_data"><span class="id" title="definition">make_first_order_hyperdoctrine_nats_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#Naturals.N"><span class="id" title="variable">N</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr121'_x"><span class="id" title="notation">pr121</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#Naturals.N"><span class="id" title="variable">N</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr221'_x"><span class="id" title="notation">pr221</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#Naturals.N"><span class="id" title="variable">N</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2921"></a><h1 class="section">2. The laws</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="first_order_preorder_hyperdoctrine_completion_nats_axioms" class="idref" href="#first_order_preorder_hyperdoctrine_completion_nats_axioms"><span class="id" title="lemma">first_order_preorder_hyperdoctrine_completion_nats_axioms</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.html#first_order_hyperdoctrine_nats_axioms"><span class="id" title="definition">first_order_hyperdoctrine_nats_axioms</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#first_order_preorder_hyperdoctrine_completion_nats_data"><span class="id" title="definition">first_order_preorder_hyperdoctrine_completion_nats_data</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.html#first_order_hyperdoctrine_nats_zs_axiom"><span class="id" title="definition">first_order_hyperdoctrine_nats_zs_axiom</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#to_completion_proof"><span class="id" title="lemma">to_completion_proof</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#Naturals.H"><span class="id" title="variable">H</span></a> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr12'_x"><span class="id" title="notation">pr12</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#Naturals.N"><span class="id" title="variable">N</span></a>)) <span class="id" title="keyword">as</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#to_completion_truth"><span class="id" title="lemma">to_completion_truth</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#to_completion_forall"><span class="id" title="lemma">to_completion_forall</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#to_completion_impl"><span class="id" title="lemma">to_completion_impl</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#to_completion_false"><span class="id" title="lemma">to_completion_false</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#to_completion_equal"><span class="id" title="lemma">to_completion_equal</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.html#first_order_hyperdoctrine_nats_zs_axiom"><span class="id" title="definition">first_order_hyperdoctrine_nats_zs_axiom</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#to_completion_proof"><span class="id" title="lemma">to_completion_proof</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#Naturals.H"><span class="id" title="variable">H</span></a> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr22'_x"><span class="id" title="notation">pr22</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#Naturals.N"><span class="id" title="variable">N</span></a>)) <span class="id" title="keyword">as</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#to_completion_truth"><span class="id" title="lemma">to_completion_truth</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#to_completion_forall"><span class="id" title="lemma">to_completion_forall</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#to_completion_impl"><span class="id" title="lemma">to_completion_impl</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Construction.html#to_completion_equal"><span class="id" title="lemma">to_completion_equal</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab2922"></a><h1 class="section">3. The natural numbers</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="first_order_preorder_hyperdoctrine_completion_nats" class="idref" href="#first_order_preorder_hyperdoctrine_completion_nats"><span class="id" title="definition">first_order_preorder_hyperdoctrine_completion_nats</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.html#first_order_hyperdoctrine_nats"><span class="id" title="definition">first_order_hyperdoctrine_nats</span></a> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#Naturals.Hc"><span class="id" title="variable">Hc</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.html#make_first_order_hyperdoctrine_nats"><span class="id" title="definition">make_first_order_hyperdoctrine_nats</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#first_order_preorder_hyperdoctrine_completion_nats_data"><span class="id" title="definition">first_order_preorder_hyperdoctrine_completion_nats_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#first_order_preorder_hyperdoctrine_completion_nats_axioms"><span class="id" title="lemma">first_order_preorder_hyperdoctrine_completion_nats_axioms</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Hyperdoctrines.Completion.Naturals.html#Naturals"><span class="id" title="section">Naturals</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Bifunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.Preamble.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RepresentableFunctors.Precategories.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Export</span> UniMath.CategoryTheory.opp_precat
+               UniMath.CategoryTheory.yoneda
+               UniMath.CategoryTheory.Categories.HSET.Core.
+
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** bifunctor commutativity *)</span>
+
+<span class="kn">Definition</span> <span class="nf">comm_functor_data</span> {<span class="nv">I</span> <span class="nv">A</span> <span class="nv">B</span> : category} :
+  [I, [A, B] ] -&gt; A -&gt; functor_data I B
+  := <span class="k">λ</span> <span class="nv">D</span> <span class="nv">a</span>, functor_data_constr I B (<span class="k">λ</span> <span class="nv">i</span>, D ◾ i ◾ a) (<span class="k">λ</span> <span class="nv">i</span> <span class="nv">j</span> <span class="nv">e</span>, D ▭ e ◽ a).
+
+<span class="kn">Lemma</span> <span class="nf">isfunctor_comm_functor_data</span> {<span class="nv">I</span> <span class="nv">A</span> <span class="nv">B</span> : category} :
+  ∏ (D:[I,[A,B]]) (a:A), is_functor (comm_functor_data D a).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  { <span class="nb">unfold</span> functor_idax. <span class="nb">intro</span> i; <span class="nb">simpl</span>. <span class="nb">unfold</span> functor_mor_application.
+    <span class="bp">now</span> <span class="nb">rewrite</span> functor_id. }
+  { <span class="nb">intros</span> i j k f g; <span class="nb">simpl</span>. <span class="nb">unfold</span> functor_mor_application.
+    <span class="bp">now</span> <span class="nb">rewrite</span> functor_comp. }
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comm_functor</span> {<span class="nv">I</span> <span class="nv">A</span> <span class="nv">B</span> : category} :
+  [I, [A, B] ] -&gt; A -&gt; [I,B].
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D a.
+  <span class="k">exists</span> (<span class="nv">comm_functor_data</span> <span class="nv">D</span> <span class="nv">a</span>).
+  <span class="bp">exact</span> (isfunctor_comm_functor_data D a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comm_functor_data_2</span> (<span class="nv">I</span> <span class="nv">A</span> <span class="nv">B</span>:category) : functor_data [I,[A,B]] [A,[I,B]].
+<span class="kn">Proof</span>.
+  <span class="nb">unshelve</span> <span class="nb">refine</span> (_,,_).
+  { <span class="nb">intros</span> D.
+    <span class="nb">unshelve</span> <span class="nb">refine</span> (_,,_).
+    { <span class="nb">unshelve</span> <span class="nb">refine</span> (_,,_).
+      { <span class="nb">intros</span> a. <span class="bp">exact</span> (comm_functor D a). }
+      <span class="nb">intros</span> a a' f; <span class="nb">simpl</span>.
+      <span class="nb">unshelve</span> <span class="nb">refine</span> (_,,_).
+      { <span class="nb">simpl</span>; <span class="nb">intro</span> i. <span class="bp">exact</span> (D ◾ i ▭ f). }
+      { <span class="nb">intros</span> i j r; <span class="nb">simpl</span>; eqn_logic. } }
+    { <span class="nb">split</span>;
+                 [ <span class="nb">intros</span> a; <span class="nb">simpl</span>; <span class="nb">apply</span> nat_trans_eq;
+                   [ <span class="nb">apply</span> homset_property
+                   | <span class="nb">intros</span> i; <span class="nb">simpl</span>; <span class="nb">apply</span> functor_id ]
+                 | <span class="nb">intros</span> a b g r s; <span class="nb">simpl</span>; <span class="nb">apply</span> nat_trans_eq;
+                   [ <span class="nb">apply</span> homset_property
+                   | <span class="nb">simpl</span>; <span class="nb">intros</span> i; <span class="nb">apply</span> functor_comp ] ]. } }
+  { <span class="nb">intros</span> D D' p. <span class="nb">simpl</span>.
+    <span class="nb">unshelve</span> <span class="nb">refine</span> (_,,_).
+    { <span class="nb">intros</span> a. <span class="nb">simpl</span>.
+      <span class="nb">unshelve</span> <span class="nb">refine</span> (_,,_).
+      { <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, p ◽ i ◽ a). }
+      { <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span> <span class="nv">j</span> <span class="nv">e</span>, maponpaths (<span class="k">λ</span> <span class="nv">v</span>, v ◽ a) (nat_trans_ax p _ _ e)). } }
+    { <span class="nb">intros</span> a b f; <span class="nb">apply</span> nat_trans_eq;
+                [ <span class="nb">apply</span> homset_property
+                | <span class="nb">intros</span> i; <span class="nb">simpl</span>; <span class="nb">apply</span> nat_trans_ax]. } }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isfunctor_comm_functor_data_2</span> {<span class="nv">I</span> <span class="nv">A</span> <span class="nv">B</span>:category} :
+  is_functor (comm_functor_data_2 I A B).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  { <span class="nb">intros</span> D. <span class="nb">simpl</span>. <span class="nb">apply</span> nat_trans_eq.
+    { <span class="bp">exact</span> (homset_property [I,B]). }
+    <span class="nb">simpl</span>; <span class="nb">intros</span> a. <span class="nb">apply</span> nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="bp">reflexivity</span>. }
+  { <span class="nb">intros</span> D D' D'' p q; <span class="nb">simpl</span>. <span class="nb">apply</span> nat_trans_eq. <span class="bp">exact</span> (homset_property [I,B]).
+    <span class="nb">intros</span> a; <span class="nb">simpl</span>. <span class="nb">apply</span> nat_trans_eq.
+    { <span class="nb">apply</span> homset_property. }
+    <span class="nb">intros</span> i; <span class="nb">simpl</span>. eqn_logic. }
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bifunctor_comm</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span>:category) : [A,[B,C]] ⟶ [B,[A,C]].
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">comm_functor_data_2</span> <span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span>).
+  <span class="nb">apply</span> isfunctor_comm_functor_data_2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transportOverSet</span> {<span class="nv">X</span>:UU} {<span class="nv">Y</span>:X-&gt;UU} (<span class="nv">i</span>:isaset X) {<span class="nv">x</span>:X} (<span class="nv">e</span>:x=x) {<span class="nv">y</span> <span class="nv">y'</span>:Y x} :
+  transportf Y e y = y.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> ((transportf (<span class="k">λ</span> <span class="nv">k</span>, transportf Y k y = y) (pr1 (i x x (idpath x) e))) (idpath y)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comm_comm_iso_id</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span>:category) :
+  Precategories.nat_iso (bifunctor_comm A B C ∙ bifunctor_comm B A C) (functor_identity _).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unshelve</span> <span class="nb">refine</span> (makeNatiso _ _).
+  { <span class="nb">intro</span> F.
+    { <span class="nb">unshelve</span> <span class="nb">refine</span> (makeNatiso _ _).
+      { <span class="nb">intro</span> a. <span class="nb">unshelve</span> <span class="nb">refine</span> (makeNatiso _ _).
+        { <span class="nb">intro</span> b. <span class="bp">exact</span> (identity_z_iso _). }
+        { <span class="kp">abstract</span> (<span class="nb">intros</span> b b' f; <span class="nb">simpl</span>; <span class="nb">rewrite</span> id_right, id_left; <span class="bp">reflexivity</span>) <span class="nb">using</span> _L_. } }
+      <span class="kp">abstract</span> (<span class="nb">intros</span> a a' f; <span class="nb">apply</span> nat_trans_eq;
+                [ <span class="nb">apply</span> homset_property
+                | <span class="nb">intro</span> b; <span class="nb">simpl</span>; <span class="bp">now</span> <span class="nb">rewrite</span> id_left, id_right]) <span class="nb">using</span> _M_. } }
+  { <span class="kp">abstract</span> (<span class="nb">intros</span> F F' p; <span class="nb">simpl</span>; <span class="nb">apply</span> nat_trans_eq;
+              [ <span class="bp">exact</span> (homset_property [B,C])
+              | <span class="nb">intro</span> a; <span class="nb">apply</span> nat_trans_eq;
+                [ <span class="nb">apply</span> homset_property
+                | <span class="nb">intro</span> b; <span class="nb">simpl</span>; <span class="bp">now</span> <span class="nb">rewrite</span> id_right, id_left]]) <span class="nb">using</span> _N_. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_along_funextsec</span> {<span class="nv">X</span>:UU} {<span class="nv">Y</span>:X-&gt;UU} {<span class="nv">f</span> <span class="nv">g</span>:∏ x, Y x}
+      (<span class="nv">e</span>:f~g) (<span class="nv">x</span>:X) : transportf _ (funextsec _ _ _ e) (f x) = g x.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">induction</span> (funextsec _ _ _ e).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Functor_eq_map</span> {<span class="nv">A</span> <span class="nv">B</span>: category} (<span class="nv">F</span> <span class="nv">G</span>:[A,B]) :
+  F = G -&gt;
+  ∑ (ob : ∏ a, F ◾ a = G ◾ a),
+  ∏ a a' f, transportf (<span class="k">λ</span> <span class="nv">k</span>, k --&gt; G ◾ a')
+                       (ob a)
+                       (transportf (<span class="k">λ</span> <span class="nv">k</span>, F ◾ a --&gt; k)
+                                   (ob a')
+                                   (F ▭ f)) = G ▭ f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e.
+  <span class="nb">unshelve</span> <span class="nb">refine</span> (_,,_).
+  - <span class="nb">intros</span> a. <span class="nb">induction</span> e. <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> a a' f; <span class="nb">simpl</span>. <span class="nb">induction</span> e; <span class="nb">simpl</span>. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">Working</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Functor_eq_map_isweq</span> {<span class="nv">A</span> <span class="nv">B</span>: category} {<span class="nv">F</span> <span class="nv">G</span>:[A,B]} : isweq (Functor_eq_map F G).
+<span class="kn">Proof</span>.
+  <span class="c">(* should be provable using the ideas in isweqtoforallpaths *)</span>
+<span class="kn">Abort</span>.
+
+<span class="kn">Hypothesis</span> <span class="nv">Functor_eq_map_isweq</span> :
+  ∏ (A B: category) (F G:[A,B]), isweq (Functor_eq_map F G).
+<span class="kn">Arguments</span> Functor_eq_map_isweq {_ _ _ _} _.
+
+<span class="kn">Lemma</span> <span class="nf">Functor_eq_weq</span> {<span class="nv">A</span> <span class="nv">B</span>: category} (<span class="nv">F</span> <span class="nv">G</span>:[A,B]) :
+  F = G ≃
+  ∑ (ob : ∏ a, F ◾ a = G ◾ a),
+  ∏ a a' f, transportf (<span class="k">λ</span> <span class="nv">k</span>, k --&gt; G ◾ a')
+                       (ob a)
+                       (transportf (<span class="k">λ</span> <span class="nv">k</span>, F ◾ a --&gt; k)
+                                   (ob a')
+                                   (F ▭ f)) = G ▭ f.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (make_weq _ Functor_eq_map_isweq).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Functor_eq</span> {<span class="nv">A</span> <span class="nv">B</span>: category} {<span class="nv">F</span> <span class="nv">G</span>:[A,B]}
+      (<span class="nv">ob</span> : ∏ a, F ◾ a = G ◾ a)
+      (<span class="nv">mor</span> : ∏ a a' f, transportf (<span class="k">λ</span> <span class="nv">k</span>, k --&gt; G ◾ a')
+                                  (ob a)
+                                  (transportf (<span class="k">λ</span> <span class="nv">k</span>, F ◾ a --&gt; k)
+                                              (ob a')
+                                              (F ▭ f)) = G ▭ f) :
+  F = G.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (invmap (Functor_eq_weq F G)).
+  <span class="k">exists</span> <span class="nv">ob</span>.
+  <span class="bp">exact</span> mor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">comm_comm_eq_id</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span>:category) :
+  bifunctor_comm A B C ∙ bifunctor_comm B A C = functor_identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>. <span class="nb">unshelve</span> <span class="nb">refine</span> (Functor_eq _ _).
+  { <span class="nb">intro</span> F.
+    <span class="nb">change</span> (functor_identity [A, [B, C]] ◾ F) <span class="k">with</span> F.
+    <span class="nb">unshelve</span> <span class="nb">refine</span> (Functor_eq _ _).
+    { <span class="nb">intro</span> a. <span class="nb">unshelve</span> <span class="nb">refine</span> (Functor_eq _ _); <span class="bp">reflexivity</span>. }
+    { <span class="nb">intros</span> a a' f; <span class="nb">simpl</span>.
+      <span class="c">(* how does one deal with such transports in Coq? *)</span>
+<span class="kn">Abort</span>.
+
+<span class="kn">End</span> <span class="nf">Working</span>.
+
+<span class="sd">(** bifunctors related to representable functors  *)</span>
+
+<span class="kn">Definition</span> <span class="nf">θ_1</span> {<span class="nv">B</span> <span class="nv">C</span>:category} (<span class="nv">F</span> : [B, C]) (<span class="nv">X</span> : [B, [C^op, HSET]]) : hSet
+  := (∏ b, F ◾ b ⇒ X ◾ b) % <span class="nb">set</span>.
+
+<span class="kn">Definition</span> <span class="nf">θ_2</span> {<span class="nv">B</span> <span class="nv">C</span>:category} (<span class="nv">F</span> : [B, C]) (<span class="nv">X</span> : [B, [C^op, HSET]])
+           (<span class="nv">x</span> : θ_1 F X) : hSet
+  := hProp_to_hSet (<span class="k">∀</span> (<span class="nv">b'</span> <span class="nv">b</span>:B) (<span class="nv">f</span>:b'--&gt;b), (x b ⟲ F ▭ f = X ▭ f ⟳ x b' )) % logic.
+
+<span class="kn">Definition</span> <span class="nf">θ</span> {<span class="nv">B</span> <span class="nv">C</span>:category} (<span class="nv">F</span> : [B, C]) (<span class="nv">X</span> : [B, [C^op, HSET]]) : hSet
+  := ( ∑ x : θ_1 F X, θ_2 F X x ) % <span class="nb">set</span>.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"F ⟹ X"</span> := (θ F X) (<span class="kn">at level</span> <span class="mi">39</span>) : cat.
+<span class="c">(* to input: type "\==&gt;" with Agda input method *)</span>
+
+<span class="kn">Definition</span> <span class="nf">θ_subset</span> {<span class="nv">B</span> <span class="nv">C</span>:category} {<span class="nv">F</span> : [B, C]} {<span class="nv">X</span> : [B, [C^op, HSET]]}
+           (<span class="nv">t</span> <span class="nv">u</span> : F ⟹ X) :
+  pr1 t = pr1 u -&gt; t = u.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath.
+  <span class="nb">intros</span> x. <span class="nb">apply</span> impred; <span class="nb">intro</span> b;<span class="nb">apply</span> impred; <span class="nb">intro</span> b'; <span class="nb">apply</span> impred; <span class="nb">intro</span> f.
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">θ_map_1</span> {<span class="nv">B</span> <span class="nv">C</span>:category} {<span class="nv">F'</span> <span class="nv">F</span>:[B, C]} {<span class="nv">X</span> : [B, [C^op, HSET]]} :
+  F' --&gt; F -&gt; F ⟹ X -&gt; θ_1 F' X
+  := <span class="k">λ</span> <span class="nv">p</span> <span class="nv">xe</span> <span class="nv">b</span>, pr1 xe b ⟲ p ◽ b.
+
+<span class="kn">Definition</span> <span class="nf">θ_map_2</span> {<span class="nv">B</span> <span class="nv">C</span>:category} {<span class="nv">F'</span> <span class="nv">F</span>:[B, C]} {<span class="nv">X</span> : [B, [C^op, HSET]]}
+  (<span class="nv">p</span> : F' --&gt; F) (<span class="nv">xe</span> : F ⟹ X) : θ_2 F' X (θ_map_1 p xe).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> xe <span class="k">as</span> [x e]. <span class="nb">unfold</span> θ_map_1; <span class="nb">unfold</span> θ_1 <span class="k">in</span> x; <span class="nb">unfold</span> θ_2 <span class="k">in</span> e.
+  <span class="nb">intros</span> b' b f; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> &lt;- arrow_mor_mor_assoc.
+  <span class="nb">rewrite</span> nattrans_naturality.
+  <span class="nb">rewrite</span> arrow_mor_mor_assoc.
+  <span class="nb">rewrite</span> e.
+  <span class="nb">rewrite</span> nattrans_arrow_mor_assoc.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">θ_map</span> {<span class="nv">B</span> <span class="nv">C</span>:category} {<span class="nv">F'</span> <span class="nv">F</span>:[B, C]} {<span class="nv">X</span> : [B, [C^op, HSET]]} :
+  F' --&gt; F -&gt; F ⟹ X -&gt; F' ⟹ X
+  := <span class="k">λ</span> <span class="nv">p</span> <span class="nv">xe</span>, θ_map_1 p xe ,, θ_map_2 p xe.
+
+<span class="kn">Notation</span> <span class="s2">"xe ⟲⟲ p"</span> := (θ_map p xe) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">left associativity</span>) : cat.
+
+<span class="kn">Definition</span> <span class="nf">φ_map_1</span> {<span class="nv">B</span> <span class="nv">C</span>:category} {<span class="nv">F</span>:[B, C]} {<span class="nv">X'</span> <span class="nv">X</span>: [B, [C^op, HSET]]} :
+  F ⟹ X -&gt; X --&gt; X' -&gt; θ_1 F X'
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">p</span> <span class="nv">b</span>, p ◽ b ⟳ pr1 x b.
+
+<span class="kn">Definition</span> <span class="nf">φ_map_2</span> {<span class="nv">B</span> <span class="nv">C</span>:category} {<span class="nv">F</span>:[B, C]} {<span class="nv">X'</span> <span class="nv">X</span>: [B, [C^op, HSET]]}
+  (<span class="nv">x</span> : F ⟹ X) (<span class="nv">p</span> : X --&gt; X') : θ_2 F X' (φ_map_1 x p).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [x e]. <span class="nb">unfold</span> φ_map_1; <span class="nb">unfold</span> θ_1 <span class="k">in</span> x; <span class="nb">unfold</span> θ_2 <span class="k">in</span> e; <span class="nb">unfold</span> θ_2.
+  <span class="nb">intros</span> b b' f; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> &lt;- nattrans_arrow_mor_assoc.
+  <span class="nb">rewrite</span> e.
+  <span class="nb">rewrite</span> <span class="mi">2</span>? nattrans_nattrans_arrow_assoc.
+  <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, k ⟳ x b) (nattrans_naturality p f)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">φ_map</span> {<span class="nv">B</span> <span class="nv">C</span>:category} {<span class="nv">F</span>:[B, C]} {<span class="nv">X'</span> <span class="nv">X</span>: [B, [C^op, HSET]]} :
+  F ⟹ X -&gt; X --&gt; X' -&gt; F ⟹ X'
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">p</span>, φ_map_1 x p,, φ_map_2 x p.
+
+<span class="kn">Definition</span> <span class="nf">bifunctor_assoc</span> {<span class="nv">B</span> <span class="nv">C</span>:category} : [B, [C^op,HSET]] ⟶ [[B,C]^op,HSET].
+<span class="kn">Proof</span>.
+  <span class="nb">unshelve</span> <span class="nb">refine</span> (makeFunctor _ _ _ _).
+  { <span class="nb">intros</span> X.
+    <span class="nb">unshelve</span> <span class="nb">refine</span> (makeFunctor_op _ _ _ _).
+    { <span class="nb">intro</span> F. <span class="bp">exact</span> (F ⟹ X). }
+    { <span class="nb">intros</span> F' F p xe. <span class="bp">exact</span> (xe ⟲⟲ p). }
+    { <span class="kp">abstract</span> (
+          <span class="nb">intros</span> F; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> xe; <span class="nb">apply</span> θ_subset;
+          <span class="nb">simpl</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b; <span class="nb">apply</span> arrow_mor_id) <span class="nb">using</span> _K_. }
+    { <span class="kp">abstract</span> (
+          <span class="nb">intros</span> F F' F'' p q; <span class="nb">simpl</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> xe; <span class="nb">apply</span> θ_subset;
+          <span class="nb">simpl</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b;
+          <span class="nb">unfold</span> θ_map_1; <span class="bp">exact</span> (arrow_mor_mor_assoc _ _ _)) <span class="nb">using</span> _L_. } }
+  { <span class="nb">intros</span> X Y p. <span class="nb">simpl</span>.
+    <span class="nb">unshelve</span> <span class="nb">refine</span> (_,,_).
+    { <span class="nb">intros</span> F. <span class="nb">simpl</span>. <span class="nb">intro</span> x. <span class="bp">exact</span> (φ_map x p). }
+    { <span class="kp">abstract</span> (
+          <span class="nb">intros</span> F G q; <span class="nb">simpl</span> <span class="k">in</span> F, G; <span class="nb">simpl</span>;
+          <span class="nb">apply</span> funextsec; <span class="nb">intro</span> w;
+          <span class="nb">unshelve</span> <span class="nb">refine</span> (total2_paths2_f _ _);
+          [ <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b;
+            <span class="nb">unfold</span> φ_map, φ_map_1, θ_map_1; <span class="nb">simpl</span>;
+            <span class="nb">unfold</span> θ_map_1; <span class="nb">simpl</span>;
+            <span class="nb">apply</span> nattrans_arrow_mor_assoc
+          | <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b;
+            <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b';
+            <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b'';
+            <span class="nb">apply</span> setproperty ]) <span class="nb">using</span> _L_. } }
+  { <span class="kp">abstract</span>( <span class="nb">simpl</span>;
+    <span class="nb">intro</span> F;
+    <span class="nb">apply</span> nat_trans_eq;
+    [ <span class="bp">exact</span> (homset_property HSET)
+    | <span class="nb">intro</span> G;
+      <span class="nb">simpl</span>;
+      <span class="nb">unfold</span> φ_map; <span class="nb">simpl</span>; <span class="nb">unfold</span> φ_map_1; <span class="nb">simpl</span>;
+      <span class="nb">apply</span> funextsec; <span class="nb">intro</span> w;
+      <span class="nb">simpl</span>;
+      <span class="nb">unshelve</span> <span class="nb">refine</span> (total2_paths_f _ _);
+      [ <span class="nb">simpl</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b; <span class="bp">reflexivity</span>
+      | <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b;
+        <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b';
+        <span class="nb">apply</span> funextsec; <span class="nb">intro</span> f;
+        <span class="nb">simpl</span>;
+        <span class="nb">apply</span> setproperty] ]) <span class="nb">using</span> _L_. }
+  { <span class="kp">abstract</span> (<span class="nb">intros</span> F F' F'' p q;
+              <span class="nb">simpl</span>;
+              <span class="nb">apply</span> nat_trans_eq;
+              [ <span class="bp">exact</span> (homset_property HSET)
+              | <span class="nb">intro</span> G;
+                <span class="nb">simpl</span>;
+                <span class="nb">apply</span> funextsec; <span class="nb">intro</span> w;
+                <span class="nb">unshelve</span> <span class="nb">refine</span> (total2_paths2_f _ _);
+                [ <span class="nb">unfold</span> φ_map, φ_map_1; <span class="nb">simpl</span>;
+                  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b;
+                  <span class="nb">apply</span> pathsinv0, nattrans_nattrans_arrow_assoc
+                | <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b;
+                  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> b';
+                  <span class="nb">apply</span> funextsec; <span class="nb">intro</span> f;
+                  <span class="nb">apply</span> setproperty ]]) <span class="nb">using</span> _L_. }
+<span class="kn">Defined</span>.
+
+<span class="c">(* *)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/RepresentableFunctors/Bifunctor.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Preamble.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Preamble.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Isos.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

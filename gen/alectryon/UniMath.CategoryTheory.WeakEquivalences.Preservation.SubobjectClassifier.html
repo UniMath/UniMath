@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SubobjectClassifier.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">   In this file, we show that an arbitrary weak equivalence F : C -&gt; D preserves subobject classifiers.</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Mono.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Preservation.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.WeakEquivalences.Reflection.Pullbacks.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">WeakEquivalencePreservationsSubobjectClassifier</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : category}
+    {<span class="nv">F</span> : C ⟶ D}
+    (<span class="nv">Fw</span> : is_weak_equiv F)
+    {<span class="nv">t_C</span> : Terminal C}
+    (<span class="nv">t_D</span> : Terminal D)
+    (<span class="nv">Ω</span> : subobject_classifier t_C).
+
+  <span class="kn">Let</span> <span class="nf">t_F</span> : preserves_terminal F.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weak_equiv_preserves_terminal.
+    <span class="bp">exact</span> Fw.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> {<span class="nv">d₁</span> <span class="nv">d₂</span> : D}
+    {<span class="nv">c₁</span> <span class="nv">c₂</span> : C}
+    (<span class="nv">i₁</span> : z_iso (F c₁) d₁)
+    (<span class="nv">i₂</span> : z_iso (F c₂) d₂).
+
+  <span class="kn">Context</span> (<span class="nv">f</span> : Monic D d₁ d₂).
+  <span class="kn">Let</span> <span class="nf">refl_f</span> := reflection_of_mono (pr2 Fw) i₁ i₂ f.
+  <span class="kn">Let</span> <span class="nf">const_tr₂</span> := TerminalArrow t_D d₁ · (TerminalArrow (preserves_terminal_to_terminal F t_F t_C) t_D · # F (pr12 Ω)).
+
+  <span class="kn">Lemma</span> <span class="nf">square_of_reflection_subobject_classifier'</span>
+    (<span class="nv">φ</span> : ∑ (χ : D⟦d₂, F Ω⟧), ∑ (H : MonicArrow D f · χ = const_tr₂), isPullback H)
+    : i₁ · const_tr₂ = # F (const_true c₁ Ω).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> const_tr₂.
+    <span class="nb">rewrite</span> ! assoc.
+
+    etrans. {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> TerminalArrowUnique.
+    }
+
+    <span class="nb">assert</span> (r₀ : TerminalArrow (preserves_terminal_to_terminal F t_F t_C) d₁
+                 = z_iso_inv i₁ · #F (TerminalArrow _ _)).
+    { <span class="nb">apply</span> pathsinv0, TerminalArrowUnique. }
+    <span class="nb">rewrite</span> r₀.
+
+    etrans. {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- functor_comp.
+    }
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">square_of_reflection_subobject_classifier</span>
+    (<span class="nv">φ</span> : ∑ (χ : D⟦d₂, F Ω⟧), ∑ (H : MonicArrow D f · χ = const_tr₂), isPullback H)
+    : refl_f · invmap (weq_from_fully_faithful (ff_from_weak_equiv F Fw) c₂ Ω) (i₂ · pr1 φ)
+      = const_true c₁ Ω.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (faithful_reflects_morphism_equality F (pr2 Fw)).
+    etrans. {
+      <span class="nb">apply</span> maponpaths, pathsinv0, fully_faithful_inv_comp.
+    }
+    etrans. {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> z_iso_after_z_iso_inv.
+    }
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">refine</span> (homotweqinvweq (weq_from_fully_faithful (ff_from_weak_equiv _ Fw) _ _) _ @ _).
+
+    <span class="c">(* i₁ · f · pr1 φ = # F (const_true c₁ Ω). *)</span>
+    etrans. {
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (pr12 φ).
+    }
+    <span class="bp">exact</span> (square_of_reflection_subobject_classifier' φ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ClassifyingPullbackOfImage</span> {<span class="nv">x₁</span> <span class="nv">x₂</span> : ob C} (<span class="nv">g</span> : Monic _ x₁ x₂)
+    : Pullback (# F (characteristic_morphism Ω g)) (# F (Monics.MonicArrow C Ω)).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (pb := (subobject_classifier_pullback Ω g)).
+    use (make_Pullback _ (weak_equiv_preserves_pullbacks Fw _ _ _ _ _ _ _ _ _ _
+                            (isPullback_Pullback pb))).
+    <span class="nb">apply</span> functor_on_square, pb.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pullback_square_of_reflection'</span>
+    (<span class="nv">ϕ</span> : ∑ (χ : D⟦d₂, F Ω⟧), ∑ (H : MonicArrow D f · χ = const_tr₂), isPullback H)
+    : isPullback (Pullbacks.p_func (F := F) (square_of_reflection_subobject_classifier ϕ)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d' g k pfₛ.
+
+    <span class="nb">assert</span> (spf : g · i₂ · pr1 ϕ =
+       k · TerminalArrow t_D (F t_C)
+         · (TerminalArrow (preserves_terminal_to_terminal F t_F t_C) t_D · # F (pr12 Ω))).
+    {
+      <span class="nb">refine</span> (_ @ pfₛ @ _).
+      - <span class="nb">rewrite</span> ! assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> (functor_on_fully_faithful_inv_hom _ (pr2 Fw)).
+      - <span class="nb">rewrite</span> ! assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (! id_left _ @ _).
+        <span class="nb">rewrite</span> ! assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        use proofirrelevancecontr.
+        <span class="nb">apply</span> t_F, t_C.
+    }
+
+    <span class="nb">set</span> (R := pr22 ϕ d' _ _ spf).
+    use (iscontrweqb' R).
+
+    use weqtotal2.
+    - use z_iso_comp_left_weq.
+      <span class="bp">exact</span> i₁.
+    - <span class="nb">intro</span>.
+      use weqdirprodf ; <span class="nb">simpl</span>.
+      + use weqimplimpl.
+        * <span class="nb">intro</span> pq.
+          use (cancel_z_iso _ _ (z_iso_inv i₂)).
+          <span class="nb">apply</span> pathsinv0.
+          etrans. {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (! pq).
+          }
+          <span class="nb">rewrite</span> ! assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> (functor_on_fully_faithful_inv_hom _ (pr2 Fw)).
+          <span class="c">(* apply assoc'. *)</span>
+        * <span class="nb">intro</span> pq.
+          etrans. {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (functor_on_fully_faithful_inv_hom _ (pr2 Fw)).
+          }
+          <span class="nb">rewrite</span> ! assoc.
+          <span class="nb">rewrite</span> pq.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+          <span class="nb">apply</span> id_right.
+        * <span class="nb">apply</span> homset_property.
+        * <span class="nb">apply</span> homset_property.
+      + use weqcontrcontr ; <span class="nb">apply</span> isapropifcontr.
+        * <span class="nb">apply</span> t_F, t_C.
+        * <span class="nb">apply</span> t_D.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pullback_square_of_reflection</span>
+    (<span class="nv">ϕ</span> : ∑ (χ : D⟦d₂, F Ω⟧), ∑ (H : MonicArrow D f · χ = const_tr₂), isPullback H)
+    : isPullback (square_of_reflection_subobject_classifier ϕ).
+  <span class="kn">Proof</span>.
+    use (weak_equiv_reflects_pullbacks Fw).
+    <span class="nb">apply</span> pullback_square_of_reflection'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_subobject_classifier_type_isaprop</span>
+    : isaprop (∑ (χ : D⟦d₂, F Ω⟧), ∑ (H : MonicArrow D f · χ = const_tr₂), isPullback H).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    <span class="nb">simpl</span>.
+    use subtypePath.
+    { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_subobject_classifier_arr. }
+    use (cancel_z_iso' i₂).
+
+    <span class="nb">refine</span> (! homotweqinvweq (weq_from_fully_faithful (ff_from_weak_equiv _ Fw) _ _) _ @ _).
+    <span class="nb">refine</span> (_ @ homotweqinvweq (weq_from_fully_faithful (ff_from_weak_equiv _ Fw) _ _) _).
+    <span class="nb">apply</span> maponpaths.
+
+    <span class="nb">set</span> (χ₁ := invmap (weq_from_fully_faithful (ff_from_weak_equiv F Fw) c₂ Ω) (i₂ · pr1 φ₁)
+                 : C⟦c₂, Ω⟧).
+    <span class="nb">set</span> (χ₂ := invmap (weq_from_fully_faithful (ff_from_weak_equiv F Fw) c₂ Ω) (i₂ · pr1 φ₂)
+           : C⟦c₂, Ω⟧).
+
+    use (subobject_classifier_map_eq Ω (reflection_of_mono (pr2 Fw) i₁ i₂ f)).
+    - <span class="nb">apply</span> square_of_reflection_subobject_classifier.
+    - <span class="nb">apply</span> square_of_reflection_subobject_classifier.
+    - <span class="nb">apply</span> pullback_square_of_reflection.
+    - <span class="nb">apply</span> pullback_square_of_reflection.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_subobject_classifier_square</span>
+    : f · (z_iso_inv i₂ · # F (characteristic_morphism Ω refl_f)) = const_tr₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (t := maponpaths (#F) (subobject_classifier_square_commutes Ω refl_f)).
+    <span class="nb">rewrite</span> functor_comp <span class="k">in</span> t.
+
+    <span class="nb">assert</span> (pf : i₁ · pr1 f · z_iso_inv i₂ = #F refl_f).
+    {
+      <span class="nb">apply</span> pathsinv0, (functor_on_fully_faithful_inv_hom _ (pr2 Fw)).
+    }
+
+    use (cancel_z_iso' i₁).
+    <span class="nb">refine</span> ( _ @ t @ _).
+    - <span class="nb">rewrite</span> &lt;- pf.
+      <span class="bp">now</span> <span class="nb">rewrite</span> ! assoc'.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">unfold</span> const_tr₂.
+      <span class="nb">rewrite</span> ! assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      use proofirrelevancecontr.
+      <span class="nb">apply</span> t_F, t_C.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weak_equiv_preserves_subobject_classifier_square_is_a_pullback</span>
+    : isPullback weak_equiv_preserves_subobject_classifier_square.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d g t pf.
+
+    transparent <span class="nb">assert</span> (tfc : (D⟦d, F t_C⟧)). {
+      <span class="nb">apply</span> t_F, t_C.
+    }
+
+    <span class="nb">simpl</span> <span class="k">in</span> tfc.
+    <span class="nb">rewrite</span> assoc <span class="k">in</span> pf.
+    <span class="nb">assert</span> (pf₀ : g · z_iso_inv i₂ · # F (characteristic_morphism Ω refl_f) = tfc · # F Ω).
+    {
+      <span class="nb">refine</span> (assoc' _ _ _ @ _ @ pf @ _).
+      { <span class="nb">apply</span> assoc. }
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      use proofirrelevancecontr.
+      <span class="nb">apply</span> t_F, t_C.
+    }
+
+    use (iscontrweqf (X := ∑ hk : D ⟦ d, ClassifyingPullbackOfImage refl_f⟧,
+       hk · PullbackPr1 (ClassifyingPullbackOfImage refl_f) = g · z_iso_inv i₂
+                                                       × hk · PullbackPr2 (ClassifyingPullbackOfImage refl_f) = tfc)).
+    <span class="mi">2</span>: {
+      <span class="bp">exact</span> (isPullback_Pullback (ClassifyingPullbackOfImage refl_f) d (g · z_iso_inv i₂) tfc pf₀).
+    }
+
+    <span class="nb">unfold</span> ClassifyingPullbackOfImage.
+    <span class="nb">cbn</span>.
+    use weqtotal2.
+    - use z_iso_comp_left_weq.
+      <span class="bp">exact</span> i₁.
+    - <span class="nb">intro</span>.
+      use weqdirprodf ; <span class="nb">simpl</span>.
+      + use weqimplimpl.
+        * <span class="nb">intro</span> pq.
+          use (cancel_z_iso _ _ (z_iso_inv i₂)).
+          <span class="nb">refine</span> (_ @ pq).
+          <span class="nb">rewrite</span> ! assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> pathsinv0, (functor_on_fully_faithful_inv_hom _ (pr2 Fw)).
+        * <span class="nb">intro</span> pq.
+          etrans. {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (functor_on_fully_faithful_inv_hom _ (pr2 Fw)).
+          }
+          <span class="nb">rewrite</span> ! assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> pq.
+        * <span class="nb">apply</span> homset_property.
+        * <span class="nb">apply</span> homset_property.
+      + use weqcontrcontr ; <span class="nb">apply</span> isapropifcontr.
+        * <span class="nb">apply</span> t_F, t_C.
+        * <span class="nb">apply</span> t_D.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">weak_equiv_preserves_subobject_classifier_uvp</span>
+    : iscontr (∑ (χ : D⟦d₂, F Ω⟧), ∑ (H : MonicArrow D f · χ = const_tr₂), isPullback H).
+  <span class="kn">Proof</span>.
+    use iscontraprop1.
+    { <span class="bp">exact</span> weak_equiv_preserves_subobject_classifier_type_isaprop. }
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> (z_iso_inv i₂ · #F (characteristic_morphism Ω refl_f)).
+    - <span class="nb">apply</span> weak_equiv_preserves_subobject_classifier_square.
+    - <span class="nb">apply</span> weak_equiv_preserves_subobject_classifier_square_is_a_pullback.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">weak_equiv_preserves_subobject_classifier_uvp'</span>
+    :  <span class="k">∃</span>! (χ : D ⟦ d₂, F Ω ⟧)
+         (H : f · χ = TerminalArrow t_D d₁ · (TerminalArrow (preserves_terminal_to_terminal F t_F t_C) t_D · # F (true Ω))),
+      isPullback H.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> weak_equiv_preserves_subobject_classifier_uvp.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">WeakEquivalencePreservationsSubobjectClassifier</span>.
+
+<span class="kn">Proposition</span> <span class="nf">weak_equiv_preserves_subobject_classifier</span>
+  {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : C ⟶ D} (<span class="nv">Fw</span> : is_weak_equiv F)
+  (<span class="nv">t_C</span> : Terminal C) (<span class="nv">t_D</span> : Terminal D)
+  : preserves_subobject_classifier F t_C t_D (weak_equiv_preserves_terminal _ Fw).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Ω τ τ_cl.
+  <span class="nb">set</span> (S := make_subobject_classifier Ω τ τ_cl).
+  <span class="nb">intros</span> d₁ d₂ f.
+
+  use (factor_through_squash (isapropiscontr _) _ (eso_from_weak_equiv _ Fw d₁)).
+  <span class="nb">intros</span> [c₁ i₁].
+  use (factor_through_squash (isapropiscontr _) _ (eso_from_weak_equiv _ Fw d₂)).
+  <span class="nb">intros</span> [c₂ i₂].
+
+  <span class="bp">exact</span> (weak_equiv_preserves_subobject_classifier_uvp Fw t_D  S i₁ i₂ f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Corollary</span> <span class="nf">weak_equiv_creates_subobject_classifier'</span>
+  {<span class="nv">C1</span> <span class="nv">C2</span> : category}
+  {<span class="nv">F</span> : C1 ⟶ C2}
+  (<span class="nv">Fw</span> : is_weak_equiv F)
+  (<span class="nv">T1</span> : Terminal C1)
+  (<span class="nv">T2</span> : Terminal C2)
+  (<span class="nv">P1</span> : subobject_classifier T1)
+  : subobject_classifier T2.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (P_2 := weak_equiv_preserves_subobject_classifier Fw T1 T2 P1 (pr12 P1) (pr22 P1)).
+  <span class="bp">exact</span> (make_subobject_classifier _ _ P_2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">weak_equiv_creates_subobject_classifier</span>
+  {<span class="nv">C1</span> <span class="nv">C2</span> : category}
+  {<span class="nv">F</span> : C1 ⟶ C2}
+  (<span class="nv">Fw</span> : is_weak_equiv F)
+  (<span class="nv">T1</span> : Terminal C1)
+  (<span class="nv">P1</span> : subobject_classifier T1)
+  : subobject_classifier (make_Terminal _ (weak_equiv_preserves_terminal _ Fw _ (pr2 T1))).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (weak_equiv_creates_subobject_classifier' Fw T1 _ P1).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/WeakEquivalences/Preservation/SubobjectClassifier.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;    In this file, we show that an arbitrary weak equivalence F : C -&gt; D preserves subobject classifiers.
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

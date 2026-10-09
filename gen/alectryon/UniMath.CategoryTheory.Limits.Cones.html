@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Cones.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">Definition of the precategory of cones over a precategory C together with a proof that that</span>
+<span class="sd">precategory is a univalent_category if C is ([is_univalent_CONE]).</span>
+
+<span class="sd">Written by Benedikt Ahrens, following discussions with J. Gross, D. Grayson and V. Voevodsky</span>
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Cone</span>.
+
+  <span class="kn">Variables</span> <span class="nv">J</span> : precategory.
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+
+<span class="kn">Variable</span> <span class="nv">F</span> : functor J C.
+
+<span class="kn">Definition</span> <span class="nf">ConeData</span> : UU := ∑ a : C, ∏ j : J, a --&gt; F j.
+
+<span class="kn">Definition</span> <span class="nf">ConeTop</span> (<span class="nv">a</span> : ConeData) : C := pr1 a.
+<span class="kn">Definition</span> <span class="nf">ConeMor</span> (<span class="nv">a</span> : ConeData) (<span class="nv">j</span> : J) : ConeTop a --&gt; F j := (pr2 a) j.
+
+<span class="kn">Lemma</span> <span class="nf">eq_ConeData_eq</span> (<span class="nv">a</span> <span class="nv">b</span> : ConeData) (<span class="nv">p</span> <span class="nv">q</span> : a = b) :
+   base_paths _ _ p = base_paths _ _ q -&gt; p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> (eq_equalities_between_pairs _ _ _ _ _ _ H).
+  <span class="nb">apply</span> uip.
+  <span class="nb">apply</span> (impred <span class="mi">2</span>); <span class="nb">intro</span> j.
+  <span class="nb">apply</span> C.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ConeProp</span> (<span class="nv">a</span> : ConeData) :=
+  ∏ j j' (f : j --&gt; j'), ConeMor a j · #F f = ConeMor a j'.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_ConeProp</span> (<span class="nv">a</span> : ConeData) : isaprop (ConeProp a).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> C.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Cone</span> := total2 (<span class="k">λ</span> <span class="nv">a</span> : ConeData, ConeProp a).
+
+
+<span class="kn">Definition</span> <span class="nf">ConeData_from_Cone</span> : Cone -&gt; ConeData := <span class="k">λ</span> <span class="nv">a</span>, pr1 a.
+
+<span class="kn">Lemma</span> <span class="nf">eq_Cone_eq</span> (<span class="nv">a</span> <span class="nv">b</span> : Cone) (<span class="nv">p</span> <span class="nv">q</span> : a = b) :
+   base_paths _ _ (base_paths _ _ p) =
+   base_paths _ _ (base_paths _ _ q) -&gt; p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">assert</span> (H2 : base_paths _ _ p = base_paths _ _ q).
+  <span class="nb">apply</span> eq_ConeData_eq.
+  <span class="nb">apply</span> H.
+  <span class="nb">apply</span> (eq_equalities_between_pairs _ _ _ _ _ _ H2).
+  <span class="nb">apply</span> uip.
+  <span class="nb">apply</span> isasetaprop.
+  <span class="nb">apply</span> isaprop_ConeProp.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Coercion</span> <span class="nf">ConeData_from_Cone</span> : Cone &gt;-&gt; ConeData.
+
+<span class="kn">Definition</span> <span class="nf">ConeProp_from_Cone</span> (<span class="nv">a</span> : Cone) : ConeProp a := pr2 a.
+<span class="kn">Coercion</span> <span class="nf">ConeProp_from_Cone</span> : Cone &gt;-&gt; ConeProp.
+
+
+<span class="kn">Lemma</span> <span class="nf">cone_prop</span> (<span class="nv">a</span> : Cone) :
+  ∏ j j' (f : j --&gt; j'), ConeMor a j · #F f = ConeMor a j'.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 a).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Cone_eq</span> (<span class="nv">a</span> <span class="nv">b</span> : Cone) : pr1 a = pr1 b -&gt; a = b.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> (total2_paths_f H).
+  <span class="nb">apply</span> proofirrelevance.
+  <span class="nb">apply</span> isaprop_ConeProp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Cone_Mor</span> (<span class="nv">M</span> <span class="nv">N</span> : Cone) :=
+  total2 (<span class="k">fun</span> <span class="nv">f</span> : ConeTop M --&gt; ConeTop N =&gt;
+        ∏ j : J, f · ConeMor N j = ConeMor M j).
+
+
+<span class="kn">Lemma</span> <span class="nf">isaset_Cone_Mor</span> (<span class="nv">M</span> <span class="nv">N</span> : Cone) : isaset (Cone_Mor M N).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>).
+  <span class="nb">apply</span> C.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> hlevelntosn.
+  <span class="nb">apply</span> impred.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> C.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ConeConnect</span> {<span class="nv">M</span> <span class="nv">N</span> : Cone} (<span class="nv">f</span> : Cone_Mor M N) :
+    ConeTop M --&gt; ConeTop N := pr1 f.
+
+<span class="kn">Lemma</span> <span class="nf">Cone_Mor_eq</span> (<span class="nv">M</span> <span class="nv">N</span> : Cone) (<span class="nv">f</span> <span class="nv">g</span> : Cone_Mor M N) :
+   ConeConnect f = ConeConnect g -&gt; f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> (total2_paths_f H).
+  <span class="nb">apply</span> proofirrelevance.
+  <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> C.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cone_mor_prop</span> <span class="nv">M</span> <span class="nv">N</span> (<span class="nv">f</span> : Cone_Mor M N) :
+    ∏ j : J, ConeConnect f · ConeMor N j = ConeMor M j.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Cone_id</span> (<span class="nv">A</span> : Cone) : Cone_Mor A A.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">_</span>).
+  <span class="nb">intros</span>; <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">Cone_comp</span> (<span class="nv">A</span> <span class="nv">B</span> <span class="nv">D</span> : Cone) (<span class="nv">f</span> : Cone_Mor A B)
+        (<span class="nv">g</span> : Cone_Mor B D) : Cone_Mor A D.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">ConeConnect</span> <span class="nv">f</span> · ConeConnect g).
+  <span class="nb">intro</span> j.
+  <span class="c">(* make this proof opaque *)</span>
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">rewrite</span> cone_mor_prop.
+  <span class="nb">rewrite</span> cone_mor_prop.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">Cone_precategory_ob_mor</span> : precategory_ob_mor :=
+   make_precategory_ob_mor Cone
+   (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, Cone_Mor a b).
+
+<span class="kn">Definition</span> <span class="nf">Cone_precategory_data</span> : precategory_data.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">Cone_precategory_ob_mor</span>.
+  <span class="k">exists</span> <span class="nv">Cone_id</span>.
+  <span class="bp">exact</span> Cone_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_Cone</span> : is_precategory Cone_precategory_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">simpl</span>.
+
+  <span class="nb">intros</span>;
+  <span class="nb">apply</span> Cone_Mor_eq;
+  <span class="nb">simpl</span>; <span class="nb">apply</span> id_left.
+
+  <span class="nb">intros</span>;
+  <span class="nb">apply</span> Cone_Mor_eq;
+  <span class="nb">simpl</span>; <span class="nb">apply</span> id_right.
+
+  <span class="nb">intros</span>;
+  <span class="nb">apply</span> Cone_Mor_eq;
+  <span class="nb">simpl</span>; <span class="nb">apply</span> assoc.
+
+  <span class="nb">intros</span>;
+  <span class="nb">apply</span> Cone_Mor_eq;
+  <span class="nb">simpl</span>; <span class="nb">apply</span> assoc'.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">CONEpre</span> : precategory := tpair _ _ is_precategory_Cone.
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_CONEpre</span> : has_homsets CONEpre.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> isaset_Cone_Mor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">CONE</span> : category := CONEpre ,, has_homsets_CONEpre.
+
+
+
+<span class="c">(* this should not need the pr1 before f *)</span>
+
+<span class="kn">Definition</span> <span class="nf">iso_projects_from_CONE</span> (<span class="nv">a</span> <span class="nv">b</span> : CONE) (<span class="nv">f</span> : z_iso a b) :
+  is_z_isomorphism (ConeConnect (pr1 f)).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (T:=z_iso_inv_after_z_iso f).
+  <span class="nb">set</span> (T':=z_iso_after_z_iso_inv f).
+  <span class="k">exists</span> (<span class="nv">ConeConnect</span> (inv_from_z_iso f)).
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  - <span class="nb">apply</span> (base_paths _ _ T).
+  - <span class="nb">apply</span> (base_paths _ _ T').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ConeConnectIso</span> {<span class="nv">a</span> <span class="nv">b</span> : CONE} (<span class="nv">f</span> : z_iso a b) :
+   z_iso (ConeTop (pr1 a)) (ConeTop (pr1 b)) :=
+ tpair _ _ (iso_projects_from_CONE a b f).
+
+<span class="kn">Lemma</span> <span class="nf">ConeConnectIso_identity_iso</span> (<span class="nv">a</span> : CONE) :
+   ConeConnectIso (identity_z_iso a) = identity_z_iso _ .
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> z_iso_eq. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ConeConnectIso_inj</span> (<span class="nv">a</span> <span class="nv">b</span> : CONE) (<span class="nv">f</span> <span class="nv">g</span> : z_iso a b) :
+   ConeConnectIso f = ConeConnectIso g -&gt; f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> z_iso_eq; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> Cone_Mor_eq.
+  <span class="nb">apply</span> (base_paths _ _ H).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inv_from_iso_ConeConnectIso</span> (<span class="nv">a</span> <span class="nv">b</span> : CONE) (<span class="nv">f</span> : z_iso a b):
+  pr1 (inv_from_z_iso f) = inv_from_z_iso (ConeConnectIso f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Cone</span>.
+
+<span class="kn">Arguments</span> CONE [J C].
+<span class="kn">Arguments</span> ConeConnect [J C].
+
+<span class="kn">Section</span> <span class="nf">CONE_category</span>.
+
+
+<span class="kn">Variable</span> <span class="nv">J</span> : precategory.
+<span class="kn">Variable</span> <span class="nv">C</span> : category.
+<span class="kn">Variable</span> <span class="nv">F</span> : functor J C.
+<span class="kn">Hypothesis</span> <span class="nv">is_cat_C</span> : is_univalent C.
+
+
+<span class="kn">Definition</span> <span class="nf">isotoid_CONE_pr1</span> (<span class="nv">a</span> <span class="nv">b</span> : CONE F) : z_iso a b -&gt; pr1 a = pr1 b.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="nb">apply</span> (total2_paths_f (isotoid _ is_cat_C (ConeConnectIso _ _ _ f))).
+  intermediate_path ((<span class="k">λ</span> <span class="nv">c</span> : J,
+     idtoiso (!isotoid C is_cat_C (ConeConnectIso _ _ _ f))· pr2 (pr1 a) c)).
+  <span class="nb">apply</span> transportf_isotoid_dep'.
+  <span class="nb">apply</span> funextsec.
+  <span class="nb">intro</span> t.
+  intermediate_path (idtoiso (isotoid C is_cat_C (z_iso_inv_from_z_iso (ConeConnectIso _ _ _ f)))·
+       pr2 (pr1 a) t).
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> inv_isotoid.
+  intermediate_path (z_iso_inv_from_z_iso (ConeConnectIso _ _ _ f)· pr2 (pr1 a) t).
+  <span class="nb">apply</span> cancel_postcomposition.
+  <span class="nb">set</span> (H := idtoiso_isotoid _ is_cat_C _ _ (z_iso_inv_from_z_iso (ConeConnectIso _ _ _ f))).
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> (base_paths _ _ H).
+  <span class="nb">simpl</span>.
+  <span class="nb">set</span> (T':= inv_from_z_iso f).
+  <span class="nb">set</span> (T:=pr2 (inv_from_z_iso f) t).
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">rewrite</span> &lt;- inv_from_iso_ConeConnectIso.
+  <span class="nb">apply</span> T.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isotoid_CONE</span> {<span class="nv">a</span> <span class="nv">b</span> : CONE F} : z_iso a b -&gt; a = b.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="nb">apply</span> Cone_eq.
+  <span class="nb">apply</span> (isotoid_CONE_pr1 _ _ f).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">eq_CONE_pr1</span> (<span class="nv">M</span> <span class="nv">N</span> : CONE F) (<span class="nv">p</span> <span class="nv">q</span> : M = N) : base_paths _ _ p = base_paths _ _ q -&gt; p = q.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> (eq_equalities_between_pairs _ _ _ _ _ _ H).
+  <span class="nb">apply</span> proofirrelevancecontr.
+  <span class="nb">apply</span> isaprop_ConeProp.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">base_paths_isotoid_CONE</span> (<span class="nv">M</span> : CONE F):
+base_paths (pr1 M) (pr1 M)
+      (base_paths M M (isotoid_CONE (identity_z_iso M))) =
+    base_paths (pr1 M) (pr1 M) (idpath (pr1 M)).
+<span class="kn">Proof</span>.
+  intermediate_path (base_paths (pr1 M) (pr1 M) (isotoid_CONE_pr1 M M (identity_z_iso M))).
+  <span class="nb">unfold</span> Cone_eq.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> base_total2_paths.
+  intermediate_path (isotoid C is_cat_C (ConeConnectIso _ _ _ (identity_z_iso M))).
+  <span class="nb">unfold</span> isotoid_CONE_pr1.
+  <span class="nb">apply</span> base_total2_paths.
+  intermediate_path (isotoid C is_cat_C (identity_z_iso (ConeTop _ _ _ (pr1 M)))).
+  <span class="nb">apply</span> maponpaths, ConeConnectIso_identity_iso.
+  <span class="nb">apply</span> isotoid_identity_iso.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">isotoid_CONE_idtoiso</span> (<span class="nv">M</span> <span class="nv">N</span> : CONE F) : ∏ p : M = N, isotoid_CONE (idtoiso p) = p.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> p.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> eq_Cone_eq.
+  <span class="nb">apply</span> base_paths_isotoid_CONE.
+<span class="kn">Qed</span>.
+
+
+
+<span class="kn">Lemma</span> <span class="nf">ConeConnect_idtoiso</span> (<span class="nv">M</span> <span class="nv">N</span> : CONE F) (<span class="nv">p</span> : M = N):
+  ConeConnect _ _ _ (pr1 (idtoiso p)) = idtoiso ((base_paths _ _ (base_paths _ _  p))).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">idtoiso_isotoid_CONE</span> (<span class="nv">M</span> <span class="nv">N</span> : CONE F) : ∏ f : z_iso M N, idtoiso (isotoid_CONE f) = f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="nb">apply</span> z_iso_eq.
+  <span class="nb">apply</span> Cone_Mor_eq.
+  etrans; [<span class="nb">apply</span> ConeConnect_idtoiso |].
+  <span class="nb">unfold</span> isotoid_CONE.
+  <span class="nb">unfold</span> Cone_eq.
+  <span class="nb">rewrite</span> base_total2_paths.
+  <span class="nb">unfold</span> isotoid_CONE_pr1.
+  <span class="nb">rewrite</span> base_total2_paths.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> idtoiso_isotoid.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_CONE</span> : is_univalent (CONE F).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b.
+  <span class="nb">apply</span> (isweq_iso _  (@isotoid_CONE a b)).
+  <span class="nb">apply</span> isotoid_CONE_idtoiso.
+  <span class="nb">apply</span> idtoiso_isotoid_CONE.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">CONE_category</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Cones.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; Written by Benedikt Ahrens, following discussions with J. Gross, D. Grayson and V. Voevodsky
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

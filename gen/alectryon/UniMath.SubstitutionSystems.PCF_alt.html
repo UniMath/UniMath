@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PCF_alt.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">Syntax of PCF as a multisorted binding signature.</span>
+
+<span class="sd">Written by: Anders Mörtberg, 2021</span>
+
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Structures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SumOfSignatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.BinProductOfSignatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SubstitutionSystems.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.LiftingInitial_alt.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MonadsFromSubstitutionSystems.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SignatureExamples.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.SortIndexing.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedBindingSig.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSorted_alt.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MonadsMultiSorted_alt.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.STLC_alt.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">pcf</span>.
+
+<span class="sd">(** We assume a set of types with bool, nat and function types *)</span>
+<span class="kn">Context</span> (<span class="nv">type</span> : hSet) (<span class="nv">Bool</span> <span class="nv">Nat</span> : type) (<span class="nv">arr</span> : type → type → type).
+
+<span class="kn">Let</span> <span class="nf">Htype</span> : isofhlevel <span class="mi">3</span> type := MultiSortedBindingSig.PCF_Hsort type.
+<span class="kn">Let</span> <span class="nf">typeToSet</span> : category := SortIndexing.sortToSet type Htype.
+<span class="kn">Let</span> <span class="nf">typeToSet2</span> : category := SortIndexing.sortToSet2 type Htype.
+
+<span class="kn">Local Definition</span> <span class="nf">BCtypeToSet</span> : BinCoproducts typeToSet := SortIndexing.BCsortToSet type Htype.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'Id'"</span> := (functor_identity _).
+
+<span class="kn">Let</span> <span class="nf">PCF_Sig</span> : MultiSortedSig type := PCF_Sig type Bool Nat arr.
+
+<span class="kn">Definition</span> <span class="nf">PCF_Signature</span> : Signature typeToSet _ _ :=
+  MultiSortedSigToSignatureSet type Htype PCF_Sig.
+
+<span class="kn">Definition</span> <span class="nf">PCF_Functor</span> : functor typeToSet2 typeToSet2 :=
+  Id_H _ BCtypeToSet PCF_Signature.
+
+<span class="kn">Lemma</span> <span class="nf">PCF_Functor_Initial</span> : Initial (FunctorAlg PCF_Functor).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> SignatureInitialAlgebra.
+- <span class="nb">apply</span> InitialHSET.
+- <span class="nb">apply</span> ColimsHSET_of_shape.
+- <span class="nb">apply</span> is_omega_cocont_MultiSortedSigToSignature.
+  + <span class="nb">intros</span>; <span class="nb">apply</span> ProductsHSET.
+  + <span class="nb">apply</span> Exponentials_functor_HSET.
+  + <span class="nb">apply</span> ColimsHSET_of_shape.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">PCF_Monad</span> : Monad typeToSet :=
+  MultiSortedSigToMonadSet type Htype PCF_Sig.
+
+<span class="sd">(** Extract the constructors from the initial algebra *)</span>
+<span class="kn">Definition</span> <span class="nf">PCF_M</span> : typeToSet2 :=
+  alg_carrier _ (InitialObject PCF_Functor_Initial).
+
+<span class="kn">Let</span> <span class="nf">PCF_M_mor</span> : typeToSet2⟦PCF_Functor PCF_M,PCF_M⟧ :=
+  alg_map _ (InitialObject PCF_Functor_Initial).
+
+<span class="kn">Let</span> <span class="nf">PCF_M_alg</span> : algebra_ob PCF_Functor :=
+  InitialObject PCF_Functor_Initial.
+
+<span class="sd">(** The variables *)</span>
+<span class="kn">Definition</span> <span class="nf">var_map</span> : typeToSet2⟦Id,PCF_M⟧ := η PCF_M_alg.
+
+<span class="c">(* We can also extract the other constructors *)</span>
+
+<span class="kn">End</span> <span class="nf">pcf</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/PCF_alt.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Written by: Anders Mörtberg, 2021
+  &gt;
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

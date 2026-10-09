@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Sheafification.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Sheafification</span>
+
+<span class="sd"> Let `C` be a site. A central result in the theory of sheaves is that the inclusion functor</span>
+<span class="sd"> from the category of sheaves over `C` to the category of presheaves over `C` has a left</span>
+<span class="sd"> adjoint, called sheafification. Intuitively, this result says that every presheaf `F` over</span>
+<span class="sd"> `C` can be completed into a sheaf `a(F)`, and natural transformations from `a(F)` to some</span>
+<span class="sd"> sheaf `G` are the same as natural transformations from the presheaf `F` to `G`. In addition,</span>
+<span class="sd"> sheafification preserves finite limits, and it is a canonical example of a geometric</span>
+<span class="sd"> morphism between toposes.</span>
+
+<span class="sd"> In this file, we construct the sheafification and show that it is left adjoint to the</span>
+<span class="sd"> inclusion. Our approach is based on Section V.3 in 'Sheaves in Geometry and Logic' by</span>
+<span class="sd"> Mac Lane and Moerdijk. Usually, the sheafification is constructed using the ++-construction,</span>
+<span class="sd"> but we refrain from doing so. The reasoning is as follows. We can construct the sheafification</span>
+<span class="sd"> as an infinitary quotient inductive type, and we can construct this quotient inductive type</span>
+<span class="sd"> in two steps using quotient types. However, there is an issue if we use quotient types: we</span>
+<span class="sd"> need some version of choice (axiom of multiple choice or WISC) to get this construction to</span>
+<span class="sd"> work. The construction in Section V.3 of 'Sheaves in Geometry and Logic' is different, and</span>
+<span class="sd"> one does not need any form of choice for this construction.</span>
+
+<span class="sd"> Let `F` be a presheaf over `C`. We write `Ω` for the subobject classifier of presheaves over</span>
+<span class="sd"> `C` and we write `Ω_j` for the subobject classifier of sheaves over `C`. To construct the</span>
+<span class="sd"> sheafification of `F`, we take the following steps.</span>
+<span class="sd"> 1. We observe that we have a morphism `F --&gt; Ω^F`. Intuitively, this morphism maps every</span>
+<span class="sd">    element to a singleton set.</span>
+<span class="sd"> 2. By composition, we observe that we have a morphism `F --&gt; Ω_j^F`. It is important to note</span>
+<span class="sd">    that `Ω_j^F` is a sheaf. This is because `Ω_j` is a sheaf and because sheaves form an</span>
+<span class="sd">    exponential ideal in the category of presheaves. Concretely, this means that whenever we</span>
+<span class="sd">    have a presheaf `G₁` and ` sheaf `G₂`, then `G₂^G₁` is a sheaf.</span>
+<span class="sd"> 3. We take the image factorisation the morphism `F --&gt; Ω_j^F`, which gives us a subobject</span>
+<span class="sd">    `im` of `Ω_j^F`. Note that `im` is a separated presheaf (i.e., amalgamations of matching</span>
+<span class="sd">    families are unique, but they might not exist), and that `im` is a subobject of the sheaf</span>
+<span class="sd">    `Ω_j^F`.</span>
+<span class="sd"> 4. Since `im` is a subobject of a sheaf, we can take its closure to obtain a sheaf `a(F)`.</span>
+<span class="sd">    This sheaf is the sheafification of `F`.</span>
+
+<span class="sd"> The universal property of sheafification can be proven rather nicely from this construction.</span>
+<span class="sd"> It is based on two observations.</span>
+<span class="sd"> 1. In any topos, the image of a map is the coequaliser of its kernel pair. From this</span>
+<span class="sd">    observation, we get a universal property that allows to make maps from the image to any</span>
+<span class="sd">    sheaf.</span>
+<span class="sd"> 2. If we have some presheaf `F` and a sheaf `G`, then maps from the closure of `F` to `G`</span>
+<span class="sd">    are the same as maps from `F` to `G`.</span>
+<span class="sd"> We can directly prove the universal property of sheafification (i.e., sheafification is a</span>
+<span class="sd"> left adjoint) by combining these observations. Since the inclusion from sheaves into</span>
+<span class="sd"> presheaves is fully faithful, we get that the category of sheaves us a reflective subcategory</span>
+<span class="sd"> of the category of sheaves. Hence, the sheafification of a sheaf `F` is ismorphic to `F`.</span>
+<span class="sd"> Since the terminal presheaf is a sheaf, we can directly prove that sheafification preserves</span>
+<span class="sd"> terminal objects.</span>
+
+<span class="sd"> If `Y` is some set, then the constant presheaf on `Y` is not necessarily a sheaf. There is</span>
+<span class="sd"> a simple counterexample to this. Let `X` be a topological space that is not connected, which</span>
+<span class="sd"> means that we can write `X` as the disjoint union of two open sets `X₁` and `X₂`. We consider</span>
+<span class="sd"> the constant presheaf over `X` that maps every open set to the natural numbers. This constant</span>
+<span class="sd"> presheaf is not a sheaf. We have an open cover given by `X₁` and `X₂`, and over that cover we</span>
+<span class="sd"> construct the following matching family: `X₁` gets mapped to `1` and `X₂` gets mapped to `2`.</span>
+<span class="sd"> This matching family does not have an amalgamation since `1` and `2` are unequal.</span>
+
+<span class="sd"> We can use sheafification to construct constant sheaves. If `Y` is some set, then the constant</span>
+<span class="sd"> sheaf on `Y` is defined to be the sheafification of the constant presheaf on `Y`. We can also</span>
+<span class="sd"> construct the natural numbers object of sheaves using sheafification.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - 'Sheaves in Geometry and Logic' by Mac Lane and Moerdijk</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Some preliminary notation</span>
+<span class="sd"> 2. The construction of the sheafification</span>
+<span class="sd"> 2.1. Step 1: the singleton map into the power sheaf</span>
+<span class="sd"> 2.2. Step 2: the image of singleton map into the power sheaf</span>
+<span class="sd"> 2.3. Step 3: the sheafification as the closure of the image</span>
+<span class="sd"> 3. The universal property of the sheafification</span>
+<span class="sd"> 4. Sheafification is a left adjoint</span>
+<span class="sd"> 5. Sheafification of sheaves</span>
+<span class="sd"> 6. Preservation of terminal objects</span>
+<span class="sd"> 7. Constant sheaves</span>
+<span class="sd"> 8. Natural numbers object of sheaves</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Reflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.NNO.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Arithmetic.NNOLeftAdjoint.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.TotalPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifierSheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ConstructionsSheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ClosedSieves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.PiTypes.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.PiSheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ClosureSubobject.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.NaturalNumbers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Sheafification</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : site}
+          (<span class="nv">F</span> : C^op ⟶ HSET).
+
+  <span class="sd">(** * 1. Some preliminary notation *)</span>
+  <span class="kn">Let</span> <span class="nf">power_psh</span> : C^op ⟶ HSET := exp_psh F subobject_classifier_psh.
+  <span class="kn">Let</span> <span class="nf">power_sheaf</span> : sheaf C := exp_sheaf F subobject_classifier_sheaf.
+
+  <span class="kn">Definition</span> <span class="nf">power_sheaf_to_power_psh</span>
+    : power_sheaf ⟹ power_psh
+    := exp_psh_fun_cod _ subobject_classifier_sheaf_inclusion.
+
+  <span class="kn">Definition</span> <span class="nf">power_psh_to_power_sheaf</span>
+    : power_psh ⟹ power_sheaf
+    := exp_psh_fun_cod _ subobject_classifier_psh_closure.
+
+  <span class="kn">Definition</span> <span class="nf">diagonal_sieve_nat_trans</span>
+    : BinProduct_of_functors _ _ BinProductsHSET F F
+      ⟹
+      subobject_classifier_psh.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intros</span> x xx.
+      <span class="bp">exact</span> (tt ,, sieve_of_equality (pr1 xx) (pr2 xx)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y f ;
+         use funextsec ;
+         <span class="nb">intros</span> [ xx yy ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> maponpaths ;
+         use sieve_eq ; <span class="nb">cbn</span> ;
+         [ <span class="nb">intros</span> z g p ;
+           <span class="nb">refine</span> (eqtohomot (functor_comp F f g) xx @ _) ;
+           <span class="nb">refine</span> (_ @ !(eqtohomot (functor_comp F f g) yy)) ;
+           <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> p
+         | <span class="nb">intros</span> z g p ;
+           <span class="nb">refine</span> (!(eqtohomot (functor_comp F f g) xx) @ _) ;
+           <span class="nb">refine</span> (_ @ eqtohomot (functor_comp F f g) yy) ;
+           <span class="bp">exact</span> p ]).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The construction of the sheafification *)</span>
+
+  <span class="sd">(** ** 2.1. Step 1: the singleton map into the power sheaf *)</span>
+  <span class="kn">Definition</span> <span class="nf">singleton_power_psh</span>
+    : F ⟹ power_psh
+    := exp_psh_lam _ _ diagonal_sieve_nat_trans.
+
+  <span class="kn">Definition</span> <span class="nf">singleton_power_sheaf</span>
+    : F ⟹ power_sheaf
+    := nat_trans_comp
+         _ _ _
+         singleton_power_psh
+         power_psh_to_power_sheaf.
+
+  <span class="sd">(** * 2.2. Step 2: the image of singleton map into the power sheaf *)</span>
+  <span class="kn">Definition</span> <span class="nf">singleton_power_sheaf_im</span>
+    : C^op ⟶ HSET
+    := psh_nat_trans_im singleton_power_sheaf.
+
+  <span class="kn">Definition</span> <span class="nf">singleton_power_sheaf_to_im</span>
+    : F ⟹ singleton_power_sheaf_im
+    := psh_nat_trans_to_im singleton_power_sheaf.
+
+  <span class="kn">Definition</span> <span class="nf">singleton_power_sheaf_im_incl</span>
+    : singleton_power_sheaf_im ⟹ power_sheaf
+    := psh_nat_trans_im_incl singleton_power_sheaf.
+
+  <span class="kn">Proposition</span> <span class="nf">isMonic_singleton_power_sheaf_im_incl</span>
+    : isMonic (C := PreShv C) singleton_power_sheaf_im_incl.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isMonic_psh_nat_trans_im_incl.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2.3. Step 3: the sheafification as the closure of the image *)</span>
+  <span class="kn">Definition</span> <span class="nf">sheafification</span>
+    : sheaf C
+    := closure_subobject isMonic_singleton_power_sheaf_im_incl.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_to_sheafification</span>
+    : F ⟹ sheafification
+    := nat_trans_comp
+         _ _ _
+         singleton_power_sheaf_to_im
+         (closure_subobject_mor _).
+
+  <span class="sd">(** * 3. The universal property of the sheafification *)</span>
+  <span class="kn">Context</span> {<span class="nv">G</span> : sheaf C}
+          (<span class="nv">τ</span> : F ⟹ G).
+
+  <span class="kn">Proposition</span> <span class="nf">singleton_power_sheaf_el_eq_closed</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">xx₁</span> <span class="nv">xx₂</span> : (F x : hSet)}
+              (<span class="nv">p</span> : singleton_power_sheaf x xx₁ = singleton_power_sheaf x xx₂)
+    : C x (sieve_of_equality xx₁ xx₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (closure_closed_sieve (sieve_of_equality xx₁ xx₂)
+            =
+            truth_closed_sieve _) <span class="k">as</span> H.
+    {
+      <span class="nb">assert</span> (pr2 (singleton_power_sheaf x xx₁) = pr2 (singleton_power_sheaf x xx₂))
+        <span class="k">as</span> q₁.
+      {
+        <span class="nb">refine</span> (!_ @ fiber_paths p).
+        <span class="nb">enough</span> (base_paths (singleton_power_sheaf x xx₁) (singleton_power_sheaf x xx₂) p
+                =
+                  idpath _) <span class="k">as</span> -&gt;.
+        {
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">apply</span> isapropunit.
+      }
+      <span class="nb">pose proof</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr1 z _ (identity _) xx₁) q₁) <span class="k">as</span> q₂.
+      <span class="nb">cbn</span> <span class="k">in</span> q₂.
+      <span class="nb">pose proof</span> (fiber_paths q₂) <span class="k">as</span> q₃.
+      <span class="nb">cbn</span> <span class="k">in</span> q₃.
+      <span class="nb">rewrite</span> transportf_const <span class="k">in</span> q₃.
+      <span class="nb">cbn</span> <span class="k">in</span> q₃.
+      <span class="nb">clear</span> q₁ q₂.
+      <span class="nb">rewrite</span> !id_precomp_sieve <span class="k">in</span> q₃.
+      <span class="nb">rewrite</span> !(eqtohomot (functor_comp F (identity x) (identity x))) <span class="k">in</span> q₃.
+      <span class="nb">cbn</span> <span class="k">in</span> q₃.
+      <span class="nb">rewrite</span> !(eqtohomot (functor_id F x)) <span class="k">in</span> q₃.
+      <span class="nb">cbn</span> <span class="k">in</span> q₃.
+      <span class="nb">rewrite</span> sieve_of_equality_refl <span class="k">in</span> q₃.
+      <span class="nb">refine</span> (!q₃ @ _).
+      use closed_sieve_eq.
+      <span class="bp">exact</span> (closure_closed_sieve_eq (truth_closed_sieve x)).
+    }
+    <span class="nb">pose</span> (H' := from_sieve_eq_r (sieve_eq_from_closed H) (identity _) tt).
+    <span class="nb">cbn</span> <span class="k">in</span> H'.
+    <span class="nb">rewrite</span> id_precomp_sieve <span class="k">in</span> H'.
+    <span class="bp">exact</span> H'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">singleton_power_sheaf_el_eq_matching_family</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">xx₁</span> <span class="nv">xx₂</span> : (F x : hSet))
+    : matching_family G (sieve_of_equality xx₁ xx₂).
+  <span class="kn">Proof</span>.
+    use make_matching_family.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">q</span>, τ y (#F f xx₁)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">intros</span> y₁ y₂ f₁ f₂ g p q r ;
+         <span class="nb">induction</span> p ;
+         <span class="nb">refine</span> (!(eqtohomot (nat_trans_ax τ _ _ g) _) @ !_) ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (eqtohomot (functor_comp F f₂ g) xx₁)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">singleton_power_sheaf_el_eq</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">xx₁</span> <span class="nv">xx₂</span> : (F x : hSet)}
+              (<span class="nv">p</span> : singleton_power_sheaf x xx₁ = singleton_power_sheaf x xx₂)
+    : τ x xx₁ = τ x xx₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> -[singleton_power_psh power_psh_to_power_sheaf] <span class="k">in</span> p.
+    use (sheaf_amalgamation_unique (is_sheaf_sheaf G)).
+    - <span class="bp">exact</span> (sieve_of_equality xx₁ xx₂).
+    - <span class="bp">exact</span> (singleton_power_sheaf_el_eq_closed p).
+    - <span class="bp">exact</span> (singleton_power_sheaf_el_eq_matching_family xx₁ xx₂).
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> y f q.
+      <span class="bp">exact</span> (!(eqtohomot (nat_trans_ax τ _ _ f) xx₁)).
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> y f q.
+      <span class="nb">refine</span> (!(eqtohomot (nat_trans_ax τ _ _ f) xx₂) @ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_from_im</span>
+    : singleton_power_sheaf_im ⟹ G.
+  <span class="kn">Proof</span>.
+    use map_from_psh_nat_trans_im.
+    - <span class="bp">exact</span> τ.
+    - <span class="nb">intros</span> x a₁ a₂.
+      <span class="bp">exact</span> singleton_power_sheaf_el_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_from_sheafification</span>
+    : sheafification ⟹ G.
+  <span class="kn">Proof</span>.
+    use extend_mor_to_closure.
+    <span class="bp">exact</span> nat_trans_from_im.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">nat_trans_from_sheafification_eq</span>
+    : τ
+      =
+      nat_trans_comp
+        _ _ _
+        nat_trans_to_sheafification
+        nat_trans_from_sheafification.
+  <span class="kn">Proof</span>.
+    use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">intro</span> x.
+    use funextsec.
+    <span class="nb">intro</span> xx.
+    <span class="nb">unfold</span> nat_trans_from_sheafification.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="bp">exact</span> (extend_mor_to_closure_restrict_pt
+               isMonic_singleton_power_sheaf_im_incl
+               G
+               nat_trans_from_im
+               (singleton_power_sheaf_to_im x xx)).
+    }
+    <span class="nb">apply</span> map_from_psh_nat_trans_im_comm_pt.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">nat_trans_from_sheafification_unique</span>
+              (<span class="nv">θ</span> : sheaf_nat_trans sheafification G)
+              (<span class="nv">p</span> : τ = nat_trans_comp _ _ _ nat_trans_to_sheafification θ)
+    : pr1 θ = nat_trans_from_sheafification.
+  <span class="kn">Proof</span>.
+    use extend_mor_to_closure_unique.
+    - <span class="nb">apply</span> nat_trans_from_im.
+    - use map_from_psh_nat_trans_im_unique_mor.
+      + <span class="bp">exact</span> τ.
+      + <span class="nb">intros</span> c a₁ a₂.
+        <span class="bp">exact</span> singleton_power_sheaf_el_eq.
+      + <span class="nb">refine</span> (_ @ !p).
+        use nat_trans_eq.
+        {
+          <span class="nb">apply</span> homset_property.
+        }
+        <span class="nb">intro</span> x.
+        use funextsec.
+        <span class="nb">intro</span> xx.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> map_from_psh_nat_trans_im_comm.
+    - <span class="nb">apply</span> extend_mor_to_closure_restrict.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Sheafification</span>.
+
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> sheafification.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> nat_trans_to_sheafification.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> nat_trans_from_sheafification.
+
+<span class="sd">(** * 4. Sheafification is a left adjoint *)</span>
+<span class="kn">Definition</span> <span class="nf">is_right_adjoint_sheaf_incl</span>
+           (<span class="nv">C</span> : site)
+  : is_right_adjoint (sheaf_incl C).
+<span class="kn">Proof</span>.
+  use reflections_to_is_right_adjoint.
+  <span class="nb">intros</span> F.
+  use make_reflection.
+  - use make_reflection_data.
+    + <span class="bp">exact</span> (sheafification F).
+    + <span class="bp">exact</span> (nat_trans_to_sheafification F).
+  - <span class="nb">intros</span> G.
+    <span class="nb">induction</span> G <span class="k">as</span> [ G τ ].
+    use make_iscontr.
+    + <span class="nb">simple refine</span> (_ ,, _).
+      * use make_sheaf_nat_trans.
+        <span class="bp">exact</span> (nat_trans_from_sheafification F τ).
+      * <span class="bp">exact</span> (nat_trans_from_sheafification_eq F τ).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> [ θ p ] ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+         use sheaf_nat_trans_eq ;
+         <span class="bp">exact</span> (nat_trans_from_sheafification_unique F _ θ p)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sheafification_functor</span>
+           (<span class="nv">C</span> : site)
+  : PreShv C ⟶ cat_of_sheaves C
+  := left_adjoint (is_right_adjoint_sheaf_incl C).
+
+<span class="kn">Definition</span> <span class="nf">sheafification_unit</span>
+           (<span class="nv">C</span> : site)
+  : functor_identity _ ⟹ sheafification_functor C ∙ sheaf_incl C
+  := unit_from_right_adjoint (is_right_adjoint_sheaf_incl C).
+
+<span class="sd">(** * 5. Sheafification of sheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">sheafification_sheaf</span>
+           {<span class="nv">C</span> : site}
+           (<span class="nv">F</span> : sheaf C)
+  : z_iso (sheafification F) F.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (R := is_right_adjoint_sheaf_incl C).
+  use make_z_iso.
+  - <span class="bp">exact</span> (counit_from_right_adjoint R F).
+  - use make_sheaf_nat_trans.
+    <span class="bp">exact</span> (unit_from_right_adjoint R (sheaf_incl C F)).
+  - <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (!_) ;
+         <span class="nb">refine</span> (_ @ nat_trans_ax (counit_from_right_adjoint R) _ _ _) ;
+         <span class="bp">exact</span> (!(pr122 (is_right_adjoint_sheaf_incl C) (sheaf_incl C F)))).
+    + <span class="kp">abstract</span>
+        (use sheaf_nat_trans_eq ;
+         <span class="bp">exact</span> (pr222 (is_right_adjoint_sheaf_incl C) F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sheafification_counit</span>
+           (<span class="nv">C</span> : site)
+  : nat_z_iso (sheaf_incl C ∙ sheafification_functor C) (functor_identity _).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> (counit_from_right_adjoint (is_right_adjoint_sheaf_incl C)).
+  - <span class="nb">intro</span> F.
+    <span class="bp">exact</span> (pr2 (sheafification_sheaf F)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">sheafification_triangle_1</span>
+            {<span class="nv">C</span> : site}
+            (<span class="nv">F</span> : C^op ⟶ HSET)
+  : #(sheafification_functor C) (sheafification_unit C F)
+    · sheafification_counit C (sheafification F)
+    =
+    identity (sheafification F).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr122 (is_right_adjoint_sheaf_incl C) F).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">sheafification_triangle_2</span>
+            {<span class="nv">C</span> : site}
+            (<span class="nv">F</span> : sheaf C)
+  : sheafification_unit C (sheaf_incl C F)
+    · #(sheaf_incl C) (sheafification_counit C F)
+    =
+    identity (sheaf_incl C F).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr222 (is_right_adjoint_sheaf_incl C) F).
+<span class="kn">Qed</span>.
+
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> sheafification_functor.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> sheafification_counit.
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> sheafification_unit.
+
+<span class="sd">(** * 6. Preservation of terminal objects *)</span>
+<span class="kn">Proposition</span> <span class="nf">preserves_terminal_sheafification</span>
+            (<span class="nv">C</span> : site)
+  : preserves_terminal (left_adjoint (is_right_adjoint_sheaf_incl C)).
+<span class="kn">Proof</span>.
+  use preserves_terminal_if_preserves_chosen.
+  {
+    <span class="bp">exact</span> Terminal_PreShv.
+  }
+  use iso_to_Terminal.
+  - <span class="bp">exact</span> (sheaf_terminal C).
+  - use z_iso_inv.
+    <span class="bp">exact</span> (sheafification_sheaf (terminal_sheaf C)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. Constant sheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">constant_sheaf</span>
+           (<span class="nv">C</span> : site)
+           (<span class="nv">Y</span> : hSet)
+  : sheaf C
+  := sheafification (constant_functor C^op HSET Y).
+
+<span class="sd">(** * 8. Natural numbers object of sheaves *)</span>
+<span class="kn">Definition</span> <span class="nf">nno_cat_of_sheaves</span>
+           (<span class="nv">C</span> : site)
+  : NNO (sheaf_terminal C).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (left_adjoint_on_NNO _ (is_right_adjoint_sheaf_incl C) _ _ _ (nno_cat_of_psh C)).
+  <span class="nb">apply</span> preserves_terminal_sheafification.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/Sheafification.v</tt>, line 82)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Natural numbers object of sheaves
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

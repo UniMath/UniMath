@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FinLimToCompCatLemmas.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Some lemmas about the comprehension category arising from a category with finite limits</span>
+
+<span class="sd"> Every category with finite limits gives rise to a comprehension category. Specifically,</span>
+<span class="sd"> let `C` be a category with finite limits. Then we have a comprehension category whose</span>
+<span class="sd"> displayed category of types is given by the arrow category together with the codomain</span>
+<span class="sd"> functor and whose comprehension is given by the identity functor.</span>
+
+<span class="sd"> There are various operations that we have within a comprehension category. These are:</span>
+<span class="sd"> - Coercion. if we have a morphism `A &lt;: B` over the identity, then every term of type</span>
+<span class="sd">   `A` gives rise to a term of type `B`.</span>
+<span class="sd"> - Substitution of terms. If we have a term `t : tm Δ A` and a substitution `s : Γ --&gt; Δ`,</span>
+<span class="sd">   then we also have a term `t [[ s ]]tm : tm Γ (A [[ s ]])`.</span>
+<span class="sd"> We also have various coherence isomorphisms. For instance, we have an isomorphism expressing</span>
+<span class="sd"> that `A [[ identity _ ]]` is isomorphic to `A`, that `A [[ s₂ ]] [[ s₁ ]]` and</span>
+<span class="sd"> `A [[ s₁ · s₂ ]]` are isomorphic, and that `A [[ s₁ ]]` and `A [[ s₂ ]]` are isomorphic</span>
+<span class="sd"> whenever `s₁ = s₂`. We also have a functoriality operation saying that</span>
+<span class="sd"> `A [[ s ]] &lt;: B [[ s ]]` whenever `A &lt;: B`.</span>
+
+<span class="sd"> In this file, we calculate each of these operations in case our comprehension category</span>
+<span class="sd"> arises from a category with finite limits.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Operations on comprehension categories arising from categories with finite limits</span>
+<span class="sd"> 2. Operations on functors between categories with finite limits</span>
+<span class="sd"> 3. Operations on natural transformations</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.CompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCatNotations.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.HPropMono.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Biequivalence.FinLimToDFLCompCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> comp_cat.
+
+<span class="sd">(** * 1. Operations on comprehension categories arising from categories with finite limits *)</span>
+<span class="kn">Section</span> <span class="nf">FinLimCompCatCalculation</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : univ_cat_with_finlim}.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_coerce_eq</span>
+              {<span class="nv">Γ</span> : finlim_to_comp_cat C}
+              {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+              (<span class="nv">f</span> : A &lt;: B)
+              (<span class="nv">t</span> : tm Γ A)
+    : (t ↑ f : _ --&gt; _)
+      =
+      t · dom_mor f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_eq_subst_ty_pullback_pr1</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : finlim_to_comp_cat C}
+              (<span class="nv">A</span> : ty Δ)
+              {<span class="nv">s₁</span> <span class="nv">s₂</span> : Γ --&gt; Δ}
+              (<span class="nv">p</span> : s₁ = s₂)
+    : dom_mor (eq_subst_ty A p) · PullbackPr1 _
+      =
+      PullbackPr1 _.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">rewrite</span> eq_subst_ty_idpath.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_eq_subst_ty_pullback_pr2</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : finlim_to_comp_cat C}
+              (<span class="nv">A</span> : ty Δ)
+              {<span class="nv">s₁</span> <span class="nv">s₂</span> : Γ --&gt; Δ}
+              (<span class="nv">p</span> : s₁ = s₂)
+    : dom_mor (eq_subst_ty A p) · PullbackPr2 _
+      =
+      PullbackPr2 _.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">rewrite</span> eq_subst_ty_idpath.
+    <span class="nb">simpl</span>.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_comp_subst_ty_pullback_pr1</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : finlim_to_comp_cat C}
+              (<span class="nv">A</span> : ty Γ₃)
+              {<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂}
+              (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+    : dom_mor (comp_subst_ty s₁ s₂ A) · PullbackPr1 _
+      =
+      PullbackPr1 _ · PullbackPr1 _.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (pullbacks_univ_cat_with_finlim _ _ _ _ _ _)).
+    }
+    <span class="nb">apply</span> transportb_cod_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_comp_subst_ty_pullback_pr2</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> <span class="nv">Γ₃</span> : finlim_to_comp_cat C}
+              (<span class="nv">A</span> : ty Γ₃)
+              {<span class="nv">s₁</span> : Γ₁ --&gt; Γ₂}
+              (<span class="nv">s₂</span> : Γ₂ --&gt; Γ₃)
+    : dom_mor (comp_subst_ty s₁ s₂ A) · PullbackPr2 _
+      =
+      PullbackPr2 _.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (pullbacks_univ_cat_with_finlim _ _ _ _ _ _)).
+    }
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_id_subst_ty_pullback_pr1</span>
+              {<span class="nv">Γ</span> : finlim_to_comp_cat C}
+              (<span class="nv">A</span> : ty Γ)
+    : dom_mor (id_subst_ty A) · PullbackPr1 _
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (pullbacks_univ_cat_with_finlim _ _ _ _ _ _)).
+    }
+    <span class="nb">apply</span> transportb_cod_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_id_subst_ty_pullback_pr2</span>
+              {<span class="nv">Γ</span> : finlim_to_comp_cat C}
+              (<span class="nv">A</span> : ty Γ)
+    : dom_mor (id_subst_ty A) · PullbackPr2 _
+      =
+      cod_mor A.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (pullbacks_univ_cat_with_finlim _ _ _ _ _ _)).
+    }
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_coerce_subst_ty_pullback_pr1</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : finlim_to_comp_cat C}
+              {<span class="nv">A</span> <span class="nv">B</span> : ty Γ₂}
+              (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+              (<span class="nv">f</span> : A &lt;: B)
+    : dom_mor (coerce_subst_ty s f) · PullbackPr1 _
+      =
+      PullbackPr1 _ · dom_mor f.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (pullbacks_univ_cat_with_finlim _ _ _ _ _ _)).
+    }
+    <span class="nb">apply</span> transportf_cod_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_coerce_subst_ty_pullback_pr2</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : finlim_to_comp_cat C}
+              {<span class="nv">A</span> <span class="nv">B</span> : ty Γ₂}
+              (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+              (<span class="nv">f</span> : A &lt;: B)
+    : dom_mor (coerce_subst_ty s f) · PullbackPr2 _
+      =
+      PullbackPr2 _.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (pullbacks_univ_cat_with_finlim _ _ _ _ _ _)).
+    }
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_subst_tm_pullback_pr1</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : finlim_to_comp_cat C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              {<span class="nv">A</span> : ty Δ}
+              (<span class="nv">t</span> : tm Δ A)
+    : t [[ s ]]tm · PullbackPr1 _
+      =
+      s · t.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (comp_cat_pullback A s)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_subst_ty_coe_pr1</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> <span class="nv">Δ'</span> : finlim_to_comp_cat C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              {<span class="nv">A</span> : ty Δ}
+              {<span class="nv">B</span> : ty Δ'}
+              (<span class="nv">f</span> : z_iso Δ Δ')
+              (<span class="nv">ff</span> : z_iso_disp f A B)
+    : dom_mor (subst_ty_coe s f ff) · PullbackPr1 _
+      =
+      PullbackPr1 _ · pr11 ff.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (pullbacks_univ_cat_with_finlim _ _ _ _ _ _)).
+    }
+    <span class="nb">apply</span> transportf_cod_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_subst_ty_coe_pr2</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> <span class="nv">Δ'</span> : finlim_to_comp_cat C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              {<span class="nv">A</span> : ty Δ}
+              {<span class="nv">B</span> : ty Δ'}
+              (<span class="nv">f</span> : z_iso Δ Δ')
+              (<span class="nv">ff</span> : z_iso_disp f A B)
+    : dom_mor (subst_ty_coe s f ff) · PullbackPr2 _
+      =
+      PullbackPr2 _.
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (pullbacks_univ_cat_with_finlim _ _ _ _ _ _)).
+    }
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_comp_mor</span>
+              {<span class="nv">Γ</span> : finlim_to_comp_cat C}
+              {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+              (<span class="nv">s</span> : A --&gt;[ identity _ ] B)
+    : comp_cat_comp_mor s = dom_mor s.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">univ_cat_with_finlim_comprehension_functor</span>
+             {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+             {<span class="nv">s</span> : Γ --&gt; Δ}
+             {<span class="nv">A</span> : disp_codomain C Γ}
+             {<span class="nv">B</span> : disp_codomain C Δ}
+             (<span class="nv">f</span> : A --&gt;[ s ] B)
+    : comprehension_functor_mor (finlim_comprehension C) f
+      =
+      pr1 f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_comp_cat_comp_mor_over</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : finlim_to_comp_cat C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              {<span class="nv">A</span> : ty Γ}
+              {<span class="nv">B</span> : ty Δ}
+              (<span class="nv">f</span> : A &lt;: B [[ s ]])
+    : comp_cat_comp_mor_over s f
+      =
+      dom_mor f · PullbackPr1 _.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_comp_cat_comp_mor_over_sub</span>
+              {<span class="nv">Γ</span> : finlim_to_comp_cat C}
+              {<span class="nv">A₁</span> <span class="nv">A₂</span> : ty Γ}
+              (<span class="nv">f</span> : A₁ &lt;: A₂)
+              {<span class="nv">B₁</span> : ty (Γ &amp; A₁)}
+              {<span class="nv">B₂</span> : ty (Γ &amp; A₂)}
+              (<span class="nv">g</span> : B₁ &lt;: B₂ [[ comp_cat_comp_mor (C := finlim_to_comp_cat C) f ]])
+    : comp_cat_comp_mor_over_sub f g
+      =
+      dom_mor g · PullbackPr1 _.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_comp_cat_extend_over</span>
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : finlim_to_comp_cat C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">A</span> : ty Δ)
+    : comp_cat_extend_over A s = PullbackPr1 _.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">finlim_comp_cat_monic_to_hprop_ty</span>
+             {<span class="nv">Γ</span> <span class="nv">A</span> : finlim_to_dfl_comp_cat C}
+             (<span class="nv">m</span> : Monic _ A Γ)
+    : ty Γ
+    := A ,, pr1 m.
+
+  <span class="kn">Definition</span> <span class="nf">finlim_comp_cat_monic_to_is_hprop_ty</span>
+             {<span class="nv">Γ</span> <span class="nv">A</span> : finlim_to_dfl_comp_cat C}
+             (<span class="nv">m</span> : Monic _ A Γ)
+    : is_hprop_ty (finlim_comp_cat_monic_to_hprop_ty m).
+  <span class="kn">Proof</span>.
+    use mono_ty_to_hprop_ty.
+    <span class="nb">apply</span> MonicisMonic.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">dfl_ext_identity_eq_arrow</span>
+              {<span class="nv">Γ</span> : finlim_to_dfl_comp_cat C}
+              {<span class="nv">A</span> : ty Γ}
+              (<span class="nv">t₁</span> <span class="nv">t₂</span> : tm Γ A)
+    : π (dfl_ext_identity_type t₁ t₂)
+      =
+      dom_mor (EqualizerArrow (dfl_ext_identity t₁ t₂)).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">FinLimCompCatCalculation</span>.
+
+<span class="sd">(** * 2. Operations on functors between categories with finite limits *)</span>
+<span class="kn">Section</span> <span class="nf">FinLimCompCatFunctorCalculation</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+          (<span class="nv">F</span> : functor_finlim C₁ C₂).
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_functor_subst_ty_coe_pr1</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : finlim_to_comp_cat C₁}
+              (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+              (<span class="nv">A</span> : ty Γ₂)
+    : dom_mor (comp_cat_functor_subst_ty_coe (finlim_to_comp_cat_functor F) s A)
+      · PullbackPr1 _
+      =
+      #F (PullbackPr1 _).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (pullbacks_univ_cat_with_finlim _ _ _ _ _ _)).
+    }
+    <span class="nb">apply</span> transportf_cod_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_functor_subst_ty_coe_pr2</span>
+              {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : finlim_to_comp_cat C₁}
+              (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+              (<span class="nv">A</span> : ty Γ₂)
+    : dom_mor (comp_cat_functor_subst_ty_coe (finlim_to_comp_cat_functor F) s A)
+      · PullbackPr2 _
+      =
+      #F (PullbackPr2 _).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (pullbacks_univ_cat_with_finlim _ _ _ _ _ _)).
+    }
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_functor_coerce</span>
+              {<span class="nv">Γ</span> : finlim_to_comp_cat C₁}
+              {<span class="nv">A</span> <span class="nv">B</span> : ty Γ}
+              (<span class="nv">f</span> : A &lt;: B)
+    : dom_mor (comp_cat_functor_coerce (finlim_to_comp_cat_functor F) f)
+      =
+      #F (dom_mor f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> transportf_cod_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comprehension_nat_trans_mor</span>
+              {<span class="nv">Γ</span> : finlim_to_comp_cat C₁}
+              (<span class="nv">A</span> : ty Γ)
+    : comprehension_nat_trans_mor
+        (comp_cat_functor_comprehension
+           (finlim_to_comp_cat_functor F))
+        A
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">FinLimCompCatFunctorCalculation</span>.
+
+<span class="sd">(** * 3. Operations on natural transformations *)</span>
+<span class="kn">Section</span> <span class="nf">FinLimCompCatNatTransCalculation</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+          {<span class="nv">F</span> <span class="nv">G</span> : functor_finlim C₁ C₂}
+          (<span class="nv">τ</span> : nat_trans_finlim F G)
+          {<span class="nv">Γ</span> : finlim_to_dfl_comp_cat C₁}
+          (<span class="nv">A</span> : ty Γ).
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_fib_nat_trans_pr1</span>
+    : dom_mor (comp_cat_type_fib_nat_trans (finlim_to_dfl_comp_cat_nat_trans τ) A)
+      · PullbackPr1 _
+      =
+      τ (cod_dom A).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (pullbacks_univ_cat_with_finlim _ _ _ _ _ _)).
+    }
+    <span class="nb">apply</span> transportf_cod_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">finlim_to_comp_cat_fib_nat_trans_pr2</span>
+    : dom_mor (comp_cat_type_fib_nat_trans (finlim_to_dfl_comp_cat_nat_trans τ) A)
+      · PullbackPr2 _
+      =
+      #F (cod_mor A).
+  <span class="kn">Proof</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (pullbacks_univ_cat_with_finlim _ _ _ _ _ _)).
+    }
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">FinLimCompCatNatTransCalculation</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/FinLimToCompCatLemmas.v</tt>, line 30)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Operations on natural transformations
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

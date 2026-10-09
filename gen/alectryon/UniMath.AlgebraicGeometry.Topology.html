@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Topology.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* Additional definitions and facts from topology. Maybe this should go in UniMath.Topology. *)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Subtypes.
+<span class="kn">Require Import</span> UniMath.Topology.Topology.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subtype.
+
+<span class="kn">Section</span> <span class="nf">union</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : TopologicalSpace}.
+
+  <span class="kn">Definition</span> <span class="nf">union_open_hsubtype</span> (<span class="nv">A</span> : hsubtype Open) : hsubtype X :=
+    union (<span class="k">λ</span> <span class="nv">U</span>, <span class="k">∃</span> <span class="nv">H</span> : isOpen U, A (U ,, H)).
+
+  <span class="kn">Lemma</span> <span class="nf">is_open_union_open_hsubtype</span> (<span class="nv">A</span> : hsubtype Open) : isOpen (union_open_hsubtype A).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isOpen_union. <span class="nb">intros</span> U HU.
+    use (hinhuniv _ HU); <span class="nb">intros</span> H. <span class="bp">exact</span> (pr1 H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">union_open</span> (<span class="nv">A</span> : hsubtype Open) : Open :=
+    union_open_hsubtype A ,, is_open_union_open_hsubtype A.
+<span class="kn">End</span> <span class="nf">union</span>.
+
+<span class="kn">Declare Scope</span> open_scope.
+<span class="kn">Delimit Scope</span> open_scope <span class="k">with</span> open.
+<span class="kn">Open Scope</span> open.
+
+<span class="kn">Notation</span> <span class="s2">"⋃ S"</span> := (union_open S) (<span class="kn">at level</span> <span class="mi">100</span>, <span class="kn">no associativity</span>) : open_scope.
+
+
+<span class="kn">Section</span> <span class="nf">union_facts</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : TopologicalSpace}
+          {<span class="nv">A</span> : hsubtype (@Open X)}.
+
+  <span class="kn">Lemma</span> <span class="nf">contained_in_union_open</span> (<span class="nv">U</span> : A) :
+    pr1 U ⊆ ⋃ A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x Hx. <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">U</span>). use make_dirprod.
+    - <span class="nb">apply</span> hinhpr. <span class="k">exists</span> (<span class="nv">pr21</span> <span class="nv">U</span>). <span class="bp">exact</span> (pr2 U).
+    - <span class="bp">exact</span> Hx.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">hexists_open_neighborhood</span> (<span class="nv">p</span> : carrier (⋃ A)):
+    <span class="k">∃</span> <span class="nv">U</span> : A, pr1 U (pr1 p).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p <span class="k">as</span> [p Hp]. <span class="nb">simpl</span> <span class="k">in</span> Hp.
+    use (hinhuniv _ Hp); <span class="nb">intro</span> Hu.
+    <span class="nb">induction</span> Hu <span class="k">as</span> [u Hu]. <span class="nb">induction</span> Hu <span class="k">as</span> [Hu Hup].
+    use (hinhfun _ Hu); <span class="nb">intro</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [H HUu].
+    <span class="k">exists</span> (<span class="nv">make_carrier</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">HUu</span>). <span class="bp">exact</span> Hup.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">union_facts</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">binary_intersection_open</span> {<span class="nv">X</span> : TopologicalSpace} (<span class="nv">u</span> <span class="nv">v</span> : @Open X) : Open :=
+  (<span class="k">λ</span> <span class="nv">x</span> : X, u x ∧ v x) ,, isOpen_and _ _ (pr2 u) (pr2 v).
+
+<span class="kn">Notation</span> <span class="s2">"u ∩ v"</span> := (binary_intersection_open u v)  (<span class="kn">at level</span> <span class="mi">40</span>, <span class="kn">left associativity</span>) : open_scope.
+
+
+<span class="kn">Section</span> <span class="nf">intersection_facts</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : TopologicalSpace} (<span class="nv">u</span> <span class="nv">v</span> : @Open X).
+
+  <span class="kn">Definition</span> <span class="nf">intersection_contained1</span> : (u ∩ v) ⊆ u :=
+    <span class="k">λ</span> <span class="nv">_</span> <span class="nv">Hx</span>, pr1 Hx.
+
+  <span class="kn">Definition</span> <span class="nf">intersection_contained2</span> : (u ∩ v) ⊆ v :=
+    <span class="k">λ</span> <span class="nv">_</span> <span class="nv">Hx</span>, pr2 Hx.
+<span class="kn">End</span> <span class="nf">intersection_facts</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicGeometry/Topology.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Subtypes.vo has
+  &gt; bad version number 90299 (expected 81601). It is corrupted or was compiled
+  &gt; with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (* Additional definitions and facts from topology. Maybe this should go in UniMath.Topology. *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.Subtypes.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Topology.Topology.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

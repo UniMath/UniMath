@@ -1,0 +1,865 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UniverseTerms.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Terms of the universe of presheaves</span>
+
+<span class="sd"> We showed that every universe of sets gives rise to a universe of presheaves</span>
+<span class="sd"> via the Hofmann-Streicher lifting. In this file, we look at terms of the</span>
+<span class="sd"> universe. We show that terms of the universe in the empty context are the</span>
+<span class="sd"> same as small presheaves (i.e., presheaf valued in the given universe of sets),</span>
+<span class="sd"> and we characterize terms of the universe in some context given by a small</span>
+<span class="sd"> presheaf. This characterization uses small dependent presheaves, which are</span>
+<span class="sd"> almost the same as dependent presheaves but with one difference: rather than</span>
+<span class="sd"> `hSet`, they are valued in the given universe of sets.</span>
+
+<span class="sd"> The reason why we characterise terms of the universe, is as follows. The</span>
+<span class="sd"> universe of presheaves allows us to strictify the presheaf model of type</span>
+<span class="sd"> theory. By only looking at presheaves valued in some set universe of sets,</span>
+<span class="sd"> we obtain a CwF. Contexts are terms of the universe in the empty context,</span>
+<span class="sd"> and types are small dependent presheaves. Hence, the characterisations in</span>
+<span class="sd"> this file can be used to give simpler descriptions of contexts and types in</span>
+<span class="sd"> the strictified presheaf model.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Terms of the universe in the empty context</span>
+<span class="sd"> 1.1. Terms give rise to functors</span>
+<span class="sd"> 1.2. Functors give rise to terms</span>
+<span class="sd"> 1.3. Inverse laws</span>
+<span class="sd"> 1.4. The equivalence</span>
+<span class="sd"> 2. Terms of the universe in a given context</span>
+<span class="sd"> 2.1. To dependent presheaves</span>
+<span class="sd"> 2.2. To terms</span>
+<span class="sd"> 2.3. Inverse laws</span>
+<span class="sd"> 2.4. The equivalence</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Combinatorics.SetUniverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.UniverseToCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.OppositeCategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLeftAdjoint.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodDomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.TotalPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.UniverseLifting.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">TermsUniverse</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">u</span> : set_universe}.
+
+  <span class="sd">(** * 1. Terms of the universe in the empty context *)</span>
+
+  <span class="sd">(** * 1.1. Terms give rise to functors *)</span>
+  <span class="kn">Section</span> <span class="nf">TermToFunctor</span>.
+    <span class="kn">Context</span> (<span class="nv">τ</span> : psh_term
+                   (presheaf_universe_ctx
+                      u
+                      (constant_functor (C^op) HSET unitset))).
+
+    <span class="kn">Definition</span> <span class="nf">psh_term_universe_to_functor_data</span>
+      : functor_data C^op (set_universe_to_setcategory u).
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, (τ x tt : _ ⟶ _) (cod_fib_id (C := C) x)).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">a</span>,
+               set_universe_eq
+                 (presheaf_el_map_path C _ _ _ (idpath _))
+                 (#(τ x tt : _ ⟶ _) (cod_fib_comp_mor (C := C) f) a)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">psh_term_universe_to_functor_laws</span>
+      : is_functor psh_term_universe_to_functor_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intros</span> x.
+        use funextsec.
+        <span class="nb">intro</span> a.
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (psh_term_universe_id _ _ _ _ _).
+        }
+        <span class="nb">rewrite</span> set_universe_eq_comp.
+        <span class="nb">apply</span> set_universe_eq_idpath.
+      - <span class="nb">intros</span> x y z f g.
+        use funextsec.
+        <span class="nb">intro</span> a.
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (psh_term_universe_comp _ _ _ _ _ _ _).
+        }
+        <span class="nb">rewrite</span> set_universe_eq_comp.
+        use set_universe_eq_path'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> set_universe_eq_path.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">psh_term_universe_to_functor</span>
+      : C^op ⟶ set_universe_to_setcategory u.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> psh_term_universe_to_functor_data.
+      - <span class="bp">exact</span> psh_term_universe_to_functor_laws.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">TermToFunctor</span>.
+
+  <span class="sd">(** * 1.2. Functors give rise to terms *)</span>
+  <span class="kn">Section</span> <span class="nf">FunctorToTerm</span>.
+    <span class="kn">Context</span> (<span class="nv">τ</span> : C^op ⟶ set_universe_to_setcategory u).
+
+    <span class="kn">Definition</span> <span class="nf">functor_to_psh_term_universe_data</span>
+      : psh_term_data
+          (presheaf_universe_ctx
+             u
+             (constant_functor (C^op) HSET unitset))
+      := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">_</span>, functor_op (slice_dom x) ∙ τ.
+
+    <span class="kn">Arguments</span> functor_to_psh_term_universe_data /.
+
+    <span class="kn">Proposition</span> <span class="nf">functor_to_psh_term_universe_law</span>
+      : psh_term_law functor_to_psh_term_universe_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f xx.
+      use functor_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">functor_to_psh_term_universe</span>
+      : psh_term
+          (presheaf_universe_ctx
+             u
+             (constant_functor (C^op) HSET unitset)).
+    <span class="kn">Proof</span>.
+      use make_psh_term.
+      - <span class="bp">exact</span> functor_to_psh_term_universe_data.
+      - <span class="bp">exact</span> functor_to_psh_term_universe_law.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">FunctorToTerm</span>.
+
+  <span class="sd">(** * 1.3. Inverse laws *)</span>
+  <span class="kn">Proposition</span> <span class="nf">functor_to_psh_term_universe_to_functor</span>
+              (<span class="nv">τ</span> : C^op ⟶ set_universe_to_setcategory u)
+    : psh_term_universe_to_functor (functor_to_psh_term_universe τ)
+      =
+      τ.
+  <span class="kn">Proof</span>.
+    use functor_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intro</span> f.
+    use funextsec ; <span class="nb">intro</span> a.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> set_universe_eq_idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">psh_term_to_functor_to_psh_term_universe_lem_1</span>
+              {<span class="nv">x</span> : C}
+              (<span class="nv">g</span> : C/x)
+    : cod_fib_comp (cod_mor g) (cod_fib_id (cod_dom g)) = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">psh_term_to_functor_to_psh_term_universe_lem_2</span>
+              {<span class="nv">x</span> : C}
+              {<span class="nv">g₁</span> <span class="nv">g₂</span> : C/x}
+              (<span class="nv">h</span> : g₂ --&gt; g₁)
+    : cod_fib_comp (cod_mor g₁) (cod_fib_comp (dom_mor h) (cod_fib_id (cod_dom g₂)))
+      =
+      g₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    <span class="nb">refine</span> (id_left _ @ _).
+    <span class="bp">exact</span> (mor_eq h).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">psh_term_to_functor_to_psh_term_universe</span>
+              (<span class="nv">τ</span> : psh_term
+                     (presheaf_universe_ctx
+                        u
+                        (constant_functor (C^op) HSET unitset)))
+    : functor_to_psh_term_universe (psh_term_universe_to_functor τ)
+      =
+      τ.
+  <span class="kn">Proof</span>.
+    use psh_term_eq.
+    <span class="nb">intros</span> x xx.
+    <span class="nb">induction</span> xx.
+    use path_functor_to_set_universe.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intro</span> h.
+      <span class="nb">pose</span> (functor_to_set_universe_eq_ob
+              (psh_term_naturality τ (cod_mor h) tt)
+              (cod_fib_id (cod_dom h)))
+        <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">refine</span> (p @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id_left.
+    - <span class="nb">intros</span> g₁ g₂ h a.
+      <span class="nb">refine</span> (set_universe_eq_comp _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (functor_to_set_universe_eq (psh_term_naturality τ (cod_mor g₁) tt)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (set_universe_eq_comp _ _ _ @ _).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (set_universe_eq_comp _ _ _ @ _).
+        <span class="nb">apply</span> idpath.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        use (functor_to_set_universe_mor_eq
+               _
+               (g := h)
+               (psh_term_to_functor_to_psh_term_universe_lem_1 g₁)
+               (psh_term_to_functor_to_psh_term_universe_lem_2 h)).
+        use eq_mor_cod_fib.
+        <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+        <span class="nb">refine</span> (_ @ !(comp_in_cod_fib _ _)).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (idtoiso_opp (psh_term_to_functor_to_psh_term_universe_lem_2 h)).
+          }
+          <span class="bp">exact</span> (dom_mor_idtoiso _).
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (idtoiso_opp (psh_term_to_functor_to_psh_term_universe_lem_1 _)).
+          }
+          <span class="bp">exact</span> (dom_mor_idtoiso _).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !maponpathsinv0.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">unfold</span> psh_term_to_functor_to_psh_term_universe_lem_1.
+          <span class="nb">refine</span> (maponpathscomp (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) cod_dom _ @ _).
+          <span class="nb">unfold</span> funcomp ; <span class="nb">cbn</span>.
+          <span class="nb">apply</span> maponpaths_for_constant_function.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">unfold</span> psh_term_to_functor_to_psh_term_universe_lem_2.
+          <span class="nb">refine</span> (maponpathscomp (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) cod_dom (assoc' _ _ _ @ _ @ _) @ _).
+          <span class="nb">unfold</span> funcomp ; <span class="nb">cbn</span>.
+          <span class="nb">apply</span> maponpaths_for_constant_function.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (set_universe_eq_comp _ _ _ @ _).
+      <span class="nb">rewrite</span> set_universe_eq_idpath.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> set_universe_eq_comp.
+      <span class="nb">apply</span> set_universe_eq_idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 1.4. The equivalence *)</span>
+  <span class="kn">Definition</span> <span class="nf">functor_weq_psh_term_universe</span>
+    : psh_term
+        (presheaf_universe_ctx
+           u
+           (constant_functor (C^op) HSET unitset))
+      ≃
+      C^op ⟶ set_universe_to_setcategory u.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> psh_term_universe_to_functor.
+    - <span class="bp">exact</span> functor_to_psh_term_universe.
+    - <span class="bp">exact</span> psh_term_to_functor_to_psh_term_universe.
+    - <span class="bp">exact</span> functor_to_psh_term_universe_to_functor.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Terms of the universe in a given context *)</span>
+  <span class="kn">Section</span> <span class="nf">SetUniversePshType</span>.
+    <span class="kn">Context</span> {<span class="nv">τ</span> : psh_term
+                   (presheaf_universe_ctx
+                      u
+                      (constant_functor (C^op) HSET unitset))}.
+
+    <span class="sd">(** * 2.1. To dependent presheaves *)</span>
+    <span class="kn">Section</span> <span class="nf">ToDepPsh</span>.
+      <span class="kn">Context</span> (<span class="nv">θ</span> : psh_term
+                     (presheaf_universe_ctx
+                        u
+                        (total_psh (presheaf_el_map τ)))).
+
+      <span class="kn">Definition</span> <span class="nf">psh_term_to_set_universe_dep_psh_data</span>
+        : set_universe_dep_psh_data (psh_term_universe_to_functor τ).
+      <span class="kn">Proof</span>.
+        use make_set_universe_dep_psh_data.
+        - <span class="nb">intros</span> x a.
+          <span class="bp">exact</span> ((θ x (tt ,, a) : _ ⟶ _) (cod_fib_id x)).
+        - <span class="nb">cbn</span>.
+          <span class="nb">intros</span> x y xx yy s p a.
+          <span class="nb">refine</span> (set_universe_eq
+                    _
+                    (#(θ x (tt ,, xx) : _ ⟶ _) (cod_fib_comp_mor s) a)).
+          <span class="kp">abstract</span>
+            (<span class="nb">pose</span> (functor_to_set_universe_eq_ob
+                     (psh_term_naturality θ s (tt ,, xx))
+                     (cod_fib_id y))
+              <span class="k">as</span> q ;
+             <span class="nb">cbn</span> <span class="k">in</span> q ;
+             <span class="nb">refine</span> (!q @ _) ;
+             <span class="nb">apply</span> maponpaths_2 ;
+             <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">induction</span> p ;
+             <span class="nb">apply</span> set_universe_eq_path).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">psh_term_to_set_universe_dep_psh_laws</span>
+        : set_universe_dep_psh_laws
+            psh_term_to_set_universe_dep_psh_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - <span class="nb">cbn</span>.
+          <span class="nb">intros</span> x xx p a.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> psh_term_universe_id.
+          }
+          <span class="nb">rewrite</span> set_universe_eq_comp.
+          <span class="nb">apply</span> set_universe_eq_idpath.
+        - <span class="nb">intros</span> x y z xx yy zz s₁ s₂ p q r a.
+          <span class="nb">induction</span> p, q.
+          <span class="nb">cbn</span>.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> psh_term_universe_comp.
+          }
+          <span class="nb">refine</span> (set_universe_eq_comp _ _ _ @ _).
+          use set_universe_eq_path'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> set_universe_eq_path.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">psh_term_to_set_universe_dep_psh</span>
+        : set_universe_dep_psh (psh_term_universe_to_functor τ).
+      <span class="kn">Proof</span>.
+        use make_set_universe_dep_psh.
+        - <span class="bp">exact</span> psh_term_to_set_universe_dep_psh_data.
+        - <span class="bp">exact</span> psh_term_to_set_universe_dep_psh_laws.
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">ToDepPsh</span>.
+
+    <span class="sd">(** * 2.2. To terms *)</span>
+    <span class="kn">Section</span> <span class="nf">ToTerm</span>.
+      <span class="kn">Context</span> (<span class="nv">θ</span> : set_universe_dep_psh (psh_term_universe_to_functor τ)).
+
+      <span class="kn">Local Lemma</span> <span class="nf">set_universe_dep_psh_to_psh_term_data_mor_eq_lem</span>
+                  {<span class="nv">x</span> : C}
+                  {<span class="nv">g₁</span> <span class="nv">g₂</span> : (C/x)^op}
+                  (<span class="nv">h</span> : g₁ --&gt; g₂)
+        : cod_fib_comp
+            (cod_mor g₁)
+            (cod_fib_comp (dom_mor h) (cod_fib_id (cod_dom g₂)))
+          =
+          cod_fib_comp (cod_mor g₂) (cod_fib_id (cod_dom g₂)).
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+        <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !id_left ;
+           <span class="bp">exact</span> (mor_eq h)).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Local Lemma</span> <span class="nf">set_universe_dep_psh_to_psh_term_data_mor_eq</span>
+                  {<span class="nv">x</span> : C}
+                  (<span class="nv">xx</span> : presheaf_el_map τ x tt)
+                  {<span class="nv">g₁</span> <span class="nv">g₂</span> : (C/x)^op}
+                  (<span class="nv">h</span> : g₁ --&gt; g₂)
+        : set_universe_eq
+            (presheaf_el_map_path C u τ (dom_mor h) (idpath tt))
+            (# (τ (cod_dom g₁) tt : _ ⟶ _)
+               (cod_fib_comp_mor (dom_mor h))
+               (set_universe_eq
+                  (presheaf_el_map_path C u _ _ (idpath _))
+                  (# (τ x tt : _ ⟶ _) (cod_fib_comp_mor (cod_mor g₁)) xx)))
+          =
+          set_universe_eq
+            (presheaf_el_map_path C u _ _ (idpath _))
+            (# (τ x tt : _ ⟶ _) (cod_fib_comp_mor (cod_mor g₂)) xx).
+      <span class="kn">Proof</span>.
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          use (functor_to_set_universe_eq
+                 (psh_term_naturality τ (cod_mor g₁) tt)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !set_universe_eq_comp.
+        <span class="nb">rewrite</span> set_universe_eq_idpath.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="bp">exact</span> (!(eqtohomot (functor_comp (τ x tt) _ _) xx)).
+          }
+          use (functor_to_set_universe_mor_eq _ (idpath _) _).
+          - <span class="bp">exact</span> (cod_fib_comp (cod_mor g₂) (cod_fib_id (cod_dom g₂))).
+          - <span class="bp">exact</span> (cod_fib_comp_mor (cod_mor g₂)).
+          - <span class="nb">apply</span> set_universe_dep_psh_to_psh_term_data_mor_eq_lem.
+          - <span class="nb">refine</span> (_ @ !(id_left _)).
+            use eq_mor_cod_fib.
+            <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> comp_in_cod_fib.
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> (idtoiso_opp (C := C/x)).
+              }
+              <span class="nb">refine</span> (dom_mor_idtoiso _ @ _).
+              <span class="nb">unfold</span> set_universe_dep_psh_to_psh_term_data_mor_eq_lem.
+              <span class="nb">rewrite</span> maponpathsinv0.
+              <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (maponpathscomp (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) cod_dom _ @ _).
+              <span class="nb">unfold</span> funcomp ; <span class="nb">cbn</span>.
+              <span class="nb">apply</span> maponpaths_for_constant_function.
+            }
+            <span class="nb">cbn</span>.
+            <span class="nb">rewrite</span> id_left.
+            <span class="bp">exact</span> (mor_eq h).
+        }
+        <span class="nb">rewrite</span> set_universe_eq_comp.
+        use set_universe_eq_path'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> set_universe_eq_idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">set_universe_dep_psh_to_psh_term_data_functor_data</span>
+                 (<span class="nv">x</span> : C)
+                 (<span class="nv">xx</span> : (total_psh (presheaf_el_map τ) x : hSet))
+        : functor_data (C/x)^op (set_universe_to_category u).
+      <span class="kn">Proof</span>.
+        <span class="nb">induction</span> xx <span class="k">as</span> [ [] xx ].
+        use make_functor_data.
+        - <span class="nb">intro</span> y.
+          <span class="nb">refine</span> (θ (cod_dom y)
+                    (set_universe_eq
+                       _
+                       (#(τ x _ : _ ⟶ _) (cod_fib_comp_mor (cod_mor y)) xx))).
+          <span class="nb">apply</span> presheaf_el_map_path.
+          <span class="nb">apply</span> idpath.
+        - <span class="nb">cbn</span>.
+          <span class="nb">intros</span> g₁ g₂ h a.
+          <span class="nb">refine</span> (#s θ (pr1 h) _ a).
+          <span class="bp">exact</span> (set_universe_dep_psh_to_psh_term_data_mor_eq xx h).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">set_universe_dep_psh_to_psh_term_data_functor_laws</span>
+                  (<span class="nv">x</span> : C)
+                  (<span class="nv">xx</span> : (total_psh (presheaf_el_map τ) x : hSet))
+        : is_functor (set_universe_dep_psh_to_psh_term_data_functor_data x xx).
+      <span class="kn">Proof</span>.
+        <span class="nb">induction</span> xx <span class="k">as</span> [ [] xx ].
+        <span class="nb">split</span>.
+        - <span class="nb">intros</span> g.
+          use funextsec.
+          <span class="nb">intro</span> a.
+          <span class="nb">cbn</span>.
+          <span class="nb">apply</span> set_universe_dep_psh_id.
+        - <span class="nb">intros</span> g₁ g₂ g₃ h₁ h₂.
+          use funextsec.
+          <span class="nb">intro</span> a.
+          <span class="nb">cbn</span> -[fiber_category].
+          etrans.
+          {
+            <span class="nb">apply</span> (set_universe_dep_psh_mor_eq _ _ (comp_in_cod_fib _ _)).
+          }
+          <span class="nb">apply</span> (set_universe_dep_psh_comp θ).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">set_universe_dep_psh_to_psh_term_data</span>
+        : psh_term_data
+            (presheaf_universe_ctx
+               u
+               (total_psh (presheaf_el_map τ))).
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> x xx.
+        use make_functor.
+        - <span class="bp">exact</span> (set_universe_dep_psh_to_psh_term_data_functor_data x xx).
+        - <span class="bp">exact</span> (set_universe_dep_psh_to_psh_term_data_functor_laws x xx).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Arguments</span> set_universe_dep_psh_to_psh_term_data /.
+
+      <span class="kn">Proposition</span> <span class="nf">set_universe_dep_psh_to_psh_term_law</span>
+        : psh_term_law set_universe_dep_psh_to_psh_term_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> x y f xx.
+        <span class="nb">induction</span> xx <span class="k">as</span> [ [] xx ].
+        use path_functor_to_set_universe.
+        - <span class="kp">abstract</span>
+            (<span class="nb">intro</span> g ;
+             <span class="nb">cbn</span> ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">refine</span> (!_) ;
+             etrans ;
+             [ <span class="nb">apply</span> maponpaths ;
+               <span class="nb">apply</span> psh_term_universe_comp
+             | ] ;
+             <span class="nb">rewrite</span> set_universe_eq_comp ;
+             use set_universe_eq_path' ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> set_universe_eq_path).
+        - <span class="nb">intros</span> g₁ g₂ h a.
+          <span class="nb">cbn</span> -[comp_functor].
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            use set_universe_dep_psh_mor_eq.
+            - <span class="bp">exact</span> (dom_mor (# (comp_functor f) h)).
+            - <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">simple refine</span> (maponpaths _ (set_universe_dep_psh_eq _ _ _ _ _ _ _)
+                         @ set_universe_eq_comp _ _ _
+                         @ set_universe_eq_idpath _ _
+                         @ _).
+          + etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> (psh_term_universe_comp _ _ τ).
+            }
+            <span class="nb">rewrite</span> set_universe_eq_comp.
+            use set_universe_eq_path'.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> set_universe_eq_path.
+          + etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> (psh_term_universe_comp _ _ τ).
+            }
+            <span class="nb">rewrite</span> set_universe_eq_comp.
+            use set_universe_eq_path'.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> set_universe_eq_path.
+          + <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> setproperty.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">set_universe_dep_psh_to_psh_term</span>
+        : psh_term
+            (presheaf_universe_ctx
+               u
+               (total_psh (presheaf_el_map τ))).
+      <span class="kn">Proof</span>.
+        use make_psh_term.
+        - <span class="bp">exact</span> set_universe_dep_psh_to_psh_term_data.
+        - <span class="bp">exact</span> set_universe_dep_psh_to_psh_term_law.
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">ToTerm</span>.
+
+    <span class="kn">Arguments</span> set_universe_dep_psh_to_psh_term_data /.
+
+    <span class="sd">(** * 2.3. Inverse laws *)</span>
+    <span class="kn">Proposition</span> <span class="nf">psh_term_to_set_universe_dep_psh_to_psh_term</span>
+                (<span class="nv">θ</span> : psh_term
+                       (presheaf_universe_ctx u (total_psh (presheaf_el_map τ))))
+      : set_universe_dep_psh_to_psh_term
+          (psh_term_to_set_universe_dep_psh θ)
+        =
+        θ.
+    <span class="kn">Proof</span>.
+      use psh_term_eq.
+      <span class="nb">intros</span> x xx.
+      <span class="nb">induction</span> xx <span class="k">as</span> [ [] xx ].
+      use path_functor_to_set_universe.
+      - <span class="nb">cbn</span> -[op_category fiber_category] ; <span class="nb">intros</span> f.
+        <span class="nb">pose</span> (functor_to_set_universe_eq_ob
+                (psh_term_naturality θ (pr2 f) (tt ,, xx))
+                (cod_fib_id (pr1 f)))
+          <span class="k">as</span> p.
+        <span class="nb">cbn</span> <span class="k">in</span> p.
+        <span class="nb">refine</span> (_ @ p @ _).
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> set_universe_eq_path.
+        }
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> id_left.
+      - <span class="nb">intros</span> g₁ g₂ h a.
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (set_universe_eq_comp _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">pose</span> (psh_term_naturality θ (cod_mor g₁) (tt ,, xx)).
+          <span class="nb">apply</span> (functor_to_set_universe_eq (C := (C/_)^op) p).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (set_universe_eq_comp _ _ _ @ _).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (set_universe_eq_comp _ _ _ @ _).
+          <span class="nb">apply</span> idpath.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          use (functor_to_set_universe_mor_eq
+                 _
+                 (g := h)
+                 (psh_term_to_functor_to_psh_term_universe_lem_1 g₁)
+                 (psh_term_to_functor_to_psh_term_universe_lem_2 h)).
+          use eq_mor_cod_fib.
+          <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+          <span class="nb">refine</span> (_ @ !(comp_in_cod_fib _ _)).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> (idtoiso_opp (psh_term_to_functor_to_psh_term_universe_lem_2 h)).
+            }
+            <span class="bp">exact</span> (dom_mor_idtoiso _).
+          }
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> (idtoiso_opp (psh_term_to_functor_to_psh_term_universe_lem_1 _)).
+            }
+            <span class="bp">exact</span> (dom_mor_idtoiso _).
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !maponpathsinv0.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">unfold</span> psh_term_to_functor_to_psh_term_universe_lem_1.
+            <span class="nb">refine</span> (maponpathscomp (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) cod_dom _ @ _).
+            <span class="nb">unfold</span> funcomp ; <span class="nb">cbn</span>.
+            <span class="nb">apply</span> maponpaths_for_constant_function.
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">unfold</span> psh_term_to_functor_to_psh_term_universe_lem_2.
+            <span class="nb">refine</span> (maponpathscomp (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) cod_dom (assoc' _ _ _ @ _ @ _) @ _).
+            <span class="nb">unfold</span> funcomp ; <span class="nb">cbn</span>.
+            <span class="nb">apply</span> maponpaths_for_constant_function.
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">refine</span> (set_universe_eq_comp _ _ _ @ _).
+        <span class="nb">rewrite</span> set_universe_eq_idpath.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> set_universe_eq_comp.
+        <span class="nb">apply</span> set_universe_eq_idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">set_universe_dep_psh_to_psh_term_to_dep_psh</span>
+                (<span class="nv">θ</span> : set_universe_dep_psh
+                       (psh_term_universe_to_functor τ))
+      : psh_term_to_set_universe_dep_psh
+          (set_universe_dep_psh_to_psh_term θ)
+        =
+        θ.
+    <span class="kn">Proof</span>.
+      use set_universe_dep_psh_path.
+      use set_universe_dep_psh_data_path.
+      - <span class="nb">intros</span> x xx ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> psh_term_universe_id.
+        }
+        <span class="nb">rewrite</span> set_universe_eq_comp.
+        <span class="nb">apply</span> set_universe_eq_idpath.
+      - <span class="nb">cbn</span> -[set_universe_dep_psh_to_psh_term_data].
+        <span class="nb">intros</span> x y xx yy f p a.
+        <span class="nb">rewrite</span> set_universe_eq_comp.
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">simple refine</span> (set_universe_dep_psh_eq _ _ _ _ _ _ _ @ set_universe_eq_path' _ _ _).
+        + <span class="nb">refine</span> (_ @ p).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            use (functor_to_set_universe_mor_eq _ (idpath _)).
+            * <span class="bp">exact</span> (cod_fib_comp f (cod_fib_id y)).
+            * <span class="bp">exact</span> (cod_fib_comp_mor f).
+            * <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+              <span class="nb">apply</span> id_left.
+            * <span class="nb">refine</span> (_ @ !(id_left _)).
+              use eq_mor_cod_fib.
+              <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _).
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> (idtoiso_opp (C := C/x)).
+                }
+                <span class="bp">exact</span> (dom_mor_idtoiso _).
+              }
+              <span class="nb">cbn</span>.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> id_left.
+              }
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">rewrite</span> maponpathsinv0.
+                <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+                <span class="nb">refine</span> (maponpathscomp (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) cod_dom _ @ _).
+                <span class="nb">unfold</span> funcomp ; <span class="nb">cbn</span>.
+                <span class="nb">apply</span> maponpaths_for_constant_function.
+              }
+              <span class="nb">cbn</span>.
+              <span class="nb">apply</span> id_left.
+          }
+          <span class="nb">rewrite</span> set_universe_eq_comp.
+          <span class="nb">rewrite</span> set_universe_eq_idpath.
+          <span class="nb">apply</span> set_universe_eq_path.
+        + etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> psh_term_universe_id.
+          }
+          <span class="nb">rewrite</span> set_universe_eq_comp.
+          <span class="nb">apply</span> set_universe_eq_idpath.
+        + <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> setproperty.
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** * 2.4. The equivalence *)</span>
+    <span class="kn">Definition</span> <span class="nf">set_universe_dep_psh_weq_psh_term</span>
+      : psh_term
+          (presheaf_universe_ctx
+             u
+             (total_psh (presheaf_el_map τ)))
+        ≃
+        set_universe_dep_psh (psh_term_universe_to_functor τ).
+    <span class="kn">Proof</span>.
+      use weq_iso.
+      - <span class="bp">exact</span> psh_term_to_set_universe_dep_psh.
+      - <span class="bp">exact</span> set_universe_dep_psh_to_psh_term.
+      - <span class="bp">exact</span> psh_term_to_set_universe_dep_psh_to_psh_term.
+      - <span class="bp">exact</span> set_universe_dep_psh_to_psh_term_to_dep_psh.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">SetUniversePshType</span>.
+<span class="kn">End</span> <span class="nf">TermsUniverse</span>.
+
+<span class="kn">Arguments</span> functor_weq_psh_term_universe : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> set_universe_dep_psh_weq_psh_term : <span class="kn">clear implicits</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/UniverseTerms.v</tt>, line 35)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2.4. The equivalence
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Combinatorics.SetUniverses.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

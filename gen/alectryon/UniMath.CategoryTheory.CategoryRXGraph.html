@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CategoryRXGraph.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Reflexive Graphs of (Small) Categories</span>
+
+<span class="sd"> We construct categories as a tower of reflexive graphs, obtaining that</span>
+<span class="sd"> [catiso]s correspond to identifications of [category]s in</span>
+<span class="sd"> [weq_category_paths_to_catiso].  Compare this file to [CategoryEquality.v].</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Reflexive graph of [precategory_ob_mor]</span>
+<span class="sd"> 2. Reflexive graph of [precategory_data]</span>
+<span class="sd"> 3. Reflexive graphs of [precategory] and [category]</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> September 2026</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+
+<span class="kn">Require Import</span> UniMath.IdentitySystems.RXGraph.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.Examples.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.Lenses.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.RXGraphOfRXGraphs.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> rxgraph.
+
+<span class="sd">(** ** Reflexive graph of [precategory_ob_mor] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">precategory_mor_on_rxgraph</span> : contra_lens UU_rxgraph.
+<span class="kn">Proof</span>.
+  use make_contra_lens.
+  - <span class="nb">intro</span> ob; <span class="bp">exact</span> (ob ~&gt; ob ~&gt; UU_rxgraph).
+  - <span class="nb">cbn</span>; <span class="nb">intros</span> C D w mor a b.
+    <span class="bp">exact</span> (mor (w a) (w b)).
+  - <span class="nb">intros</span> C mor; <span class="bp">exact</span> (refl mor).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_ob_mor_rxgraph</span> : rxgraph
+  := ∑~ disp- precategory_mor_on_rxgraph.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_precategory_ob_mor_rxgraph</span> : is_univalent precategory_ob_mor_rxgraph.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_rxgraph.
+  - <span class="bp">exact</span> UU_univalent_rxgraph.
+  - <span class="nb">apply</span> is_univalent_contra_lens_disp_rxgraph; <span class="nb">intro</span>.
+    <span class="bp">exact</span> (∏! _ _, UU_univalent_rxgraph).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_ob_mor_iso</span> (<span class="nv">C</span> <span class="nv">D</span> : precategory_ob_mor) : UU
+  := C ≈{precategory_ob_mor_rxgraph} D.
+<span class="kn">Coercion</span> <span class="nf">precategory_ob_mor_iso_to_functor_data</span> {C D : precategory_ob_mor}
+  (F : precategory_ob_mor_iso C D)
+  : functor_data C D.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span> <span class="k">in</span> F.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">F</span>).
+  <span class="bp">exact</span> (pr2 F).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Reflexive graph of [precategory_data] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">precategory_id_comp_rxgraph</span> : unbiased_lens precategory_ob_mor_rxgraph.
+<span class="kn">Proof</span>.
+  use make_unbiased_lens.
+  - <span class="nb">intros</span> C D F.
+    <span class="nb">change</span> precategory_ob_mor <span class="k">in</span> C, D.
+    <span class="nb">change</span> (precategory_ob_mor_iso C D) <span class="k">in</span> F.
+    <span class="bp">exact</span> ((∏~ (a : C), Δ D⟦F a, F a⟧) ×~
+             (∏~ (a b c : C), C⟦a, b⟧ ~&gt; C⟦b, c⟧ ~&gt; Δ D⟦F a, F c⟧)).
+  - <span class="nb">cbn</span>; <span class="nb">intros</span> C D F [id comp].
+    <span class="nb">change</span> precategory_ob_mor <span class="k">in</span> C, D.
+    <span class="nb">change</span> (precategory_ob_mor_iso C D) <span class="k">in</span> F.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, #F (id x)).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, #F (comp _ _ _ f g)).
+  - <span class="nb">cbn</span>; <span class="nb">intros</span> C D F [id comp].
+    <span class="nb">change</span> precategory_ob_mor <span class="k">in</span> C, D.
+    <span class="nb">change</span> (precategory_ob_mor_iso C D) <span class="k">in</span> F.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, id (F x)).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, comp _ _ _ (#F f) (#F g)).
+  - <span class="nb">intros</span> C idmor; <span class="bp">exact</span> (refl idmor).
+  - <span class="nb">intros</span> C idmor; <span class="bp">exact</span> (refl idmor).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_data_rxgraph₀</span> : rxgraph
+  := ∑~ disp± precategory_id_comp_rxgraph.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_precategory_data_rxgraph₀</span> : is_univalent precategory_data_rxgraph₀.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_rxgraph.
+  - <span class="bp">exact</span> is_univalent_precategory_ob_mor_rxgraph.
+  - <span class="nb">apply</span> is_univalent_unbiased_lens_disp_rxgraph; <span class="nb">intros</span> x y e.
+    <span class="nb">apply</span> is_univalent_dirprod_rxgraph.
+    + <span class="nb">apply</span> is_univalent_product_rxgraph; <span class="nb">intro</span>.
+      <span class="nb">apply</span> rxgraph_univalence.
+    + <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> is_univalent_product_rxgraph; <span class="nb">intro</span>).
+      <span class="nb">apply</span> rxgraph_univalence.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">weq_precategory_data_rxgraph₀_edge_catiso</span> (<span class="nv">C</span> <span class="nv">D</span> : precategory_data)
+  : C ≈{precategory_data_rxgraph₀} D ≃ catiso C D.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intros</span> [F HF].
+    <span class="nb">change</span> (precategory_ob_mor_iso C D) <span class="k">in</span> F.
+    <span class="nb">change</span> (is_functor F) <span class="k">in</span> HF.
+    <span class="k">exists</span> (<span class="nv">make_functor</span> <span class="nv">F</span> <span class="nv">HF</span>).
+    <span class="nb">split</span>.
+    + <span class="nb">intros</span> a b; <span class="nb">apply</span> weqproperty.
+    + <span class="nb">apply</span> weqproperty.
+  - <span class="nb">intros</span> [F [HFF Hobs]].
+    <span class="nb">simple refine</span> ((_,, _),, _,, _); <span class="nb">cbn</span>.
+    + <span class="bp">exact</span> (make_weq F Hobs).
+    + <span class="bp">exact</span> (weq_from_fully_faithful HFF).
+    + <span class="bp">exact</span> (functor_id F).
+    + <span class="nb">intros</span> a b c f g.
+      <span class="bp">exact</span> (functor_comp F f g).
+  - <span class="bp">easy</span>.
+  - <span class="bp">easy</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_data_rxgraph</span> : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> precategory_data.
+  - <span class="bp">exact</span> catiso.
+  - <span class="bp">exact</span> identity_catiso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_precategory_data_rxgraph</span> : is_univalent precategory_data_rxgraph.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_from_weq.
+  <span class="nb">intros</span> a b.
+  <span class="nb">apply</span> (weqcomp (weq_id_to_edge is_univalent_precategory_data_rxgraph₀ a b)).
+  <span class="nb">apply</span> weq_precategory_data_rxgraph₀_edge_catiso.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Reflexive graphs of [precategory] and [category] *)</span>
+
+<span class="c">(* This is not univalent *)</span>
+<span class="kn">Definition</span> <span class="nf">precategory_rxgraph</span> : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> precategory.
+  - <span class="bp">exact</span> catiso.
+  - <span class="bp">exact</span> identity_catiso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">category_rxgraph</span> : rxgraph.
+<span class="kn">Proof</span>.
+  use make_rxgraph.
+  - <span class="bp">exact</span> category.
+  - <span class="bp">exact</span> catiso.
+  - <span class="bp">exact</span> identity_catiso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_category_rxgraph</span> : is_univalent category_rxgraph.
+<span class="kn">Proof</span>.
+  use is_univalent_rxgraph_iso_f.
+  - <span class="bp">exact</span> (sub_rxgraph precategory_data_rxgraph (<span class="k">λ</span> (<span class="nv">C</span> : precategory_data),
+               has_homsets C × is_precategory C)).
+  - use make_rxgraph_iso.
+    + use weq_iso.
+      * <span class="nb">intros</span> [C [H₁ H₂]]; <span class="bp">exact</span> ((C,, H₂),, H₁).
+      * <span class="nb">intros</span> [[C H₂] H₁]; <span class="bp">exact</span> (C,, H₁,, H₂).
+      * <span class="bp">easy</span>.
+      * <span class="bp">easy</span>.
+    + <span class="nb">intros</span> C D; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (idweq _).
+    + <span class="bp">easy</span>.
+  - <span class="nb">apply</span> is_univalent_sub_rxgraph.
+    + <span class="nb">apply</span> is_univalent_precategory_data_rxgraph.
+    + <span class="nb">intro</span> C.
+      <span class="nb">apply</span> isaprop_assume_it_is.
+      <span class="nb">intros</span> [hs H].
+      <span class="nb">apply</span> isapropdirprod.
+      * <span class="nb">apply</span> isaprop_has_homsets.
+      * <span class="nb">apply</span> isaprop_is_precategory, hs.
+<span class="kn">Qed</span>.
+
+<span class="kn">Corollary</span> <span class="nf">weq_category_paths_to_catiso</span> (<span class="nv">C</span> <span class="nv">D</span> : category)
+  : C = D ≃ catiso C D.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (weq_id_to_edge is_univalent_category_rxgraph C D).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/CategoryRXGraph.v</tt>, line 19)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

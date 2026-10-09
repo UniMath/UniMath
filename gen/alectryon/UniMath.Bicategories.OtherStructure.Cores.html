@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Cores.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************</span>
+
+<span class="sd"> Cores in a bicategory</span>
+
+<span class="sd"> The core of a category is the subgroupoid consisting of only the</span>
+<span class="sd"> isomorphisms. This construction can be specified in arbitrary</span>
+<span class="sd"> bicategories.</span>
+<span class="sd"> The definition we use here, is inspired by</span>
+
+<span class="sd"> https://ncatlab.org/nlab/show/core+in+a+2-category</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Groupoidal objects</span>
+<span class="sd"> 2. Pseudofunctor from groupoids</span>
+<span class="sd"> 3. Having cores</span>
+
+<span class="sd"> *********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Eso.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.BicatOfInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.UniversalArrow.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Groupoidal objects</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">groupoidal</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">x</span> : B)
+  : UU
+  := ∏ (w : B)
+       (f g : w --&gt; x)
+       (α : f ==&gt; g),
+     is_invertible_2cell α.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_groupoidal</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">x</span> : B)
+  : isaprop (groupoidal x).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">4</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_invertible_2cell.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_of_groupoidal</span>
+           (<span class="nv">B</span> : bicat)
+  : bicat
+  := fullsubbicat B groupoidal.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_bicat_of_groupoidal</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+  : is_univalent_2_1 (bicat_of_groupoidal B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_2_1_fullsubbicat.
+  <span class="bp">exact</span> HB_2_1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_bicat_of_groupoidal</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB_2</span> : is_univalent_2 B)
+  : is_univalent_2_0 (bicat_of_groupoidal B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_2_0_fullsubbicat.
+  - <span class="bp">exact</span> HB_2.
+  - <span class="bp">exact</span> isaprop_groupoidal.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_bicat_of_groupoidal</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB_2</span> : is_univalent_2 B)
+  : is_univalent_2 (bicat_of_groupoidal B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_2_fullsubbicat.
+  - <span class="bp">exact</span> HB_2.
+  - <span class="bp">exact</span> isaprop_groupoidal.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Pseudofunctor from groupoids</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">groupoidal_to_inv2cells_data</span>
+           (<span class="nv">B</span> : bicat)
+  : psfunctor_data (bicat_of_groupoidal B) (bicat_of_inv2cells B).
+<span class="kn">Proof</span>.
+  use make_psfunctor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 x ,, tt).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>, f).
+  - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">α</span>, pr1 α ,, _).
+    <span class="bp">exact</span> (pr2 y (pr1 x) (pr1 f) (pr1 g) (pr1 α)).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, id2 _ ,, _) ; <span class="nb">cbn</span>.
+    is_iso.
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, id2 _ ,, _) ; <span class="nb">cbn</span>.
+    is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">groupoidal_to_inv2cells_laws</span>
+           (<span class="nv">B</span> : bicat)
+  : psfunctor_laws (groupoidal_to_inv2cells_data B).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span> ;
+    <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+    (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ]) ;
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> id2_rwhisker.
+    <span class="nb">rewrite</span> !id2_left.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> lwhisker_id2.
+    <span class="nb">rewrite</span> !id2_left.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> id2_rwhisker, lwhisker_id2.
+    <span class="nb">rewrite</span> !id2_left, !id2_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> id2_left, id2_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> id2_left, id2_right.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">groupoidal_to_inv2cells</span>
+           (<span class="nv">B</span> : bicat)
+  : psfunctor (bicat_of_groupoidal B) (bicat_of_inv2cells B).
+<span class="kn">Proof</span>.
+  use make_psfunctor.
+  - <span class="bp">exact</span> (groupoidal_to_inv2cells_data B).
+  - <span class="bp">exact</span> (groupoidal_to_inv2cells_laws B).
+  - <span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> is_invertible_2cell_bicat_of_inv2cells.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Having cores</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">has_cores</span>
+           (<span class="nv">B</span> : bicat)
+  : UU
+  := ∑ (R : right_universal_arrow
+              (groupoidal_to_inv2cells B)),
+     ∏ (x : B),
+     <span class="k">let</span> <span class="nv">ε</span> := pr1 (pr12 R (x ,, tt)) <span class="k">in</span>
+     is_eso ε × pseudomonic_1cell ε.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/OtherStructure/Cores.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Having cores
+  &gt;
+  &gt;  *********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

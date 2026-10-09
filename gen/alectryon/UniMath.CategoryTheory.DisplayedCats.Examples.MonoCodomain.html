@@ -1,0 +1,539 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoCodomain.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> The displayed category of monomorphisms</span>
+
+<span class="sd"> In this file, we define the displayed category of monomorphisms. The definition is very</span>
+<span class="sd"> similar to how the arrow category is defined, which is used to define the codomain functor.</span>
+<span class="sd"> We also establish several basic facts, namely we characterize isomorphisms and we prove that</span>
+<span class="sd"> this displayed category is univalent if the category is univalent.</span>
+
+<span class="sd"> The most interesting thing about this construction lies in the question what is a subobject</span>
+<span class="sd"> in a category. In standard texts on category theory, subobjects of `y` are defined to be</span>
+<span class="sd"> monomorphisms `x --&gt; y`. However, this does not lead to the right notion of equality</span>
+<span class="sd"> between subobjects. More specifically, two subobjects `x₁ --&gt; y` and `x₂ --&gt; y` should be</span>
+<span class="sd"> equal if we have an isomorphism `x₁ --&gt; x₂` making the triangle commute. For this reason,</span>
+<span class="sd"> one usually defines the collection of subobjects of `y` as a quotient of the collection of</span>
+<span class="sd"> monomorphisms `x --&gt; y`. Note that this is how subobjects are defined in the file</span>
+<span class="sd"> `Subobjects.v`.</span>
+
+<span class="sd"> Let us be more precise. Suppose that we have two monomorphisms `m₁ : x₁ --&gt; y` and</span>
+<span class="sd"> `m₂ : x₂ --&gt; y` in a category `C`. If `C` is a strict category, then these two monomorphisms</span>
+<span class="sd"> are equal if `x₁ = x₂` and `m₁ = m₂` using a suitable transport. However, this is not the</span>
+<span class="sd"> right notion of equality of subobjects. For instance, if we work in the category of sets,</span>
+<span class="sd"> we would like `m₁` and `m₂` to be equal if they present the same subset of `y`. For that</span>
+<span class="sd"> reason, we identify subobjects up to isomorphism. Concretely, this means that we take a</span>
+<span class="sd"> quotient of the type `∑ (x : C), Monic x y`, which identifies `x₁` and `x₂` up to isomorphism</span>
+<span class="sd"> and the monomorphism if the resulting diagram commutes.</span>
+
+<span class="sd"> For univalent categories, it is not necessary to take a quotient. This is because two</span>
+<span class="sd"> inhabitants of the type `∑ (x : C), Monic x y` already are equal if their domains are</span>
+<span class="sd"> isomorphic and if the resulting triangle commutes. For this reason, we can define the type</span>
+<span class="sd"> of subobjects of an object `y` in a univalent category to be `∑ (x : C), Monic x y`. Note</span>
+<span class="sd"> that we can also prove that `∑ (x : C), Monic x y` is a set in a univalent category. If we</span>
+<span class="sd"> have two subobjects `m₁ : x₁ --&gt; y` and `m₂ : x₂ --&gt; y` and two isomorphisms `i₁ i₂ : x₁ ≅ x₂`</span>
+<span class="sd"> making the obvious triangles commutes, then we must have that `i₁ = i₂` by the fact that `m₂`</span>
+<span class="sd"> is a monomorphism. This is proven in [isaset_subobject_univ_cat].</span>
+
+<span class="sd"> In terms of the fibers, we can say the following. If `C` is a univalent category, then the</span>
+<span class="sd"> fiber of `y` along the displayed category of monomorphisms is a partial order. The underlying</span>
+<span class="sd"> type of this partial order is a set. If `C` is not necessarily however, then we can only say</span>
+<span class="sd"> that the fiber of `y` along this displayed category is a preorder. The underlying type of</span>
+<span class="sd"> this preorder is not necessarily  set.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The displayed category of monomorphisms</span>
+<span class="sd"> 2. Pullback squares are cartesian</span>
+<span class="sd"> 3. Cleaving for codomain of monomorphisms</span>
+<span class="sd"> 4. Isos in the codomain</span>
+<span class="sd"> 5. The univalence</span>
+<span class="sd"> 6. Accessors for monomorphisms</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The displayed category of monomorphisms *)</span>
+<span class="kn">Section</span> <span class="nf">MonoCodomain</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">disp_mono_codomain</span> : disp_cat C
+    := sigma_disp_cat
+         (disp_full_sub
+            (total_category (disp_codomain C))
+            (<span class="k">λ</span> <span class="nv">f</span>, isMonic (pr22 f))).
+
+  <span class="kn">Definition</span> <span class="nf">locally_propositional_mono_cod_disp_cat</span>
+    : locally_propositional disp_mono_codomain.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f m₁ m₂.
+    <span class="nb">induction</span> m₁ <span class="k">as</span> [ y₁ m₁ ].
+    <span class="nb">induction</span> m₂ <span class="k">as</span> [ y₂ m₂ ].
+    use invproofirrelevance ; <span class="nb">cbn</span>.
+    <span class="nb">intros</span> ff gg.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropunit.
+    }
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    use (MonicisMonic _ (make_Monic _ _ m₂)).
+    <span class="bp">exact</span> (pr21 ff @ !(pr21 gg)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transportf_mono_cod_disp</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              {<span class="nv">xx</span> : disp_mono_codomain x}
+              {<span class="nv">yy</span> : disp_mono_codomain y}
+              {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+              (<span class="nv">p</span> : f = g)
+              (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+    : pr11 (transportf
+             (mor_disp xx yy)
+             p
+             ff)
+      =
+      pr11 ff.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">transportb_mono_cod_disp</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              {<span class="nv">xx</span> : disp_mono_codomain x}
+              {<span class="nv">yy</span> : disp_mono_codomain y}
+              {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+              (<span class="nv">p</span> : g = f)
+              (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+    : pr11 (transportb
+             (mor_disp xx yy)
+             p
+             ff)
+      =
+      pr11 ff.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> transportf_mono_cod_disp.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">MonoCodomain</span>.
+
+<span class="sd">(** * 2. Pullback squares are cartesian *)</span>
+<span class="kn">Section</span> <span class="nf">PullbackToCartesian</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">x₁</span> <span class="nv">x₂</span> : C}
+          {<span class="nv">f</span> : x₁ --&gt; x₂}
+          {<span class="nv">gy₁</span> : disp_mono_codomain C x₁}
+          {<span class="nv">hy₂</span> : disp_mono_codomain C x₂}
+          (<span class="nv">ff</span> : gy₁ --&gt;[ f ] hy₂)
+          (<span class="nv">H</span> : isPullback (pr21 ff))
+          {<span class="nv">w</span> : C}
+          (<span class="nv">φ</span> : w --&gt; x₁)
+          (<span class="nv">vψ</span> : disp_mono_codomain C w)
+          (<span class="nv">kp</span> : vψ --&gt;[ φ · f ] hy₂).
+
+  <span class="kn">Let</span> <span class="nf">y₁</span> : C := pr11 gy₁.
+  <span class="kn">Let</span> <span class="nf">y₂</span> : C := pr11 hy₂.
+  <span class="kn">Let</span> <span class="nf">v</span> : C := pr11 vψ.
+  <span class="kn">Let</span> <span class="nf">g</span> : y₁ --&gt; x₁ := pr21 gy₁.
+  <span class="kn">Let</span> <span class="nf">h</span> : y₂ --&gt; x₂ := pr21 hy₂.
+  <span class="kn">Let</span> <span class="nf">ψ</span> : v --&gt; w := pr21 vψ.
+  <span class="kn">Let</span> <span class="nf">k</span> : v --&gt; y₂ := pr11 kp.
+  <span class="kn">Let</span> <span class="nf">l</span> : y₁ --&gt; y₂ := pr11 ff.
+
+  <span class="kn">Let</span> <span class="nf">P</span> : Pullback h f := make_Pullback _ H.
+
+  <span class="kn">Proposition</span> <span class="nf">cartesian_mono_cod_disp_unique</span>
+    : isaprop (∑ (gg : vψ --&gt;[ φ] gy₁), (gg ;; ff)%mor_disp = kp).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> ζ₁ ζ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> disp_mono_codomain.
+    }
+    <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cartesian_mono_cod_disp_map</span>
+    : v --&gt; y₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (PullbackArrow P v k (ψ · φ) _).
+    <span class="kp">abstract</span>
+      (<span class="nb">refine</span> (pr21 kp @ _) ;
+       <span class="nb">apply</span> assoc).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cartesian_mono_cod_disp_comm_pr1</span>
+    : cartesian_mono_cod_disp_map · l = k.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr1 P).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cartesian_mono_cod_disp_comm_pr2</span>
+    : cartesian_mono_cod_disp_map · g = ψ · φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (PullbackArrow_PullbackPr2 P).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PullbackToCartesian</span>.
+
+<span class="kn">Definition</span> <span class="nf">isPullback_cartesian_in_mono_cod_disp</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C }
+           {<span class="nv">f</span> : x₁ --&gt; x₂}
+           {<span class="nv">gy₁</span> : disp_mono_codomain _ x₁}
+           {<span class="nv">hy₂</span> : disp_mono_codomain _ x₂}
+           (<span class="nv">ff</span> : gy₁ --&gt;[ f ] hy₂)
+           (<span class="nv">H</span> : isPullback (pr21 ff))
+  : is_cartesian ff.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w φ vψ kp.
+  use iscontraprop1.
+  - <span class="bp">exact</span> (cartesian_mono_cod_disp_unique ff φ vψ kp).
+  - <span class="nb">simple refine</span> (((_ ,, _) ,, tt) ,, _).
+    + <span class="bp">exact</span> (cartesian_mono_cod_disp_map ff H φ vψ kp).
+    + <span class="bp">exact</span> (cartesian_mono_cod_disp_comm_pr2 ff H φ vψ kp).
+    + use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit | ].
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ].
+      <span class="bp">exact</span> (cartesian_mono_cod_disp_comm_pr1 ff H φ vψ kp).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Cleaving for codomain of monomorphisms *)</span>
+<span class="kn">Definition</span> <span class="nf">mono_cod_disp_cleaving</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">H</span> : Pullbacks C)
+  : cleaving (disp_mono_codomain C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x₁ x₂ f yg.
+  <span class="nb">pose</span> (y := pr11 yg).
+  <span class="nb">pose</span> (g := pr21 yg).
+  <span class="nb">pose</span> (P := H _ _ _ g f).
+  <span class="nb">simple refine</span> (_ ,, ((_ ,, _) ,, tt) ,, _).
+  - <span class="nb">refine</span> ((PullbackObject P ,, PullbackPr2 P) ,, _).
+    use (MonicPullbackisMonic _ (make_Monic _ _ _) _ P).
+    <span class="bp">exact</span> (pr2 yg).
+  - <span class="bp">exact</span> (PullbackPr1 P).
+  - <span class="bp">exact</span> (PullbackSqrCommutes P).
+  - use isPullback_cartesian_in_mono_cod_disp.
+    <span class="nb">apply</span> P.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Isos in the codomain *)</span>
+<span class="kn">Section</span> <span class="nf">IsosCodomain</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">x</span> : C}
+          (<span class="nv">fy</span> <span class="nv">gz</span> : disp_mono_codomain C x).
+
+  <span class="kn">Let</span> <span class="nf">y</span> : C := pr11 fy.
+  <span class="kn">Let</span> <span class="nf">f</span> : y --&gt; x := pr21 fy.
+  <span class="kn">Let</span> <span class="nf">z</span> : C := pr11 gz.
+  <span class="kn">Let</span> <span class="nf">g</span> : z --&gt; x := pr21 gz.
+
+  <span class="kn">Definition</span> <span class="nf">iso_to_disp_iso_mono_cod</span>
+             (<span class="nv">h</span> : z_iso y z)
+             (<span class="nv">p</span> : f = h · g)
+    : z_iso_disp (identity_z_iso x) fy gz.
+  <span class="kn">Proof</span>.
+    use make_z_iso_disp.
+    - <span class="nb">refine</span> ((pr1 h ,, _) ,, tt).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_right ;
+         <span class="bp">exact</span> (!p)).
+    - <span class="nb">simple refine</span> ((_ ,, tt) ,, _ ,, _).
+      + <span class="nb">refine</span> (inv_from_z_iso h ,, _).
+        <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_right ;
+           use z_iso_inv_on_right ;
+           <span class="bp">exact</span> p).
+      + <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+      + <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_iso_to_iso_mono_cod</span>
+             (<span class="nv">ff</span> : z_iso_disp (identity_z_iso x) fy gz)
+    : ∑ (h : z_iso y z), f = h · g.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - use make_z_iso.
+      + <span class="bp">exact</span> (pr111 ff).
+      + <span class="bp">exact</span> (pr11 (inv_mor_disp_from_z_iso ff)).
+      + <span class="nb">split</span>.
+        * <span class="kp">abstract</span>
+            (<span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z) (inv_mor_after_z_iso_disp ff) @ _) ;
+             <span class="nb">rewrite</span> transportb_mono_cod_disp ;
+             <span class="nb">apply</span> idpath).
+        * <span class="kp">abstract</span>
+            (<span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z) (z_iso_disp_after_inv_mor ff) @ _) ;
+             <span class="nb">rewrite</span> transportb_mono_cod_disp ;
+             <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (!(pr211 ff @ _)) ;
+         <span class="nb">apply</span> id_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_iso_weq_iso_mono_cod</span>
+    : (∑ (h : z_iso y z), f = h · g)
+      ≃
+      z_iso_disp (identity_z_iso x) fy gz.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">h</span>, iso_to_disp_iso_mono_cod (pr1 h) (pr2 h)).
+    - <span class="bp">exact</span> disp_iso_to_iso_mono_cod.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ff ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+         use z_iso_eq ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> ff ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_iso_disp | ] ;
+         <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">IsosCodomain</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_z_iso_disp_mono_codomain</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> : C}
+           {<span class="nv">fy</span> <span class="nv">gz</span> : disp_mono_codomain C x}
+           (<span class="nv">φp</span> : fy --&gt;[ identity x ] gz)
+           (<span class="nv">H</span> : is_z_isomorphism (pr11 φp))
+  : is_z_iso_disp (identity_z_iso x) φp.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (h := (_ ,, H) : z_iso _ _).
+  <span class="nb">simple refine</span> ((_ ,, tt) ,, _ ,, _).
+  - <span class="nb">refine</span> (inv_from_z_iso h ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       use z_iso_inv_on_right ;
+       <span class="nb">rewrite</span> id_right ;
+       <span class="nb">refine</span> (_ @ !(pr21 φp)) ;
+       <span class="nb">rewrite</span> id_right ;
+       <span class="nb">apply</span> idpath).
+  - <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+  - <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_z_iso_disp_mono_codomain'</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">h</span> : z_iso x y)
+           {<span class="nv">fz</span> : disp_mono_codomain C x}
+           {<span class="nv">fz'</span> : disp_mono_codomain C y}
+           (<span class="nv">φp</span> : fz --&gt;[ h ] fz')
+           (<span class="nv">H</span> : is_z_isomorphism (pr11 φp))
+  : is_z_iso_disp h φp.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (l := (_ ,, H) : z_iso _ _).
+  <span class="nb">simple refine</span> ((_ ,, tt) ,, _ ,, _).
+  - <span class="nb">refine</span> (inv_from_z_iso l ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       use z_iso_inv_on_right ;
+       <span class="nb">rewrite</span> !assoc ;
+       <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) (!(pr21 φp))) ;
+       <span class="nb">rewrite</span> !assoc' ;
+       <span class="nb">rewrite</span> z_iso_inv_after_z_iso ;
+       <span class="nb">rewrite</span> id_right ;
+       <span class="nb">apply</span> idpath).
+  - <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+  - <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_disp_mono_codomain</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">f</span> : z_iso x y}
+           {<span class="nv">h₁</span> : disp_mono_codomain C x}
+           {<span class="nv">h₂</span> : disp_mono_codomain C y}
+           (<span class="nv">g</span> : z_iso (pr11 h₁) (pr11 h₂))
+           (<span class="nv">p</span> : g · pr21 h₂ = pr21 h₁ · f)
+  : z_iso_disp f h₁ h₂.
+<span class="kn">Proof</span>.
+  use make_z_iso_disp.
+  - <span class="bp">exact</span> ((pr1 g ,, p) ,, tt).
+  - <span class="nb">simple refine</span> ((_ ,, tt) ,, _ ,, _).
+    + <span class="nb">refine</span> (inv_from_z_iso g ,, _).
+      <span class="kp">abstract</span>
+        (use z_iso_inv_on_right ;
+         <span class="nb">rewrite</span> !assoc ;
+         use z_iso_inv_on_left ;
+         <span class="bp">exact</span> p).
+    + <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+    + <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">from_z_iso_disp_mono_codomain</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">f</span> : z_iso x y}
+           {<span class="nv">h₁</span> : disp_mono_codomain C x}
+           {<span class="nv">h₂</span> : disp_mono_codomain C y}
+           (<span class="nv">ff</span> : z_iso_disp f h₁ h₂)
+  : z_iso (pr11 h₁) (pr11 h₂).
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - <span class="bp">exact</span> (pr111 ff).
+  - <span class="bp">exact</span> (pr1 (pr112 ff)).
+  - <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z) (pr222 ff) @ _) ;
+         <span class="nb">rewrite</span> transportb_mono_cod_disp ;
+         <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z) (pr122 ff) @ _) ;
+         <span class="nb">rewrite</span> transportb_mono_cod_disp ;
+         <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. The univalence *)</span>
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_disp_mono_codomain</span>
+            (<span class="nv">C</span> : univalent_category)
+  : is_univalent_disp (disp_mono_codomain C).
+<span class="kn">Proof</span>.
+  use is_univalent_sigma_disp.
+  - use disp_univalent_disp_codomain.
+  - use disp_full_sub_univalent.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropisMonic.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_disp_mono_codomain</span>
+           (<span class="nv">C</span> : univalent_category)
+  : disp_univalent_category C.
+<span class="kn">Proof</span>.
+  use make_disp_univalent_category.
+  - <span class="bp">exact</span> (disp_mono_codomain C).
+  - <span class="nb">apply</span> disp_univalent_disp_mono_codomain.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 6. Accessors for monomorphisms *)</span>
+<span class="kn">Definition</span> <span class="nf">mono_in_cat</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">x</span> : C)
+  : UU
+  := disp_mono_codomain C x.
+
+<span class="kn">Coercion</span> <span class="nf">mono_in_cat_to_ob</span>
+         {C : category}
+         {x : C}
+         (y : mono_in_cat x)
+  : C.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr11 y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monic_of_mono_in_cat</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> : C}
+           (<span class="nv">y</span> : mono_in_cat x)
+  : Monic C y x
+  := make_Monic _ _ (pr2 y).
+
+<span class="kn">Definition</span> <span class="nf">make_mono_in_cat</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">m</span> : Monic C y x)
+  : mono_in_cat x
+  := (y ,, _) ,, MonicisMonic _ m.
+
+<span class="kn">Section</span> <span class="nf">Subobjects</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : univalent_category}
+          (<span class="nv">x</span> : C).
+
+  <span class="kn">Definition</span> <span class="nf">isaset_subobject_univ_cat</span>
+    : isaset (mono_in_cat x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> m₁ m₂.
+    <span class="nb">apply</span> (isaset_disp_ob (univalent_disp_mono_codomain C)).
+    <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">set_of_subobject_univ_cat</span>
+    : hSet.
+  <span class="kn">Proof</span>.
+    use make_hSet.
+    - <span class="bp">exact</span> (mono_in_cat x).
+    - <span class="nb">apply</span> isaset_subobject_univ_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">eq_subobject_univ_cat</span>
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : mono_in_cat x}
+              (<span class="nv">f</span> : z_iso y₁ y₂)
+              (<span class="nv">p</span> : f · monic_of_mono_in_cat y₂
+                   =
+                   monic_of_mono_in_cat y₁)
+    : y₁ = y₂.
+  <span class="kn">Proof</span>.
+    use (isotoid_disp (univalent_disp_mono_codomain C) (idpath _)).
+    use z_iso_disp_mono_codomain.
+    - <span class="bp">exact</span> f.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_right.
+      <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Subobjects</span>.
+
+<span class="kn">Definition</span> <span class="nf">subobject_univ_cat_pb</span>
+           {<span class="nv">C</span> : univalent_category}
+           (<span class="nv">PB</span> : Pullbacks C)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">m</span> : set_of_subobject_univ_cat y)
+  : set_of_subobject_univ_cat x
+  := fiber_functor_from_cleaving _ (mono_cod_disp_cleaving PB) f m.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Examples/MonoCodomain.v</tt>, line 52)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. Accessors for monomorphisms
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

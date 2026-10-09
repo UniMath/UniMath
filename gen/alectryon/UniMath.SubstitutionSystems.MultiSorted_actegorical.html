@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MultiSorted_actegorical.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** this file is a follow-up of [Multisorted_alt], where the semantic signatures [Signature] are replaced by functors with tensorial strength</span>
+
+<span class="sd">    the concept of binding signatures is inherited, as well as the reasoning about omega-cocontinuity</span>
+<span class="sd">    the strength notion is based on lax lineators where endofunctors act on possibly non-endofunctors, but the</span>
+<span class="sd">    signature functor generated from a multi-sorted binding signature falls into the special case of endofunctors,</span>
+<span class="sd">    and the lineator notion can be transferred (through weak equivalence) to the strength notion of</span>
+<span class="sd">    monoidal heterogeneous substitution systems (MHSS)</span>
+
+<span class="sd">    accordingly a MHSS is constructed and a monad obtained through it, cf. [MultiSortedMonadConstruction_actegorical]</span>
+
+<span class="sd">author: Ralph Matthes, 2023</span>
+
+<span class="sd">notice: this file does not correspond to [Multisorted] but to [Multisorted_alt], even though this is not indicated in the name</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Structures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.SortIndexing.
+
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SumOfSignatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.BinProductOfSignatures.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SignatureExamples.
+
+
+
+<span class="sd">(** for the additions in 2023 *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Actegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.CoproductsInActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.ConstructionOfActegoryMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Examples.ActionOfEndomorphismsInCATElementary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Examples.SelfActionInCATElementary.
+<span class="c">(* Require Import UniMath.SubstitutionSystems.EquivalenceSignaturesWithActegoryMorphisms. *)</span>
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.EquivalenceLaxLineatorsHomogeneousCase.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedBindingSig.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSorted_alt.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.BindingSigToMonad_actegorical.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.ContinuitySignature.ContinuityOfMultiSortedSigToFunctor.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="c">(* These should be global *)</span>
+<span class="kn">Arguments</span> Signature_Functor {_ _ _} _.
+<span class="kn">Arguments</span> BinProduct_of_functors {_ _} _ _ _.
+
+<span class="kn">Section</span> <span class="nf">MBindingSig</span>.
+
+<span class="sd">(** Preamble copied from [Multisorted_alt] *)</span>
+
+<span class="c">(* Interestingly we only need that [sort] is a 1-type *)</span>
+<span class="kn">Context</span> (<span class="nv">sort</span> : UU) (<span class="nv">Hsort</span> : isofhlevel <span class="mi">3</span> sort) (<span class="nv">C</span> : category).
+
+<span class="c">(* Assumptions on [C] used to construct the functor *)</span>
+<span class="c">(* Note that there is some redundancy in the assumptions *)</span>
+<span class="kn">Context</span> (<span class="nv">TC</span> : Terminal C) (<span class="nv">IC</span> : Initial C)
+          (<span class="nv">BP</span> : BinProducts C) (<span class="nv">BC</span> : BinCoproducts C)
+          (<span class="nv">PC</span> : <span class="k">forall</span> (<span class="nv">I</span> : UU), Products I C) (<span class="nv">CC</span> : <span class="k">forall</span> (<span class="nv">I</span> : UU), isaset I → Coproducts I C).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'1'"</span> := (TerminalObject TC).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a ⊕ b"</span> := (BinCoproductObject (BC a b)).
+
+<span class="sd">(** This represents "sort → C" *)</span>
+<span class="kn">Let</span> <span class="nf">sortToC</span> : category := SortIndexing.sortToC sort Hsort C.
+
+<span class="kn">Let</span> <span class="nf">BPsortToCC</span> : BinProducts [sortToC,C] := SortIndexing.BPsortToCC sort Hsort _ BP.
+
+<span class="c">(* Assumptions needed to prove ω-cocontinuity of the functor *)</span>
+<span class="kn">Context</span> (<span class="nv">EsortToCC</span> : Exponentials BPsortToCC)
+          (<span class="nv">HC</span> : Colims_of_shape nat_graph C).
+<span class="c">(* The EsortToCC assumption says that [sortToC,C] has exponentials. It</span>
+<span class="c">   could be reduced to exponentials in C, but we only have the case</span>
+<span class="c">   for C = Set formalized in</span>
+
+<span class="c">     CategoryTheory.Categories.HSET.Structures.Exponentials_functor_HSET</span>
+
+<span class="c">*)</span>
+
+<span class="sd">(** end of Preamble copied from [Multisorted_alt] *)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">sortToC2</span> := SortIndexing.sortToC2 sort Hsort C.
+<span class="kn">Local Definition</span> <span class="nf">sortToC3</span> := SortIndexing.sortToC3 sort Hsort C.
+<span class="kn">Local Definition</span> <span class="nf">sortToCC</span> := SortIndexing.sortToCC sort Hsort C.
+<span class="kn">Local Definition</span> <span class="nf">sortToC21C</span> := [sortToC2, sortToCC].
+
+<span class="kn">Let</span> <span class="nf">ops</span> : MultiSortedSig sort → hSet := ops sort.
+<span class="kn">Let</span> <span class="nf">arity</span> : ∏ M : MultiSortedSig sort, ops M → list (list sort × sort) × sort
+    := arity sort.
+
+
+<span class="kn">Local Definition</span> <span class="nf">sorted_option_functor</span> := sorted_option_functor sort Hsort C TC BC CC.
+<span class="kn">Local Definition</span> <span class="nf">projSortToC</span> : sort -&gt; sortToCC := projSortToC sort Hsort C.
+<span class="kn">Local Definition</span> <span class="nf">option_list</span> : list sort → sortToC2 := option_list sort Hsort C TC BC CC.
+<span class="kn">Local Definition</span> <span class="nf">exp_functor</span> : list sort × sort -&gt; sortToC21C
+  := exp_functor sort Hsort C TC BC CC.
+<span class="kn">Local Definition</span> <span class="nf">exp_functor_list</span> : list (list sort × sort) -&gt; sortToC21C
+  := exp_functor_list sort Hsort C TC BP BC CC.
+<span class="kn">Local Definition</span> <span class="nf">hat_exp_functor_list</span> : list (list sort × sort) × sort -&gt; sortToC3
+  := hat_exp_functor_list sort Hsort C TC BP BC CC.
+<span class="kn">Local Definition</span> <span class="nf">MultiSortedSigToFunctor</span> : MultiSortedSig sort -&gt; sortToC3 := MultiSortedSigToFunctor sort Hsort C TC BP BC CC.
+<span class="kn">Local Definition</span> <span class="nf">CoproductsMultiSortedSig</span> : ∏ M : MultiSortedSig sort,
+       Coproducts (ops M) sortToC2 := CoproductsMultiSortedSig sort Hsort C CC.
+
+
+<span class="sd">(** * Construction of the lineator for the endofunctor on [C^sort,C^sort]</span>
+<span class="sd">      derived from a multisorted signature *)</span>
+<span class="kn">Section</span> <span class="nf">strength_through_actegories</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">endoCAT</span> : category := EquivalenceLaxLineatorsHomogeneousCase.endoCAT sortToC.
+  <span class="kn">Local Definition</span> <span class="nf">Mon_endo_CAT</span> : monoidal endoCAT := EquivalenceLaxLineatorsHomogeneousCase.Mon_endo_CAT sortToC.
+  <span class="kn">Local Definition</span> <span class="nf">ptdendo_CAT</span> : category := EquivalenceLaxLineatorsHomogeneousCase.ptdendo_CAT sortToC.
+  <span class="kn">Local Definition</span> <span class="nf">Mon_ptdendo_CAT</span> : monoidal ptdendo_CAT := monoidal_pointed_objects Mon_endo_CAT.
+
+  <span class="kn">Local Definition</span> <span class="nf">ActPtd_CAT</span> (<span class="nv">E</span> : category) : actegory Mon_ptdendo_CAT [sortToC,E] :=
+    EquivalenceLaxLineatorsHomogeneousCase.actegoryPtdEndosOnFunctors_CAT sortToC E.
+  <span class="kn">Local Definition</span> <span class="nf">ActPtd_CAT_Endo</span> := ActPtd_CAT sortToC.
+  <span class="kn">Local Definition</span> <span class="nf">ActPtd_CAT_FromSelf</span> : actegory Mon_ptdendo_CAT sortToC2
+    := actegory_with_canonical_pointed_action Mon_endo_CAT.
+
+  <span class="kn">Local Definition</span> <span class="nf">pointedstrengthfromprecomp_CAT</span> (<span class="nv">E</span> : category) :=
+    lineator_lax Mon_ptdendo_CAT ActPtd_CAT_Endo (ActPtd_CAT E).
+  <span class="sd">(** we are only interested in [E] to have value either [sortToC] or [C] *)</span>
+
+  <span class="kn">Local Definition</span> <span class="nf">pointedstrengthfromselfaction_CAT</span> :=
+    lineator_lax Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf.
+
+  <span class="kn">Let</span> <span class="nf">pointedlaxcommutator_CAT</span> (<span class="nv">G</span> : sortToC2) : UU :=
+        BindingSigToMonad_actegorical.pointedlaxcommutator_CAT G.
+
+  <span class="kn">Local Definition</span> <span class="nf">δCCCATEndo</span> (<span class="nv">M</span> : MultiSortedSig sort) :
+    actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_Endo.
+  <span class="kn">Proof</span>.
+    use reindexed_coprod_distributor.
+    use actegory_from_precomp_CAT_coprod_distributor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">δCCCATfromSelf</span> (<span class="nv">M</span> : MultiSortedSig sort) :
+    actegory_coprod_distributor Mon_ptdendo_CAT (CoproductsMultiSortedSig M) ActPtd_CAT_FromSelf.
+  <span class="kn">Proof</span>.
+    use reindexed_coprod_distributor.
+    use SelfActCAT_CAT_coprod_distributor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ptdlaxcommutatorCAT_option_functor</span> (<span class="nv">s</span> : sort) :
+    pointedlaxcommutator_CAT (sorted_option_functor s).
+  <span class="kn">Proof</span>.
+    use BindingSigToMonad_actegorical.ptdlaxcommutator_genopt.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ptdlaxcommutatorCAT_option_list</span> (<span class="nv">xs</span> : list sort) :
+    pointedlaxcommutator_CAT (option_list xs).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> xs <span class="k">as</span> [[|n] xs].
+    + <span class="nb">induction</span> xs.
+      <span class="nb">apply</span> unit_relativelaxcommutator.
+    + <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+      * <span class="nb">induction</span> xs <span class="k">as</span> [m []].
+        <span class="nb">apply</span> ptdlaxcommutatorCAT_option_functor.
+      * <span class="nb">induction</span> xs <span class="k">as</span> [m [k xs]].
+        use composedrelativelaxcommutator.
+        -- <span class="bp">exact</span> (ptdlaxcommutatorCAT_option_functor m).
+        -- <span class="bp">exact</span> (IH (k,,xs)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">StrengthCAT_exp_functor</span> (<span class="nv">lt</span> : list sort × sort) :
+    pointedstrengthfromprecomp_CAT C (exp_functor lt).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> lt <span class="k">as</span> [l t]; <span class="nb">revert</span> l.
+    use list_ind.
+    - <span class="nb">cbn</span>. <span class="c">(* in [MultiSorted_alt], the analogous construction [Sig_exp_functor] has a composition</span>
+<span class="c">              with the strength of the identity functor since [Gθ_Signature] needs a composition *)</span>
+      use reindexed_lax_lineator.
+      <span class="bp">exact</span> (lax_lineator_postcomp_actegories_from_precomp_CAT _ _ _ (projSortToC t)).
+    - <span class="nb">intros</span> x xs H; <span class="nb">simpl</span>.
+      use comp_lineator_lax.
+      <span class="mi">3</span>: { use reindexed_lax_lineator.
+           <span class="mi">2</span>: { <span class="bp">exact</span> (lax_lineator_postcomp_actegories_from_precomp_CAT _ _ _ (projSortToC t)). }
+      }
+      use reindexedstrength_from_commutator.
+      <span class="bp">exact</span> (ptdlaxcommutatorCAT_option_list (cons x xs)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">StrengthCAT_exp_functor_list</span> (<span class="nv">xs</span> : list (list sort × sort)) :
+    pointedstrengthfromprecomp_CAT C (exp_functor_list xs).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> xs <span class="k">as</span> [[|n] xs].
+    - <span class="nb">induction</span> xs.
+      use reindexed_lax_lineator.
+      <span class="nb">apply</span> constconst_functor_lax_lineator.
+    - <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+      + <span class="nb">induction</span> xs <span class="k">as</span> [m []].
+        <span class="bp">exact</span> (StrengthCAT_exp_functor m).
+      + <span class="nb">induction</span> xs <span class="k">as</span> [m [k xs]].
+        <span class="nb">apply</span> (lax_lineator_binprod Mon_ptdendo_CAT ActPtd_CAT_Endo (ActPtd_CAT C)).
+        * <span class="nb">apply</span> StrengthCAT_exp_functor.
+        * <span class="bp">exact</span> (IH (k,,xs)).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* the strength for hat_exp_functor_list *)</span>
+  <span class="kn">Definition</span> <span class="nf">StrengthCAT_hat_exp_functor_list</span> (<span class="nv">xst</span> : list (list sort × sort) × sort) :
+    pointedstrengthfromprecomp_CAT sortToC (hat_exp_functor_list xst).
+  <span class="kn">Proof</span>.
+    use comp_lineator_lax.
+    - <span class="bp">exact</span> (ActPtd_CAT C).
+    - <span class="nb">apply</span> StrengthCAT_exp_functor_list.
+    - use reindexed_lax_lineator.
+      <span class="nb">apply</span> lax_lineator_postcomp_actegories_from_precomp_CAT.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MultiSortedSigToStrengthCAT</span> (<span class="nv">M</span> : MultiSortedSig sort) :
+    pointedstrengthfromprecomp_CAT sortToC (MultiSortedSigToFunctor M).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> MultiSortedSigToFunctor, MultiSorted_alt.MultiSortedSigToFunctor.
+    <span class="nb">set</span> (Hyps := <span class="k">λ</span> (<span class="nv">op</span> : ops M), StrengthCAT_hat_exp_functor_list (arity M op)).
+    <span class="nb">apply</span> (lax_lineator_coprod Mon_ptdendo_CAT ActPtd_CAT_Endo ActPtd_CAT_Endo Hyps (CoproductsMultiSortedSig M)).
+    <span class="nb">apply</span> δCCCATEndo.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* commented for reasons of upstream time consumption - no longer needed since we can get everything with [MultiSortedSigToFunctor']</span>
+
+<span class="c">  Definition MultiSortedSigToStrengthFromSelfCAT (M : MultiSortedSig sort) :</span>
+<span class="c">    pointedstrengthfromselfaction_CAT (MultiSortedSigToFunctor M).</span>
+<span class="c">  Proof.</span>
+<span class="c">    apply EquivalenceLaxLineatorsHomogeneousCase.lax_lineators_from_reindexed_precomp_CAT_and_reindexed_self_action_agree.</span>
+<span class="c">    apply MultiSortedSigToStrengthCAT.</span>
+<span class="c">  Defined.</span>
+<span class="c">   *)</span>
+
+
+  <span class="c">(* can the following be preserved somehow?</span>
+<span class="c">  (** this yields an alternative definition for the semantic signature *)</span>
+<span class="c">  Definition MultiSortedSigToSignature_alt (M : MultiSortedSig sort) : Signature sortToC sortToC sortToC.</span>
+<span class="c">  Proof.</span>
+<span class="c">    apply weqSignatureLaxMorphismActegoriesHomogeneous_alt.</span>
+<span class="c">    exists (MultiSortedSigToFunctor M).</span>
+<span class="c">    apply lax_lineators_from_reindexed_precomp_and_reindexed_self_action_agree.</span>
+<span class="c">    apply MultiSortedSigToStrength.</span>
+<span class="c">  Defined.</span>
+
+<span class="c">  Local Lemma functor_in_MultiSortedSigToSignature_alt_ok (M : MultiSortedSig) :</span>
+<span class="c">  Signature_Functor (MultiSortedSigToSignature_alt M) = MultiSortedSigToFunctor M.</span>
+<span class="c">  Proof.</span>
+<span class="c">    apply idpath.</span>
+<span class="c">  Qed.</span>
+<span class="c">  (** however, the computational behaviour of the lineator will not be available *)</span>
+<span class="c">   *)</span>
+
+
+  <span class="sd">(** *** we now adapt the definitions to [MultiSortedSigToFunctor'] *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">MultiSortedSigToFunctor'</span> : MultiSortedSig sort -&gt; sortToC3 := MultiSortedSigToFunctor' sort Hsort C TC BP BC CC.
+  <span class="kn">Local Definition</span> <span class="nf">hat_exp_functor_list'_optimized</span> : list (list sort × sort) × sort -&gt; sortToC3
+    := hat_exp_functor_list'_optimized sort Hsort C TC BP BC CC.
+  <span class="kn">Local Definition</span> <span class="nf">hat_exp_functor_list'_piece</span> : (list sort × sort) × sort -&gt; sortToC3
+    := hat_exp_functor_list'_piece sort Hsort C TC BC CC.
+
+  <span class="kn">Definition</span> <span class="nf">StrengthCAT_hat_exp_functor_list'_piece</span> (<span class="nv">xt</span> : (list sort × sort) × sort) :
+    pointedstrengthfromselfaction_CAT (hat_exp_functor_list'_piece xt).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> hat_exp_functor_list'_piece, ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_piece.
+    use comp_lineator_lax.
+    <span class="mi">2</span>: { <span class="nb">refine</span> (reindexedstrength_from_commutator Mon_endo_CAT Mon_ptdendo_CAT (forget_monoidal_pointed_objects_monoidal Mon_endo_CAT)
+                   _ (SelfActCAT sortToC)).
+         <span class="bp">exact</span> (ptdlaxcommutatorCAT_option_list (pr1 (pr1 xt))).
+    }
+    use reindexed_lax_lineator.
+    <span class="nb">apply</span> (lax_lineator_postcomp_SelfActCAT).
+    <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">StrengthCAT_hat_exp_functor_list'_optimized</span> (<span class="nv">xst</span> : list (list sort × sort) × sort) :
+    pointedstrengthfromselfaction_CAT (hat_exp_functor_list'_optimized xst).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> xst <span class="k">as</span> [xs t].
+    <span class="nb">induction</span> xs <span class="k">as</span> [[|n] xs].
+    - <span class="nb">induction</span> xs.
+      use reindexed_lax_lineator.
+      use comp_lineator_lax. <span class="c">(* the next two lines go through [actegory_from_precomp_CAT] *)</span>
+      <span class="mi">2</span>: { <span class="nb">apply</span> constconst_functor_lax_lineator. }
+      <span class="nb">apply</span> lax_lineator_postcomp_SelfActCAT_alt.
+    - <span class="nb">induction</span> n <span class="k">as</span> [|n IH].
+      + <span class="nb">induction</span> xs <span class="k">as</span> [m []].
+        <span class="nb">apply</span> StrengthCAT_hat_exp_functor_list'_piece.
+      + <span class="nb">induction</span> xs <span class="k">as</span> [m [k xs]].
+        <span class="nb">apply</span> (lax_lineator_binprod Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf).
+        * <span class="nb">apply</span> StrengthCAT_hat_exp_functor_list'_piece.
+        * <span class="bp">exact</span> (IH (k,,xs)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MultiSortedSigToStrength'</span> (<span class="nv">M</span> : MultiSortedSig sort) :
+    pointedstrengthfromselfaction_CAT (MultiSortedSigToFunctor' M).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> MultiSortedSigToFunctor', ContinuityOfMultiSortedSigToFunctor.MultiSortedSigToFunctor'.
+    <span class="nb">set</span> (Hyps := <span class="k">λ</span> (<span class="nv">op</span> : ops M), StrengthCAT_hat_exp_functor_list'_optimized (arity M op)).
+    <span class="nb">apply</span> (lax_lineator_coprod Mon_ptdendo_CAT ActPtd_CAT_FromSelf ActPtd_CAT_FromSelf Hyps (CoproductsMultiSortedSig M)).
+    <span class="nb">apply</span> δCCCATfromSelf.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">strength_through_actegories</span>.
+
+<span class="kn">End</span> <span class="nf">MBindingSig</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/MultiSorted_actegorical.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; notice: this file does not correspond to [Multisorted] but to [Multisorted_alt], even though this is not indicated in the name
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,1259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AbelianGroup.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  The Univalent Category of Abelian Groups</span>
+
+<span class="sd">  This file shows properties of the category of abelian groups, which is defined in Magma.v. For</span>
+<span class="sd">  example, it shows that the category is univalent.</span>
+
+<span class="sd">  The category has an additive structure. The trivial abelian group is its zero object, with the</span>
+<span class="sd">  zero arrows given by 0(x) = 0. Pointwise addition (f + g)(x) = f x + g x gives a binary operation</span>
+<span class="sd">  on the morphisms and the direct product of abelian groups gives a direct sum.</span>
+
+<span class="sd">  The category has kernels and cokernels, with the cokernel of f: A → B given by B / Im f.</span>
+
+<span class="sd">  In this category, one can formulate more directly what it means to be a kernel: for morphisms</span>
+<span class="sd">  f : X → Y and g : Y → Z, if f · g = 0, if f is monic and if the fiber above any element in Y that</span>
+<span class="sd">  maps to 0 : Z is inhabited, X is the kernel of g.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The univalent category of abelian groups [abelian_group_univalent_category]</span>
+<span class="sd">  2. The additive structure</span>
+<span class="sd">  2.1. The abelian group structure on homsets [abgr_WithAbGrops]</span>
+<span class="sd">  2.2. The preadditive structure [abgr_PreAdditive]</span>
+<span class="sd">  2.3. The zero object [abgr_Zero]</span>
+<span class="sd">  2.4. Direct sums [abgr_isBinDirectSum]</span>
+<span class="sd">  2.5. The additive structure [abgr_Additive]</span>
+<span class="sd">  3. Kernels and Cokernels</span>
+<span class="sd">  3.1. Kernels [abgr_Kernels]</span>
+<span class="sd">  3.2. Cokernels [abgr_Cokernels]</span>
+<span class="sd">  4. Monics are inclusions and Epis are surjections</span>
+<span class="sd">  4.1. Epis are surjections [abgr_epi_issurjective]</span>
+<span class="sd">  4.2. Monics are inclusions [abgr_monic_isInjective]</span>
+<span class="sd">  5. Monics are kernels of their cokernels and epis are cokernels of their kernels</span>
+<span class="sd">  5.1. Monics are Kernels [abgr_monic_kernel]</span>
+<span class="sd">  5.2. Epis are Cokernels [abgr_epi_cokernel]</span>
+<span class="sd">  6. The category of abelian groups is an abelian category [abgr_Abelian]</span>
+<span class="sd">  7. An elementwise criterion for isKernel [abgr_isKernel_Criteria]</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+
+<span class="kn">Require Import</span> UniMath.NumberSystems.Integers.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PreAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Additive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Abelian.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Kernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cokernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinDirectSums.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.Product.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Magma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Group.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> addmonoid.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> abgr.
+
+<span class="sd">(** * 1. The univalent category of abelian groups *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_abelian_group_disp_cat</span>
+  : is_univalent_disp abelian_group_disp_cat
+  := dirprod_disp_cat_is_univalent _ _
+    is_univalent_group_disp_cat
+    is_univalent_abelian_magma_disp_cat.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_abelian_group_category</span>
+  : is_univalent abelian_group_category
+  := is_univalent_total_category
+    is_univalent_magma_category
+    is_univalent_abelian_group_disp_cat.
+
+<span class="kn">Definition</span> <span class="nf">abelian_group_univalent_category</span>
+  : univalent_category
+  := make_univalent_category abelian_group_category is_univalent_abelian_group_category.
+
+<span class="sd">(** * 2. The additive structure *)</span>
+<span class="sd">(** ** 2.1. The abelian group structure on homsets *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abgr_WithBinOpsData</span> : precategoryWithBinOpsData abelian_group_category.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> @abgrshombinop.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgr_WithBinOps</span> : precategoryWithBinOps :=
+  make_precategoryWithBinOps abelian_group_category abgr_WithBinOpsData.
+
+<span class="kn">Definition</span> <span class="nf">abgr_WithAbGrops</span> : categoryWithAbgrops.
+<span class="kn">Proof</span>.
+  use make_categoryWithAbgrops.
+  - <span class="bp">exact</span> abgr_WithBinOps.
+  - <span class="nb">apply</span> make_categoryWithAbgropsData.
+    <span class="bp">exact</span> @abgrshomabgr_isabgrop.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 2.2. The preadditive structure *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abgr_isPreAdditive</span> : isPreAdditive abgr_WithAbGrops.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_isPreAdditive.
+  <span class="c">(* Precomposition with morphism is linear *)</span>
+  - <span class="nb">intros</span> X Y Z f.
+    <span class="nb">apply</span> make_ismonoidfun.
+    + <span class="nb">apply</span> make_isbinopfun. <span class="nb">intros</span> g h. <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="bp">reflexivity</span>.
+    + <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="bp">reflexivity</span>.
+  <span class="c">(* Postcomposition with morphism is linear *)</span>
+  - <span class="nb">intros</span> X Y Z f.
+    <span class="nb">apply</span> make_ismonoidfun.
+    + <span class="nb">apply</span> make_isbinopfun. <span class="nb">intros</span> g h. <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x.
+      <span class="nb">refine</span> (monoidfunmul (f : abelian_group_morphism _ _) _ _ @ _).
+      <span class="bp">reflexivity</span>.
+    + <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="bp">exact</span> (monoidfununel (f : abelian_group_morphism _ _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgr_PreAdditive</span> : PreAdditive :=
+  make_PreAdditive abgr_WithAbGrops abgr_isPreAdditive.
+
+<span class="sd">(** ** 2.3. The zero object *)</span>
+
+<span class="kn">Section</span> <span class="nf">def_abgr_zero</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isconnectedfromunitabgr</span> (<span class="nv">a</span> : abelian_group_category) (<span class="nv">t</span> : abelian_group_morphism unitabgr a):
+    t = unel_abelian_group_morphism unitabgr (a : abgr).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x.
+    <span class="nb">refine</span> (_ @ monoidfununel t). <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isProofIrrelevantUnit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isconnectedtounitabgr</span> (<span class="nv">a</span> : abelian_group_category) (<span class="nv">t</span> : abelian_group_morphism a unitabgr):
+    t = unel_abelian_group_morphism a unitabgr.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="nb">apply</span> isProofIrrelevantUnit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_isZero</span> : isZero unitabgr.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isZero.
+    - <span class="nb">intros</span> a. use make_iscontr.
+      + <span class="bp">exact</span> (unel_abelian_group_morphism _ a).
+      + <span class="nb">intros</span> t. <span class="bp">exact</span> (isconnectedfromunitabgr a t).
+    - <span class="nb">intros</span> a. use make_iscontr.
+      + <span class="bp">exact</span> (unel_abelian_group_morphism a _).
+      + <span class="nb">intros</span> t. <span class="bp">exact</span> (isconnectedtounitabgr a t).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Zero</span> : Zero abelian_group_category := make_Zero unitabgr abgr_isZero.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_Zero_arrow_comp</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) :
+    ZeroArrow abgr_Zero A B = unel_abelian_group_morphism A B.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">def_abgr_zero</span>.
+
+<span class="sd">(** ** 2.4. Direct sums *)</span>
+
+<span class="kn">Section</span> <span class="nf">DirectSums</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_DirectSumPr1_isbinopfun</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) :
+    isbinopfun (<span class="k">λ</span> <span class="nv">X</span> : abgrdirprod A B, dirprod_pr1 X).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x x'. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_DirectSumPr1</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) : abelian_group_category⟦abgrdirprod A B, A⟧ :=
+    make_abelian_group_morphism _ (abgr_DirectSumPr1_isbinopfun A B).
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_DirectSumPr2_isbinopfun</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) :
+    isbinopfun (<span class="k">λ</span> <span class="nv">X</span> : abgrdirprod A B, dirprod_pr2 X).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x x'. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_DirectSumPr2</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) : abelian_group_category⟦abgrdirprod A B, B⟧ :=
+    make_abelian_group_morphism _ (abgr_DirectSumPr2_isbinopfun A B).
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_DirectSumIn1_isbinopfun</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) :
+    isbinopfun (Y := abgrdirprod A B) (<span class="k">λ</span> <span class="nv">a</span>, make_dirprod a <span class="mi">0</span>).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x x'.
+    <span class="nb">apply</span> dirprod_paths.
+      + <span class="bp">reflexivity</span>.
+      + <span class="nb">symmetry</span>. <span class="nb">apply</span> (runax B).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_DirectSumIn1</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) : abelian_group_category⟦A, abgrdirprod A B⟧ :=
+    make_abelian_group_morphism _ (abgr_DirectSumIn1_isbinopfun A B).
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_DirectSumIn2_isbinopfun</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) :
+    isbinopfun (Y := abgrdirprod A B) (<span class="k">λ</span> <span class="nv">b</span>, make_dirprod <span class="mi">0</span> b).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x x'. <span class="nb">apply</span> dirprod_paths.
+    + <span class="nb">symmetry</span>. <span class="nb">apply</span> (runax A).
+    + <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_DirectSumIn2</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) : abelian_group_category⟦B, abgrdirprod A B⟧ :=
+    make_abelian_group_morphism _ (abgr_DirectSumIn2_isbinopfun A B).
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_DirectSumIdIn1</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) :
+    abgr_DirectSumIn1 A B · abgr_DirectSumPr1 A B = identity A.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_DirectSumIdIn2</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) :
+    abgr_DirectSumIn2 A B · abgr_DirectSumPr2 A B = identity B.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_DirectSumUnel1</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) :
+    abgr_DirectSumIn1 A B · abgr_DirectSumPr2 A B = @to_unel abgr_PreAdditive A B.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_DirectSumUnel2</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) :
+    abgr_DirectSumIn2 A B · abgr_DirectSumPr1 A B = @to_unel abgr_PreAdditive B A.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_DirectSumId</span> (<span class="nv">A</span> <span class="nv">B</span> : abgr) :
+    abgrshombinop
+      (abgr_DirectSumPr1 A B · abgr_DirectSumIn1 A B)
+      (abgr_DirectSumPr2 A B · abgr_DirectSumIn2 A B) =
+    identity_abelian_group_morphism (abgrdirprod A B).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="nb">apply</span> dirprod_paths.
+    - <span class="nb">apply</span> (runax A).
+    - <span class="nb">apply</span> (lunax B).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_isBinDirectSum</span> (<span class="nv">X</span> <span class="nv">Y</span> : abgr) :
+    isBinDirectSum (A := abgr_PreAdditive)
+      (abgr_DirectSumIn1 X Y) (abgr_DirectSumIn2 X Y)
+      (abgr_DirectSumPr1 X Y) (abgr_DirectSumPr2 X Y).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isBinDirectSum.
+    - <span class="bp">exact</span> (abgr_DirectSumIdIn1 X Y).
+    - <span class="bp">exact</span> (abgr_DirectSumIdIn2 X Y).
+    - <span class="bp">exact</span> (abgr_DirectSumUnel1 X Y).
+    - <span class="bp">exact</span> (abgr_DirectSumUnel2 X Y).
+    - <span class="bp">exact</span> (abgr_DirectSumId X Y).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">DirectSums</span>.
+
+<span class="sd">(** ** 2.5. The additive structure *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abgr_AdditiveStructure</span> : AdditiveStructure abgr_PreAdditive.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_AdditiveStructure.
+  - <span class="bp">exact</span> abgr_Zero.
+  - <span class="nb">apply</span> make_BinDirectSums. <span class="nb">intros</span> X Y. use make_BinDirectSum.
+    + <span class="bp">exact</span> (abgrdirprod X Y).
+    + <span class="bp">exact</span> (abgr_DirectSumIn1 X Y).
+    + <span class="bp">exact</span> (abgr_DirectSumIn2 X Y).
+    + <span class="bp">exact</span> (abgr_DirectSumPr1 X Y).
+    + <span class="bp">exact</span> (abgr_DirectSumPr2 X Y).
+    + <span class="bp">exact</span> (abgr_isBinDirectSum X Y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">abgr_Additive</span> : CategoryWithAdditiveStructure := make_Additive abgr_PreAdditive abgr_AdditiveStructure.
+
+<span class="kn">Definition</span> <span class="nf">abgr_AdditiveCategory</span>
+  : AdditiveCategory.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">abgr_PreAdditive</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> hinhpr.
+    <span class="bp">exact</span> (Additive.to_Zero abgr_Additive).
+  - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">intro</span>.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">apply</span> (to_BinDirectSums abgr_Additive).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Kernels and Cokernels *)</span>
+<span class="sd">(** ** 3.1. Kernels *)</span>
+
+<span class="kn">Section</span> <span class="nf">Kernels</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr}.
+  <span class="kn">Context</span> (<span class="nv">f</span> : abelian_group_morphism A B).
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Kernel_abelian_group_morphism</span>
+    : abelian_group_category⟦carrierofasubabgr (abgr_Kernel_subabgr f), A⟧
+    := binopfun_to_abelian_group_morphism (X := abgr_Kernel_subabgr f) (make_binopfun _ (abgr_Kernel_abelian_group_morphism_isbinopfun f)).
+
+  <span class="sd">(** *** Composition Kernel f --&gt; X --&gt; Y is the zero arrow *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Kernel_eq</span> :
+    abgr_Kernel_abelian_group_morphism · f = ZeroArrow abgr_Zero (carrierofasubabgr (abgr_Kernel_subabgr f)) B.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_group_morphism_eq.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> (pr2 x).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** *** KernelIn morphism *)</span>
+
+  <span class="kn">Section</span> <span class="nf">UniversalProperty</span>.
+
+    <span class="kn">Context</span> {<span class="nv">C</span> : abelian_group_category}.
+    <span class="kn">Context</span> (<span class="nv">h</span> : abelian_group_morphism C A).
+    <span class="kn">Context</span> (<span class="nv">H</span> : h · f = ZeroArrow abgr_Zero C B).
+
+    <span class="kn">Lemma</span> <span class="nf">abgr_KernelArrowIn_map_property</span>
+              (<span class="nv">c</span> : (C : abgr)) :
+      (f (h c) = <span class="mi">0</span>).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (abelian_group_morphism_eq H c).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">abgr_KernelArrowIn_map</span>
+               (<span class="nv">c</span> : (C : abgr)) : abgr_Kernel_subabgr f.
+    <span class="kn">Proof</span>.
+      use tpair.
+      - <span class="bp">exact</span> (h c).
+      - <span class="bp">exact</span> (abgr_KernelArrowIn_map_property c).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">abgr_KernelArrowIn_isbinopfun</span> :
+      isbinopfun (Y := abgr_Kernel_subabgr f) abgr_KernelArrowIn_map.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> make_isbinopfun.
+      <span class="nb">apply</span> make_isbinopfun. <span class="nb">intros</span> x x'. use total2_paths_f.
+      + <span class="bp">exact</span> (binopfunisbinopfun (h : abelian_group_morphism (C : abgr) (A : abgr)) x x').
+      + <span class="nb">apply</span> proofirrelevance. <span class="nb">apply</span> propproperty.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">abgr_KernelArrowIn</span> :
+      abelian_group_category⟦C, carrierofasubabgr (abgr_Kernel_subabgr f)⟧.
+    <span class="kn">Proof</span>.
+      use make_abelian_group_morphism.
+      - <span class="bp">exact</span> abgr_KernelArrowIn_map.
+      - <span class="bp">exact</span> abgr_KernelArrowIn_isbinopfun.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** *** Kernels *)</span>
+
+    <span class="kn">Definition</span> <span class="nf">abgr_Kernel_isKernel_KernelArrrow</span> :
+      ∑ ψ : abelian_group_category ⟦C, carrierofasubabgr (abgr_Kernel_subabgr f)⟧,
+            ψ · abgr_Kernel_abelian_group_morphism = h.
+    <span class="kn">Proof</span>.
+      use tpair.
+      - <span class="bp">exact</span> abgr_KernelArrowIn.
+      - <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="bp">reflexivity</span>.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">abgr_Kernel_isKernel_uniqueness</span>
+              (<span class="nv">t</span> : ∑ (t1 : abelian_group_category ⟦C, carrierofasubabgr (abgr_Kernel_subabgr f)⟧),
+                    t1 · abgr_Kernel_abelian_group_morphism = h) :
+      t = abgr_Kernel_isKernel_KernelArrrow.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x.
+      <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="bp">exact</span> (abelian_group_morphism_eq (pr2 t) x).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">UniversalProperty</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Kernel_isKernel</span> :
+    isKernel abgr_Zero abgr_Kernel_abelian_group_morphism f abgr_Kernel_eq.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isKernel.
+    - <span class="nb">intros</span> w h H'.
+      use make_iscontr.
+      + <span class="bp">exact</span> (abgr_Kernel_isKernel_KernelArrrow h H').
+      + <span class="nb">intros</span> t. <span class="bp">exact</span> (abgr_Kernel_isKernel_uniqueness h H' t).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Kernel</span> :
+    Kernel abgr_Zero f :=
+    make_Kernel (abgr_Zero) abgr_Kernel_abelian_group_morphism f abgr_Kernel_eq abgr_Kernel_isKernel.
+
+<span class="kn">End</span> <span class="nf">Kernels</span>.
+
+<span class="kn">Corollary</span> <span class="nf">abgr_Kernels</span> : Kernels abgr_Zero.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B f. <span class="bp">exact</span> (abgr_Kernel f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 3.2. Cokernels *)</span>
+
+<span class="kn">Section</span> <span class="nf">Cokernels</span>.
+
+  <span class="sd">(** *** Subgroup gives an equivalence relation. *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr}.
+  <span class="kn">Context</span> (<span class="nv">f</span> : abelian_group_morphism A B).
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Cokernel_eqrel_istrans</span> :
+    istrans (<span class="k">λ</span> <span class="nv">b1</span> <span class="nv">b2</span> : B, <span class="k">∃</span> <span class="nv">a</span> : A, f a = b1 - b2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 x2 x3 y1 y2.
+    <span class="nb">refine</span> (hinhuniv _ y1). <span class="nb">intros</span> y1'.
+    <span class="nb">refine</span> (hinhuniv _ y2). <span class="nb">intros</span> y2'.
+    <span class="nb">apply</span> hinhpr.
+    use tpair.
+    - <span class="bp">exact</span> (pr1 y1' + pr1 y2').
+    - <span class="nb">apply</span> (pathscomp0 (binopfunisbinopfun f (pr1 y1') (pr1 y2'))).
+      <span class="nb">rewrite</span> (pr2 y1'). <span class="nb">rewrite</span> (pr2 y2').
+      <span class="nb">rewrite</span> &lt;- assocax. <span class="nb">rewrite</span> (assocax _ _ _ x2). <span class="nb">rewrite</span> (grlinvax B). <span class="nb">rewrite</span> (runax B).
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Cokernel_eqrel_isrefl</span> :
+    isrefl (<span class="k">λ</span> <span class="nv">b1</span> <span class="nv">b2</span> : B, <span class="k">∃</span> <span class="nv">a</span> : A, f a = b1 - b2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 P X. <span class="nb">apply</span> X. <span class="nb">clear</span> P X.
+    use tpair.
+    - <span class="bp">exact</span> <span class="mi">0</span>.
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> (grrinvax B). <span class="nb">apply</span> (monoidfununel f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Cokernel_eqrel_issymm</span> :
+    issymm (<span class="k">λ</span> <span class="nv">b1</span> <span class="nv">b2</span> : B, <span class="k">∃</span> <span class="nv">a</span> : A, f a = b1 - b2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x1 x2 x3.
+    <span class="nb">refine</span> (hinhuniv _ x3). <span class="nb">intros</span> x3'.
+    <span class="nb">intros</span> P X. <span class="nb">apply</span> X. <span class="nb">clear</span> P X.
+    use tpair.
+    - <span class="bp">exact</span> (-pr1 x3').
+    - <span class="nb">refine</span> (group_morphism_inv f (pr1 x3') @ _).
+      <span class="nb">rewrite</span> (pr2 x3'). <span class="nb">rewrite</span> grinvop. <span class="nb">apply</span> two_arg_paths.
+      + <span class="nb">apply</span> grinvinv.
+      + <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Cokernel_eqrel</span> : eqrel B :=
+    eqrelconstr (<span class="k">λ</span> <span class="nv">b1</span> <span class="nv">b2</span>, <span class="k">∃</span> <span class="nv">a</span>, f a = b1 - b2)
+                 abgr_Cokernel_eqrel_istrans abgr_Cokernel_eqrel_isrefl
+                 abgr_Cokernel_eqrel_issymm.
+
+  <span class="sd">(** *** Construction of the quotient abelian group Y/(Im f) *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Cokernel_abgr_isbinoprel</span> :
+    isbinophrel (<span class="k">λ</span> <span class="nv">b1</span> <span class="nv">b2</span> : B, <span class="k">∃</span> <span class="nv">a</span> : A, f a = b1 - b2).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isbinophrelif.
+    - <span class="bp">exact</span> (commax B).
+    - <span class="nb">intros</span> x1 x2 x3 y1. <span class="nb">refine</span> (hinhuniv _ y1). <span class="nb">intros</span> y1'. <span class="nb">apply</span> hinhpr.
+      use tpair.
+      + <span class="bp">exact</span> (pr1 y1').
+      + <span class="nb">apply</span> (pathscomp0 (pr2 y1')). <span class="nb">rewrite</span> grinvop.
+        <span class="nb">rewrite</span> (commax B x3). <span class="nb">rewrite</span> (assocax B). <span class="nb">rewrite</span> (commax B x3).
+        <span class="nb">rewrite</span> (assocax B). <span class="nb">rewrite</span> (grlinvax B x3). <span class="nb">rewrite</span> (runax B). <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Cokernel_abgr</span> : abgr :=
+    abgrquot (make_binopeqrel abgr_Cokernel_eqrel abgr_Cokernel_abgr_isbinoprel).
+
+  <span class="sd">(** *** The canonical morphism Y --&gt; Y/(Im f) *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_CokernelArrow_isbinopfun</span> :
+    isbinopfun (Y := abgr_Cokernel_abgr) (setquotpr abgr_Cokernel_eqrel).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x x'. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_CokernelArrow</span> :
+    abelian_group_morphism B abgr_Cokernel_abgr.
+  <span class="kn">Proof</span>.
+    use make_abelian_group_morphism.
+    - <span class="bp">exact</span> (setquotpr abgr_Cokernel_eqrel).
+    - <span class="bp">exact</span> abgr_CokernelArrow_isbinopfun.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** CokernelOut *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_Cokernel_abelian_group_morphism_issurjective</span> :
+    issurjective abgr_CokernelArrow.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> issurjsetquotpr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Cokernel_eq</span> :
+    f · abgr_CokernelArrow = ZeroArrow abgr_Zero A abgr_Cokernel_abgr.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> a.
+    <span class="nb">apply</span> (iscompsetquotpr abgr_Cokernel_eqrel).
+    <span class="nb">apply</span> hinhpr.
+    use tpair.
+    - <span class="bp">exact</span> a.
+    - <span class="nb">apply</span> (pathscomp0 (pathsinv0 (runax B (f a)))).
+      <span class="nb">apply</span> two_arg_paths.
+      + <span class="bp">reflexivity</span>.
+      + <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> (grinvunel B).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">UniversalProperty</span>.
+
+    <span class="kn">Context</span> {<span class="nv">C</span> : abgr}.
+    <span class="kn">Context</span> (<span class="nv">h</span> : abelian_group_morphism B C).
+    <span class="kn">Context</span> (<span class="nv">H</span> : f · h = ZeroArrow abgr_Zero A C).
+
+    <span class="kn">Definition</span> <span class="nf">abgr_CokernelArrowOutUniv_iscomprelfun</span> :
+      iscomprelfun (<span class="k">λ</span> <span class="nv">b1</span> <span class="nv">b2</span> : B, <span class="k">∃</span> <span class="nv">a</span> : A, f a = b1 - b2)
+                  h.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x x' X.
+      <span class="nb">apply</span> (squash_to_prop X (setproperty (C : abgr) (h x) (h x'))). <span class="nb">intros</span> X'.
+      <span class="nb">apply</span> (grrcan (abgrtogr C) (h (-x'))).
+      <span class="nb">refine</span> (_ @ (binopfunisbinopfun h x' (-x'))).
+      <span class="nb">refine</span> (_ @ ! maponpaths (<span class="k">λ</span> <span class="nv">xx</span> : (B : abgr), h xx) (grrinvax (B : abgr) x')).
+      <span class="nb">refine</span> (_ @ ! monoidfununel h).
+      <span class="nb">refine</span> (_ @ abelian_group_morphism_eq H _).
+      <span class="nb">refine</span> (! binopfunisbinopfun h x (-x') @ _).
+      <span class="nb">apply</span> (maponpaths h). <span class="bp">exact</span> (!pr2 X').
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">abgr_CokernelOut_map</span> :
+      abgr_Cokernel_abgr → C :=
+      setquotuniv (<span class="k">λ</span> <span class="nv">b1</span> <span class="nv">b2</span> : B, <span class="k">∃</span> <span class="nv">a</span> : A, f a = b1 - b2)
+                  C h abgr_CokernelArrowOutUniv_iscomprelfun.
+
+    <span class="kn">Definition</span> <span class="nf">abgr_CokernelOut_isbinopfun</span> :
+      isbinopfun abgr_CokernelOut_map.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (isbinopfun_twooutof3b _ _
+              abgr_Cokernel_abelian_group_morphism_issurjective
+              (binopfunisbinopfun h)
+              (binopfunisbinopfun abgr_CokernelArrow)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">abgr_CokernelOut</span> : abelian_group_morphism abgr_Cokernel_abgr C :=
+      make_abelian_group_morphism _ abgr_CokernelOut_isbinopfun.
+
+    <span class="kn">Lemma</span> <span class="nf">abgr_CokernelOut_Comm</span> :
+      composite_abelian_group_morphism abgr_CokernelArrow abgr_CokernelOut = h.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x. <span class="bp">reflexivity</span>.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_abgr_CokernelOut</span> :
+      ∑ ψ : abelian_group_category⟦abgr_Cokernel_abgr, C⟧, abgr_CokernelArrow · ψ = h.
+    <span class="kn">Proof</span>.
+      use tpair.
+      - <span class="bp">exact</span> abgr_CokernelOut.
+      - <span class="bp">exact</span> abgr_CokernelOut_Comm.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** *** Cokernels *)</span>
+
+    <span class="kn">Lemma</span> <span class="nf">abgr_isCokernel_uniquenss</span>
+          (<span class="nv">t</span> : ∑ ψ : abelian_group_category ⟦abgr_Cokernel_abgr, C⟧, abgr_CokernelArrow · ψ = h) :
+      t = make_abgr_CokernelOut.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x.
+      <span class="nb">apply</span> (squash_to_prop (abgr_Cokernel_abelian_group_morphism_issurjective x) (setproperty C _ _)).
+      <span class="nb">intros</span> hf. <span class="nb">rewrite</span> &lt;- (hfiberpr2 _ _ hf).
+      <span class="bp">exact</span> (abelian_group_morphism_eq (pr2 t) _).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">UniversalProperty</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_isCokernel</span> :
+    isCokernel abgr_Zero f abgr_CokernelArrow abgr_Cokernel_eq.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isCokernel.
+    - <span class="nb">intros</span> C h H. use make_iscontr.
+      + <span class="bp">exact</span> (make_abgr_CokernelOut h H).
+      + <span class="nb">intros</span> t. <span class="bp">exact</span> (abgr_isCokernel_uniquenss h H t).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_Cokernel</span> : Cokernel abgr_Zero f :=
+    make_Cokernel abgr_Zero f abgr_CokernelArrow abgr_Cokernel_eq abgr_isCokernel.
+
+<span class="kn">End</span> <span class="nf">Cokernels</span>.
+
+<span class="kn">Corollary</span> <span class="nf">abgr_Cokernels</span> : Cokernels abgr_Zero.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B f. <span class="bp">exact</span> (abgr_Cokernel f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Monics are inclusions and Epis are surjections *)</span>
+
+<span class="kn">Section</span> <span class="nf">abgr_monics_and_epis</span>.
+
+<span class="sd">(** ** 4.1. Epis are surjections *)</span>
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr}.
+  <span class="kn">Context</span> (<span class="nv">f</span> : abelian_group_morphism A B).
+
+  <span class="kn">Definition</span> <span class="nf">abgr_epi_hfiber_inhabited</span>
+    (<span class="nv">isE</span> : isEpi f)
+    (<span class="nv">b</span> : B)
+    (<span class="nv">H</span> : setquotpr (abgr_Cokernel_eqrel f) b = setquotpr (abgr_Cokernel_eqrel f) <span class="mi">0</span>)
+    : ∥ hfiber f b ∥.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (tmp := weqpathsinsetquot (abgr_Cokernel_eqrel f) b <span class="mi">0</span>).
+    <span class="nb">refine</span> (hinhuniv _ ((invweq tmp) H)). <span class="nb">intros</span> Y. <span class="nb">apply</span> hinhpr. <span class="nb">induction</span> Y <span class="k">as</span> [t p].
+    <span class="nb">rewrite</span> grinvunel <span class="k">in</span> p. <span class="nb">rewrite</span> (runax B) <span class="k">in</span> p.
+    <span class="bp">exact</span> (make_hfiber f t p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_epi_issurjective</span> (<span class="nv">isE</span> : isEpi f) :
+    issurjective f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x. <span class="nb">apply</span> abgr_epi_hfiber_inhabited.
+    - <span class="bp">exact</span> isE.
+    - <span class="nb">set</span> (tmp := isE (abgr_Cokernel_abgr f) (abgr_CokernelArrow f)
+                      (unel_abelian_group_morphism B (abgr_Cokernel_abgr f))).
+      <span class="nb">assert</span> (H : f · abgr_CokernelArrow f = f · unel_abelian_group_morphism B (abgr_Cokernel_abgr f)).
+      {
+        <span class="nb">rewrite</span> abgr_Cokernel_eq.
+        <span class="nb">rewrite</span> &lt;- abgr_Zero_arrow_comp.
+        <span class="nb">rewrite</span> ZeroArrow_comp_right.
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="bp">exact</span> (abelian_group_morphism_eq (tmp H) x).
+  <span class="kn">Qed</span>.
+
+<span class="sd">(** ** 4.2. Monics are inclusions *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">nat_nat_prod_abgr_abelian_group_morphism_eq</span> (<span class="nv">a1</span> <span class="nv">a2</span> : A) (<span class="nv">H</span> : f a1 = f a2)
+    : composite_abelian_monoid_morphism (nat_nat_prod_abmonoid_abelian_monoid_morphism a1) (abelian_group_to_monoid_morphism f)
+    = composite_abelian_monoid_morphism (nat_nat_prod_abmonoid_abelian_monoid_morphism a2) (abelian_group_to_monoid_morphism f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_monoid_morphism_eq. <span class="nb">intros</span> x. <span class="nb">induction</span> x <span class="k">as</span> [x1 x2]. <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> nataddabmonoid_nataddabmonoid_to_monoid_fun.
+    <span class="nb">unfold</span> nat_nat_to_monoid_fun. <span class="nb">cbn</span> -[nat_to_monoid_fun].
+    <span class="nb">refine</span> (binopfunisbinopfun f _ _ @ _).
+    <span class="nb">refine</span> (_ @ (! (binopfunisbinopfun f _ _))). <span class="nb">cbn</span>.
+    <span class="nb">change</span> (pr1binopfun _ _ (pr1 f)) <span class="k">with</span> (f : _ → _).
+    <span class="nb">rewrite</span> (abelian_group_morphism_nat_to_monoid_fun f a1 x1).
+    <span class="nb">rewrite</span> (abelian_group_morphism_nat_to_monoid_fun f a2 x1).
+    <span class="nb">rewrite</span> (abelian_group_morphism_nat_to_monoid_fun f (-a1) x2).
+    <span class="nb">rewrite</span> (abelian_group_morphism_nat_to_monoid_fun f (-a2) x2).
+    <span class="nb">apply</span> two_arg_paths.
+    - <span class="nb">induction</span> H. <span class="bp">reflexivity</span>.
+    - <span class="nb">assert</span> (e : f (-a1) = f (-a2)). {
+        <span class="nb">apply</span> (grlcan _ (f a1)).
+        <span class="nb">refine</span> (! binopfunisbinopfun f a1 (-a1) @ _).
+        <span class="nb">refine</span> (maponpaths f (grrinvax A a1) @ _).
+        <span class="nb">rewrite</span> H.
+        <span class="nb">refine</span> (_ @ binopfunisbinopfun f a2 (-a2)).
+        <span class="nb">refine</span> (_ @ !maponpaths f (grrinvax A a2)).
+        <span class="bp">reflexivity</span>.
+      }
+      <span class="nb">induction</span> e. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_abelian_group_morphism_precomp</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : abmonoid}
+    (<span class="nv">f1</span> <span class="nv">f2</span> : abelian_monoid_morphism Y Z)
+    (<span class="nv">g</span> : abelian_monoid_morphism X Y) (<span class="nv">H</span> : issurjective g)
+    : g · f1 = g · f2 -&gt; f1 = f2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e. <span class="nb">apply</span> abelian_monoid_morphism_eq. <span class="nb">intros</span> x.
+    <span class="nb">apply</span> (squash_to_prop (H x) (setproperty Z _ _)). <span class="nb">intros</span> hf.
+    <span class="nb">rewrite</span> &lt;- (hfiberpr2 _ _ hf).
+    <span class="bp">exact</span> (abelian_monoid_morphism_eq e (hfiberpr1 _ _ hf)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">hz_abgr_fun_monoifun_paths</span> (<span class="nv">a1</span> <span class="nv">a2</span> : A) (<span class="nv">H</span> : f a1 = f a2) (<span class="nv">x</span> : hzaddabgr)
+    : f (hz_abgr_fun_abelian_group_morphism a1 x) = f (hz_abgr_fun_abelian_group_morphism a2 x).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (abelian_monoid_morphism_eq (abgr_abelian_group_morphism_precomp
+           (composite_abelian_monoid_morphism (abelian_group_to_monoid_morphism (hz_abgr_fun_abelian_group_morphism a1)) (abelian_group_to_monoid_morphism f))
+           (composite_abelian_monoid_morphism (abelian_group_to_monoid_morphism (hz_abgr_fun_abelian_group_morphism a2)) (abelian_group_to_monoid_morphism f))
+           hz_abmonoid_abelian_monoid_morphism _ _) x).
+    - <span class="nb">apply</span> issurjsetquotpr.
+    - <span class="nb">rewrite</span> !assoc, !abgr_natnat_hz_X_comm.
+      <span class="bp">exact</span> (nat_nat_prod_abgr_abelian_group_morphism_eq a1 a2 H).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_monic_isincl</span> (<span class="nv">isM</span> : isMonic f) :
+    isincl f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> b h1 h2.
+    use make_iscontr.
+    - use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">apply</span> (grrcan A <span class="mi">0</span>). <span class="nb">apply</span> (grrcan A <span class="mi">0</span>).
+      <span class="nb">refine</span> (abelian_group_morphism_eq
+        (isM hzaddabgr (hz_abgr_fun_abelian_group_morphism (pr1 h1))
+                      (hz_abgr_fun_abelian_group_morphism (pr1 h2)) _) hzone).
+      <span class="nb">apply</span> abelian_group_morphism_eq.
+      <span class="nb">apply</span> (hz_abgr_fun_monoifun_paths _ _ (hfiberpr2 _ _ h1 @ ! hfiberpr2 _ _ h2)).
+    - <span class="nb">intros</span> t. <span class="nb">apply</span> proofirrelevance. <span class="nb">apply</span> isaset_hfiber.
+      + <span class="nb">apply</span> setproperty.
+      + <span class="nb">apply</span> setproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_monic_isInjective</span> (<span class="nv">isM</span> : isMonic f) :
+    isInjective f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (isweqonpathsincl f (abgr_monic_isincl isM)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_monic_paths</span> (<span class="nv">isM</span> : isMonic f) (<span class="nv">a1</span> <span class="nv">a2</span> : A) :
+    f a1 = f a2 -&gt; a1 = a2.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (invweq (make_weq _ (abgr_monic_isInjective isM a1 a2))).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">abgr_monics_and_epis</span>.
+
+<span class="kn">Lemma</span> <span class="nf">abgr_abelian_group_morphism_postcomp</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : abgr} (<span class="nv">f1</span> <span class="nv">f2</span> : abelian_group_morphism A B) (<span class="nv">g</span> : abelian_group_morphism B C)
+      (<span class="nv">isM</span> : isMonic (g : abelian_group_category⟦B, C⟧)) :
+  monoidfuncomp f1 g = monoidfuncomp f2 g -&gt; f1 = f2.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> e. <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x.
+  <span class="nb">apply</span> (invmap (make_weq _ (abgr_monic_isInjective g isM (f1 x) (f2 x)))).
+  <span class="bp">exact</span> (monoidfun_eq e x).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Monics are kernels of their cokernels and epis are cokernels of their kernels *)</span>
+<span class="sd">(** ** 5.1. Monics are Kernels *)</span>
+
+<span class="kn">Section</span> <span class="nf">Monics</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr}.
+  <span class="kn">Context</span> (<span class="nv">f</span> : abelian_group_morphism A B).
+  <span class="kn">Context</span> (<span class="nv">isM</span> : isMonic f).
+
+  <span class="kn">Definition</span> <span class="nf">abgr_monic_kernel_in_hfiber_iscontr</span> {<span class="nv">C</span> : abgr} (<span class="nv">h</span> : abelian_group_morphism C B)
+    (<span class="nv">H</span> : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero C (abgr_Cokernel f)) (<span class="nv">c</span> : C) :
+    iscontr (hfiber f (h c)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (squash_to_prop
+           ((invweq (weqpathsinsetquot (abgr_Cokernel_eqrel f) (h c) <span class="mi">0</span>))
+              (abelian_group_morphism_eq H c)) (isapropiscontr _)).
+    <span class="nb">intros</span> hf.
+    use make_iscontr.
+    - use make_hfiber.
+      + <span class="bp">exact</span> (pr1 hf).
+      + <span class="nb">apply</span> (pathscomp0 (pr2 hf)). <span class="nb">rewrite</span> grinvunel. <span class="nb">apply</span> (runax B).
+    - <span class="nb">intros</span> t. <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> setproperty.
+      }
+      <span class="nb">apply</span> (invmap (make_weq _ (abgr_monic_isInjective f isM (pr1 t) (pr1 hf)))).
+      <span class="nb">apply</span> (pathscomp0 (hfiberpr2 _ _ t)). use (pathscomp0 _ (! (pr2 hf))).
+      <span class="nb">rewrite</span> grinvunel. <span class="nb">rewrite</span> runax. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_monic_kernel_in_hfiber_mult_eq</span> {<span class="nv">C</span> : abgr} (<span class="nv">x</span> <span class="nv">x'</span> : C) (<span class="nv">h</span> : abelian_group_morphism C B) (<span class="nv">X</span> : hfiber f (h x)) (<span class="nv">X0</span> : hfiber f (h x')) :
+    f (pr1 X + pr1 X0) = h (x + x').
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !monoidfunmul.
+    <span class="nb">rewrite</span> (pr2 X).
+    <span class="nb">rewrite</span> (pr2 X0).
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_monic_kernel_in_hfiber_mult</span>
+              {<span class="nv">C</span> : abgr} (<span class="nv">x</span> <span class="nv">x'</span> : C) (<span class="nv">h</span> : abelian_group_morphism C B) :
+    hfiber f (h x) -&gt; hfiber f (h x')
+    -&gt; hfiber f (h (x + x')).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X X0.
+    <span class="bp">exact</span> (make_hfiber f (pr1 X + pr1 X0)
+                      (abgr_monic_kernel_in_hfiber_mult_eq x x' h X X0)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_monic_kernel_in_hfiber_unel_eq</span> {<span class="nv">C</span> : abgr}
+        (<span class="nv">h</span> : abelian_group_morphism C B) : f <span class="mi">0</span> = h <span class="mi">0</span>.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> <span class="nb">rewrite</span> !monoidfununel.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_monic_kernel_in_hfiber_unel</span> (<span class="nv">w</span> : abgr)
+             (<span class="nv">h</span> : abelian_group_morphism w B) : hfiber f (h <span class="mi">0</span>) :=
+    make_hfiber f <span class="mi">0</span> (abgr_monic_kernel_in_hfiber_unel_eq h).
+
+  <span class="kn">Definition</span> <span class="nf">abgr_monic_kernel_in</span>
+             (<span class="nv">w</span> : abgr) (<span class="nv">h</span>: abelian_group_category⟦w, B⟧)
+             (<span class="nv">H</span> : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero _ _) : w -&gt; A.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x.
+    <span class="bp">exact</span> (hfiberpr1 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr h H x))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_monic_kernel_in_isbinopfun</span> (<span class="nv">w</span> : abgr) (<span class="nv">h</span>: abelian_group_morphism w B)
+             (<span class="nv">H</span> : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero _ _) :
+    isbinopfun (abgr_monic_kernel_in w h H).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isbinopfun. <span class="nb">intros</span> x x'.
+    <span class="nb">set</span> (t := abgr_monic_kernel_in_hfiber_iscontr h H x).
+    <span class="nb">set</span> (tmp := abgr_monic_kernel_in_hfiber_mult
+                  x x' h
+                  (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr h H x))
+                  (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr h H x'))).
+    <span class="nb">change</span> (abgr_monic_kernel_in _ _ _ _ + _) <span class="k">with</span> (hfiberpr1 _ _ tmp).
+    <span class="nb">unfold</span> abgr_monic_kernel_in.
+    <span class="nb">apply</span> (invmap (make_weq _ (abgr_monic_isInjective f isM _ _))).
+    <span class="nb">refine</span> (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr
+                                                  h H (x + x'))) @ _).
+    <span class="bp">exact</span> (!hfiberpr2 _ _ tmp).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_monic_kernel_in_abelian_group_morphism</span>
+             (<span class="nv">w</span> : abgr) (<span class="nv">h</span>: abelian_group_category⟦w, B⟧)
+             (<span class="nv">H</span> : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero _ _) :
+    abelian_group_morphism w A := make_abelian_group_morphism _ (abgr_monic_kernel_in_isbinopfun w h H).
+
+  <span class="kn">Definition</span> <span class="nf">abgr_monic_Kernel_eq</span> :
+    f · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero A (abgr_Cokernel f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> CokernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_monic_Kernel_isKernel_comm</span> {<span class="nv">C</span> : abgr}
+        (<span class="nv">h</span> : abelian_group_morphism C B)
+        (<span class="nv">H</span> : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero C (abgr_Cokernel f)):
+    abgr_monic_kernel_in_abelian_group_morphism C h H · f = h.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x.
+    <span class="bp">exact</span> (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr h H x))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_abgr_monic_Kernel_isKernel</span> {<span class="nv">C</span> : abgr}
+             (<span class="nv">h</span> : abelian_group_category⟦C, B⟧)
+             (<span class="nv">H</span> : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero C (abgr_Cokernel f)) :
+    ∑ ψ : abelian_group_category ⟦C, A⟧, ψ · f = h.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (abgr_monic_kernel_in_abelian_group_morphism C h H).
+    - <span class="bp">exact</span> (abgr_monic_Kernel_isKernel_comm h H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_monic_Kernel_isKernel_uniqueness</span> {<span class="nv">C</span> : abgr}
+             (<span class="nv">h</span> : abelian_group_category⟦C, B⟧)
+             (<span class="nv">H</span> : h · CokernelArrow (abgr_Cokernel f) = ZeroArrow abgr_Zero C (abgr_Cokernel f))
+             (<span class="nv">t</span> : ∑ ψ : abelian_group_category ⟦C, A⟧, ψ · f = h) :
+    t = make_abgr_monic_Kernel_isKernel h H.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x.
+    <span class="nb">apply</span> (invmap (make_weq _ (abgr_monic_isInjective _ isM _ _))).
+    <span class="nb">refine</span> (abelian_group_morphism_eq (hfiberpr2 _ _ t) x @ _).
+    <span class="nb">symmetry</span>.
+    <span class="bp">exact</span> (hfiberpr2 _ _ (iscontrpr1 (abgr_monic_kernel_in_hfiber_iscontr h H x))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_monic_Kernel_isKernel</span> :
+    isKernel abgr_Zero f (CokernelArrow (abgr_Cokernel f))
+             (CokernelCompZero abgr_Zero (abgr_Cokernel f)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isKernel.
+    - <span class="nb">intros</span> w h H.
+      use make_iscontr.
+      + <span class="bp">exact</span> (make_abgr_monic_Kernel_isKernel h H).
+      + <span class="bp">exact</span> (abgr_monic_Kernel_isKernel_uniqueness h H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_monic_kernel</span> :
+    Kernel abgr_Zero (CokernelArrow (abgr_Cokernel f)) :=
+    make_Kernel abgr_Zero f (CokernelArrow (abgr_Cokernel f)) (abgr_monic_Kernel_eq)
+              (abgr_monic_Kernel_isKernel).
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_monic_kernel_comp</span> :
+    KernelArrow (abgr_monic_kernel) = f.
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Monics</span>.
+
+<span class="sd">(** ** 5.2. Epis are Cokernels *)</span>
+
+<span class="kn">Section</span> <span class="nf">Epis</span>.
+
+  <span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> : abgr}.
+  <span class="kn">Context</span> (<span class="nv">f</span> : abelian_group_morphism A B).
+  <span class="kn">Context</span> (<span class="nv">isE</span> : isEpi f).
+
+  <span class="kn">Definition</span> <span class="nf">abgr_epi_cokernel_out_kernel_hsubtype</span> (<span class="nv">a</span> : A)
+             (<span class="nv">H</span> : f a = <span class="mi">0</span>) : abgr_kernel_hsubtype f.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (a,, H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_epi_cokernel_out_data_eq</span> {<span class="nv">C</span> : abgr}
+    (<span class="nv">h</span> : abelian_group_morphism A C)
+    (<span class="nv">H</span> : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero (abgr_Kernel f) C) :
+    ∏ x : abgr_kernel_hsubtype f, h (pr1carrier (abgr_kernel_hsubtype f) x) = <span class="mi">0</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (abelian_group_morphism_eq H x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_epi_cokernel_out_data_hfibers_to_unel</span> (<span class="nv">b</span> : B)
+        (<span class="nv">hfib1</span> <span class="nv">hfib2</span> : hfiber f b) :
+    f (pr1 hfib1 - pr1 hfib2) = <span class="mi">0</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> monoidfunmul.
+    <span class="nb">apply</span> (grrcan (abgrtogr B) (f (pr1 hfib2))).
+    <span class="nb">rewrite</span> (assocax B). <span class="nb">rewrite</span> &lt;- monoidfunmul.
+    <span class="nb">rewrite</span> (grlinvax A). <span class="nb">rewrite</span> monoidfununel.
+    <span class="nb">rewrite</span> (runax B). <span class="nb">rewrite</span> (lunax B).
+    <span class="nb">rewrite</span> (pr2 hfib1). <span class="nb">rewrite</span> (pr2 hfib2).
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_epi_cokernel_out_data_hfiber_eq</span> {<span class="nv">C</span> : abgr}
+        (<span class="nv">h</span> : abelian_group_morphism A C)
+        (<span class="nv">H</span> : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) (<span class="nv">b</span> : B)
+        (<span class="nv">X</span> : hfiber f b) : ∏ hfib : hfiber f b, h (pr1 hfib) = h (pr1 X).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> hfib.
+    <span class="nb">apply</span> (grrcan C (- h (pr1 X))).
+    <span class="nb">rewrite</span> (grrinvax C).
+    <span class="nb">set</span> (e1 := abgr_epi_cokernel_out_data_hfibers_to_unel b hfib X).
+    <span class="nb">set</span> (tmp1 := ! (group_morphism_inv h (hfiberpr1 _ _ X))). <span class="nb">cbn</span> <span class="k">in</span> tmp1.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, (h (pr1 hfib) + k)) tmp1 @ _).
+    <span class="nb">rewrite</span> &lt;- (monoidfunmul h).
+    <span class="nb">set</span> (tmp2 := abgr_epi_cokernel_out_data_eq h H).
+    <span class="nb">set</span> (tmp3 := abgr_epi_cokernel_out_kernel_hsubtype
+                   (pr1 hfib - pr1 X) e1).
+    <span class="nb">set</span> (tmp4 := tmp2 tmp3). <span class="nb">cbn</span> <span class="k">in</span> tmp4. <span class="bp">exact</span> tmp4.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_epi_CokernelOut_iscontr</span> {<span class="nv">C</span> : abgr}
+        (<span class="nv">h</span> : abelian_group_morphism A C)
+        (<span class="nv">H</span> : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) (<span class="nv">b</span> : B) :
+    iscontr (∑ x : C, ∏ (hfib : hfiber f b), h (pr1 hfib) = x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (squash_to_prop (abgr_epi_issurjective f isE b) (isapropiscontr _)).
+    <span class="nb">intros</span> X. use make_iscontr.
+    - use tpair.
+      + <span class="bp">exact</span> (h (pr1 X)).
+      + <span class="bp">exact</span> (abgr_epi_cokernel_out_data_hfiber_eq h H b X).
+    - <span class="nb">intros</span> t. <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> impred.
+        <span class="nb">intros</span> t0.
+        <span class="nb">apply</span> (setproperty C).
+      }
+      <span class="bp">exact</span> (! ((pr2 t) X)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_epi_CokernelOut_mult_eq</span> {<span class="nv">C</span> : abgr} (<span class="nv">b1</span> <span class="nv">b2</span> : B)
+             (<span class="nv">h</span> : abelian_group_morphism A C)
+             (<span class="nv">H</span> : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _)
+             (<span class="nv">X</span> : ∑ x : C, ∏ hfib : hfiber f b1, h (pr1 hfib) = x)
+             (<span class="nv">X0</span> : ∑ x : C, ∏ hfib : hfiber f b2, h (pr1 hfib) = x) :
+    ∏ hfib : hfiber f (b1 + b2), h (pr1 hfib) = pr1 X + pr1 X0.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> hfib.
+    <span class="nb">apply</span> (squash_to_prop (abgr_epi_issurjective f isE b1) (setproperty C _ _)). <span class="nb">intros</span> X1.
+    <span class="nb">apply</span> (squash_to_prop (abgr_epi_issurjective f isE b2) (setproperty C _ _)). <span class="nb">intros</span> X2.
+    <span class="nb">rewrite</span> &lt;- ((pr2 X) X1). <span class="nb">rewrite</span> &lt;- ((pr2 X0) X2). <span class="nb">rewrite</span> &lt;- monoidfunmul.
+    <span class="bp">exact</span> (abgr_epi_cokernel_out_data_hfiber_eq
+             h H (b1 + b2) (hfiberbinop (f : abelian_group_morphism _ _) b1 b2 X1 X2) hfib).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_epi_cokernel_out_data_mult</span> {<span class="nv">C</span> : abgr} (<span class="nv">b1</span> <span class="nv">b2</span> : B)
+             (<span class="nv">h</span> : abelian_group_morphism A C)
+             (<span class="nv">H</span> : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) :
+    (∑ x : C, ∏ (hfib : hfiber f b1), h (pr1 hfib) = x) -&gt;
+    (∑ x : C, ∏ (hfib : hfiber f b2), h (pr1 hfib) = x) -&gt;
+    (∑ x : C, ∏ (hfib : hfiber f (b1 + b2)), h (pr1 hfib) = x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X X0.
+    <span class="bp">exact</span> (pr1 X + pr1 X0 ,, abgr_epi_CokernelOut_mult_eq b1 b2 h H X X0).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_epi_cokernel_out_data_unel_eq</span> {<span class="nv">C</span> : abgr}
+             (<span class="nv">h</span> : abelian_group_morphism A C)
+             (<span class="nv">H</span> : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) :
+    ∏ hfib : hfiber f <span class="mi">0</span>, h (pr1 hfib) = <span class="mi">0</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> hfib.
+    <span class="nb">set</span> (hfib_unel := make_hfiber f <span class="mi">0</span> (monoidfununel f)).
+    <span class="nb">rewrite</span> (abgr_epi_cokernel_out_data_hfiber_eq h H <span class="mi">0</span> hfib_unel hfib).
+    <span class="bp">exact</span> (monoidfununel h).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_epi_cokernel_out_data_unel</span> {<span class="nv">C</span> : abgr}
+             (<span class="nv">h</span> : abelian_group_morphism A C)
+             (<span class="nv">H</span> : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) :
+    ( ∑ x : C, ∏ (hfib : hfiber f <span class="mi">0</span>),  h (pr1 hfib) = x) :=
+    tpair _ <span class="mi">0</span> (abgr_epi_cokernel_out_data_unel_eq h H).
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_epi_cokernel_out_isbinopfun</span> {<span class="nv">C</span> : abgr} (<span class="nv">h</span> : abelian_group_morphism A C)
+        (<span class="nv">H</span> : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) :
+    isbinopfun (<span class="k">λ</span> <span class="nv">b</span> : B, (pr1 (iscontrpr1 (abgr_epi_CokernelOut_iscontr h H b)))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isbinopfun. <span class="nb">intros</span> x x'.
+    <span class="nb">set</span> (HH0 := abgr_epi_cokernel_out_data_mult
+                  x x' h H
+                  (iscontrpr1 (abgr_epi_CokernelOut_iscontr h H x))
+                  (iscontrpr1 (abgr_epi_CokernelOut_iscontr h H x'))).
+    <span class="nb">assert</span> (HH : iscontrpr1 (abgr_epi_CokernelOut_iscontr h H (x + x')) = HH0).
+    {
+      <span class="nb">set</span> (tmp := abgr_epi_CokernelOut_iscontr h H (x + x')).
+      <span class="nb">rewrite</span> (pr2 tmp). <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> (pr2 tmp).
+      <span class="bp">reflexivity</span>.
+    }
+    <span class="bp">exact</span> (base_paths _ _ HH).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_epi_cokernel_out_abelian_group_morphism</span> {<span class="nv">C</span> : abgr} (<span class="nv">h</span> : abelian_group_morphism A C)
+             (<span class="nv">H</span> : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero _ _) :
+    abelian_group_morphism B C := make_abelian_group_morphism _ (abgr_epi_cokernel_out_isbinopfun h H).
+
+  <span class="kn">Definition</span> <span class="nf">abgr_epi_cokernel_eq</span> :
+    KernelArrow (abgr_Kernel f) · f = ZeroArrow abgr_Zero _ _.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> KernelCompZero.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_epi_cokernel_isCokernel_comm</span> {<span class="nv">C</span> : abgr} (<span class="nv">h</span> : abelian_group_morphism A C)
+             (<span class="nv">H</span> : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero (abgr_Kernel f) C) :
+    f · abgr_epi_cokernel_out_abelian_group_morphism h H = h.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abelian_group_morphism_eq.
+    <span class="nb">intros</span> x. <span class="nb">apply</span> pathsinv0.
+    <span class="bp">exact</span> (pr2 (iscontrpr1 (abgr_epi_CokernelOut_iscontr h H (f x)))
+               (make_hfiber f x (idpath _))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_abgr_epi_cokernel_isCokernel</span> {<span class="nv">C</span> : abgr} (<span class="nv">h</span> : abelian_group_morphism A C)
+             (<span class="nv">H</span> : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero (abgr_Kernel f) C) :
+    ∑ ψ : abelian_group_category ⟦B, C⟧, f · ψ = h.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (abgr_epi_cokernel_out_abelian_group_morphism h H).
+    - <span class="bp">exact</span> (abgr_epi_cokernel_isCokernel_comm h H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abgr_epi_cokernel_isCokernel_uniqueness</span> {<span class="nv">C</span> : abgr} (<span class="nv">h</span> : abelian_group_morphism A C)
+        (<span class="nv">H</span> : KernelArrow (abgr_Kernel f) · h = ZeroArrow abgr_Zero (abgr_Kernel f) C)
+        (<span class="nv">t</span> : ∑ ψ : abelian_group_category ⟦B, C⟧, f · ψ = h) :
+    t = make_abgr_epi_cokernel_isCokernel h H.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">apply</span> isE. <span class="nb">apply</span> (pathscomp0 (pr2 t)). <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x.
+    <span class="bp">exact</span> (pr2 (iscontrpr1 (abgr_epi_CokernelOut_iscontr h H (f x)))
+               (make_hfiber f x (idpath _))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_epi_cokernel_isCokernel</span> :
+    isCokernel abgr_Zero (KernelArrow (abgr_Kernel f)) f (abgr_epi_cokernel_eq).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isCokernel.
+    - <span class="nb">intros</span> w h H. use make_iscontr.
+      + <span class="bp">exact</span> (make_abgr_epi_cokernel_isCokernel h H).
+      + <span class="nb">intros</span> t. <span class="bp">exact</span> (abgr_epi_cokernel_isCokernel_uniqueness h H t).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_epi_cokernel</span> :
+    Cokernel abgr_Zero (KernelArrow (abgr_Kernel f)) :=
+    make_Cokernel abgr_Zero (KernelArrow (abgr_Kernel f)) f _ (abgr_epi_cokernel_isCokernel).
+
+  <span class="kn">Definition</span> <span class="nf">abgr_epi_cokernel_comp</span> :
+    CokernelArrow (abgr_epi_cokernel) = f.
+  <span class="kn">Proof</span>.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Epis</span>.
+
+<span class="sd">(** * 6. The category of abelian groups is an abelian category *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abgr_Abelian</span> : AbelianPreCat.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (BinDS := to_BinDirectSums abgr_Additive).
+  use (make_Abelian abelian_group_category).
+  - <span class="nb">apply</span> make_Data1.
+    + <span class="bp">exact</span> abgr_Zero.
+    + <span class="nb">intros</span> X Y. <span class="bp">exact</span> (BinDirectSum_BinProduct abgr_Additive (BinDS X Y)).
+    + <span class="nb">intros</span> X Y. <span class="bp">exact</span> (BinDirectSum_BinCoproduct abgr_Additive (BinDS X Y)).
+  - use make_AbelianData.
+    + <span class="nb">apply</span> make_Data2.
+      * <span class="nb">intros</span> A B f. <span class="bp">exact</span> (abgr_Kernel f).
+      * <span class="nb">intros</span> A B f. <span class="bp">exact</span> (abgr_Cokernel f).
+    + <span class="nb">apply</span> make_MonicsAreKernels.
+      <span class="nb">intros</span> x y M.
+      <span class="bp">exact</span> (KernelisKernel abgr_Zero (abgr_monic_kernel _ (MonicisMonic abelian_group_category M))).
+    + <span class="nb">apply</span> make_EpisAreCokernels.
+      <span class="nb">intros</span> x y E.
+      <span class="bp">exact</span> (CokernelisCokernel abgr_Zero (abgr_epi_cokernel _ (EpiisEpi abelian_group_category E))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 7. An elementwise criterion for isKernel *)</span>
+
+<span class="kn">Section</span> <span class="nf">KernelCriterion</span>.
+
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : abgr}.
+  <span class="kn">Context</span> (<span class="nv">f</span> : abelian_group_morphism X Y).
+  <span class="kn">Context</span> (<span class="nv">g</span> : abelian_group_morphism Y Z).
+  <span class="kn">Context</span> (<span class="nv">ZA</span> : f · g = ZeroArrow (to_Zero abgr_Abelian) _ _).
+  <span class="kn">Context</span> (<span class="nv">H</span> : ∏ (D : hfiber g <span class="mi">0</span>), ∥ hfiber f (pr1 D) ∥).
+  <span class="kn">Context</span> (<span class="nv">isM</span> : isMonic f).
+
+  <span class="kn">Local</span> <span class="kn">Opaque</span> ZeroArrow.
+
+  <span class="kn">Section</span> <span class="nf">UniversalProperty</span>.
+
+    <span class="kn">Context</span> {<span class="nv">W</span> : abgr}.
+    <span class="kn">Context</span> (<span class="nv">h</span> : abelian_group_morphism W Y).
+    <span class="kn">Context</span> (<span class="nv">H'</span> : h · g = ZeroArrow (to_Zero abgr_Abelian) W Z).
+
+    <span class="kn">Definition</span> <span class="nf">abgr_isKernel_iscontr</span>
+      (<span class="nv">w'</span> : W)
+      : iscontr (hfiber f (h w')).
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> &lt;- (@PreAdditive_unel_zero abgr_PreAdditive) <span class="k">in</span> H'.
+      <span class="nb">unfold</span> to_unel <span class="k">in</span> H'.
+      <span class="nb">set</span> (e := abelian_group_morphism_eq H' w').
+      <span class="nb">set</span> (H'' := H (h w' ,, e)).
+      <span class="nb">apply</span> (squash_to_prop H'' (isapropiscontr _)). <span class="nb">intros</span> HH.
+      <span class="nb">induction</span> HH <span class="k">as</span> [H1 H2].
+      use tpair.
+      - use tpair.
+        + <span class="bp">exact</span> H1.
+        + <span class="bp">exact</span> H2.
+      - <span class="nb">intros</span> T. <span class="nb">induction</span> T <span class="k">as</span> [T1 T2].
+        <span class="nb">apply</span> subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> setproperty.
+        }
+        <span class="nb">apply</span> (abgr_monic_paths f isM T1 H1).
+        <span class="nb">rewrite</span> H2. <span class="nb">rewrite</span> T2. <span class="bp">reflexivity</span>.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">abgr_isKernel_Criteria_isbinopfun</span>
+      : isbinopfun (<span class="k">λ</span> <span class="nv">w'</span> : (W : abgr), pr1 (iscontrpr1 (abgr_isKernel_iscontr w'))).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y. <span class="nb">apply</span> (abgr_monic_paths f isM).
+      <span class="nb">refine</span> (_ @ ! binopfunisbinopfun (f : abelian_group_morphism _ _) _ _).
+      <span class="nb">refine</span> (pr2 (iscontrpr1 (abgr_isKernel_iscontr (x + y))) @ _).
+      <span class="nb">refine</span> (binopfunisbinopfun (h : abelian_group_morphism _ _) _ _ @ _).
+      <span class="nb">apply</span> pathsinv0.
+      use two_arg_paths.
+      + <span class="bp">exact</span> (pr2 (iscontrpr1 (abgr_isKernel_iscontr x))).
+      + <span class="bp">exact</span> (pr2 (iscontrpr1 (abgr_isKernel_iscontr y))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">abgr_isKernel_Criteria_comm</span>
+      : make_abelian_group_morphism _ abgr_isKernel_Criteria_isbinopfun · f = h.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x.
+      <span class="bp">exact</span> (pr2 (iscontrpr1 (abgr_isKernel_iscontr x))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_abgr_isKernel_Criteria</span> :
+      ∑ ψ : abgr_Abelian ⟦W, X⟧, ψ · f = h
+      := _ ,, abgr_isKernel_Criteria_comm.
+
+    <span class="kn">Lemma</span> <span class="nf">abgr_isKernel_Criteria_uniqueness</span>
+          (<span class="nv">t</span> : ∑ ψ : abgr_Abelian ⟦W, X⟧, ψ · f = h) :
+      t = make_abgr_isKernel_Criteria.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">apply</span> abelian_group_morphism_eq. <span class="nb">intros</span> x.
+      <span class="nb">apply</span> (abgr_monic_paths f isM).
+      <span class="nb">refine</span> (abelian_group_morphism_eq (pr2 t) x @ !_).
+      <span class="bp">exact</span> (pr2 (iscontrpr1 (abgr_isKernel_iscontr x))).
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">UniversalProperty</span>.
+
+  <span class="kn">Definition</span> <span class="nf">abgr_isKernel_Criteria</span> : isKernel (to_Zero abgr_Abelian) f g ZA.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isKernel.
+    - <span class="nb">intros</span> w h H'. use make_iscontr.
+      + <span class="bp">exact</span> (make_abgr_isKernel_Criteria h H').
+      + <span class="nb">intros</span> t. <span class="bp">exact</span> (abgr_isKernel_Criteria_uniqueness h H' t).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">KernelCriterion</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/AbelianGroup.v</tt>, line 39)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   7. An elementwise criterion for isKernel [abgr_isKernel_Criteria]
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.Algebra.BinaryOperations.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Unit.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> The unit DCPO</span>
+
+<span class="sd"> In this file we give the unit DCPO and we prove properties about</span>
+<span class="sd"> it.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Definition of the unit DCPO</span>
+<span class="sd"> 2. The unit DCPO is pointed</span>
+<span class="sd"> 3. The universal property</span>
+<span class="sd"> 4. The way below relation</span>
+<span class="sd"> 5. A basis for the unit DCPO</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.PointedPosets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.MonotoneFunctions.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottContinuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.WayBelow.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Basis.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Continuous.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. The unit DCPO</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">unit_dcpo_struct</span>
+  : dcpo_struct unitset.
+<span class="kn">Proof</span>.
+  use make_dcpo_struct.
+  - <span class="bp">exact</span> unit_PartialOrder.
+  - <span class="nb">intros</span> I D HD.
+    use make_lub.
+    + <span class="bp">exact</span> tt.
+    + <span class="nb">split</span>.
+      * <span class="kp">abstract</span>
+          (<span class="nb">intro</span> i ; <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> tt).
+      * <span class="kp">abstract</span>
+          (<span class="nb">intros</span> i Hi ; <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_dcpo</span>
+  : dcpo
+  := _ ,, unit_dcpo_struct.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. The unit DCPO is pointed</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">unit_dcppo_struct</span>
+  : dcppo_struct unitset.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (unit_dcpo_struct ,, _).
+  <span class="nb">refine</span> (tt ,, _).
+  <span class="kp">abstract</span>
+    (<span class="nb">intro</span> x ;
+     <span class="nb">cbn</span> ;
+     <span class="bp">exact</span> tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_dcppo</span>
+  : dcppo
+  := _ ,, unit_dcppo_struct.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. The universal property</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">is_scott_continuous_to_unit</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">DX</span> : dcpo_struct X)
+  : is_scott_continuous DX unit_dcpo_struct (<span class="k">λ</span> <span class="nv">_</span>, tt).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y p.
+    <span class="bp">exact</span> tt.
+  - <span class="nb">intros</span> I D HD x Hx.
+    <span class="nb">split</span>.
+    + <span class="nb">intro</span> ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> tt.
+    + <span class="nb">intros</span> ? ? ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> tt.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. The way below relation</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">unit_dcpo_way_below</span>
+            (<span class="nv">x</span> <span class="nv">y</span> : unit_dcpo)
+  : x ≪ y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> D HD.
+  <span class="nb">assert</span> (H := directed_set_el D).
+  <span class="nb">revert</span> H.
+  use factor_through_squash.
+  {
+    <span class="nb">apply</span> propproperty.
+  }
+  <span class="nb">intro</span> d.
+  <span class="bp">exact</span> (hinhpr (d ,, tt)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. A basis for the unit DCPO</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">unit_dcpo_basis_data</span>
+  : dcpo_basis_data unit_dcpo.
+<span class="kn">Proof</span>.
+  use make_dcpo_basis_data.
+  - <span class="bp">exact</span> unit.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">unit_dcpo_basis_laws</span>
+  : dcpo_basis_laws unit_dcpo unit_dcpo_basis_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    + <span class="nb">refine</span> (hinhpr (tt ,, _)).
+      <span class="nb">apply</span> unit_dcpo_way_below.
+    + <span class="nb">intros</span> i j.
+      <span class="nb">refine</span> (hinhpr ((tt ,, _) ,, (tt ,, tt))).
+      <span class="nb">apply</span> unit_dcpo_way_below.
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span> ; <span class="bp">exact</span> tt.
+    + <span class="nb">intros</span> ? ?.
+      <span class="bp">exact</span> tt.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_dcpo_basis</span>
+  : dcpo_basis unit_dcpo.
+<span class="kn">Proof</span>.
+  use make_dcpo_basis.
+  - <span class="bp">exact</span> unit_dcpo_basis_data.
+  - <span class="bp">exact</span> unit_dcpo_basis_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dcpo_continuous_struct_unit</span>
+  : continuous_dcpo_struct unit_dcpo.
+<span class="kn">Proof</span>.
+  use continuous_struct_from_basis.
+  <span class="bp">exact</span> unit_dcpo_basis.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Examples/Unit.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. A basis for the unit DCPO
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+  &gt; Require Import UniMath.OrderTheory.Posets.PointedPosets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

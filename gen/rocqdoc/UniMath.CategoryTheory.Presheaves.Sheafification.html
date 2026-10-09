@@ -1,0 +1,640 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.CategoryTheory.Presheaves.Sheafification</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.CategoryTheory.Presheaves.Sheafification</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+
+<div class="paragraph"> </div>
+
+ Sheafification
+
+<div class="paragraph"> </div>
+
+ Let `C` be a site. A central result in the theory of sheaves is that the inclusion functor
+ from the category of sheaves over `C` to the category of presheaves over `C` has a left
+ adjoint, called sheafification. Intuitively, this result says that every presheaf `F` over
+ `C` can be completed into a sheaf `a(F)`, and natural transformations from `a(F)` to some
+ sheaf `G` are the same as natural transformations from the presheaf `F` to `G`. In addition,
+ sheafification preserves finite limits, and it is a canonical example of a geometric
+ morphism between toposes.
+
+<div class="paragraph"> </div>
+
+ In this file, we construct the sheafification and show that it is left adjoint to the
+ inclusion. Our approach is based on Section V.3 in 'Sheaves in Geometry and Logic' by
+ Mac Lane and Moerdijk. Usually, the sheafification is constructed using the ++-construction,
+ but we refrain from doing so. The reasoning is as follows. We can construct the sheafification
+ as an infinitary quotient inductive type, and we can construct this quotient inductive type
+ in two steps using quotient types. However, there is an issue if we use quotient types: we
+ need some version of choice (axiom of multiple choice or WISC) to get this construction to
+ work. The construction in Section V.3 of 'Sheaves in Geometry and Logic' is different, and
+ one does not need any form of choice for this construction.
+
+<div class="paragraph"> </div>
+
+ Let `F` be a presheaf over `C`. We write `Ω` for the subobject classifier of presheaves over
+ `C` and we write `Ω<i>j` for the subobject classifier of sheaves over `C`. To construct the
+ sheafification of `F`, we take the following steps.
+ 1. We observe that we have a morphism `F --&gt; Ω^F`. Intuitively, this morphism maps every
+    element to a singleton set.
+ 2. By composition, we observe that we have a morphism `F --&gt; Ω<i>j^F`. It is important to note
+    that `Ω<i>j^F` is a sheaf. This is because `Ω<i>j` is a sheaf and because sheaves form an
+    exponential ideal in the category of presheaves. Concretely, this means that whenever we
+    have a presheaf `G₁` and ` sheaf `G₂`, then `G₂^G₁` is a sheaf.
+ 3. We take the image factorisation the morphism `F --&gt; Ω<i>j^F`, which gives us a subobject
+    `im` of `Ω<i>j^F`. Note that `im` is a separated presheaf (i.e., amalgamations of matching
+    families are unique, but they might not exist), and that `im` is a subobject of the sheaf
+    `Ω<i>j^F`.
+ 4. Since `im` is a subobject of a sheaf, we can take its closure to obtain a sheaf `a(F)`.
+    This sheaf is the sheafification of `F`.
+
+<div class="paragraph"> </div>
+
+ The universal property of sheafification can be proven rather nicely from this construction.
+ It is based on two observations.
+ 1. In any topos, the image of a map is the coequaliser of its kernel pair. From this
+    observation, we get a universal property that allows to make maps from the image to any
+    sheaf.
+ 2. If we have some presheaf `F` and a sheaf `G`, then maps from the closure of `F` to `G`
+    are the same as maps from `F` to `G`.
+ We can directly prove the universal property of sheafification (i.e., sheafification is a
+ left adjoint) by combining these observations. Since the inclusion from sheaves into
+ presheaves is fully faithful, we get that the category of sheaves us a reflective subcategory
+ of the category of sheaves. Hence, the sheafification of a sheaf `F` is ismorphic to `F`.
+ Since the terminal presheaf is a sheaf, we can directly prove that sheafification preserves
+ terminal objects.
+
+<div class="paragraph"> </div>
+
+ If `Y` is some set, then the constant presheaf on `Y` is not necessarily a sheaf. There is
+ a simple counterexample to this. Let `X` be a topological space that is not connected, which
+ means that we can write `X` as the disjoint union of two open sets `X₁` and `X₂`. We consider
+ the constant presheaf over `X` that maps every open set to the natural numbers. This constant
+ presheaf is not a sheaf. We have an open cover given by `X₁` and `X₂`, and over that cover we
+ construct the following matching family: `X₁` gets mapped to `1` and `X₂` gets mapped to `2`.
+ This matching family does not have an amalgamation since `1` and `2` are unequal.
+
+<div class="paragraph"> </div>
+
+ We can use sheafification to construct constant sheaves. If `Y` is some set, then the constant
+ sheaf on `Y` is defined to be the sheafification of the constant presheaf on `Y`. We can also
+ construct the natural numbers object of sheaves using sheafification.
+
+<div class="paragraph"> </div>
+
+ References
+<ul class="doclist">
+<li> 'Sheaves in Geometry and Logic' by Mac Lane and Moerdijk
+
+</li>
+</ul>
+
+<div class="paragraph"> </div>
+
+ Content
+ 1. Some preliminary notation
+ 2. The construction of the sheafification
+ 2.1. Step 1: the singleton map into the power sheaf
+ 2.2. Step 2: the image of singleton map into the power sheaf
+ 2.3. Step 3: the sheafification as the closure of the image
+ 3. The universal property of the sheafification
+ 4. Sheafification is a left adjoint
+ 5. Sheafification of sheaves
+ 6. Preservation of terminal objects
+ 7. Constant sheaves
+ 8. Natural numbers object of sheaves
+
+<div class="paragraph"> </div>
+
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#"><span class="id" title="library">UniMath.CategoryTheory.Adjunctions.Core</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Reflections.html#"><span class="id" title="library">UniMath.CategoryTheory.Adjunctions.Reflections</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Arithmetic.NNO.html#"><span class="id" title="library">UniMath.CategoryTheory.Arithmetic.NNO</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Arithmetic.NNOLeftAdjoint.html#"><span class="id" title="library">UniMath.CategoryTheory.Arithmetic.NNOLeftAdjoint</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.FunctorCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.FunctorCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.All.html#"><span class="id" title="library">UniMath.CategoryTheory.Categories.HSET.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.DisplayedCats.Fiber.html#"><span class="id" title="library">UniMath.CategoryTheory.DisplayedCats.Fiber</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Terminal</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.BinProducts</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Pullbacks.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Pullbacks</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Preservation</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monics.html#"><span class="id" title="library">UniMath.CategoryTheory.Monics</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.DependentPresheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.DependentPresheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.Constructions</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.TotalPresheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.TotalPresheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.SubobjectClassifier</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifierSheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.SubobjectClassifierSheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sites.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.Sites</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.Sheaves</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.ConstructionsSheaves.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.ConstructionsSheaves</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosedSieves.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.ClosedSieves</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.PiTypes</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiSheaf.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.PiSheaf</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosureSubobject.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.ClosureSubobject</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.NaturalNumbers.html#"><span class="id" title="library">UniMath.CategoryTheory.Presheaves.NaturalNumbers</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Sheafification" class="idref" href="#Sheafification"><span class="id" title="section">Sheafification</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Sheafification.C" class="idref" href="#Sheafification.C"><span class="id" title="variable">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sites.html#site"><span class="id" title="definition">site</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Sheafification.F" class="idref" href="#Sheafification.F"><span class="id" title="variable">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:1"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3478"></a><h1 class="section">1. Some preliminary notation</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Sheafification.power_psh" class="idref" href="#Sheafification.power_psh"><span class="id" title="variable">power_psh</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> := <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#exp_psh"><span class="id" title="definition">exp_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#subobject_classifier_psh"><span class="id" title="definition">subobject_classifier_psh</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Let</span> <a id="Sheafification.power_sheaf" class="idref" href="#Sheafification.power_sheaf"><span class="id" title="variable">power_sheaf</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf"><span class="id" title="definition">sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.C"><span class="id" title="variable">C</span></a> := <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiSheaf.html#exp_sheaf"><span class="id" title="definition">exp_sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifierSheaf.html#subobject_classifier_sheaf"><span class="id" title="definition">subobject_classifier_sheaf</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="power_sheaf_to_power_psh" class="idref" href="#power_sheaf_to_power_psh"><span class="id" title="definition">power_sheaf_to_power_psh</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.power_sheaf"><span class="id" title="variable">power_sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.power_psh"><span class="id" title="variable">power_psh</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#exp_psh_fun_cod"><span class="id" title="definition">exp_psh_fun_cod</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifierSheaf.html#subobject_classifier_sheaf_inclusion"><span class="id" title="definition">subobject_classifier_sheaf_inclusion</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="power_psh_to_power_sheaf" class="idref" href="#power_psh_to_power_sheaf"><span class="id" title="definition">power_psh_to_power_sheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.power_psh"><span class="id" title="variable">power_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.power_sheaf"><span class="id" title="variable">power_sheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#exp_psh_fun_cod"><span class="id" title="definition">exp_psh_fun_cod</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifierSheaf.html#subobject_classifier_psh_closure"><span class="id" title="definition">subobject_classifier_psh_closure</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="diagonal_sieve_nat_trans" class="idref" href="#diagonal_sieve_nat_trans"><span class="id" title="definition">diagonal_sieve_nat_trans</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.BinProducts.html#BinProduct_of_functors"><span class="id" title="definition">BinProduct_of_functors</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Limits.html#BinProductsHSET"><span class="id" title="lemma">BinProductsHSET</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#subobject_classifier_psh"><span class="id" title="definition">subobject_classifier_psh</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#make_nat_trans"><span class="id" title="definition">make_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">xx</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#sieve_of_equality"><span class="id" title="definition">sieve_of_equality</span></a> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">xx</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">xx</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> [ <span class="id" title="var">xx</span> <span class="id" title="var">yy</span> ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#sieve_eq"><span class="id" title="definition">sieve_eq</span></a> ; <span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[ <span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">g</span> <span class="id" title="var">p</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#eqtohomot"><span class="id" title="definition">eqtohomot</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <span class="id" title="var">f</span> <span class="id" title="var">g</span>) <span class="id" title="var">xx</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.Foundations.PartA.html#eqtohomot"><span class="id" title="definition">eqtohomot</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <span class="id" title="var">f</span> <span class="id" title="var">g</span>) <span class="id" title="var">yy</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;| <span class="id" title="tactic">intros</span> <span class="id" title="var">z</span> <span class="id" title="var">g</span> <span class="id" title="var">p</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.Foundations.PartA.html#eqtohomot"><span class="id" title="definition">eqtohomot</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <span class="id" title="var">f</span> <span class="id" title="var">g</span>) <span class="id" title="var">xx</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#eqtohomot"><span class="id" title="definition">eqtohomot</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <span class="id" title="var">f</span> <span class="id" title="var">g</span>) <span class="id" title="var">yy</span>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">p</span> ]).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3479"></a><h1 class="section">2. The construction of the sheafification</h1>
+
+<div class="paragraph"> </div>
+
+<a id="lab3480"></a><h2 class="section">2.1. Step 1: the singleton map into the power sheaf</h2>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="singleton_power_psh" class="idref" href="#singleton_power_psh"><span class="id" title="definition">singleton_power_psh</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.power_psh"><span class="id" title="variable">power_psh</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Presheaves.PiTypes.html#exp_psh_lam"><span class="id" title="definition">exp_psh_lam</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#diagonal_sieve_nat_trans"><span class="id" title="definition">diagonal_sieve_nat_trans</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="singleton_power_sheaf" class="idref" href="#singleton_power_sheaf"><span class="id" title="definition">singleton_power_sheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.power_sheaf"><span class="id" title="variable">power_sheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_comp"><span class="id" title="definition">nat_trans_comp</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_psh"><span class="id" title="definition">singleton_power_psh</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#power_psh_to_power_sheaf"><span class="id" title="definition">power_psh_to_power_sheaf</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3481"></a><h1 class="section">2.2. Step 2: the image of singleton map into the power sheaf</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="singleton_power_sheaf_im" class="idref" href="#singleton_power_sheaf_im"><span class="id" title="definition">singleton_power_sheaf_im</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.C"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#psh_nat_trans_im"><span class="id" title="definition">psh_nat_trans_im</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf"><span class="id" title="definition">singleton_power_sheaf</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="singleton_power_sheaf_to_im" class="idref" href="#singleton_power_sheaf_to_im"><span class="id" title="definition">singleton_power_sheaf_to_im</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf_im"><span class="id" title="definition">singleton_power_sheaf_im</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#psh_nat_trans_to_im"><span class="id" title="definition">psh_nat_trans_to_im</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf"><span class="id" title="definition">singleton_power_sheaf</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="singleton_power_sheaf_im_incl" class="idref" href="#singleton_power_sheaf_im_incl"><span class="id" title="definition">singleton_power_sheaf_im_incl</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf_im"><span class="id" title="definition">singleton_power_sheaf_im</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.power_sheaf"><span class="id" title="variable">power_sheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#psh_nat_trans_im_incl"><span class="id" title="definition">psh_nat_trans_im_incl</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf"><span class="id" title="definition">singleton_power_sheaf</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="isMonic_singleton_power_sheaf_im_incl" class="idref" href="#isMonic_singleton_power_sheaf_im_incl"><span class="id" title="lemma">isMonic_singleton_power_sheaf_im_incl</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Monics.html#isMonic"><span class="id" title="definition">isMonic</span></a> (<span class="id" title="var">C</span> := <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#::cat:'PreShv'_x"><span class="id" title="notation">PreShv</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.C"><span class="id" title="variable">C</span></a>) <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf_im_incl"><span class="id" title="definition">singleton_power_sheaf_im_incl</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#isMonic_psh_nat_trans_im_incl"><span class="id" title="lemma">isMonic_psh_nat_trans_im_incl</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3482"></a><h1 class="section">2.3. Step 3: the sheafification as the closure of the image</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="sheafification" class="idref" href="#sheafification"><span class="id" title="definition">sheafification</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf"><span class="id" title="definition">sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.C"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosureSubobject.html#closure_subobject"><span class="id" title="definition">closure_subobject</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#isMonic_singleton_power_sheaf_im_incl"><span class="id" title="lemma">isMonic_singleton_power_sheaf_im_incl</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="nat_trans_to_sheafification" class="idref" href="#nat_trans_to_sheafification"><span class="id" title="definition">nat_trans_to_sheafification</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification"><span class="id" title="definition">sheafification</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_comp"><span class="id" title="definition">nat_trans_comp</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf_to_im"><span class="id" title="definition">singleton_power_sheaf_to_im</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosureSubobject.html#closure_subobject_mor"><span class="id" title="definition">closure_subobject_mor</span></a> <span class="id" title="var">_</span>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3483"></a><h1 class="section">3. The universal property of the sheafification</h1>
+
+</div>
+<div class="code">
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Sheafification.G" class="idref" href="#Sheafification.G"><span class="id" title="variable">G</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf"><span class="id" title="definition">sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.C"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="80eadf4ae66ad6bf85b0c36c443d563f" class="idref" href="#80eadf4ae66ad6bf85b0c36c443d563f"><span class="id" title="variable">τ</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#G:3"><span class="id" title="variable">G</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="singleton_power_sheaf_el_eq_closed" class="idref" href="#singleton_power_sheaf_el_eq_closed"><span class="id" title="lemma">singleton_power_sheaf_el_eq_closed</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:5" class="idref" href="#x:5"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.C"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="c28f6d572870cacf9e5cc17ed071f0f6" class="idref" href="#c28f6d572870cacf9e5cc17ed071f0f6"><span class="id" title="binder">xx₁</span></a> <a id="c2bc4ef327c65168928f72676d1965ec" class="idref" href="#c2bc4ef327c65168928f72676d1965ec"><span class="id" title="binder">xx₂</span></a> : (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#x:5"><span class="id" title="variable">x</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>)}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:8" class="idref" href="#p:8"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf"><span class="id" title="definition">singleton_power_sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#x:5"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#c28f6d572870cacf9e5cc17ed071f0f6"><span class="id" title="variable">xx₁</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf"><span class="id" title="definition">singleton_power_sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#x:5"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#c2bc4ef327c65168928f72676d1965ec"><span class="id" title="variable">xx₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.C"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#x:5"><span class="id" title="variable">x</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#sieve_of_equality"><span class="id" title="definition">sieve_of_equality</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#c28f6d572870cacf9e5cc17ed071f0f6"><span class="id" title="variable">xx₁</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#c2bc4ef327c65168928f72676d1965ec"><span class="id" title="variable">xx₂</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosedSieves.html#closure_closed_sieve"><span class="id" title="definition">closure_closed_sieve</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#sieve_of_equality"><span class="id" title="definition">sieve_of_equality</span></a> <span class="id" title="var">xx₁</span> <span class="id" title="var">xx₂</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosedSieves.html#truth_closed_sieve"><span class="id" title="definition">truth_closed_sieve</span></a> <span class="id" title="var">_</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">H</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">assert</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf"><span class="id" title="definition">singleton_power_sheaf</span></a> <span class="id" title="var">x</span> <span class="id" title="var">xx₁</span>) <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf"><span class="id" title="definition">singleton_power_sheaf</span></a> <span class="id" title="var">x</span> <span class="id" title="var">xx₂</span>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="keyword">as</span> <span class="id" title="var">q₁</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#fiber_paths"><span class="id" title="definition">fiber_paths</span></a> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">enough</span> (<a class="idref" href="UniMath.Foundations.PartA.html#base_paths"><span class="id" title="lemma">base_paths</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf"><span class="id" title="definition">singleton_power_sheaf</span></a> <span class="id" title="var">x</span> <span class="id" title="var">xx₁</span>) (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf"><span class="id" title="definition">singleton_power_sheaf</span></a> <span class="id" title="var">x</span> <span class="id" title="var">xx₂</span>) <span class="id" title="var">p</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a> <span class="id" title="var">_</span>) <span class="id" title="keyword">as</span> -&gt;.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isapropunit"><span class="id" title="definition">isapropunit</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">pose</span> <span class="id" title="var">proof</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="z:9" class="idref" href="#z:9"><span class="id" title="binder"><span id="z:10" class="id">z</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#z:9"><span class="id" title="variable">z</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">_</span>) <span class="id" title="var">xx₁</span>) <span class="id" title="var">q₁</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">q₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">q₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">pose</span> <span class="id" title="var">proof</span> (<a class="idref" href="UniMath.Foundations.PartA.html#fiber_paths"><span class="id" title="definition">fiber_paths</span></a> <span class="id" title="var">q₂</span>) <span class="id" title="keyword">as</span> <span class="id" title="var">q₃</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">q₃</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportf_const"><span class="id" title="definition">transportf_const</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">q₃</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">q₃</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">clear</span> <span class="id" title="var">q₁</span> <span class="id" title="var">q₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !<a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#id_precomp_sieve"><span class="id" title="lemma">id_precomp_sieve</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">q₃</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !(<a class="idref" href="UniMath.Foundations.PartA.html#eqtohomot"><span class="id" title="definition">eqtohomot</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">x</span>) (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">x</span>))) <span class="id" title="tactic">in</span> <span class="id" title="var">q₃</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">q₃</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> !(<a class="idref" href="UniMath.Foundations.PartA.html#eqtohomot"><span class="id" title="definition">eqtohomot</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_id"><span class="id" title="definition">functor_id</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <span class="id" title="var">x</span>)) <span class="id" title="tactic">in</span> <span class="id" title="var">q₃</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">q₃</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#sieve_of_equality_refl"><span class="id" title="lemma">sieve_of_equality_refl</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">q₃</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">q₃</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosedSieves.html#closed_sieve_eq"><span class="id" title="lemma">closed_sieve_eq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosedSieves.html#closure_closed_sieve_eq"><span class="id" title="lemma">closure_closed_sieve_eq</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosedSieves.html#truth_closed_sieve"><span class="id" title="definition">truth_closed_sieve</span></a> <span class="id" title="var">x</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<span class="id" title="var">H'</span> := <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#from_sieve_eq_r"><span class="id" title="definition">from_sieve_eq_r</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosedSieves.html#sieve_eq_from_closed"><span class="id" title="lemma">sieve_eq_from_closed</span></a> <span class="id" title="var">H</span>) (<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> <span class="id" title="var">_</span>) <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> <span class="id" title="var">H'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#id_precomp_sieve"><span class="id" title="lemma">id_precomp_sieve</span></a> <span class="id" title="tactic">in</span> <span class="id" title="var">H'</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">H'</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="singleton_power_sheaf_el_eq_matching_family" class="idref" href="#singleton_power_sheaf_el_eq_matching_family"><span class="id" title="definition">singleton_power_sheaf_el_eq_matching_family</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:11" class="idref" href="#x:11"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.C"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="07fbab92111d580a4f739382e22c9c6b" class="idref" href="#07fbab92111d580a4f739382e22c9c6b"><span class="id" title="binder">xx₁</span></a> <a id="93215369654da1f70a7324773dae04ac" class="idref" href="#93215369654da1f70a7324773dae04ac"><span class="id" title="binder">xx₂</span></a> : (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#x:11"><span class="id" title="variable">x</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#matching_family"><span class="id" title="definition">matching_family</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.G"><span class="id" title="variable">G</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#sieve_of_equality"><span class="id" title="definition">sieve_of_equality</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#07fbab92111d580a4f739382e22c9c6b"><span class="id" title="variable">xx₁</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#93215369654da1f70a7324773dae04ac"><span class="id" title="variable">xx₂</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#make_matching_family"><span class="id" title="definition">make_matching_family</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="y:14" class="idref" href="#y:14"><span class="id" title="binder"><span id="y:17" class="id">y</span></span></a> <a id="f:15" class="idref" href="#f:15"><span class="id" title="binder"><span id="f:18" class="id">f</span></span></a> <a id="q:16" class="idref" href="#q:16"><span class="id" title="binder"><span id="q:19" class="id">q</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#80eadf4ae66ad6bf85b0c36c443d563f"><span class="id" title="variable">τ</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#y:14"><span class="id" title="variable">y</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#</span></a><a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">f</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">xx₁</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">y₁</span> <span class="id" title="var">y₂</span> <span class="id" title="var">f₁</span> <span class="id" title="var">f₂</span> <span class="id" title="var">g</span> <span class="id" title="var">p</span> <span class="id" title="var">q</span> <span class="id" title="var">r</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">p</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.Foundations.PartA.html#eqtohomot"><span class="id" title="definition">eqtohomot</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_ax"><span class="id" title="definition">nat_trans_ax</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#80eadf4ae66ad6bf85b0c36c443d563f"><span class="id" title="variable">τ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">g</span>) <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">_</span>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#eqtohomot"><span class="id" title="definition">eqtohomot</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_comp"><span class="id" title="definition">functor_comp</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <span class="id" title="var">f₂</span> <span class="id" title="var">g</span>) <span class="id" title="var">xx₁</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="singleton_power_sheaf_el_eq" class="idref" href="#singleton_power_sheaf_el_eq"><span class="id" title="lemma">singleton_power_sheaf_el_eq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="x:20" class="idref" href="#x:20"><span class="id" title="binder">x</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.C"><span class="id" title="variable">C</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="e8272509c2060e43e4a550ca41c393ba" class="idref" href="#e8272509c2060e43e4a550ca41c393ba"><span class="id" title="binder">xx₁</span></a> <a id="bd6274c3b3681b95af4ba61be310ba78" class="idref" href="#bd6274c3b3681b95af4ba61be310ba78"><span class="id" title="binder">xx₂</span></a> : (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.F"><span class="id" title="variable">F</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#x:20"><span class="id" title="variable">x</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>)}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:23" class="idref" href="#p:23"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf"><span class="id" title="definition">singleton_power_sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#x:20"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#e8272509c2060e43e4a550ca41c393ba"><span class="id" title="variable">xx₁</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf"><span class="id" title="definition">singleton_power_sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#x:20"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#bd6274c3b3681b95af4ba61be310ba78"><span class="id" title="variable">xx₂</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#80eadf4ae66ad6bf85b0c36c443d563f"><span class="id" title="variable">τ</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#x:20"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#e8272509c2060e43e4a550ca41c393ba"><span class="id" title="variable">xx₁</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#80eadf4ae66ad6bf85b0c36c443d563f"><span class="id" title="variable">τ</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#x:20"><span class="id" title="variable">x</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#bd6274c3b3681b95af4ba61be310ba78"><span class="id" title="variable">xx₂</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span> -[<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_psh"><span class="id" title="definition">singleton_power_psh</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#power_psh_to_power_sheaf"><span class="id" title="definition">power_psh_to_power_sheaf</span></a>] <span class="id" title="tactic">in</span> <span class="id" title="var">p</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf_amalgamation_unique"><span class="id" title="definition">sheaf_amalgamation_unique</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#is_sheaf_sheaf"><span class="id" title="lemma">is_sheaf_sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.G"><span class="id" title="variable">G</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.SubobjectClassifier.html#sieve_of_equality"><span class="id" title="definition">sieve_of_equality</span></a> <span class="id" title="var">xx₁</span> <span class="id" title="var">xx₂</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf_el_eq_closed"><span class="id" title="lemma">singleton_power_sheaf_el_eq_closed</span></a> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf_el_eq_matching_family"><span class="id" title="definition">singleton_power_sheaf_el_eq_matching_family</span></a> <span class="id" title="var">xx₁</span> <span class="id" title="var">xx₂</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.Foundations.PartA.html#eqtohomot"><span class="id" title="definition">eqtohomot</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_ax"><span class="id" title="definition">nat_trans_ax</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#80eadf4ae66ad6bf85b0c36c443d563f"><span class="id" title="variable">τ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">f</span>) <span class="id" title="var">xx₁</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.Foundations.PartA.html#eqtohomot"><span class="id" title="definition">eqtohomot</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_ax"><span class="id" title="definition">nat_trans_ax</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#80eadf4ae66ad6bf85b0c36c443d563f"><span class="id" title="variable">τ</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">f</span>) <span class="id" title="var">xx₂</span><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">rewrite</span> <span class="id" title="var">q</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="nat_trans_from_im" class="idref" href="#nat_trans_from_im"><span class="id" title="definition">nat_trans_from_im</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf_im"><span class="id" title="definition">singleton_power_sheaf_im</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.G"><span class="id" title="variable">G</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#map_from_psh_nat_trans_im"><span class="id" title="definition">map_from_psh_nat_trans_im</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#80eadf4ae66ad6bf85b0c36c443d563f"><span class="id" title="variable">τ</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">a₁</span> <span class="id" title="var">a₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf_el_eq"><span class="id" title="lemma">singleton_power_sheaf_el_eq</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="nat_trans_from_sheafification" class="idref" href="#nat_trans_from_sheafification"><span class="id" title="definition">nat_trans_from_sheafification</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification"><span class="id" title="definition">sheafification</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.G"><span class="id" title="variable">G</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosureSubobject.html#extend_mor_to_closure"><span class="id" title="definition">extend_mor_to_closure</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_from_im"><span class="id" title="definition">nat_trans_from_im</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="nat_trans_from_sheafification_eq" class="idref" href="#nat_trans_from_sheafification_eq"><span class="id" title="lemma">nat_trans_from_sheafification_eq</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#80eadf4ae66ad6bf85b0c36c443d563f"><span class="id" title="variable">τ</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_comp"><span class="id" title="definition">nat_trans_comp</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_to_sheafification"><span class="id" title="definition">nat_trans_to_sheafification</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_from_sheafification"><span class="id" title="definition">nat_trans_from_sheafification</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_eq"><span class="id" title="lemma">nat_trans_eq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">xx</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_from_sheafification"><span class="id" title="definition">nat_trans_from_sheafification</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">etrans</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosureSubobject.html#extend_mor_to_closure_restrict_pt"><span class="id" title="lemma">extend_mor_to_closure_restrict_pt</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#isMonic_singleton_power_sheaf_im_incl"><span class="id" title="lemma">isMonic_singleton_power_sheaf_im_incl</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.G"><span class="id" title="variable">G</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_from_im"><span class="id" title="definition">nat_trans_from_im</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf_to_im"><span class="id" title="definition">singleton_power_sheaf_to_im</span></a> <span class="id" title="var">x</span> <span class="id" title="var">xx</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#map_from_psh_nat_trans_im_comm_pt"><span class="id" title="lemma">map_from_psh_nat_trans_im_comm_pt</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proposition</span> <a id="nat_trans_from_sheafification_unique" class="idref" href="#nat_trans_from_sheafification_unique"><span class="id" title="lemma">nat_trans_from_sheafification_unique</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="28c5822cd57c094999e825b25a75513e" class="idref" href="#28c5822cd57c094999e825b25a75513e"><span class="id" title="binder">θ</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf_nat_trans"><span class="id" title="definition">sheaf_nat_trans</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification"><span class="id" title="definition">sheafification</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification.G"><span class="id" title="variable">G</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="p:25" class="idref" href="#p:25"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#80eadf4ae66ad6bf85b0c36c443d563f"><span class="id" title="variable">τ</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_comp"><span class="id" title="definition">nat_trans_comp</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_to_sheafification"><span class="id" title="definition">nat_trans_to_sheafification</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#28c5822cd57c094999e825b25a75513e"><span class="id" title="variable">θ</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#28c5822cd57c094999e825b25a75513e"><span class="id" title="variable">θ</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_from_sheafification"><span class="id" title="definition">nat_trans_from_sheafification</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosureSubobject.html#extend_mor_to_closure_unique"><span class="id" title="lemma">extend_mor_to_closure_unique</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_from_im"><span class="id" title="definition">nat_trans_from_im</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#map_from_psh_nat_trans_im_unique_mor"><span class="id" title="lemma">map_from_psh_nat_trans_im_unique_mor</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#80eadf4ae66ad6bf85b0c36c443d563f"><span class="id" title="variable">τ</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">c</span> <span class="id" title="var">a₁</span> <span class="id" title="var">a₂</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#singleton_power_sheaf_el_eq"><span class="id" title="lemma">singleton_power_sheaf_el_eq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_eq"><span class="id" title="lemma">nat_trans_eq</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.UnivalenceAxiom.html#funextsec"><span class="id" title="definition">funextsec</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intro</span> <span class="id" title="var">xx</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Constructions.html#map_from_psh_nat_trans_im_comm"><span class="id" title="lemma">map_from_psh_nat_trans_im_comm</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.ClosureSubobject.html#extend_mor_to_closure_restrict"><span class="id" title="lemma">extend_mor_to_closure_restrict</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Sheafification"><span class="id" title="section">Sheafification</span></a>.<br/>
+
+<br/>
+#[<span class="id" title="var">global</span>] <span class="id" title="keyword">Opaque</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification"><span class="id" title="definition">sheafification</span></a>.<br/>
+#[<span class="id" title="var">global</span>] <span class="id" title="keyword">Opaque</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_to_sheafification"><span class="id" title="definition">nat_trans_to_sheafification</span></a>.<br/>
+#[<span class="id" title="var">global</span>] <span class="id" title="keyword">Opaque</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_from_sheafification"><span class="id" title="definition">nat_trans_from_sheafification</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3484"></a><h1 class="section">4. Sheafification is a left adjoint</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="is_right_adjoint_sheaf_incl" class="idref" href="#is_right_adjoint_sheaf_incl"><span class="id" title="definition">is_right_adjoint_sheaf_incl</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:26" class="idref" href="#C:26"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sites.html#site"><span class="id" title="definition">site</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#is_right_adjoint"><span class="id" title="definition">is_right_adjoint</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf_incl"><span class="id" title="definition">sheaf_incl</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:26"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Reflections.html#reflections_to_is_right_adjoint"><span class="id" title="definition">reflections_to_is_right_adjoint</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">F</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Reflections.html#make_reflection"><span class="id" title="definition">make_reflection</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Reflections.html#make_reflection_data"><span class="id" title="definition">make_reflection_data</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification"><span class="id" title="definition">sheafification</span></a> <span class="id" title="var">F</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_to_sheafification"><span class="id" title="definition">nat_trans_to_sheafification</span></a> <span class="id" title="var">F</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">G</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">G</span> <span class="id" title="keyword">as</span> [ <span class="id" title="var">G</span> τ ].<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#make_iscontr"><span class="id" title="definition">make_iscontr</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">simple</span> <span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#make_sheaf_nat_trans"><span class="id" title="definition">make_sheaf_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_from_sheafification"><span class="id" title="definition">nat_trans_from_sheafification</span></a> <span class="id" title="var">F</span> τ).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;* <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_from_sheafification_eq"><span class="id" title="lemma">nat_trans_from_sheafification_eq</span></a> <span class="id" title="var">F</span> τ).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> [ <span class="id" title="var">θ</span> <span class="id" title="var">p</span> ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartB.html#subtypePath"><span class="id" title="lemma">subtypePath</span></a> ; [ <span class="id" title="tactic">intro</span> ; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#homset_property"><span class="id" title="definition">homset_property</span></a> | ] ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf_nat_trans_eq"><span class="id" title="lemma">sheaf_nat_trans_eq</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#nat_trans_from_sheafification_unique"><span class="id" title="lemma">nat_trans_from_sheafification_unique</span></a> <span class="id" title="var">F</span> <span class="id" title="var">_</span> <span class="id" title="var">θ</span> <span class="id" title="var">p</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="sheafification_functor" class="idref" href="#sheafification_functor"><span class="id" title="definition">sheafification_functor</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:27" class="idref" href="#C:27"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sites.html#site"><span class="id" title="definition">site</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#::cat:'PreShv'_x"><span class="id" title="notation">PreShv</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:27"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#cat_of_sheaves"><span class="id" title="definition">cat_of_sheaves</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:27"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#left_adjoint"><span class="id" title="definition">left_adjoint</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#is_right_adjoint_sheaf_incl"><span class="id" title="definition">is_right_adjoint_sheaf_incl</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:27"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="sheafification_unit" class="idref" href="#sheafification_unit"><span class="id" title="definition">sheafification_unit</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:28" class="idref" href="#C:28"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sites.html#site"><span class="id" title="definition">site</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#8848592016d1c94be2b36b727072e7e0"><span class="id" title="notation">⟹</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification_functor"><span class="id" title="definition">sheafification_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:28"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#938ca2d32d8c8186c2d73ab2872ae3c9"><span class="id" title="notation">∙</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf_incl"><span class="id" title="definition">sheaf_incl</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:28"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#unit_from_right_adjoint"><span class="id" title="definition">unit_from_right_adjoint</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#is_right_adjoint_sheaf_incl"><span class="id" title="definition">is_right_adjoint_sheaf_incl</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:28"><span class="id" title="variable">C</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3485"></a><h1 class="section">5. Sheafification of sheaves</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="sheafification_sheaf" class="idref" href="#sheafification_sheaf"><span class="id" title="definition">sheafification_sheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:29" class="idref" href="#C:29"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sites.html#site"><span class="id" title="definition">site</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:30" class="idref" href="#F:30"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf"><span class="id" title="definition">sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:29"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso"><span class="id" title="definition">z_iso</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification"><span class="id" title="definition">sheafification</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#F:30"><span class="id" title="variable">F</span></a>) <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#F:30"><span class="id" title="variable">F</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">pose</span> (<span class="id" title="var">R</span> := <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#is_right_adjoint_sheaf_incl"><span class="id" title="definition">is_right_adjoint_sheaf_incl</span></a> <span class="id" title="var">C</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#make_z_iso"><span class="id" title="definition">make_z_iso</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#counit_from_right_adjoint"><span class="id" title="definition">counit_from_right_adjoint</span></a> <span class="id" title="var">R</span> <span class="id" title="var">F</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#make_sheaf_nat_trans"><span class="id" title="definition">make_sheaf_nat_trans</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#unit_from_right_adjoint"><span class="id" title="definition">unit_from_right_adjoint</span></a> <span class="id" title="var">R</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf_incl"><span class="id" title="definition">sheaf_incl</span></a> <span class="id" title="var">C</span> <span class="id" title="var">F</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">split</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!</span></a><span class="id" title="var">_</span>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_trans_ax"><span class="id" title="definition">nat_trans_ax</span></a> (<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#counit_from_right_adjoint"><span class="id" title="definition">counit_from_right_adjoint</span></a> <span class="id" title="var">R</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>) ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">!(</span></a><a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">pr122</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#is_right_adjoint_sheaf_incl"><span class="id" title="definition">is_right_adjoint_sheaf_incl</span></a> <span class="id" title="var">C</span><a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">sheaf_incl</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">C</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">F</span></a><a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">)</span></a><a class="idref" href="UniMath.Foundations.PartA.html#9cb4fb5091f5f2b43def279042cc56ef"><span class="id" title="notation">)</span></a>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf_nat_trans_eq"><span class="id" title="lemma">sheaf_nat_trans_eq</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr222'_x"><span class="id" title="notation">pr222</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr222'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#is_right_adjoint_sheaf_incl"><span class="id" title="definition">is_right_adjoint_sheaf_incl</span></a> <span class="id" title="var">C</span><a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr222'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr222'_x"><span class="id" title="notation">F</span></a>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="sheafification_counit" class="idref" href="#sheafification_counit"><span class="id" title="definition">sheafification_counit</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:31" class="idref" href="#C:31"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sites.html#site"><span class="id" title="definition">site</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#nat_z_iso"><span class="id" title="definition">nat_z_iso</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf_incl"><span class="id" title="definition">sheaf_incl</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:31"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#938ca2d32d8c8186c2d73ab2872ae3c9"><span class="id" title="notation">∙</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification_functor"><span class="id" title="definition">sheafification_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:31"><span class="id" title="variable">C</span></a>) (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#functor_identity"><span class="id" title="definition">functor_identity</span></a> <span class="id" title="var">_</span>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.NaturalTransformations.html#make_nat_z_iso"><span class="id" title="definition">make_nat_z_iso</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#counit_from_right_adjoint"><span class="id" title="definition">counit_from_right_adjoint</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#is_right_adjoint_sheaf_incl"><span class="id" title="definition">is_right_adjoint_sheaf_incl</span></a> <span class="id" title="var">C</span>)).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">F</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification_sheaf"><span class="id" title="definition">sheafification_sheaf</span></a> <span class="id" title="var">F</span>)).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="sheafification_triangle_1" class="idref" href="#sheafification_triangle_1"><span class="id" title="lemma">sheafification_triangle_1</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:32" class="idref" href="#C:32"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sites.html#site"><span class="id" title="definition">site</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:33" class="idref" href="#F:33"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:32"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#2e11fa34845c6475af27ac9ab3f166ed"><span class="id" title="notation">⟶</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#(</span></a><a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification_functor"><span class="id" title="definition">sheafification_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:32"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">sheafification_unit</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">F</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification_counit"><span class="id" title="definition">sheafification_counit</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:32"><span class="id" title="variable">C</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification"><span class="id" title="definition">sheafification</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#F:33"><span class="id" title="variable">F</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification"><span class="id" title="definition">sheafification</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#F:33"><span class="id" title="variable">F</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">pr122</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#is_right_adjoint_sheaf_incl"><span class="id" title="definition">is_right_adjoint_sheaf_incl</span></a> <span class="id" title="var">C</span><a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">F</span></a>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Proposition</span> <a id="sheafification_triangle_2" class="idref" href="#sheafification_triangle_2"><span class="id" title="lemma">sheafification_triangle_2</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:34" class="idref" href="#C:34"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sites.html#site"><span class="id" title="definition">site</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="F:35" class="idref" href="#F:35"><span class="id" title="binder">F</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf"><span class="id" title="definition">sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:34"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification_unit"><span class="id" title="definition">sheafification_unit</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:34"><span class="id" title="variable">C</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf_incl"><span class="id" title="definition">sheaf_incl</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:34"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#F:35"><span class="id" title="variable">F</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#6367fc346cda33b52695f0c54f391763"><span class="id" title="notation">·</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">#(</span></a><a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf_incl"><span class="id" title="definition">sheaf_incl</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:34"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">sheafification_counit</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">F</span></a><a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#06fc8e26a36d85b523bb900bd57199b0"><span class="id" title="notation">)</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#6cd0f7b28b6092304087c7049437bb1a"><span class="id" title="notation">=</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#identity"><span class="id" title="definition">identity</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf_incl"><span class="id" title="definition">sheaf_incl</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:34"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#F:35"><span class="id" title="variable">F</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr222'_x"><span class="id" title="notation">pr222</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr222'_x"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#is_right_adjoint_sheaf_incl"><span class="id" title="definition">is_right_adjoint_sheaf_incl</span></a> <span class="id" title="var">C</span><a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr222'_x"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr222'_x"><span class="id" title="notation">F</span></a>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+#[<span class="id" title="var">global</span>] <span class="id" title="keyword">Opaque</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification_functor"><span class="id" title="definition">sheafification_functor</span></a>.<br/>
+#[<span class="id" title="var">global</span>] <span class="id" title="keyword">Opaque</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification_counit"><span class="id" title="definition">sheafification_counit</span></a>.<br/>
+#[<span class="id" title="var">global</span>] <span class="id" title="keyword">Opaque</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification_unit"><span class="id" title="definition">sheafification_unit</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3486"></a><h1 class="section">6. Preservation of terminal objects</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Proposition</span> <a id="preserves_terminal_sheafification" class="idref" href="#preserves_terminal_sheafification"><span class="id" title="lemma">preserves_terminal_sheafification</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:36" class="idref" href="#C:36"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sites.html#site"><span class="id" title="definition">site</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#preserves_terminal"><span class="id" title="definition">preserves_terminal</span></a> (<a class="idref" href="UniMath.CategoryTheory.Adjunctions.Core.html#left_adjoint"><span class="id" title="definition">left_adjoint</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#is_right_adjoint_sheaf_incl"><span class="id" title="definition">is_right_adjoint_sheaf_incl</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:36"><span class="id" title="variable">C</span></a>)).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Preservation.html#preserves_terminal_if_preserves_chosen"><span class="id" title="definition">preserves_terminal_if_preserves_chosen</span></a>.<br/>
+&nbsp;&nbsp;{<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.CategoryTheory.Presheaf.html#Terminal_PreShv"><span class="id" title="lemma">Terminal_PreShv</span></a>.<br/>
+&nbsp;&nbsp;}<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Terminal.html#iso_to_Terminal"><span class="id" title="definition">iso_to_Terminal</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.ConstructionsSheaves.html#sheaf_terminal"><span class="id" title="definition">sheaf_terminal</span></a> <span class="id" title="var">C</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.CategoryTheory.Core.Isos.html#z_iso_inv"><span class="id" title="definition">z_iso_inv</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification_sheaf"><span class="id" title="definition">sheafification_sheaf</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.ConstructionsSheaves.html#terminal_sheaf"><span class="id" title="definition">terminal_sheaf</span></a> <span class="id" title="var">C</span>)).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3487"></a><h1 class="section">7. Constant sheaves</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="constant_sheaf" class="idref" href="#constant_sheaf"><span class="id" title="definition">constant_sheaf</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:37" class="idref" href="#C:37"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sites.html#site"><span class="id" title="definition">site</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="Y:38" class="idref" href="#Y:38"><span class="id" title="binder">Y</span></a> : <a class="idref" href="UniMath.Foundations.Sets.html#hSet"><span class="id" title="definition">hSet</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheaves.html#sheaf"><span class="id" title="definition">sheaf</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:37"><span class="id" title="variable">C</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#sheafification"><span class="id" title="definition">sheafification</span></a> (<a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#constant_functor"><span class="id" title="definition">constant_functor</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:37"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">^</span></a><a class="idref" href="UniMath.CategoryTheory.opp_precat.html#3fe3b9c50e890a929497aff54b35977e"><span class="id" title="notation">op</span></a> <a class="idref" href="UniMath.CategoryTheory.Categories.HSET.Core.html#::cat:'HSET'"><span class="id" title="notation">HSET</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#Y:38"><span class="id" title="variable">Y</span></a>).<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab3488"></a><h1 class="section">8. Natural numbers object of sheaves</h1>
+
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="nno_cat_of_sheaves" class="idref" href="#nno_cat_of_sheaves"><span class="id" title="definition">nno_cat_of_sheaves</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="C:39" class="idref" href="#C:39"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sites.html#site"><span class="id" title="definition">site</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.CategoryTheory.Arithmetic.NNO.html#NNO"><span class="id" title="definition">NNO</span></a> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.ConstructionsSheaves.html#sheaf_terminal"><span class="id" title="definition">sheaf_terminal</span></a> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#C:39"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.CategoryTheory.Arithmetic.NNOLeftAdjoint.html#left_adjoint_on_NNO"><span class="id" title="definition">left_adjoint_on_NNO</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#is_right_adjoint_sheaf_incl"><span class="id" title="definition">is_right_adjoint_sheaf_incl</span></a> <span class="id" title="var">C</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.CategoryTheory.Presheaves.NaturalNumbers.html#nno_cat_of_psh"><span class="id" title="definition">nno_cat_of_psh</span></a> <span class="id" title="var">C</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.CategoryTheory.Presheaves.Sheafification.html#preserves_terminal_sheafification"><span class="id" title="lemma">preserves_terminal_sheafification</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

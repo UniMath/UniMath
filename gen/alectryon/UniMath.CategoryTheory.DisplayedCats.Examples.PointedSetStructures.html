@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PointedSetStructures.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Pointed set structures</span>
+
+<span class="sd"> We define the category of pointed sets as a category of</span>
+<span class="sd"> structured sets. In addition, we construct the smash product.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Structures of pointed sets</span>
+<span class="sd"> 2. Limits and colimits of pointed sets</span>
+<span class="sd"> 3. Pointed sets form a pointed structure</span>
+<span class="sd"> 4. The smash product</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.CartesianStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructureLimitsAndColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Structures.StructuresSmashProduct.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Structures of pointed sets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">struct_pointed_hset_data</span>
+  : hset_struct_data.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, X).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, f x = y).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_pointed_hset_laws</span>
+  : hset_struct_laws struct_pointed_hset_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intro</span> X.
+    <span class="nb">apply</span> setproperty.
+  - <span class="nb">intros</span> X Y px py f.
+    <span class="nb">apply</span> setproperty.
+  - <span class="nb">intros</span> X Y Z px py pz f g p q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">rewrite</span> p, q.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X px px' p q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">struct_pointed_hset</span>
+  : hset_struct
+  := struct_pointed_hset_data ,, struct_pointed_hset_laws.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Limits and colimits of pointed sets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">cartesian_struct_pointed_hset_data</span>
+  : hset_cartesian_struct_data
+  := struct_pointed_hset ,, tt ,, <span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">x</span> <span class="nv">y</span>, x ,, y.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_struct_pointed_hset_laws</span>
+  : hset_cartesian_struct_laws cartesian_struct_pointed_hset_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  <span class="nb">intros</span> W X Y pw px py f g p q ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">unfold</span> prodtofuntoprod ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> p, q.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cartesian_struct_pointed_hset</span>
+  : hset_cartesian_struct
+  := cartesian_struct_pointed_hset_data ,, cartesian_struct_pointed_hset_laws.
+
+<span class="kn">Definition</span> <span class="nf">equalizers_struct_pointed_hset</span>
+  : hset_equalizer_struct struct_pointed_hset.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">px</span> <span class="nv">py</span> <span class="nv">p</span> <span class="nv">q</span>, px ,, _).
+    <span class="kp">abstract</span> (<span class="bp">exact</span> (p @ !q)).
+  - <span class="kp">abstract</span>
+      (<span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span> ;
+       <span class="nb">intros</span> X Y f g px py p q W pw h r s ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+       <span class="bp">exact</span> r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">coequalizers_struct_pointed_hset</span>
+  : hset_coequalizer_struct struct_pointed_hset.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">px</span> <span class="nv">py</span> <span class="nv">p</span> <span class="nv">q</span>, setquotpr _ py).
+  - <span class="kp">abstract</span>
+      (<span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span> ;
+       <span class="nb">intros</span> X Y f g px py p q W pw h r s ;
+       <span class="bp">exact</span> r).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">type_products_struct_pointed_hset</span>
+           (<span class="nv">I</span> : UU)
+  : hset_struct_type_prod struct_pointed_hset I.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">D</span> <span class="nv">fs</span>, fs).
+  - <span class="kp">abstract</span>
+      (<span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span> ;
+       <span class="nb">intros</span> D PD W pw fs pq ;
+       use funextsec ;
+       <span class="bp">exact</span> pq).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Pointed sets form a pointed structure</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">pointed_struct_pointed_hset_data</span>
+  : pointed_hset_struct_data struct_pointed_hset
+  := <span class="k">λ</span> <span class="nv">X</span> <span class="nv">x</span>, x.
+
+<span class="kn">Proposition</span> <span class="nf">pointed_struct_pointed_hset_laws</span>
+  : pointed_hset_struct_laws pointed_struct_pointed_hset_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y PX PY ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y f PX PY Pf ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> Pf.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointed_struct_pointed_hset</span>
+  : pointed_hset_struct struct_pointed_hset
+  := pointed_struct_pointed_hset_data ,, pointed_struct_pointed_hset_laws.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. The smash product</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">pointed_struct_pointed_hset_with_smash_data</span>
+  : hset_struct_with_smash_data
+      cartesian_struct_pointed_hset
+      pointed_struct_pointed_hset.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> false.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">x</span> <span class="nv">y</span>, setquotpr _ (x ,, y)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">pointed_struct_pointed_hset_with_smash_laws</span>
+  : hset_struct_with_smash_laws
+      pointed_struct_pointed_hset_with_smash_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y x y f pf g pg.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> pointed_hset_struct_unit_map.
+    <span class="nb">rewrite</span> pf.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> y.
+    use iscompsetquotpr.
+    <span class="nb">apply</span> hinhpr.
+    use inr.
+    <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> pointed_struct_pointed_hset_data.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (inl (idpath _)).
+    + <span class="bp">exact</span> (inl (idpath _)).
+  - <span class="nb">intro</span> x.
+    use iscompsetquotpr.
+    <span class="nb">apply</span> hinhpr.
+    use inr.
+    <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> pointed_struct_pointed_hset_data.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> (inr (idpath _)).
+    + <span class="bp">exact</span> (inr (idpath _)).
+  - <span class="nb">intros</span> Z z h Ph hp₁ hp₂ hp₃ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> Ph.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointed_struct_pointed_hset_with_smash</span>
+  : hset_struct_with_smash
+      cartesian_struct_pointed_hset
+      pointed_struct_pointed_hset.
+<span class="kn">Proof</span>.
+  use make_hset_struct_with_smash.
+  - <span class="bp">exact</span> pointed_struct_pointed_hset_with_smash_data.
+  - <span class="bp">exact</span> pointed_struct_pointed_hset_with_smash_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointed_struct_pointed_hset_with_smash_closed_pointed</span>
+  : hset_struct_with_smash_closed_pointed
+      pointed_struct_pointed_hset_with_smash.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> ((<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">x</span> <span class="nv">y</span>, (<span class="k">λ</span> <span class="nv">_</span>, y) ,, idpath _) ,, _).
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">pointed_struct_pointed_hset_with_smash_adj_laws</span>
+  : hset_struct_with_smash_closed_adj_laws
+      pointed_struct_pointed_hset_with_smash_closed_pointed.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y Z f.
+    <span class="nb">induction</span> X <span class="k">as</span> [ X x ].
+    <span class="nb">induction</span> Y <span class="k">as</span> [ Y y ].
+    <span class="nb">induction</span> Z <span class="k">as</span> [ Z z ].
+    <span class="nb">induction</span> f <span class="k">as</span> [ f p ].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> (eqtohomot (maponpaths pr1 p) y).
+  - <span class="nb">intros</span> X Y Z f.
+    <span class="nb">induction</span> X <span class="k">as</span> [ X x ].
+    <span class="nb">induction</span> Y <span class="k">as</span> [ Y y ].
+    <span class="nb">induction</span> Z <span class="k">as</span> [ Z z ].
+    <span class="nb">induction</span> f <span class="k">as</span> [ f p ].
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> setproperty.
+    }
+    use funextsec.
+    <span class="nb">intro</span> a.
+    <span class="nb">refine</span> (_ @ p).
+    <span class="nb">refine</span> (maponpaths f _).
+    use iscompsetquotpr.
+    <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+    use inr.
+    <span class="nb">unfold</span> product_point_coordinate ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> pointed_struct_pointed_hset_data.
+    <span class="nb">split</span> ; use inl ; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointed_struct_pointed_hset_with_smash_adj</span>
+  : hset_struct_with_smash_closed_adj
+      pointed_struct_pointed_hset_with_smash
+  := pointed_struct_pointed_hset_with_smash_closed_pointed
+     ,,
+     pointed_struct_pointed_hset_with_smash_adj_laws.
+
+<span class="kn">Proposition</span> <span class="nf">pointed_struct_pointed_hset_with_smash_laws_enrich</span>
+  : hset_struct_with_smash_closed_laws_enrich
+      pointed_struct_pointed_hset_with_smash_adj.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> X Y Z.
+    <span class="nb">induction</span> X <span class="k">as</span> [ X x ].
+    <span class="nb">induction</span> Y <span class="k">as</span> [ Y y ].
+    <span class="nb">induction</span> Z <span class="k">as</span> [ Z z ].
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty.
+    }
+    use funextsec.
+    use setquotunivprop'.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">intro</span> xz.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> X Y Z.
+    <span class="nb">induction</span> X <span class="k">as</span> [ X x ].
+    <span class="nb">induction</span> Y <span class="k">as</span> [ Y y ].
+    <span class="nb">induction</span> Z <span class="k">as</span> [ Z z ].
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty.
+    }
+    use funextsec.
+    <span class="nb">intro</span> a.
+    use subtypePath.
+    {
+      <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty.
+    }
+    use funextsec.
+    <span class="nb">intro</span> b.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pointed_struct_pointed_hset_with_smash_closed</span>
+  : hset_struct_with_smash_closed
+  := cartesian_struct_pointed_hset
+     ,,
+     pointed_struct_pointed_hset
+     ,,
+     pointed_struct_pointed_hset_with_smash
+     ,,
+     pointed_struct_pointed_hset_with_smash_adj
+     ,,
+     pointed_struct_pointed_hset_with_smash_laws_enrich.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Examples/PointedSetStructures.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The smash product
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Categories.HSET.All.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

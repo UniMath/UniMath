@@ -1,0 +1,1262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StructuredCategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***********************************************************************************</span>
+
+<span class="sd"> Bicategories of categories with structure</span>
+
+<span class="sd"> We define a number of bicategories whose objects are categories with a certain</span>
+<span class="sd"> structure and whose 1-cells are functors preserving that structure. The 2-cells</span>
+<span class="sd"> are just natural transformations.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Categories with a terminal object</span>
+<span class="sd"> 2. Categories with binary products</span>
+<span class="sd"> 3. Categories with pullbacks</span>
+<span class="sd"> 4. Categories with finite limits</span>
+<span class="sd"> 5. Categories with an initial object</span>
+<span class="sd"> 6. Categories with binary coproducts</span>
+<span class="sd"> 7. Categories with finite limits and a subobject classifier</span>
+<span class="sd"> 8. Locally Cartesian closed categories</span>
+
+<span class="sd"> ***********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.PullbackConstructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.PreservationProperties.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LocallyCartesianClosed.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Sub1Cell.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Categories with a terminal object</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_terminal_obj</span>
+  : disp_bicat bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use disp_subbicat.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, Terminal (pr1 C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span>, preserves_terminal F).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">_</span>, identity_preserves_terminal _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">HF</span> <span class="nv">HG</span>, composition_preserves_terminal HF HG).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_cat_with_terminal_obj</span>
+  : bicat
+  := total_bicat disp_bicat_terminal_obj.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_terminal_obj</span>
+  : disp_univalent_2_1 disp_bicat_terminal_obj.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_1.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isaprop_preserves_terminal.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_terminal_obj</span>
+  : disp_univalent_2_0 disp_bicat_terminal_obj.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_0.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> isaprop_Terminal.
+    <span class="bp">exact</span> (pr2 C).
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_preserves_terminal.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_terminal_obj</span>
+  : disp_univalent_2 disp_bicat_terminal_obj.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_terminal_obj.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_terminal_obj.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_univ_cat_with_terminal_obj</span>
+  : is_univalent_2_1 univ_cat_with_terminal_obj.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_1.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_terminal_obj.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_univ_cat_with_terminal_obj</span>
+  : is_univalent_2_0 univ_cat_with_terminal_obj.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_0.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_0.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_terminal_obj.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_univ_cat_with_terminal_obj</span>
+  : is_univalent_2 univ_cat_with_terminal_obj.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> is_univalent_2_0_univ_cat_with_terminal_obj.
+  - <span class="bp">exact</span> is_univalent_2_1_univ_cat_with_terminal_obj.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_left_adjoint_equivalence_subbicat_terminal</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+            {<span class="nv">F</span> : C₁ --&gt; C₂}
+            (<span class="nv">HF</span> : left_adjoint_equivalence F)
+            (<span class="nv">T₁</span> : disp_bicat_terminal_obj C₁)
+            (<span class="nv">T₂</span> : disp_bicat_terminal_obj C₂)
+            (<span class="nv">FT</span> : T₁ --&gt;[ F ] T₂)
+  : disp_left_adjoint_equivalence HF FT.
+<span class="kn">Proof</span>.
+  use disp_left_adjoint_equivalence_subbicat.
+  - <span class="nb">clear</span> C₁ C₂ F HF T₁ T₂ FT ; <span class="nb">cbn</span>.
+    <span class="nb">intros</span> C₁ C₂ T₁ T₂ F HF.
+    <span class="bp">exact</span> (right_adjoint_preserves_terminal
+             _
+             (adj_equivalence_of_cats_inv _ (adj_equiv_to_equiv_cat _ HF))).
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Categories with binary products</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_binprod</span>
+  : disp_bicat bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use disp_subbicat.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, BinProducts (pr1 C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span>, preserves_binproduct F).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">_</span>, identity_preserves_binproduct _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">HF</span> <span class="nv">HG</span>, composition_preserves_binproduct HF HG).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_cat_with_binprod</span>
+  : bicat
+  := total_bicat disp_bicat_binprod.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_binprod</span>
+  : disp_univalent_2_1 disp_bicat_binprod.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_1.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isaprop_preserves_binproduct.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_binprod</span>
+  : disp_univalent_2_0 disp_bicat_binprod.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_0.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">intro</span> C.
+    use impred ; <span class="nb">intro</span> x.
+    use impred ; <span class="nb">intro</span> y.
+    use isaprop_BinProduct.
+    <span class="bp">exact</span> (pr2 C).
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_preserves_binproduct.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_binprod</span>
+  : disp_univalent_2 disp_bicat_binprod.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_binprod.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_binprod.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_univ_cat_with_binprod</span>
+  : is_univalent_2_1 univ_cat_with_binprod.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_1.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_binprod.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_univ_cat_with_binprod</span>
+  : is_univalent_2_0 univ_cat_with_binprod.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_0.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_0.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_binprod.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_univ_cat_with_binprod</span>
+  : is_univalent_2 univ_cat_with_binprod.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> is_univalent_2_0_univ_cat_with_binprod.
+  - <span class="bp">exact</span> is_univalent_2_1_univ_cat_with_binprod.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Categories with pullbacks</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_pullback</span>
+  : disp_bicat bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use disp_subbicat.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, Pullbacks (pr1 C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span>, preserves_pullback F).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">_</span>, identity_preserves_pullback _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">HF</span> <span class="nv">HG</span>, composition_preserves_pullback HF HG).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_cat_with_pb</span>
+  : bicat
+  := total_bicat disp_bicat_pullback.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_pullback</span>
+  : disp_univalent_2_1 disp_bicat_pullback.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_1.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isaprop_preserves_pullback.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_pullback</span>
+  : disp_univalent_2_0 disp_bicat_pullback.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_0.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">intro</span> C.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_Pullback.
+    <span class="bp">exact</span> (pr2 C).
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_preserves_pullback.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_pullback</span>
+  : disp_univalent_2 disp_bicat_pullback.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_pullback.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_pullback.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_univ_cat_with_pb</span>
+  : is_univalent_2_1 univ_cat_with_pb.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_1.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_pullback.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_univ_cat_with_pb</span>
+  : is_univalent_2_0 univ_cat_with_pb.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_0.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_0.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_pullback.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_univ_cat_with_pb</span>
+  : is_univalent_2 univ_cat_with_pb.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> is_univalent_2_0_univ_cat_with_pb.
+  - <span class="bp">exact</span> is_univalent_2_1_univ_cat_with_pb.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. Categories with finite limits</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_finlim</span>
+  : disp_bicat bicat_of_univ_cats
+  := disp_dirprod_bicat
+       disp_bicat_terminal_obj
+       disp_bicat_pullback.
+
+<span class="kn">Definition</span> <span class="nf">bicat_of_univ_cat_with_finlim</span>
+  : bicat
+  := total_bicat disp_bicat_finlim.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_finlim</span>
+  : disp_univalent_2_1 disp_bicat_finlim.
+<span class="kn">Proof</span>.
+  use is_univalent_2_1_dirprod_bicat.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_terminal_obj.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_pullback.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_finlim</span>
+  : disp_univalent_2_0 disp_bicat_finlim.
+<span class="kn">Proof</span>.
+  use is_univalent_2_0_dirprod_bicat.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_terminal_obj.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_pullback.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_finlim</span>
+  : disp_univalent_2 disp_bicat_finlim.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_finlim.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_finlim.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_bicat_of_univ_cat_with_finlim</span>
+  : is_univalent_2_1 bicat_of_univ_cat_with_finlim.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_1.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_finlim.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_bicat_of_univ_cat_with_finlim</span>
+  : is_univalent_2_0 bicat_of_univ_cat_with_finlim.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_0.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_0.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_finlim.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_bicat_of_univ_cat_with_finlim</span>
+  : is_univalent_2 bicat_of_univ_cat_with_finlim.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_cat_with_finlim.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_cat_with_finlim</span>
+  : UU
+  := bicat_of_univ_cat_with_finlim.
+
+<span class="kn">Definition</span> <span class="nf">make_univ_cat_with_finlim</span>
+           (<span class="nv">C</span> : univalent_category)
+           (<span class="nv">T</span> : Terminal C)
+           (<span class="nv">P</span> : Pullbacks C)
+  : univ_cat_with_finlim
+  := C ,, (T ,, tt) ,, (P ,, tt).
+
+<span class="kn">Coercion</span> <span class="nf">univ_cat_of_univ_cat_with_finlim</span>
+         (C : univ_cat_with_finlim)
+  : univalent_category
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">terminal_univ_cat_with_finlim</span>
+           (<span class="nv">C</span> : univ_cat_with_finlim)
+  : Terminal C
+  := pr112 C.
+
+<span class="kn">Definition</span> <span class="nf">pullbacks_univ_cat_with_finlim</span>
+           (<span class="nv">C</span> : univ_cat_with_finlim)
+  : Pullbacks C
+  := pr122 C.
+
+<span class="kn">Definition</span> <span class="nf">binproducts_univ_cat_with_finlim</span>
+           (<span class="nv">C</span> : univ_cat_with_finlim)
+  : BinProducts C
+  := BinProductsFromPullbacks
+       (pullbacks_univ_cat_with_finlim C)
+       (terminal_univ_cat_with_finlim C).
+
+<span class="kn">Definition</span> <span class="nf">equalizers_univ_cat_with_finlim</span>
+           (<span class="nv">C</span> : univ_cat_with_finlim)
+  : Equalizers C.
+<span class="kn">Proof</span>.
+  use equalizer_from_pb_prod.
+  - <span class="bp">exact</span> (pullbacks_univ_cat_with_finlim C).
+  - <span class="bp">exact</span> (binproducts_univ_cat_with_finlim C).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_finlim</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim)
+  : UU
+  := C₁ --&gt; C₂.
+
+<span class="kn">Definition</span> <span class="nf">make_functor_finlim</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">FT</span> : preserves_terminal F)
+           (<span class="nv">FP</span> : preserves_pullback F)
+  : functor_finlim C₁ C₂
+  := F ,, (tt ,, FT) ,, (tt ,, FP).
+
+<span class="kn">Definition</span> <span class="nf">make_functor_finlim_adjequiv</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+  : functor_finlim C₁ C₂.
+<span class="kn">Proof</span>.
+  use make_functor_finlim.
+  - <span class="bp">exact</span> F.
+  - <span class="bp">exact</span> (right_adjoint_preserves_terminal _ (adj_equivalence_of_cats_inv _ HF)).
+  - <span class="bp">exact</span> (right_adjoint_preserves_pullback _ (adj_equivalence_of_cats_inv _ HF)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">functor_of_functor_finlim</span>
+         {C₁ C₂ : univ_cat_with_finlim}
+         (F : functor_finlim C₁ C₂)
+  : C₁ ⟶ C₂
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">functor_finlim_preserves_terminal</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           (<span class="nv">F</span> : functor_finlim C₁ C₂)
+  : preserves_terminal F
+  := pr212 F.
+
+<span class="kn">Definition</span> <span class="nf">functor_finlim_preserves_pullback</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           (<span class="nv">F</span> : functor_finlim C₁ C₂)
+  : preserves_pullback F
+  := pr222 F.
+
+<span class="kn">Definition</span> <span class="nf">functor_finlim_preserves_binproduct</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           (<span class="nv">F</span> : functor_finlim C₁ C₂)
+  : preserves_binproduct F
+  := preserves_binproduct_from_pullback_terminal
+       F
+       (terminal_univ_cat_with_finlim C₁)
+       (pullbacks_univ_cat_with_finlim C₁)
+       (functor_finlim_preserves_pullback F)
+       (functor_finlim_preserves_terminal F).
+
+<span class="kn">Definition</span> <span class="nf">functor_finlim_preserves_equalizer</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           (<span class="nv">F</span> : functor_finlim C₁ C₂)
+  : preserves_equalizer F.
+<span class="kn">Proof</span>.
+  use preserves_equalizer_from_pullback_terminal.
+  - <span class="bp">exact</span> (terminal_univ_cat_with_finlim C₁).
+  - <span class="bp">exact</span> (pullbacks_univ_cat_with_finlim C₁).
+  - <span class="bp">exact</span> (functor_finlim_preserves_pullback F).
+  - <span class="bp">exact</span> (functor_finlim_preserves_terminal F).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_finlim</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           (<span class="nv">F</span> <span class="nv">G</span> : functor_finlim C₁ C₂)
+  : UU
+  := F ==&gt; G.
+
+<span class="kn">Definition</span> <span class="nf">make_nat_trans_finlim</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           {<span class="nv">F</span> <span class="nv">G</span> : functor_finlim C₁ C₂}
+           (<span class="nv">τ</span> : F ⟹ G)
+  : nat_trans_finlim F G
+  := τ ,, (tt ,, tt) ,, (tt ,, tt).
+
+<span class="kn">Coercion</span> <span class="nf">nat_trans_of_nat_trans_finlim</span>
+         {C₁ C₂ : univ_cat_with_finlim}
+         {F G : functor_finlim C₁ C₂}
+         (τ : nat_trans_finlim F G)
+  : F ⟹ G
+  := pr1 τ.
+
+<span class="kn">Proposition</span> <span class="nf">nat_trans_finlim_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+            {<span class="nv">F</span> <span class="nv">G</span> : functor_finlim C₁ C₂}
+            {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : nat_trans_finlim F G}
+            (<span class="nv">p</span> : ∏ (x : C₁), τ₁ x = τ₂ x)
+  : τ₁ = τ₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    use isapropdirprod ; use isapropdirprod ; <span class="bp">exact</span> isapropunit.
+  }
+  use nat_trans_eq.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_invertible_2cell_cat_with_finlim</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           {<span class="nv">F</span> <span class="nv">G</span> : functor_finlim C₁ C₂}
+           (<span class="nv">τ</span> : nat_trans_finlim F G)
+           (<span class="nv">Hτ</span> : is_nat_z_iso τ)
+  : is_invertible_2cell τ.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (τiso := (pr1 τ ,, Hτ) : nat_z_iso F G).
+  use make_is_invertible_2cell.
+  - use make_nat_trans_finlim.
+    <span class="bp">exact</span> (nat_z_iso_inv τiso).
+  - <span class="kp">abstract</span>
+      (use nat_trans_finlim_eq ;
+       <span class="nb">intro</span> x ;
+       <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, Hτ x))).
+  - <span class="kp">abstract</span>
+      (use nat_trans_finlim_eq ;
+       <span class="nb">intro</span> x ;
+       <span class="nb">apply</span> (z_iso_after_z_iso_inv (_ ,, Hτ x))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">invertible_2cell_cat_with_finlim</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           {<span class="nv">F</span> <span class="nv">G</span> : functor_finlim C₁ C₂}
+           (<span class="nv">τ</span> : nat_z_iso (pr1 F) (pr1 G))
+  : invertible_2cell F G.
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - use make_nat_trans_finlim.
+    <span class="bp">exact</span> τ.
+  - use is_invertible_2cell_cat_with_finlim.
+    <span class="nb">apply</span> τ.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_univ_cat_with_finlim</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           (<span class="nv">F</span> : functor_finlim C₁ C₂)
+           (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+  : left_adjoint_equivalence F.
+<span class="kn">Proof</span>.
+  use equiv_to_adjequiv.
+  <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, _ ,, _).
+  - use make_functor_finlim.
+    + <span class="bp">exact</span> (right_adjoint HF).
+    + <span class="bp">exact</span> (right_adjoint_preserves_terminal _ HF).
+    + <span class="bp">exact</span> (right_adjoint_preserves_pullback _ HF).
+  - use make_nat_trans_finlim.
+    <span class="bp">exact</span> (unit_nat_z_iso_from_adj_equivalence_of_cats HF).
+  - use make_nat_trans_finlim.
+    <span class="bp">exact</span> (counit_nat_z_iso_from_adj_equivalence_of_cats HF).
+  - use is_invertible_2cell_cat_with_finlim.
+    <span class="nb">apply</span> (unit_nat_z_iso_from_adj_equivalence_of_cats HF).
+  - use is_invertible_2cell_cat_with_finlim.
+    <span class="nb">apply</span> (counit_nat_z_iso_from_adj_equivalence_of_cats HF).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 5. Categories with an initial object</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_initial_obj</span>
+  : disp_bicat bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use disp_subbicat.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, Initial (pr1 C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span>, preserves_initial F).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">_</span>, identity_preserves_initial _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">HF</span> <span class="nv">HG</span>, composition_preserves_initial HF HG).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_cat_with_initial</span>
+  : bicat
+  := total_bicat disp_bicat_initial_obj.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_initial_obj</span>
+  : disp_univalent_2_1 disp_bicat_initial_obj.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_1.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isaprop_preserves_initial.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_initial_obj</span>
+  : disp_univalent_2_0 disp_bicat_initial_obj.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_0.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> isaprop_Initial.
+    <span class="bp">exact</span> (pr2 C).
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_preserves_initial.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_initial_obj</span>
+  : disp_univalent_2 disp_bicat_initial_obj.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_initial_obj.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_initial_obj.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_univ_cat_with_initial</span>
+  : is_univalent_2_1 univ_cat_with_initial.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_1.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_initial_obj.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_univ_cat_with_initial</span>
+  : is_univalent_2_0 univ_cat_with_initial.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_0.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_0.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_initial_obj.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_univ_cat_with_initial</span>
+  : is_univalent_2 univ_cat_with_initial.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> is_univalent_2_0_univ_cat_with_initial.
+  - <span class="bp">exact</span> is_univalent_2_1_univ_cat_with_initial.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. Categories with binary coproducts</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_bincoprod</span>
+  : disp_bicat bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use disp_subbicat.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, BinCoproducts (pr1 C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span>, preserves_bincoproduct F).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">_</span>, identity_preserves_bincoproduct _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">HF</span> <span class="nv">HG</span>, composition_preserves_bincoproduct HF HG).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_cat_with_bincoprod</span>
+  : bicat
+  := total_bicat disp_bicat_bincoprod.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_bincoprod</span>
+  : disp_univalent_2_1 disp_bicat_bincoprod.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_1.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isaprop_preserves_bincoproduct.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_bincoprod</span>
+  : disp_univalent_2_0 disp_bicat_bincoprod.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_0.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="nb">intro</span> C.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_BinCoproduct.
+    <span class="bp">exact</span> (pr2 C).
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_preserves_bincoproduct.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_bincoprod</span>
+  : disp_univalent_2 disp_bicat_bincoprod.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_bincoprod.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_bincoprod.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_univ_cat_with_bincoprod</span>
+  : is_univalent_2_1 univ_cat_with_bincoprod.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_1.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_bincoprod.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_univ_cat_with_bincoprod</span>
+  : is_univalent_2_0 univ_cat_with_bincoprod.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_0.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2_0.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_bincoprod.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_univ_cat_with_bincoprod</span>
+  : is_univalent_2 univ_cat_with_bincoprod.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> is_univalent_2_0_univ_cat_with_bincoprod.
+  - <span class="bp">exact</span> is_univalent_2_1_univ_cat_with_bincoprod.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 7. Categories with finite limits and a subobject classifier</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_finlim_subobject_classifier</span>
+  : disp_bicat bicat_of_univ_cat_with_finlim.
+<span class="kn">Proof</span>.
+  use disp_subbicat.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C</span> : univ_cat_with_finlim),
+           subobject_classifier (terminal_univ_cat_with_finlim C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim)
+             (<span class="nv">Ω₁</span> : subobject_classifier
+                     (terminal_univ_cat_with_finlim C₁))
+             (<span class="nv">Ω₂</span> : subobject_classifier
+                     (terminal_univ_cat_with_finlim C₂))
+             (<span class="nv">F</span> : functor_finlim C₁ C₂),
+           preserves_subobject_classifier
+             F
+             (terminal_univ_cat_with_finlim C₁)
+             (terminal_univ_cat_with_finlim C₂)
+             (functor_finlim_preserves_terminal F)).
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> identity_preserves_subobject_classifier.
+  - <span class="nb">intros</span> C₁ C₂ C₃ Ω₁ Ω₂ Ω₃ F G HF HG.
+    <span class="bp">exact</span> (comp_preserves_subobject_classifier HF HG).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_of_univ_cat_with_finlim_subobject_classifier</span>
+  : bicat
+  := total_bicat disp_bicat_finlim_subobject_classifier.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_finlim_subobject_classifier</span>
+  : disp_univalent_2_1 disp_bicat_finlim_subobject_classifier.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_1.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isaprop_preserves_subobject_classifier.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_finlim_subobject_classifier</span>
+  : disp_univalent_2_0 disp_bicat_finlim_subobject_classifier.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_0.
+  - <span class="bp">exact</span> is_univalent_2_bicat_of_univ_cat_with_finlim.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> isaprop_subobject_classifier.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_preserves_subobject_classifier.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_finlim_subobject_classifier</span>
+  : disp_univalent_2 disp_bicat_finlim_subobject_classifier.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_finlim_subobject_classifier.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_finlim_subobject_classifier.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_finlim_subobject_classifier</span>
+  : disp_2cells_isaprop disp_bicat_finlim_subobject_classifier.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_finlim_subobject_classifier</span>
+  : disp_locally_groupoid disp_bicat_finlim_subobject_classifier.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_locally_groupoid_subbicat.
+  <span class="bp">exact</span> is_univalent_2_bicat_of_univ_cat_with_finlim.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_iscontr_finlim_subobject_classifier</span>
+  : disp_2cells_iscontr disp_bicat_finlim_subobject_classifier.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_2cells_iscontr_subbicat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_bicat_of_univ_cat_with_finlim_subobject_classifier</span>
+  : is_univalent_2_1 bicat_of_univ_cat_with_finlim_subobject_classifier.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_1.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_cat_with_finlim.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_finlim_subobject_classifier.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_bicat_of_univ_cat_with_finlim_subobject_classifier</span>
+  : is_univalent_2_0 bicat_of_univ_cat_with_finlim_subobject_classifier.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_finlim_subobject_classifier.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_bicat_of_univ_cat_with_finlim_subobject_classifier</span>
+  : is_univalent_2 bicat_of_univ_cat_with_finlim_subobject_classifier.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_of_univ_cat_with_finlim_subobject_classifier.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_cat_with_finlim_subobject_classifier.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_cat_with_finlim_subobject_classifier</span>
+  : UU
+  := bicat_of_univ_cat_with_finlim_subobject_classifier.
+
+<span class="kn">Definition</span> <span class="nf">make_univ_cat_with_finlim_subobject_classifier</span>
+           (<span class="nv">C</span> : univ_cat_with_finlim)
+           (<span class="nv">Ω</span> : subobject_classifier (terminal_univ_cat_with_finlim C))
+  : univ_cat_with_finlim_subobject_classifier
+  := C ,, (Ω ,, tt).
+
+<span class="kn">Coercion</span> <span class="nf">univ_cat_with_finlim_subobject_classifier_to_finlim</span>
+         (C : univ_cat_with_finlim_subobject_classifier)
+  : univ_cat_with_finlim
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">subobject_classifier_of_cat</span>
+           (<span class="nv">C</span> : univ_cat_with_finlim_subobject_classifier)
+  : subobject_classifier (terminal_univ_cat_with_finlim C)
+  := pr12 C.
+
+<span class="kn">Definition</span> <span class="nf">functor_finlim_subobject_classifier</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_subobject_classifier)
+  : UU
+  := C₁ --&gt; C₂.
+
+<span class="kn">Definition</span> <span class="nf">make_functor_finlim_subobject_classifier</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_subobject_classifier}
+           (<span class="nv">F</span> : functor_finlim C₁ C₂)
+           (<span class="nv">HF</span> : preserves_subobject_classifier
+                   F
+                   (terminal_univ_cat_with_finlim C₁)
+                   (terminal_univ_cat_with_finlim C₂)
+                   (functor_finlim_preserves_terminal F))
+  : functor_finlim_subobject_classifier C₁ C₂
+  := F ,, (tt ,, HF).
+
+<span class="kn">Coercion</span> <span class="nf">functor_finlim_of_functor_finlim_subobject_classifier</span>
+         {C₁ C₂ : univ_cat_with_finlim_subobject_classifier}
+         (F : functor_finlim_subobject_classifier C₁ C₂)
+  : functor_finlim C₁ C₂
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">functor_finlim_preserves_subobject_classifier</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_subobject_classifier}
+           (<span class="nv">F</span> : functor_finlim_subobject_classifier C₁ C₂)
+  : preserves_subobject_classifier
+      F
+      (terminal_univ_cat_with_finlim C₁)
+      (terminal_univ_cat_with_finlim C₂)
+      (functor_finlim_preserves_terminal F)
+  := pr22 F.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_finlim_subobject_classifier</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_subobject_classifier}
+           (<span class="nv">F</span> <span class="nv">G</span> : functor_finlim_subobject_classifier C₁ C₂)
+  : UU
+  := F ==&gt; G.
+
+<span class="kn">Definition</span> <span class="nf">make_nat_trans_finlim_subobject_classifier</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_subobject_classifier}
+           {<span class="nv">F</span> <span class="nv">G</span> : functor_finlim_subobject_classifier C₁ C₂}
+           (<span class="nv">τ</span> : nat_trans_finlim F G)
+  : nat_trans_finlim_subobject_classifier F G
+  := τ ,, (tt ,, tt).
+
+<span class="kn">Coercion</span> <span class="nf">nat_trans_finlim_of_subobject_classifier</span>
+         {C₁ C₂ : univ_cat_with_finlim_subobject_classifier}
+         {F G : functor_finlim_subobject_classifier C₁ C₂}
+         (τ : nat_trans_finlim_subobject_classifier F G)
+  : nat_trans_finlim F G
+  := pr1 τ.
+
+<span class="kn">Proposition</span> <span class="nf">nat_trans_finlim_subobject_classifier_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_subobject_classifier}
+            {<span class="nv">F</span> <span class="nv">G</span> : functor_finlim_subobject_classifier C₁ C₂}
+            {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : nat_trans_finlim_subobject_classifier F G}
+            (<span class="nv">p</span> : ∏ (x : C₁), τ₁ x = τ₂ x)
+  : τ₁ = τ₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    use isapropdirprod ; <span class="bp">exact</span> isapropunit.
+  }
+  use nat_trans_finlim_eq.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_invertible_2cell_cat_with_finlim_subobject_classifier</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_subobject_classifier}
+           {<span class="nv">F</span> <span class="nv">G</span> : functor_finlim_subobject_classifier C₁ C₂}
+           (<span class="nv">τ</span> : nat_trans_finlim_subobject_classifier F G)
+           (<span class="nv">Hτ</span> : is_nat_z_iso τ)
+  : is_invertible_2cell τ.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (τiso := (pr11 τ ,, Hτ) : nat_z_iso F G).
+  use make_is_invertible_2cell.
+  - use make_nat_trans_finlim_subobject_classifier.
+    use make_nat_trans_finlim.
+    <span class="bp">exact</span> (nat_z_iso_inv τiso).
+  - <span class="kp">abstract</span>
+      (use nat_trans_finlim_subobject_classifier_eq ;
+       <span class="nb">intro</span> x ;
+       <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, Hτ x))).
+  - <span class="kp">abstract</span>
+      (use nat_trans_finlim_subobject_classifier_eq ;
+       <span class="nb">intro</span> x ;
+       <span class="nb">apply</span> (z_iso_after_z_iso_inv (_ ,, Hτ x))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">adj_equiv_preserves_subobject_classifier</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           (<span class="nv">Ω₁</span> : subobject_classifier (terminal_univ_cat_with_finlim C₁))
+           (<span class="nv">Ω₂</span> : subobject_classifier (terminal_univ_cat_with_finlim C₂))
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+  : preserves_subobject_classifier
+      (pr1 F : functor_finlim C₁ C₂)
+      (terminal_univ_cat_with_finlim C₁)
+      (terminal_univ_cat_with_finlim C₂)
+      (functor_finlim_preserves_terminal (pr1 F)).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> C₁ C₂ F Ω₁ Ω₂.
+  use J_2_0.
+  {
+    <span class="bp">exact</span> is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+  }
+  <span class="nb">intros</span> C Ω₁ Ω₂.
+  <span class="nb">apply</span> identity_preserves_subobject_classifier.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_adjoint_equiv_disp_bicat_of_univ_cat_subobject_classifier</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cat_with_finlim}
+           (<span class="nv">F</span> : C₁ --&gt; C₂)
+           (<span class="nv">HF</span> : left_adjoint_equivalence F)
+           {<span class="nv">T₁</span> : disp_bicat_finlim_subobject_classifier C₁}
+           {<span class="nv">T₂</span> : disp_bicat_finlim_subobject_classifier C₂}
+           (<span class="nv">FF</span> : T₁ --&gt;[ F ] T₂)
+  : disp_left_adjoint_equivalence HF FF.
+<span class="kn">Proof</span>.
+  use disp_left_adjoint_equivalence_subbicat_alt.
+  <span class="bp">exact</span> is_univalent_2_bicat_of_univ_cat_with_finlim.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_univ_cat_with_finlim_subobject_classifier</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_subobject_classifier}
+           (<span class="nv">F</span> : functor_finlim_subobject_classifier C₁ C₂)
+           (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+  : left_adjoint_equivalence F.
+<span class="kn">Proof</span>.
+  use left_adjoint_equivalence_subbicat.
+  - <span class="nb">clear</span> C₁ C₂ F HF.
+    <span class="nb">intros</span> C₁ C₂ Ω₁ Ω₂ F HF.
+    <span class="bp">exact</span> (adj_equiv_preserves_subobject_classifier Ω₁ Ω₂ (F ,, HF)).
+  - use left_adjoint_equivalence_univ_cat_with_finlim.
+    <span class="bp">exact</span> HF.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 8. Locally Cartesian closed categories *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_univ_lccc</span>
+  : disp_bicat bicat_of_univ_cat_with_finlim.
+<span class="kn">Proof</span>.
+  use disp_subbicat.
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C</span> : univ_cat_with_finlim),
+           is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim)
+             (<span class="nv">H₁</span> : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C₁))
+             (<span class="nv">H₂</span> : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C₂))
+             (<span class="nv">F</span> : functor_finlim C₁ C₂),
+            preserves_locally_cartesian_closed
+              (functor_finlim_preserves_pullback F)
+              H₁
+              H₂).
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> id_preserves_locally_cartesian_closed.
+  - <span class="nb">intros</span> C₁ C₂ C₃ Ω₁ Ω₂ Ω₃ F G HF HG.
+    <span class="bp">exact</span> (comp_preserves_locally_cartesian_closed HF HG).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_of_univ_lccc</span>
+  : bicat
+  := total_bicat disp_bicat_univ_lccc.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_univ_lccc</span>
+  : disp_univalent_2_1 disp_bicat_univ_lccc.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_1.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isaprop_preserves_locally_cartesian_closed.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_locally_cartesian_closed</span>
+            {<span class="nv">C</span> : univalent_category}
+            (<span class="nv">PB</span> : Pullbacks C)
+  : isaprop (is_locally_cartesian_closed PB).
+<span class="kn">Proof</span>.
+  use impred ; <span class="nb">intro</span> x.
+  use impred ; <span class="nb">intro</span> y.
+  use impred ; <span class="nb">intro</span> f.
+  <span class="nb">pose</span> (D₁ := univalent_fiber_category (univalent_disp_codomain C) y : bicat_of_univ_cats).
+  <span class="nb">pose</span> (D₂ := univalent_fiber_category (univalent_disp_codomain C) x : bicat_of_univ_cats).
+  <span class="nb">pose</span> (F := cod_pb PB f : D₁ --&gt; D₂).
+  use (isofhlevelweqf _ (left_adjoint_weq_is_left_adjoint F)).
+  <span class="nb">apply</span> isaprop_left_adjoint.
+  <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_univ_lccc</span>
+  : disp_univalent_2_0 disp_bicat_univ_lccc.
+<span class="kn">Proof</span>.
+  use disp_subbicat_univalent_2_0.
+  - <span class="bp">exact</span> is_univalent_2_bicat_of_univ_cat_with_finlim.
+  - <span class="nb">intro</span> C.
+    <span class="nb">apply</span> isaprop_is_locally_cartesian_closed.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_preserves_locally_cartesian_closed.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_univ_lccc</span>
+  : disp_univalent_2 disp_bicat_univ_lccc.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_univ_lccc.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_univ_lccc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_univ_lccc</span>
+  : disp_2cells_isaprop disp_bicat_univ_lccc.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_2cells_isaprop_subbicat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_univ_lccc</span>
+  : disp_locally_groupoid disp_bicat_univ_lccc.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_locally_groupoid_subbicat.
+  <span class="bp">exact</span> is_univalent_2_bicat_of_univ_cat_with_finlim.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_2cells_iscontr_univ_lccc</span>
+  : disp_2cells_iscontr disp_bicat_univ_lccc.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_2cells_iscontr_subbicat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_bicat_of_univ_lccc</span>
+  : is_univalent_2_1 bicat_of_univ_lccc.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_1.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_cat_with_finlim.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_univ_lccc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_bicat_of_univ_lccc</span>
+  : is_univalent_2_0 bicat_of_univ_lccc.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_univ_lccc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_bicat_of_univ_lccc</span>
+  : is_univalent_2 bicat_of_univ_lccc.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_of_univ_lccc.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_lccc.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univ_lccc</span>
+  : UU
+  := bicat_of_univ_lccc.
+
+<span class="kn">Definition</span> <span class="nf">make_univ_lccc</span>
+           (<span class="nv">C</span> : univ_cat_with_finlim)
+           (<span class="nv">P</span> : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C))
+  : univ_lccc
+  := C ,, (P ,, tt).
+
+<span class="kn">Coercion</span> <span class="nf">univ_lccc_to_finlim</span>
+         (C : univ_lccc)
+  : univ_cat_with_finlim
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">is_locally_cartesian_closed_lccc</span>
+           (<span class="nv">C</span> : univ_lccc)
+  : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C)
+  := pr12 C.
+
+<span class="kn">Definition</span> <span class="nf">lccc_functor</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_lccc)
+  : UU
+  := C₁ --&gt; C₂.
+
+<span class="kn">Definition</span> <span class="nf">make_lccc_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_lccc}
+           (<span class="nv">F</span> : functor_finlim C₁ C₂)
+           (<span class="nv">HF</span> : preserves_locally_cartesian_closed
+                   (functor_finlim_preserves_pullback F)
+                   (is_locally_cartesian_closed_lccc C₁)
+                   (is_locally_cartesian_closed_lccc C₂))
+  : lccc_functor C₁ C₂
+  := F ,, (tt ,, HF).
+
+<span class="kn">Coercion</span> <span class="nf">lccc_functor_to_finlim</span>
+         {C₁ C₂ : univ_lccc}
+         (F : lccc_functor C₁ C₂)
+  : functor_finlim C₁ C₂
+  := pr1 F.
+
+<span class="kn">Definition</span> <span class="nf">functor_finlim_preserves_locally_cartesian_closed</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_lccc}
+           (<span class="nv">F</span> : lccc_functor C₁ C₂)
+  : preserves_locally_cartesian_closed
+      (functor_finlim_preserves_pullback F)
+      (is_locally_cartesian_closed_lccc C₁)
+      (is_locally_cartesian_closed_lccc C₂)
+  := pr22 F.
+
+<span class="kn">Definition</span> <span class="nf">lccc_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_lccc}
+           (<span class="nv">F</span> <span class="nv">G</span> : lccc_functor C₁ C₂)
+  : UU
+  := F ==&gt; G.
+
+<span class="kn">Definition</span> <span class="nf">make_lccc_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_lccc}
+           {<span class="nv">F</span> <span class="nv">G</span> : lccc_functor C₁ C₂}
+           (<span class="nv">τ</span> : nat_trans_finlim F G)
+  : lccc_nat_trans F G
+  := τ ,, (tt ,, tt).
+
+<span class="kn">Coercion</span> <span class="nf">lccc_nat_trans_to_finlim</span>
+         {C₁ C₂ : univ_lccc}
+         {F G : lccc_functor C₁ C₂}
+         (τ : lccc_nat_trans F G)
+  : nat_trans_finlim F G
+  := pr1 τ.
+
+<span class="kn">Proposition</span> <span class="nf">lccc_nat_trans_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_lccc}
+            {<span class="nv">F</span> <span class="nv">G</span> : lccc_functor C₁ C₂}
+            {<span class="nv">τ₁</span> <span class="nv">τ₂</span> : lccc_nat_trans F G}
+            (<span class="nv">p</span> : ∏ (x : C₁), τ₁ x = τ₂ x)
+  : τ₁ = τ₂.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    use isapropdirprod ; <span class="bp">exact</span> isapropunit.
+  }
+  use nat_trans_finlim_eq.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_invertible_2cell_lccc_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_lccc}
+           {<span class="nv">F</span> <span class="nv">G</span> : lccc_functor C₁ C₂}
+           (<span class="nv">τ</span> : lccc_nat_trans F G)
+           (<span class="nv">Hτ</span> : is_nat_z_iso τ)
+  : is_invertible_2cell τ.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (τiso := (pr11 τ ,, Hτ) : nat_z_iso F G).
+  use make_is_invertible_2cell.
+  - use make_lccc_nat_trans.
+    use make_nat_trans_finlim.
+    <span class="bp">exact</span> (nat_z_iso_inv τiso).
+  - <span class="kp">abstract</span>
+      (use lccc_nat_trans_eq ;
+       <span class="nb">intro</span> x ;
+       <span class="nb">apply</span> (z_iso_inv_after_z_iso (_ ,, Hτ x))).
+  - <span class="kp">abstract</span>
+      (use lccc_nat_trans_eq ;
+       <span class="nb">intro</span> x ;
+       <span class="nb">apply</span> (z_iso_after_z_iso_inv (_ ,, Hτ x))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">adj_equiv_preserves_locally_cartesian_closed</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           (<span class="nv">P₁</span> : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C₁))
+           (<span class="nv">P₂</span> : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C₂))
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+           (<span class="nv">HF</span> : preserves_pullback (pr11 F))
+  : preserves_locally_cartesian_closed
+      HF
+      P₁
+      P₂.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> C₁ C₂ F P₁ P₂ HF.
+  use J_2_0.
+  {
+    <span class="bp">exact</span> is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+  }
+  <span class="nb">intros</span> C P₁ P₂ HF.
+  <span class="nb">assert</span> (P₁ = P₂) <span class="k">as</span> q.
+  {
+    <span class="nb">apply</span> isaprop_is_locally_cartesian_closed.
+  }
+  <span class="nb">induction</span> q.
+  <span class="nb">assert</span> (identity_preserves_pullback _ = HF) <span class="k">as</span> q.
+  {
+    <span class="nb">apply</span> isaprop_preserves_pullback.
+  }
+  <span class="nb">induction</span> q.
+  <span class="nb">apply</span> id_preserves_locally_cartesian_closed.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_adjoint_equiv_disp_bicat_univ_lccc</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cat_with_finlim}
+           (<span class="nv">F</span> : C₁ --&gt; C₂)
+           (<span class="nv">HF</span> : left_adjoint_equivalence F)
+           {<span class="nv">P₁</span> : disp_bicat_univ_lccc C₁}
+           {<span class="nv">P₂</span> : disp_bicat_univ_lccc C₂}
+           (<span class="nv">FF</span> : P₁ --&gt;[ F ] P₂)
+  : disp_left_adjoint_equivalence HF FF.
+<span class="kn">Proof</span>.
+  use disp_left_adjoint_equivalence_subbicat.
+  - <span class="nb">clear</span> C₁ C₂ F HF P₁ P₂ FF.
+    <span class="nb">intros</span> C₁ C₂ H₁ H₂ F HF.
+    <span class="nb">apply</span> (adj_equiv_preserves_locally_cartesian_closed H₁ H₂ (F ,, HF)).
+  - <span class="bp">exact</span> is_univalent_2_bicat_of_univ_cat_with_finlim.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_equivalence_univ_lccc</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_lccc}
+           (<span class="nv">F</span> : lccc_functor C₁ C₂)
+           (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+  : left_adjoint_equivalence F.
+<span class="kn">Proof</span>.
+  use left_adjoint_equivalence_subbicat.
+  - <span class="nb">clear</span> C₁ C₂ F HF.
+    <span class="nb">intros</span> C₁ C₂ P₁ P₂ F HF.
+    <span class="nb">apply</span> (adj_equiv_preserves_locally_cartesian_closed P₁ P₂ (F ,, HF)).
+  - use left_adjoint_equivalence_univ_cat_with_finlim.
+    <span class="bp">exact</span> HF.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Core/Examples/StructuredCategories.v</tt>, line 20)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Locally Cartesian closed categories
+  &gt;
+  &gt;  ***********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

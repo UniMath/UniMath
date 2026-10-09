@@ -1,0 +1,805 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DispTransformation.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ------------------------------------------------------------------------- *)</span>
+<span class="sd">(** Displayed transformation.</span>
+<span class="sd">    Contents:</span>
+<span class="sd">      - Definition of displayed transformation.</span>
+<span class="sd">      - Identity and composition of displayed transformations.                *)</span>
+<span class="c">(* ------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Initial.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Final.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Composition.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.Whiskering.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.Unitality.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.Examples.Associativity.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+
+<span class="kn">Import</span> PseudoFunctor.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Definition of displayed transformation. *)</span>
+
+<span class="kn">Section</span> <span class="nf">DispTransformation</span>.
+
+<span class="kn">Context</span> {<span class="nv">B₁</span> : bicat} {<span class="nv">D₁</span> : disp_bicat B₁}
+        {<span class="nv">B₂</span> : bicat} {<span class="nv">D₂</span> : disp_bicat B₂}
+        {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+        (<span class="nv">FF₁</span> : disp_psfunctor D₁ D₂ F₁)
+        (<span class="nv">FF₂</span> : disp_psfunctor D₁ D₂ F₂)
+        (<span class="nv">α</span> : pstrans F₁ F₂).
+
+<span class="sd">(** *** Data *)</span>
+
+<span class="kn">Definition</span> <span class="nf">disp_pstrans_data</span> : UU
+  := ∑ αα₁ : ∏ (x : B₁) (xx : D₁ x), FF₁ x xx --&gt;[ α x] FF₂ x xx,
+             ∏ (x y : B₁) (f : B₁ ⟦ x, y ⟧) (xx : D₁ x) (yy : D₁ y) (ff : xx --&gt;[ f] yy),
+             disp_invertible_2cell (psnaturality_of α f)
+                                   (αα₁ x xx;; disp_psfunctor_mor D₁ D₂ F₂ FF₂ ff)
+                                   (disp_psfunctor_mor D₁ D₂ F₁ FF₁ ff;; αα₁ y yy).
+
+<span class="kn">Definition</span> <span class="nf">make_disp_pstrans_data</span>
+           (<span class="nv">αα₁</span> : ∏ (x : B₁) (xx : D₁ x), FF₁ x xx --&gt;[ α x] FF₂ x xx)
+           (<span class="nv">αα₂</span> : ∏ (x y : B₁) (f : B₁ ⟦ x, y ⟧) (xx : D₁ x) (yy : D₁ y) (ff : xx --&gt;[ f] yy),
+                  disp_invertible_2cell (psnaturality_of α f)
+                                        (αα₁ x xx;; disp_psfunctor_mor D₁ D₂ F₂ FF₂ ff)
+                                        (disp_psfunctor_mor D₁ D₂ F₁ FF₁ ff;; αα₁ y yy))
+  : disp_pstrans_data
+  := (αα₁,, αα₂).
+
+<span class="kn">Definition</span> <span class="nf">disp_pscomponent_of</span> (<span class="nv">αα</span> : disp_pstrans_data)
+  : ∏ (x : B₁) (xx : D₁ x), FF₁ x xx --&gt;[ α x] FF₂ x xx
+  := pr1 αα.
+
+<span class="kn">Coercion</span> <span class="nf">disp_pscomponent_of</span> : disp_pstrans_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_psnaturality_of</span> (<span class="nv">αα</span> : disp_pstrans_data)
+           {<span class="nv">x</span> <span class="nv">y</span> : B₁}
+           {<span class="nv">f</span> : B₁ ⟦ x, y ⟧}
+           {<span class="nv">xx</span> : D₁ x} {<span class="nv">yy</span> : D₁ y}
+           (<span class="nv">ff</span> : xx --&gt;[ f] yy)
+  : disp_invertible_2cell (psnaturality_of α f)
+                          (αα x xx;; disp_psfunctor_mor D₁ D₂ F₂ FF₂ ff)
+                          (disp_psfunctor_mor D₁ D₂ F₁ FF₁ ff;; αα y yy)
+  := pr2 αα x y f xx yy ff.
+
+<span class="kn">Definition</span> <span class="nf">total_pstrans_data</span> (<span class="nv">ααdata</span> : disp_pstrans_data)
+  : pstrans_data (total_psfunctor _ _ _ FF₁) (total_psfunctor _ _ _ FF₂).
+<span class="kn">Proof</span>.
+  use make_pstrans_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, (α (pr1 x),, ααdata _ (pr2 x))).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, iso_in_E_weq _ _ (psnaturality_of α (pr1 f),,
+                    disp_psnaturality_of ααdata (pr2 f))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Properties *)</span>
+
+<span class="kn">Section</span> <span class="nf">DispPstransLaws</span>.
+
+<span class="kn">Variable</span> <span class="nv">ααdata</span> : disp_pstrans_data.
+
+<span class="kn">Definition</span> <span class="nf">disp_psnaturality_natural_law</span> : UU
+  := ∏ (x y : B₁) (f g : B₁ ⟦ x, y ⟧)
+       (η : f ==&gt; g)
+       (xx : D₁ x) (yy : D₁ y)
+       (ff : xx --&gt;[ f] yy)
+       (gg : xx --&gt;[ g] yy)
+       (ηη : ff ==&gt;[ η] gg),
+     (ααdata x xx ◃◃ disp_psfunctor_cell D₁ D₂ F₂ FF₂ ηη) •• disp_psnaturality_of ααdata gg
+     =
+     transportb
+       (<span class="k">λ</span> <span class="nv">p</span>, _ ==&gt;[p] _)
+       (psnaturality_natural α x y f g η)
+       (disp_psnaturality_of ααdata ff •• (disp_psfunctor_cell D₁ D₂ F₁ FF₁ ηη ▹▹ ααdata y yy)).
+
+<span class="kn">Definition</span> <span class="nf">disp_pstrans_id_law</span> : UU
+  := ∏ (x : B₁) (xx : D₁ x),
+     (ααdata x xx ◃◃ disp_psfunctor_id D₁ D₂ F₂ FF₂ xx)
+       •• disp_psnaturality_of ααdata (id_disp xx)
+     =
+     transportb
+       (<span class="k">λ</span> <span class="nv">p</span>, _ ==&gt;[p] _)
+       (pstrans_id α x)
+       ((disp_runitor (ααdata x xx) •• disp_linvunitor (ααdata x xx))
+          •• (disp_psfunctor_id D₁ D₂ F₁ FF₁ xx ▹▹ ααdata x xx)).
+
+<span class="kn">Definition</span> <span class="nf">disp_pstrans_comp_law</span> : UU
+  := ∏ (x y z : B₁)
+       (f : B₁ ⟦ x, y ⟧) (g : B₁ ⟦ y, z ⟧)
+       (xx : D₁ x) (yy : D₁ y) (zz : D₁ z)
+       (ff : xx --&gt;[ f] yy) (gg : yy --&gt;[ g] zz),
+     (ααdata x xx ◃◃ disp_psfunctor_comp D₁ D₂ F₂ FF₂ ff gg)
+       •• disp_psnaturality_of ααdata (ff;; gg) =
+     transportb
+       (<span class="k">λ</span> <span class="nv">p</span>, _ ==&gt;[p] _)
+       (pstrans_comp α f g)
+       (((((disp_lassociator
+              (ααdata x xx)
+              (disp_psfunctor_mor D₁ D₂ F₂ FF₂ ff)
+              (disp_psfunctor_mor D₁ D₂ F₂ FF₂ gg)
+              •• (disp_psnaturality_of ααdata ff ▹▹ disp_psfunctor_mor D₁ D₂ F₂ FF₂ gg))
+             •• disp_rassociator (disp_psfunctor_mor D₁ D₂ F₁ FF₁ ff) (ααdata y yy)
+             (disp_psfunctor_mor D₁ D₂ F₂ FF₂ gg))
+            •• (disp_psfunctor_mor D₁ D₂ F₁ FF₁ ff ◃◃ disp_psnaturality_of ααdata gg))
+           •• disp_lassociator (disp_psfunctor_mor D₁ D₂ F₁ FF₁ ff)
+           (disp_psfunctor_mor D₁ D₂ F₁ FF₁ gg) (ααdata z zz))
+          •• (disp_psfunctor_comp D₁ D₂ F₁ FF₁ ff gg ▹▹ ααdata z zz)).
+
+<span class="kn">Definition</span> <span class="nf">is_disp_pstrans</span>
+  : UU
+  := disp_psnaturality_natural_law
+       × disp_pstrans_id_law
+       × disp_pstrans_comp_law.
+
+<span class="kn">End</span> <span class="nf">DispPstransLaws</span>.
+
+<span class="sd">(** *** Displayed transformation *)</span>
+
+<span class="kn">Definition</span> <span class="nf">disp_pstrans</span> : UU
+  := ∑ αα : disp_pstrans_data, is_disp_pstrans αα.
+
+<span class="kn">Coercion</span> <span class="nf">disp_pstrans_to_disp_pstrans_data</span> (αα : disp_pstrans)
+  : disp_pstrans_data
+  := pr1 αα.
+
+<span class="kn">Lemma</span> <span class="nf">total_pstrans_laws</span> (<span class="nv">αα</span> : disp_pstrans)
+  : is_pstrans (total_pstrans_data αα).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">apply</span> make_dirprod; <span class="nb">intro</span>; <span class="nb">intros</span>.
+  - use total2_paths_b; [<span class="nb">apply</span> (psnaturality_natural α) | <span class="nb">apply</span> αα].
+  - use total2_paths_b; [<span class="nb">apply</span> (pstrans_id α) | <span class="nb">apply</span> αα].
+  - use total2_paths_b. <span class="mi">2</span>: <span class="nb">apply</span> αα.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">total_pstrans</span> (<span class="nv">αα</span> : disp_pstrans)
+  : pstrans (total_psfunctor _ _ _ FF₁) (total_psfunctor _ _ _ FF₂).
+<span class="kn">Proof</span>.
+  use make_pstrans.
+  - <span class="bp">exact</span> (total_pstrans_data αα).
+  - <span class="bp">exact</span> (total_pstrans_laws αα).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_pstrans_from_total</span> (<span class="nv">αα</span> : disp_pstrans_data)
+  : is_pstrans (total_pstrans_data αα) → is_disp_pstrans αα.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hαα.
+  <span class="nb">pose</span> (Eα := make_pstrans _ Hαα).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y f g η xx yy ff gg ηη.
+    <span class="nb">pose</span> (P := !fiber_paths (@psnaturality_natural _ _ _ _ Eα (x,,xx) (y,,yy) (f,,ff)
+         (g,,gg) (η,,ηη))).
+    <span class="nb">symmetry</span>.
+    etrans. { <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> P. }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> transportf_set.
+    * <span class="nb">apply</span> idpath.
+    * <span class="nb">apply</span> B₂.
+  - <span class="nb">intros</span> x xx.
+    <span class="nb">pose</span> (P := !fiber_paths (@pstrans_id _ _ _ _ Eα (x,,xx))).
+    <span class="nb">symmetry</span>.
+    etrans. { <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> P. }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> transportf_set.
+    * <span class="nb">apply</span> idpath.
+    * <span class="nb">apply</span> B₂.
+  - <span class="nb">intros</span> x y z f g xx yy zz ff gg.
+    <span class="nb">pose</span> (P := !fiber_paths
+                (@pstrans_comp _ _ _ _ Eα
+                               (x,,xx) (y,,yy) (z,,zz) (f,,ff) (g,,gg)
+         )).
+    <span class="nb">symmetry</span>.
+    etrans. { <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> P. }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> transportf_set.
+    * <span class="nb">apply</span> idpath.
+    * <span class="nb">apply</span> B₂.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">DispTransformation</span>.
+
+<span class="sd">(** ** Identity *)</span>
+
+
+<span class="kn">Section</span> <span class="nf">DispTrans_identity</span>.
+
+<span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+        {<span class="nv">D₁</span> : disp_bicat B₁}
+        {<span class="nv">D₂</span> : disp_bicat B₂}
+        {<span class="nv">F</span> : psfunctor B₁ B₂}
+        (<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F).
+
+<span class="kn">Definition</span> <span class="nf">disp_id_pstrans_data</span>
+  : disp_pstrans_data FF FF (id_pstrans F).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans_data; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, id_disp (FF x xx)).
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_id_pstrans_laws</span> : is_disp_pstrans _ _ _ disp_id_pstrans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_disp_pstrans_from_total.
+  <span class="nb">pose</span> (PP := id_pstrans (total_psfunctor _ _ _ FF)).
+  <span class="nb">pose</span> (PP2 := pstrans_to_is_pstrans PP).
+  <span class="nb">assert</span> (pr11 PP = total_pstrans_data FF FF (id_pstrans F) disp_id_pstrans_data).
+  - use total2_paths_f.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> funextsec. <span class="nb">intro</span> x.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> y.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> f.
+      use subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (transportf _ X PP2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_id_pstrans</span> : disp_pstrans FF FF (id_pstrans F)
+  := disp_id_pstrans_data,, disp_id_pstrans_laws.
+
+<span class="kn">End</span> <span class="nf">DispTrans_identity</span>.
+
+<span class="sd">(** ** Composition *)</span>
+
+<span class="kn">Section</span> <span class="nf">DispTrans_comp</span>.
+
+<span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+        {<span class="nv">F₁</span> : psfunctor B₁ B₂}
+        {<span class="nv">F₂</span> : psfunctor B₁ B₂}
+        {<span class="nv">F₃</span> : psfunctor B₁ B₂}
+        {<span class="nv">η₁</span> : pstrans F₁ F₂}
+        {<span class="nv">η₂</span> : pstrans F₂ F₃}
+        {<span class="nv">D₁</span> : disp_bicat B₁}
+        {<span class="nv">D₂</span> : disp_bicat B₂}
+        {<span class="nv">FF₁</span> : disp_psfunctor D₁ D₂ F₁}
+        {<span class="nv">FF₂</span> : disp_psfunctor D₁ D₂ F₂}
+        {<span class="nv">FF₃</span> : disp_psfunctor D₁ D₂ F₃}
+        (<span class="nv">ηη₁</span> : disp_pstrans FF₁ FF₂ η₁)
+        (<span class="nv">ηη₂</span> : disp_pstrans FF₂ FF₃ η₂).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"αα '••' ββ"</span> := (vcomp_disp_invertible αα ββ).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"ff '◃◃' αα"</span> := (disp_invertible_2cell_lwhisker ff αα).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"αα '▹▹' ff"</span> := (disp_invertible_2cell_rwhisker ff αα).
+
+<span class="kn">Definition</span> <span class="nf">disp_comp_pstrans_data</span> : disp_pstrans_data FF₁ FF₃ (comp_pstrans η₁ η₂).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans_data; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, comp_disp (ηη₁ x xx) (ηη₂ x xx)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span>,
+           (disp_invertible_2cell_rassociator _ _ _)
+             •• (_ ◃◃ disp_psnaturality_of _ _ _ ηη₂ ff)
+             •• disp_invertible_2cell_lassociator _ _ _
+             •• (disp_psnaturality_of _ _ _ ηη₁ ff ▹▹ _)
+             •• disp_invertible_2cell_rassociator _ _ _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_comp_pstrans_laws</span> : is_disp_pstrans _ _ _ disp_comp_pstrans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_disp_pstrans_from_total.
+  <span class="nb">pose</span> (PP := comp_pstrans (total_pstrans _ _ _ ηη₁) (total_pstrans _ _ _ ηη₂)).
+  <span class="nb">pose</span> (PP2 := pstrans_to_is_pstrans PP).
+  <span class="nb">assert</span> (pr11 PP = total_pstrans_data _ _ _ disp_comp_pstrans_data).
+  - use total2_paths_f.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> funextsec. <span class="nb">intro</span> x.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> y.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> f.
+      use subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (transportf _ X PP2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_comp_pstrans</span> : disp_pstrans _ _ (comp_pstrans η₁ η₂)
+  := disp_comp_pstrans_data,, disp_comp_pstrans_laws.
+
+<span class="kn">End</span> <span class="nf">DispTrans_comp</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_inv_invertible</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : invertible_2cell f g}
+           {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy} {<span class="nv">gg</span> : xx --&gt;[ g ] yy}
+           (<span class="nv">αα</span> : disp_invertible_2cell α ff gg)
+  : disp_invertible_2cell (inv_of_invertible_2cell α) gg ff.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (disp_inv_cell αα).
+  - use tpair.
+    + <span class="nb">apply</span> αα.
+    + <span class="nb">split</span> ; <span class="nb">cbn</span>.
+      * <span class="nb">apply</span> disp_vcomp_linv.
+      * <span class="nb">apply</span> disp_vcomp_rinv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">DispTrans_lwhisker</span>.
+
+<span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> : bicat}
+        {<span class="nv">F₁</span> <span class="nv">F₂</span> : psfunctor B₁ B₂}
+        {<span class="nv">G</span> : psfunctor B₂ B₃}
+        {<span class="nv">η</span> : pstrans F₁ F₂}
+        {<span class="nv">D₁</span> : disp_bicat B₁}
+        {<span class="nv">D₂</span> : disp_bicat B₂}
+        {<span class="nv">D₃</span> : disp_bicat B₃}
+        {<span class="nv">FF₁</span> : disp_psfunctor D₁ D₂ F₁}
+        {<span class="nv">FF₂</span> : disp_psfunctor D₁ D₂ F₂}
+        (<span class="nv">GG</span> : disp_psfunctor D₂ D₃ G)
+        (<span class="nv">ηη</span> : disp_pstrans FF₁ FF₂ η).
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"αα '••' ββ"</span> := (vcomp_disp_invertible αα ββ).
+
+<span class="kn">Definition</span> <span class="nf">disp_left_whisker_data</span>
+  : disp_pstrans_data
+      (disp_pseudo_comp _ _ _ _ _ FF₁ GG)
+      (disp_pseudo_comp _ _ _ _ _ FF₂ GG)
+      (G ◅ η).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans_data; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, pr121 GG _ _ _ _ _ (pr11 ηη x xx)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span>,
+           (disp_psfunctor_comp _ _ _ GG _ _)
+             •• disp_psfunctor_invertible_2cell GG (disp_psnaturality_of _ _ _ ηη ff)
+             •• (disp_inv_invertible (disp_psfunctor_comp _ _ _ GG _ _))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_left_whisker_laws</span> : is_disp_pstrans _ _ _ disp_left_whisker_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_disp_pstrans_from_total.
+  <span class="nb">pose</span> (PP := (total_psfunctor _ _ _ GG) ◅ total_pstrans _ _ _ ηη).
+  <span class="nb">pose</span> (PP2 := pstrans_to_is_pstrans PP).
+  <span class="nb">assert</span> (pstrans_to_pstrans_data PP = total_pstrans_data _ _ _ disp_left_whisker_data).
+  - use total2_paths_f.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> funextsec. <span class="nb">intro</span> x.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> y.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> f.
+      use subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (transportf is_pstrans X PP2). <span class="c">(* Slow, dunno why *)</span>
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_whisker</span>
+  : disp_pstrans
+      (disp_pseudo_comp _ _ _ _ _ FF₁ GG)
+      (disp_pseudo_comp _ _ _ _ _ FF₂ GG)
+      (G ◅ η)
+  := disp_left_whisker_data,, disp_left_whisker_laws.
+
+<span class="kn">End</span> <span class="nf">DispTrans_lwhisker</span>.
+
+<span class="kn">Section</span> <span class="nf">DispTrans_rwhisker</span>.
+
+<span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> : bicat}
+        {<span class="nv">F</span> : psfunctor B₁ B₂}
+        {<span class="nv">G₁</span> <span class="nv">G₂</span> : psfunctor B₂ B₃}
+        {<span class="nv">η</span> : pstrans G₁ G₂}
+        {<span class="nv">D₁</span> : disp_bicat B₁}
+        {<span class="nv">D₂</span> : disp_bicat B₂}
+        {<span class="nv">D₃</span> : disp_bicat B₃}
+        (<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F)
+        {<span class="nv">GG₁</span> : disp_psfunctor D₂ D₃ G₁}
+        {<span class="nv">GG₂</span> : disp_psfunctor D₂ D₃ G₂}
+        (<span class="nv">ηη</span> : disp_pstrans GG₁ GG₂ η).
+
+<span class="kn">Definition</span> <span class="nf">disp_right_whisker_data</span>
+  : disp_pstrans_data
+      (disp_pseudo_comp _ _ _ _ _ FF GG₁)
+      (disp_pseudo_comp _ _ _ _ _ FF GG₂)
+      (η ▻ F).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans_data; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, (pr11 ηη _ (FF _ xx))).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span>, disp_psnaturality_of _ _ _ ηη (pr121 FF _ _ _ _ _ ff)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_right_whisker_laws</span> : is_disp_pstrans _ _ _ disp_right_whisker_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_disp_pstrans_from_total.
+  <span class="nb">pose</span> (PP := (total_pstrans _ _ _ ηη) ▻ (total_psfunctor _ _ _ FF)).
+  <span class="nb">pose</span> (PP2 := pstrans_to_is_pstrans PP).
+  <span class="nb">assert</span> (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_right_whisker_data).
+  - use total2_paths_f.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> funextsec. <span class="nb">intro</span> x.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> y.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> f.
+      use subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="nb">lazy</span>.
+      <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (transportf is_pstrans X PP2). <span class="c">(* Also slow, dunno why *)</span>
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_right_whisker</span>
+  : disp_pstrans
+      (disp_pseudo_comp _ _ _ _ _ FF GG₁)
+      (disp_pseudo_comp _ _ _ _ _ FF GG₂)
+      (η ▻ F)
+  := disp_right_whisker_data,, disp_right_whisker_laws.
+
+<span class="kn">End</span> <span class="nf">DispTrans_rwhisker</span>.
+
+<span class="kn">Section</span> <span class="nf">DispTransUnitality</span>.
+<span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat}
+        {<span class="nv">F</span> : psfunctor B₁ B₂}
+        {<span class="nv">D₁</span> : disp_bicat B₁}
+        {<span class="nv">D₂</span> : disp_bicat B₂}
+        (<span class="nv">FF</span> : disp_psfunctor D₁ D₂ F).
+
+<span class="kn">Definition</span> <span class="nf">disp_lunitor_pstrans_data</span>
+  : disp_pstrans_data
+      (disp_pseudo_comp _ _ _ _ _ FF (disp_pseudo_id D₂))
+      FF
+      (lunitor_pstrans F).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, id_disp (FF x xx)).
+  - <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span>, _).
+    <span class="nb">apply</span> (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_lunitor_pstrans_laws</span> : is_disp_pstrans _ _ _ disp_lunitor_pstrans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_disp_pstrans_from_total.
+  <span class="nb">pose</span> (PP := lunitor_pstrans (total_psfunctor _ _ _ FF)).
+  <span class="nb">pose</span> (PP2 := pstrans_to_is_pstrans PP).
+  <span class="nb">assert</span> (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_lunitor_pstrans_data).
+  - use total2_paths_f.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> funextsec. <span class="nb">intro</span> x.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> y.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> f.
+      use subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (transportf is_pstrans X PP2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_lunitor_pstrans</span>
+  : disp_pstrans
+      (disp_pseudo_comp _ _ _ _ _ FF (disp_pseudo_id D₂))
+      FF
+      (lunitor_pstrans F)
+  := disp_lunitor_pstrans_data,, disp_lunitor_pstrans_laws.
+
+<span class="kn">Definition</span> <span class="nf">disp_pstrans_linvunitor_data</span>
+  : disp_pstrans_data
+      FF
+      (disp_pseudo_comp _ _ _ _ _ FF (disp_pseudo_id D₂))
+      (linvunitor_pstrans F).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, id_disp (FF x xx)).
+  - <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span>, _).
+    <span class="nb">apply</span> (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_pstrans_linvunitor_laws</span> : is_disp_pstrans _ _ _ disp_pstrans_linvunitor_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_disp_pstrans_from_total.
+  <span class="nb">pose</span> (PP := linvunitor_pstrans (total_psfunctor _ _ _ FF)).
+  <span class="nb">pose</span> (PP2 := pstrans_to_is_pstrans PP).
+  <span class="nb">assert</span> (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_pstrans_linvunitor_data).
+  - use total2_paths_f.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> funextsec. <span class="nb">intro</span> x.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> y.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> f.
+      use subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (transportf is_pstrans X PP2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_pstrans_linvunitor</span>
+  : disp_pstrans
+      FF
+      (disp_pseudo_comp _ _ _ _ _ FF (disp_pseudo_id D₂))
+      (linvunitor_pstrans F)
+  := disp_pstrans_linvunitor_data,, disp_pstrans_linvunitor_laws.
+
+<span class="kn">Definition</span> <span class="nf">disp_runitor_pstrans_data</span>
+  : disp_pstrans_data
+      (disp_pseudo_comp _ _ _ _ _ (disp_pseudo_id D₁) FF)
+      FF
+      (runitor_pstrans F).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, id_disp (FF x xx)).
+  - <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span>, _).
+    <span class="nb">apply</span> (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_runitor_pstrans_laws</span> : is_disp_pstrans _ _ _ disp_runitor_pstrans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_disp_pstrans_from_total.
+  <span class="nb">pose</span> (PP := runitor_pstrans (total_psfunctor _ _ _ FF)).
+  <span class="nb">pose</span> (PP2 := pstrans_to_is_pstrans PP).
+  <span class="nb">assert</span> (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_runitor_pstrans_data).
+  - use total2_paths_f.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> funextsec. <span class="nb">intro</span> x.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> y.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> f.
+      use subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (transportf is_pstrans X PP2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_runitor_pstrans</span>
+  : disp_pstrans
+      (disp_pseudo_comp _ _ _ _ _ (disp_pseudo_id D₁) FF)
+      FF
+      (runitor_pstrans F)
+  := disp_runitor_pstrans_data,, disp_runitor_pstrans_laws.
+
+<span class="kn">Definition</span> <span class="nf">disp_rinvunitor_pstrans_data</span>
+  : disp_pstrans_data
+      FF
+      (disp_pseudo_comp _ _ _ _ _ (disp_pseudo_id D₁) FF)
+      (rinvunitor_pstrans F).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, id_disp (FF x xx)).
+  - <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span>, _).
+    <span class="nb">apply</span> (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_rinvunitor_pstrans_laws</span> : is_disp_pstrans _ _ _ disp_rinvunitor_pstrans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_disp_pstrans_from_total.
+  <span class="nb">pose</span> (PP := rinvunitor_pstrans (total_psfunctor _ _ _ FF)).
+  <span class="nb">pose</span> (PP2 := pstrans_to_is_pstrans PP).
+  <span class="nb">assert</span> (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_rinvunitor_pstrans_data).
+  - use total2_paths_f.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> funextsec. <span class="nb">intro</span> x.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> y.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> f.
+      use subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (transportf is_pstrans X PP2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_rinvunitor_pstrans</span>
+  : disp_pstrans
+      FF
+      (disp_pseudo_comp _ _ _ _ _ (disp_pseudo_id D₁) FF)
+      (rinvunitor_pstrans F)
+  := disp_rinvunitor_pstrans_data,, disp_rinvunitor_pstrans_laws.
+<span class="kn">End</span> <span class="nf">DispTransUnitality</span>.
+
+<span class="kn">Section</span> <span class="nf">DispTransAssociativiy</span>.
+<span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">B₃</span> <span class="nv">B₄</span> : bicat}
+        {<span class="nv">F₁</span> : psfunctor B₁ B₂}
+        {<span class="nv">F₂</span> : psfunctor B₂ B₃}
+        {<span class="nv">F₃</span> : psfunctor B₃ B₄}
+        {<span class="nv">D₁</span> : disp_bicat B₁} {<span class="nv">D₂</span> : disp_bicat B₂}
+        {<span class="nv">D₃</span> : disp_bicat B₃} {<span class="nv">D₄</span> : disp_bicat B₄}
+        (<span class="nv">FF₁</span> : disp_psfunctor D₁ D₂ F₁)
+        (<span class="nv">FF₂</span> : disp_psfunctor D₂ D₃ F₂)
+        (<span class="nv">FF₃</span> : disp_psfunctor D₃ D₄ F₃).
+
+<span class="kn">Definition</span> <span class="nf">disp_lassociator_pstrans_data</span>
+  : disp_pstrans_data
+      (disp_pseudo_comp
+         _ _ _ _ _
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₁
+            FF₂)
+         FF₃
+      )
+      (disp_pseudo_comp
+         _ _ _ _ _
+         FF₁
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₂
+            FF₃)
+      )
+      (lassociator_pstrans F₁ F₂ F₃).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, id_disp (_ x xx)).
+  - <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span>, _).
+    <span class="nb">apply</span> (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_lassociator_pstrans_laws</span> : is_disp_pstrans _ _ _ disp_lassociator_pstrans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_disp_pstrans_from_total.
+  <span class="nb">pose</span> (PP := lassociator_pstrans
+                (total_psfunctor _ _ _ FF₁)
+                (total_psfunctor _ _ _ FF₂)
+                (total_psfunctor _ _ _ FF₃)).
+  <span class="nb">pose</span> (PP2 := pstrans_to_is_pstrans PP).
+  <span class="nb">assert</span> (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_lassociator_pstrans_data).
+  - use total2_paths_f.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> funextsec. <span class="nb">intro</span> x.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> y.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> f.
+      use subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (transportf is_pstrans X PP2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_lassociator_pstrans</span>
+  : disp_pstrans
+      (disp_pseudo_comp
+         _ _ _ _ _
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₁
+            FF₂)
+         FF₃
+      )
+      (disp_pseudo_comp
+         _ _ _ _ _
+         FF₁
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₂
+            FF₃)
+      )
+      (lassociator_pstrans F₁ F₂ F₃)
+  := disp_lassociator_pstrans_data,, disp_lassociator_pstrans_laws.
+
+<span class="kn">Definition</span> <span class="nf">disp_pstrans_rassociator_data</span>
+  : disp_pstrans_data
+      (disp_pseudo_comp
+         _ _ _ _ _
+         FF₁
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₂
+            FF₃)
+      )
+      (disp_pseudo_comp
+         _ _ _ _ _
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₁
+            FF₂)
+         FF₃
+      )
+      (rassociator_pstrans F₁ F₂ F₃).
+<span class="kn">Proof</span>.
+  use make_disp_pstrans_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, id_disp (_ x xx)).
+  - <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">xx</span> <span class="nv">yy</span> <span class="nv">ff</span>, _).
+    <span class="nb">apply</span> (vcomp_disp_invertible (disp_invertible_2cell_lunitor _)
+                                 (disp_invertible_2cell_rinvunitor _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_pstrans_rassociator_laws</span> : is_disp_pstrans _ _ _ disp_pstrans_rassociator_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_disp_pstrans_from_total.
+  <span class="nb">pose</span> (PP := rassociator_pstrans
+                (total_psfunctor _ _ _ FF₁)
+                (total_psfunctor _ _ _ FF₂)
+                (total_psfunctor _ _ _ FF₃)).
+  <span class="nb">pose</span> (PP2 := pstrans_to_is_pstrans PP).
+  <span class="nb">assert</span> (X : pstrans_to_pstrans_data PP
+              =
+              total_pstrans_data _ _ _ disp_lassociator_pstrans_data).
+  - use total2_paths_f.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> funextsec. <span class="nb">intro</span> x.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> y.
+      <span class="nb">apply</span> funextsec. <span class="nb">intro</span> f.
+      use subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+      <span class="nb">apply</span> idpath.
+  - <span class="bp">exact</span> (transportf is_pstrans X PP2).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_pstrans_rassociator</span>
+  : disp_pstrans
+      (disp_pseudo_comp
+         _ _ _ _ _
+         FF₁
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₂
+            FF₃)
+      )
+      (disp_pseudo_comp
+         _ _ _ _ _
+         (disp_pseudo_comp
+            _ _ _ _ _
+            FF₁
+            FF₂)
+         FF₃
+      )
+      (rassociator_pstrans F₁ F₂ F₃)
+  := disp_pstrans_rassociator_data,, disp_pstrans_rassociator_laws.
+<span class="kn">End</span> <span class="nf">DispTransAssociativiy</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/DispTransformation.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;       - Identity and composition of displayed transformations.                *)
+  &gt; (* ------------------------------------------------------------------------- *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

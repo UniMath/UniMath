@@ -1,0 +1,1051 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>NWFS.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">Natural Weak Factorization Systems</span>
+
+<span class="c">Natural Weak Factorization Systems (NWFSs) are an algebraic</span>
+<span class="c">refinement to WFSs. They consist of a functorial factorization,</span>
+<span class="c">together with an extension of the left functor to a comonad</span>
+<span class="c">and the right functor to a monad. These algebraic structures</span>
+<span class="c">(note: NOT properties), make it so they behave better than</span>
+<span class="c">WFSs, satisfying even those properties that required the</span>
+<span class="c">axiom of choice for a WFS. In fact, one can construct a</span>
+<span class="c">WFS from a NWFS in a canonical way (see ./NWFSisWFS.v).</span>
+
+<span class="c">The algebraic structure allows us to define categories out of</span>
+<span class="c">functorial factorizations and NWFSs. It turns out to be useful to</span>
+<span class="c">split this up into two halves: the left part of a NWFS (LNWFS)</span>
+<span class="c">and the right part of a NWFS (RNWFS), consisting of the comonad</span>
+<span class="c">and the monad extension respectively.</span>
+
+<span class="c">Important sources:</span>
+<span class="c">- Cofibrantly generated natural weak factorisation systems by Richard Garner</span>
+<span class="c">- Understanding the small object argument by Richard Garner</span>
+<span class="c">- My thesis: https://studenttheses.uu.nl/handle/20.500.12932/45658</span>
+<span class="c">- Natural weak factorization systems by Grandis and Tholen</span>
+
+<span class="c">Contents:</span>
+<span class="c">- Preliminary definitions</span>
+<span class="c">- Functorial Factorizations</span>
+<span class="c">- LNWFS / RNWFS / NWFS definitions</span>
+<span class="c">- NWFS properties</span>
+<span class="c">- Definition of L- and R-Maps</span>
+<span class="c">- Functorial factorization category</span>
+<span class="c">- LNWFS category</span>
+<span class="c">- RNWFS category</span>
+<span class="c">- NWFS category</span>
+<span class="c">- Some helper functions used in the formalization of the</span>
+<span class="c">  Algebraic Small Object Argument</span>
+
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.MonadAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.ComonadCoalgebras.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.SIP.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Three.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.MonadAlgebras.
+<span class="kn">Require Import</span> UniMath.ModelCategories.MorphismClass.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Retract.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Lifting.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Helpers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="kn">Section</span> <span class="nf">Face_maps</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+<span class="c">(* face map 1 now rolls out just as the projection *)</span>
+<span class="kn">Definition</span> <span class="nf">face_map_1</span> : three C ⟶ arrow C := pr1_category _.
+
+<span class="c">(* we have to define face maps 0 and 2 as proper functors,</span>
+<span class="c">since we need the factorization to obtain an object in the arrow</span>
+<span class="c">category. *)</span>
+<span class="kn">Definition</span> <span class="nf">face_map_0_data</span> : functor_data (three C) (arrow C).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">intro</span> xxx.
+    use tpair.
+    * <span class="bp">exact</span> (make_dirprod (three_ob1 xxx) (three_ob2 xxx)).
+    * <span class="bp">exact</span> (three_mor12 xxx).
+  - <span class="nb">intros</span> xxx yyy fff.
+    <span class="c">(* simpl. *)</span>
+    <span class="c">(* for morphisms we simply forget the 0th morphism *)</span>
+    use mors_to_arrow_mor.
+    * <span class="bp">exact</span> (three_mor11 fff).
+    * <span class="bp">exact</span> (three_mor22 fff).
+    * <span class="c">(* commutativity is just commutativity in the lower diagram *)</span>
+      <span class="kp">abstract</span> (
+        <span class="nb">apply</span> pathsinv0;
+        <span class="bp">exact</span> (pr2 (three_mor_comm fff))
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">face_map_0_axioms</span> : is_functor face_map_0_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="c">(* unfold functor_idax. *)</span>
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+    <span class="bp">reflexivity</span>.
+  - <span class="c">(* unfold functor_compax. *)</span>
+    <span class="nb">intros</span> a b c f g.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">face_map_0</span> : three C ⟶ arrow C :=
+    (_,, face_map_0_axioms).
+
+<span class="kn">Definition</span> <span class="nf">face_map_2_data</span> : functor_data (three C) (arrow C).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="nb">intro</span> xxx.
+    use tpair.
+    * <span class="bp">exact</span> (make_dirprod (three_ob0 xxx) (three_ob1 xxx)).
+    * <span class="nb">simpl</span>.
+      <span class="bp">exact</span> (three_mor01 xxx).
+  - <span class="nb">intros</span> xxx yyy fff.
+    use mors_to_arrow_mor.
+    * <span class="bp">exact</span> (three_mor00 fff).
+    * <span class="bp">exact</span> (three_mor11 fff).
+    * <span class="kp">abstract</span> (
+        <span class="bp">exact</span> (pathsinv0 (pr1 (three_mor_comm fff)))
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">face_map_2_axioms</span> : is_functor face_map_2_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="c">(* unfold functor_idax. *)</span>
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+    <span class="nb">trivial</span>.
+  - <span class="c">(* unfold functor_compax. *)</span>
+    <span class="nb">intros</span> a b c f g.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+    <span class="nb">trivial</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">face_map_2</span> : three C ⟶ arrow C :=
+    (_,, face_map_2_axioms).
+
+<span class="c">(* verify that they are indeed compatible *)</span>
+<span class="kn">Lemma</span> <span class="nf">face_compatibility</span> (<span class="nv">fg</span> : three C) :
+    arrow_mor (face_map_2 fg) · arrow_mor (face_map_0 fg)
+    = arrow_mor (face_map_1 fg).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (three_comp fg).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">c_21_data</span> : nat_trans_data face_map_2 face_map_1.
+<span class="kn">Proof</span>.
+  <span class="c">(* this natural transformation boils down to square</span>
+<span class="c">    0 ===== 0</span>
+<span class="c">    |       |</span>
+<span class="c">    |       |</span>
+<span class="c">    1 ----&gt; 2</span>
+<span class="c">  *)</span>
+  <span class="nb">intro</span> xxx.
+  <span class="nb">simpl</span>.
+  <span class="k">exists</span> (<span class="nv">make_dirprod</span> (identity _) (three_mor12 xxx)).
+  <span class="kp">abstract</span> (
+    <span class="nb">simpl</span>;
+    <span class="nb">rewrite</span> id_left;
+    <span class="nb">apply</span> pathsinv0;
+    <span class="bp">exact</span> (three_comp xxx)
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">c_21_axioms</span> : is_nat_trans _ _ c_21_data.
+<span class="kn">Proof</span>.
+  <span class="c">(* natural transformation commutativity axiom *)</span>
+  <span class="nb">intros</span> xxx yyy ff.
+
+  <span class="c">(* use displayed properties to turn path in total category</span>
+<span class="c">  into path in base category, given our displayed properties</span>
+
+<span class="c">  subtypePath: equality on ∑ x : X, P x is the same as equality</span>
+<span class="c">  on X if P is a predicate (maps to a prop).</span>
+<span class="c">  In the total category, objects are ∑ c : C, D c</span>
+<span class="c">  i.e., objects with displayed data. Morphisms are morphisms</span>
+<span class="c">  with displayed data. Our morphisms displayed data is indeed</span>
+<span class="c">  propositional: commutative diagram.</span>
+<span class="c">  *)</span>
+  <span class="nb">apply</span> subtypePath.
+  * <span class="c">(* For any map in the base category, the induced map</span>
+<span class="c">    on the displayed category is a property.</span>
+
+<span class="c">    This is because the induced map is a commuting square,</span>
+<span class="c">    so an equality between maps. Therefore, the homset property</span>
+<span class="c">    says this is a property. *)</span>
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> homset_property.
+  * <span class="c">(* We are left to prove the commutativity in the base category,</span>
+<span class="c">    given our displayed properties. This is effectively just commutativity</span>
+<span class="c">    in the bottom square. *)</span>
+    <span class="nb">apply</span> pathsdirprod.
+    + etrans. <span class="nb">apply</span> id_right.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_left.
+    + <span class="nb">apply</span> pathsinv0.
+      <span class="bp">exact</span> (pr2 (three_mor_comm ff)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">c_21</span> : face_map_2 ⟹ face_map_1 :=
+    (_,, c_21_axioms).
+
+<span class="kn">Definition</span> <span class="nf">c_10_data</span> : nat_trans_data face_map_1 face_map_0.
+<span class="kn">Proof</span>.
+  <span class="c">(* this natural transformation boils down to square</span>
+<span class="c">    0 ----&gt; 1</span>
+<span class="c">    |       |</span>
+<span class="c">    |       |</span>
+<span class="c">    2 ===== 2</span>
+<span class="c">  *)</span>
+  <span class="nb">intro</span> xxx.
+  <span class="k">exists</span> (<span class="nv">make_dirprod</span> (three_mor01 xxx) (identity _)).
+  <span class="kp">abstract</span> (
+    <span class="nb">simpl</span>;
+    <span class="nb">rewrite</span> id_right;
+    <span class="bp">exact</span> (three_comp xxx)
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">c_10_axioms</span> : is_nat_trans _ _ c_10_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> xxx yyy ff.
+  <span class="nb">apply</span> subtypePath.
+  - <span class="nb">intro</span> x.
+    <span class="nb">apply</span> homset_property.
+  - <span class="nb">apply</span> pathsdirprod.
+    * <span class="nb">apply</span> pathsinv0.
+      <span class="bp">exact</span> (pr1 (three_mor_comm ff)).
+    * etrans. <span class="nb">apply</span> id_right.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">c_10</span> : face_map_1 ⟹ face_map_0 :=
+    (_,, c_10_axioms).
+
+<span class="kn">End</span> <span class="nf">Face_maps</span>.
+
+<span class="kn">Arguments</span> face_map_0 {_}.
+<span class="kn">Arguments</span> face_map_1 {_}.
+<span class="kn">Arguments</span> face_map_2 {_}.
+
+<span class="c">(* Lemma face_map_1_preserves_dom {C : category} : ∏ g : three C, arrow_dom (face_map_1 g) = three_ob0 g.</span>
+<span class="c">Proof.</span>
+<span class="c">  trivial.</span>
+<span class="c">Defined.</span>
+
+<span class="c">Lemma face_map_1_preserves_cod {C : category} : ∏ g : three C, arrow_cod (face_map_1 g) = three_ob2 g.</span>
+<span class="c">Proof.</span>
+<span class="c">  trivial.</span>
+<span class="c">Defined. *)</span>
+
+<span class="c">(* Definition face_map_1_section_data (C : category) : functor_data (arrow C) (three C).</span>
+<span class="c">Proof.</span>
+<span class="c">  use tpair.</span>
+<span class="c">  - intros</span>
+<span class="c">Defined. *)</span>
+
+<span class="c">(* We can't really do this with the "naive definition" of three C, since then we need</span>
+<span class="c">the middle object for the section. We would have to define our own theory.  *)</span>
+<span class="kn">Definition</span> <span class="nf">functorial_factorization</span> (<span class="nv">C</span> : category) := section_disp (three_disp C).
+<span class="kn">Coercion</span> <span class="nf">fact_section</span> {C : category} (F : functorial_factorization C)
+    := section_disp_data_from_section_disp F.
+<span class="kn">Definition</span> <span class="nf">fact_functor</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C) : arrow C ⟶ three C :=
+    section_functor F.
+<span class="kn">Coercion</span> <span class="nf">fact_functor</span> : functorial_factorization &gt;-&gt; functor.
+
+<span class="c">(* Functorial factorizations indeed split face map 1 (d1) *)</span>
+<span class="kn">Lemma</span> <span class="nf">functorial_factorization_splits_face_map_1</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C) :
+    F ∙ face_map_1 = functor_identity (arrow C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_eq; <span class="nb">trivial</span>.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fact_L</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C) :
+    arrow C ⟶ arrow C :=
+  F ∙ face_map_2.
+<span class="kn">Definition</span> <span class="nf">fact_R</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C) :
+    arrow C ⟶ arrow C :=
+  F ∙ face_map_0.
+
+<span class="c">(* At least now it knows they are compatible *)</span>
+<span class="kn">Lemma</span> <span class="nf">LR_compatibility</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C) :
+    ∏ (f : arrow C), arrow_mor (fact_L F f) · arrow_mor (fact_R F f) = arrow_mor f.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  <span class="bp">exact</span> (three_comp _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Φ</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C) :
+    (fact_L F) ⟹ (functor_identity (arrow C)) :=
+  pre_whisker F (c_21 C).
+
+<span class="kn">Definition</span> <span class="nf">Λ</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C) :
+    (functor_identity (arrow C)) ⟹ (fact_R F) :=
+  pre_whisker F (c_10 C).
+
+<span class="kn">Definition</span> <span class="nf">R_monad_data</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C)
+    (<span class="nv">Π</span> : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)) : disp_Monad_data (fact_R F) :=
+  make_dirprod Π (Λ F).
+
+<span class="kn">Definition</span> <span class="nf">R_monad</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C)
+    (<span class="nv">Π</span> : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F))
+    (<span class="nv">R</span> : disp_Monad_laws (R_monad_data F Π)) : Monad (arrow C) :=
+  (_,, R_monad_data F Π,, R).
+
+<span class="c">(*</span>
+<span class="c">Definition op_comul_data {D : category} {F : functor D D} (Σ : F ⟹ (functor_composite F F)) :</span>
+<span class="c">    nat_trans_data</span>
+<span class="c">        (functor_composite (functor_opp F) (functor_opp F))</span>
+<span class="c">        (functor_opp F).</span>
+<span class="c">Proof.</span>
+<span class="c">  intro f.</span>
+<span class="c">  exact (opp_mor (Σ f)).</span>
+<span class="c">Defined.</span>
+
+<span class="c">Lemma op_comul_ax {D : category} {F : functor D D} (Σ : F ⟹ (functor_composite F F)) :</span>
+<span class="c">    is_nat_trans _ _ (op_comul_data Σ).</span>
+<span class="c">Proof.</span>
+<span class="c">  intros f g γ.</span>
+<span class="c">  exact (pathsinv0 (nat_trans_ax Σ _ _ γ)).</span>
+<span class="c">Qed.</span>
+
+<span class="c">Definition op_comul {D : category} {F : functor D D} (Σ : F ⟹ (functor_composite F F)) :</span>
+<span class="c">    (functor_composite (functor_opp F) (functor_opp F)) ⟹ (functor_opp F) :=</span>
+<span class="c">  (_,, op_comul_ax Σ).</span>
+
+<span class="c">Definition op_counit_data {D : category} {F : functor D D} (Φ : F ⟹ functor_identity D) :</span>
+<span class="c">    nat_trans_data (functor_identity (op_cat D)) (functor_opp F).</span>
+<span class="c">Proof.</span>
+<span class="c">  intro f.</span>
+<span class="c">  exact (opp_mor (Φ f)).</span>
+<span class="c">Defined.</span>
+
+<span class="c">Lemma op_counit_ax {D : category} {F : functor D D} (Φ : F ⟹ functor_identity D) :</span>
+<span class="c">    is_nat_trans _ _ (op_counit_data Φ).</span>
+<span class="c">Proof.</span>
+<span class="c">  intros f g γ.</span>
+<span class="c">  exact (pathsinv0 (nat_trans_ax Φ _ _ γ)).</span>
+<span class="c">Qed.</span>
+
+<span class="c">Definition op_counit {D : category} {F : functor D D} (Φ : F ⟹ functor_identity D) :</span>
+<span class="c">    (functor_identity (op_cat D)) ⟹ (functor_opp F) :=</span>
+<span class="c">  (_,, op_counit_ax Φ). *)</span>
+
+<span class="kn">Definition</span> <span class="nf">L_monad_data</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C)
+    (<span class="nv">Σ</span> : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) : disp_Comonad_data (fact_L F) :=
+  make_dirprod Σ (Φ F).
+
+<span class="kn">Definition</span> <span class="nf">L_monad</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C)
+    (<span class="nv">Σ</span> : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F))
+    (<span class="nv">L</span> : disp_Comonad_laws (L_monad_data F Σ)) : Comonad (arrow C) :=
+  (_,, L_monad_data F Σ,, L).
+
+<span class="kn">Definition</span> <span class="nf">lnwfs_over</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C) :=
+    ∑ (Σ : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)), disp_Comonad_laws (L_monad_data F Σ).
+
+<span class="kn">Definition</span> <span class="nf">rnwfs_over</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C) :=
+    ∑ (Π : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)), disp_Monad_laws (R_monad_data F Π).
+
+<span class="kn">Definition</span> <span class="nf">nwfs_over</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C) :=
+    (lnwfs_over F) × (rnwfs_over F).
+
+<span class="kn">Definition</span> <span class="nf">nwfs</span> (<span class="nv">C</span> : category) :=
+    ∑ (F : functorial_factorization C), nwfs_over F.
+
+<span class="kn">Definition</span> <span class="nf">nwfs_over_to_nwfs</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> : functorial_factorization C} (<span class="nv">n</span> : nwfs_over F) : nwfs C :=
+    (_,, n).
+<span class="kn">Coercion</span> <span class="nf">nwfs_over_to_nwfs</span> : nwfs_over &gt;-&gt; nwfs.
+<span class="kn">Definition</span> <span class="nf">nwfs_over_to_fact</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> : functorial_factorization C} (<span class="nv">n</span> : nwfs_over F) : functorial_factorization C :=
+    F.
+<span class="kn">Coercion</span> <span class="nf">nwfs_over_to_fact</span> : nwfs_over &gt;-&gt; functorial_factorization.
+
+<span class="kn">Definition</span> <span class="nf">make_nwfs</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C)
+    (<span class="nv">Σ</span> : (fact_L F) ⟹ (fact_L F) ∙ (fact_L F)) (<span class="nv">L</span> : disp_Comonad_laws (L_monad_data F Σ))
+    (<span class="nv">Π</span> : (fact_R F) ∙ (fact_R F) ⟹ (fact_R F)) (<span class="nv">R</span> : disp_Monad_laws (R_monad_data F Π))
+        : nwfs C.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">F</span>.
+  <span class="nb">split</span>.
+  - <span class="k">exists</span> <span class="nv">Σ</span>. <span class="bp">exact</span> L.
+  - <span class="k">exists</span> <span class="nv">Π</span>. <span class="bp">exact</span> R.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nwfs_fact</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) := pr1 n.
+<span class="kn">Coercion</span> <span class="nf">nwfs_fact</span> : nwfs &gt;-&gt; functorial_factorization.
+<span class="kn">Definition</span> <span class="nf">nwfs_lnwfs</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) := pr12 n.
+<span class="kn">Coercion</span> <span class="nf">nwfs_lnwfs</span> : nwfs &gt;-&gt; lnwfs_over.
+<span class="kn">Definition</span> <span class="nf">nwfs_rnwfs</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) := pr22 n.
+<span class="kn">Coercion</span> <span class="nf">nwfs_rnwfs</span> : nwfs &gt;-&gt; rnwfs_over.
+<span class="kn">Definition</span> <span class="nf">nwfs_Σ</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) := pr1 (nwfs_lnwfs n).
+<span class="kn">Definition</span> <span class="nf">nwfs_Π</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) := pr1 (nwfs_rnwfs n).
+<span class="kn">Definition</span> <span class="nf">nwfs_Σ_laws</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) := pr2 (nwfs_lnwfs n).
+<span class="kn">Definition</span> <span class="nf">nwfs_Π_laws</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) := pr2 (nwfs_rnwfs n).
+<span class="kn">Definition</span> <span class="nf">rnwfs_R_monad</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> : functorial_factorization C} (<span class="nv">n</span> : rnwfs_over F) := R_monad F (pr1 n) (pr2 n).
+<span class="kn">Definition</span> <span class="nf">rnwfs_R_monad_data</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> : functorial_factorization C} (<span class="nv">n</span> : rnwfs_over F) := pr12 (R_monad F (pr1 n) (pr2 n)).
+<span class="kn">Definition</span> <span class="nf">lnwfs_L_monad</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> : functorial_factorization C} (<span class="nv">n</span> : lnwfs_over F) := L_monad F (pr1 n) (pr2 n).
+<span class="kn">Definition</span> <span class="nf">lnwfs_L_monad_data</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> : functorial_factorization C} (<span class="nv">n</span> : lnwfs_over F) := pr12 (L_monad F (pr1 n) (pr2 n)).
+<span class="kn">Definition</span> <span class="nf">nwfs_R_monad</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) := rnwfs_R_monad (nwfs_rnwfs n).
+<span class="kn">Definition</span> <span class="nf">nwfs_L_monad</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) := lnwfs_L_monad (nwfs_lnwfs n).
+
+<span class="c">(* the following lemmas about Σ and Π are from</span>
+<span class="c">   Grandis, Tholen, (6), (7), diagram after (7), (8), (9) *)</span>
+<span class="c">(* diagram after (7) *)</span>
+<span class="kn">Lemma</span> <span class="nf">nwfs_Σ_top_map_id</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) (<span class="nv">f</span> : arrow C) :
+    arrow_mor00 (nwfs_Σ n f) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (law1 := Comonad_law1 (T:=nwfs_L_monad n) f).
+  <span class="nb">set</span> (top := arrow_mor00_eq law1).
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  <span class="bp">exact</span> (pathsinv0 top).
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="c">(* σ_f · ρ_{λf} = id (6, 2nd) *)</span>
+<span class="kn">Lemma</span> <span class="nf">nwfs_Σ_bottom_map_inv</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) (<span class="nv">f</span> : arrow C) :
+    arrow_mor11 (nwfs_Σ n f) · arrow_mor (fact_R n (fact_L n f)) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (law1 := Comonad_law1 (T:=nwfs_L_monad n) f).
+  <span class="nb">set</span> (bottom := arrow_mor11_eq law1).
+  <span class="bp">exact</span> bottom.
+<span class="kn">Qed</span>.
+
+<span class="c">(* σ_f · σ_{λf} = σ_f · F(1_A, σ_f)</span>
+<span class="c">  where F(1_a, σ_f) is the map on middle objects of F(Σ_f)</span>
+<span class="c">  if we see Σ_f as a morphism in the arrow category</span>
+<span class="c">   (9, top right + cancel_postcomposition) *)</span>
+<span class="kn">Lemma</span> <span class="nf">nwfs_Σ_bottom_map_L_is_middle_map_of_Σ</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) (<span class="nv">f</span> : arrow C) :
+    (arrow_mor11 (nwfs_Σ n f)) · arrow_mor11 (nwfs_Σ n (fact_L n f)) =
+    (arrow_mor11 (nwfs_Σ n f)) · three_mor11 (functor_on_morphisms n (nwfs_Σ n f)).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (law3 := Comonad_law3 (T:=nwfs_L_monad n) f).
+  <span class="nb">set</span> (bottom := arrow_mor11_eq law3).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">exact</span> bottom.
+<span class="kn">Qed</span>.
+
+<span class="c">(* diagram after (7) *)</span>
+<span class="kn">Lemma</span> <span class="nf">nwfs_Π_bottom_map_id</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) (<span class="nv">f</span> : arrow C) :
+    arrow_mor11 (nwfs_Π n f) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (law1 := Monad_law1 (T:=nwfs_R_monad n) f).
+  <span class="nb">set</span> (bottom := arrow_mor11_eq law1).
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  <span class="bp">exact</span> (pathsinv0 bottom).
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="c">(* λ_{ρf} · π_f = id (6, 4th) *)</span>
+<span class="kn">Lemma</span> <span class="nf">nwfs_Π_top_map_inv</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) (<span class="nv">f</span> : arrow C) :
+    arrow_mor (fact_L n (fact_R n f)) · arrow_mor00 (nwfs_Π n f) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (law1 := Monad_law1 (T:=nwfs_R_monad n) f).
+  <span class="nb">set</span> (top := arrow_mor00_eq law1).
+  <span class="bp">exact</span> top.
+<span class="kn">Qed</span>.
+
+<span class="c">(* π_{ρf} · π_f = F(π_f, 1_b) · π_f)</span>
+<span class="c">  where F(π_f, 1_b) = map on middle objects of F(Π_f)</span>
+<span class="c">  if we see Π_f as a morphism in the arrow category</span>
+<span class="c">   (9, bottom right + cancel_precomposition) *)</span>
+<span class="kn">Lemma</span> <span class="nf">nwfs_Π_bottom_map_R_is_middle_map_of_Π</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) (<span class="nv">f</span> : arrow C) :
+    arrow_mor00 (nwfs_Π n (fact_R n f)) · arrow_mor00 (nwfs_Π n f) =
+    three_mor11 (functor_on_morphisms n (nwfs_Π n f)) · arrow_mor00 (nwfs_Π n f).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (law3 := Monad_law3 (T:=nwfs_R_monad n) f).
+  <span class="nb">set</span> (top := arrow_mor00_eq law3).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">exact</span> top.
+<span class="kn">Qed</span>.
+
+<span class="c">(*</span>
+<span class="c"> * L-Map AND R-Map FOR AN NWFS n</span>
+<span class="c"> **)</span>
+
+<span class="c">(* In a monad algebra, we have [[f αf] laws] : nwfs_R_maps n *)</span>
+<span class="kn">Definition</span> <span class="nf">nwfs_R_maps</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) :=
+    MonadAlg_disp (nwfs_R_monad n).
+<span class="kn">Definition</span> <span class="nf">nwfs_L_maps</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> : nwfs C) :=
+    ComonadCoalg_disp (nwfs_L_monad n).
+
+<span class="c">(*</span>
+<span class="c">Shape of comonad morphism diagram (2.15, Garner)</span>
+<span class="c">  A ===== A ===== A  ~~&gt; id_A</span>
+<span class="c">  |       |       |</span>
+<span class="c">f |   α   |λf  η  | f</span>
+<span class="c">  v       v       v</span>
+<span class="c">  B ---&gt; Kf ----&gt; B  ~~&gt; id_B</span>
+<span class="c">     s       ρ_f</span>
+<span class="c">*)</span>
+<span class="kn">Lemma</span> <span class="nf">R_map_section_comm</span> {<span class="nv">C</span> : category} {<span class="nv">n</span> : nwfs C} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : a --&gt; b}
+    (<span class="nv">hf</span> : nwfs_L_maps n f) (<span class="nv">s</span> := pr211 hf) :
+  f · s = arrow_mor (fact_L n f) ×
+     s · arrow_mor (fact_R n f) = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (ida := pr111 hf).
+  <span class="nb">set</span> (αfcomm := pr21 hf).
+  <span class="nb">set</span> (hαfη := pr12 hf).
+
+  <span class="nb">cbn</span> <span class="k">in</span> ida, s, αfcomm.
+  <span class="nb">simpl</span> <span class="k">in</span> hαfη.
+
+  <span class="c">(* top line of hαfη: *)</span>
+  <span class="nb">assert</span> (ida = identity a) <span class="k">as</span> Hida.
+  {
+    <span class="c">(* base_paths : equality in pr1 of ∑-type (paths in base category)</span>
+<span class="c">       pathsdirprodweq : _ × _ = _ × _ -&gt; equality of terms</span>
+<span class="c">    *)</span>
+    <span class="nb">set</span> (top_line := dirprod_pr1 (pathsdirprodweq (base_paths _ _ hαfη))).
+    <span class="nb">rewrite</span> id_right <span class="k">in</span> top_line.
+    <span class="bp">exact</span> top_line.
+  }
+
+  <span class="nb">split</span>.
+  - <span class="c">(* f ⋅ s = λ_f *)</span>
+    <span class="c">(* commutativity and ida = identity a *)</span>
+    <span class="nb">specialize</span> (αfcomm) <span class="k">as</span> αfcomm'.
+    <span class="nb">unfold</span> ida <span class="k">in</span> Hida.
+    <span class="nb">rewrite</span> Hida, id_left <span class="k">in</span> αfcomm'.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="bp">exact</span> αfcomm'.
+  - <span class="c">(* s · ρ_f = id_b *)</span>
+    <span class="c">(* bottom line of hαfη *)</span>
+    <span class="nb">set</span> (bottom_line := dirprod_pr2 (pathsdirprodweq (base_paths _ _ hαfη))).
+    <span class="bp">exact</span> bottom_line.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">R_map_section</span> {<span class="nv">C</span> : category} {<span class="nv">n</span> : nwfs C} {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : a --&gt; b}
+    (<span class="nv">hf</span> : nwfs_L_maps n f) :
+  ∑ s, f · s = arrow_mor (fact_L n f) ×
+      s · arrow_mor (fact_R n f) = identity _.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">pr211</span> <span class="nv">hf</span>).
+  <span class="nb">apply</span> R_map_section_comm.
+<span class="kn">Defined</span>.
+
+<span class="c">(*</span>
+<span class="c">Shape of monad morphism diagram (2.15, Garner)</span>
+<span class="c">     λg       p</span>
+<span class="c">  C ---&gt; Kg ----&gt; C  ~~&gt; id_C</span>
+<span class="c">  |       |       |</span>
+<span class="c">g |   η   |ρg  α  | g</span>
+<span class="c">  v       v       v</span>
+<span class="c">  D ===== D ===== D  ~~&gt; id_D</span>
+<span class="c">*)</span>
+<span class="kn">Lemma</span> <span class="nf">L_map_retraction_comm</span> {<span class="nv">C</span> : category} {<span class="nv">n</span> : nwfs C} {<span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">g</span> : c --&gt; d}
+    (<span class="nv">hg</span> : nwfs_R_maps n g) (<span class="nv">p</span> := pr111 hg) :
+  p · g = arrow_mor (fact_R n g) ×
+      arrow_mor (fact_L n g) · p = identity _.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (idd := pr211 hg).
+  <span class="nb">set</span> (αgcomm := pr21 hg).
+  <span class="nb">set</span> (hαgη := pr12 hg).
+
+  <span class="nb">cbn</span> <span class="k">in</span> p, idd, αgcomm.
+  <span class="nb">simpl</span> <span class="k">in</span> hαgη.
+
+  <span class="c">(* bottom line of hαgη: *)</span>
+  <span class="nb">assert</span> (idd = identity d) <span class="k">as</span> Hidd.
+  {
+    <span class="c">(* base_paths : equality in pr1 of ∑-type (paths in base category)</span>
+<span class="c">       pathsdirprodweq : _ × _ = _ × _ -&gt; equality of terms</span>
+<span class="c">    *)</span>
+    <span class="nb">set</span> (bottom_line := dirprod_pr2 (pathsdirprodweq (base_paths _ _ hαgη))).
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> bottom_line.
+    <span class="bp">exact</span> bottom_line.
+  }
+
+  <span class="nb">split</span>.
+  - <span class="c">(* p ⋅ g = ρ_g *)</span>
+    <span class="c">(* commutativity and ida = identity a *)</span>
+    <span class="nb">specialize</span> (αgcomm) <span class="k">as</span> αgcomm'.
+    <span class="nb">unfold</span> idd <span class="k">in</span> Hidd.
+    <span class="nb">rewrite</span> Hidd, id_right <span class="k">in</span> αgcomm'.
+    <span class="bp">exact</span> αgcomm'.
+  - <span class="c">(* λg · p = id_c *)</span>
+    <span class="c">(* top line of hαfη *)</span>
+    <span class="nb">set</span> (top_line := dirprod_pr1 (pathsdirprodweq (base_paths _ _ hαgη))).
+    <span class="bp">exact</span> top_line.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">L_map_retraction</span> {<span class="nv">C</span> : category} {<span class="nv">n</span> : nwfs C} {<span class="nv">c</span> <span class="nv">d</span> : C} {<span class="nv">g</span> : c --&gt; d}
+    (<span class="nv">hg</span> : nwfs_R_maps n g) :
+  ∑ p, p · g = arrow_mor (fact_R n g) ×
+      arrow_mor (fact_L n g) · p = identity _.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">pr111</span> <span class="nv">hg</span>).
+  <span class="nb">apply</span> L_map_retraction_comm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">L_map_R_map_elp</span> {<span class="nv">C</span> : category} {<span class="nv">n</span> : nwfs C} {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span> : C}
+    {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : c --&gt; d} (<span class="nv">hf</span> : nwfs_L_maps n f)
+    (<span class="nv">hg</span> : nwfs_R_maps n g) : elp f g.
+<span class="kn">Proof</span>.
+  <span class="c">(* want to construct a lift of an L-map and an R-map</span>
+<span class="c">     using monad properties *)</span>
+  <span class="nb">intros</span> h k H.
+
+  <span class="nb">destruct</span> (R_map_section hf) <span class="k">as</span> [s [Hs0 Hs1]].
+  <span class="nb">destruct</span> (L_map_retraction hg) <span class="k">as</span> [p [Hp0 Hp1]].
+
+  <span class="nb">set</span> (hk := mors_to_arrow_mor f g h k H).
+  <span class="nb">set</span> (Fhk := functor_on_morphisms (fact_functor n) hk).
+  <span class="c">(* Kf --&gt; Kg *)</span>
+  <span class="nb">set</span> (Khk := three_mor11 Fhk).
+
+  <span class="c">(* commutativity in diagrams *)</span>
+  <span class="nb">set</span> (Hhk := three_mor_comm Fhk).
+  <span class="nb">simpl</span> <span class="k">in</span> Hhk.
+  <span class="nb">destruct</span> Hhk <span class="k">as</span> [Hhk0 Hhk1].
+
+  <span class="c">(*</span>
+<span class="c">              h</span>
+<span class="c">    A ==== A ----&gt; C</span>
+<span class="c">    |      |       |</span>
+<span class="c">  f |  Lf  |       |</span>
+<span class="c">    v      v  Khk  v   p</span>
+<span class="c">    B ---&gt; Kf ---&gt; Kg ---&gt; C</span>
+<span class="c">        s  |       |       |</span>
+<span class="c">           |       |  Rg   | g</span>
+<span class="c">           v       |       v</span>
+<span class="c">           B ----&gt; D ===== D</span>
+<span class="c">                k</span>
+<span class="c">  *)</span>
+
+  <span class="k">exists</span> (<span class="nv">s</span> · Khk · p).
+
+  <span class="kp">abstract</span> (
+    <span class="nb">split</span>; [
+      <span class="c">(* f · (s · Khk · p) = h *)</span>
+      <span class="nb">rewrite</span> assoc, assoc;
+      <span class="nb">rewrite</span> Hs0;
+      <span class="c">(* λ_f · Khk · p = h *)</span>
+      <span class="c">(* rewrite Hhk0 : (λ_f · Hhk = h · λ_g) *)</span>
+      etrans; [<span class="nb">apply</span> maponpaths_2;
+               <span class="bp">exact</span> Hhk0|];
+      <span class="c">(* h · λ_g · p = h *)</span>
+      <span class="c">(* rewrite Hp1 : (λ_g · p = id_C) *)</span>
+      <span class="nb">rewrite</span> &lt;- assoc;
+      etrans; [<span class="nb">apply</span> maponpaths;
+               <span class="bp">exact</span> Hp1|];
+      <span class="c">(* h · id_C = h *)</span>
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_right
+    | <span class="c">(* s · Khk · p · g = k *)</span>
+      <span class="nb">rewrite</span> &lt;- (assoc _ p g);
+      <span class="nb">rewrite</span> Hp0;
+      <span class="c">(* s · Khk · ρ_g = k *)</span>
+      <span class="c">(* rewrite Hhk1 : ρ_f · k = Khk · ρ_g *)</span>
+      <span class="nb">rewrite</span> &lt;- assoc;
+      etrans; [<span class="nb">apply</span> maponpaths;
+               <span class="bp">exact</span> (pathsinv0 Hhk1)|];
+      <span class="c">(* s · ρ_f · k = k *)</span>
+      <span class="c">(* rewrite Hs1 : s · ρ_f = id_B *)</span>
+      <span class="nb">rewrite</span> assoc;
+      etrans; [<span class="nb">apply</span> maponpaths_2;
+               <span class="bp">exact</span> Hs1|];
+      <span class="c">(* id_B · k = k *)</span>
+      <span class="bp">now</span> <span class="nb">rewrite</span> id_left
+    ]
+  ).
+<span class="kn">Defined</span>.
+
+
+<span class="c">(*</span>
+<span class="c"> * CATEGORY OF NWFS's ON A CATEGORY C</span>
+<span class="c"> **)</span>
+
+<span class="kn">Section</span> <span class="nf">NWFS_cat</span>.
+
+<span class="kn">Definition</span> <span class="nf">fact_mor</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> <span class="nv">F'</span> : functorial_factorization C) :=
+    section_nat_trans_disp F F'.
+
+<span class="kn">Definition</span> <span class="nf">fact_mor_nt</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> <span class="nv">F'</span> : functorial_factorization C} (<span class="nv">τ</span> : fact_mor F F') :=
+    section_nat_trans τ.
+<span class="kn">Coercion</span> <span class="nf">fact_mor_nt</span> : fact_mor &gt;-&gt; nat_trans.
+
+<span class="kn">Lemma</span> <span class="nf">isaset_fact_mor</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> <span class="nv">F'</span> : functorial_factorization C) : isaset (fact_mor F F').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaset_section_nat_trans_disp.
+<span class="kn">Qed</span>.
+
+<span class="c">(* verify that indeed, whiskering with d1 yields id_{C^2} ⟹ id_{C^2} *)</span>
+<span class="kn">Lemma</span> <span class="nf">fact_mor_whisker_d1_is_id</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> <span class="nv">F'</span> : functorial_factorization C}
+    (<span class="nv">τ</span> : fact_mor F F') :
+    post_whisker τ face_map_1 = nat_trans_id (functor_identity _).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span>. <span class="c">(* ~~&gt; identity x = identity x *)</span>
+    <span class="nb">trivial</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_precategory_ob_mor</span> (<span class="nv">C</span> : category) : precategory_ob_mor.
+<span class="kn">Proof</span>.
+  use make_precategory_ob_mor.
+  - <span class="bp">exact</span> (functorial_factorization C).
+  - <span class="nb">intros</span> F F'.
+    <span class="bp">exact</span> (fact_mor F F').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_precategory_id</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functorial_factorization C) : fact_mor F F :=
+    section_nat_trans_id F.
+
+<span class="kn">Definition</span> <span class="nf">Ff_precategory_comp</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : functorial_factorization C) :
+    (fact_mor F F') -&gt; (fact_mor F' F'') -&gt; (fact_mor F F'').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> τ τ'.
+  <span class="bp">exact</span> (section_nat_trans_comp τ τ').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_precategory_data</span> (<span class="nv">C</span> : category) : precategory_data.
+<span class="kn">Proof</span>.
+  use make_precategory_data.
+  - <span class="bp">exact</span> (Ff_precategory_ob_mor C).
+  - <span class="bp">exact</span> Ff_precategory_id.
+  - <span class="bp">exact</span> Ff_precategory_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_is_precategory</span> (<span class="nv">C</span> : category) : is_precategory (Ff_precategory_data C).
+<span class="kn">Proof</span>.
+  use make_is_precategory_one_assoc; <span class="nb">intros</span>.
+  - <span class="nb">apply</span> section_nat_trans_id_left.
+  - <span class="nb">apply</span> section_nat_trans_id_right.
+  - <span class="nb">apply</span> section_nat_trans_assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff_precategory</span> (<span class="nv">C</span> : category) : precategory := (_,, Ff_is_precategory C).
+
+<span class="kn">Definition</span> <span class="nf">has_homsets_Ff</span> (<span class="nv">C</span> : category) : has_homsets (Ff_precategory C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F F'.
+  use isaset_fact_mor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Ff</span> (<span class="nv">C</span> : category) : category := (Ff_precategory C,, has_homsets_Ff C).
+
+<span class="kn">Definition</span> <span class="nf">lnwfs_mor</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> <span class="nv">F'</span> : functorial_factorization C}
+    (<span class="nv">n</span> : lnwfs_over F) (<span class="nv">n'</span> : lnwfs_over F')
+    (<span class="nv">τ</span> : fact_mor F F') : (lnwfs_L_monad n) ⟹ (lnwfs_L_monad n') :=
+  post_whisker (τ) (face_map_2).
+
+<span class="kn">Definition</span> <span class="nf">rnwfs_mor</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> <span class="nv">F'</span> : functorial_factorization C}
+    (<span class="nv">n</span> : rnwfs_over F) (<span class="nv">n'</span> : rnwfs_over F')
+    (<span class="nv">τ</span> : fact_mor F F') : (rnwfs_R_monad n) ⟹ (rnwfs_R_monad n') :=
+  post_whisker τ face_map_0.
+
+<span class="kn">Definition</span> <span class="nf">lnwfs_mor_axioms</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> <span class="nv">F'</span> : functorial_factorization C}
+    (<span class="nv">n</span> : lnwfs_over F) (<span class="nv">n'</span> : lnwfs_over F')
+    (<span class="nv">τ</span> : fact_mor F F') :=
+  disp_Comonad_Mor_laws (lnwfs_L_monad_data n) (lnwfs_L_monad_data n') (lnwfs_mor n n' τ).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_lnwfs_mor_axioms</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> <span class="nv">F'</span> : functorial_factorization C}
+    (<span class="nv">n</span> : lnwfs_over F) (<span class="nv">n'</span> : lnwfs_over F')
+    (<span class="nv">τ</span> : fact_mor F F') :
+  isaprop (lnwfs_mor_axioms n n' τ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaprop_disp_Comonad_Mor_laws.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rnwfs_mor_axioms</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> <span class="nv">F'</span> : functorial_factorization C}
+    (<span class="nv">n</span> : rnwfs_over F) (<span class="nv">n'</span> : rnwfs_over F')
+    (<span class="nv">τ</span> : fact_mor F F') :=
+  disp_Monad_Mor_laws (rnwfs_R_monad_data n) (rnwfs_R_monad_data n') (rnwfs_mor n n' τ).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_rnwfs_mor_axioms</span> {<span class="nv">C</span> : category} {<span class="nv">F</span> <span class="nv">F'</span> : functorial_factorization C}
+    (<span class="nv">n</span> : rnwfs_over F) (<span class="nv">n'</span> : rnwfs_over F')
+    (<span class="nv">τ</span> : fact_mor F F') :
+  isaprop (rnwfs_mor_axioms n n' τ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaprop_disp_Monad_Mor_laws.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nwfs_mor_axioms</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> <span class="nv">n'</span> : nwfs C) (<span class="nv">τ</span> : fact_mor n n') :=
+    lnwfs_mor_axioms n n' τ × rnwfs_mor_axioms n n' τ.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_nwfs_mor_axioms</span> {<span class="nv">C</span> : category} (<span class="nv">n</span> <span class="nv">n'</span> : nwfs C) (<span class="nv">τ</span> : fact_mor n n') :
+  isaprop (nwfs_mor_axioms n n' τ).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod.
+  - <span class="nb">apply</span> isaprop_lnwfs_mor_axioms.
+  - <span class="nb">apply</span> isaprop_rnwfs_mor_axioms.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lnwfs_L_monad_mor</span> {<span class="nv">C</span> : category}
+    {<span class="nv">F</span> <span class="nv">F'</span> : functorial_factorization C}
+    {<span class="nv">n</span> : lnwfs_over F}
+    {<span class="nv">n'</span> : lnwfs_over F'}
+    (<span class="nv">τ</span> : fact_mor F F')
+    (<span class="nv">ax</span> : lnwfs_mor_axioms n n' τ) :
+      Comonad_Mor (lnwfs_L_monad n) (lnwfs_L_monad n') :=
+  (lnwfs_mor n n' τ,, ax).
+
+<span class="kn">Definition</span> <span class="nf">rnwfs_R_monad_mor</span> {<span class="nv">C</span> : category}
+    {<span class="nv">F</span> <span class="nv">F'</span> : functorial_factorization C}
+    {<span class="nv">n</span> : rnwfs_over F}
+    {<span class="nv">n'</span> : rnwfs_over F'}
+    (<span class="nv">τ</span> : fact_mor F F')
+    (<span class="nv">ax</span> : rnwfs_mor_axioms n n' τ) :
+      Monad_Mor (rnwfs_R_monad n) (rnwfs_R_monad n') :=
+  (rnwfs_mor n n' τ,, ax).
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+<span class="c">(* We just show that fact_id corresponds with the identity monad morphisms</span>
+<span class="c">   on L and R. *)</span>
+<span class="kn">Lemma</span> <span class="nf">fact_id_is_lnwfs_mor</span> {<span class="nv">F</span> : functorial_factorization C} (<span class="nv">n</span> : lnwfs_over F) : lnwfs_mor_axioms n n (Ff_precategory_id F).
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (H : lnwfs_mor _ _ (Ff_precategory_id F) = nat_trans_id (lnwfs_L_monad n)).
+  {
+    use nat_trans_eq; [<span class="nb">apply</span> homset_property|].
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+    <span class="nb">apply</span> pathsdirprod; <span class="bp">reflexivity</span>.
+  }
+  <span class="nb">unfold</span> lnwfs_mor_axioms.
+  <span class="nb">rewrite</span> H.
+  <span class="bp">exact</span> (comonads_category_id_subproof _ (pr2 n)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">fact_id_is_rnwfs_mor</span> {<span class="nv">F</span> : functorial_factorization C} (<span class="nv">n</span> : rnwfs_over F) : rnwfs_mor_axioms n n (Ff_precategory_id F).
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (H : rnwfs_mor _ _ (Ff_precategory_id F) = nat_trans_id (rnwfs_R_monad n)).
+  {
+    use nat_trans_eq; [<span class="nb">apply</span> homset_property|].
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+    <span class="nb">apply</span> pathsdirprod; <span class="nb">cbn</span>; <span class="nb">trivial</span>.
+  }
+  <span class="nb">unfold</span> rnwfs_mor_axioms.
+  <span class="nb">rewrite</span> H.
+  <span class="bp">exact</span> (monads_category_id_subproof _ (pr2 n)).
+<span class="kn">Qed</span>.
+
+<span class="c">(* Lemma fact_id_is_nwfs_mor (n : nwfs C) : nwfs_mor_axioms n n (Ff_precategory_id (nwfs_fact n)).</span>
+<span class="c">Proof.</span>
+<span class="c">  split.</span>
+<span class="c">  - apply fact_id_is_lnwfs_mor.</span>
+<span class="c">  - apply fact_id_is_rnwfs_mor.</span>
+<span class="c">Qed. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">lnwfs_mor_comp</span> {<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : Ff C}
+    {<span class="nv">n</span> : lnwfs_over F}
+    {<span class="nv">n'</span> : lnwfs_over F'}
+    {<span class="nv">n''</span> : lnwfs_over F''}
+    {<span class="nv">τ</span> : F --&gt; F'}
+    {<span class="nv">τ'</span> : F' --&gt; F''}
+    (<span class="nv">ax</span> : lnwfs_mor_axioms n n' τ)
+    (<span class="nv">ax'</span> : lnwfs_mor_axioms n' n'' τ') :
+  lnwfs_mor_axioms n n'' (τ · τ').
+<span class="kn">Proof</span>.
+  <span class="c">(* Like for identity, we just show that the composition of the morphisms</span>
+<span class="c">     corresponds with the composition of the corresponding L and R monad</span>
+<span class="c">     morphisms. *)</span>
+  <span class="nb">assert</span> (lnwfs_mor n n'' (τ · τ') =
+          nat_trans_comp _ _ _ (lnwfs_L_monad_mor τ ax) (lnwfs_L_monad_mor τ' ax')) <span class="k">as</span> H.
+  {
+    use nat_trans_eq.
+    - <span class="c">(* for some reason this definition is completely unfolded *)</span>
+      <span class="bp">exact</span> (homset_property (arrow C)).
+    - <span class="nb">intro</span> x.
+      use arrow_mor_eq.
+      * <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> id_left.
+      * etrans. use pr1_transportf_const.
+        <span class="bp">reflexivity</span>.
+  }
+  <span class="nb">unfold</span> lnwfs_mor_axioms.
+  <span class="nb">rewrite</span> H.
+  <span class="bp">exact</span> (
+    comonads_category_comp_subproof
+      (lnwfs_L_monad_data n)
+      (pr22 (lnwfs_L_monad n))
+      (lnwfs_L_monad_data n')
+      (pr22 (lnwfs_L_monad n'))
+      (lnwfs_L_monad_data n'')
+      (pr22 (lnwfs_L_monad n''))
+      (lnwfs_L_monad_mor τ ax)
+      (lnwfs_L_monad_mor τ' ax')
+      ax ax'
+  ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rnwfs_mor_comp</span> {<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : Ff C}
+    {<span class="nv">n</span> : rnwfs_over F}
+    {<span class="nv">n'</span> : rnwfs_over F'}
+    {<span class="nv">n''</span> : rnwfs_over F''}
+    {<span class="nv">τ</span> : F --&gt; F'}
+    {<span class="nv">τ'</span> : F' --&gt; F''}
+    (<span class="nv">ax</span> : rnwfs_mor_axioms n n' τ)
+    (<span class="nv">ax'</span> : rnwfs_mor_axioms n' n'' τ') :
+  rnwfs_mor_axioms n n'' (τ · τ').
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (rnwfs_mor n n'' (τ · τ') =
+          nat_trans_comp _ _ _ (rnwfs_R_monad_mor τ ax) (rnwfs_R_monad_mor τ' ax')) <span class="k">as</span> H.
+  {
+    use nat_trans_eq.
+    - <span class="c">(* for some reason this definition is completely unfolded *)</span>
+      <span class="bp">exact</span> (homset_property (arrow C)).
+    - <span class="nb">intro</span> x; <span class="nb">simpl</span> <span class="k">in</span> x.
+      <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+      <span class="nb">simpl</span>.
+      <span class="nb">apply</span> pathsdirprod; <span class="nb">cbn</span>.
+      * etrans. use pr1_transportf_const.
+        <span class="bp">reflexivity</span>.
+      * <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  }
+  <span class="nb">unfold</span> rnwfs_mor_axioms.
+  <span class="nb">rewrite</span> H.
+
+  <span class="bp">exact</span> (
+    monads_category_comp_subproof
+      (rnwfs_R_monad_data n)
+      (pr22 (rnwfs_R_monad n))
+      (rnwfs_R_monad_data n')
+      (pr22 (rnwfs_R_monad n'))
+      (rnwfs_R_monad_data n'')
+      (pr22 (rnwfs_R_monad n''))
+      (rnwfs_R_monad_mor τ ax)
+      (rnwfs_R_monad_mor τ' ax')
+      ax ax'
+  ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS</span> : disp_cat (Ff C).
+<span class="kn">Proof</span>.
+  use disp_cat_from_SIP_data.
+  - <span class="bp">exact</span> lnwfs_over.
+  - <span class="bp">exact</span> (@lnwfs_mor_axioms C).
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_lnwfs_mor_axioms.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> fact_id_is_lnwfs_mor.
+  - <span class="nb">intros</span> F F' F'' n n' n'' τ τ' ax ax'.
+    <span class="nb">apply</span> (lnwfs_mor_comp ax ax').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">RNWFS</span> : disp_cat (Ff C).
+<span class="kn">Proof</span>.
+  use disp_cat_from_SIP_data.
+  - <span class="bp">exact</span> rnwfs_over.
+  - <span class="bp">exact</span> (@rnwfs_mor_axioms C).
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_rnwfs_mor_axioms.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> fact_id_is_rnwfs_mor.
+  - <span class="nb">intros</span> F F' F'' n n' n'' τ τ' ax ax'.
+    <span class="nb">apply</span> (rnwfs_mor_comp ax ax').
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">NWFS</span> : disp_cat (Ff C) :=
+    dirprod_disp_cat LNWFS RNWFS.
+
+<span class="kn">End</span> <span class="nf">NWFS_cat</span>.
+
+<span class="kn">Section</span> <span class="nf">Helpers</span>.
+
+<span class="kn">Lemma</span> <span class="nf">eq_section_nat_trans_component</span>
+    {<span class="nv">C</span> : category}
+    {<span class="nv">F</span> <span class="nv">F'</span> : Ff C}
+    {<span class="nv">γ</span> <span class="nv">γ'</span> : F --&gt; F'}
+    (<span class="nv">H</span> : γ = γ') :
+  ∏ f, section_nat_trans γ f = section_nat_trans γ' f.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">induction</span> H.
+<span class="kn">Qed</span>.
+
+<span class="c">(* the above equality, but on the middle morphisms *)</span>
+<span class="kn">Lemma</span> <span class="nf">eq_section_nat_trans_component11</span>
+    {<span class="nv">C</span> : category}
+    {<span class="nv">F</span> <span class="nv">F'</span> : Ff C}
+    {<span class="nv">γ</span> <span class="nv">γ'</span> : F --&gt; F'}
+    (<span class="nv">H</span> : γ = γ') :
+  ∏ f, three_mor11 (section_nat_trans γ f) = three_mor11 (section_nat_trans γ' f).
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">induction</span> H.
+<span class="kn">Qed</span>.
+
+<span class="c">(* specific version of the above that we need</span>
+<span class="c">   in a proof *)</span>
+<span class="kn">Lemma</span> <span class="nf">eq_section_nat_trans_comp_component11</span>
+    {<span class="nv">C</span> : category}
+    {<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span> : Ff C}
+    {<span class="nv">γ</span> : F --&gt; F''}
+    {<span class="nv">γ'</span> : F --&gt; F'}
+    {<span class="nv">γ''</span> : F' --&gt; F''}
+    (<span class="nv">H</span> : γ' · γ'' = γ) :
+  ∏ f,
+    three_mor11 (section_nat_trans γ' f)
+    · three_mor11 (section_nat_trans γ'' f)
+    = three_mor11 (section_nat_trans γ f).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> H.
+  <span class="nb">intro</span> f.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> pr1_transportf_const.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Helpers</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/NWFS.v</tt>, line 40)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

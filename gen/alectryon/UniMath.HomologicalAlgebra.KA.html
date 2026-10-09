@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>KA.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * K(A), the naive homotopy category of C(A) *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition of K(A)</span>
+<span class="sd">*)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+
+<span class="kn">Require Import</span> UniMath.NumberSystems.Integers.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.TransportMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Kernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Cokernels.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinDirectSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PreAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Additive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Abelian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.AbelianToAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.AdditiveFunctors.
+
+<span class="kn">Require Import</span> UniMath.HomologicalAlgebra.Complexes.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Unset</span> Kernel Term Sharing.
+<span class="kn">Global</span> <span class="kn">Opaque</span> hz.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hz_scope.
+<span class="kn">Opaque</span> hz isdecrelhzeq hzplus hzminus hzone hzzero iscommringops ZeroArrow ishinh.
+
+<span class="sd">(** * Homotopies of complexes and K(A), the naive homotopy category of A. *)</span>
+<span class="sd">(** ** Introduction</span>
+<span class="sd">   We define homotopy of complexes and the naive homotopy category K(A). A homotopy χ from complex</span>
+<span class="sd">   X to a complex Y is a family of morphisms χ^i : X^i --&gt; Y^{i-1}. Note that a homotopy χ induces</span>
+<span class="sd">   a morphism of complexes h : X --&gt; Y by setting</span>
+<span class="sd">                      # h^i = χ^i · d^{i-1}_Y + d^i_X · χ^{i+1}. #</span>
+<span class="sd">                      $ h^i = χ^i · d^{i-1}_Y + d^i_X · χ^{i+1}. $</span>
+<span class="sd">   The subset of morphisms in Mor(X, Y) which are of the form h form an abelian subgroup of</span>
+<span class="sd">   Mor(X, Y). Also, if f : Z_1 --&gt; X and g : Y --&gt; Z_2 are morphisms of complexes, then f · h and</span>
+<span class="sd">   h · g have paths to morphisms induced by homotopies. These are given (f^i · χ^i) and</span>
+<span class="sd">   (χ^i · g^{i-1}), respectively.</span>
+
+<span class="sd">   These are the properties that are enough to form the quotient category of C(A) using</span>
+<span class="sd">   [Quotcategory_Additive]. We call the resulting category the naive homotopy category of A, and</span>
+<span class="sd">   denote it by K(A). The objects of K(A) are objects of C(A) and Mor_{K(A)}(X, Y) =</span>
+<span class="sd">   Mor_{C(A)}(X, Y) / (the subgroup of null-homotopic morphisms, [ComplexHomotSubgrp]).</span>
+
+<span class="sd">   Homotopies are defined in [ComplexHomot]. The induced morphisms of a homotopy is constructed in</span>
+<span class="sd">   [ComplexHomotMorphism]. The subgroup of morphisms coming from homotopies is defined in</span>
+<span class="sd">   [ComplexHomotSubgrp]. Pre- and postcomposition of morphisms coming from homotopies are morphisms</span>
+<span class="sd">   coming from homotopies are proven in [ComplexHomotSubgrop_comp_right] and</span>
+<span class="sd">   [ComplexHomotSubgrop_comp_left]. The naive homotopy category K(A) is constructed in</span>
+<span class="sd">   [ComplexHomot_Additive].</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">complexes_homotopies</span>.
+
+  <span class="kn">Variable</span> <span class="nv">A</span> : CategoryWithAdditiveStructure.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexHomot</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex A) : UU := ∏ (i : hz), A⟦C1 i, C2 (i - <span class="mi">1</span>)⟧.
+
+  <span class="sd">(** This lemma shows that the squares of the morphism map, defined by the homotopy H, commute. *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexHomotMorphism_comm</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">H</span> : ComplexHomot C1 C2) (<span class="nv">i</span> : hz) :
+    to_binop (C1 i) (C2 i)
+             (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i <span class="mi">1</span>))
+                         (H i · Diff C2 (i - <span class="mi">1</span>)))
+             (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrplusminus i <span class="mi">1</span>))
+                         (Diff C1 i · H (i + <span class="mi">1</span>))) ·
+             Diff C2 i =
+    Diff C1 i · to_binop (C1 (i + <span class="mi">1</span>)) (C2 (i + <span class="mi">1</span>))
+         (transportf (precategory_morphisms (C1 (i + <span class="mi">1</span>))) (maponpaths C2 (hzrminusplus (i + <span class="mi">1</span>) <span class="mi">1</span>))
+                     (H (i + <span class="mi">1</span>) · Diff C2 (i + <span class="mi">1</span> - <span class="mi">1</span>)))
+         (transportf (precategory_morphisms (C1 (i + <span class="mi">1</span>))) (maponpaths C2 (hzrplusminus (i + <span class="mi">1</span>) <span class="mi">1</span>))
+                     (Diff C1 (i + <span class="mi">1</span>) · H (i + <span class="mi">1</span> + <span class="mi">1</span>))).
+  <span class="kn">Proof</span>.
+    <span class="c">(* First we get rid of the ZeroArrows *)</span>
+    <span class="nb">rewrite</span> to_postmor_linear'. <span class="nb">rewrite</span> to_premor_linear'.
+    <span class="nb">assert</span> (e0 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i <span class="mi">1</span>))
+                             (H i · Diff C2 (i - <span class="mi">1</span>)) ·
+                             Diff C2 i) = ZeroArrow (Additive.to_Zero A) _ _).
+    {
+      <span class="nb">induction</span> (hzrminusplus i <span class="mi">1</span>). <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> (@DSq A C2 (i - <span class="mi">1</span>)). <span class="nb">apply</span> ZeroArrow_comp_right.
+    }
+    <span class="nb">rewrite</span> e0. <span class="nb">clear</span> e0.
+    <span class="nb">assert</span> (e1 : (Diff C1 i · transportf (precategory_morphisms (C1 (i + <span class="mi">1</span>)))
+                       (maponpaths
+                          C2 (hzrplusminus (i + <span class="mi">1</span>) <span class="mi">1</span>)) (Diff C1 (i + <span class="mi">1</span>) · H (i + <span class="mi">1</span> + <span class="mi">1</span>))) =
+                 ZeroArrow (Additive.to_Zero A) _ _).
+    {
+      <span class="nb">rewrite</span> &lt;- transport_target_postcompose. <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> (@DSq A C1 i).
+      <span class="nb">rewrite</span> ZeroArrow_comp_left. <span class="nb">apply</span> transport_target_ZeroArrow.
+    }
+    <span class="nb">rewrite</span> e1. <span class="nb">clear</span> e1.
+    <span class="nb">rewrite</span> &lt;- PreAdditive_unel_zero. <span class="nb">rewrite</span> to_lunax'. <span class="nb">rewrite</span> to_runax'.
+    <span class="c">(* Here the idea is to apply cancel_precomposition *)</span>
+    <span class="nb">rewrite</span> transport_target_postcompose. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> cancel_precomposition.
+    <span class="c">(* Other application of cancel_precomposition *)</span>
+    <span class="nb">rewrite</span> transport_compose. <span class="nb">rewrite</span> transport_target_postcompose. <span class="nb">apply</span> cancel_precomposition.
+    <span class="c">(* Follows frm transport of differentials *)</span>
+    <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> &lt;- maponpathsinv0.
+    use (pathscomp0 _ (transport_hz_section A C2 <span class="mi">1</span> (Diff C2) _ _ (hzrplusminus i <span class="mi">1</span>))).
+    use transportf_paths. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> isasethz.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Every homotopy H of complexes induces a morphism of complexes. The morphism is defined by</span>
+<span class="sd">      taking the map C1 i --&gt; C2 i to be the sum</span>
+<span class="sd">                         (H i) · (Diff C2 (i - 1)) + (Diff C1 i) · (H (i + 1)).</span>
+<span class="sd">      Note that we need to use transportf because the targets are not definitionally equal. The</span>
+<span class="sd">      target of the first is C2 (i - 1 + 1) and the second target is C2 (i + 1 - 1). We transport</span>
+<span class="sd">      these to C2 i. *)</span>
+  <span class="kn">Definition</span> <span class="nf">ComplexHomotMorphism</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">H</span> : ComplexHomot C1 C2) : Morphism C1 C2.
+  <span class="kn">Proof</span>.
+    use make_Morphism.
+    - <span class="nb">intros</span> i.
+      use (@to_binop A (C1 i) (C2 i)).
+      + <span class="bp">exact</span> (transportf _ (maponpaths C2 (hzrminusplus i <span class="mi">1</span>)) ((H i) · (Diff C2 (i - <span class="mi">1</span>)))).
+      + <span class="bp">exact</span> (transportf _ (maponpaths C2 (hzrplusminus i <span class="mi">1</span>)) ((Diff C1 i) · (H (i + <span class="mi">1</span>)))).
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> (ComplexHomotMorphism_comm H i).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** For all complexes C1 and C2, we define a subset of C1 --&gt; C2 to consist of all the morphisms</span>
+<span class="sd">      which have a path to a morphism induced by a homotopy H by [ComplexHomotMorphism]. Our goal is</span>
+<span class="sd">      to show that this subset is an abelian subgroup, and thus we can form the quotient group. *)</span>
+  <span class="kn">Definition</span> <span class="nf">ComplexHomotSubset</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex A) :
+    @hsubtype ((ComplexPreCat_Additive A)⟦C1, C2⟧) :=
+    (<span class="k">fun</span> (<span class="nv">f</span> : ((ComplexPreCat_Additive A)⟦C1, C2⟧)) =&gt;
+       <span class="k">∃</span> (<span class="nv">H</span> : ComplexHomot C1 C2), ComplexHomotMorphism H = f).
+
+  <span class="sd">(** This lemma shows that the subset [ComplexHomotSubset] satisfies the axioms of a subgroup. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotisSubgrop</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex A) :
+    @issubgr (@to_abgr (ComplexPreCat_Additive A) C1 C2) (ComplexHomotSubset C1 C2).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - use tpair.
+      + <span class="nb">intros</span> f g. <span class="nb">induction</span> f <span class="k">as</span> [f1 f2]. <span class="nb">induction</span> g <span class="k">as</span> [g1 g2].
+        use (squash_to_prop f2).
+        { <span class="nb">apply</span> propproperty. }
+        <span class="nb">intros</span> f3.
+        use (squash_to_prop g2).
+        { <span class="nb">apply</span> propproperty. }
+        <span class="nb">intros</span> g3.
+        <span class="nb">induction</span> f3 <span class="k">as</span> [f3 f4].
+        <span class="nb">induction</span> g3 <span class="k">as</span> [g3 g4].
+        use hinhpr. <span class="nb">cbn</span>.
+        use tpair.
+        * <span class="nb">intros</span> i.
+          use to_binop.
+          -- <span class="bp">exact</span> (f3 i).
+          -- <span class="bp">exact</span> (g3 i).
+        * <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> &lt;- f4. <span class="nb">rewrite</span> &lt;- g4.
+          use MorphismEq.
+          <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> to_postmor_linear'.
+          <span class="nb">rewrite</span> to_premor_linear'.
+          <span class="nb">assert</span> (e0 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrplusminus i <span class="mi">1</span>))
+                                   (to_binop (C1 i) (C2 (i + <span class="mi">1</span> - <span class="mi">1</span>)) (Diff C1 i · f3 (i + <span class="mi">1</span>))
+                                             (Diff C1 i · g3 (i + <span class="mi">1</span>)))) =
+                       to_binop (C1 i) (C2 i)
+                                (transportf (precategory_morphisms (C1 i))
+                                            (maponpaths C2 (hzrplusminus i <span class="mi">1</span>))
+                                            (Diff C1 i · f3 (i + <span class="mi">1</span>)))
+                                (transportf (precategory_morphisms (C1 i))
+                                            (maponpaths C2 (hzrplusminus i <span class="mi">1</span>))
+                                            (Diff C1 i · g3 (i + <span class="mi">1</span>)))).
+          {
+            <span class="nb">induction</span> (hzrplusminus i <span class="mi">1</span>). <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">cbn</span> <span class="k">in</span> e0. <span class="nb">rewrite</span> e0. <span class="nb">clear</span> e0.
+          <span class="nb">assert</span> (e1 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i <span class="mi">1</span>))
+                                   (to_binop (C1 i) (C2 (i - <span class="mi">1</span> + <span class="mi">1</span>)) (f3 i · Diff C2 (i - <span class="mi">1</span>))
+                                             (g3 i · Diff C2 (i - <span class="mi">1</span>)))) =
+                       to_binop (C1 i) (C2 i)
+                                (transportf (precategory_morphisms (C1 i))
+                                            (maponpaths C2 (hzrminusplus i <span class="mi">1</span>))
+                                            (f3 i · Diff C2 (i - <span class="mi">1</span>)))
+                                (transportf (precategory_morphisms (C1 i))
+                                            (maponpaths C2 (hzrminusplus i <span class="mi">1</span>))
+                                            (g3 i · Diff C2 (i - <span class="mi">1</span>)))).
+          {
+            <span class="nb">induction</span> (hzrminusplus i <span class="mi">1</span>). <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">cbn</span> <span class="k">in</span> e1. <span class="nb">rewrite</span> e1. <span class="nb">clear</span> e1.
+          <span class="nb">set</span> (tmp := @assocax (@to_abgr A (C1 i) (C2 i))). <span class="nb">cbn</span> <span class="k">in</span> tmp.
+          <span class="nb">rewrite</span> tmp. <span class="nb">rewrite</span> tmp. <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- tmp. <span class="nb">rewrite</span> &lt;- tmp.
+          <span class="nb">set</span> (tmp' := @commax (@to_abgr A (C1 i) (C2 i))). <span class="nb">cbn</span> <span class="k">in</span> tmp'.
+          <span class="nb">rewrite</span> tmp'.
+          <span class="nb">rewrite</span> (tmp' _ (transportf (precategory_morphisms (C1 i))
+                                      (maponpaths C2 (hzrplusminus i <span class="mi">1</span>))
+                                      (Diff C1 i · g3 (i + <span class="mi">1</span>)))).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> tmp'.
+      <span class="c">(* ZeroMorphisms *)</span>
+      + use hinhpr.
+        use tpair.
+        * <span class="nb">intros</span> i. <span class="bp">exact</span> (ZeroArrow (Additive.to_Zero A) _ _).
+        * <span class="nb">cbn</span>. use MorphismEq. <span class="nb">intros</span> i. <span class="nb">cbn</span>. <span class="nb">rewrite</span> ZeroArrow_comp_left.
+          <span class="nb">rewrite</span> transport_target_ZeroArrow.
+          <span class="nb">rewrite</span> ZeroArrow_comp_right. <span class="nb">rewrite</span> transport_target_ZeroArrow.
+          <span class="nb">rewrite</span> &lt;- PreAdditive_unel_zero. <span class="nb">rewrite</span> to_lunax'. <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> f H. use (squash_to_prop H).
+      { <span class="nb">apply</span> propproperty. }
+      <span class="nb">intros</span> H'. <span class="nb">clear</span> H.
+      <span class="nb">induction</span> H' <span class="k">as</span> [homot eq]. use hinhpr.
+      use tpair.
+      + <span class="nb">intros</span> i. <span class="bp">exact</span> (grinv (to_abgr (C1 i) (C2 (i - <span class="mi">1</span>))) (homot i)).
+      + <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- eq. use MorphismEq. <span class="nb">intros</span> i. <span class="nb">cbn</span>.
+        <span class="nb">set</span> (tmp := @PreAdditive_invrcomp A _ _ _ (Diff C1 i) (homot (i + <span class="mi">1</span>))).
+        <span class="nb">unfold</span> to_inv <span class="k">in</span> tmp. <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- tmp. <span class="nb">clear</span> tmp.
+        <span class="nb">assert</span> (e0 : (transportf (precategory_morphisms (C1 i))
+                                 (maponpaths C2 (hzrplusminus i <span class="mi">1</span>))
+                                 (grinv (to_abgr (C1 i) (C2 (i + <span class="mi">1</span> - <span class="mi">1</span>)))
+                                        (Diff C1 i · homot (i + <span class="mi">1</span>)))) =
+                     to_inv (transportf (precategory_morphisms (C1 i))
+                                        (maponpaths C2 (hzrplusminus i <span class="mi">1</span>))
+                                        (Diff C1 i · homot (i + <span class="mi">1</span>)))).
+        {
+          <span class="nb">unfold</span> to_inv. <span class="nb">cbn</span>. <span class="nb">induction</span> (hzrplusminus i <span class="mi">1</span>). <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">cbn</span> <span class="k">in</span> e0. <span class="nb">rewrite</span> e0. <span class="nb">clear</span> e0.
+        <span class="nb">assert</span> (e1 : (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i <span class="mi">1</span>))
+                                 (grinv (to_abgr (C1 i) (C2 (i - <span class="mi">1</span>)))
+                                        (homot i) · Diff C2 (i - <span class="mi">1</span>))) =
+                     to_inv (transportf (precategory_morphisms (C1 i))
+                                        (maponpaths C2 (hzrminusplus i <span class="mi">1</span>))
+                                        (homot i · Diff C2 (i - <span class="mi">1</span>)))).
+        {
+          <span class="nb">unfold</span> to_inv. <span class="nb">cbn</span>. <span class="nb">induction</span> (hzrminusplus i <span class="mi">1</span>). <span class="nb">cbn</span>.
+          <span class="nb">set</span> (tmp := @PreAdditive_invlcomp A (C1 i) (C2 (i - <span class="mi">1</span>)) (C2 (i - <span class="mi">1</span> + <span class="mi">1</span>))
+                                            (homot i) (Diff C2 (i - <span class="mi">1</span>))).
+          <span class="nb">apply</span> pathsinv0. <span class="nb">unfold</span> to_inv <span class="k">in</span> tmp.
+          <span class="nb">apply</span> tmp.
+        }
+        <span class="nb">cbn</span> <span class="k">in</span> e1. <span class="nb">rewrite</span> e1. <span class="nb">clear</span> e1.
+        <span class="nb">set</span> (tmp' := @commax (@to_abgr A (C1 i) (C2 i))). <span class="nb">cbn</span> <span class="k">in</span> tmp'. <span class="nb">rewrite</span> tmp'. <span class="nb">clear</span> tmp'.
+        <span class="nb">set</span> (tmp := @grinvop (@to_abgr A (C1 i) (C2 i))). <span class="nb">cbn</span> <span class="k">in</span> tmp. <span class="nb">unfold</span> to_inv.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">apply</span> tmp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexHomotSubgrp</span> (<span class="nv">C1</span> <span class="nv">C2</span> : Complex A) :
+    @subabgr (@to_abgr (ComplexPreCat_Additive A) C1 C2).
+  <span class="kn">Proof</span>.
+    use subgrconstr.
+    - <span class="bp">exact</span> (ComplexHomotSubset C1 C2).
+    - <span class="bp">exact</span> (ComplexHomotisSubgrop C1 C2).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Pre- and postcomposition with morphisms in ComplexHomotSubset is in ComplexHomotSubset. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotSubgrop_comp_left</span> (<span class="nv">C1</span> : Complex A) {<span class="nv">C2</span> <span class="nv">C3</span> : Complex A}
+        (<span class="nv">f</span> : ((ComplexPreCat_Additive A)⟦C2, C3⟧)) (<span class="nv">H</span> : ComplexHomotSubset C2 C3 f) :
+    ∏ (g : ((ComplexPreCat_Additive A)⟦C1, C2⟧)), ComplexHomotSubset C1 C3 (g · f).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> g.
+    use (squash_to_prop H).
+    { <span class="nb">apply</span> propproperty. }
+    <span class="nb">intros</span> HH.
+    use hinhpr.
+    <span class="nb">induction</span> HH <span class="k">as</span> [homot eq].
+    use tpair.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> ((MMor g i) · (homot i)).
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- eq. use MorphismEq. <span class="nb">intros</span> i. <span class="nb">cbn</span>. <span class="nb">rewrite</span> assoc.
+      <span class="nb">rewrite</span> &lt;- (MComm g i). <span class="nb">rewrite</span> transport_target_postcompose.
+      <span class="nb">rewrite</span> transport_target_postcompose.
+      <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">rewrite</span> &lt;- to_premor_linear'.
+      <span class="nb">rewrite</span> &lt;- transport_target_postcompose. <span class="nb">rewrite</span> &lt;- transport_target_postcompose.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotSubgrop_comp_right</span> {<span class="nv">C1</span> <span class="nv">C2</span> : Complex A} (<span class="nv">C3</span> : Complex A)
+        (<span class="nv">f</span> : ((ComplexPreCat_Additive A)⟦C1, C2⟧)) (<span class="nv">H</span> : ComplexHomotSubset C1 C2 f) :
+    ∏ (g : ((ComplexPreCat_Additive A)⟦C2, C3⟧)), ComplexHomotSubset C1 C3 (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> g.
+    use (squash_to_prop H).
+    { <span class="nb">apply</span> propproperty. }
+    <span class="nb">intros</span> HH.
+    use hinhpr.
+    <span class="nb">induction</span> HH <span class="k">as</span> [homot eq].
+    use tpair.
+    - <span class="nb">intros</span> i. <span class="bp">exact</span> ((homot i) · (MMor g (i - <span class="mi">1</span>))).
+    - <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- eq. use MorphismEq. <span class="nb">intros</span> i. <span class="nb">cbn</span>. <span class="nb">rewrite</span> &lt;- assoc.
+      <span class="nb">rewrite</span> (MComm g (i - <span class="mi">1</span>)). <span class="nb">rewrite</span> assoc. <span class="nb">rewrite</span> assoc.
+      <span class="nb">assert</span> (e0 : (transportf (precategory_morphisms (C1 i)) (maponpaths C3 (hzrminusplus i <span class="mi">1</span>))
+                               (homot i · Diff C2 (i - <span class="mi">1</span>) · MMor g (i - <span class="mi">1</span> + <span class="mi">1</span>))) =
+                   (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrminusplus i <span class="mi">1</span>))
+                               (homot i · Diff C2 (i - <span class="mi">1</span>))) · (MMor g i)).
+      {
+        <span class="nb">induction</span> (hzrminusplus i <span class="mi">1</span>). <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">cbn</span> <span class="k">in</span> e0. <span class="nb">rewrite</span> e0. <span class="nb">clear</span> e0.
+      <span class="nb">assert</span> (e1 : (transportf (precategory_morphisms (C1 i)) (maponpaths C3 (hzrplusminus i <span class="mi">1</span>))
+                               (Diff C1 i · homot (i + <span class="mi">1</span>) · MMor g (i + <span class="mi">1</span> - <span class="mi">1</span>))) =
+                   (transportf (precategory_morphisms (C1 i)) (maponpaths C2 (hzrplusminus i <span class="mi">1</span>))
+                               (Diff C1 i · homot (i + <span class="mi">1</span>))) · (MMor g i)).
+      {
+        <span class="nb">induction</span> (hzrplusminus i <span class="mi">1</span>). <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">cbn</span> <span class="k">in</span> e1. <span class="nb">rewrite</span> e1. <span class="nb">clear</span> e1.
+      <span class="nb">rewrite</span> &lt;- to_postmor_linear'. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+
+  <span class="sd">(** ** Naive homotopy category</span>
+<span class="sd">     We know that the homotopies from C1 to C2 form an abelian subgroup of the abelian group of all</span>
+<span class="sd">     morphisms from C1 to C2, by [ComplexHomotSubgrp]. We also know that composition of a morphism</span>
+<span class="sd">     with a morphism coming from a homotopy, is a morphism which comes from a homotopy, by</span>
+<span class="sd">     [ComplexHomotSubgrop_comp_left] and [ComplexHomotSubgrop_comp_right]. This is enough to</span>
+<span class="sd">     invoke our abstract construction Quotcategory_Additive, to construct the naive homotopy</span>
+<span class="sd">     category. *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">ComplexHomot_Additive_Comp</span> :
+    PreAdditiveComps (ComplexPreCat_Additive A)
+                     (<span class="k">λ</span> <span class="nv">C1</span> <span class="nv">C2</span> : ComplexPreCat_Additive A, ComplexHomotSubgrp C1 C2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> C1 C2. <span class="nb">split</span>.
+    - <span class="nb">intros</span> C3 f H g.
+      <span class="nb">apply</span> ComplexHomotSubgrop_comp_right. <span class="nb">apply</span> H.
+    - <span class="nb">intros</span> C3 f g H.
+      <span class="nb">apply</span> ComplexHomotSubgrop_comp_left. <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Here we construct K(A). *)</span>
+  <span class="kn">Definition</span> <span class="nf">ComplexHomot_Additive</span> : CategoryWithAdditiveStructure :=
+    Quotcategory_Additive
+      (ComplexPreCat_Additive A) ComplexHomotSubgrp ComplexHomot_Additive_Comp.
+
+  <span class="kn">Definition</span> <span class="nf">ComplexHomotFunctor</span> :
+    AdditiveFunctor (ComplexPreCat_Additive A) ComplexHomot_Additive :=
+    QuotcategoryAdditiveFunctor
+      (ComplexPreCat_Additive A) ComplexHomotSubgrp ComplexHomot_Additive_Comp.
+  <span class="kn">Arguments</span> ComplexHomotFunctor : <span class="nb">simpl</span> never.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotFunctor_issurj</span> {<span class="nv">C1</span> <span class="nv">C2</span> : ComplexPreCat_Additive A}
+        (<span class="nv">f</span> : ComplexHomot_Additive⟦C1, C2⟧) : ∥ hfiber (# ComplexHomotFunctor) f ∥.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> issurjsetquotpr.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotFunctor_rel_mor</span> {<span class="nv">C1</span> <span class="nv">C2</span> : ComplexPreCat_Additive A}
+        (<span class="nv">f</span> <span class="nv">g</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) (<span class="nv">H</span> : subgrhrel (ComplexHomotSubgrp C1 C2) f g) :
+    # ComplexHomotFunctor f = # ComplexHomotFunctor g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> abgrquotpr_rel_image. <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotFunctor_rel_mor'</span> {<span class="nv">C1</span> <span class="nv">C2</span> : ComplexPreCat_Additive A}
+        (<span class="nv">f</span> <span class="nv">g</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) (<span class="nv">H</span> : ComplexHomot C1 C2)
+        (<span class="nv">H'</span> : to_binop _ _ f (to_inv g) = ComplexHomotMorphism H) :
+    # ComplexHomotFunctor f = # ComplexHomotFunctor g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> ComplexHomotFunctor_rel_mor.
+    use hinhpr.
+    use tpair.
+    - <span class="nb">cbn</span>. use tpair.
+      + <span class="bp">exact</span> (ComplexHomotMorphism H).
+      + use hinhpr.
+        use tpair.
+        * <span class="bp">exact</span> H.
+        * <span class="nb">apply</span> idpath.
+    - <span class="bp">exact</span> (! H').
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotFunctor_mor_rel</span> {<span class="nv">C1</span> <span class="nv">C2</span> : ComplexPreCat_Additive A}
+        (<span class="nv">f</span> <span class="nv">g</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧)
+        (<span class="nv">H</span> : # ComplexHomotFunctor f = # ComplexHomotFunctor g) :
+    subgrhrel (ComplexHomotSubgrp C1 C2) f g.
+  <span class="kn">Proof</span>.
+    use (@abgrquotpr_rel_paths _ (binopeqrel_subgr_eqrel (ComplexHomotSubgrp C1 C2))).
+    <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotFunctor_im_to_homot</span> {<span class="nv">C1</span> <span class="nv">C2</span> : ComplexPreCat_Additive A}
+        (<span class="nv">f</span> <span class="nv">g</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧)
+        (<span class="nv">H</span> : # ComplexHomotFunctor f = # ComplexHomotFunctor g) :
+    ∥ ∑ h : ComplexHomot C1 C2, ComplexHomotMorphism h = to_binop _ _ f (to_inv g) ∥.
+  <span class="kn">Proof</span>.
+    use (squash_to_prop (ComplexHomotFunctor_mor_rel f g H) (propproperty _)). <span class="nb">intros</span> h.
+    <span class="nb">induction</span> h <span class="k">as</span> [b hh]. <span class="nb">cbn</span> <span class="k">in</span> b. <span class="nb">unfold</span> ComplexHomotSubset <span class="k">in</span> b.
+    use (squash_to_prop (pr2 b) (propproperty _)). <span class="nb">intros</span> hhh.
+    <span class="nb">induction</span> hhh <span class="k">as</span> [H1 H2]. <span class="nb">cbn</span> <span class="k">in</span> hh. <span class="nb">cbn</span> <span class="k">in</span> H2.
+    use hinhpr.
+    use tpair.
+    - <span class="bp">exact</span> H1.
+    - <span class="bp">exact</span> (H2 @ hh).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotPreCompHomot</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : ComplexPreCat_Additive A}
+        (<span class="nv">f1</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) (<span class="nv">f2</span> <span class="nv">f3</span> : (ComplexPreCat_Additive A)⟦C2, C3⟧)
+        (<span class="nv">H</span> : # ComplexHomotFunctor f2 = # ComplexHomotFunctor f3) :
+    ∥ ∑ (h : ComplexHomot C1 C3),
+    ComplexHomotMorphism h = to_binop _ _ (f1 · f2) (to_inv (f1 · f3)) ∥.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (e : # ComplexHomotFunctor (f1 · f2) = # ComplexHomotFunctor (f1 · f3)).
+    {
+      <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> H. <span class="nb">rewrite</span> functor_comp. <span class="nb">apply</span> idpath.
+    }
+    <span class="bp">exact</span> (ComplexHomotFunctor_im_to_homot (f1 · f2) (f1 · f3) e).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotPostCompHomot</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> : ComplexPreCat_Additive A}
+        (<span class="nv">f1</span> <span class="nv">f2</span> : (ComplexPreCat_Additive A)⟦C1, C2⟧) (<span class="nv">f3</span> : (ComplexPreCat_Additive A)⟦C2, C3⟧)
+        (<span class="nv">H</span> : # ComplexHomotFunctor f1 = # ComplexHomotFunctor f2) :
+    ∥ ∑ (h : ComplexHomot C1 C3),
+    ComplexHomotMorphism h = to_binop _ _ (f1 · f3) (to_inv (f2 · f3)) ∥.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (e : # ComplexHomotFunctor (f1 · f3) = # ComplexHomotFunctor (f2 · f3)).
+    {
+      <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> H. <span class="nb">rewrite</span> functor_comp. <span class="nb">apply</span> idpath.
+    }
+    <span class="bp">exact</span> (ComplexHomotFunctor_im_to_homot (f1 · f3) (f2 · f3) e).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Commutativity of squares *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotComm2</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> <span class="nv">C4</span> : ob ComplexHomot_Additive}
+        {<span class="nv">f1</span> : C1 --&gt; C2} {<span class="nv">f2</span> : C2 --&gt; C4} {<span class="nv">g1</span> : C1 --&gt; C3} {<span class="nv">g2</span> : C3 --&gt; C4}
+        (<span class="nv">f1'</span> : hfiber (# ComplexHomotFunctor) f1) (<span class="nv">f2'</span> : hfiber (# ComplexHomotFunctor) f2)
+        (<span class="nv">g1'</span> : hfiber (# ComplexHomotFunctor) g1) (<span class="nv">g2'</span> : hfiber (# ComplexHomotFunctor) g2)
+        (<span class="nv">H</span> : f1 · f2 = g1 · g2) :
+    # ComplexHomotFunctor ((hfiberpr1 _ _ f1') · (hfiberpr1 _ _ f2')) =
+    # ComplexHomotFunctor ((hfiberpr1 _ _ g1') · (hfiberpr1 _ _ g2')).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> (hfiberpr2 _ _ f1'). <span class="nb">rewrite</span> (hfiberpr2 _ _ f2').
+    <span class="nb">rewrite</span> (hfiberpr2 _ _ g1'). <span class="nb">rewrite</span> (hfiberpr2 _ _ g2').
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotComm3</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> <span class="nv">C4</span> <span class="nv">C5</span> <span class="nv">C6</span> : ob ComplexHomot_Additive}
+        {<span class="nv">f1</span> : C1 --&gt; C2} {<span class="nv">f2</span> : C2 --&gt; C3} {<span class="nv">f3</span> : C3 --&gt; C6}
+        {<span class="nv">g1</span> : C1 --&gt; C4} {<span class="nv">g2</span> : C4 --&gt; C5} {<span class="nv">g3</span> : C5 --&gt; C6}
+        (<span class="nv">f1'</span> : hfiber (# ComplexHomotFunctor) f1) (<span class="nv">f2'</span> : hfiber (# ComplexHomotFunctor) f2)
+        (<span class="nv">f3'</span> : hfiber (# ComplexHomotFunctor) f3)
+        (<span class="nv">g1'</span> : hfiber (# ComplexHomotFunctor) g1) (<span class="nv">g2'</span> : hfiber (# ComplexHomotFunctor) g2)
+        (<span class="nv">g3'</span> : hfiber (# ComplexHomotFunctor) g3)
+        (<span class="nv">H</span> : f1 · f2 · f3 = g1 · g2 · g3 ) :
+    # ComplexHomotFunctor ((hfiberpr1 _ _ f1') · (hfiberpr1 _ _ f2') · (hfiberpr1 _ _ f3')) =
+    # ComplexHomotFunctor ((hfiberpr1 _ _ g1') · (hfiberpr1 _ _ g2') · (hfiberpr1 _ _ g3')).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> (hfiberpr2 _ _ f1'). <span class="nb">rewrite</span> (hfiberpr2 _ _ f2'). <span class="nb">rewrite</span> (hfiberpr2 _ _ f3').
+    <span class="nb">rewrite</span> (hfiberpr2 _ _ g1'). <span class="nb">rewrite</span> (hfiberpr2 _ _ g2'). <span class="nb">rewrite</span> (hfiberpr2 _ _ g3').
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ComplexHomotComm4</span> {<span class="nv">C1</span> <span class="nv">C2</span> <span class="nv">C3</span> <span class="nv">C4</span> <span class="nv">C5</span> <span class="nv">C6</span> <span class="nv">C7</span> <span class="nv">C8</span> : ob ComplexHomot_Additive}
+        {<span class="nv">f1</span> : C1 --&gt; C2} {<span class="nv">f2</span> : C2 --&gt; C3} {<span class="nv">f3</span> : C3 --&gt; C4} {<span class="nv">f4</span> : C4 --&gt; C8}
+        {<span class="nv">g1</span> : C1 --&gt; C5} {<span class="nv">g2</span> : C5 --&gt; C6} {<span class="nv">g3</span> : C6 --&gt; C7} {<span class="nv">g4</span> : C7 --&gt; C8}
+        (<span class="nv">f1'</span> : hfiber (# ComplexHomotFunctor) f1) (<span class="nv">f2'</span> : hfiber (# ComplexHomotFunctor) f2)
+        (<span class="nv">f3'</span> : hfiber (# ComplexHomotFunctor) f3) (<span class="nv">f4'</span> : hfiber (# ComplexHomotFunctor) f4)
+        (<span class="nv">g1'</span> : hfiber (# ComplexHomotFunctor) g1) (<span class="nv">g2'</span> : hfiber (# ComplexHomotFunctor) g2)
+        (<span class="nv">g3'</span> : hfiber (# ComplexHomotFunctor) g3) (<span class="nv">g4'</span> : hfiber (# ComplexHomotFunctor) g4)
+        (<span class="nv">H</span> : f1 · f2 · f3 · f4 = g1 · g2 · g3 · g4) :
+    # ComplexHomotFunctor ((hfiberpr1 _ _ f1') · (hfiberpr1 _ _ f2') · (hfiberpr1 _ _ f3')
+                                               · (hfiberpr1 _ _ f4')) =
+    # ComplexHomotFunctor ((hfiberpr1 _ _ g1') · (hfiberpr1 _ _ g2') · (hfiberpr1 _ _ g3')
+                                               · (hfiberpr1 _ _ g4')).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> functor_comp. <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> (hfiberpr2 _ _ f1'). <span class="nb">rewrite</span> (hfiberpr2 _ _ f2'). <span class="nb">rewrite</span> (hfiberpr2 _ _ f3').
+    <span class="nb">rewrite</span> (hfiberpr2 _ _ f4').
+    <span class="nb">rewrite</span> (hfiberpr2 _ _ g1'). <span class="nb">rewrite</span> (hfiberpr2 _ _ g2'). <span class="nb">rewrite</span> (hfiberpr2 _ _ g3').
+    <span class="nb">rewrite</span> (hfiberpr2 _ _ g4').
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">complexes_homotopies</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/HomologicalAlgebra/KA.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/UnivalenceAxiom.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** ** Contents
+  &gt; - Definition of K(A)
+  &gt; *)&gt;&gt;&gt;Require Import UniMath.Foundations.UnivalenceAxiom.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.PartD.
+  &gt; Require Import UniMath.Foundations.Propositions.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

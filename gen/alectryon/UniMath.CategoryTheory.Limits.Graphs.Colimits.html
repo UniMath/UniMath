@@ -1,0 +1,752 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Colimits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(****************************************************</span>
+
+<span class="sd">Contents:</span>
+
+<span class="sd">- Formalization of colimits</span>
+<span class="sd">- Rules for pre- and post-composition</span>
+<span class="sd">- Proof that colimits form a property in a (saturated/univalent) category ([isaprop_Colims])</span>
+<span class="sd">- Pointwise construction of colimits in functor precategories ([ColimsFunctorCategory])</span>
+
+<span class="sd">Written by Benedikt Ahrens and Anders Mörtberg, 2015-2016</span>
+
+<span class="sd">*****************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Propositions.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Limits.Graphs.Diagrams.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of colimits *)</span>
+<span class="kn">Section</span> <span class="nf">colim_def</span>.
+
+<span class="sd">(** A cocone with tip c over a diagram d *)</span>
+<span class="kn">Definition</span> <span class="nf">forms_cocone</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C) {<span class="nv">c</span> : C} (<span class="nv">f</span> : ∏ (v : vertex g), C⟦dob d v, c⟧) : UU
+  := ∏ (u v : vertex g) (e : edge u v), dmor d e · f v = f u.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_forms_cocone</span> {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+  {<span class="nv">c</span> : C} {<span class="nv">f</span> : ∏ (v : vertex g), C⟦dob d v, c⟧} 
+  : isaprop (forms_cocone d f).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">3</span> (use impred; <span class="nb">intro</span>).
+  use homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cocone</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C) (<span class="nv">c</span> : C) : UU :=
+  ∑ (f : ∏ (v : vertex g), C⟦dob d v,c⟧), forms_cocone d f.
+
+<span class="kn">Definition</span> <span class="nf">make_cocone</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} {<span class="nv">c</span> : C}
+  (<span class="nv">f</span> : ∏ v, C⟦dob d v,c⟧) (<span class="nv">Hf</span> : forms_cocone d f) :
+  cocone d c := tpair _ f Hf.
+
+<span class="sd">(** The injections to c in the cocone *)</span>
+<span class="kn">Definition</span> <span class="nf">coconeIn</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} {<span class="nv">c</span> : C} (<span class="nv">cc</span> : cocone d c) :
+  ∏ v, C⟦dob d v,c⟧ := pr1 cc.
+
+<span class="sd">(** not recommended! [Coercion coconeIn : cocone &gt;-&gt; Funclass.] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">coconeInCommutes</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} {<span class="nv">c</span> : C} (<span class="nv">cc</span> : cocone d c) :
+  forms_cocone d (coconeIn cc).
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (pr2 cc).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cocone_paths</span> {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} {<span class="nv">x</span> : C}
+           (<span class="nv">cc1</span> <span class="nv">cc2</span> : cocone d x)
+           (<span class="nv">eqin</span> : ∏ g, coconeIn cc1 g = coconeIn cc2 g): cc1 = cc2.
+<span class="kn">Proof</span>.
+  use subtypePath'.
+  - <span class="nb">apply</span> funextsec.
+    <span class="bp">exact</span> eqin.
+  - <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+    <span class="nb">apply</span> C.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_cocone_mor</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} {<span class="nv">c1</span> : C}
+           (<span class="nv">cc1</span> : cocone d c1) {<span class="nv">c2</span> : C} (<span class="nv">cc2</span> : cocone d c2) (<span class="nv">x</span> : c1 --&gt; c2) : UU :=
+  ∏ (v : vertex g), coconeIn cc1 v · x = coconeIn cc2 v.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_cocone_mor</span> {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+  {<span class="nv">c1</span> : C} (<span class="nv">cc1</span> : cocone d c1) {<span class="nv">c2</span> : C} (<span class="nv">cc2</span> : cocone d c2) (<span class="nv">f</span> : c1 --&gt; c2)
+  : isaprop (is_cocone_mor cc1 cc2 f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> impred_isaprop ; <span class="nb">intro</span>.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** cc0 is a colimit cocone if for any other cocone cc over the same</span>
+<span class="sd">   diagram there is a unique morphism from the tip of cc0 to the tip</span>
+<span class="sd">   of cc *)</span>
+<span class="kn">Definition</span> <span class="nf">isColimCocone</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C) (<span class="nv">c0</span> : C)
+  (<span class="nv">cc0</span> : cocone d c0) : UU := ∏ (c : C) (cc : cocone d c),
+    iscontr (∑ x : C⟦c0,c⟧, is_cocone_mor cc0 cc x).
+
+<span class="c">(* Definition isColim {g : graph} (d : diagram g C) (L : C) := *)</span>
+<span class="c">(*   ∑ c : cocone d L, isColimCocone d L c. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">ColimCocone</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C) : UU :=
+  ∑ (A : (∑ c0 : C, cocone d c0)), isColimCocone d (pr1 A) (pr2 A).
+
+<span class="kn">Definition</span> <span class="nf">make_ColimCocone</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C)
+  (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cocone d c) (<span class="nv">isCC</span> : isColimCocone d c cc) : ColimCocone d :=
+    tpair _ (tpair _ c cc) isCC.
+
+<span class="sd">(** colim is the tip of the colim cocone *)</span>
+<span class="kn">Definition</span> <span class="nf">colim</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} (<span class="nv">CC</span> : ColimCocone d) : C :=
+  pr1 (pr1 CC).
+
+<span class="kn">Definition</span> <span class="nf">colimCocone</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} (<span class="nv">CC</span> : ColimCocone d) :
+  cocone d (colim CC) := pr2 (pr1 CC).
+
+<span class="kn">Definition</span> <span class="nf">isColimCocone_from_ColimCocone</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} (<span class="nv">CC</span> : ColimCocone d) :
+  isColimCocone d (colim CC) _ := pr2 CC.
+
+<span class="kn">Definition</span> <span class="nf">colimIn</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} (<span class="nv">CC</span> : ColimCocone d) :
+  ∏ (v : vertex g), C⟦dob d v,colim CC⟧ := coconeIn (colimCocone CC).
+
+<span class="kn">Lemma</span> <span class="nf">colimInCommutes</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+  (<span class="nv">CC</span> : ColimCocone d) : forms_cocone d (colimIn CC).
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (coconeInCommutes (colimCocone CC)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">colimUnivProp</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+  (<span class="nv">CC</span> : ColimCocone d) : ∏ (c : C) (cc : cocone d c),
+  iscontr (∑ x : C⟦colim CC,c⟧, ∏ (v : vertex g), colimIn CC v · x = coconeIn cc v).
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (pr2 CC).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_isColimCocone</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C) (<span class="nv">c0</span> : C)
+  (<span class="nv">cc0</span> : cocone d c0) : isaprop (isColimCocone d c0 cc0).
+<span class="kn">Proof</span>.
+<span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+<span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">colimArrow</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} (<span class="nv">CC</span> : ColimCocone d)
+  (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cocone d c) : C⟦colim CC,c⟧ := pr1 (pr1 (isColimCocone_from_ColimCocone CC c cc)).
+
+<span class="kn">Lemma</span> <span class="nf">colimArrowCommutes</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} (<span class="nv">CC</span> : ColimCocone d)
+  (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cocone d c) (<span class="nv">u</span> : vertex g) :
+  colimIn CC u · colimArrow CC c cc = coconeIn cc u.
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> ((pr2 (pr1 (isColimCocone_from_ColimCocone CC _ cc))) u).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">colimArrowUnique</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} (<span class="nv">CC</span> : ColimCocone d)
+  (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cocone d c) (<span class="nv">k</span> : C⟦colim CC,c⟧)
+  (<span class="nv">Hk</span> : ∏ (u : vertex g), colimIn CC u · k = coconeIn cc u) :
+  k = colimArrow CC c cc.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> path_to_ctr. <span class="nb">red</span>. <span class="nb">apply</span> Hk.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Cocone_postcompose</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+  {<span class="nv">c</span> : C} (<span class="nv">cc</span> : cocone d c) (<span class="nv">x</span> : C) (<span class="nv">f</span> : C⟦c,x⟧) :
+    ∏ u v (e : edge u v), dmor d e · (coconeIn cc v · f) = coconeIn cc u · f.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> u v e; <span class="nb">rewrite</span> assoc, coconeInCommutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">colimArrowEta</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} (<span class="nv">CC</span> : ColimCocone d)
+  (<span class="nv">c</span> : C) (<span class="nv">f</span> : C⟦colim CC,c⟧) :
+  f = colimArrow CC c (tpair _ (<span class="k">λ</span> <span class="nv">u</span>, colimIn CC u · f)
+                 (Cocone_postcompose (colimCocone CC) c f)).
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">apply</span> colimArrowUnique.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">colimArrowUnique'</span> {<span class="nv">C</span> : precategory}
+      {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} (<span class="nv">CC</span> : ColimCocone d)
+      {<span class="nv">c</span>} (<span class="nv">k</span> <span class="nv">k'</span> : C ⟦ colim CC, c ⟧):
+  (∏ u : vertex g, colimIn CC u · k = colimIn CC u · k') → k = k'.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> eq.
+  <span class="nb">apply</span> pathsinv0.
+  etrans.
+  { <span class="nb">apply</span> colimArrowEta. }
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> colimArrowUnique.
+  <span class="nb">cbn</span>.
+  <span class="bp">exact</span> eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">colimOfArrows</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d1</span> <span class="nv">d2</span> : diagram g C}
+  (<span class="nv">CC1</span> : ColimCocone d1) (<span class="nv">CC2</span> : ColimCocone d2)
+  (<span class="nv">f</span> : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (<span class="nv">fNat</span> : ∏ u v (e : edge u v), dmor d1 e · f v = f u · dmor d2 e) :
+  C⟦colim CC1,colim CC2⟧.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> colimArrow; use make_cocone.
+- <span class="bp">now</span> <span class="nb">intro</span> u; <span class="nb">apply</span> (f u · colimIn CC2 u).
+- <span class="kp">abstract</span> (<span class="nb">intros</span> u v e; <span class="nb">simpl</span>;
+            <span class="bp">now</span> <span class="nb">rewrite</span> assoc, fNat, &lt;- assoc, colimInCommutes).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">colimOfArrowsIn</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">d1</span> <span class="nv">d2</span> : diagram g C)
+  (<span class="nv">CC1</span> : ColimCocone d1) (<span class="nv">CC2</span> : ColimCocone d2)
+  (<span class="nv">f</span> : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (<span class="nv">fNat</span> : ∏ u v (e : edge u v), dmor d1 e · f v = f u · dmor d2 e) :
+    ∏ u, colimIn CC1 u · colimOfArrows CC1 CC2 f fNat =
+         f u · colimIn CC2 u.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">unfold</span> colimOfArrows; <span class="nb">intro</span> u; <span class="nb">rewrite</span> colimArrowCommutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">preCompWithColimOfArrows_subproof</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d1</span> <span class="nv">d2</span> : diagram g C}
+  (<span class="nv">CC1</span> : ColimCocone d1) (<span class="nv">CC2</span> : ColimCocone d2)
+  (<span class="nv">f</span> : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (<span class="nv">fNat</span> : ∏ u v (e : edge u v), dmor d1 e · f v = f u · dmor d2 e)
+  (<span class="nv">x</span> : C) (<span class="nv">cc</span> : cocone d2 x) <span class="nv">u</span> <span class="nv">v</span> (<span class="nv">e</span> : edge u v) :
+     dmor d1 e · (f v · coconeIn cc v) = f u · coconeIn cc u.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (coconeInCommutes cc u v e), !assoc, fNat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">precompWithColimOfArrows</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">d1</span> <span class="nv">d2</span> : diagram g C)
+  (<span class="nv">CC1</span> : ColimCocone d1) (<span class="nv">CC2</span> : ColimCocone d2)
+  (<span class="nv">f</span> : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (<span class="nv">fNat</span> : ∏ u v (e : edge u v), dmor d1 e · f v = f u · dmor d2 e)
+  (<span class="nv">x</span> : C) (<span class="nv">cc</span> : cocone d2 x) :
+  colimOfArrows CC1 CC2 f fNat · colimArrow CC2 x cc =
+  colimArrow CC1 x (make_cocone (<span class="k">λ</span> <span class="nv">u</span>, f u · coconeIn cc u)
+     (preCompWithColimOfArrows_subproof CC1 CC2 f fNat x cc)).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> colimArrowUnique.
+<span class="bp">now</span> <span class="nb">intro</span> u; <span class="nb">rewrite</span> assoc, colimOfArrowsIn, &lt;- assoc, colimArrowCommutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">postcompWithColimArrow</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">D</span> : diagram g C)
+ (<span class="nv">CC</span> : ColimCocone D) (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cocone D c) (<span class="nv">d</span> : C) (<span class="nv">k</span> : C⟦c,d⟧) :
+   colimArrow CC c cc · k =
+   colimArrow CC d (make_cocone (<span class="k">λ</span> <span class="nv">u</span>, coconeIn cc u · k)
+              (Cocone_postcompose cc d k)).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> colimArrowUnique.
+<span class="bp">now</span> <span class="nb">intro</span> u; <span class="nb">rewrite</span> assoc, colimArrowCommutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">colim_endo_is_identity</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">D</span> : diagram g C)
+  (<span class="nv">CC</span> : ColimCocone D) (<span class="nv">k</span> : colim CC --&gt; colim CC)
+  (<span class="nv">H</span> : ∏ u, colimIn CC u · k = colimIn CC u) :
+  identity _ = k.
+<span class="kn">Proof</span>.
+use (uniqueExists (colimUnivProp CC _ _)).
+- <span class="bp">now</span> <span class="nb">apply</span> (colimCocone CC).
+- <span class="nb">intros</span> v; <span class="nb">simpl</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> id_right.
+- <span class="nb">simpl</span>; <span class="bp">now</span> <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Cocone_by_postcompose</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">D</span> : diagram g C)
+ (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cocone D c) (<span class="nv">d</span> : C) (<span class="nv">k</span> : C⟦c,d⟧) : cocone D d.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">u</span>, <span class="nv">coconeIn</span> <span class="nv">cc</span> <span class="nv">u</span> · k). <span class="nb">red</span>; <span class="nb">apply</span> Cocone_postcompose.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isColim_weq_subproof1</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">D</span> : diagram g C)
+      (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cocone D c) (<span class="nv">d</span> : C) (<span class="nv">k</span> : C⟦c,d⟧) :
+  ∏ u, coconeIn cc u · k = coconeIn (Cocone_by_postcompose D c cc d k) u.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intro</span> u.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isColim_weq_subproof2</span> {<span class="nv">C</span> : precategory} (<span class="nv">g</span> : graph) (<span class="nv">D</span> : diagram g C)
+  (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cocone D c) (<span class="nv">H</span> : ∏ d, isweq (Cocone_by_postcompose D c cc d))
+  (<span class="nv">d</span> : C) (<span class="nv">cd</span> : cocone D d) : is_cocone_mor cc cd (invmap (make_weq _ (H d)) cd).
+<span class="kn">Proof</span>.
+<span class="nb">intro</span> u.
+<span class="nb">rewrite</span> (isColim_weq_subproof1 D c cc d (invmap (make_weq _ (H d)) _) u).
+<span class="nb">set</span> (p := homotweqinvweq (make_weq _ (H d)) cd); <span class="nb">simpl</span> <span class="k">in</span> p.
+<span class="bp">now</span> <span class="nb">rewrite</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isColim_weq</span> {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} (<span class="nv">D</span> : diagram g C) (<span class="nv">c</span> : C) (<span class="nv">cc</span> : cocone D c) :
+  isColimCocone D c cc &lt;-&gt; ∏ d, isweq (Cocone_by_postcompose D c cc d).
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="nb">intros</span> H d.
+  use isweq_iso.
+  + <span class="nb">intros</span> k.
+    <span class="bp">exact</span> (colimArrow (make_ColimCocone D c cc H) _ k).
+  + <span class="kp">abstract</span> (<span class="nb">intro</span> k; <span class="nb">simpl</span>;
+              <span class="bp">now</span> <span class="nb">apply</span> pathsinv0, (colimArrowEta (make_ColimCocone D c cc H))).
+  + <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">intro</span> k;
+              <span class="nb">apply</span> subtypePath;
+                [ <span class="nb">intro</span>; <span class="bp">now</span> <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> C
+                | <span class="nb">destruct</span> k <span class="k">as</span> [k Hk]; <span class="nb">simpl</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> u;
+                  <span class="bp">now</span> <span class="nb">apply</span> (colimArrowCommutes (make_ColimCocone D c cc H))]).
+- <span class="nb">intros</span> H d cd.
+  use tpair.
+  + <span class="k">exists</span> (<span class="nv">invmap</span> (make_weq _ (H d)) cd).
+    <span class="kp">abstract</span> (<span class="nb">intro</span> u; <span class="bp">now</span> <span class="nb">apply</span> isColim_weq_subproof2).
+  + <span class="kp">abstract</span> (<span class="nb">intro</span> t; <span class="nb">apply</span> subtypePath;
+                [ <span class="nb">intro</span>; <span class="bp">now</span> <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> C
+                | <span class="nb">destruct</span> t <span class="k">as</span> [t Ht]; <span class="nb">simpl</span>;
+                  <span class="nb">apply</span> (invmaponpathsweq (make_weq _ (H d))); <span class="nb">simpl</span>;
+                  <span class="nb">apply</span> subtypePath;
+                    [ <span class="nb">intro</span>; <span class="bp">now</span> <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> C
+                    | <span class="nb">simpl</span>; <span class="nb">apply</span> pathsinv0, funextsec; <span class="nb">intro</span> u; <span class="nb">rewrite</span> Ht;
+                      <span class="bp">now</span> <span class="nb">apply</span> isColim_weq_subproof2]]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isColim_is_z_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">D</span> : diagram g C) (<span class="nv">CC</span> : ColimCocone D) (<span class="nv">d</span> : C) (<span class="nv">cd</span> : cocone D d) :
+  isColimCocone D d cd -&gt; is_z_isomorphism (colimArrow CC d cd).
+<span class="kn">Proof</span>.
+<span class="nb">intro</span> H.
+<span class="nb">set</span> (CD := make_ColimCocone D d cd H).
+<span class="nb">apply</span> (tpair _ (colimArrow (make_ColimCocone D d cd H) (colim CC) (colimCocone CC))).
+<span class="kp">abstract</span> (<span class="nb">split</span>;
+    [ <span class="nb">apply</span> pathsinv0, colim_endo_is_identity; <span class="nb">simpl</span>; <span class="nb">intro</span> u;
+      <span class="nb">rewrite</span> assoc;
+      <span class="nb">eapply</span> pathscomp0; [<span class="nb">eapply</span> cancel_postcomposition; <span class="nb">apply</span> colimArrowCommutes|];
+      <span class="nb">apply</span> (colimArrowCommutes CD) |
+      <span class="nb">apply</span> pathsinv0, (colim_endo_is_identity _ CD); <span class="nb">simpl</span>; <span class="nb">intro</span> u;
+      <span class="nb">rewrite</span> assoc;
+      <span class="nb">eapply</span> pathscomp0; [<span class="nb">eapply</span> cancel_postcomposition; <span class="nb">apply</span> (colimArrowCommutes CD)|];
+      <span class="nb">apply</span> colimArrowCommutes ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inv_isColim_is_z_iso</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} (<span class="nv">D</span> : diagram g C) (<span class="nv">CC</span> : ColimCocone D) (<span class="nv">d</span> : C)
+  (<span class="nv">cd</span> : cocone D d) (<span class="nv">H</span> : isColimCocone D d cd) :
+  inv_from_z_iso (_,,isColim_is_z_iso D CC d cd H) =
+  colimArrow (make_ColimCocone D d cd H) _ (colimCocone CC).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_z_iso_isColim</span> {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} (<span class="nv">D</span> : diagram g C) (<span class="nv">CC</span> : ColimCocone D) (<span class="nv">d</span> : C) (<span class="nv">cd</span> : cocone D d) :
+  is_z_isomorphism (colimArrow CC d cd) -&gt; isColimCocone D d cd.
+<span class="kn">Proof</span>.
+<span class="nb">intro</span> H.
+<span class="nb">set</span> (iinv := z_iso_inv_from_is_z_iso _ H).
+<span class="nb">intros</span> x cx.
+use tpair.
+- use tpair.
+  + <span class="bp">exact</span> (iinv · colimArrow CC x cx).
+  + <span class="nb">simpl</span>; <span class="nb">intro</span> u.
+    <span class="nb">rewrite</span> &lt;- (colimArrowCommutes CC x cx u), assoc.
+    <span class="nb">apply</span> cancel_postcomposition, pathsinv0, z_iso_inv_on_left, pathsinv0, colimArrowCommutes.
+- <span class="nb">intros</span> p; <span class="nb">destruct</span> p <span class="k">as</span> [f Hf].
+  <span class="nb">apply</span> subtypePath.
+  + <span class="nb">intro</span> a; <span class="nb">apply</span> impred; <span class="nb">intro</span> u; <span class="nb">apply</span> C.
+  + <span class="nb">simpl</span>; <span class="nb">apply</span> pathsinv0, z_iso_inv_on_right; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> pathsinv0, colimArrowUnique; <span class="nb">intro</span> u.
+    <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (Hf u), assoc, colimArrowCommutes.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_from_colim_to_colim</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C}
+  (<span class="nv">CC</span> <span class="nv">CC'</span> : ColimCocone d) : z_iso (colim CC) (colim CC').
+<span class="kn">Proof</span>.
+use make_z_iso.
+- <span class="nb">apply</span> colimArrow, colimCocone.
+- <span class="nb">apply</span> colimArrow, colimCocone.
+- <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">split</span>; <span class="nb">apply</span> pathsinv0, colim_endo_is_identity; <span class="nb">intro</span> u;
+              <span class="nb">rewrite</span> assoc, colimArrowCommutes; <span class="nb">eapply</span> pathscomp0; <span class="kp">try</span> <span class="nb">apply</span> colimArrowCommutes).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">colim_def</span>.
+
+<span class="kn">Section</span> <span class="nf">Colims</span>.
+
+<span class="kn">Definition</span> <span class="nf">Colims</span> (<span class="nv">C</span> : category) : UU := ∏ (g : graph) (d : diagram g C), ColimCocone d.
+<span class="kn">Definition</span> <span class="nf">hasColims</span> (<span class="nv">C</span> : category) : UU  :=
+  ∏ (g : graph) (d : diagram g C), ∥ ColimCocone d ∥.
+
+<span class="sd">(** Colimits of a specific shape *)</span>
+<span class="kn">Definition</span> <span class="nf">Colims_of_shape</span> (<span class="nv">g</span> : graph) (<span class="nv">C</span> : category) : UU :=
+  ∏ (d : diagram g C), ColimCocone d.
+
+<span class="sd">(** If C is a univalent_category then Colims is a prop *)</span>
+<span class="kn">Section</span> <span class="nf">Universal_Unique</span>.
+
+<span class="kn">Variables</span> (<span class="nv">C</span> : univalent_category).
+
+<span class="kn">Let</span> <span class="nf">H</span> : is_univalent C := pr2 C.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_Colims</span>: isaprop (Colims C).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> impred; <span class="nb">intro</span> g; <span class="nb">apply</span> impred; <span class="nb">intro</span> cc.
+<span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> Hccx Hccy.
+<span class="nb">apply</span> subtypePath.
+- <span class="nb">intro</span>; <span class="nb">apply</span> isaprop_isColimCocone.
+- <span class="nb">apply</span> (total2_paths_f (isotoid _ H (z_iso_from_colim_to_colim Hccx Hccy))).
+  <span class="nb">set</span> (B c := ∏ v, C⟦dob cc v,c⟧).
+  <span class="nb">set</span> (C' (c : C) f := forms_cocone(c:=c) cc f).
+  <span class="nb">rewrite</span> (@transportf_total2 _ B C').
+  <span class="nb">apply</span> subtypePath.
+  + <span class="nb">intro</span>; <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> univalent_category_has_homsets.
+  + <span class="nb">simpl</span>; <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> transportf_isotoid_dep''|].
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> v.
+    <span class="bp">now</span> <span class="nb">rewrite</span> idtoiso_isotoid; <span class="nb">apply</span> colimArrowCommutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Universal_Unique</span>.
+<span class="kn">End</span> <span class="nf">Colims</span>.
+
+<span class="sd">(** * Defines colimits in functor categories when the target has colimits *)</span>
+<span class="kn">Section</span> <span class="nf">ColimFunctor</span>.
+
+<span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">C</span> : category} {<span class="nv">g</span> : graph} (<span class="nv">D</span> : diagram g [A, C]).
+<span class="c">(* Variable HC : Colims C. *)</span> <span class="c">(* Too strong! *)</span>
+
+<span class="kn">Variable</span> (<span class="nv">HCg</span> : ∏ (a : A), ColimCocone (diagram_pointwise D a)).
+
+<span class="kn">Definition</span> <span class="nf">ColimFunctor_ob</span> (<span class="nv">a</span> : A) : C := colim (HCg a).
+
+<span class="kn">Definition</span> <span class="nf">ColimFunctor_mor</span> (<span class="nv">a</span> <span class="nv">a'</span> : A) (<span class="nv">f</span> : A⟦a, a'⟧) :
+  C⟦ColimFunctor_ob a,ColimFunctor_ob a'⟧.
+<span class="kn">Proof</span>.
+use colimOfArrows.
+- <span class="bp">now</span> <span class="nb">intro</span> u; <span class="nb">apply</span> (# (pr1 (dob D u)) f).
+- <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">intros</span> u v e; <span class="nb">simpl</span>; <span class="nb">apply</span> pathsinv0, (nat_trans_ax (dmor D e))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ColimFunctor_data</span> : functor_data A C := tpair _ _ ColimFunctor_mor.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_ColimFunctor_data</span> : is_functor ColimFunctor_data.
+<span class="kn">Proof</span>.
+<span class="nb">split</span>.
+- <span class="nb">intro</span> a; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> pathsinv0, colim_endo_is_identity; <span class="nb">intro</span> u.
+  <span class="nb">unfold</span> ColimFunctor_mor.
+  <span class="bp">now</span> <span class="nb">rewrite</span> colimOfArrowsIn, (functor_id (dob D u)), id_left.
+- <span class="nb">intros</span> a b c fab fbc; <span class="nb">simpl</span>; <span class="nb">unfold</span> ColimFunctor_mor.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">eapply</span> pathscomp0; [<span class="bp">now</span> <span class="nb">apply</span> precompWithColimOfArrows|].
+  <span class="nb">apply</span> pathsinv0, colimArrowUnique; <span class="nb">intro</span> u.
+  <span class="nb">rewrite</span> colimOfArrowsIn.
+  <span class="nb">rewrite</span> (functor_comp (dob D u)).
+  <span class="bp">now</span> <span class="nb">apply</span> pathsinv0, assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ColimFunctor</span> : functor A C := tpair _ _ is_functor_ColimFunctor_data.
+
+<span class="kn">Definition</span> <span class="nf">colim_nat_trans_in_data</span> <span class="nv">v</span> : [A, C] ⟦ dob D v, ColimFunctor ⟧.
+<span class="kn">Proof</span>.
+use tpair.
+- <span class="nb">intro</span> a; <span class="bp">exact</span> (colimIn (HCg a) v).
+- <span class="kp">abstract</span> (<span class="nb">intros</span> a a' f;
+            <span class="bp">now</span> <span class="nb">apply</span> pathsinv0, (colimOfArrowsIn _ _ (HCg a) (HCg a'))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">cocone_pointwise</span> (<span class="nv">F</span> : [A,C]) (<span class="nv">cc</span> : cocone D F) <span class="nv">a</span> :
+  cocone (diagram_pointwise D a) (pr1 F a).
+<span class="kn">Proof</span>.
+use make_cocone.
+- <span class="bp">now</span> <span class="nb">intro</span> v; <span class="nb">apply</span> (pr1 (coconeIn cc v) a).
+- <span class="kp">abstract</span> (<span class="nb">intros</span> u v e;
+    <span class="bp">now</span> <span class="nb">apply</span> (nat_trans_eq_pointwise (coconeInCommutes cc u v e))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ColimFunctor_unique</span> (<span class="nv">F</span> : [A, C]) (<span class="nv">cc</span> : cocone D F) :
+  iscontr (∑ x : [A, C] ⟦ ColimFunctor, F ⟧,
+            ∏ v : vertex g, colim_nat_trans_in_data v · x = coconeIn cc v).
+<span class="kn">Proof</span>.
+use tpair.
+- use tpair.
+  + <span class="nb">apply</span> (tpair _ (<span class="k">λ</span> <span class="nv">a</span>, colimArrow (HCg a) _ (cocone_pointwise F cc a))).
+    <span class="kp">abstract</span> (<span class="nb">intros</span> a a' f; <span class="nb">simpl</span>;
+              <span class="nb">eapply</span> pathscomp0;
+                [ <span class="bp">now</span> <span class="nb">apply</span> precompWithColimOfArrows
+                | <span class="nb">apply</span> pathsinv0; <span class="nb">eapply</span> pathscomp0;
+                  [ <span class="bp">now</span> <span class="nb">apply</span> postcompWithColimArrow
+                  | <span class="nb">apply</span> colimArrowUnique; <span class="nb">intro</span> u;
+                    <span class="nb">eapply</span> pathscomp0;
+                      [ <span class="bp">now</span> <span class="nb">apply</span> colimArrowCommutes
+                      | <span class="nb">apply</span> pathsinv0; <span class="bp">now</span> use nat_trans_ax ]]]).
+  + <span class="kp">abstract</span> (<span class="nb">intro</span> u; <span class="nb">apply</span> (nat_trans_eq C); <span class="nb">simpl</span>; <span class="nb">intro</span> a;
+              <span class="bp">now</span> <span class="nb">apply</span> (colimArrowCommutes (HCg a))).
+- <span class="kp">abstract</span> (<span class="nb">intro</span> t; <span class="nb">destruct</span> t <span class="k">as</span> [t1 t2];
+            <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>;
+              [ <span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span> u; <span class="nb">apply</span> functor_category_has_homsets
+              | <span class="nb">apply</span> (nat_trans_eq C); <span class="nb">simpl</span>; <span class="nb">intro</span> a;
+                <span class="nb">apply</span> colimArrowUnique; <span class="nb">intro</span> u;
+                <span class="bp">now</span> <span class="nb">apply</span> (nat_trans_eq_pointwise (t2 u))]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ColimFunctorCocone</span> : ColimCocone D.
+<span class="kn">Proof</span>.
+use make_ColimCocone.
+- <span class="bp">exact</span> ColimFunctor.
+- use make_cocone.
+  + <span class="bp">now</span> <span class="nb">apply</span> colim_nat_trans_in_data.
+  + <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">intros</span> u v e; <span class="nb">apply</span> (nat_trans_eq C);
+                  <span class="nb">intro</span> a; <span class="nb">apply</span> (colimInCommutes (HCg a))).
+- <span class="bp">now</span> <span class="nb">intros</span> F cc; <span class="nb">simpl</span>; <span class="nb">apply</span> (ColimFunctor_unique _ cc).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">isColimFunctor_is_pointwise_Colim</span>
+  (<span class="nv">X</span> : [A,C]) (<span class="nv">R</span> : cocone D X) (<span class="nv">H</span> : isColimCocone D X R)
+  : ∏ a, isColimCocone (diagram_pointwise D a) _ (cocone_pointwise X R a).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> a.
+  <span class="nb">apply</span> (is_z_iso_isColim  _ (HCg a)).
+  <span class="nb">set</span> (XR := isColim_is_z_iso D ColimFunctorCocone X R H).
+  <span class="nb">apply</span>  (is_functor_z_iso_pointwise_if_z_iso _ _ _ _ _ _ XR).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ColimFunctor</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ColimsFunctorCategory</span> (<span class="nv">A</span> <span class="nv">C</span> : category)
+  (<span class="nv">HC</span> : Colims C) : Colims [A,C].
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> g d; <span class="nb">apply</span> ColimFunctorCocone.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ColimsFunctorCategory_of_shape</span> (<span class="nv">g</span> : graph) (<span class="nv">A</span> <span class="nv">C</span> : category)
+  (<span class="nv">HC</span> : Colims_of_shape g C) : Colims_of_shape g [A,C].
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> d; <span class="nb">apply</span> ColimFunctorCocone.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">pointwise_Colim_is_isColimFunctor</span>
+  {<span class="nv">A</span> <span class="nv">C</span> : category} {<span class="nv">g</span> : graph}
+  (<span class="nv">d</span> : diagram g [A,C]) (<span class="nv">G</span> : [A,C]) (<span class="nv">ccG</span> : cocone d G)
+  (<span class="nv">H</span> : ∏ a, isColimCocone _ _ (cocone_pointwise d G ccG a)) :
+  isColimCocone d G ccG.
+<span class="kn">Proof</span>.
+ <span class="nb">set</span> (CC a := make_ColimCocone _ _ _ (H a)).
+ <span class="nb">set</span> (D' := ColimFunctorCocone _ CC).
+ use is_z_iso_isColim.
+ - <span class="nb">apply</span> D'.
+ - use tpair.
+   + use make_nat_trans.
+     * <span class="nb">intros</span> a; <span class="nb">apply</span> identity.
+     * <span class="kp">abstract</span> (<span class="nb">intros</span> a b f; <span class="nb">rewrite</span> id_left, id_right; <span class="nb">simpl</span>;
+                 <span class="nb">apply</span> (colimArrowUnique (CC a)); <span class="nb">intro</span> u; <span class="nb">cbn</span>;
+                 <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (nat_trans_ax (coconeIn ccG u))).
+   + <span class="kp">abstract</span> (<span class="nb">split</span>;
+               [ <span class="nb">apply</span> (nat_trans_eq C); <span class="nb">intros</span> x; <span class="nb">simpl</span>; <span class="nb">rewrite</span> id_right;
+                 <span class="nb">apply</span> pathsinv0, colimArrowUnique; <span class="nb">intros</span> v;
+                 <span class="bp">now</span> <span class="nb">rewrite</span> id_right
+               | <span class="nb">apply</span> (nat_trans_eq C); <span class="nb">intros</span> x; <span class="nb">simpl</span>; <span class="nb">rewrite</span> id_left;
+                 <span class="nb">apply</span> pathsinv0, (colimArrowUnique (CC x)); <span class="nb">intro</span> u;
+                 <span class="bp">now</span> <span class="nb">rewrite</span> id_right]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">map</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory} (<span class="nv">F</span> : functor C D).
+
+<span class="kn">Definition</span> <span class="nf">mapcocone</span> {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C) {<span class="nv">x</span> : C}
+  (<span class="nv">dx</span> : cocone d x) : cocone (mapdiagram F d) (F x).
+<span class="kn">Proof</span>.
+use make_cocone.
+- <span class="nb">simpl</span>; <span class="nb">intro</span> n.
+  <span class="bp">exact</span> (#F (coconeIn dx n)).
+- <span class="kp">abstract</span> (<span class="nb">intros</span> u v e; <span class="nb">simpl</span>; <span class="nb">rewrite</span> &lt;- functor_comp;
+            <span class="nb">apply</span> maponpaths, (coconeInCommutes dx _ _ e)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_colimit</span> {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C) (<span class="nv">L</span> : C)
+  (<span class="nv">cc</span> : cocone d L) : UU :=
+  isColimCocone d L cc -&gt; isColimCocone (mapdiagram F d) (F L) (mapcocone d cc).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_preserves_colimit</span> {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C) (<span class="nv">L</span> : C) (<span class="nv">cc</span> : cocone d L)
+  : isaprop (preserves_colimit d L cc).
+<span class="kn">Proof</span>.
+  use impred_isaprop; <span class="nb">intro</span>.
+  use isaprop_isColimCocone.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_colimits_of_shape</span> (<span class="nv">g</span> : graph) : UU :=
+  ∏ (d : diagram g C) (L : C)(cc : cocone d L), preserves_colimit d L cc.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_preserves_colimits_of_shape</span> {<span class="nv">g</span> : graph}
+  : isaprop (preserves_colimits_of_shape g).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">3</span> (use impred_isaprop; <span class="nb">intro</span>).
+  use isaprop_preserves_colimit.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">map</span>.
+
+<span class="kn">Lemma</span> <span class="nf">composition_preserves_colimit</span> 
+  {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} (<span class="nv">F</span> : C ⟶ D) (<span class="nv">G</span> : D ⟶ E)
+  {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g C} (<span class="nv">L</span> : C) (<span class="nv">cc</span> : cocone d L) 
+  (<span class="nv">hyp_F</span> : preserves_colimit F d L cc)
+  (<span class="nv">hyp_G</span> : preserves_colimit G (mapdiagram F d) (F L) (mapcocone F d cc))
+  : preserves_colimit (F ∙ G) d L cc.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> isCC; use (hyp_G (hyp_F isCC)).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** ** Left adjoints preserve colimits *)</span>
+<span class="kn">Lemma</span> <span class="nf">left_adjoint_preserves_colimit</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D) (<span class="nv">HF</span> : is_left_adjoint F)
+      {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g C) (<span class="nv">L</span> : C) (<span class="nv">ccL</span> : cocone d L) : preserves_colimit F d L ccL.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> HccL M ccM.
+<span class="nb">set</span> (G := right_adjoint HF).
+<span class="nb">set</span> (H := pr2 HF : are_adjoints F G).
+<span class="nb">apply</span> (@iscontrweqb _ (∑ y : C ⟦ L, G M ⟧,
+    ∏ i, coconeIn ccL i · y = φ_adj H (coconeIn ccM i))).
+- <span class="nb">eapply</span> (weqcomp (Y := ∑ y : C ⟦ L, G M ⟧,
+    ∏ i, # F (coconeIn ccL i) · φ_adj_inv H y = coconeIn ccM i)).
+  + <span class="nb">apply</span> (weqbandf (adjunction_hom_weq H L M)); <span class="nb">simpl</span>; <span class="nb">intro</span> f.
+    <span class="kp">abstract</span> (<span class="nb">apply</span> weqiff; <span class="kp">try</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> D);
+    <span class="bp">now</span> <span class="nb">rewrite</span> φ_adj_inv_after_φ_adj).
+  + <span class="nb">eapply</span> (weqcomp (Y := ∑ y : C ⟦ L, G M ⟧,
+      ∏ i, φ_adj_inv H (coconeIn ccL i · y) = coconeIn ccM i)).
+    * <span class="nb">apply</span> weqfibtototal; <span class="nb">simpl</span>; <span class="nb">intro</span> f.
+    <span class="kp">abstract</span> (<span class="nb">apply</span> weqiff; <span class="kp">try</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> D); <span class="nb">split</span>;
+      [ <span class="nb">intros</span> HH i; <span class="nb">rewrite</span> φ_adj_inv_natural_precomp; <span class="nb">apply</span> HH
+      | <span class="nb">intros</span> HH i; <span class="nb">rewrite</span> &lt;- φ_adj_inv_natural_precomp; <span class="nb">apply</span> HH ]).
+      <span class="c">(* apply weqonsecfibers; intro i. *)</span>
+      <span class="c">(* rewrite φ_adj_inv_natural_precomp; apply idweq. *)</span>
+    * <span class="nb">apply</span> weqfibtototal; <span class="nb">simpl</span>; <span class="nb">intro</span> f.
+    <span class="kp">abstract</span> (<span class="nb">apply</span> weqiff; [ | <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> D | <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> C ];
+      <span class="nb">split</span>; <span class="nb">intros</span> HH i;
+        [ <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (HH i), φ_adj_after_φ_adj_inv
+        | <span class="bp">now</span> <span class="nb">rewrite</span> (HH i),  φ_adj_inv_after_φ_adj ]).
+      <span class="c">(* apply weqonsecfibers; intro i. *)</span>
+      <span class="c">(* apply weqimplimpl; [ | | apply hsD | apply hsC]; intro h. *)</span>
+      <span class="c">(*   now rewrite &lt;- h, (φ_adj_after_φ_adj_inv _ _ _ H). *)</span>
+      <span class="c">(* now rewrite h, (φ_adj_inv_after_φ_adj _ _ _ H). *)</span>
+- transparent <span class="nb">assert</span> (X : (cocone d (G M))).
+  { use make_cocone.
+    + <span class="nb">intro</span> v; <span class="nb">apply</span> (φ_adj H (coconeIn ccM v)).
+    + <span class="kp">abstract</span> (<span class="nb">intros</span> m n e; <span class="nb">simpl</span>;
+                <span class="nb">rewrite</span> &lt;- (coconeInCommutes ccM m n e); <span class="nb">simpl</span>;
+                <span class="bp">now</span> <span class="nb">rewrite</span> φ_adj_natural_precomp).
+  }
+  <span class="nb">apply</span> (HccL (G M) X).
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Section</span> <span class="nf">mapcocone_functor_composite</span>.
+
+<span class="kn">Context</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category}
+        (<span class="nv">F</span> : functor A B) (<span class="nv">G</span> : functor B C).
+
+<span class="kn">Lemma</span> <span class="nf">mapcocone_functor_composite</span> {<span class="nv">g</span> : graph} {<span class="nv">D</span> : diagram g A} {<span class="nv">a</span> : A} (<span class="nv">cc</span> : cocone D a) :
+  mapcocone (functor_composite F G) _ cc = mapcocone G _ (mapcocone F _ cc).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypePath.
+  - <span class="nb">intros</span> x. <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>). <span class="nb">apply</span> C.
+  - <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">mapcocone_functor_composite</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Some functions to construct morphisms using colimits</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">colim_mor</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">G</span> : graph}
+           {<span class="nv">D</span> : diagram G C}
+           (<span class="nv">c</span> : ColimCocone D)
+           (<span class="nv">y</span> : C)
+           (<span class="nv">g</span> : ∏ (v : vertex G), dob D v --&gt; y)
+           (<span class="nv">p</span> : forms_cocone D g)
+  : colim c --&gt; y
+  := pr11 (pr2 c y (make_cocone g p)).
+
+<span class="kn">Definition</span> <span class="nf">colim_mor_commute</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">G</span> : graph}
+           {<span class="nv">D</span> : diagram G C}
+           (<span class="nv">c</span> : ColimCocone D)
+           (<span class="nv">y</span> : C)
+           (<span class="nv">g</span> : ∏ (v : vertex G), dob D v --&gt; y)
+           (<span class="nv">p</span> : forms_cocone D g)
+           (<span class="nv">v</span> : vertex G)
+  : colimIn c v · colim_mor c y g p = g v
+  := pr21 (pr2 c y (make_cocone g p)) v.
+
+<span class="kn">Definition</span> <span class="nf">colim_mor_eq</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">G</span> : graph}
+           {<span class="nv">D</span> : diagram G C}
+           (<span class="nv">c</span> : ColimCocone D)
+           (<span class="nv">y</span> : C)
+           {<span class="nv">f₁</span> <span class="nv">f₂</span> : colim c --&gt; y}
+           (<span class="nv">H</span> : ∏ (v : vertex G), colimIn c v · f₁ = colimIn c v · f₂)
+  : f₁ = f₂.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (forms_cocone D (<span class="k">λ</span> <span class="nv">v</span> : vertex G, colimIn c v · f₂)) <span class="k">as</span> Hf₂.
+  {
+    <span class="nb">unfold</span> forms_cocone.
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> dmor.
+    <span class="nb">intros</span>.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> colimInCommutes.
+  }
+  <span class="nb">pose</span> (pr2 (pr2 c y (make_cocone (<span class="k">λ</span> <span class="nv">v</span>, colimIn c v · f₂) Hf₂)) (f₁ ,, H)) <span class="k">as</span> p.
+  <span class="nb">refine</span> (maponpaths pr1 p @ _).
+  <span class="nb">pose</span> (pr2 (pr2 c y (make_cocone (<span class="k">λ</span> <span class="nv">v</span>, colimIn c v · f₂) Hf₂)) (f₂ ,, <span class="k">λ</span> <span class="nv">_</span>, idpath _)) <span class="k">as</span> q.
+  <span class="bp">exact</span> (!(maponpaths pr1 q)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">colimOfArrows_comp</span> {<span class="nv">C</span> : precategory} {<span class="nv">g</span> : graph} {<span class="nv">d1</span> <span class="nv">d2</span> <span class="nv">d3</span> : diagram g C}
+  (<span class="nv">CC1</span> : ColimCocone d1) (<span class="nv">CC2</span> : ColimCocone d2) (<span class="nv">CC3</span> : ColimCocone d3)
+  (<span class="nv">p</span> : ∏ (u : vertex g), C⟦dob d1 u,dob d2 u⟧)
+  (<span class="nv">q</span> : ∏ (u : vertex g), C⟦dob d2 u,dob d3 u⟧)
+  (<span class="nv">p_nat</span> : ∏ u v e, dmor d1 e · p v = p u · dmor d2 e)
+  (<span class="nv">q_nat</span> : ∏ u v e, dmor d2 e · q v = q u · dmor d3 e)
+  (<span class="nv">pq_nat</span> : ∏ u v e, dmor d1 e · (p v · q v) = p u · q u · dmor d3 e)
+  : colimOfArrows CC1 CC2 p p_nat · colimOfArrows CC2 CC3 q q_nat 
+  = colimOfArrows CC1 CC3 (<span class="k">λ</span> <span class="nv">u</span>, p u · q u) pq_nat.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> colimOfArrows; use colimArrowUnique; <span class="nb">intro</span> u.
+  <span class="nb">rewrite</span> assoc, colimArrowCommutes; <span class="nb">cbn</span>.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc; use maponpaths.
+  <span class="bp">now</span> <span class="nb">rewrite</span> colimArrowCommutes.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Limits/Graphs/Colimits.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *****************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CleavingOfBicatIsAProp.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************</span>
+
+<span class="sd"> Cleaving properties</span>
+
+<span class="sd"> There are several definitions of cleaving of bicategories, namely</span>
+<span class="sd"> local (op)cleavings and global cleavings. If we assume that the</span>
+<span class="sd"> involved (displayed) bicategories are univalent, then we can show</span>
+<span class="sd"> that these notions are propositional</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Propositionality of preservation of cartesian cells</span>
+<span class="sd"> 2. Propositionality of local (op)cleavings</span>
+<span class="sd"> 3. Propositionality of global cleavings</span>
+
+<span class="sd"> ********************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Opposite.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Cartesians.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.EquivalenceBetweenCartesians.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Propositionality of preservation of cartesian cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">isaprop_lwhisker_cartesian</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : isaprop (lwhisker_cartesian D).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">15</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_cartesian_2cell.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_rwhisker_cartesian</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : isaprop (rwhisker_cartesian D).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">15</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_cartesian_2cell.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_lwhisker_opcartesian</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : isaprop (lwhisker_opcartesian D).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">15</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_opcartesian_2cell.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_rwhisker_opcartesian</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+  : isaprop (rwhisker_opcartesian D).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">15</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaprop_is_opcartesian_2cell.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Propositionality of local (op)cleavings</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">isaprop_local_cleaving</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+           (<span class="nv">D</span> : disp_bicat B)
+           (<span class="nv">HD</span> : disp_univalent_2_1 D)
+  : isaprop (local_cleaving D).
+<span class="kn">Proof</span>.
+  use (isofhlevelweqb <span class="mi">1</span> (local_fib_weq_local_cleaving D)).
+  use impred ; <span class="nb">intro</span> x.
+  use impred ; <span class="nb">intro</span> y.
+  use impred ; <span class="nb">intro</span> xx.
+  use impred ; <span class="nb">intro</span> yy.
+  use (@isaprop_cleaving (univ_hom HB x y)).
+  use is_univalent_disp_disp_hom.
+  <span class="bp">exact</span> HD.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_local_opcleaving</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+           (<span class="nv">D</span> : disp_bicat B)
+           (<span class="nv">HD</span> : disp_univalent_2_1 D)
+  : isaprop (local_opcleaving D).
+<span class="kn">Proof</span>.
+  use (isofhlevelweqb <span class="mi">1</span> (local_opfib_weq_local_opcleaving D)).
+  <span class="nb">unfold</span> local_opfib.
+  use impred ; <span class="nb">intro</span> x.
+  use impred ; <span class="nb">intro</span> y.
+  use impred ; <span class="nb">intro</span> xx.
+  use impred ; <span class="nb">intro</span> yy.
+  use (isofhlevelweqb <span class="mi">1</span> (opcleaving_weq_cleaving _)).
+  use (@isaprop_cleaving (op_unicat (univ_hom HB x y))).
+  <span class="nb">apply</span> is_univalent_op_disp_cat.
+  <span class="nb">apply</span> is_univalent_disp_disp_hom.
+  <span class="bp">exact</span> HD.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Propositionality of global cleavings</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">eq_cartesian_lift</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D</span> : disp_bicat B)
+           (<span class="nv">HD</span> : disp_univalent_2_1 D)
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">ℓ₁</span> <span class="nv">ℓ₂</span> : ∑ (xx : D x) (ff : xx --&gt;[ f ] yy), cartesian_1cell D ff)
+           (<span class="nv">p₁</span> : pr1 ℓ₁ = pr1 ℓ₂)
+           (<span class="nv">p₂</span> : transportf (<span class="k">λ</span> <span class="nv">z</span>, z --&gt;[ f ] yy) p₁ (pr12 ℓ₁) = pr12 ℓ₂)
+  : ℓ₁ = ℓ₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> ℓ₁ <span class="k">as</span> [ xx₁ [ ff₁ Hff₁ ]].
+  <span class="nb">induction</span> ℓ₂ <span class="k">as</span> [ xx₂ [ ff₂ Hff₂ ]].
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">induction</span> p₁ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">induction</span> p₂ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> isaprop_cartesian_1cell.
+  <span class="nb">apply</span> HD.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">eq_cartesian_lift_from_adjequiv_transport</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2 B)
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">HD</span> : disp_univalent_2 D)
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">yy</span> : D y)
+           {<span class="nv">xx₁</span> <span class="nv">xx₂</span> : D x}
+           (<span class="nv">p</span> : xx₁ = xx₂)
+           (<span class="nv">ff</span> : xx₂ --&gt;[ f] yy)
+  : transportb
+      (<span class="k">λ</span> <span class="nv">z</span>, z --&gt;[ f ] yy)
+      p
+      ff
+    =
+    transportf
+      (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+      (isotoid_2_1 (pr2 HB) (lunitor_invertible_2cell _))
+      (disp_idtoiso_2_0 _ (idpath _) _ _ p ;; ff)%mor_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">refine</span> (disp_isotoid_2_1
+            _
+            (pr2 HD)
+            (isotoid_2_1 (pr2 HB) (lunitor_invertible_2cell f))
+            _ _
+            (transportf
+               (<span class="k">λ</span> <span class="nv">z</span>, disp_invertible_2cell z _ _)
+               _
+               (disp_invertible_2cell_lunitor ff))).
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_invertible_2cell.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> idtoiso_2_1_isotoid_2_1.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">eq_cartesian_lift_from_adjequiv</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2 B)
+           (<span class="nv">D</span> : disp_bicat B)
+           (<span class="nv">HD</span> : disp_univalent_2 D)
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">ℓ₁</span> <span class="nv">ℓ₂</span> : ∑ (xx : D x) (ff : xx --&gt;[ f ] yy), cartesian_1cell D ff)
+           (<span class="nv">e</span> : disp_adjoint_equivalence
+                  (internal_adjoint_equivalence_identity x)
+                  (pr1 ℓ₁)
+                  (pr1 ℓ₂))
+           (<span class="nv">γ</span> : disp_invertible_2cell
+                  (lunitor_invertible_2cell _)
+                  (e ;; pr12 ℓ₂)
+                  (pr12 ℓ₁))
+  : ℓ₁ = ℓ₂.
+<span class="kn">Proof</span>.
+  use eq_cartesian_lift.
+  - <span class="nb">apply</span> HD.
+  - <span class="bp">exact</span> (disp_isotoid_2_0 (pr1 HD) e).
+  - <span class="nb">pose</span> (disp_isotoid_2_1
+            _
+            (pr2 HD)
+            (isotoid_2_1 (pr2 HB) (lunitor_invertible_2cell _))
+            _ _
+            (transportb
+               (<span class="k">λ</span> <span class="nv">z</span>, disp_invertible_2cell z _ _)
+               (idtoiso_2_1_isotoid_2_1 _ _)
+               γ))
+      <span class="k">as</span> p.
+    use (@transportf_transpose_left _ (<span class="k">λ</span> <span class="nv">z</span>, z --&gt;[ f ] yy)).
+    <span class="nb">refine</span> (!_).
+    <span class="nb">refine</span> (_ @ p) ; <span class="nb">clear</span> p.
+    <span class="nb">refine</span> (eq_cartesian_lift_from_adjequiv_transport HB HD _ _ _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> disp_idtoiso_2_0_isotoid_2_0.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_global_cleaving</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">HB</span> : is_univalent_2 B)
+           (<span class="nv">D</span> : disp_bicat B)
+           (<span class="nv">HD</span> : disp_univalent_2 D)
+  : isaprop (global_cleaving D).
+<span class="kn">Proof</span>.
+  use impred ; <span class="nb">intro</span> x.
+  use impred ; <span class="nb">intro</span> y.
+  use impred ; <span class="nb">intro</span> xx.
+  use impred ; <span class="nb">intro</span> f.
+  use invproofirrelevance.
+  <span class="nb">intros</span> ℓ₁ ℓ₂.
+  use eq_cartesian_lift_from_adjequiv.
+  - <span class="nb">apply</span> HB.
+  - <span class="nb">apply</span> HD.
+  - <span class="nb">refine</span> (map_between_cartesian_1cell (pr2 HB) (pr12 ℓ₁) (pr22 ℓ₂) ,, _).
+    <span class="nb">refine</span> (transportf
+              (<span class="k">λ</span> <span class="nv">z</span>, disp_left_adjoint_equivalence z _)
+              _
+              (pr2 (disp_adj_equiv_between_cartesian_1cell (pr2 HB) (pr22 ℓ₁) (pr22 ℓ₂)))).
+    use unique_internal_adjoint_equivalence.
+    <span class="nb">apply</span> HB.
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> map_between_cartesian_1cell_commute.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/CleavingOfBicatIsAProp.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Propositionality of global cleavings
+  &gt;
+  &gt;  ********************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

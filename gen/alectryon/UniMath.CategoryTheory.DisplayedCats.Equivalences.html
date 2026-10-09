@@ -1,0 +1,1448 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Equivalences.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**  “Displayed equivalences” of displayed categories. *)</span>
+
+<span class="sd">(** ** Contents:</span>
+
+<span class="sd">    - Displayed adjunctions and equivalences</span>
+<span class="sd">      - Displayed Adjunctions: [disp_adjunction]</span>
+<span class="sd">      - Displayed Equivalences: [equiv_over]</span>
+<span class="sd">    - Constructions</span>
+<span class="sd">      - Equivalence from ess. split and ff</span>
+<span class="sd">        (incomplete)</span>
+
+<span class="sd">    - Adjunctions and equivalences displayed over an identity functor</span>
+<span class="sd">      - Displayed Adjunctions over identity: [disp_adjunction_id]</span>
+<span class="sd">      - Displayed Equivalences over identity: [equiv_over_id]</span>
+<span class="sd">    - Constructions</span>
+<span class="sd">      - Equivalence from ess. split and ff over identity</span>
+<span class="sd">        [is_equiv_from_ff_ess_over_id]</span>
+<span class="sd">      - Inverses and composition of displayed adjunctions/equivalences over identity</span>
+<span class="sd">      - Induced adjunctions/equivalences of fiber categories over identity</span>
+<span class="sd">        [fiber_equiv]</span>
+<span class="sd"> *)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> type_scope.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+
+<span class="sd">(** * General definition of displayed adjunctions and equivalences *)</span>
+
+<span class="kn">Section</span> <span class="nf">DisplayedAdjunction</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adjunction_data</span> {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">A</span> : adjunction_data C C')
+             (<span class="nv">F</span> := left_functor A) (<span class="nv">G</span> := right_functor A)
+             (<span class="nv">eta</span> := adjunit A) (<span class="nv">eps</span> := adjcounit A)
+             (<span class="nv">D</span> : disp_cat C) (<span class="nv">D'</span> : disp_cat C') : UU
+    := ∑ (FF : disp_functor F D D') (GG : disp_functor G D' D),
+      (disp_nat_trans eta (disp_functor_identity _ )
+                      (disp_functor_composite FF GG))
+        ×
+        (disp_nat_trans eps (disp_functor_composite GG FF) (disp_functor_identity _ )).
+
+  <span class="kn">Section</span> <span class="nf">notation</span>.
+
+    <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">C'</span> : category} {<span class="nv">A</span> : adjunction_data C C'}
+            {<span class="nv">D</span> <span class="nv">D'</span>} (<span class="nv">X</span> : disp_adjunction_data A D D').
+    <span class="kn">Definition</span> <span class="nf">left_adj_over</span> : disp_functor _ _ _ := pr1 X.
+    <span class="kn">Definition</span> <span class="nf">right_adj_over</span> : disp_functor _ _ _ := pr1 (pr2 X).
+    <span class="kn">Definition</span> <span class="nf">unit_over</span> : disp_nat_trans _ _ _ := pr1 (pr2 (pr2 X)).
+    <span class="kn">Definition</span> <span class="nf">counit_over</span> : disp_nat_trans _ _ _ := pr2 (pr2 (pr2 X)).
+
+  <span class="kn">End</span> <span class="nf">notation</span>.
+
+  <span class="kn">Definition</span> <span class="nf">triangle_1_statement_over</span>
+             {<span class="nv">C</span> <span class="nv">C'</span> : category} {<span class="nv">A</span> : adjunction C C'}
+             {<span class="nv">D</span> <span class="nv">D'</span>} (<span class="nv">X</span> : disp_adjunction_data A D D')
+             (<span class="nv">FF</span> := left_adj_over X)
+             (<span class="nv">ηη</span> := unit_over X)
+             (<span class="nv">εε</span> := counit_over X) : UU
+    := ∏ x xx, ♯ FF (ηη x xx) ;;  εε _ (FF _ xx)
+               = transportb _ (triangle_id_left_ad A x ) (id_disp _) .
+
+  <span class="kn">Definition</span> <span class="nf">triangle_2_statement_over</span>
+             {<span class="nv">C</span> <span class="nv">C'</span> : category} {<span class="nv">A</span> : adjunction C C'}
+             {<span class="nv">D</span> <span class="nv">D'</span>} (<span class="nv">AA</span> : disp_adjunction_data A D D')
+             (<span class="nv">GG</span> := right_adj_over AA)
+             (<span class="nv">ηη</span> := unit_over AA)
+             (<span class="nv">εε</span> := counit_over AA) : UU
+    := ∏ x xx, ηη _ (GG x xx) ;; ♯ GG (εε _ xx)
+               = transportb _ (triangle_id_right_ad A _ ) (id_disp _).
+
+  <span class="kn">Definition</span> <span class="nf">form_disp_adjunction</span> {<span class="nv">C</span> <span class="nv">C'</span> : category}
+             (<span class="nv">A</span> : adjunction C C') {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'}
+             (<span class="nv">AA</span> : disp_adjunction_data A D D')
+    : UU
+    := triangle_1_statement_over AA × triangle_2_statement_over AA.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adjunction</span> {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">A</span> : adjunction C C') <span class="nv">D</span> <span class="nv">D'</span> : UU
+    := ∑ AA : disp_adjunction_data A D D',
+        triangle_1_statement_over AA × triangle_2_statement_over AA.
+
+  <span class="kn">Coercion</span> <span class="nf">data_of_disp_adjunction</span> (C C' : category) (A : adjunction C C')
+           D D' (AA : disp_adjunction A D D') : disp_adjunction_data _ _ _ := pr1 AA.
+
+  <span class="kn">Definition</span> <span class="nf">triangle_1_over</span> {<span class="nv">C</span> <span class="nv">C'</span> : category}
+             {<span class="nv">A</span> : adjunction C C'} {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">D'</span> : disp_cat C'} (<span class="nv">AA</span> : disp_adjunction A D D')
+    : triangle_1_statement_over AA
+    := pr1 (pr2 AA).
+
+  <span class="kn">Definition</span> <span class="nf">triangle_2_over</span> {<span class="nv">C</span> <span class="nv">C'</span> : category}
+             {<span class="nv">A</span> : adjunction C C'} {<span class="nv">D</span> : disp_cat C}
+             {<span class="nv">D'</span> : disp_cat C'} (<span class="nv">AA</span> : disp_adjunction A D D')
+    : triangle_2_statement_over AA
+    := pr2 (pr2 AA).
+
+  <span class="sd">(** The terminology is difficult to choose here: the proposition “F is a left adjoint” is the same as the type of “right adjoints to F”, so should this type be called something more like [left_adjoint F] or [right_adjoint F]?</span>
+
+<span class="sd">      Our choice here does _not_ agree with that of the base UniMath category theory library. TODO: consider these conventions, and eventually harmonise them by changing it either here or in UniMath. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">right_adjoint_over_data</span> {<span class="nv">C</span> <span class="nv">C'</span> : category}
+             {<span class="nv">A</span> : adjunction_data C C'} {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'}
+             (<span class="nv">FF</span> : disp_functor (left_functor A) D D') : UU
+    := ∑ (GG : disp_functor (right_functor A) D' D),
+      (disp_nat_trans (adjunit A)
+                      (disp_functor_identity _) (disp_functor_composite FF GG))
+        × (disp_nat_trans (adjcounit A )
+                          (disp_functor_composite GG FF) (disp_functor_identity _)).
+
+  <span class="kn">Definition</span> <span class="nf">functor_of_right_adjoint_over</span> {<span class="nv">C</span> <span class="nv">C'</span> : category}
+             {<span class="nv">A</span> : adjunction_data C C'} {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'}
+             {<span class="nv">FF</span> : disp_functor (left_functor A) D D'}
+             (<span class="nv">GG</span> : right_adjoint_over_data FF)
+    := pr1 GG.
+  <span class="kn">Coercion</span> <span class="nf">functor_of_right_adjoint_over</span>
+    : right_adjoint_over_data &gt;-&gt; disp_functor.
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_of_right_adjoint_over_data</span> {<span class="nv">C</span> <span class="nv">C'</span> : category}
+             {<span class="nv">A</span> : adjunction_data C C'} {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'}
+             {<span class="nv">FF</span> : disp_functor (left_functor A) D D'}
+             (<span class="nv">GG</span> : right_adjoint_over_data FF)
+    : disp_adjunction_data A D D'
+    := (FF,, GG).
+  <span class="kn">Coercion</span> <span class="nf">adjunction_of_right_adjoint_over_data</span>
+    : right_adjoint_over_data &gt;-&gt; disp_adjunction_data.
+
+  <span class="kn">Definition</span> <span class="nf">right_adjoint_of_disp_adjunction_data</span>
+             {<span class="nv">C</span> <span class="nv">C'</span> : category} {<span class="nv">A</span> : adjunction_data C C'}
+             {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'}
+             (<span class="nv">AA</span> : disp_adjunction_data A D D')
+    : right_adjoint_over_data (left_adj_over AA) <span class="c">(* coercion does not trigger *)</span>
+    := pr2 AA.
+
+  <span class="kn">Definition</span> <span class="nf">right_adjoint_over</span>
+             {<span class="nv">C</span> <span class="nv">C'</span> : category} {<span class="nv">A</span> : adjunction C C'}
+             {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'}
+             (<span class="nv">FF</span> : disp_functor (left_functor A) D D') : UU
+    := ∑ GG : right_adjoint_over_data FF,
+        form_disp_adjunction A GG.
+
+  <span class="kn">Definition</span> <span class="nf">data_of_right_adjoint_over</span>
+             {<span class="nv">C</span> <span class="nv">C'</span> : category} {<span class="nv">A</span> : adjunction C C'}
+             {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'}
+             {<span class="nv">FF</span> : disp_functor (left_functor A) D D'}
+             (<span class="nv">GG</span> : right_adjoint_over FF)
+    : right_adjoint_over_data FF
+    := pr1 GG.
+  <span class="kn">Coercion</span> <span class="nf">data_of_right_adjoint_over</span>
+    : right_adjoint_over &gt;-&gt; right_adjoint_over_data.
+
+  <span class="kn">Definition</span> <span class="nf">adjunction_of_right_adjoint_over</span> {<span class="nv">C</span> <span class="nv">C'</span> : category}
+             {<span class="nv">A</span> : adjunction C C'} {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'}
+             (<span class="nv">FF</span> : disp_functor (left_functor A) D D')
+             (<span class="nv">GG</span> : right_adjoint_over FF)
+    : disp_adjunction A D D'
+    := (adjunction_of_right_adjoint_over_data GG ,, pr2 GG).
+
+  <span class="kn">Definition</span> <span class="nf">right_adjoint_of_disp_adjunction</span> {<span class="nv">C</span> <span class="nv">C'</span> : category}
+             {<span class="nv">A</span> : adjunction C C'} {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'}
+             (<span class="nv">AA</span> : disp_adjunction A D D')
+    : right_adjoint_over (left_adj_over AA)
+    := (right_adjoint_of_disp_adjunction_data AA ,, pr2 AA).
+
+<span class="kn">End</span> <span class="nf">DisplayedAdjunction</span>.
+
+<span class="kn">Section</span> <span class="nf">DisplayedEquivalences</span>.
+  <span class="kn">Definition</span> <span class="nf">form_equiv_over</span> {<span class="nv">C</span> <span class="nv">C'</span> : category} {<span class="nv">E</span> : equivalence_of_cats C C'}
+             {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'}
+             (<span class="nv">AA</span> : disp_adjunction_data E D D') : UU
+    := (∏ x xx, is_z_iso_disp (adjunitiso E x) (unit_over AA x xx))
+         ×
+         (∏ x xx, is_z_iso_disp (adjcounitiso E x) (counit_over AA x xx)).
+
+
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_unit_over</span>
+             {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">E</span> : equivalence_of_cats C C') {<span class="nv">D</span> <span class="nv">D'</span>}
+             (<span class="nv">AA</span> : disp_adjunction_data E D D')
+             (<span class="nv">EE</span> : form_equiv_over AA)
+    : ∏ (x : C) (xx : D x), is_z_iso_disp (adjunitiso E x) ((unit_over AA) x xx)
+    := pr1 EE.
+
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_counit_over</span>
+             {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">E</span> : equivalence_of_cats C C') {<span class="nv">D</span> <span class="nv">D'</span>}
+             (<span class="nv">AA</span> : disp_adjunction_data E D D')
+             (<span class="nv">EE</span> : form_equiv_over AA)
+    :  ∏ (x0 : C') (xx : D' x0), is_z_iso_disp (adjcounitiso E x0) ((counit_over AA) x0 xx)
+    := pr2 EE.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_over</span> {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">E</span> : adj_equiv C C')
+             (<span class="nv">D</span> : disp_cat C) (<span class="nv">D'</span> : disp_cat C')
+    : UU
+    := ∑ AA : disp_adjunction E D D', @form_equiv_over _ _ E _  _ (pr1 AA).
+  <span class="c">(* argument A is not inferred *)</span>
+
+  <span class="kn">Coercion</span> <span class="nf">adjunction_of_equiv_over</span> {C C' : category} (E : adj_equiv C C')
+           {D : disp_cat C} {D': disp_cat C'} (EE : equiv_over E D D')
+    : disp_adjunction _ _ _ := pr1 EE.
+
+
+  <span class="kn">Coercion</span> <span class="nf">axioms_of_equiv_over</span> {C C' : category} (E : adj_equiv C C')
+           {D : disp_cat C} {D': disp_cat C'}
+           (EE : equiv_over E D D') : form_equiv_over _
+    := pr2 EE.
+
+  <span class="kn">Definition</span> <span class="nf">is_equiv_over</span> {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">E</span> : adj_equiv C C')
+             {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span>: disp_cat C'}
+             (<span class="nv">FF</span> : disp_functor (left_functor E) D D') : UU
+    := ∑ GG : @right_adjoint_over _ _ E _ _ FF,
+        @form_equiv_over _ _ E _ _ GG.
+  <span class="c">(* argument E is not inferred *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">right_adjoint_of_is_equiv_over</span> {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">E</span> : adj_equiv C C')
+             {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span>: disp_cat C'}
+             {<span class="nv">FF</span> : disp_functor (left_functor E) D D'}
+             (<span class="nv">EE</span> : is_equiv_over E FF) := pr1 EE.
+  <span class="kn">Coercion</span> <span class="nf">right_adjoint_of_is_equiv_over</span>
+    : is_equiv_over &gt;-&gt; right_adjoint_over.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_of_is_equiv_over</span> {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">E</span> : adj_equiv C C')
+             {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span>: disp_cat C'}
+             {<span class="nv">FF</span> : disp_functor (left_functor E) D D'}
+             (<span class="nv">EE</span> : is_equiv_over E FF)
+    : equiv_over E D D'
+    := (adjunction_of_right_adjoint_over _ EE ,, pr2 EE).
+  <span class="kn">Coercion</span> <span class="nf">equiv_of_is_equiv_over</span>
+    : is_equiv_over &gt;-&gt; equiv_over.
+  <span class="c">(* Again, don’t worry about the ambiguous path generated here. *)</span>
+
+  <span class="sd">(** ** Lemmas on the triangle identities *)</span>
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> hide_transport_scope.
+
+  <span class="kn">Lemma</span> <span class="nf">triangle_2_from_1_for_equiv_over</span>
+        {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">E</span> : adj_equiv C C')
+        {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'}
+        (<span class="nv">AA</span> : disp_adjunction_data E D D')
+        (<span class="nv">EE</span> : form_equiv_over (E:=E) AA)
+    : triangle_1_statement_over (A:=E) AA -&gt; triangle_2_statement_over (A:=E) AA.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> AA <span class="k">as</span> [FF [GG [η ε]]].
+    <span class="nb">destruct</span> EE <span class="k">as</span> [Hη Hε]; <span class="nb">cbn</span> <span class="k">in</span> Hη, Hε.
+    <span class="nb">unfold</span> triangle_1_statement_over, triangle_2_statement_over; <span class="nb">cbn</span>.
+    <span class="nb">intros</span> T1 x yy.
+    <span class="c">(* Algebraically, this goes as follows:</span>
+<span class="c">    η G ; G ε</span>
+<span class="c">    = G ε^ ; η^ G ; η G ; G ε ; η G ; G ε          [by inverses, 1]</span>
+<span class="c">    = G ε^ ; η^ G ; η G ; η G F G ; G F G ε ; G ε  [by naturality, 2]</span>
+<span class="c">    = G ε^ ; η^ G ; η G ; η G F G ; G ε F G ; G ε  [by naturality, 3]</span>
+<span class="c">    = G ε^ ; η^ G ; η G ; G F η G ; G ε F G ; G ε  [by naturality, 4]</span>
+<span class="c">    = G ε^ ; η^ G ; η G ; G (F η ; ε F ) G ; G ε   [by functoriality, 5]</span>
+<span class="c">    = G ε^ ; η^ G ; η G ; G ε                      [by T1, 6]</span>
+<span class="c">    = 1                                            [by inverses, 7]</span>
+
+<span class="c">    It’s perhaps most readable when written in string diagrams. *)</span>
+    etrans. <span class="nb">apply</span> id_left_disp_var.
+    etrans. <span class="nb">eapply</span> transportf_bind.
+      <span class="nb">eapply</span> cancel_postcomposition_disp.
+      etrans. <span class="nb">eapply</span> transportf_transpose_right. <span class="nb">apply</span> @pathsinv0.
+        <span class="nb">refine</span> (z_iso_disp_after_inv_mor _).
+        <span class="nb">refine</span> (disp_functor_on_is_z_iso_disp GG _).
+        <span class="nb">apply</span> Hε. <span class="c">(*1a*)</span>
+      <span class="nb">eapply</span> transportf_bind.
+      <span class="nb">eapply</span> cancel_postcomposition_disp.
+      etrans. <span class="nb">apply</span> id_right_disp_var.
+      <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">eapply</span> cancel_precomposition_disp.
+      <span class="nb">eapply</span> transportf_transpose_right. <span class="nb">apply</span> @pathsinv0.
+        <span class="nb">refine</span> (z_iso_disp_after_inv_mor _).
+        <span class="nb">apply</span> (Hη). <span class="c">(*1b*)</span>
+      <span class="nb">eapply</span> transportf_bind, assoc_disp.
+    etrans. <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">apply</span> assoc_disp_var.
+      <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">apply</span> assoc_disp_var.
+      <span class="nb">eapply</span> transportf_bind.
+      <span class="nb">eapply</span> cancel_precomposition_disp.
+      etrans. <span class="nb">eapply</span> cancel_precomposition_disp.
+        etrans. <span class="nb">apply</span> assoc_disp.
+        <span class="nb">eapply</span> transportf_bind.
+        etrans. <span class="nb">eapply</span> cancel_postcomposition_disp.
+          <span class="bp">exact</span> (disp_nat_trans_ax η (♯ GG (ε x yy))). <span class="c">(*2*)</span>
+        <span class="nb">eapply</span> transportf_bind.
+        etrans. <span class="nb">apply</span> assoc_disp_var.
+        <span class="nb">eapply</span> transportf_bind.
+        <span class="nb">eapply</span> cancel_precomposition_disp.
+        <span class="nb">cbn</span>.
+        etrans. <span class="nb">eapply</span> transportf_transpose_right.
+          <span class="nb">apply</span> @pathsinv0, (disp_functor_comp GG).
+        <span class="nb">eapply</span> transportf_bind.
+        etrans. <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (disp_nat_trans_ax ε). <span class="c">(*3*)</span>
+        <span class="nb">cbn</span>.
+        etrans. <span class="nb">apply</span> (disp_functor_transportf _ GG).
+        <span class="nb">eapply</span> transportf_bind.
+        <span class="nb">apply</span> (disp_functor_comp GG).
+      <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">apply</span> assoc_disp.
+      <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">eapply</span> cancel_postcomposition_disp.
+        <span class="nb">apply</span> (disp_nat_trans_ax η (η _ (GG x yy))). <span class="c">(*4*)</span>
+      <span class="nb">cbn</span>.
+      <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">apply</span> assoc_disp_var.
+      <span class="nb">eapply</span> transportf_bind.
+      <span class="nb">eapply</span> cancel_precomposition_disp.
+      etrans. <span class="nb">apply</span> assoc_disp.
+      <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">eapply</span> cancel_postcomposition_disp.
+        etrans. <span class="nb">eapply</span> transportf_transpose_right.
+          <span class="nb">apply</span> @pathsinv0, (disp_functor_comp GG). <span class="c">(*5*)</span>
+        <span class="nb">eapply</span> transportf_bind.
+        etrans. <span class="nb">apply</span> maponpaths, T1. <span class="c">(*6*)</span>
+        etrans. <span class="nb">apply</span> (disp_functor_transportf _ GG).
+        <span class="nb">eapply</span> transportf_bind. <span class="nb">apply</span> (disp_functor_id GG).
+      <span class="nb">eapply</span> transportf_bind. <span class="nb">apply</span> id_left_disp.
+    etrans. <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">apply</span> assoc_disp_var.
+      <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">eapply</span> cancel_precomposition_disp.
+        etrans. <span class="nb">apply</span> assoc_disp.
+        <span class="nb">eapply</span> transportf_bind.
+        etrans. <span class="nb">eapply</span> cancel_postcomposition_disp.
+          <span class="bp">exact</span> (z_iso_disp_after_inv_mor _). <span class="c">(*7a*)</span>
+        <span class="nb">eapply</span> transportf_bind. <span class="nb">apply</span> id_left_disp.
+      <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (z_iso_disp_after_inv_mor _). <span class="c">(*7b*)</span>
+    etrans. <span class="nb">apply</span> transport_f_f.
+    <span class="nb">unfold</span> transportb. <span class="nb">apply</span> maponpaths_2, homset_property.
+  <span class="kn">Time</span> <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">triangle_1_from_2_for_equiv_over</span>
+        {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">E</span> : adj_equiv C C')
+        {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span> : disp_cat C'}
+        (<span class="nv">AA</span> : disp_adjunction_data E D D')
+        (<span class="nv">EE</span> : form_equiv_over (E:=E) AA)
+    : triangle_2_statement_over (A:=E) AA -&gt; triangle_1_statement_over (A:=E) AA.
+  <span class="kn">Proof</span>.
+    <span class="c">(* dual to previous lemma *)</span>
+  <span class="kn">Abort</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_equiv_of_equiv_over</span> {<span class="nv">C</span> <span class="nv">C'</span> : category} (<span class="nv">E</span> : adj_equiv C C')
+             {<span class="nv">D</span> : disp_cat C} {<span class="nv">D'</span>: disp_cat C'}
+             (<span class="nv">EE</span> : equiv_over E D D')
+    : is_equiv_over E (left_adj_over EE).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">apply</span> (right_adjoint_of_disp_adjunction EE).
+    - <span class="nb">apply</span> (axioms_of_equiv_over E EE).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* TODO: adjointification of a quasi-equivalence. *)</span>
+
+<span class="kn">End</span> <span class="nf">DisplayedEquivalences</span>.
+
+<span class="kn">Section</span> <span class="nf">Constructions</span>.
+  <span class="sd">(** * Constructions on and of displayed equivalences *)</span>
+
+  <span class="sd">(** ** Full + faithful + ess split =&gt; equivalence *)</span>
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+  <span class="kn">Section</span> <span class="nf">Equiv_from_ff_plus_ess_split</span>.
+    <span class="c">(* TODO: consider naming throughout this section!  Especially: anything with [ses] should be fixed. *)</span>
+
+    <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">C'</span> : category}
+            {<span class="nv">F</span> : functor C C'}
+            {<span class="nv">D</span> : disp_cat C}
+            {<span class="nv">D'</span> : disp_cat C'}
+            (<span class="nv">FF</span> : disp_functor F D D')
+            (<span class="nv">FF_split</span> : disp_functor_disp_ess_split_surj FF)
+            (<span class="nv">FF_ff</span> : disp_functor_ff FF).
+
+    <span class="sd">(** *** Utility lemmas from fullness+faithfulness *)</span>
+
+    <span class="c">(* TODO: inline throughout? *)</span>
+    <span class="kn">Let</span> <span class="nf">FFweq</span> {<span class="nv">x</span> <span class="nv">y</span>} <span class="nv">xx</span> <span class="nv">yy</span> (<span class="nv">f</span> : x --&gt; y) : xx --&gt;[ f] yy ≃ FF x xx --&gt;[#F f] FF y yy
+        := disp_functor_ff_weq _ FF_ff xx yy f.
+    <span class="kn">Let</span> <span class="nf">FFinv</span> {<span class="nv">x</span> <span class="nv">y</span>} {<span class="nv">xx</span>} {<span class="nv">yy</span>} {<span class="nv">f</span>} : FF x xx --&gt;[#F f] FF y yy → xx --&gt;[ f] yy
+        := @disp_functor_ff_inv _ _ _ _ _ _ FF_ff x y xx yy f.
+
+    <span class="c">(* TODO: once [disp_functor_ff_transportf_gen] is done, replace this with that. *)</span>
+    <span class="kn">Lemma</span> <span class="nf">FFinv_transportf</span>
+          {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} (<span class="nv">e</span> : f = f')
+          {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y} (<span class="nv">ff</span> : FF _ xx --&gt;[#F f] FF _ yy)
+      : FFinv (transportf (<span class="k">λ</span> <span class="nv">f'</span>, _ --&gt;[#F f'] _ ) e ff) = transportf _ e (FFinv ff).
+    <span class="kn">Proof</span>.
+      <span class="nb">destruct</span> e. <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_functor_ff_reflects_isos</span>
+               {<span class="nv">x</span> <span class="nv">y</span>} {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y} {<span class="nv">f</span> : z_iso x y}
+               (<span class="nv">ff</span> : xx --&gt;[ f ] yy) (<span class="nv">isiso</span>: is_z_iso_disp (functor_on_z_iso F f) (♯ FF ff))
+      : is_z_iso_disp _ ff.
+    <span class="kn">Proof</span>.
+      <span class="nb">set</span> (FFffinv := inv_mor_disp_from_z_iso isiso).
+      <span class="nb">set</span> (FFffinv':= transportf (<span class="k">λ</span> <span class="nv">f'</span>, _ --&gt;[ _ ] _ ) (functor_on_inv_from_z_iso F f) FFffinv).
+      <span class="nb">cbn</span> <span class="k">in</span> FFffinv'.
+      <span class="nb">set</span> (ffinv := FFinv FFffinv').
+      <span class="k">exists</span> <span class="nv">ffinv</span>.
+      <span class="nb">split</span>.
+      - <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> ffinv, FFffinv'; <span class="nb">clear</span> ffinv FFffinv' ;
+           <span class="nb">apply</span> (invmaponpathsweq (@FFweq _ _ _ _ _ )) ; <span class="nb">cbn</span> ;
+           etrans ; [ <span class="nb">apply</span> (disp_functor_comp FF) | ] ;
+           etrans ; [ <span class="nb">apply</span> maponpaths ;
+                      <span class="nb">apply</span> maponpaths_2 ;
+                      <span class="nb">apply</span> (homotweqinvweq (@FFweq _ _ _ _ _ ))
+                    | ] ;
+           <span class="nb">rewrite</span> transportf_const ; <span class="nb">unfold</span> idfun ;
+           <span class="nb">unfold</span> FFffinv ; <span class="nb">clear</span> FFffinv ;
+           etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> (z_iso_disp_after_inv_mor isiso) | ] ;
+           etrans ; [ <span class="nb">apply</span> transport_f_f | ] ;
+           <span class="nb">apply</span> pathsinv0 ;
+           etrans ; [ <span class="nb">apply</span> (disp_functor_transportf _ FF) | ] ;
+           etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> disp_functor_id | ] ;
+           etrans ; [ <span class="nb">apply</span> transport_f_f | ] ;
+           <span class="nb">apply</span> maponpaths_2 ; <span class="nb">apply</span> homset_property).
+      - <span class="kp">abstract</span>
+          (<span class="nb">unfold</span> ffinv, FFffinv'; <span class="nb">clear</span> ffinv FFffinv' ;
+           <span class="nb">apply</span> (invmaponpathsweq (@FFweq _ _ _ _ _ )) ; <span class="nb">cbn</span> ;
+           etrans ; [ <span class="nb">apply</span> (disp_functor_comp FF) | ] ;
+           etrans ; [ <span class="nb">apply</span> maponpaths ;
+                      <span class="nb">apply</span> maponpaths ;
+                      <span class="nb">apply</span> (homotweqinvweq (@FFweq _ _ _ _ _ )) | ] ;
+           etrans ; [ <span class="nb">apply</span> maponpaths ;
+                      <span class="nb">eapply</span> maponpaths ;
+                      <span class="nb">apply</span> (eqtohomot (transportf_const _ _))
+                    | ] ;
+           etrans ; [ <span class="nb">apply</span> maponpaths ;
+                      <span class="nb">unfold</span> FFffinv ;
+                      <span class="nb">apply</span> (inv_mor_after_z_iso_disp isiso)
+                    | ] ;
+           etrans ; [ <span class="nb">apply</span> transport_f_f | ] ;
+           <span class="nb">apply</span> pathsinv0 ;
+           etrans ; [ <span class="nb">apply</span> (disp_functor_transportf _ FF) | ] ;
+           etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> disp_functor_id | ] ;
+           etrans ; [ <span class="nb">apply</span> transport_f_f | ] ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> homset_property).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">FFinv_on_z_iso_is_z_iso</span> {<span class="nv">x</span> <span class="nv">y</span>} {<span class="nv">xx</span> : D x} {<span class="nv">yy</span> : D y} {<span class="nv">f</span> : z_iso x y}
+               (<span class="nv">ff</span> : FF _ xx --&gt;[ (#F)%cat f ] FF _ yy) (<span class="nv">Hff</span>: is_z_iso_disp (functor_on_z_iso F f) ff)
+      : is_z_iso_disp _ (FFinv ff).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> disp_functor_ff_reflects_isos.
+      use (transportf _ _ Hff).
+      <span class="nb">apply</span> @pathsinv0. use homotweqinvweq.
+    <span class="kn">Qed</span>.
+
+    <span class="c">(* TODO: The converse functor. *)</span>
+
+  <span class="kn">End</span> <span class="nf">Equiv_from_ff_plus_ess_split</span>.
+
+  <span class="c">(* TODO: Induced adjunctions / equivalences of fiber cats. *)</span>
+<span class="kn">End</span> <span class="nf">Constructions</span>.
+
+<span class="sd">(** * Displayed equivalences and adjunctions over identity *)</span>
+
+<span class="sd">(** ** Adjunctions *)</span>
+<span class="kn">Section</span> <span class="nf">AdjunctionsOverId</span>.
+
+<span class="sd">(** In general, one can define displayed equivalences/adjunctions over any equivalences/adjunctions between the bases (and probably more generally still).  For now we just give the case over a single base precategory — i.e. over an identity functor.</span>
+
+<span class="sd">We give the “bidirectional” version first, and then the “handed” versions afterwards, with enough coercions between the two to (hopefully) make it easy to work with both versions. *)</span>
+
+<span class="c">(* TODO: consider carefully the graph of coercions in this section; make them more systematic, and whatever we decide on, DOCUMENT the system clearly. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">disp_adjunction_id_data</span> {<span class="nv">C</span>} (<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C) : UU
+:= ∑ (FF : disp_functor (functor_identity _) D D')
+     (GG : disp_functor (functor_identity _) D' D),
+     (disp_nat_trans (nat_trans_id _)
+            (disp_functor_identity _) (disp_functor_composite FF GG))
+   × (disp_nat_trans (nat_trans_id _ )
+            (disp_functor_composite GG FF) (disp_functor_identity _)).
+
+<span class="c">(* TODO: consider naming of these access functions *)</span>
+<span class="kn">Definition</span> <span class="nf">left_adj_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">A</span> : disp_adjunction_id_data D D')
+  : disp_functor _ D D'
+:= pr1 A.
+<span class="kn">Coercion</span> <span class="nf">left_adj_over_id</span>
+  : disp_adjunction_id_data &gt;-&gt; disp_functor.
+
+<span class="kn">Definition</span> <span class="nf">right_adj_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">A</span> : disp_adjunction_id_data D D')
+  : disp_functor _ D' D
+:= pr1 (pr2 A).
+
+<span class="kn">Definition</span> <span class="nf">unit_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">A</span> : disp_adjunction_id_data D D')
+:= pr1 (pr2 (pr2 A)).
+
+<span class="kn">Definition</span> <span class="nf">counit_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">A</span> : disp_adjunction_id_data D D')
+:= pr2 (pr2 (pr2 A)).
+
+<span class="sd">(** Triangle identies for an adjunction *)</span>
+
+<span class="sd">(** Note: the statements of these axioms include [_statement_] to distinguish them from the _instances_ of these statements given by the access functions of [form_adjunction].</span>
+
+<span class="sd">This roughly follows the pattern of [univalenceStatement], [funextfunStatement], etc., but departs from it slightly to follow our more general convention of using underscores instead of camelcase.</span>
+<span class="sd">*)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">triangle_1_statement_over_id</span>  {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+    (<span class="nv">A</span> : disp_adjunction_id_data D D')
+    (<span class="nv">FF</span> := left_adj_over_id A)
+    (<span class="nv">η</span> := unit_over_id A)
+    (<span class="nv">ε</span> := counit_over_id A)
+  : UU
+:= ∏ x xx, ♯ FF ( η x xx) ;;  ε _ (FF _ xx)
+            = transportb _ (id_left _ ) (id_disp _) .
+
+<span class="kn">Definition</span> <span class="nf">triangle_2_statement_over_id</span>  {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+    (<span class="nv">A</span> : disp_adjunction_id_data D D')
+    (<span class="nv">GG</span> := right_adj_over_id A)
+    (<span class="nv">η</span> := unit_over_id A)
+    (<span class="nv">ε</span> := counit_over_id A)
+  : UU
+:= ∏ x xx, η _ (GG x xx) ;; ♯ GG (ε _ xx)
+           = transportb _ (id_left _ ) (id_disp _).
+
+<span class="kn">Definition</span> <span class="nf">form_disp_adjunction_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+    (<span class="nv">A</span> : disp_adjunction_id_data D D')
+  : UU
+:= triangle_1_statement_over_id A × triangle_2_statement_over_id A.
+
+<span class="kn">Definition</span> <span class="nf">disp_adjunction_id</span> {<span class="nv">C</span>} (<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C) : UU
+:= ∑ A : disp_adjunction_id_data D D', form_disp_adjunction_id A.
+
+<span class="kn">Definition</span> <span class="nf">data_of_disp_adjunction_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">A</span> : disp_adjunction_id D D')
+:= pr1 A.
+<span class="kn">Coercion</span> <span class="nf">data_of_disp_adjunction_id</span>
+  : disp_adjunction_id &gt;-&gt; disp_adjunction_id_data.
+
+<span class="kn">Definition</span> <span class="nf">triangle_1_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">A</span> : disp_adjunction_id D D')
+:= pr1 (pr2 A).
+
+<span class="kn">Definition</span> <span class="nf">triangle_2_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">A</span> : disp_adjunction_id D D')
+:= pr2 (pr2 A).
+
+<span class="sd">(** The “left-handed” version: right adjoints to a given functor *)</span>
+
+<span class="sd">(** The terminology is difficult to choose here: the proposition “F is a left adjoint” is the same as the type of “right adjoints to F”, so should this type be called something more like [left_adjoint F] or [right_adjoint F]?</span>
+
+<span class="sd">Our choice here does _not_ agree with that of the base UniMath category theory library. TODO: consider these conventions, and eventually harmonise them by changing it either here or in UniMath. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">right_adjoint_over_id_data</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">FF</span> : disp_functor (functor_identity _) D D') : UU
+:= ∑ (GG : disp_functor (functor_identity _) D' D),
+     (disp_nat_trans (nat_trans_id _)
+            (disp_functor_identity _) (disp_functor_composite FF GG))
+   × (disp_nat_trans (nat_trans_id _ )
+            (disp_functor_composite GG FF) (disp_functor_identity _)).
+
+<span class="kn">Definition</span> <span class="nf">functor_of_right_adjoint_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  {<span class="nv">FF</span> : disp_functor _ D D'}
+  (<span class="nv">GG</span> : right_adjoint_over_id_data FF)
+  := pr1 GG.
+<span class="kn">Coercion</span> <span class="nf">functor_of_right_adjoint_over_id</span> : right_adjoint_over_id_data &gt;-&gt; disp_functor.
+
+<span class="kn">Definition</span> <span class="nf">adjunction_of_right_adjoint_over_id_data</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+    {<span class="nv">FF</span> : disp_functor _ D D'}
+    (<span class="nv">GG</span> : right_adjoint_over_id_data FF)
+  : disp_adjunction_id_data D D'
+:= (FF,, GG).
+<span class="kn">Coercion</span> <span class="nf">adjunction_of_right_adjoint_over_id_data</span>
+  : right_adjoint_over_id_data &gt;-&gt; disp_adjunction_id_data.
+
+<span class="kn">Definition</span> <span class="nf">right_adjoint_of_disp_adjunction_id_data</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+    (<span class="nv">A</span> : disp_adjunction_id_data D D')
+  : right_adjoint_over_id_data A
+:= pr2 A.
+
+<span class="kn">Definition</span> <span class="nf">right_adjoint_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">FF</span> : disp_functor (functor_identity _) D D') : UU
+:= ∑ GG : right_adjoint_over_id_data FF,
+   form_disp_adjunction_id GG.
+
+<span class="kn">Definition</span> <span class="nf">data_of_right_adjoint_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  {<span class="nv">FF</span> : disp_functor _ D D'}
+  (<span class="nv">GG</span> : right_adjoint_over_id FF)
+:= pr1 GG.
+<span class="kn">Coercion</span> <span class="nf">data_of_right_adjoint_over_id</span>
+  : right_adjoint_over_id &gt;-&gt; right_adjoint_over_id_data.
+
+<span class="kn">Definition</span> <span class="nf">adjunction_of_right_adjoint_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+    {<span class="nv">FF</span> : disp_functor _ D D'}
+    (<span class="nv">GG</span> : right_adjoint_over_id FF)
+  : disp_adjunction_id D D'
+:= (adjunction_of_right_adjoint_over_id_data GG ,, pr2 GG).
+
+<span class="kn">Definition</span> <span class="nf">right_adjoint_of_disp_adjunction_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+    (<span class="nv">A</span> : disp_adjunction_id D D')
+  : right_adjoint_over_id A
+:= (right_adjoint_of_disp_adjunction_id_data A,, pr2 A).
+
+<span class="c">(* TODO: add the dual-handedness version, i.e. indexed over GG instead of FF. *)</span>
+<span class="kn">End</span> <span class="nf">AdjunctionsOverId</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Being an adjunction is a proposition</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">isaprop_form_disp_adjunction_id</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_cat C}
+            (<span class="nv">F</span> : disp_functor (functor_identity C) D₁ D₂)
+            (<span class="nv">HF</span> : right_adjoint_over_id_data F)
+  : isaprop (form_disp_adjunction_id HF).
+<span class="kn">Proof</span>.
+  use isapropdirprod ; <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+  - <span class="nb">apply</span> D₂.
+  - <span class="nb">apply</span> D₁.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">EquivalencesOverId</span>.
+<span class="sd">(** ** Displayed equivalences over id (adjoint and quasi) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">form_equiv_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+    (<span class="nv">A</span> : disp_adjunction_id_data D D')
+    (<span class="nv">η</span> := unit_over_id A)
+    (<span class="nv">ε</span> := counit_over_id A)
+  : UU
+:= (∏ x xx, is_z_iso_disp (identity_z_iso _ ) (η x xx))
+ × (∏ x xx, is_z_iso_disp (identity_z_iso _ ) (ε x xx)).
+
+<span class="kn">Definition</span> <span class="nf">is_z_iso_unit_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  {<span class="nv">A</span> : disp_adjunction_id_data D D'}
+  (<span class="nv">E</span> : form_equiv_over_id A)
+:= pr1 E.
+
+<span class="kn">Definition</span> <span class="nf">is_z_iso_counit_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  {<span class="nv">A</span> : disp_adjunction_id_data D D'}
+  (<span class="nv">E</span> : form_equiv_over_id A)
+:= pr2 E.
+
+<span class="kn">Definition</span> <span class="nf">equiv_over_id</span> {<span class="nv">C</span>} (<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C) : UU
+:= ∑ A : disp_adjunction_id D D', form_equiv_over_id A.
+
+<span class="kn">Definition</span> <span class="nf">adjunction_of_equiv_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">A</span> : equiv_over_id D D')
+:= pr1 A.
+<span class="kn">Coercion</span> <span class="nf">adjunction_of_equiv_over_id</span>
+  : equiv_over_id &gt;-&gt; disp_adjunction_id.
+
+<span class="kn">Definition</span> <span class="nf">axioms_of_equiv_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">A</span> : equiv_over_id D D')
+:= pr2 A.
+<span class="kn">Coercion</span> <span class="nf">axioms_of_equiv_over_id</span>
+  : equiv_over_id &gt;-&gt; form_equiv_over_id.
+
+<span class="kn">Definition</span> <span class="nf">is_equiv_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">FF</span> : disp_functor (functor_identity _) D D') : UU
+:= ∑ GG : right_adjoint_over_id FF,
+   form_equiv_over_id GG.
+
+<span class="kn">Definition</span> <span class="nf">right_adjoint_of_is_equiv_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  {<span class="nv">FF</span> : disp_functor _ D D'}
+  (<span class="nv">E</span> : is_equiv_over_id FF)
+:= pr1 E.
+<span class="kn">Coercion</span> <span class="nf">right_adjoint_of_is_equiv_over_id</span>
+  : is_equiv_over_id &gt;-&gt; right_adjoint_over_id.
+
+<span class="kn">Definition</span> <span class="nf">equiv_of_is_equiv_over_id</span> {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+    {<span class="nv">FF</span> : disp_functor _ D D'}
+    (<span class="nv">E</span> : is_equiv_over_id FF)
+  : equiv_over_id D D'
+:= (adjunction_of_right_adjoint_over_id E ,, pr2 E).
+<span class="kn">Coercion</span> <span class="nf">equiv_of_is_equiv_over_id</span>
+  : is_equiv_over_id &gt;-&gt; equiv_over_id.
+<span class="c">(* Again, don’t worry about the ambiguous path generated here. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_equiv_of_equiv_over_id</span> {<span class="nv">CC</span>} {<span class="nv">DD</span> <span class="nv">DD'</span> : disp_cat CC}
+    (<span class="nv">E</span> : equiv_over_id DD DD')
+  : is_equiv_over_id E
+:= (right_adjoint_of_disp_adjunction_id E,, axioms_of_equiv_over_id E).
+
+<span class="c">(* TODO: right-handed versions *)</span>
+
+<span class="c">(* TODO: [quasi_equiv_over_id] (without triangle identities). *)</span>
+
+<span class="sd">(** ** Lemmas on the triangle identities *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hide_transport_scope.
+
+<span class="kn">Lemma</span> <span class="nf">triangle_2_from_1_for_equiv_over_id</span>
+  {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">A</span> : disp_adjunction_id_data D D')
+  (<span class="nv">E</span> : form_equiv_over_id A)
+: triangle_1_statement_over_id A -&gt; triangle_2_statement_over_id A.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> A <span class="k">as</span> [FF [GG [η ε]]].
+  <span class="nb">destruct</span> E <span class="k">as</span> [Hη Hε]; <span class="nb">cbn</span> <span class="k">in</span> Hη, Hε.
+  <span class="nb">unfold</span> triangle_1_statement_over_id, triangle_2_statement_over_id; <span class="nb">cbn</span>.
+  <span class="nb">intros</span> T1 x yy.
+  <span class="c">(* Algebraically, this goes as follows:</span>
+<span class="c">  η G ; G ε</span>
+<span class="c">  = G ε^ ; η^ G ; η G ; G ε ; η G ; G ε          [by inverses, 1]</span>
+<span class="c">  = G ε^ ; η^ G ; η G ; η G F G ; G F G ε ; G ε  [by naturality, 2]</span>
+<span class="c">  = G ε^ ; η^ G ; η G ; η G F G ; G ε F G ; G ε  [by naturality, 3]</span>
+<span class="c">  = G ε^ ; η^ G ; η G ; G F η G ; G ε F G ; G ε  [by naturality, 4]</span>
+<span class="c">  = G ε^ ; η^ G ; η G ; G (F η ; ε F ) G ; G ε   [by functoriality, 5]</span>
+<span class="c">  = G ε^ ; η^ G ; η G ; G ε                      [by T1, 6]</span>
+<span class="c">  = 1                                            [by inverses, 7]</span>
+
+<span class="c">  It’s perhaps most readable when written in string diagrams. *)</span>
+  etrans. <span class="nb">apply</span> id_left_disp_var.
+  etrans. <span class="nb">eapply</span> transportf_bind.
+    <span class="nb">eapply</span> cancel_postcomposition_disp.
+    etrans. <span class="nb">eapply</span> transportf_transpose_right. <span class="nb">apply</span> @pathsinv0.
+      <span class="nb">refine</span> (z_iso_disp_after_inv_mor _).
+      <span class="nb">refine</span> (disp_functor_on_is_z_iso_disp GG _).
+      <span class="nb">apply</span> Hε. <span class="c">(*1a*)</span>
+    <span class="nb">eapply</span> transportf_bind.
+    <span class="nb">eapply</span> cancel_postcomposition_disp.
+    etrans. <span class="nb">apply</span> id_right_disp_var.
+    <span class="nb">eapply</span> transportf_bind.
+    etrans. <span class="nb">eapply</span> cancel_precomposition_disp.
+    <span class="nb">eapply</span> transportf_transpose_right. <span class="nb">apply</span> @pathsinv0.
+      <span class="nb">refine</span> (z_iso_disp_after_inv_mor _).
+      <span class="nb">apply</span> (Hη). <span class="c">(*1b*)</span>
+    <span class="nb">eapply</span> transportf_bind, assoc_disp.
+  etrans. <span class="nb">eapply</span> transportf_bind.
+    etrans. <span class="nb">apply</span> assoc_disp_var.
+    <span class="nb">eapply</span> transportf_bind.
+    etrans. <span class="nb">apply</span> assoc_disp_var.
+    <span class="nb">eapply</span> transportf_bind.
+    <span class="nb">eapply</span> cancel_precomposition_disp.
+    etrans. <span class="nb">eapply</span> cancel_precomposition_disp.
+      etrans. <span class="nb">apply</span> assoc_disp.
+      <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">eapply</span> cancel_postcomposition_disp.
+        <span class="bp">exact</span> (disp_nat_trans_ax η (♯ GG (ε x yy))). <span class="c">(*2*)</span>
+      <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">apply</span> assoc_disp_var.
+      <span class="nb">eapply</span> transportf_bind.
+      <span class="nb">eapply</span> cancel_precomposition_disp.
+      <span class="nb">cbn</span>.
+      etrans. <span class="nb">eapply</span> transportf_transpose_right.
+        <span class="nb">apply</span> @pathsinv0, (disp_functor_comp GG).
+      <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (disp_nat_trans_ax ε). <span class="c">(*3*)</span>
+      <span class="nb">cbn</span>.
+      etrans. <span class="nb">apply</span> (disp_functor_transportf _ GG).
+      <span class="nb">eapply</span> transportf_bind.
+      <span class="nb">apply</span> (disp_functor_comp GG).
+    <span class="nb">eapply</span> transportf_bind.
+    etrans. <span class="nb">apply</span> assoc_disp.
+    <span class="nb">eapply</span> transportf_bind.
+    etrans. <span class="nb">eapply</span> cancel_postcomposition_disp.
+      <span class="nb">apply</span> (disp_nat_trans_ax η (η x (GG x yy))). <span class="c">(*4*)</span>
+    <span class="nb">cbn</span>.
+    <span class="nb">eapply</span> transportf_bind.
+    etrans. <span class="nb">apply</span> assoc_disp_var.
+    <span class="nb">eapply</span> transportf_bind.
+    <span class="nb">eapply</span> cancel_precomposition_disp.
+    etrans. <span class="nb">apply</span> assoc_disp.
+    <span class="nb">eapply</span> transportf_bind.
+    etrans. <span class="nb">eapply</span> cancel_postcomposition_disp.
+      etrans. <span class="nb">eapply</span> transportf_transpose_right.
+        <span class="nb">apply</span> @pathsinv0, (disp_functor_comp GG). <span class="c">(*5*)</span>
+      <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">apply</span> maponpaths, T1. <span class="c">(*6*)</span>
+      etrans. <span class="nb">apply</span> (disp_functor_transportf _ GG).
+      <span class="nb">eapply</span> transportf_bind. <span class="nb">apply</span> (disp_functor_id GG).
+    <span class="nb">eapply</span> transportf_bind. <span class="nb">apply</span> id_left_disp.
+  etrans. <span class="nb">eapply</span> transportf_bind.
+    etrans. <span class="nb">apply</span> assoc_disp_var.
+    <span class="nb">eapply</span> transportf_bind.
+    etrans. <span class="nb">eapply</span> cancel_precomposition_disp.
+      etrans. <span class="nb">apply</span> assoc_disp.
+      <span class="nb">eapply</span> transportf_bind.
+      etrans. <span class="nb">eapply</span> cancel_postcomposition_disp.
+        <span class="bp">exact</span> (z_iso_disp_after_inv_mor _). <span class="c">(*7a*)</span>
+      <span class="nb">eapply</span> transportf_bind. <span class="nb">apply</span> id_left_disp.
+    <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (z_iso_disp_after_inv_mor _). <span class="c">(*7b*)</span>
+  etrans. <span class="nb">apply</span> transport_f_f.
+  <span class="nb">unfold</span> transportb. <span class="nb">apply</span> maponpaths_2, homset_property.
+<span class="kn">Qed</span>.
+<span class="c">(* TODO: [Qed.] takes about 30sec!  [etrans_dep] + [etrans_disp] make it shorter and more readable (see commit 7c1f411a), but make the typechecking time even worse. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">triangle_1_from_2_for_equiv_over_id</span>
+  {<span class="nv">C</span>} {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  (<span class="nv">A</span> : disp_adjunction_id_data D D')
+  (<span class="nv">E</span> : form_equiv_over_id A)
+: triangle_2_statement_over_id A -&gt; triangle_1_statement_over_id A.
+<span class="kn">Proof</span>.
+  <span class="c">(* dual to previous lemma *)</span>
+<span class="kn">Abort</span>.
+
+<span class="c">(* TODO: adjointification of a quasi-equivalence. *)</span>
+
+<span class="kn">End</span> <span class="nf">EquivalencesOverId</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Being an equivalence is a proposition</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">isaprop_form_equiv_over_id</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_cat C}
+            (<span class="nv">HF</span> : disp_adjunction_id_data D₁ D₂)
+  : isaprop (form_equiv_over_id HF).
+<span class="kn">Proof</span>.
+  use isapropdirprod ; <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ; <span class="nb">apply</span> isaprop_is_z_iso_disp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Useful lemma</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">triangle_1_over_id_alt</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D₁</span> : disp_cat C}
+            {<span class="nv">D₂</span> : disp_cat C}
+            (<span class="nv">LL</span> : disp_functor (functor_identity _) D₁ D₂)
+            (<span class="nv">HLL</span> : is_equiv_over_id LL)
+            {<span class="nv">x</span> : C}
+            (<span class="nv">xx</span> : D₁ x)
+  : ♯ LL (inv_mor_disp_from_z_iso (is_z_iso_unit_over_id HLL x xx))
+    =
+    counit_over_id HLL x (LL x xx).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ @ !(id_left_disp_var _)).
+  <span class="nb">rewrite</span> disp_functor_id_var.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (!(transportf_transpose_left
+               (z_iso_disp_after_inv_mor (is_z_iso_unit_over_id HLL x xx)))).
+  }
+  <span class="nb">rewrite</span> disp_functor_transportf.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> disp_functor_comp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> assoc_disp_var.
+  <span class="nb">rewrite</span> transport_f_f.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> (triangle_1_over_id HLL x xx).
+  }
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">rewrite</span> id_right_disp.
+  <span class="nb">unfold</span> transportb.
+  <span class="nb">rewrite</span> transport_f_f.
+  <span class="nb">apply</span> transportf_set.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * Constructions on and of displayed equivalences over identity *)</span>
+
+<span class="sd">(** ** Full + faithful + ess split =&gt; equivalence *)</span>
+<span class="kn">Section</span> <span class="nf">Equiv_from_ff_plus_ess_split</span>.
+<span class="c">(* TODO: consider naming throughout this section!  Especially: anything with [ses] should be fixed. *)</span>
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">D'</span> <span class="nv">D</span> : disp_cat C}
+        (<span class="nv">FF</span> : disp_functor (functor_identity _) D' D)
+        (<span class="nv">FF_split</span> : disp_functor_disp_ess_split_surj FF)
+        (<span class="nv">FF_ff</span> : disp_functor_ff FF).
+
+<span class="sd">(** *** Utility lemmas from fullness+faithfulness *)</span>
+
+<span class="c">(* TODO: inline throughout? *)</span>
+<span class="kn">Let</span> <span class="nf">FFweq</span> {<span class="nv">x</span> <span class="nv">y</span>} <span class="nv">xx</span> <span class="nv">yy</span> (<span class="nv">f</span> : x --&gt; y) := disp_functor_ff_weq _ FF_ff xx yy f.
+<span class="kn">Let</span> <span class="nf">FFinv</span> {<span class="nv">x</span> <span class="nv">y</span>} {<span class="nv">xx</span>} {<span class="nv">yy</span>} {<span class="nv">f</span>}
+  := @disp_functor_ff_inv _ _ _ _ _ _ FF_ff x y xx yy f.
+
+<span class="c">(* TODO: once [disp_functor_ff_transportf_gen] is done, replace this with that. *)</span>
+<span class="kn">Lemma</span> <span class="nf">FFinv_over_id_transportf</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : C} {<span class="nv">f</span> <span class="nv">f'</span> : x --&gt; y} (<span class="nv">e</span> : f = f')
+    {<span class="nv">xx</span> : D' x} {<span class="nv">yy</span> : D' y} (<span class="nv">ff</span> : FF _ xx --&gt;[f] FF _ yy)
+  : FFinv (transportf _ e ff) = transportf _ e (FFinv ff).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> e. <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_functor_id_ff_reflects_isos</span>
+  {<span class="nv">x</span> <span class="nv">y</span>} {<span class="nv">xx</span> : D' x} {<span class="nv">yy</span> : D' y} {<span class="nv">f</span> : z_iso x y}
+  (<span class="nv">ff</span> : xx --&gt;[ f ] yy) (<span class="nv">isiso</span>: is_z_iso_disp f (♯ FF ff))
+  : is_z_iso_disp _ ff.
+<span class="kn">Proof</span>.
+  use (disp_functor_ff_reflects_isos FF FF_ff).
+  <span class="bp">exact</span> (disp_functor_on_is_z_iso_disp (disp_functor_identity _) isiso).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">FFinv_over_id_on_z_iso_is_z_iso</span>   {<span class="nv">x</span> <span class="nv">y</span>} {<span class="nv">xx</span> : D' x} {<span class="nv">yy</span> : D' y} {<span class="nv">f</span> : z_iso x y}
+  (<span class="nv">ff</span> : FF _ xx --&gt;[ f ] FF _ yy) (<span class="nv">Hff</span>: is_z_iso_disp f ff)
+  : is_z_iso_disp _ (FFinv ff).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_functor_id_ff_reflects_isos.
+  use (transportf _ _ Hff).
+  <span class="nb">apply</span> @pathsinv0. use homotweqinvweq.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Converse functor *)</span>
+
+<span class="c">(* TODO: does [Local Definition] actually keep it local?  It seems not — e.g. [Print GG_data] still works after the section closes. Is there a way to actually keep them local?  If not, find less generic names for [GG] and its components. *)</span>
+<span class="kn">Local Definition</span> <span class="nf">GG_data</span> : disp_functor_data (functor_identity _ ) D D'.
+<span class="kn">Proof</span>.
+  use tpair.
+  + <span class="nb">intros</span> x xx. <span class="bp">exact</span> (pr1 (FF_split x xx)).
+  + <span class="nb">intros</span> x y xx yy f ff; <span class="nb">simpl</span>.
+    <span class="nb">set</span> (Hxx := FF_split x xx).
+    <span class="nb">set</span> (Hyy := FF_split y yy).
+    <span class="nb">apply</span> FFinv.
+    <span class="nb">refine</span> (transportf (mor_disp _ _) _ _).
+    <span class="mi">2</span>: <span class="bp">exact</span> ((pr2 Hxx ;; ff) ;; inv_mor_disp_from_z_iso (pr2 Hyy)).
+    <span class="nb">cbn</span>. etrans. <span class="nb">apply</span> id_right. <span class="nb">apply</span> id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">GG_ax</span> : disp_functor_axioms GG_data.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  + <span class="nb">intros</span> x xx.
+    <span class="nb">apply</span> invmap_eq. <span class="nb">cbn</span>.
+    etrans. <span class="mi">2</span>: <span class="nb">apply</span> @pathsinv0, (disp_functor_id FF).
+    etrans. <span class="nb">apply</span> maponpaths.
+      etrans. <span class="nb">apply</span> maponpaths_2, id_right_disp.
+      etrans. <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+      <span class="nb">apply</span> maponpaths, (inv_mor_after_z_iso_disp (pr2 (FF_split _ _))).
+    etrans. <span class="nb">apply</span> transport_f_f.
+    etrans. <span class="nb">apply</span> transport_f_f.
+    <span class="nb">unfold</span> transportb. <span class="nb">apply</span> maponpaths_2, homset_property.
+  + <span class="nb">intros</span> x y z xx yy zz f g ff gg.
+    <span class="nb">apply</span> invmap_eq. <span class="nb">cbn</span>.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> @pathsinv0.
+         etrans. <span class="nb">apply</span> (disp_functor_comp FF).
+         etrans. <span class="nb">apply</span> maponpaths.
+           etrans. <span class="nb">apply</span> maponpaths; use homotweqinvweq.
+           <span class="nb">apply</span> maponpaths_2; use homotweqinvweq.
+         etrans. <span class="nb">apply</span> maponpaths.
+           etrans. <span class="nb">apply</span> mor_disp_transportf_prewhisker.
+           <span class="nb">apply</span> maponpaths.
+           etrans. <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+           <span class="nb">apply</span> maponpaths.
+           etrans. <span class="nb">apply</span> maponpaths, assoc_disp_var.
+           etrans. <span class="nb">apply</span> mor_disp_transportf_prewhisker.
+           <span class="nb">apply</span> maponpaths.
+           etrans. <span class="nb">apply</span> assoc_disp.
+           <span class="nb">apply</span> maponpaths.
+           etrans. <span class="nb">apply</span> maponpaths_2.
+             etrans. <span class="nb">apply</span> assoc_disp_var.
+             <span class="nb">apply</span> maponpaths.
+             etrans. <span class="nb">apply</span> maponpaths.
+               <span class="bp">exact</span> (z_iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+             etrans. <span class="nb">apply</span> mor_disp_transportf_prewhisker.
+             etrans. <span class="nb">apply</span> maponpaths, id_right_disp.
+             <span class="nb">apply</span> transport_f_f.
+           etrans. <span class="nb">apply</span> maponpaths_2, transport_f_f.
+           <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+         etrans. <span class="nb">apply</span> transport_f_f.
+         etrans. <span class="nb">apply</span> transport_f_f.
+         etrans. <span class="nb">apply</span> transport_f_f.
+         etrans. <span class="nb">apply</span> transport_f_f.
+         etrans. <span class="nb">apply</span> transport_f_f.
+         <span class="c">(* A trick to hide the huge equality term: *)</span>
+         <span class="nb">apply</span> maponpaths_2. <span class="nb">shelve</span>.
+       }
+    etrans. <span class="nb">apply</span> maponpaths.
+      etrans. <span class="nb">apply</span> maponpaths_2, assoc_disp.
+      etrans. <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+      <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> assoc_disp_var.
+    etrans. <span class="nb">apply</span> transport_f_f.
+    etrans. <span class="nb">apply</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths_2, homset_property.
+    <span class="kn">Unshelve</span>. <span class="mi">2</span>: <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">GG</span> : disp_functor _ _ _ := (_ ,, GG_ax).
+
+<span class="kn">Definition</span> <span class="nf">ε_ses_ff_data</span>
+  : disp_nat_trans_data (nat_trans_id _ )
+      (disp_functor_composite GG FF) (disp_functor_identity _ )
+:= <span class="k">λ</span> <span class="nv">x</span> <span class="nv">xx</span>, (pr2 (FF_split x xx)).
+
+<span class="kn">Lemma</span> <span class="nf">ε_ses_ff_ax</span> : disp_nat_trans_axioms ε_ses_ff_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f xx yy ff. <span class="nb">cbn</span>. <span class="nb">unfold</span> ε_ses_ff_data.
+  etrans. <span class="nb">apply</span> maponpaths_2; use homotweqinvweq.
+  etrans. <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+  etrans. <span class="nb">apply</span> maponpaths.
+    etrans. <span class="nb">apply</span> assoc_disp_var.
+    <span class="nb">apply</span> maponpaths.
+    etrans. <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (z_iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+    etrans. <span class="nb">apply</span> mor_disp_transportf_prewhisker.
+    <span class="nb">apply</span> maponpaths, id_right_disp.
+  etrans. <span class="nb">apply</span> transport_f_f.
+  etrans. <span class="nb">apply</span> transport_f_f.
+  etrans. <span class="nb">apply</span> transport_f_f.
+  <span class="nb">unfold</span> transportb. <span class="nb">apply</span> maponpaths_2, homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ε_ses_ff</span>
+  : disp_nat_trans (nat_trans_id _ )
+      (disp_functor_composite GG FF) (disp_functor_identity _ )
+:= (ε_ses_ff_data,, ε_ses_ff_ax).
+
+<span class="kn">Definition</span> <span class="nf">η_ses_ff_data</span>
+  : disp_nat_trans_data (nat_trans_id _)
+      (disp_functor_identity _ ) (disp_functor_composite FF GG).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x xx. <span class="nb">cbn</span>.
+  <span class="nb">apply</span> FFinv.
+  <span class="bp">exact</span> (inv_mor_disp_from_z_iso (pr2 (FF_split _ _))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">η_ses_ff_ax</span>
+  : disp_nat_trans_axioms η_ses_ff_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f xx yy ff. <span class="nb">cbn</span>. <span class="nb">unfold</span> η_ses_ff_data.
+  <span class="c">(* This feels a bit roundabout.  Can it be simplified? *)</span>
+  <span class="nb">apply</span> @pathsinv0.
+  etrans. <span class="nb">eapply</span> maponpaths.
+    etrans. <span class="nb">apply</span> @pathsinv0, disp_functor_ff_inv_compose.
+    <span class="nb">apply</span> maponpaths.
+    etrans. <span class="nb">apply</span> mor_disp_transportf_prewhisker.
+    <span class="nb">apply</span> maponpaths.
+    etrans. <span class="nb">apply</span> assoc_disp.
+    <span class="nb">apply</span> maponpaths.
+    etrans. <span class="nb">apply</span> maponpaths_2.
+      etrans. <span class="nb">apply</span> assoc_disp.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+        <span class="nb">apply</span> maponpaths_2, (z_iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+      etrans. <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+      etrans. <span class="nb">apply</span> maponpaths, id_left_disp.
+      <span class="nb">apply</span> transport_f_f.
+    etrans. <span class="nb">apply</span> maponpaths_2, transport_f_f.
+    <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+  etrans. <span class="nb">apply</span> maponpaths.
+    etrans. <span class="nb">apply</span> maponpaths.
+      etrans. <span class="nb">apply</span> transport_f_f.
+      <span class="nb">apply</span> transport_f_f.
+    <span class="nb">apply</span> FFinv_over_id_transportf.
+  etrans. <span class="nb">apply</span> transport_f_f.
+  <span class="nb">apply</span> transportf_comp_lemma_hset.
+    <span class="nb">apply</span> homset_property.
+  etrans. <span class="nb">apply</span> (disp_functor_ff_inv_compose _ FF_ff).
+  <span class="nb">apply</span> maponpaths_2, homotinvweqweq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">η_ses_ff</span>
+  : disp_nat_trans (nat_trans_id _)
+      (disp_functor_identity _ ) (disp_functor_composite FF GG)
+:= (_ ,, η_ses_ff_ax).
+
+<span class="kn">Definition</span> <span class="nf">GGεη</span> : right_adjoint_over_id_data FF
+  := (GG,, (η_ses_ff,, ε_ses_ff)).
+
+<span class="kn">Lemma</span> <span class="nf">form_equiv_GGεη</span> : form_equiv_over_id GGεη.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">intros</span> x xx; <span class="nb">cbn</span>.
+  - <span class="nb">unfold</span> η_ses_ff_data.
+    <span class="nb">apply</span> (@FFinv_over_id_on_z_iso_is_z_iso _ _ _ _ (identity_z_iso _)).
+    <span class="nb">eapply</span> is_z_iso_disp_independent_of_is_z_iso.
+    <span class="bp">exact</span> (@is_z_iso_inv_from_z_iso_disp _ _ _ _ (identity_z_iso _) _ _ _).
+  - <span class="nb">unfold</span> ε_ses_ff_data.
+    <span class="nb">apply</span> is_z_iso_disp_from_z_iso.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">tri_1_GGεη</span> : triangle_1_statement_over_id GGεη.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x xx; <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> ε_ses_ff_data, η_ses_ff_data.
+  etrans. <span class="nb">apply</span> maponpaths_2; use homotweqinvweq.
+  etrans. <span class="bp">exact</span> (z_iso_disp_after_inv_mor (pr2 (FF_split _ _))).
+  <span class="nb">apply</span> maponpaths_2, homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">tri_2_GGεη</span> : triangle_2_statement_over_id GGεη.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> triangle_2_from_1_for_equiv_over_id.
+  <span class="nb">apply</span> form_equiv_GGεη.
+  <span class="nb">apply</span> tri_1_GGεη.
+<span class="kn">Qed</span>.
+
+<span class="kn">Theorem</span> <span class="nf">is_equiv_from_ff_ess_over_id</span> : is_equiv_over_id FF.
+<span class="kn">Proof</span>.
+  use ((GGεη,, _) ,, _).
+  <span class="nb">split</span>. <span class="nb">apply</span> tri_1_GGεη. <span class="nb">apply</span> tri_2_GGεη.
+  <span class="nb">apply</span> form_equiv_GGεη.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Equiv_from_ff_plus_ess_split</span>.
+
+<span class="sd">(** ** Inverses and composition of adjunctions/equivalences *)</span>
+
+<span class="kn">Section</span> <span class="nf">Nat_Trans_Disp_Inv</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">D'</span> <span class="nv">D</span> : disp_cat C}
+        {<span class="nv">FF</span> <span class="nv">GG</span> : disp_functor (functor_identity _) D' D}
+        (<span class="nv">alpha</span> : disp_nat_trans (nat_trans_id _ ) FF GG)
+        (<span class="nv">Ha</span> : ∏ x xx, is_z_iso_disp (identity_z_iso _ ) (alpha x xx)).
+
+<span class="c">(*</span>
+<span class="c">Lemma inv_ax : disp_nat_trans_axioms</span>
+<span class="c">    (λ (x : C) (xx : D' x), @inv_mor_disp_from_iso _ _ _ _ (identity_iso _ ) _  _ _ (Ha x xx)).</span>
+<span class="c">*)</span>
+
+<span class="kn">Local Lemma</span> <span class="nf">inv_ax</span> : @disp_nat_trans_axioms C C (functor_identity_data C)
+    (functor_identity_data C) (@nat_trans_id C C (functor_identity_data C))
+    D' D GG FF
+    (<span class="k">λ</span> (<span class="nv">x</span> : C) (<span class="nv">xx</span> : D' x),
+     @inv_mor_disp_from_z_iso C D ((functor_identity C) x)
+       ((functor_identity C) x) (@identity_z_iso C ((functor_identity C) x))
+       (FF x xx) (GG x xx) (alpha x xx) (Ha x xx)).
+<span class="kn">Proof</span>.
+   <span class="nb">intros</span> x y f xx yy ff.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> transportf_pathsinv0.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">set</span> (XR := @z_iso_disp_precomp).
+    <span class="nb">specialize</span> (XR _ _ _ _ (identity_z_iso _ ) _ _ (alpha x xx ,, Ha x xx) ).
+    <span class="k">match goal with</span> |[|- <span class="nl">?EE</span> = _ ] =&gt; <span class="nb">set</span> (E := EE) <span class="k">end</span>. <span class="nb">cbn</span> <span class="k">in</span> E.
+    <span class="nb">specialize</span> (XR _ (identity x · f) (FF y yy)).
+    <span class="nb">set</span> (R := make_weq _ XR).
+    <span class="nb">apply</span> (invmaponpathsweq R).
+    <span class="nb">unfold</span> R. <span class="nb">unfold</span> E. <span class="nb">cbn</span>.
+    etrans. <span class="nb">apply</span> assoc_disp.
+    etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> (inv_mor_after_z_iso_disp (Ha x xx)).
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    etrans. <span class="nb">apply</span> transport_f_f.
+    etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> id_left_disp.
+    etrans. <span class="nb">apply</span> transport_f_f.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> mor_disp_transportf_prewhisker.
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> assoc_disp.
+    etrans. <span class="nb">apply</span> transport_f_f.
+    etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> (disp_nat_trans_ax_var alpha).
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+    etrans. <span class="nb">apply</span> transport_f_f.
+    etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> assoc_disp_var.
+    etrans. <span class="nb">apply</span> transport_f_f.
+    etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (inv_mor_after_z_iso_disp (Ha _ _ )).
+    etrans. <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> mor_disp_transportf_prewhisker.
+
+     etrans. <span class="nb">apply</span> transport_f_f.
+    etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> id_right_disp.
+    etrans. <span class="nb">apply</span> transport_f_f.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">inv</span> : disp_nat_trans (nat_trans_id _ ) GG FF.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intros</span> x xx.
+    <span class="nb">apply</span> (inv_mor_disp_from_z_iso (Ha _ _ )).
+  - <span class="nb">apply</span> inv_ax.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Nat_Trans_Disp_Inv</span>.
+
+<span class="kn">Section</span> <span class="nf">Displayed_Equiv_Inv</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">D'</span> <span class="nv">D</span> : disp_cat C}
+        (<span class="nv">FF</span> : disp_functor (functor_identity _) D' D)
+        (<span class="nv">isEquiv</span> : is_equiv_over_id FF).
+
+<span class="kn">Let</span> <span class="nf">GG</span> : disp_functor _ D D' := right_adjoint_of_is_equiv_over_id isEquiv.
+<span class="kn">Let</span> <span class="nf">η</span> : disp_nat_trans (nat_trans_id (functor_identity C))
+                       (disp_functor_identity D')
+                       (disp_functor_composite FF GG)
+  := unit_over_id isEquiv.
+
+<span class="kn">Let</span> <span class="nf">ε</span> :  disp_nat_trans
+           (nat_trans_id (functor_identity C))
+           (disp_functor_composite GG FF)
+           (disp_functor_identity D)
+  := counit_over_id isEquiv.
+
+<span class="kn">Definition</span> <span class="nf">η_inv</span> : disp_nat_trans (nat_trans_id (functor_identity C))
+    (disp_functor_identity D) (disp_functor_composite GG FF).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (inv ε).
+  <span class="nb">apply</span> (is_z_iso_counit_over_id isEquiv).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ε_inv</span> :
+ disp_nat_trans
+    (nat_trans_id
+       (functor_identity C))
+    (disp_functor_composite FF GG) (disp_functor_identity D').
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (inv η). <span class="nb">cbn</span>.
+  <span class="nb">apply</span> (is_z_iso_unit_over_id isEquiv).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">inv_adjunction_data</span> : disp_adjunction_id_data D D'.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">GG</span>.
+  <span class="k">exists</span> <span class="nv">FF</span>.
+  <span class="k">exists</span> <span class="nv">η_inv</span>.
+  <span class="bp">exact</span> ε_inv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">form_equiv_inv_adjunction_data</span> : form_equiv_over_id inv_adjunction_data.
+<span class="kn">Proof</span>.
+  <span class="nb">cbn</span>. use tpair.
+    + <span class="nb">intros</span>. <span class="nb">cbn</span>.
+      <span class="nb">set</span> (XR:= @is_z_iso_inv_from_is_z_iso_disp).
+      <span class="nb">specialize</span> (XR _ D _  _ _ _ _ _ (is_z_iso_counit_over_id (pr2 isEquiv) x xx)).
+      <span class="nb">cbn</span> <span class="k">in</span> XR.
+      <span class="nb">eapply</span> is_z_iso_disp_independent_of_is_z_iso.
+      <span class="nb">apply</span> XR.
+    + <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">set</span> (XR:= @is_z_iso_inv_from_is_z_iso_disp).
+      <span class="nb">specialize</span> (XR _ D' _  _ _ _ _ _ (is_z_iso_unit_over_id (pr2 isEquiv) x xx)).
+      <span class="nb">cbn</span> <span class="k">in</span> XR.
+      <span class="nb">eapply</span> is_z_iso_disp_independent_of_is_z_iso.
+      <span class="nb">apply</span> XR.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inv_triangle_1_statement_over_id</span>
+  : triangle_1_statement_over_id inv_adjunction_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x xx. <span class="nb">cbn</span>.
+        <span class="nb">set</span> (XR:= @z_iso_disp_precomp).
+        <span class="nb">set</span> (Gepsxxx := (♯ GG (ε x xx))).
+        <span class="nb">set</span> (RG := @disp_functor_on_is_z_iso_disp _ _ (functor_identity C)).
+        <span class="nb">specialize</span> (RG _ _ GG).
+        <span class="nb">specialize</span> (RG _ _ _ _ (identity_z_iso _ )  (ε x xx)).
+        <span class="nb">specialize</span> (RG (is_z_iso_counit_over_id (pr2 isEquiv) x xx)).
+        transparent <span class="nb">assert</span> (Ge : (z_iso_disp (identity_z_iso x)
+                                  (GG _ (FF _ (GG _ xx))) (GG _ xx))).
+        { <span class="nb">apply</span> (make_z_iso_disp (f:=identity_z_iso _ ) Gepsxxx).
+          <span class="nb">eapply</span> is_z_iso_disp_independent_of_is_z_iso.
+          <span class="nb">apply</span> RG.
+        }
+
+        <span class="k">match goal with</span> |[|- <span class="nl">?EE</span> = _ ] =&gt; <span class="nb">set</span> (E := EE) <span class="k">end</span>. <span class="nb">cbn</span> <span class="k">in</span> E.
+        <span class="nb">specialize</span> (XR _ _ _ _ _ _ _ Ge).
+        <span class="nb">specialize</span> (XR _ (identity x · identity x ) (GG x xx)).
+        <span class="nb">apply</span> (invmaponpathsweq (make_weq _ XR)).
+        <span class="nb">unfold</span> E; <span class="nb">clear</span> E.
+        <span class="nb">cbn</span>.
+        <span class="nb">clear</span> RG XR Ge.
+        <span class="nb">unfold</span> Gepsxxx.
+        etrans. <span class="nb">apply</span> assoc_disp.
+        etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">eapply</span> pathsinv0. <span class="nb">apply</span> (disp_functor_comp_var GG).
+        etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> mor_disp_transportf_postwhisker.
+        etrans. <span class="nb">apply</span> transport_f_f.
+        etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> (inv_mor_after_z_iso_disp (is_z_iso_counit_over_id (pr2 isEquiv) x xx)).
+        etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">apply</span> (disp_functor_transportf _ GG).
+        etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span>  mor_disp_transportf_postwhisker.
+        etrans. <span class="nb">apply</span> ( transport_f_f _ _ _ _ ).
+        etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">apply</span> (disp_functor_id GG).
+        etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span>  mor_disp_transportf_postwhisker.
+        etrans. <span class="nb">apply</span> transport_f_f.
+        etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> id_left_disp.
+        etrans. <span class="nb">apply</span> transport_f_f.
+
+        <span class="k">match goal with</span> |[|- transportf _ <span class="nl">?EE</span> _ = _ ] =&gt; <span class="nb">generalize</span> EE <span class="k">end</span>.
+        <span class="nb">intro</span> EE.
+
+        <span class="nb">set</span> (XR:= @z_iso_disp_precomp).
+        <span class="nb">set</span> (etaGxxx := η _ (GG x xx)).
+        transparent <span class="nb">assert</span> (Ge : (z_iso_disp (identity_z_iso x)
+                                  (GG _ xx) (GG _ (FF _ (GG _ xx))) )).
+        { <span class="nb">apply</span> (make_z_iso_disp (f:=identity_z_iso _ ) etaGxxx).
+          <span class="nb">eapply</span> is_z_iso_disp_independent_of_is_z_iso.
+          <span class="nb">apply</span> (is_z_iso_unit_over_id (pr2 isEquiv) ).
+        }
+
+        <span class="k">match goal with</span> |[|- <span class="nl">?EE</span> = _ ] =&gt; <span class="nb">set</span> (E := EE) <span class="k">end</span>. <span class="nb">cbn</span> <span class="k">in</span> E.
+        <span class="nb">specialize</span> (XR _ _ _ _ _ _ _ Ge).
+        <span class="nb">specialize</span> (XR _ (identity x · (identity x · identity x) )  (GG x xx)).
+        <span class="nb">apply</span> (invmaponpathsweq (make_weq _ XR)).
+
+        <span class="nb">cbn</span>. <span class="nb">unfold</span> etaGxxx.
+        <span class="nb">unfold</span> E.
+        <span class="nb">clear</span> E. <span class="nb">clear</span> XR Ge etaGxxx.
+        <span class="nb">clear</span> Gepsxxx.
+
+        etrans. <span class="nb">apply</span>  mor_disp_transportf_prewhisker.
+        etrans. <span class="nb">apply</span> maponpaths.
+           <span class="nb">apply</span> (inv_mor_after_z_iso_disp (is_z_iso_unit_over_id (pr2 isEquiv) x _ )).
+        etrans. <span class="nb">apply</span> transport_f_f.
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span>  mor_disp_transportf_prewhisker.
+        etrans. <span class="nb">apply</span> mor_disp_transportf_prewhisker.
+        etrans. <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> id_right_disp.
+        etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span>  mor_disp_transportf_prewhisker.
+        etrans. <span class="nb">apply</span> transport_f_f.
+        <span class="nb">set</span> (XR := triangle_2_over_id isEquiv).
+        <span class="nb">unfold</span> triangle_1_statement_over_id <span class="k">in</span> XR.
+        <span class="nb">cbn</span> <span class="k">in</span> XR.
+        etrans. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> XR.
+        etrans. <span class="nb">apply</span> transport_f_f.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">inv_triangle_2_statement_over_id</span>
+  : triangle_2_statement_over_id inv_adjunction_data.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> triangle_2_from_1_for_equiv_over_id.
+  - <span class="nb">apply</span> form_equiv_inv_adjunction_data.
+  - <span class="nb">apply</span> inv_triangle_1_statement_over_id.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">equiv_inv</span> : is_equiv_over_id GG.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use tpair.
+    + <span class="bp">exact</span> (FF,, (η_inv,, ε_inv)).
+    + use tpair. <span class="nb">cbn</span>. <span class="nb">apply</span> inv_triangle_1_statement_over_id.
+      <span class="nb">apply</span> inv_triangle_2_statement_over_id.
+  - <span class="nb">apply</span> form_equiv_inv_adjunction_data.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Displayed_Equiv_Inv</span>.
+
+<span class="kn">Section</span> <span class="nf">Displayed_Equiv_Compose</span>.
+
+<span class="c">(* TODO: give composites of displayed equivalences. *)</span>
+
+<span class="kn">End</span> <span class="nf">Displayed_Equiv_Compose</span>.
+
+<span class="sd">(** ** Induced adjunctions/equivalences of fiber precats *)</span>
+<span class="kn">Section</span> <span class="nf">Equiv_Fibers</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+<span class="kn">Definition</span> <span class="nf">fiber_is_left_adj</span> {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  {<span class="nv">FF</span> : disp_functor (functor_identity _) D D'}
+  (<span class="nv">EFF</span> : right_adjoint_over_id FF)
+  (<span class="nv">c</span> : C)
+: is_left_adjoint (fiber_functor FF c).
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> EFF <span class="k">as</span> [[GG [η ε]] axs]; <span class="nb">simpl</span> <span class="k">in</span> axs.
+  <span class="k">exists</span> (<span class="nv">fiber_functor</span> <span class="nv">GG</span> <span class="nv">_</span>).
+  <span class="k">exists</span> (<span class="nv">fiber_nat_trans</span> <span class="nv">η</span> <span class="nv">_</span>,,
+          <span class="nv">fiber_nat_trans</span> <span class="nv">ε</span> <span class="nv">_</span>).
+  use tpair; <span class="nb">cbn</span>.
+  + <span class="nb">unfold</span> triangle_1_statement.
+    <span class="nb">intros</span> d; <span class="nb">cbn</span>.
+    <span class="nb">set</span> (thisax := pr1 axs c d); <span class="nb">clearbody</span> thisax; <span class="nb">clear</span> axs.
+    etrans. <span class="nb">apply</span> maponpaths, thisax.
+    etrans. <span class="nb">apply</span> transport_f_b.
+    use (@maponpaths_2 _ _ _ _ _ (paths_refl _)).
+    <span class="nb">apply</span> homset_property.
+  + <span class="nb">unfold</span> triangle_2_statement.
+    <span class="nb">intros</span> d; <span class="nb">cbn</span>.
+    <span class="nb">set</span> (thisax := pr2 axs c d); <span class="nb">clearbody</span> thisax; <span class="nb">clear</span> axs.
+    etrans. <span class="nb">apply</span> maponpaths, thisax.
+    etrans. <span class="nb">apply</span> transport_f_b.
+    use (@maponpaths_2 _ _ _ _ _ (paths_refl _)).
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">fiber_equiv</span> {<span class="nv">D</span> <span class="nv">D'</span> : disp_cat C}
+  {<span class="nv">FF</span> : disp_functor (functor_identity _) D D'}
+  (<span class="nv">EFF</span> : is_equiv_over_id FF)
+  (<span class="nv">c</span> : C)
+: adj_equivalence_of_cats (fiber_functor FF c).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">fiber_is_left_adj</span> <span class="nv">EFF</span> <span class="nv">c</span>).
+  <span class="nb">destruct</span> EFF <span class="k">as</span> [[[GG [η ε]] tris] isos]; <span class="nb">cbn</span> <span class="k">in</span> isos; <span class="nb">cbn</span>.
+  use tpair.
+  + <span class="nb">intros</span> d.
+    <span class="nb">apply</span> is_z_iso_fiber_from_is_z_iso_disp.
+    <span class="nb">apply</span> (is_z_iso_unit_over_id isos).
+  + <span class="nb">intros</span> d.
+    <span class="nb">apply</span> is_z_iso_fiber_from_is_z_iso_disp.
+    <span class="nb">apply</span> (is_z_iso_counit_over_id isos).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Equiv_Fibers</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Equivalences.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

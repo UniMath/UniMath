@@ -1,0 +1,1013 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PiTypesBasics.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Codes for ∏-types in a universe of a category</span>
+
+<span class="sd"> A universe is said to be closed under ∏-types if the dependent product of any two types in</span>
+<span class="sd"> that universe also is in that universe. In this file, we develop the basic theory of universes</span>
+<span class="sd"> that are closed under ∏-types. Specifically, we define when a universe in a locally Cartesian</span>
+<span class="sd"> closed category is closed under ∏-types, and we define when such functors preserve such codes.</span>
+
+<span class="sd"> The ideas in this file are the same as for other type formers with the only difference being</span>
+<span class="sd"> that we look at ∏-types. We require there to be an operation that assigns to every suitable</span>
+<span class="sd"> pair of codes a new code representing their ∏-type. We work up to isomorphism, so the type</span>
+<span class="sd"> associated to the code for the ∏-type is isomorphic  to their actual ∏-type. Finally, we also</span>
+<span class="sd"> require that these codes are stable under substitution.</span>
+
+<span class="sd"> The development on universes in locally Cartesian closed categories is split into two files.</span>
+<span class="sd"> This is so that the files are shorter. The file (`PiTypes.v`) exports both files.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Codes for ∏-types</span>
+<span class="sd"> 2. Stability</span>
+<span class="sd"> 3. Preservation</span>
+<span class="sd"> 4. Preservation by identity</span>
+<span class="sd"> 5. Univalence condition</span>
+
+<span class="sd">                                                                                           *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LocallyCartesianClosed.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodRightAdjoint.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.CatWithOb.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseInCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.Universes.CatWithUniv.UniverseDispBicat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">PiInCatWithUniv</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+          {<span class="nv">HC</span> : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C)}.
+
+  <span class="kn">Let</span> <span class="nf">el</span> : cat_stable_el_map_coherent C := univ_cat_cat_stable_el_map C.
+
+  <span class="sd">(** * 1. Codes for ∏-types *)</span>
+  <span class="kn">Definition</span> <span class="nf">cat_univ_codes_pi</span>
+    : UU
+    := ∏ (Γ : C)
+         (a : Γ --&gt; univ_cat_universe C)
+         (b : cat_el_map_el el a --&gt; univ_cat_universe C),
+       ∑ (t : Γ --&gt; univ_cat_universe C),
+       z_iso
+         (cat_el_map_slice el t)
+         (lccc_exp_fib HC (cat_el_map_slice el a) (cat_el_map_slice el b)).
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_cat_univ_codes_pi</span>
+    : isaset cat_univ_codes_pi.
+  <span class="kn">Proof</span>.
+    use impred_isaset ; <span class="nb">intros</span> Γ.
+    use impred_isaset ; <span class="nb">intros</span> a.
+    use impred_isaset ; <span class="nb">intros</span> b.
+    use isaset_total2.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> s.
+      <span class="nb">apply</span> isaset_z_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_cat_univ_codes_pi</span>
+             (<span class="nv">t</span> : ∏ (Γ : C)
+                    (a : Γ --&gt; univ_cat_universe C)
+                    (b : cat_el_map_el el a --&gt; univ_cat_universe C),
+                  Γ --&gt; univ_cat_universe C)
+             (<span class="nv">f</span> : ∏ (Γ : C)
+                    (a : Γ --&gt; univ_cat_universe C)
+                    (b : cat_el_map_el el a --&gt; univ_cat_universe C),
+                  z_iso
+                    (cat_el_map_slice el (t Γ a b))
+                    (lccc_exp_fib HC (cat_el_map_slice el a) (cat_el_map_slice el b)))
+    : cat_univ_codes_pi
+    := <span class="k">λ</span> <span class="nv">Γ</span> <span class="nv">a</span> <span class="nv">b</span>, t Γ a b ,, f Γ a b.
+
+  <span class="kn">Definition</span> <span class="nf">cat_univ_codes_pi_ty</span>
+             (<span class="nv">Π</span> : cat_univ_codes_pi)
+             {<span class="nv">Γ</span> : C}
+             (<span class="nv">a</span> : Γ --&gt; univ_cat_universe C)
+             (<span class="nv">b</span> : cat_el_map_el el a --&gt; univ_cat_universe C)
+    : Γ --&gt; univ_cat_universe C
+    := pr1 (Π Γ a b).
+
+  <span class="kn">Definition</span> <span class="nf">cat_univ_codes_pi_iso_slice</span>
+             (<span class="nv">Π</span> : cat_univ_codes_pi)
+             {<span class="nv">Γ</span> : C}
+             (<span class="nv">a</span> : Γ --&gt; univ_cat_universe C)
+             (<span class="nv">b</span> : cat_el_map_el el a --&gt; univ_cat_universe C)
+    : z_iso
+        (cat_el_map_slice el (cat_univ_codes_pi_ty Π a b))
+        (lccc_exp_fib HC (cat_el_map_slice el a) (cat_el_map_slice el b))
+    := pr2 (Π Γ a b).
+
+  <span class="kn">Definition</span> <span class="nf">cat_univ_codes_pi_iso</span>
+             (<span class="nv">Π</span> : cat_univ_codes_pi)
+             {<span class="nv">Γ</span> : C}
+             (<span class="nv">a</span> : Γ --&gt; univ_cat_universe C)
+             (<span class="nv">b</span> : cat_el_map_el el a --&gt; univ_cat_universe C)
+    : cat_el_map_el el (cat_univ_codes_pi_ty Π a b)
+      --&gt;
+      lccc_exp HC (cat_el_map_slice el a) (cat_el_map_slice el b)
+    := dom_mor (z_iso_mor (cat_univ_codes_pi_iso_slice Π a b)).
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_pi_eq</span>
+              {<span class="nv">Π₁</span> <span class="nv">Π₂</span> : cat_univ_codes_pi}
+              (<span class="nv">p</span> : ∏ (Γ : C)
+                     (a : Γ --&gt; univ_cat_universe C)
+                     (b : cat_el_map_el el a --&gt; univ_cat_universe C),
+                   cat_univ_codes_pi_ty Π₁ a b
+                   =
+                   cat_univ_codes_pi_ty Π₂ a b)
+              (<span class="nv">q</span> : ∏ (Γ : C)
+                     (a : Γ --&gt; univ_cat_universe C)
+                     (b : cat_el_map_el el a --&gt; univ_cat_universe C),
+                   cat_el_map_el_eq el (!(p Γ a b))
+                   · cat_univ_codes_pi_iso Π₁ a b
+                   =
+                   cat_univ_codes_pi_iso Π₂ a b)
+    : Π₁ = Π₂.
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> Γ.
+    use funextsec ; <span class="nb">intro</span> a.
+    use funextsec ; <span class="nb">intro</span> b.
+    use total2_paths_f.
+    - <span class="bp">exact</span> (p Γ a b).
+    - use z_iso_eq.
+      etrans.
+      {
+        <span class="nb">apply</span> (pr1_transportf (P := <span class="k">λ</span> <span class="nv">x</span> (<span class="nv">f</span> : cat_el_map_slice el x --&gt; _), is_z_isomorphism _)).
+      }
+      use eq_mor_cod_fib.
+      <span class="nb">unfold</span> dom_mor.
+      <span class="nb">simpl</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> (pr1_transportf (P := <span class="k">λ</span> <span class="nv">x</span> (<span class="nv">f</span> : cat_el_map_el el x --&gt; _), _)).
+      }
+      <span class="nb">rewrite</span> transportf_cat_el_map_el.
+      <span class="bp">exact</span> (q Γ a b).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_pi_ty_eq</span>
+              (<span class="nv">Π</span> : cat_univ_codes_pi)
+              {<span class="nv">Γ</span> : C}
+              {<span class="nv">a</span> <span class="nv">a'</span> : Γ --&gt; univ_cat_universe C}
+              (<span class="nv">p</span> : a = a')
+              {<span class="nv">b</span> : cat_el_map_el el a --&gt; univ_cat_universe C}
+              {<span class="nv">b'</span> : cat_el_map_el el a' --&gt; univ_cat_universe C}
+              (<span class="nv">q</span> : b = cat_el_map_el_eq el p · b')
+    : cat_univ_codes_pi_ty Π a b
+      =
+      cat_univ_codes_pi_ty Π a' b'.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">rewrite</span> id_left <span class="k">in</span> q.
+    <span class="nb">induction</span> q.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cat_univ_codes_pi_z_iso_eq_functor_mor</span>
+             (<span class="nv">Π</span> : cat_univ_codes_pi)
+             {<span class="nv">Γ</span> : C}
+             {<span class="nv">a</span> <span class="nv">a'</span> : Γ --&gt; univ_cat_universe C}
+             (<span class="nv">p</span> : a = a')
+             {<span class="nv">b</span> : cat_el_map_el el a --&gt; univ_cat_universe C}
+             {<span class="nv">b'</span> : cat_el_map_el el a' --&gt; univ_cat_universe C}
+             (<span class="nv">q</span> : b = cat_el_map_el_eq el p · b')
+    : cod_pb
+        (pullbacks_univ_cat_with_finlim C)
+        (cat_el_map_el_eq el (!p))
+        (make_cod_fib_ob (cat_el_map_mor el b))
+      --&gt;
+      make_cod_fib_ob (cat_el_map_mor el b').
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - <span class="bp">exact</span> (PullbackPr1 _ · cat_el_map_el_eq el q · cat_el_map_pb_mor _ _ _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">simpl</span> ;
+         <span class="nb">rewrite</span> !assoc' ;
+         etrans ;
+         [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (cat_el_map_pb_mor_comm el (cat_el_map_el_eq el p) b')
+         | ] ;
+         etrans ;
+         [ <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> assoc ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="bp">exact</span> (cat_el_map_mor_eq el q)
+         | ] ;
+         <span class="nb">rewrite</span> !assoc ;
+         <span class="nb">rewrite</span> PullbackSqrCommutes ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">rewrite</span> (cat_el_map_el_eq_comp el) ;
+         <span class="nb">refine</span> (_ @ id_right _) ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="nb">apply</span> (cat_el_map_el_eq_id el)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cat_univ_codes_pi_z_iso_eq_functor</span>
+             (<span class="nv">Π</span> : cat_univ_codes_pi)
+             {<span class="nv">Γ</span> : C}
+             {<span class="nv">a</span> <span class="nv">a'</span> : Γ --&gt; univ_cat_universe C}
+             (<span class="nv">p</span> : a = a')
+             {<span class="nv">b</span> : cat_el_map_el el a --&gt; univ_cat_universe C}
+             {<span class="nv">b'</span> : cat_el_map_el el a' --&gt; univ_cat_universe C}
+             (<span class="nv">q</span> : b = cat_el_map_el_eq el p · b')
+    : lccc_exp HC (cat_el_map_slice el a) (cat_el_map_slice el b)
+      --&gt;
+      lccc_exp HC (cat_el_map_slice el a') (cat_el_map_slice el b').
+  <span class="kn">Proof</span>.
+    use lccc_exp_functor.
+    - <span class="bp">exact</span> (cat_el_map_el_eq el (!p)).
+    - <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (!(cat_el_map_mor_eq el (!p)))).
+    - <span class="bp">exact</span> (cat_univ_codes_pi_z_iso_eq_functor_mor Π p q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_pi_z_iso_eq_lem</span>
+              (<span class="nv">Π</span> : cat_univ_codes_pi)
+              {<span class="nv">Γ</span> : C}
+              {<span class="nv">a</span> : Γ --&gt; univ_cat_universe C}
+              {<span class="nv">b</span> : cat_el_map_el el a --&gt; univ_cat_universe C}
+              {<span class="nv">b'</span> : cat_el_map_el el a --&gt; univ_cat_universe C}
+              (<span class="nv">q</span> : b = b')
+              (<span class="nv">r</span> : cat_univ_codes_pi_ty Π a b = cat_univ_codes_pi_ty Π a b')
+    : cat_el_map_el_eq el r
+      · cat_univ_codes_pi_iso Π a b'
+      =
+      cat_univ_codes_pi_iso Π a b
+      · cat_univ_codes_pi_z_iso_eq_functor Π (idpath _) (q @ !(id_left _)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> q.
+    <span class="nb">assert</span> (r = idpath _) <span class="k">as</span> -&gt;.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (id_left _ @ !(id_right _) @ !_).
+    <span class="nb">apply</span> maponpaths.
+    use lccc_exp_functor_on_id.
+    - <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (cat_el_map_pb_mor_id el).
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (cat_el_map_el_eq_comp el _ _ @ _).
+        <span class="nb">apply</span> cat_el_map_el_eq_id.
+      }
+      <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_pi_z_iso_eq</span>
+              (<span class="nv">Π</span> : cat_univ_codes_pi)
+              {<span class="nv">Γ</span> : C}
+              {<span class="nv">a</span> <span class="nv">a'</span> : Γ --&gt; univ_cat_universe C}
+              (<span class="nv">p</span> : a = a')
+              {<span class="nv">b</span> : cat_el_map_el el a --&gt; univ_cat_universe C}
+              {<span class="nv">b'</span> : cat_el_map_el el a' --&gt; univ_cat_universe C}
+              (<span class="nv">q</span> : b = cat_el_map_el_eq el p · b')
+    : cat_el_map_el_eq el (cat_univ_codes_pi_ty_eq Π p q)
+      · cat_univ_codes_pi_iso Π a' b'
+      =
+      cat_univ_codes_pi_iso Π a b
+      · cat_univ_codes_pi_z_iso_eq_functor Π p q.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    etrans.
+    {
+      use cat_univ_codes_pi_z_iso_eq_lem.
+      <span class="nb">refine</span> (q @ id_left _).
+    }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_codes_pi_z_iso_eq'</span>
+              (<span class="nv">Π</span> : cat_univ_codes_pi)
+              {<span class="nv">Γ</span> : C}
+              {<span class="nv">a</span> <span class="nv">a'</span> : Γ --&gt; univ_cat_universe C}
+              (<span class="nv">p</span> : a = a')
+              {<span class="nv">b</span> : cat_el_map_el el a --&gt; univ_cat_universe C}
+              {<span class="nv">b'</span> : cat_el_map_el el a' --&gt; univ_cat_universe C}
+              (<span class="nv">q</span> : b = cat_el_map_el_eq el p · b')
+    : cat_el_map_el_eq el (!(cat_univ_codes_pi_ty_eq Π p q))
+      · cat_univ_codes_pi_iso Π a b
+      · cat_univ_codes_pi_z_iso_eq_functor Π p q
+      =
+      cat_univ_codes_pi_iso Π a' b'.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> cat_univ_codes_pi_z_iso_eq.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> cat_el_map_el_eq_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> cat_el_map_el_eq_id.
+    }
+    <span class="nb">apply</span> id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. Stability *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_stable_cat_univ_codes_pi_functor</span>
+             {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+             (<span class="nv">s</span> : Γ --&gt; Δ)
+             (<span class="nv">a</span> : Δ --&gt; univ_cat_universe C)
+             (<span class="nv">b</span> : cat_el_map_el el a --&gt; univ_cat_universe C)
+    : lccc_exp
+        HC
+        (cat_el_map_slice el (s · a))
+        (cat_el_map_slice el (cat_el_map_pb_mor el s a · b))
+      --&gt;
+      cod_dom
+        (lccc_exp_fib
+           HC
+           (cod_pb
+              (pullbacks_univ_cat_with_finlim C)
+              s (cat_el_map_slice el a))
+           (cod_pb
+              (pullbacks_univ_cat_with_finlim C)
+              (PullbackPr1 _) (cat_el_map_slice el b))).
+  <span class="kn">Proof</span>.
+    use lccc_exp_functor.
+    - <span class="bp">exact</span> (pb_mor_to_cat_stable_el_map_pb el s a).
+    - <span class="kp">abstract</span>
+        (<span class="nb">refine</span> (!_) ;
+         <span class="nb">apply</span> (PullbackArrow_PullbackPr2 (cat_stable_el_map_pb el s a))).
+    - use make_cod_fib_mor.
+      + use PullbackArrow.
+        * <span class="bp">exact</span> (PullbackPr1 _ · cat_el_map_pb_mor el _ _).
+        * <span class="bp">exact</span> (PullbackPr2 _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> assoc' ;
+             etrans ;
+             [ <span class="nb">apply</span> maponpaths ;
+               <span class="nb">apply</span> (PullbackSqrCommutes (cat_stable_el_map_pb _ _ _))
+             | ] ;
+             <span class="nb">rewrite</span> !assoc ;
+             etrans ;
+             [ <span class="nb">apply</span> maponpaths_2 ;
+               <span class="nb">apply</span> PullbackSqrCommutes
+             | ] ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> (PullbackArrow_PullbackPr1 (cat_stable_el_map_pb _ _ _))).
+      + <span class="kp">abstract</span>
+          (<span class="nb">apply</span> PullbackArrow_PullbackPr2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_stable_cat_univ_codes_pi</span>
+             (<span class="nv">Π</span> : cat_univ_codes_pi)
+    : UU
+    := ∏ (Γ Δ : C)
+         (s : Γ --&gt; Δ)
+         (a : Δ --&gt; univ_cat_universe C)
+         (b : cat_el_map_el el a --&gt; univ_cat_universe C),
+       ∑ (p : s · cat_univ_codes_pi_ty Π a b
+              =
+              cat_univ_codes_pi_ty Π (s · a) (cat_el_map_pb_mor el s a · b)),
+       dom_mor (#(cod_pb _ s) (cat_univ_codes_pi_iso_slice Π a b))
+       · dom_mor (lccc_exp_fib_subst HC s (cat_el_map_slice el a) (cat_el_map_slice el b))
+       =
+       pb_mor_to_cat_stable_el_map_pb el s _
+       · cat_el_map_el_eq el p
+       · cat_univ_codes_pi_iso Π (s · a) (cat_el_map_pb_mor el s a · b)
+       · is_stable_cat_univ_codes_pi_functor s a b.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_stable_cat_univ_codes_pi</span>
+              (<span class="nv">Π</span> : cat_univ_codes_pi)
+    : isaprop (is_stable_cat_univ_codes_pi Π).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+    use isaproptotal2.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cat_univ_stable_codes_pi</span>
+    : UU
+    := ∑ (Π : cat_univ_codes_pi),
+       is_stable_cat_univ_codes_pi Π.
+
+  <span class="kn">Proposition</span> <span class="nf">isaset_cat_univ_stable_codes_pi</span>
+    : isaset cat_univ_stable_codes_pi.
+  <span class="kn">Proof</span>.
+    use isaset_total2.
+    - <span class="bp">exact</span> isaset_cat_univ_codes_pi.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isaprop_is_stable_cat_univ_codes_pi.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_cat_univ_stable_codes_pi</span>
+             (<span class="nv">Π</span> : cat_univ_codes_pi)
+             (<span class="nv">H</span> : is_stable_cat_univ_codes_pi Π)
+    : cat_univ_stable_codes_pi
+    := Π ,, H.
+
+  <span class="kn">Coercion</span> <span class="nf">cat_univ_stable_codes_pi_to_codes</span>
+           (Π : cat_univ_stable_codes_pi)
+    : cat_univ_codes_pi
+    := pr1 Π.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_stable_codes_pi_stable</span>
+              (<span class="nv">Π</span> : cat_univ_stable_codes_pi)
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">a</span> : Δ --&gt; univ_cat_universe C)
+              (<span class="nv">b</span> : cat_el_map_el el a --&gt; univ_cat_universe C)
+    : s · cat_univ_codes_pi_ty Π a b
+      =
+      cat_univ_codes_pi_ty Π (s · a) (cat_el_map_pb_mor el s a · b).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr2 Π Γ Δ s a b)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_stable_codes_pi_z_iso_stable</span>
+              (<span class="nv">Π</span> : cat_univ_stable_codes_pi)
+              {<span class="nv">Γ</span> <span class="nv">Δ</span> : C}
+              (<span class="nv">s</span> : Γ --&gt; Δ)
+              (<span class="nv">a</span> : Δ --&gt; univ_cat_universe C)
+              (<span class="nv">b</span> : cat_el_map_el el a --&gt; univ_cat_universe C)
+    : dom_mor (#(cod_pb _ s) (cat_univ_codes_pi_iso_slice Π a b))
+     · dom_mor (lccc_exp_fib_subst HC s (cat_el_map_slice el a) (cat_el_map_slice el b))
+      =
+      pb_mor_to_cat_stable_el_map_pb el s _
+      · cat_el_map_el_eq el (cat_univ_stable_codes_pi_stable Π s a b)
+      · cat_univ_codes_pi_iso Π (s · a) (cat_el_map_pb_mor el s a · b)
+      · is_stable_cat_univ_codes_pi_functor s a b.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (pr2 Π Γ Δ s a b)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_univ_stable_codes_pi_eq</span>
+              {<span class="nv">Π₁</span> <span class="nv">Π₂</span> : cat_univ_stable_codes_pi}
+              (<span class="nv">p</span> : ∏ (Γ : C)
+                     (a : Γ --&gt; univ_cat_universe C)
+                     (b : cat_el_map_el el a --&gt; univ_cat_universe C),
+                   cat_univ_codes_pi_ty Π₁ a b
+                   =
+                   cat_univ_codes_pi_ty Π₂ a b)
+              (<span class="nv">q</span> : ∏ (Γ : C)
+                     (a : Γ --&gt; univ_cat_universe C)
+                     (b : cat_el_map_el el a --&gt; univ_cat_universe C),
+                   cat_el_map_el_eq el (!(p Γ a b))
+                   · cat_univ_codes_pi_iso Π₁ a b
+                   =
+                   cat_univ_codes_pi_iso Π₂ a b)
+    : Π₁ = Π₂.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_stable_cat_univ_codes_pi.
+    }
+    use cat_univ_codes_pi_eq.
+    - <span class="bp">exact</span> p.
+    - <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PiInCatWithUniv</span>.
+
+<span class="kn">Arguments</span> cat_univ_codes_pi {C} HC.
+<span class="kn">Arguments</span> cat_univ_stable_codes_pi {C} HC.
+
+<span class="kn">Section</span> <span class="nf">PreservationPiCodes</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim_universe}
+          {<span class="nv">HC₁</span> : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C₁)}
+          {<span class="nv">HC₂</span> : is_locally_cartesian_closed (pullbacks_univ_cat_with_finlim C₂)}
+          (<span class="nv">Π₁</span> : cat_univ_stable_codes_pi HC₁)
+          (<span class="nv">Π₂</span> : cat_univ_stable_codes_pi HC₂)
+          {<span class="nv">F</span> : functor_finlim_universe C₁ C₂}
+          (<span class="nv">HF</span> : preserves_locally_cartesian_closed
+                  (functor_finlim_preserves_pullback F)
+                  HC₁
+                  HC₂).
+
+  <span class="kn">Let</span> <span class="nf">el₁</span> : cat_stable_el_map_coherent C₁ := univ_cat_cat_stable_el_map C₁.
+  <span class="kn">Let</span> <span class="nf">el₂</span> : cat_stable_el_map_coherent C₂ := univ_cat_cat_stable_el_map C₂.
+
+  <span class="kn">Let</span> <span class="nf">Fel</span> : functor_preserves_el
+              (univ_cat_cat_stable_el_map C₁)
+              (univ_cat_cat_stable_el_map C₂)
+              F
+    := functor_finlim_universe_preserves_el F.
+
+  <span class="sd">(** * 3. Preservation *)</span>
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_stable_codes_pi_ty</span>
+    : UU
+    := ∏ (Γ : C₁)
+         (a : Γ --&gt; univ_cat_universe C₁)
+         (b : cat_el_map_el el₁ a --&gt; univ_cat_universe C₁),
+       #F (cat_univ_codes_pi_ty Π₁ a b) · functor_on_universe F
+       =
+       cat_univ_codes_pi_ty
+         Π₂
+         (#F a · functor_on_universe F)
+         (inv_from_z_iso (functor_el_map_iso Fel a)
+          · #F b
+          · functor_on_universe F).
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_stable_codes_pi_z_iso_functor_mor</span>
+             {<span class="nv">Γ</span> : C₁}
+             (<span class="nv">a</span> : Γ --&gt; univ_cat_universe C₁)
+             (<span class="nv">b</span> : cat_el_map_el el₁ a --&gt; univ_cat_universe C₁)
+    : cod_dom
+        (cod_pb
+           (pullbacks_univ_cat_with_finlim C₂)
+           (functor_el_map_iso Fel a)
+           (cat_el_map_slice
+              el₂
+              (inv_from_z_iso (functor_el_map_iso Fel a)
+               · #F b
+               · functor_on_universe F)))
+      --&gt;
+      cod_dom (functor_on_cod_fib F (cat_el_map_slice el₁ b)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (PullbackPr1 _ · _).
+    <span class="nb">refine</span> (_ · inv_from_z_iso (functor_el_map_iso Fel _)).
+    <span class="nb">refine</span> (cat_el_map_el_eq el₂ (assoc' _ _ _) · _).
+    <span class="nb">apply</span> cat_el_map_pb_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">functor_preserves_stable_codes_pi_z_iso_functor_eq</span>
+             {<span class="nv">Γ</span> : C₁}
+             (<span class="nv">a</span> : Γ --&gt; univ_cat_universe C₁)
+             (<span class="nv">b</span> : cat_el_map_el el₁ a --&gt; univ_cat_universe C₁)
+    : functor_preserves_stable_codes_pi_z_iso_functor_mor a b · cod_mor _
+      =
+      cod_mor _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> functor_preserves_stable_codes_pi_z_iso_functor_mor.
+    <span class="nb">simpl</span>.
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (functor_el_map_comm Fel b).
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> z_iso_after_z_iso_inv.
+    }
+    <span class="nb">rewrite</span> id_left.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (PullbackSqrCommutes
+               (cat_stable_el_map_pb
+                  _
+                  (inv_from_z_iso (functor_el_map_iso Fel a))
+                  _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (cat_el_map_mor_eq el₂).
+    }
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> PullbackSqrCommutes.
+    }
+    <span class="nb">refine</span> (assoc' _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> z_iso_inv_after_z_iso.
+    }
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_stable_codes_pi_z_iso_functor_slice</span>
+             {<span class="nv">Γ</span> : C₁}
+             (<span class="nv">a</span> : Γ --&gt; univ_cat_universe C₁)
+             (<span class="nv">b</span> : cat_el_map_el el₁ a --&gt; univ_cat_universe C₁)
+    : cod_pb
+        (pullbacks_univ_cat_with_finlim C₂)
+        (functor_el_map_iso Fel a)
+        (cat_el_map_slice
+           el₂
+           (inv_from_z_iso (functor_el_map_iso Fel a)
+            · #F b
+            · functor_on_universe F))
+      --&gt;
+      functor_on_cod_fib F (cat_el_map_slice el₁ b).
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - <span class="bp">exact</span> (functor_preserves_stable_codes_pi_z_iso_functor_mor a b).
+    - <span class="bp">exact</span> (functor_preserves_stable_codes_pi_z_iso_functor_eq a b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_stable_codes_pi_z_iso_functor</span>
+             {<span class="nv">Γ</span> : C₁}
+             (<span class="nv">a</span> : Γ --&gt; univ_cat_universe C₁)
+             (<span class="nv">b</span> : cat_el_map_el el₁ a --&gt; univ_cat_universe C₁)
+    : lccc_exp
+        HC₂
+        (cat_el_map_slice el₂ (#F a · functor_on_universe F))
+        (cat_el_map_slice
+           el₂
+           (inv_from_z_iso (functor_el_map_iso Fel a) · # F b · functor_on_universe F))
+      --&gt;
+      lccc_exp
+        HC₂
+        (functor_on_cod_fib F (cat_el_map_slice el₁ a))
+        (functor_on_cod_fib F (cat_el_map_slice el₁ b)).
+  <span class="kn">Proof</span>.
+    use lccc_exp_functor.
+    - <span class="bp">exact</span> (functor_el_map_iso Fel _).
+    - <span class="bp">exact</span> (functor_el_map_comm Fel _).
+    - <span class="bp">exact</span> (functor_preserves_stable_codes_pi_z_iso_functor_slice a b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_stable_codes_pi_z_iso</span>
+             (<span class="nv">p</span> : functor_preserves_stable_codes_pi_ty)
+    : UU
+    := ∏ (Γ : C₁)
+         (a : Γ --&gt; univ_cat_universe C₁)
+         (b : cat_el_map_el el₁ a --&gt; univ_cat_universe C₁),
+       #F(cat_univ_codes_pi_iso Π₁ a b)
+       · preserves_locally_cartesian_closed_z_iso HF _ _
+       =
+       functor_el_map_iso Fel _
+       · cat_el_map_el_eq el₂ (p Γ a b)
+       · cat_univ_codes_pi_iso
+           Π₂
+           (#F a · functor_on_universe F)
+           (inv_from_z_iso (functor_el_map_iso Fel a)
+            · #F b
+            · functor_on_universe F)
+       · functor_preserves_stable_codes_pi_z_iso_functor a b.
+
+  <span class="kn">Definition</span> <span class="nf">functor_preserves_stable_codes_pi</span>
+    : UU
+    := ∑ (p : functor_preserves_stable_codes_pi_ty),
+       functor_preserves_stable_codes_pi_z_iso p.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_functor_preserves_stable_codes_pi</span>
+    : isaprop functor_preserves_stable_codes_pi.
+  <span class="kn">Proof</span>.
+    use isaproptotal2.
+    - <span class="nb">intro</span>.
+      <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span>.
+      <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_functor_preserves_stable_codes_pi</span>
+             (<span class="nv">p</span> : functor_preserves_stable_codes_pi_ty)
+             (<span class="nv">q</span> : functor_preserves_stable_codes_pi_z_iso p)
+    : functor_preserves_stable_codes_pi
+    := p ,, q.
+
+  <span class="kn">Proposition</span> <span class="nf">functor_preserves_stable_codes_pi_on_code</span>
+              (<span class="nv">p</span> : functor_preserves_stable_codes_pi)
+              {<span class="nv">Γ</span> : C₁}
+              (<span class="nv">a</span> : Γ --&gt; univ_cat_universe C₁)
+              (<span class="nv">b</span> : cat_el_map_el el₁ a --&gt; univ_cat_universe C₁)
+    : #F (cat_univ_codes_pi_ty Π₁ a b)
+      · functor_on_universe F
+      =
+      cat_univ_codes_pi_ty
+        Π₂
+        (#F a · functor_on_universe F)
+        (inv_from_z_iso (functor_el_map_iso Fel a)
+         · #F b
+         · functor_on_universe F).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 p Γ a b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">functor_preserves_stable_codes_pi_on_z_iso</span>
+              (<span class="nv">p</span> : functor_preserves_stable_codes_pi)
+              {<span class="nv">Γ</span> : C₁}
+              (<span class="nv">a</span> : Γ --&gt; univ_cat_universe C₁)
+              (<span class="nv">b</span> : cat_el_map_el el₁ a --&gt; univ_cat_universe C₁)
+    : #F(cat_univ_codes_pi_iso Π₁ a b)
+      · preserves_locally_cartesian_closed_z_iso HF _ _
+      =
+      functor_el_map_iso Fel _
+      · cat_el_map_el_eq el₂ (functor_preserves_stable_codes_pi_on_code p a b)
+      · cat_univ_codes_pi_iso
+          Π₂
+          (#F a · functor_on_universe F)
+          (inv_from_z_iso (functor_el_map_iso Fel a)
+           · #F b
+           · functor_on_universe F)
+      · functor_preserves_stable_codes_pi_z_iso_functor a b.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 p Γ a b).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">functor_preserves_stable_codes_pi_on_z_iso'</span>
+              (<span class="nv">p</span> : functor_preserves_stable_codes_pi)
+              {<span class="nv">Γ</span> : C₁}
+              (<span class="nv">a</span> : Γ --&gt; univ_cat_universe C₁)
+              (<span class="nv">b</span> : cat_el_map_el el₁ a --&gt; univ_cat_universe C₁)
+    : #F(cat_univ_codes_pi_iso Π₁ a b)
+      =
+      functor_el_map_iso Fel _
+      · cat_el_map_el_eq el₂ (functor_preserves_stable_codes_pi_on_code p a b)
+      · cat_univ_codes_pi_iso
+          Π₂
+          (#F a · functor_on_universe F)
+          (inv_from_z_iso (functor_el_map_iso Fel a)
+           · #F b
+           · functor_on_universe F)
+      · functor_preserves_stable_codes_pi_z_iso_functor a b
+      · inv_from_z_iso (preserves_locally_cartesian_closed_z_iso HF _ _).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- functor_preserves_stable_codes_pi_on_z_iso.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+    <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">PreservationPiCodes</span>.
+
+<span class="kn">Arguments</span> functor_preserves_stable_codes_pi
+  {C₁ C₂ HC₁ HC₂} Π₁ Π₂ F.
+<span class="kn">Arguments</span> functor_preserves_stable_codes_pi_ty
+  {C₁ C₂ HC₁ HC₂} Π₁ Π₂ F.
+<span class="kn">Arguments</span> functor_preserves_stable_codes_pi_z_iso
+  {C₁ C₂ HC₁ HC₂ Π₁ Π₂} F HF p.
+<span class="kn">Arguments</span> functor_preserves_stable_codes_pi_z_iso_functor
+  {C₁ C₂ HC₂} F {Γ} a b.
+<span class="kn">Arguments</span> functor_preserves_stable_codes_pi_on_code
+  {C₁ C₂ HC₁ HC₂ Π₁ Π₂ F HF} p {Γ} a b.
+<span class="kn">Arguments</span> functor_preserves_stable_codes_pi_on_z_iso
+  {C₁ C₂ HC₁ HC₂ Π₁ Π₂ F HF} p {Γ} a b.
+<span class="kn">Arguments</span> functor_preserves_stable_codes_pi_on_z_iso'
+  {C₁ C₂ HC₁ HC₂ Π₁ Π₂ F HF} p {Γ} a b.
+
+<span class="sd">(** * 4. Preservation by identity and composition *)</span>
+<span class="kn">Proposition</span> <span class="nf">identity_preserves_stable_codes_pi_ty</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">HC</span> : is_locally_cartesian_closed
+                     (pullbacks_univ_cat_with_finlim C)}
+            (<span class="nv">Π</span> : cat_univ_stable_codes_pi HC)
+  : functor_preserves_stable_codes_pi_ty Π Π (identity _).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Γ a b ; <span class="nb">cbn</span>.
+  <span class="nb">refine</span> (id_right _ @ _).
+  use cat_univ_codes_pi_ty_eq.
+  - <span class="nb">rewrite</span> id_right.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> id_right.
+    }
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">rewrite</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C)).
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cat_el_map_el_eq_id.
+<span class="kn">Qed</span>.
+
+#[local] <span class="kn">Opaque</span> right_beck_chevalley_nat_trans.
+#[local] <span class="kn">Opaque</span> preserves_locally_cartesian_closed_z_iso.
+
+<span class="kn">Proposition</span> <span class="nf">identity_preserves_stable_codes_pi_z_iso</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">HC</span> : is_locally_cartesian_closed
+                     (pullbacks_univ_cat_with_finlim C)}
+            (<span class="nv">Π</span> : cat_univ_stable_codes_pi HC)
+  : functor_preserves_stable_codes_pi_z_iso
+      (identity _)
+      (id_preserves_locally_cartesian_closed HC)
+      (identity_preserves_stable_codes_pi_ty Π).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Γ a b.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> preserves_locally_cartesian_closed_z_iso_id.
+  }
+  <span class="nb">refine</span> (id_right _ @ _).
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+    <span class="bp">exact</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C) _ _).
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">refine</span> (!_).
+    use cat_univ_codes_pi_z_iso_eq'.
+    - <span class="bp">exact</span> (a · functor_on_universe (identity _)).
+    - <span class="nb">apply</span> id_right.
+    - <span class="bp">exact</span> (inv_from_z_iso
+               (functor_el_map_iso
+                  (functor_finlim_universe_preserves_el (id₁ C))
+                  a)
+             · b
+             · functor_on_universe (identity _)).
+    - <span class="nb">apply</span> id_right.
+  }
+  use maponpaths_compose.
+  - <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cat_el_map_el_eq_eq.
+  - use lccc_exp_functor_eq.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="nb">refine</span> (assoc' _ _ _ @ _ @ assoc _ _ _).
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        use cat_el_map_pb_mor_eq.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C) _ _ @ _).
+      <span class="nb">apply</span> cat_el_map_el_eq_eq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">identity_preserves_stable_codes_pi</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">HC</span> : is_locally_cartesian_closed
+                     (pullbacks_univ_cat_with_finlim C)}
+            (<span class="nv">Π</span> : cat_univ_stable_codes_pi HC)
+  : functor_preserves_stable_codes_pi
+      Π Π
+      (identity _)
+      (id_preserves_locally_cartesian_closed HC).
+<span class="kn">Proof</span>.
+  use make_functor_preserves_stable_codes_pi.
+  - <span class="bp">exact</span> (identity_preserves_stable_codes_pi_ty Π).
+  - <span class="bp">exact</span> (identity_preserves_stable_codes_pi_z_iso Π).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Univalence condition *)</span>
+<span class="kn">Proposition</span> <span class="nf">pi_univ_univalence_lemma</span>
+            {<span class="nv">C</span> : univ_cat_with_finlim_universe}
+            {<span class="nv">HC</span> : is_locally_cartesian_closed
+                     (pullbacks_univ_cat_with_finlim C)}
+            {<span class="nv">Π₁</span> <span class="nv">Π₂</span> : cat_univ_stable_codes_pi HC}
+            (<span class="nv">Fc</span> : functor_preserves_stable_codes_pi
+                    Π₁ Π₂
+                    (identity _)
+                    (id_preserves_locally_cartesian_closed HC))
+  : Π₁ = Π₂.
+<span class="kn">Proof</span>.
+  use cat_univ_stable_codes_pi_eq.
+  - <span class="nb">intros</span> Γ a b.
+    <span class="nb">pose</span> (functor_preserves_stable_codes_pi_on_code Fc a b) <span class="k">as</span> p.
+    <span class="nb">simpl</span> <span class="k">in</span> p.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    <span class="nb">refine</span> (p @ _).
+    use cat_univ_codes_pi_ty_eq ; <span class="nb">cbn</span>.
+    + <span class="nb">apply</span> id_right.
+    + <span class="nb">apply</span> id_right.
+  - <span class="nb">intros</span> Γ a b.
+    <span class="nb">pose</span> (functor_preserves_stable_codes_pi_on_z_iso' Fc a b) <span class="k">as</span> p.
+    <span class="nb">simpl</span> <span class="k">in</span> p ; <span class="nb">simpl</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> p.
+    }
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C)).
+      }
+      <span class="nb">apply</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">refine</span> (!_).
+      <span class="bp">exact</span> (cat_univ_codes_pi_z_iso_eq' _ (id_right _) (id_right _)).
+    }
+    <span class="nb">refine</span> (assoc' _ _ _ @ _ @ assoc _ _ _).
+    <span class="nb">refine</span> (_ @ assoc _ _ _).
+    use maponpaths_compose.
+    {
+      <span class="nb">apply</span> (cat_el_map_el_eq_eq (univ_cat_cat_stable_el_map C)).
+    }
+    <span class="nb">apply</span> maponpaths.
+    use z_iso_inv_on_left.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> preserves_locally_cartesian_closed_z_iso_id.
+    }
+    <span class="nb">refine</span> (id_right _ @ _).
+    use lccc_exp_functor_eq.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (assoc _ _ _ @ _).
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> PullbackArrow_PullbackPr1.
+      }
+      <span class="nb">refine</span> (assoc' _ _ _ @ _ @ assoc _ _ _).
+      <span class="nb">refine</span> (assoc' _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        use cat_el_map_pb_mor_eq.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> id_right.
+      }
+      <span class="nb">refine</span> (assoc _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (cat_el_map_el_eq_comp (univ_cat_cat_stable_el_map C) _ _ @ _).
+      <span class="nb">apply</span> cat_el_map_el_eq_eq.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/Universes/CatTypes/PiTypesBasics.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Univalence condition
+  &gt;
+  &gt;                                                                                            *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Limits.Pullbacks.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

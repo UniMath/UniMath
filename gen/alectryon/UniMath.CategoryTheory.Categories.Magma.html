@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Magma.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  The Category of Magmas and Related Categories</span>
+
+<span class="sd">  This file defines the category of magmas.</span>
+<span class="sd">  It defines the categories of abelian magmas, semigroups and unital magmas as displayed categories</span>
+<span class="sd">  over the category of magmas.</span>
+<span class="sd">  It then defines the category of monoids as a displayed product category of semigroups and unital</span>
+<span class="sd">  magmas.</span>
+<span class="sd">  The category of groups is constructed via a displayed category over the category of monoids.</span>
+<span class="sd">  Lastly, the categories of abelian groups and abelian monoids are again a displayed product of</span>
+<span class="sd">  their respective category and the category of abelian magmas.</span>
+<span class="sd">  For the categories that do not have their own files in this package (magmas, abelian magmas,</span>
+<span class="sd">  semigroups and unital magmas), univalence is shown here.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The category of magmas [magma_category] [is_univalent_magma_category]</span>
+<span class="sd">  1.1. Magmas [magma]</span>
+<span class="sd">  1.2. Magma morphisms [magma_morphism]</span>
+<span class="sd">  2. The category of abelian magmas [abelian_magma_disp_cat] [is_univalent_abelian_magma_disp_cat]</span>
+<span class="sd">  3. The category of semigroups [semigroup_disp_cat] [is_univalent_semigroup_disp_cat]</span>
+<span class="sd">  4. The category of unital magmas [unital_magma_disp_cat] [is_univalent_unital_magma_disp_cat]</span>
+<span class="sd">  5. The category of monoids [monoid_category]</span>
+<span class="sd">  6. The category of abelian monoids [abelian_monoid_category]</span>
+<span class="sd">  7. The category of groups [group_category]</span>
+<span class="sd">  8. The category of abelian groups [abelian_group_category]</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.Algebra.BinaryOperations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.CategoryWithStructure.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.FullSubcategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.Product.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The category of magmas *)</span>
+
+<span class="kn">Definition</span> <span class="nf">magma_disp_cat</span>
+  : disp_cat HSET.
+<span class="kn">Proof</span>.
+  use disp_struct.
+  - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> : hSet), binop X).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">op</span> <span class="nv">op'</span> <span class="nv">f</span>, ∏ x y, f (op x y) = op' (f x) (f y)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span>;
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+      <span class="nb">apply</span> setproperty
+    ).
+  - <span class="kp">abstract</span> <span class="bp">easy</span>.
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> X Y Z opX opY opZ f g Hf Hg x y;
+      <span class="nb">refine</span> (_ @ Hg _ _);
+      <span class="nb">apply</span> (maponpaths g);
+      <span class="nb">apply</span> Hf
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_magma_disp_cat</span>
+  : is_univalent_disp magma_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_disp_iff_fibers_are_univalent.
+  <span class="nb">intros</span> X op op'.
+  use isweq_iso.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span> y.
+    <span class="bp">exact</span> (z_iso_mor f x y).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span>;
+      <span class="nb">apply</span> proofirrelevance;
+      <span class="nb">apply</span> isasetbinoponhSet
+    ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span>;
+      <span class="nb">apply</span> z_iso_eq;
+      <span class="nb">apply</span> proofirrelevance;
+      <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>);
+      <span class="nb">apply</span> setproperty
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">magma_category</span>
+  : category
+  := total_category magma_disp_cat.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_magma_category</span>
+  : is_univalent magma_category.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_category.
+  - <span class="nb">apply</span> is_univalent_HSET.
+  - <span class="nb">apply</span> is_univalent_magma_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** 1.1. Magmas *)</span>
+
+<span class="kn">Definition</span> <span class="nf">magma</span>
+  : UU
+  := magma_category.
+
+<span class="kn">Coercion</span> <span class="nf">magma_to_setwithbinop</span> (X : magma) : setwithbinop := X.
+
+<span class="sd">(** ** 1.2. Magma morphisms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">magma_morphism</span>
+  (<span class="nv">X</span> <span class="nv">Y</span> : magma)
+  : UU
+  := magma_category⟦X, Y⟧.
+
+<span class="kn">Coercion</span> <span class="nf">magma_morphism_to_binopfun</span>
+  {X Y : magma}
+  (f : magma_morphism X Y)
+  : binopfun X Y
+  := f.
+
+<span class="sd">(** * 2. The category of abelian magmas *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abelian_magma_disp_cat</span>
+  : disp_cat magma_category
+  := disp_full_sub magma_category (<span class="k">λ</span> <span class="nv">X</span>, iscomm (op (X := X))).
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_abelian_magma_disp_cat</span>
+  : is_univalent_disp abelian_magma_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_full_sub_univalent.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> isapropiscomm.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. The category of semigroups *)</span>
+
+<span class="kn">Definition</span> <span class="nf">semigroup_disp_cat</span>
+  : disp_cat magma_category
+  := disp_full_sub magma_category (<span class="k">λ</span> <span class="nv">X</span>, isassoc (op (X := X))).
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_semigroup_disp_cat</span>
+  : is_univalent_disp semigroup_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> disp_full_sub_univalent.
+  <span class="nb">intro</span>.
+  <span class="nb">apply</span> isapropisassoc.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. The category of unital magmas *)</span>
+
+<span class="kn">Definition</span> <span class="nf">unital_magma_disp_cat</span>
+  : disp_cat magma_category.
+<span class="kn">Proof</span>.
+  use disp_struct.
+  - <span class="nb">intro</span> X.
+    <span class="bp">exact</span> (isunital (op (X := X))).
+  - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">uX</span> <span class="nv">uY</span> (<span class="nv">f</span> : magma_morphism X Y), _).
+    <span class="bp">exact</span> (f (pr1 uX) = pr1 uY).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span>; <span class="nb">apply</span> setproperty).
+  - <span class="kp">abstract</span> <span class="bp">easy</span>.
+  - <span class="kp">abstract</span> (
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> <span class="nv">uX</span> <span class="nv">uY</span> <span class="nv">uZ</span> (<span class="nv">f</span> <span class="nv">g</span> : magma_morphism _ _) <span class="nv">Hf</span> <span class="nv">Hg</span>, _);
+      <span class="nb">refine</span> (_ @ Hg);
+      <span class="nb">apply</span> (maponpaths g);
+      <span class="nb">apply</span> Hf
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_unital_magma_disp_cat</span>
+  : is_univalent_disp unital_magma_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_disp_iff_fibers_are_univalent.
+  <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">X</span> : magma) (<span class="nv">u</span> <span class="nv">u'</span> : isunital _), _).
+  use isweq_iso.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> proofirrelevance.
+    <span class="nb">apply</span> isapropisunital.
+  - <span class="kp">abstract</span> (<span class="nb">intro</span>; <span class="nb">apply</span> proofirrelevance, isasetaprop, isapropisunital).
+  - <span class="kp">abstract</span> (<span class="nb">intro</span>; <span class="nb">apply</span> z_iso_eq, setproperty).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. The category of monoids *)</span>
+
+<span class="kn">Definition</span> <span class="nf">monoid_disp_cat</span>
+  : disp_cat magma_category
+  := dirprod_disp_cat semigroup_disp_cat unital_magma_disp_cat.
+
+<span class="kn">Definition</span> <span class="nf">monoid_category</span>
+  : category
+  := total_category monoid_disp_cat.
+
+<span class="sd">(** * 6. The category of abelian monoids *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abelian_monoid_disp_cat</span>
+  : disp_cat magma_category
+  := dirprod_disp_cat monoid_disp_cat abelian_magma_disp_cat.
+
+<span class="kn">Definition</span> <span class="nf">abelian_monoid_category</span>
+  : category
+  := total_category abelian_monoid_disp_cat.
+
+<span class="sd">(** * 7. The category of groups *)</span>
+
+<span class="kn">Definition</span> <span class="nf">group_disp_cat</span>
+  : disp_cat magma_category.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (sigma_disp_cat (D := monoid_disp_cat)).
+  use disp_struct.
+  - <span class="nb">intro</span> X.
+    <span class="bp">exact</span> (invstruct op (pr2 X)).
+  - <span class="nb">intros</span> X Y invX invY f.
+    <span class="bp">exact</span> (∏ x, (pr1 f : magma_morphism _ _) (pr1 invX x) = pr1 invY ((pr1 f : magma_morphism _ _) x)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span>;
+      <span class="nb">apply</span> impred_isaprop;
+      <span class="nb">intro</span>;
+      <span class="nb">apply</span> setproperty
+    ).
+  - <span class="kp">abstract</span> <span class="bp">easy</span>.
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> X Y Z opX opY opZ f g Hf Hg x;
+      <span class="nb">refine</span> (_ @ Hg _);
+      <span class="nb">apply</span> (maponpaths (pr1 g : magma_morphism _ _));
+      <span class="nb">apply</span> Hf
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">group_category</span>
+  : category
+  := total_category group_disp_cat.
+
+<span class="sd">(** * 8. The category of abelian groups *)</span>
+
+<span class="kn">Definition</span> <span class="nf">abelian_group_disp_cat</span>
+  : disp_cat magma_category
+  := dirprod_disp_cat group_disp_cat abelian_magma_disp_cat.
+
+<span class="kn">Definition</span> <span class="nf">abelian_group_category</span>
+  : category
+  := total_category abelian_group_disp_cat.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/Magma.v</tt>, line 29)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   8. The category of abelian groups [abelian_group_category]
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

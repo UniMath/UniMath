@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PrebilatticeDisplayedCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Displayed category of pre-bilattices *)</span>
+<span class="sd">(** Georgios V. Pitsiladis, Aug. 2024 - *)</span>
+<span class="kn">Require Import</span> UniMath.OrderTheory.Prebilattice.Prebilattice.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.SIP.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Definition</span> <span class="nf">respects_prebilattice_structure</span> {<span class="nv">X1</span> : hSet} {<span class="nv">X2</span> : hSet} (<span class="nv">b1</span> : prebilattice X1) (<span class="nv">b2</span> : prebilattice X2) (<span class="nv">f</span> : X1 -&gt; X2) : UU
+:= <span class="k">∀</span> <span class="nv">x</span> <span class="nv">y</span>,
+  make_hProp _ (
+               isapropdirprod _ _
+                              (setproperty _  (meet b2 (f x) (f y)) (f (meet b1 x y)))
+                              (isapropdirprod _ _ (setproperty _ (join b2 (f x) (f y)) (f (join b1 x y)))
+                                              (isapropdirprod _ _
+                                                              (setproperty _  (consensus b2 (f x) (f y)) (f (consensus b1 x y))  )
+                                                              (setproperty _  (gullibility b2 (f x) (f y)) (f (gullibility b1 x y)))))
+             ).
+
+<span class="kn">Lemma</span> <span class="nf">weqinv_respects_prebilattice_structure</span> {<span class="nv">X1</span> : hSet} {<span class="nv">X2</span> : hSet} (<span class="nv">b1</span> : prebilattice X1) (<span class="nv">b2</span> : prebilattice X2) (<span class="nv">f</span> : weq X1 X2) (<span class="nv">p</span> : respects_prebilattice_structure b1 b2 f) : respects_prebilattice_structure b2 b1 (invmap f).
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> x y.
+<span class="kp">do</span> <span class="mi">3</span> (<span class="kp">try</span> use make_dirprod);
+<span class="nb">rewrite</span> &lt;- (homotweqinvweq f x), &lt;- (homotweqinvweq f y);
+[
+  <span class="nb">rewrite</span> (pr1 (p (invmap f x) (invmap f y))) |
+  <span class="nb">rewrite</span> (pr12 (p (invmap f x) (invmap f y))) |
+  <span class="nb">rewrite</span> (pr122 (p (invmap f x) (invmap f y))) |
+  <span class="nb">rewrite</span> (pr222 (p (invmap f x) (invmap f y)))
+];
+<span class="bp">now</span> <span class="nb">rewrite</span> homotweqinvweq,  homotweqinvweq, homotinvweqweq.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">prebilattice_disp_category</span> : category.
+<span class="kn">Proof</span>.
+use (@total_category hset_category).
+use disp_cat_from_SIP_data.
+- <span class="nb">intro</span> X.
+  <span class="bp">exact</span> (prebilattice X).
+- <span class="nb">intros</span> X1 X2 b1 b2 f.
+  use (respects_prebilattice_structure b1 b2 f).
+- <span class="nb">intros</span> X1 X2 b1 b2 f p1 p2.
+  use impred_prop.
+- <span class="bp">now</span> <span class="nb">intros</span> X1 b1 x y.
+- <span class="nb">intros</span> X1 X2 X3 b1 b2 b3 f g p1 p2 x y.
+  <span class="nb">cbn</span>.
+  <span class="kp">do</span> <span class="mi">3</span> (<span class="kp">try</span> use make_dirprod).
+  -- <span class="bp">now</span> <span class="nb">rewrite</span> (pr1 (p2 (f x) (f y))), (pr1 (p1 x y)).
+  -- <span class="bp">now</span> <span class="nb">rewrite</span> (pr12 (p2 (f x) (f y))), (pr12 (p1 x y)).
+  -- <span class="bp">now</span> <span class="nb">rewrite</span> (pr122 (p2 (f x) (f y))), (pr122 (p1 x y)).
+  -- <span class="bp">now</span> <span class="nb">rewrite</span> (pr222 (p2 (f x) (f y))), (pr222 (p1 x y)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_prebilattice_disp_category</span> : is_univalent (prebilattice_disp_category) .
+<span class="kn">Proof</span>.
+use SIP.
+- use Univalence.is_univalent_HSET.
+- use isaset_prebilattice.
+- <span class="nb">intros</span> X b1 b2 p1 p2.
+  use prebilattice_eq; <span class="nb">intro</span> x; use weqfunextsec; <span class="nb">intro</span> y.
+  -- <span class="bp">exact</span> (pr1 (p2 x y)).
+  -- <span class="bp">exact</span> (pr12 (p2 x y)).
+  -- <span class="bp">exact</span> (pr122 (p2 x y)).
+  -- <span class="bp">exact</span> (pr222 (p2 x y)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">prebilattice_iso</span> {<span class="nv">X1</span> : hSet} {<span class="nv">X2</span> : hSet} (<span class="nv">b1</span> : prebilattice X1) (<span class="nv">b2</span> : prebilattice X2) (<span class="nv">f</span> : weq X1 X2) (<span class="nv">p</span> : respects_prebilattice_structure b1 b2 f) : @z_iso prebilattice_disp_category (X1,,b1) (X2,,b2).
+<span class="kn">Proof</span>.
+<span class="nb">set</span>( f' := (pr1weq f,, p) : (prebilattice_disp_category ⟦ X1,, b1, X2,, b2 ⟧)%cat).
+<span class="nb">set</span> (p_inv := weqinv_respects_prebilattice_structure b1 b2 f p).
+<span class="k">exists</span> <span class="nv">f'</span>.
+<span class="k">exists</span> (<span class="nv">invmap</span> <span class="nv">f</span>,, <span class="nv">p_inv</span>).
+use make_dirprod.
+- use total2_paths_f.
+  -- use weqfunextsec.
+     use homotinvweqweq.
+  -- use weqfunextsec.
+     <span class="nb">intro</span> x.
+     use weqfunextsec.
+     <span class="nb">intro</span> y.
+     <span class="kp">do</span> <span class="mi">3</span> (<span class="kp">try</span> use dirprod_paths); use PartA.Unnamed_thm.
+- use total2_paths_f.
+  -- use weqfunextsec.
+     use homotweqinvweq.
+  -- use weqfunextsec.
+     <span class="nb">intro</span> x.
+     use weqfunextsec.
+     <span class="nb">intro</span> y.
+     <span class="kp">do</span> <span class="mi">3</span> (<span class="kp">try</span> use dirprod_paths); use PartA.Unnamed_thm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">prebilattice_transportf_iso</span> {<span class="nv">X1</span> : hSet} {<span class="nv">X2</span> : hSet} (<span class="nv">b1</span> : prebilattice X1) (<span class="nv">b2</span> : prebilattice X2) (<span class="nv">f</span> : weq X1 X2) (<span class="nv">p</span> : respects_prebilattice_structure b1 b2 f) : ∑ p, transportf prebilattice p b1 = b2.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (I := prebilattice_iso b1 b2 f p).
+  <span class="nb">set</span> (i := fiber_paths (isotoid prebilattice_disp_category is_univalent_prebilattice_disp_category I)) .
+  <span class="c">(* cbn in i. (* in order to see what path to use in the next line *)  *)</span>
+  <span class="k">exists</span> ((base_paths (X1,, b1) (X2,, b2) (isotoid prebilattice_disp_category is_univalent_prebilattice_disp_category I))).
+  <span class="bp">exact</span> i.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Prebilattice/PrebilatticeDisplayedCat.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/OrderTheory/Prebilattice/Prebilattice.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** Displayed category of pre-bilattices *)
+  &gt; (** Georgios V. Pitsiladis, Aug. 2024 - *)&gt;&gt;&gt;Require Import UniMath.OrderTheory.Prebilattice.Prebilattice.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.DisplayedCats.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

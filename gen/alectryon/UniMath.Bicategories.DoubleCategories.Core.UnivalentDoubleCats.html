@@ -1,0 +1,1045 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UnivalentDoubleCats.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Univalent double categories</span>
+
+<span class="sd"> In this file, we provide an interface for the bicategory of double categories.</span>
+<span class="sd"> More specifically, we give definitions and notations for accessors of double</span>
+<span class="sd"> categories, double functors, and double transformations. We also give builders</span>
+<span class="sd"> for each of them.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Double categories</span>
+<span class="sd"> 2. Accessors for double categories</span>
+<span class="sd"> 3. Builder for double categories</span>
+<span class="sd"> 4. Lax functors for double categories</span>
+<span class="sd"> 5. Accessors for lax functors</span>
+<span class="sd"> 6. Builder for lax functors</span>
+<span class="sd"> 7. Strong double functors</span>
+<span class="sd"> 8. Double transformations</span>
+<span class="sd"> 9. Accessors for double transformations</span>
+<span class="sd"> 10. Builder for double transformations</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfTwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.BicatOfDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Declare Scope</span> double_cat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="sd">(** * 1. Univalent double categories *)</span>
+<span class="kn">Definition</span> <span class="nf">univalent_double_cat</span>
+  : UU
+  := ob bicat_of_double_cats.
+
+<span class="sd">(** * 2. Accessors for univalent double categories *)</span>
+<span class="kn">Coercion</span> <span class="nf">univalent_double_cat_to_double_cat</span>
+         (C : univalent_double_cat)
+  : double_cat
+  := make_double_cat
+       _
+       _
+       _
+       _
+       _
+       _
+       _
+       (pr12 C)
+       (pr22 C).
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_vertical_cat</span>
+            (<span class="nv">C</span> : univalent_double_cat)
+  : is_univalent C.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr21 (pr111 C)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_twosided_disp_cat_hor_mor</span>
+            (<span class="nv">C</span> : univalent_double_cat)
+  : is_univalent_twosided_disp_cat (hor_mor C).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr22 (pr111 C)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">globular_iso_square_to_path</span>
+           {<span class="nv">C</span> : univalent_double_cat}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">h₁</span> <span class="nv">h₂</span> : x --&gt;h y}
+           (<span class="nv">s</span> : globular_iso_square h₁ h₂)
+  : h₁ = h₂.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (isotoid_twosided_disp
+           (is_univalent_twosided_disp_cat_hor_mor C)
+           (idpath _) (idpath _)
+           s).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Builder for double categories *)</span>
+<span class="kn">Definition</span> <span class="nf">is_univalent_double_cat</span>
+           (<span class="nv">C</span> : double_cat)
+  : UU
+  := is_univalent C
+     ×
+     is_univalent_twosided_disp_cat (hor_mor C).
+
+<span class="kn">Definition</span> <span class="nf">make_univalent_double_cat</span>
+           (<span class="nv">C</span> : double_cat)
+           (<span class="nv">HC</span> : is_univalent_double_cat C)
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> ((((_ ,, _) ,, _) ,, _) ,, _).
+  - <span class="bp">exact</span> (_ ,, pr1 HC).
+  - <span class="bp">exact</span> (hor_mor C ,, pr2 HC).
+  - <span class="bp">exact</span> (hor_id_double_cat C ,, hor_comp_double_cat C).
+  - <span class="bp">exact</span> (double_cat_double_lunitor C
+           ,,
+           double_cat_double_runitor C
+           ,,
+           double_cat_double_associator C).
+  - <span class="bp">exact</span> (@double_triangle C ,, @double_pentagon C).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Lax functors for double categories *)</span>
+<span class="kn">Definition</span> <span class="nf">lax_double_functor</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat)
+  : UU
+  := C₁ --&gt; C₂.
+
+<span class="kn">Definition</span> <span class="nf">id_lax_double_functor</span>
+           (<span class="nv">C</span> : univalent_double_cat)
+  : lax_double_functor C C
+  := identity _.
+
+<span class="kn">Definition</span> <span class="nf">comp_lax_double_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+           (<span class="nv">G</span> : lax_double_functor C₂ C₃)
+  : lax_double_functor C₁ C₃
+  := F · G.
+
+<span class="sd">(** * 5. Accessors for lax functors *)</span>
+<span class="kn">Definition</span> <span class="nf">lax_double_functor_ver</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+  : C₁ ⟶ C₂
+  := pr1 (pr111 F).
+
+<span class="kn">Coercion</span> <span class="nf">lax_double_functor_ver</span> : lax_double_functor &gt;-&gt; functor.
+
+<span class="kn">Definition</span> <span class="nf">lax_double_functor_ver_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+           {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+           (<span class="nv">f</span> : x --&gt;v y)
+  : F x --&gt;v F y
+  := pr211 (pr111 F) x y f.
+
+<span class="kn">Notation</span> <span class="s2">"'#v' F f"</span> := (lax_double_functor_ver_mor F f)
+                         (<span class="kn">at level</span> <span class="mi">10</span>, F <span class="kn">at next level</span>, f <span class="kn">at next level</span>) : double_cat.
+
+<span class="kn">Proposition</span> <span class="nf">lax_double_functor_id_v</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+            (<span class="nv">x</span> : C₁)
+  : #v F (identity_v x) = identity_v _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_double_functor_comp_v</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C₁}
+            (<span class="nv">f</span> : x --&gt;v y)
+            (<span class="nv">g</span> : y --&gt;v z)
+  : #v F (f ·v g) = #v F f ·v #v F g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> functor_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lax_double_functor_hor_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+  : twosided_disp_functor F F (hor_mor C₁) (hor_mor C₂)
+  := pr2 (pr111 F).
+
+<span class="kn">Definition</span> <span class="nf">lax_double_functor_on_hor_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+           (<span class="nv">h</span> : x₁ --&gt;h x₂)
+  : F x₁ --&gt;h F x₂
+  := lax_double_functor_hor_mor F x₁ x₂ h.
+
+<span class="kn">Notation</span> <span class="s2">"'#h' F f"</span> := (lax_double_functor_on_hor_mor F f)
+                         (<span class="kn">at level</span> <span class="mi">10</span>, F <span class="kn">at next level</span>, f <span class="kn">at next level</span>) : double_cat.
+
+<span class="kn">Definition</span> <span class="nf">lax_double_functor_on_sqr</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C₁}
+           {<span class="nv">h</span> : x₁ --&gt;h x₂}
+           {<span class="nv">k</span> : y₁ --&gt;h y₂}
+           {<span class="nv">v</span> : x₁ --&gt;v y₁}
+           {<span class="nv">w</span> : x₂ --&gt;v y₂}
+           (<span class="nv">s</span> : square v w h k)
+  : square (#v F v) (#v F w) (#h F h) (#h F k)
+  := #<span class="mi">2</span> (lax_double_functor_hor_mor F) s.
+
+<span class="kn">Notation</span> <span class="s2">"'#s' F s"</span> := (lax_double_functor_on_sqr F s)
+                         (<span class="kn">at level</span> <span class="mi">10</span>, F <span class="kn">at next level</span>, s <span class="kn">at next level</span>) : double_cat.
+
+<span class="kn">Proposition</span> <span class="nf">lax_double_functor_id_square</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            (<span class="nv">h</span> : x --&gt;h y)
+  : #s F (id_v_square h)
+    =
+    transportb_square
+      (lax_double_functor_id_v _ _)
+      (lax_double_functor_id_v _ _)
+      (id_v_square _).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (twosided_disp_functor_id _ _ _ _ (lax_double_functor_hor_mor F) h).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_double_functor_comp_v_square</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C₁}
+            {<span class="nv">v₁</span> : x₁ --&gt;v y₁} {<span class="nv">v₁'</span> : y₁ --&gt; z₁}
+            {<span class="nv">v₂</span> : x₂ --&gt;v y₂} {<span class="nv">v₂'</span> : y₂ --&gt; z₂}
+            {<span class="nv">h₁</span> : x₁ --&gt;h x₂}
+            {<span class="nv">h₂</span> : y₁ --&gt;h y₂}
+            {<span class="nv">h₃</span> : z₁ --&gt;h z₂}
+            (<span class="nv">s₁</span> : square v₁ v₂ h₁ h₂)
+            (<span class="nv">s₂</span> : square v₁' v₂' h₂ h₃)
+  : #s F (s₁ ⋆v s₂)
+    =
+    transportb_square
+      (lax_double_functor_comp_v _ _ _)
+      (lax_double_functor_comp_v _ _ _)
+      (#s F s₁ ⋆v #s F s₂).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (twosided_disp_functor_comp _ _ _ _ (lax_double_functor_hor_mor F)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lax_double_functor_hor_id</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+  : double_functor_hor_id
+      (lax_double_functor_hor_mor F)
+      (hor_id_double_cat C₁)
+      (hor_id_double_cat C₂)
+  := pr1 (pr211 F).
+
+<span class="kn">Definition</span> <span class="nf">lax_double_functor_id_h</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+           (<span class="nv">x</span> : C₁)
+  : square (identity_v _) (identity_v (F x)) (identity_h _) (#h F (identity_h _)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr11 (pr211 F) x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_double_functor_id_h_mor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            (<span class="nv">f</span> : x --&gt;v y)
+  : id_h_square (#v F f) ⋆v lax_double_functor_id_h F y
+    =
+    transportb_square
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _))
+      (lax_double_functor_id_h F x ⋆v #s F (id_h_square f)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr21 (pr211 F) x y f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lax_double_functor_hor_comp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+  : double_functor_hor_comp
+      (lax_double_functor_hor_mor F)
+      (hor_comp_double_cat C₁)
+      (hor_comp_double_cat C₂)
+  := pr2 (pr211 F).
+
+<span class="kn">Definition</span> <span class="nf">lax_double_functor_comp_h</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C₁}
+           (<span class="nv">h</span> : x --&gt;h y)
+           (<span class="nv">k</span> : y --&gt;h z)
+  : square (identity _) (identity _) (#h F h ·h #h F k) (#h F (h ·h k))
+  := pr12 (pr211 F) x y z h k.
+
+<span class="kn">Proposition</span> <span class="nf">lax_double_functor_comp_h_mor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C₁}
+            {<span class="nv">vx</span> : x₁ --&gt;v x₂}
+            {<span class="nv">vy</span> : y₁ --&gt;v y₂}
+            {<span class="nv">vz</span> : z₁ --&gt;v z₂}
+            {<span class="nv">h₁</span> : x₁ --&gt;h y₁} {<span class="nv">h₂</span> : x₂ --&gt;h y₂}
+            {<span class="nv">k₁</span> : y₁ --&gt;h z₁} {<span class="nv">k₂</span> : y₂ --&gt;h z₂}
+            (<span class="nv">sh</span> : square vx vy h₁ h₂)
+            (<span class="nv">sk</span> : square vy vz k₁ k₂)
+  : (#s F sh ⋆h #s F sk) ⋆v lax_double_functor_comp_h F h₂ k₂
+    =
+    transportb_square
+      (id_v_right _ @ !(id_v_left _))
+      (id_v_right _ @ !(id_v_left _))
+      (lax_double_functor_comp_h F h₁ k₁ ⋆v #s F (sh ⋆h sk)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr22 (pr211 F) x₁ x₂ y₁ y₂ z₁ z₂ vx vy vz h₁ h₂ k₁ k₂ sh sk).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_double_functor_lunitor_h</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            (<span class="nv">f</span> : x --&gt;h y)
+  : lunitor_h (#h F f)
+    =
+    transportf_square
+      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _)
+      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _)
+      ((lax_double_functor_id_h F _ ⋆h id_v_square _)
+       ⋆v lax_double_functor_comp_h F _ _
+       ⋆v #s F (lunitor_h f)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr121 F x y f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_double_functor_runitor_h</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            (<span class="nv">f</span> : x --&gt;h y)
+  : runitor_h (#h F f)
+    =
+    transportf_square
+      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _)
+      (assocr_v _ _ _ @ id_v_left _ @ id_v_left _ @ lax_double_functor_id_v _ _)
+      ((id_v_square _ ⋆h lax_double_functor_id_h F _)
+       ⋆v lax_double_functor_comp_h F _ _
+       ⋆v #s F (runitor_h f)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr221 F) x y f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">lax_double_functor_lassociator_h</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+            {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C₁}
+            (<span class="nv">f</span> : w --&gt;h x)
+            (<span class="nv">g</span> : x --&gt;h y)
+            (<span class="nv">h</span> : y --&gt;h z)
+  : lassociator_h (#h F f) (#h F g) (#h F h)
+    ⋆v (lax_double_functor_comp_h F f g ⋆h id_v_square _)
+    ⋆v lax_double_functor_comp_h F (f ·h g) h
+    =
+    transportf_square
+      (maponpaths _ (lax_double_functor_id_v _ _))
+      (maponpaths _ (lax_double_functor_id_v _ _))
+      ((id_v_square _ ⋆h lax_double_functor_comp_h F g h)
+       ⋆v lax_double_functor_comp_h F f (g ·h h)
+       ⋆v #s F (lassociator_h f g h)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (pr221 F) w x y z f g h).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Builder for lax functors *)</span>
+<span class="kn">Definition</span> <span class="nf">make_lax_double_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">FF</span> : twosided_disp_functor F F (hor_mor C₁) (hor_mor C₂))
+           (<span class="nv">FI</span> : double_functor_hor_id
+                   FF
+                   (hor_id_double_cat C₁)
+                   (hor_id_double_cat C₂))
+           (<span class="nv">FC</span> : double_functor_hor_comp
+                   FF
+                   (hor_comp_double_cat C₁)
+                   (hor_comp_double_cat C₂))
+           (<span class="nv">Fl</span> : double_functor_lunitor
+                   (double_cat_double_lunitor C₁)
+                   (double_cat_double_lunitor C₂)
+                   FI FC)
+           (<span class="nv">Fr</span> : double_functor_runitor
+                   (double_cat_double_runitor C₁)
+                   (double_cat_double_runitor C₂)
+                   FI FC)
+           (<span class="nv">Fa</span> : double_functor_associator
+                   (double_cat_double_associator C₁)
+                   (double_cat_double_associator C₂)
+                   FC)
+  : lax_double_functor C₁ C₂.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> ((((F ,, FF) ,, _) ,, _) ,, tt).
+  - <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    + <span class="bp">exact</span> FI.
+    + <span class="bp">exact</span> FC.
+  - <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    + <span class="bp">exact</span> Fl.
+    + <span class="bp">exact</span> Fr.
+    + <span class="bp">exact</span> Fa.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The following builders incorporate the notation for double categories *)</span>
+<span class="kn">Definition</span> <span class="nf">twosided_disp_functor_double_cat_data</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat)
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+  : UU
+  := ∑ (FF : ∏ (x y : C₁), x --&gt;h y → F x --&gt;h F y),
+     ∏ (x₁ x₂ y₁ y₂ : C₁)
+       (h : x₁ --&gt;h y₁)
+       (k : x₂ --&gt;h y₂)
+       (v : x₁ --&gt;v x₂)
+       (w : y₁ --&gt;v y₂)
+       (s : square v w h k),
+     square (#F v) (#F w) (FF _ _ h) (FF _ _ k).
+
+<span class="kn">Definition</span> <span class="nf">twosided_disp_functor_double_cat_data_hor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">FF</span> : twosided_disp_functor_double_cat_data C₁ C₂ F)
+           {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+           (<span class="nv">h</span> : x --&gt;h y)
+  : F x --&gt;h F y
+  := pr1 FF x y h.
+
+<span class="kn">Coercion</span> <span class="nf">twosided_disp_functor_double_cat_data_hor</span>
+  : twosided_disp_functor_double_cat_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">twosided_disp_functor_double_cat_data_square</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">FF</span> : twosided_disp_functor_double_cat_data C₁ C₂ F)
+           {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C₁}
+           {<span class="nv">h</span> : x₁ --&gt;h y₁}
+           {<span class="nv">k</span> : x₂ --&gt;h y₂}
+           {<span class="nv">v</span> : x₁ --&gt;v x₂}
+           {<span class="nv">w</span> : y₁ --&gt;v y₂}
+           (<span class="nv">s</span> : square v w h k)
+  : square (#F v) (#F w) (FF _ _ h) (FF _ _ k)
+  := pr2 FF _ _ _ _ _ _ _ _ s.
+
+<span class="kn">Definition</span> <span class="nf">twosided_disp_functor_double_cat_laws</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">FF</span> : twosided_disp_functor_double_cat_data C₁ C₂ F)
+  : UU
+  := (∏ (x y : C₁)
+        (h : x --&gt;h y),
+      twosided_disp_functor_double_cat_data_square FF (id_v_square h)
+      =
+      transportb_square
+        (functor_id _ _)
+        (functor_id _ _)
+        (id_v_square (FF _ _ h)))
+     ×
+     (∏ (x₁ x₂ x₃ y₁ y₂ y₃ : C₁)
+        (h₁ : x₁ --&gt;h y₁)
+        (h₂ : x₂ --&gt;h y₂)
+        (h₃ : x₃ --&gt;h y₃)
+        (vx₁ : x₁ --&gt;v x₂)
+        (vy₁ : y₁ --&gt;v y₂)
+        (s₁ : square vx₁ vy₁ h₁ h₂)
+        (vx₂ : x₂ --&gt;v x₃)
+        (vy₂ : y₂ --&gt;v y₃)
+        (s₂ : square vx₂ vy₂ h₂ h₃),
+      twosided_disp_functor_double_cat_data_square FF (s₁ ⋆v s₂)
+      =
+      transportb_square
+        (functor_comp _ _ _)
+        (functor_comp _ _ _)
+        (twosided_disp_functor_double_cat_data_square FF s₁
+         ⋆v
+         twosided_disp_functor_double_cat_data_square FF s₂)).
+
+<span class="kn">Definition</span> <span class="nf">make_twosided_disp_functor_double_cat</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat)
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">FF</span> : twosided_disp_functor_double_cat_data C₁ C₂ F)
+           (<span class="nv">HFF</span> : twosided_disp_functor_double_cat_laws FF)
+  : twosided_disp_functor F F (hor_mor C₁) (hor_mor C₂)
+  := FF ,, HFF.
+
+<span class="kn">Definition</span> <span class="nf">make_double_functor_hor_id_double_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">FF</span> : twosided_disp_functor F F (hor_mor C₁) (hor_mor C₂))
+           (<span class="nv">FFi</span> : ∏ (x : C₁),
+                  square
+                    (identity_v (F x))
+                    (identity_v (F x))
+                    (identity_h (F x))
+                    (FF x x (identity_h x)))
+           (<span class="nv">HFFi</span> : ∏ (x y : C₁)
+                     (v : x --&gt;v y),
+                   id_h_square (#F v) ⋆v FFi y
+                   =
+                   transportb_square
+                     (id_v_right _ @ !(id_v_left _))
+                     (id_v_right _ @ !(id_v_left _))
+                     (FFi x ⋆v #<span class="mi">2</span> FF (id_h_square v)))
+  : double_functor_hor_id
+      FF
+      (hor_id_double_cat C₁)
+      (hor_id_double_cat C₂)
+  := FFi ,, HFFi.
+
+<span class="kn">Definition</span> <span class="nf">make_double_functor_hor_comp_double_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">FF</span> : twosided_disp_functor F F (hor_mor C₁) (hor_mor C₂))
+           (<span class="nv">FFc</span> : ∏ (x y z : C₁)
+                    (h : x --&gt;h y)
+                    (k : y --&gt;h z),
+                  square
+                    (identity_v _)
+                    (identity_v _)
+                    (FF _ _ h ·h FF _ _ k)
+                    (FF _ _ (h ·h k)))
+           (<span class="nv">HFFc</span> : ∏ (x₁ x₂ y₁ y₂ z₁ z₂ : C₁)
+                     (v₁ : x₁ --&gt;v x₂)
+                     (v₂ : y₁ --&gt;v y₂)
+                     (v₃ : z₁ --&gt;v z₂)
+                     (h₁ : x₁ --&gt;h y₁) (h₂ : x₂ --&gt;h y₂)
+                     (k₁ : y₁ --&gt;h z₁) (k₂ : y₂ --&gt;h z₂)
+                     (s₁ : square v₁ v₂ h₁ h₂)
+                     (s₂ : square v₂ v₃ k₁ k₂),
+                   (#<span class="mi">2</span> FF s₁ ⋆h #<span class="mi">2</span> FF s₂) ⋆v FFc _ _ _ h₂ k₂
+                   =
+                   transportb_square
+                     (id_v_right _ @ !(id_v_left _))
+                     (id_v_right _ @ !(id_v_left _))
+                     (FFc _ _ _ h₁ k₁ ⋆v #<span class="mi">2</span> FF (s₁ ⋆h s₂)))
+  : double_functor_hor_comp
+      FF
+      (hor_comp_double_cat C₁)
+      (hor_comp_double_cat C₂)
+  := FFc ,, HFFc.
+
+<span class="kn">Definition</span> <span class="nf">make_double_functor_lunitor_double_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">FF</span> : twosided_disp_functor F F (hor_mor C₁) (hor_mor C₂))
+           (<span class="nv">FI</span> : double_functor_hor_id
+                   FF
+                   (hor_id_double_cat C₁)
+                   (hor_id_double_cat C₂))
+           (<span class="nv">FC</span> : double_functor_hor_comp
+                   FF
+                   (hor_comp_double_cat C₁)
+                   (hor_comp_double_cat C₂))
+           (<span class="nv">H</span> : ∏ (x y : C₁)
+                  (h : x --&gt;h y),
+                lunitor_h (FF x y h)
+                =
+                transportf_square
+                  (assoc' _ _ _ @ id_left _ @ id_left _ @ functor_id _ _)
+                  (assoc' _ _ _ @ id_left _ @ id_left _ @ functor_id _ _)
+                  ((functor_double_id_cell FI x ⋆h id_v_square _)
+                   ⋆v functor_double_comp_cell FC _ _
+                   ⋆v #<span class="mi">2</span> FF (lunitor_h h)))
+  : double_functor_lunitor
+      (double_cat_double_lunitor C₁)
+      (double_cat_double_lunitor C₂)
+      FI FC.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_double_functor_runitor_double_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">FF</span> : twosided_disp_functor F F (hor_mor C₁) (hor_mor C₂))
+           (<span class="nv">FI</span> : double_functor_hor_id
+                   FF
+                   (hor_id_double_cat C₁)
+                   (hor_id_double_cat C₂))
+           (<span class="nv">FC</span> : double_functor_hor_comp
+                   FF
+                   (hor_comp_double_cat C₁)
+                   (hor_comp_double_cat C₂))
+           (<span class="nv">H</span> : ∏ (x y : C₁)
+                  (h : x --&gt;h y),
+                runitor_h (FF x y h)
+                =
+                transportf_square
+                  (assoc' _ _ _ @ id_left _ @ id_left _ @ functor_id _ _)
+                  (assoc' _ _ _ @ id_left _ @ id_left _ @ functor_id _ _)
+                  ((id_v_square _ ⋆h functor_double_id_cell FI y)
+                   ⋆v functor_double_comp_cell FC _ _
+                   ⋆v #<span class="mi">2</span> FF (runitor_h h)))
+  : double_functor_runitor
+      (double_cat_double_runitor C₁)
+      (double_cat_double_runitor C₂)
+      FI FC.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_double_functor_associator_double_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">FF</span> : twosided_disp_functor F F (hor_mor C₁) (hor_mor C₂))
+           (<span class="nv">FC</span> : double_functor_hor_comp
+                   FF
+                   (hor_comp_double_cat C₁)
+                   (hor_comp_double_cat C₂))
+           (<span class="nv">H</span> : ∏ (w x y z : C₁)
+                  (h₁ : w --&gt;h x)
+                  (h₂ : x --&gt;h y)
+                  (h₃ : y --&gt;h z),
+                lassociator_h (FF _ _ h₁) (FF _ _ h₂) (FF _ _ h₃)
+                ⋆v (functor_double_comp_cell FC h₁ h₂ ⋆h id_v_square _)
+                ⋆v functor_double_comp_cell FC (h₁ ·h h₂) h₃
+                =
+                transportf_square
+                  (maponpaths _ (functor_id _ _))
+                  (maponpaths _ (functor_id _ _))
+                  ((id_v_square _ ⋆h functor_double_comp_cell FC h₂ h₃)
+                   ⋆v functor_double_comp_cell FC h₁ (h₂ ·h h₃)
+                   ⋆v #<span class="mi">2</span> FF (lassociator_h h₁ h₂ h₃)))
+  : double_functor_associator
+      (double_cat_double_associator C₁)
+      (double_cat_double_associator C₂)
+      FC.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. Strong double functors *)</span>
+<span class="kn">Definition</span> <span class="nf">is_strong_double_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+  : UU
+  := (∏ (x : C₁),
+      is_iso_twosided_disp
+        (identity_is_z_iso _)
+        (identity_is_z_iso _)
+        (lax_double_functor_id_h F x))
+     ×
+     (∏ (x y z : C₁)
+        (h : x --&gt;h y)
+        (k : y --&gt;h z),
+      is_iso_twosided_disp
+        (identity_is_z_iso _)
+        (identity_is_z_iso _)
+        (lax_double_functor_comp_h F h k)).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_strong_double_functor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            (<span class="nv">F</span> : lax_double_functor C₁ C₂)
+  : isaprop (is_strong_double_functor F).
+<span class="kn">Proof</span>.
+  use isapropdirprod ; <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_iso_strong_double_functor_id_h</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> : lax_double_functor C₁ C₂}
+           (<span class="nv">HF</span> : is_strong_double_functor F)
+           (<span class="nv">x</span> : C₁)
+  : is_iso_twosided_disp
+      (identity_is_z_iso _)
+      (identity_is_z_iso _)
+      (lax_double_functor_id_h F x)
+  := pr1 HF x.
+
+<span class="kn">Definition</span> <span class="nf">is_iso_strong_double_functor_comp_h</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> : lax_double_functor C₁ C₂}
+           (<span class="nv">HF</span> : is_strong_double_functor F)
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C₁}
+           (<span class="nv">h</span> : x --&gt;h y)
+           (<span class="nv">k</span> : y --&gt;h z)
+  : is_iso_twosided_disp
+      (identity_is_z_iso _)
+      (identity_is_z_iso _)
+      (lax_double_functor_comp_h F h k)
+  := pr2 HF x y z h k.
+
+<span class="kn">Proposition</span> <span class="nf">is_strong_double_functor_id</span>
+            (<span class="nv">C</span> : univalent_double_cat)
+  : is_strong_double_functor (id₁ C).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> x.
+    <span class="nb">apply</span> id_is_iso_twosided_disp.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> id_is_iso_twosided_disp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">strong_double_functor</span>
+           (<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat)
+  : UU
+  := ∑ (F : lax_double_functor C₁ C₂), is_strong_double_functor F.
+
+<span class="kn">Coercion</span> <span class="nf">strong_double_functor_to_lax</span>
+         {C₁ C₂ : univalent_double_cat}
+         (F : strong_double_functor C₁ C₂)
+  : lax_double_functor C₁ C₂
+  := pr1 F.
+
+<span class="kn">Coercion</span> <span class="nf">strong_double_functor_to_strong</span>
+         {C₁ C₂ : univalent_double_cat}
+         (F : strong_double_functor C₁ C₂)
+  : is_strong_double_functor F
+  := pr2 F.
+
+<span class="sd">(** * 8. Double transformations *)</span>
+<span class="kn">Definition</span> <span class="nf">double_transformation</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂)
+  : UU
+  := F ==&gt; G.
+
+<span class="sd">(** * 9. Accessors for double transformations *)</span>
+<span class="kn">Definition</span> <span class="nf">double_transformation_to_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+           (<span class="nv">τ</span> : double_transformation F G)
+  : F ⟹ G
+  := pr1 (pr111 τ).
+
+<span class="kn">Coercion</span> <span class="nf">double_transformation_to_nat_trans</span> : double_transformation &gt;-&gt; nat_trans.
+
+<span class="kn">Proposition</span> <span class="nf">double_transformation_ver_mor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+            (<span class="nv">τ</span> : double_transformation F G)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            (<span class="nv">f</span> : x --&gt;v y)
+  : #v F f ·v τ y = τ x ·v #v G f.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (nat_trans_ax τ x y f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_transformation_hor_mor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+           (<span class="nv">τ</span> : double_transformation F G)
+           {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+           (<span class="nv">f</span> : x --&gt;h y)
+  : square (τ x) (τ y) (#h F f) (#h G f)
+  := pr12 (pr111 τ) x y f.
+
+<span class="kn">Proposition</span> <span class="nf">double_transformation_square</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+            (<span class="nv">τ</span> : double_transformation F G)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> : C₁}
+            {<span class="nv">vx</span> : x₁ --&gt;v x₂}
+            {<span class="nv">vy</span> : y₁ --&gt;v y₂}
+            {<span class="nv">h</span> : x₁ --&gt;h y₁}
+            {<span class="nv">k</span> : x₂ --&gt;h y₂}
+            (<span class="nv">s</span> : square vx vy h k)
+  : #s F s ⋆v double_transformation_hor_mor τ k
+    =
+    transportb_square
+      (double_transformation_ver_mor _ _)
+      (double_transformation_ver_mor _ _)
+      (double_transformation_hor_mor τ h ⋆v #s G s).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr22 (pr111 τ) x₁ x₂ y₁ y₂ vx vy h k s).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">double_transformation_id_h</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+            (<span class="nv">τ</span> : double_transformation F G)
+            (<span class="nv">x</span> : C₁)
+  : lax_double_functor_id_h F x ⋆v double_transformation_hor_mor τ (identity_h x)
+    =
+    transportb_square
+      (id_v_left _ @ !(id_v_right _))
+      (id_v_left _ @ !(id_v_right _))
+      (id_h_square (τ x) ⋆v lax_double_functor_id_h G x).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (pr211 τ) x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">double_transformation_comp_h</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+            (<span class="nv">τ</span> : double_transformation F G)
+            {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C₁}
+            (<span class="nv">h</span> : x --&gt;h y)
+            (<span class="nv">k</span> : y --&gt;h z)
+  : lax_double_functor_comp_h F h k
+    ⋆v double_transformation_hor_mor τ (h ·h k)
+    =
+    transportb_square
+      (id_v_left _ @ !(id_v_right _))
+      (id_v_left _ @ !(id_v_right _))
+      ((double_transformation_hor_mor τ h ⋆h double_transformation_hor_mor τ k)
+       ⋆v lax_double_functor_comp_h G h k).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 (pr211 τ) x y z h k).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">double_transformation_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+            {<span class="nv">τ</span> <span class="nv">θ</span> : double_transformation F G}
+            (<span class="nv">p</span> : ∏ (x : C₁), τ x = θ x)
+            (<span class="nv">pp</span> : ∏ (x y : C₁)
+                    (f : x --&gt;h y),
+                double_transformation_hor_mor τ f
+                =
+                transportb_square (p x) (p y) (double_transformation_hor_mor θ f))
+  : τ = θ.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropunit.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="kp">repeat</span> (use isapropdirprod) ; <span class="nb">apply</span> isapropunit.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    use isapropdirprod ; [ <span class="nb">apply</span> isaprop_double_nat_trans_hor_id | ].
+    <span class="nb">apply</span> isaprop_double_nat_trans_hor_comp.
+  }
+  use total2_paths_b.
+  - use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="bp">exact</span> p.
+  - use eq_twosided_disp_nat_trans.
+    <span class="nb">intros</span> x y f.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> transportb_prebicat_twosided_disp_cat.
+    }
+    <span class="nb">refine</span> (_ @ !(pp x y f)).
+    use transportb_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">double_transformation_eq_ob</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+            {<span class="nv">τ</span> <span class="nv">θ</span> : double_transformation F G}
+            (<span class="nv">p</span> : τ = θ)
+            (<span class="nv">x</span> : C₁)
+  : τ x = θ x.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">double_transformation_eq_hor_mor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+            {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+            {<span class="nv">τ</span> <span class="nv">θ</span> : double_transformation F G}
+            (<span class="nv">p</span> : τ = θ)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            (<span class="nv">f</span> : x --&gt;h y)
+  : double_transformation_hor_mor τ f
+    =
+    transportb_square
+      (double_transformation_eq_ob p x)
+      (double_transformation_eq_ob p y)
+      (double_transformation_hor_mor θ f).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+#[<span class="kn">global</span>] <span class="kn">Opaque</span> double_transformation_eq_ob.
+
+<span class="sd">(** * 10. Builder for double transformations *)</span>
+<span class="kn">Definition</span> <span class="nf">make_double_transformation</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+           (<span class="nv">τ</span> : F ⟹ G)
+           (<span class="nv">ττ</span> : twosided_disp_nat_trans
+                   τ τ
+                   (lax_double_functor_hor_mor F)
+                   (lax_double_functor_hor_mor G))
+           (<span class="nv">τI</span> : double_nat_trans_hor_id
+                   ττ
+                   (lax_double_functor_hor_id F)
+                   (lax_double_functor_hor_id G))
+           (<span class="nv">τC</span> : double_nat_trans_hor_comp
+                   ττ
+                   (lax_double_functor_hor_comp F)
+                   (lax_double_functor_hor_comp G))
+  : double_transformation F G.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> ((((_ ,, _) ,, _) ,, (tt ,, tt ,, tt)) ,, tt).
+  - <span class="bp">exact</span> τ.
+  - <span class="bp">exact</span> ττ.
+  - <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    + <span class="bp">exact</span> τI.
+    + <span class="bp">exact</span> τC.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The following builders incorporate the notation for double categories *)</span>
+<span class="kn">Definition</span> <span class="nf">twosided_disp_nat_trans_double_cat_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           (<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂)
+           (<span class="nv">τ</span> : F ⟹ G)
+  : UU
+  := ∏ (x y : C₁)
+       (h : x --&gt;h y),
+     square (τ x) (τ y) (#h F h) (#h G h).
+
+<span class="kn">Definition</span> <span class="nf">twosided_disp_nat_trans_double_cat_laws</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+           {<span class="nv">τ</span> : F ⟹ G}
+           (<span class="nv">ττ</span> : twosided_disp_nat_trans_double_cat_data F G τ)
+  : UU
+  := ∏ (x₁ x₂ y₁ y₂ : C₁)
+       (v : x₁ --&gt;v x₂)
+       (w : y₁ --&gt;v y₂)
+       (h : x₁ --&gt;h y₁)
+       (k : x₂ --&gt;h y₂)
+       (s : square v w h k),
+     #s F s ⋆v ττ _ _ k
+     =
+     transportb_square
+       (nat_trans_ax _ _ _ _)
+       (nat_trans_ax _ _ _ _)
+       (ττ _ _ h ⋆v #s G s).
+
+<span class="kn">Definition</span> <span class="nf">make_twosided_disp_nat_trans_double_cat</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+           (<span class="nv">τ</span> : F ⟹ G)
+           (<span class="nv">ττ</span> : twosided_disp_nat_trans_double_cat_data F G τ)
+           (<span class="nv">Hττ</span> : twosided_disp_nat_trans_double_cat_laws ττ)
+  : twosided_disp_nat_trans
+      τ τ
+      (lax_double_functor_hor_mor F)
+      (lax_double_functor_hor_mor G)
+  := ττ ,, Hττ.
+
+<span class="kn">Definition</span> <span class="nf">make_double_nat_trans_hor_id</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+           (<span class="nv">τ</span> : F ⟹ G)
+           (<span class="nv">ττ</span> : twosided_disp_nat_trans
+                   τ τ
+                   (lax_double_functor_hor_mor F)
+                   (lax_double_functor_hor_mor G))
+           (<span class="nv">H</span> : ∏ (x : C₁),
+                lax_double_functor_id_h F x ⋆v ττ x x (identity_h x)
+                =
+                transportb_square
+                  (id_left _ @ !(id_right _))
+                  (id_left _ @ !(id_right _))
+                  (id_h_square (τ x) ⋆v lax_double_functor_id_h G x))
+  : double_nat_trans_hor_id
+      ττ
+      (lax_double_functor_hor_id F)
+      (lax_double_functor_hor_id G).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_double_nat_trans_hor_comp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_double_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : lax_double_functor C₁ C₂}
+           (<span class="nv">τ</span> : F ⟹ G)
+           (<span class="nv">ττ</span> : twosided_disp_nat_trans
+                   τ τ
+                   (lax_double_functor_hor_mor F)
+                   (lax_double_functor_hor_mor G))
+           (<span class="nv">H</span> : ∏ (x y z : C₁)
+                  (h : x --&gt;h y)
+                  (k : y --&gt;h z),
+                lax_double_functor_comp_h F h k ⋆v ττ _ _ (h ·h k)
+                =
+                transportb_disp_mor2
+                  (id_left _ @ !(id_right _))
+                  (id_left _ @ !(id_right _))
+                  ((ττ _ _ h ⋆h ττ _ _ k) ⋆v lax_double_functor_comp_h G h k))
+  : double_nat_trans_hor_comp
+      ττ
+      (lax_double_functor_hor_comp F)
+      (lax_double_functor_hor_comp G).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> H.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Core/UnivalentDoubleCats.v</tt>, line 23)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  10. Builder for double transformations
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

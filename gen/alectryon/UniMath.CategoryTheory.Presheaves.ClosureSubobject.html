@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ClosureSubobject.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Closure of subobjects of sheaves</span>
+
+<span class="sd"> There are various ways to construct the sheafification of a presheaf. While the most common</span>
+<span class="sd"> one is the ++-construction, this construction has some disadvantages in a constructive</span>
+<span class="sd"> setting. In essence, the reason is that one needs to take a quotient inductive type that</span>
+<span class="sd"> has a constructor of an infinite arity, and one needs some form of choice (i.e., axiom of</span>
+<span class="sd"> multiple choice or WISC) to get such higher inductive types. An alternative construction can</span>
+<span class="sd"> be found in Section V.3 in 'Sheaves in Geometry and Logic' by Mac Lane and Moerdijk where</span>
+<span class="sd"> the sheafification is constructed for arbitrary toposes with a Lawvere-Tierney topology. They</span>
+<span class="sd"> use multiple steps to construct the sheafification, and one of the steps involves taking the</span>
+<span class="sd"> closure of a subobject of a sheaf.</span>
+
+<span class="sd"> Let's say that we have some sheaf `B` and a monomorphism `τ` from a presheaf `A` into `B`. To</span>
+<span class="sd"> construct the closure of `A`, we first note that `τ` gives rise to a morphism, which we call</span>
+<span class="sd"> `χ`, from `B` to the subobject classifier of presheaves. Recall that the subobject classifier</span>
+<span class="sd"> of presheaves is given by all sieves, and that the subobject classifier of sheaves is given</span>
+<span class="sd"> by all closed sieves. Hence, we can take a morphism from `B` to the subobject classifier of</span>
+<span class="sd"> sheaves by taking the closure of sieves. This morphism, which we call `χ'`, gives rise to a</span>
+<span class="sd"> monomorphism into `B` in the category of sheaves, and this gives us the closure of the</span>
+<span class="sd"> subobject `A`. We denote this subobject by `A'`.</span>
+
+<span class="sd"> An interesting aspect of this construction is that every morphism from `A` to a sheaf `Z` can</span>
+<span class="sd"> uniquely be extend to `A'`. In fact, this property uniquely characterises the notion of</span>
+<span class="sd"> sheaves, and it is how sheaves are defined for Lawvere-Tierney topologies. We prove the</span>
+<span class="sd"> extension property as well.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - 'Sheaves in Geometry and Logic' by Mac Lane and Moerdijk</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Closure of subobjects</span>
+<span class="sd"> 2. Extending morphisms to the closure</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.DependentPresheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifierSheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ConstructionsSheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.ClosedSieves.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Closure</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : site}
+          {<span class="nv">A</span> : C^op ⟶ HSET}
+          {<span class="nv">B</span> : sheaf C}
+          {<span class="nv">τ</span> : A ⟹ B}
+          (<span class="nv">Hτ</span> : isMonic (C := PreShv C) τ).
+
+  <span class="sd">(** * 1. Closure of subobjects *)</span>
+  <span class="kn">Definition</span> <span class="nf">subobject_closure_nat_trans</span>
+    : sheaf_nat_trans B subobject_classifier_sheaf.
+  <span class="kn">Proof</span>.
+    use make_sheaf_nat_trans.
+    <span class="bp">exact</span> (nat_trans_comp
+             _ _ _
+             (psh_characteristic_mor τ Hτ)
+             subobject_classifier_psh_closure).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">closure_subobject_pullback</span>
+    : Pullback
+        subobject_closure_nat_trans
+        subobject_classifier_sheaf_truth
+    := pullback_cat_of_sheaves
+         C
+         _ _ _
+         subobject_closure_nat_trans
+         subobject_classifier_sheaf_truth.
+
+  <span class="kn">Definition</span> <span class="nf">closure_subobject_pullback_psh</span>
+    : Pullback
+        (C := PreShv C)
+        (pr1 subobject_closure_nat_trans)
+        (pr1 subobject_classifier_sheaf_truth)
+    := functor_preserves_pullback_on_pullback
+         (F := sheaf_incl C)
+         (pullback_cat_of_sheaves C)
+         (preserves_pb_sheaf_incl C)
+         subobject_closure_nat_trans
+         subobject_classifier_sheaf_truth.
+
+  <span class="kn">Definition</span> <span class="nf">closure_subobject</span>
+    : sheaf C
+    := PullbackObject closure_subobject_pullback.
+
+  <span class="kn">Definition</span> <span class="nf">closure_subobject_mor</span>
+    : A ⟹ closure_subobject.
+  <span class="kn">Proof</span>.
+    use (PullbackArrow closure_subobject_pullback_psh).
+    - <span class="bp">exact</span> τ.
+    - <span class="bp">exact</span> (TerminalArrow Terminal_PreShv A).
+    - <span class="kp">abstract</span>
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> x ;
+         use funextsec ;
+         <span class="nb">intro</span> a ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> maponpaths ;
+         use closed_sieve_eq ;
+         use sieve_eq ; [ <span class="nb">intros</span> ; <span class="nb">apply</span> tt | ] ;
+         <span class="nb">intros</span> y g [] ;
+         use closure_sieve_contains ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (#A g a ,, _) ;
+         <span class="bp">exact</span> (eqtohomot (nat_trans_ax τ _ _ g) a)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isMonic_closure_subobject_mor</span>
+    : isMonic (C := PreShv C) closure_subobject_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> Z θ₁ θ₂ p.
+    use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">intros</span> x.
+    use funextsec.
+    <span class="nb">intros</span> z.
+    use (isMonic_presheaf_injective Hτ).
+    <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">w</span>, pr11 w) (eqtohomot (nat_trans_eq_pointwise p x) z)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 2. Extending morphisms to the closure *)</span>
+  <span class="kn">Context</span> (<span class="nv">Z</span> : sheaf C).
+
+  <span class="kn">Definition</span> <span class="nf">restrict_mor_from_closure</span>
+             (<span class="nv">θ</span> : closure_subobject ⟹ Z)
+    : A ⟹ Z
+    := nat_trans_comp
+         _ _ _
+         closure_subobject_mor
+         θ.
+
+  <span class="kn">Section</span> <span class="nf">Extension</span>.
+    <span class="kn">Context</span> (<span class="nv">θ</span> : A ⟹ Z).
+
+    <span class="kn">Definition</span> <span class="nf">extend_mor_matching_family</span>
+               {<span class="nv">x</span> : C}
+               (<span class="nv">b</span> : (B x : hSet))
+      : matching_family
+          Z
+          (fiber_sieve (psh_characteristic_mor_monic τ Hτ) (xx := tt) b).
+    <span class="kn">Proof</span>.
+      use make_matching_family.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">a</span>, θ y (pr1 a)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ; <span class="nb">unfold</span> in_fiber ; <span class="nb">cbn</span> ;
+           <span class="nb">intros</span> y₁ y₂ f₁ f₂ g p [ a₁ q₁ ] [ a₂ q₂ ] ;
+           <span class="nb">induction</span> p ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">refine</span> (!(eqtohomot (nat_trans_ax θ _ _ g) a₂) @ _) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">apply</span> maponpaths ;
+           use (isMonic_presheaf_injective Hτ) ;
+           <span class="nb">refine</span> (eqtohomot (nat_trans_ax τ _ _ g) a₂ @ _) ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> q₂ ;
+           <span class="nb">refine</span> (!(eqtohomot (functor_comp B f₂ g) b) @ _) ;
+           <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (!q₁)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">extend_mor_to_closure_covering</span>
+                {<span class="nv">x</span> : C}
+                (<span class="nv">b</span> : (closure_subobject x : hSet))
+      : C x (fiber_sieve (psh_characteristic_mor_monic τ Hτ) (xx := tt) (pr11 b)).
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (fiber_paths (pr2 b)) <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> transportf_const <span class="k">in</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">pose</span> (from_sieve_eq_r (sieve_eq_from_closed p) (identity _) tt) <span class="k">as</span> q.
+      <span class="nb">cbn</span> <span class="k">in</span> q.
+      <span class="nb">rewrite</span> id_precomp_sieve <span class="k">in</span> q.
+      <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">extend_mor_to_closure_data</span>
+      : nat_trans_data closure_subobject Z.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x b.
+      <span class="bp">exact</span> (sheaf_amalgamation
+               (is_sheaf_sheaf Z)
+               (extend_mor_to_closure_covering b)
+               (extend_mor_matching_family (pr11 b))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Arguments</span> extend_mor_to_closure_data /.
+
+    <span class="kn">Proposition</span> <span class="nf">extend_mor_to_closure_laws</span>
+      : is_nat_trans _ _ extend_mor_to_closure_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f.
+      use funextsec.
+      <span class="nb">intro</span> b.
+      <span class="nb">cbn</span> -[extend_mor_matching_family closure_subobject].
+      <span class="nb">simple refine</span> (sheaf_amalgamation_unique (is_sheaf_sheaf Z) _ _ _).
+      - <span class="bp">exact</span> (fiber_sieve
+                 (psh_characteristic_mor_monic τ Hτ)
+                 (xx := tt)
+                 (pr11 (# closure_subobject f b))).
+      - <span class="bp">exact</span> (extend_mor_to_closure_covering (# closure_subobject f b)).
+      - <span class="bp">exact</span> (extend_mor_matching_family (pr11 (# closure_subobject f b))).
+      - <span class="nb">intros</span> z g p.
+        <span class="bp">exact</span> (amalgamation_restr _ g p).
+      - <span class="nb">cbn</span> ; <span class="nb">unfold</span> in_fiber ; <span class="nb">cbn</span>.
+        <span class="nb">intros</span> z g [ a p ].
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!(eqtohomot (functor_comp Z f g) _) @ _).
+        etrans.
+        {
+          use amalgamation_restr.
+          <span class="nb">refine</span> (a ,, _).
+          <span class="nb">unfold</span> in_fiber ; <span class="nb">cbn</span>.
+          <span class="nb">refine</span> (p @ _).
+          <span class="nb">apply</span> (eqtohomot (!(functor_comp B f g))).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">extend_mor_to_closure</span>
+      : closure_subobject ⟹ Z.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> extend_mor_to_closure_data.
+      - <span class="bp">exact</span> extend_mor_to_closure_laws.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">extend_mor_to_closure_restrict_pt</span>
+                {<span class="nv">x</span> : C}
+                (<span class="nv">a</span> : (A x : hSet))
+      : extend_mor_to_closure x (closure_subobject_mor x a) = θ x a.
+    <span class="kn">Proof</span>.
+      <span class="nb">cbn</span> -[closure_subobject_mor].
+      use (sheaf_amalgamation_unique
+             (is_sheaf_sheaf Z)
+             _
+             (z := extend_mor_matching_family (τ x a))).
+      - <span class="nb">refine</span> (transportb (C x) _ (site_truth_sieve _)).
+        use sieve_eq.
+        + <span class="nb">intros</span>.
+          <span class="nb">apply</span> tt.
+        + <span class="nb">cbn</span>.
+          <span class="nb">intros</span>.
+          <span class="nb">refine</span> (#A g a ,, _).
+          <span class="nb">unfold</span> in_fiber ; <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (eqtohomot (nat_trans_ax τ _ _ g) a).
+      - <span class="nb">intros</span> y f p.
+        <span class="nb">apply</span> amalgamation_restr.
+      - <span class="nb">cbn</span> ; <span class="nb">unfold</span> in_fiber ; <span class="nb">cbn</span>.
+        <span class="nb">intros</span> y f p.
+        <span class="nb">refine</span> (!(eqtohomot (nat_trans_ax θ _ _ f) a) @ _).
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> maponpaths.
+        use (isMonic_presheaf_injective Hτ).
+        <span class="nb">refine</span> (_ @ !(pr2 p)).
+        <span class="bp">exact</span> (eqtohomot (nat_trans_ax τ _ _ f) a).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">extend_mor_to_closure_restrict</span>
+      : restrict_mor_from_closure extend_mor_to_closure = θ.
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intros</span> x.
+      use funextsec.
+      <span class="nb">intros</span> a.
+      <span class="bp">exact</span> (extend_mor_to_closure_restrict_pt a).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">extend_mor_to_closure_unique</span>
+                {<span class="nv">ζ₁</span> <span class="nv">ζ₂</span> : closure_subobject ⟹ Z}
+                (<span class="nv">p</span> : restrict_mor_from_closure ζ₁ = θ)
+                (<span class="nv">q</span> : restrict_mor_from_closure ζ₂ = θ)
+      : ζ₁ = ζ₂.
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x.
+      use funextsec.
+      <span class="nb">intro</span> b.
+      use (sheaf_amalgamation_unique
+             (is_sheaf_sheaf Z)).
+      - <span class="bp">exact</span> (fiber_sieve (psh_characteristic_mor_monic τ Hτ) (xx := tt) (pr11 b)).
+      - <span class="nb">apply</span> extend_mor_to_closure_covering.
+      - <span class="nb">apply</span> extend_mor_matching_family.
+      - <span class="nb">cbn</span> ; <span class="nb">unfold</span> in_fiber ; <span class="nb">cbn</span>.
+        <span class="nb">intros</span> y f [ a r ].
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (_ @ eqtohomot (nat_trans_eq_pointwise p y) a).
+        <span class="nb">refine</span> (!(eqtohomot (nat_trans_ax ζ₁ _ _ f) b) @ _).
+        <span class="nb">cbn</span> -[closure_subobject_mor closure_subobject].
+        <span class="nb">apply</span> maponpaths.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> setproperty.
+        }
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isapropunit.
+        }
+        <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (!r).
+      - <span class="nb">cbn</span> ; <span class="nb">unfold</span> in_fiber ; <span class="nb">cbn</span>.
+        <span class="nb">intros</span> y f [ a r ].
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (_ @ eqtohomot (nat_trans_eq_pointwise q y) a).
+        <span class="nb">refine</span> (!(eqtohomot (nat_trans_ax ζ₂ _ _ f) b) @ _).
+        <span class="nb">cbn</span> -[closure_subobject_mor closure_subobject].
+        <span class="nb">apply</span> maponpaths.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> setproperty.
+        }
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isapropunit.
+        }
+        <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (!r).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">Extension</span>.
+<span class="kn">End</span> <span class="nf">Closure</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/ClosureSubobject.v</tt>, line 37)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Extending morphisms to the closure
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Presheaf.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

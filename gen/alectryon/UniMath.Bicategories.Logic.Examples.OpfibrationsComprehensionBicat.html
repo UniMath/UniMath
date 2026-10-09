@@ -1,0 +1,459 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OpfibrationsComprehensionBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************</span>
+
+<span class="sd"> The comprehension bicategory of opfibrations</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The comprehension pseudofunctor</span>
+<span class="sd"> 2. Preservation of cartesian 1-cells</span>
+<span class="sd"> 3. Preservation of opcartesian 2-cells</span>
+<span class="sd"> 4. The comprehension bicategory</span>
+
+<span class="sd"> *******************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.StreetFibration.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Reindexing.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispPseudofunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CartesianPseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.CodomainCleaving.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.ExamplesOfCleavings.OpFibrationCleaving.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.OpCellBicatLimits.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Examples.Identity.
+<span class="kn">Require Import</span> UniMath.Bicategories.Logic.ComprehensionBicat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. The comprehension pseudofunctor</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">opcleaving_comprehension_data</span>
+  : disp_psfunctor_data
+      disp_bicat_of_opcleaving
+      (cod_disp_bicat bicat_of_univ_cats)
+      (id_psfunctor bicat_of_univ_cats).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">D</span>, total_univalent_category (pr1 D) ,, pr1_category _).
+  - <span class="nb">intros</span> C₁ C₂ F D₁ D₂ FF.
+    use make_disp_1cell_cod.
+    + <span class="bp">exact</span> (total_functor (pr1 FF)).
+    + use nat_z_iso_to_invertible_2cell.
+      <span class="bp">exact</span> (total_functor_commute_z_iso (pr1 FF)).
+  - <span class="nb">intros</span> C₁ C₂ F G α D₁ D₂ FF GG αα.
+    use make_disp_2cell_cod.
+    + <span class="bp">exact</span> (total_nat_trans (pr1 αα)).
+    + <span class="kp">abstract</span>
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id_left, id_right ;
+         <span class="nb">apply</span> idpath).
+  - <span class="nb">intros</span> C D.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + use make_disp_2cell_cod.
+      * <span class="bp">exact</span> (total_functor_identity (pr11 D)).
+      * <span class="kp">abstract</span>
+          (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">intros</span> x ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !id_left ;
+           <span class="nb">apply</span> idpath).
+    + use is_disp_invertible_2cell_cod.
+      use is_nat_z_iso_to_is_invertible_2cell.
+      <span class="nb">intro</span> x.
+      <span class="nb">apply</span> identity_is_z_iso.
+  - <span class="nb">intros</span> C₁ C₂ C₃ F G D₁ D₂ D₃ FF GG.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + use make_disp_2cell_cod.
+      * <span class="bp">exact</span> (total_functor_comp (pr1 FF) (pr1 GG)).
+      * <span class="kp">abstract</span>
+          (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">intros</span> x ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !id_left, !id_right ;
+           <span class="nb">apply</span> functor_id).
+    + use is_disp_invertible_2cell_cod.
+      use is_nat_z_iso_to_is_invertible_2cell.
+      <span class="nb">intro</span> x.
+      <span class="nb">apply</span> identity_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">opcleaving_comprehension_is_disp_psfunctor</span>
+  : is_disp_psfunctor
+      disp_bicat_of_opcleaving
+      (cod_disp_bicat bicat_of_univ_cats)
+      (id_psfunctor bicat_of_univ_cats)
+      opcleaving_comprehension_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ;
+    (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ]).
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over _ _)).
+    <span class="nb">apply</span> nat_trans_eq ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over _ _)).
+    <span class="nb">apply</span> nat_trans_eq ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over (psfunctor_lunitor _ _) _)).
+    <span class="nb">apply</span> nat_trans_eq ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    use total2_paths_f ; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> functor_id, !id_right ;
+         <span class="nb">apply</span> idpath).
+    + <span class="nb">rewrite</span> !id_right_disp.
+      <span class="nb">rewrite</span> disp_functor_id.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over (psfunctor_runitor _ _) _)).
+    <span class="nb">apply</span> nat_trans_eq ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    use total2_paths_f ; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !id_right ;
+         <span class="nb">apply</span> idpath).
+    + <span class="nb">rewrite</span> !id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over
+                    (psfunctor_lassociator _ _ _ _) _)).
+    <span class="nb">apply</span> nat_trans_eq ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    use total2_paths_f ; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> functor_id, !id_right ;
+         <span class="nb">apply</span> idpath).
+    + <span class="nb">rewrite</span> !id_right_disp, !id_left_disp.
+      <span class="nb">rewrite</span> disp_functor_id.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over
+                    (psfunctor_lwhisker _ _ _) _)).
+    <span class="nb">apply</span> nat_trans_eq ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    use total2_paths_f ; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !id_right, !id_left ;
+         <span class="nb">apply</span> idpath).
+    + <span class="nb">rewrite</span> !id_right_disp, !id_left_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  - <span class="nb">refine</span> (_ @ !(transportb_cell_of_cod_over
+                    (psfunctor_rwhisker _ _ _) _)).
+    <span class="nb">apply</span> nat_trans_eq ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    use total2_paths_f ; <span class="nb">cbn</span>.
+    + <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !id_right, !id_left ;
+         <span class="nb">apply</span> idpath).
+    + <span class="nb">rewrite</span> !id_right_disp, !id_left_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">opcleaving_comprehension</span>
+  : disp_psfunctor
+      disp_bicat_of_opcleaving
+      (cod_disp_bicat bicat_of_univ_cats)
+      (id_psfunctor bicat_of_univ_cats).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> opcleaving_comprehension_data.
+  - <span class="bp">exact</span> opcleaving_comprehension_is_disp_psfunctor.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Preservation of cartesian 1-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">global_cartesian_opcleaving_comprehension</span>
+  : global_cartesian_disp_psfunctor opcleaving_comprehension.
+<span class="kn">Proof</span>.
+  use preserves_global_lifts_to_cartesian.
+  - <span class="bp">exact</span> univalent_cat_is_univalent_2.
+  - <span class="bp">exact</span> (cod_disp_univalent_2 _ univalent_cat_is_univalent_2).
+  - <span class="bp">exact</span> opcleaving_global_cleaving.
+  - <span class="nb">intros</span> C₁ C₂ F D₁.
+    use is_pb_to_cartesian_1cell.
+    <span class="nb">apply</span> reindexing_has_pb_ump.
+    <span class="nb">apply</span> iso_cleaving_from_opcleaving.
+    <span class="bp">exact</span> (pr2 D₁).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Preservation of opcartesian 2-cells</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">LocalOpCartesianOpFibration</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_of_univ_cats}
+          {<span class="nv">F₁</span> <span class="nv">F₂</span> : C₁ --&gt; C₂}
+          (<span class="nv">α</span> : F₁ ==&gt; F₂)
+          {<span class="nv">D₁</span> : disp_bicat_of_opcleaving C₁}
+          {<span class="nv">D₂</span> : disp_bicat_of_opcleaving C₂}
+          {<span class="nv">FF₁</span> : D₁ --&gt;[ F₁ ] D₂}
+          {<span class="nv">FF₂</span> : D₁ --&gt;[ F₂ ] D₂}
+          (<span class="nv">αα</span> : disp_2cells α FF₁ FF₂)
+          (<span class="nv">Hαα</span> : ∏ (x : C₁ : univalent_category)
+                   (xx : (pr1 D₁ : disp_univalent_category _) x),
+                 is_opcartesian ((pr11 αα) x xx))
+          (<span class="nv">G</span> : bicat_of_univ_cats
+                 ⟦ total_univalent_category (pr1 D₁)
+                   ,
+                   total_univalent_category (pr1 D₂) ⟧)
+          (<span class="nv">tot_FF₁</span> := (total_functor (pr1 FF₁)
+                       : bicat_of_univ_cats
+                           ⟦ total_univalent_category (pr1 D₁)
+                             ,
+                             total_univalent_category (pr1 D₂) ⟧))
+          (<span class="nv">tot_FF₂</span> := (total_functor (pr1 FF₂)
+                       : bicat_of_univ_cats
+                           ⟦ total_univalent_category (pr1 D₁)
+                             ,
+                             total_univalent_category (pr1 D₂) ⟧))
+          (<span class="nv">tot_αα</span> := total_nat_trans (pr1 αα) : tot_FF₁ ==&gt; tot_FF₂)
+          (<span class="nv">γ</span> : tot_FF₁ ==&gt; G)
+          (<span class="nv">δp</span> : tot_FF₂ · pr1_category _ ==&gt; G · pr1_category _)
+          (<span class="nv">q</span> : post_whisker γ (pr1_category (pr11 D₂))
+               =
+               nat_trans_comp
+                 _ _ _
+                 (post_whisker (total_nat_trans (pr1 αα)) (pr1_category _))
+                 δp).
+
+  <span class="kn">Definition</span> <span class="nf">local_opcartesian_opcleaving_lift_data</span>
+    : nat_trans_data (pr1 tot_FF₂) (pr1 G).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 δp x ,, _) ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (opcartesian_factorisation (Hαα (pr1 x) (pr2 x)) _ _).
+    <span class="bp">exact</span> (transportf
+             (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ] _)
+             (nat_trans_eq_pointwise q x)
+             (pr2 (pr1 γ x))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">local_opcartesian_opcleaving_lift_is_nat_trans</span>
+    : is_nat_trans _ _ local_opcartesian_opcleaving_lift_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+    use total2_paths_f.
+    - <span class="bp">exact</span> (nat_trans_ax δp x y f).
+    - use (opcartesian_factorisation_unique (Hαα (pr1 x) (pr2 x))).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> assoc_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> opcartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="bp">exact</span> (transportf_transpose_left (disp_nat_trans_ax (pr1 αα) (pr2 f))).
+      }
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">rewrite</span> assoc_disp_var.
+      <span class="nb">rewrite</span> opcartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> !transport_f_f.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (transportb_transpose_right (fiber_paths (nat_trans_ax γ _ _ f))).
+      }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">local_opcartesian_opcleaving_lift</span>
+    : tot_FF₂ ==&gt; G.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> local_opcartesian_opcleaving_lift_data.
+    - <span class="bp">exact</span> local_opcartesian_opcleaving_lift_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">local_opcartesian_opcleaving_lift_over</span>
+    : local_opcartesian_opcleaving_lift ▹ _ = δp.
+  <span class="kn">Proof</span>.
+    use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">local_opcartesian_opcleaving_lift_comm</span>
+    : tot_αα • local_opcartesian_opcleaving_lift
+      =
+      γ.
+  <span class="kn">Proof</span>.
+    use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ].
+    <span class="nb">intro</span> x.
+    <span class="nb">cbn</span>.
+    use total2_paths_f.
+    - <span class="bp">exact</span> (!(nat_trans_eq_pointwise q x)).
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> opcartesian_factorisation_commutes.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> transportf_set.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">local_opcartesian_opcleaving_lift_unique</span>
+    : isaprop
+        (∑ δ,
+         δ ▹ _ = δp
+         ×
+         tot_αα • δ = γ).
+  <span class="kn">Proof</span>.
+    use invproofirrelevance.
+    <span class="nb">intros</span> φ₁ φ₂.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property.
+    }
+    use nat_trans_eq.
+    {
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">intro</span> x.
+    use total2_paths_f.
+    - <span class="bp">exact</span> (nat_trans_eq_pointwise (pr12 φ₁) x
+             @ !(nat_trans_eq_pointwise (pr12 φ₂) x)).
+    - use (opcartesian_factorisation_unique (Hαα (pr1 x) (pr2 x))).
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (transportb_transpose_right
+                 (fiber_paths (nat_trans_eq_pointwise (pr22 φ₁) x))).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="bp">exact</span> (transportb_transpose_right
+                 (fiber_paths (nat_trans_eq_pointwise (pr22 φ₂) x))).
+      }
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">LocalOpCartesianOpFibration</span>.
+
+<span class="kn">Definition</span> <span class="nf">local_opcartesian_opcleaving_comprehension</span>
+  : local_opcartesian_disp_psfunctor opcleaving_comprehension.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> C₁ C₂ F₁ F₂ α D₁ D₂ FF₁ FF₂ αα Hαα.
+  <span class="nb">apply</span> is_opcartesian_2cell_sopfib_to_is_opcartesian_2cell ; <span class="nb">cbn</span>.
+  <span class="nb">pose</span> (opcleaving_of_opcleaving_opcartesian_2cell_is_pointwise_opcartesian _ Hαα) <span class="k">as</span> p.
+  <span class="nb">intros</span> G γ δp q.
+  use iscontraprop1.
+  - <span class="bp">exact</span> (local_opcartesian_opcleaving_lift_unique α αα p G γ δp).
+  - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    + <span class="bp">exact</span> (local_opcartesian_opcleaving_lift α αα p G γ δp q).
+    + <span class="bp">exact</span> (local_opcartesian_opcleaving_lift_over α αα p G γ δp q).
+    + <span class="bp">exact</span> (local_opcartesian_opcleaving_lift_comm α αα p G γ δp q).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. The comprehension bicategory</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">opcleaving_comprehension_bicat_structure</span>
+  : comprehension_bicat_structure bicat_of_univ_cats.
+<span class="kn">Proof</span>.
+  use make_comprehension_bicat_structure.
+  - <span class="bp">exact</span> disp_bicat_of_opcleaving.
+  - <span class="bp">exact</span> opcleaving_comprehension.
+  - <span class="bp">exact</span> opcleaving_global_cleaving.
+  - <span class="bp">exact</span> global_cartesian_opcleaving_comprehension.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">opcleaving_comprehension_is_covariant</span>
+  : is_covariant opcleaving_comprehension_bicat_structure.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="bp">exact</span> cleaving_of_opcleaving_local_opcleaving.
+  - <span class="bp">exact</span> cleaving_of_opcleaving_lwhisker_opcartesian.
+  - <span class="bp">exact</span> cleaving_of_opcleaving_rwhisker_opcartesian.
+  - <span class="bp">exact</span> local_opcartesian_opcleaving_comprehension.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">opcleaving_comprehension_bicat</span>
+  : comprehension_bicat
+  := _ ,, _ ,, opcleaving_comprehension_is_covariant.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Logic/Examples/OpfibrationsComprehensionBicat.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The comprehension bicategory
+  &gt;
+  &gt;  *******************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

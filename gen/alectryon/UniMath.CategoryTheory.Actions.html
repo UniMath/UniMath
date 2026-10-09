@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Actions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Actions</span>
+
+<span class="sd">    Author: Langston Barrett (@siddharthist)</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(** ** Contents</span>
+<span class="sd">    - Strutures on morphisms</span>
+<span class="sd">      - Endomorphisms and the endomorphism monoid ([endomorphism_monoid])</span>
+<span class="sd">      - Automorphisms and the automorphism group ([automorphism_grp])</span>
+<span class="sd">      - The endomorphism ring in an additive category ([endomorphism_ring])</span>
+<span class="sd">    - Algebraic structures as categories</span>
+<span class="sd">      - Lemmas about categories with one object ([contr_cat])</span>
+<span class="sd">      - Monoids</span>
+<span class="sd">        - Monoids as categories ([monoid_weq_contr_category])</span>
+<span class="sd">        - Monoid morphisms as functors ([monoid_fun_weq_functor])</span>
+<span class="sd">      - Groups</span>
+<span class="sd">        - Groups as groupoids</span>
+<span class="sd">        - Group morphisms as functors</span>
+<span class="sd">      - Rings</span>
+<span class="sd">    - Actions</span>
+<span class="sd">      - As homomorphisms</span>
+<span class="sd">        - Monoid (group) actions ([monaction_as_morphism])</span>
+<span class="sd">        - Ring actions ([ringaction_as_morphism])</span>
+<span class="sd">      - As functors</span>
+<span class="sd">        - Equivariant maps</span>
+<span class="sd">        - Monoid (group) actions ([monaction])</span>
+<span class="sd">        - Ring actions</span>
+<span class="sd">    - Theory</span>
+<span class="sd">        - Translation groupoid ([translation_groupoid])</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(** TODO:</span>
+<span class="sd"> 1. Rephrase definitions, prove equivalences with the originals:</span>
+<span class="sd">   - Modules as abelian groups with a ring  action</span>
+<span class="sd">   - Group actions (Algebra/GroupAction) as sets with a group action</span>
+<span class="sd"> 2. Prove equivalence of rings as one-object categories</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.Preamble.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Monoid.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+
+<span class="c">(* For the endomorphism ring  *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoriesWithBinOps.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PreAdditive.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoriesWithAbgrops.
+
+<span class="c">(* For the symmetric group *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** Structures on morphisms *)</span>
+
+<span class="sd">(** *** Endomorphisms and the endomorphism monoid *)</span>
+
+<span class="sd">(** Endomorphisms of X are arrows X --&gt; X *)</span>
+<span class="kn">Definition</span> <span class="nf">endomorphisms</span> {<span class="nv">C</span> : precategory} (<span class="nv">X</span> : ob C) : UU := (X --&gt; X).
+
+<span class="sd">(** When the hom-types of C are sets, we can form the endomorphism monoid *)</span>
+<span class="kn">Definition</span> <span class="nf">endomorphism_monoid</span> {<span class="nv">C</span> : category} (<span class="nv">X</span> : ob C) : monoid.
+<span class="kn">Proof</span>.
+  use make_monoid.
+  - use make_setwithbinop.
+    + use make_hSet.
+      * <span class="bp">exact</span> (X --&gt; X).
+      * <span class="nb">apply</span> homset_property.
+    + <span class="bp">exact</span> (@compose C X X X).
+  - use make_dirprod.
+    + <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">x</span> <span class="nv">x'</span> <span class="nv">x''</span> =&gt; !(@assoc C _ _ _ _ x x' x'')).
+    + <span class="nb">refine</span> (identity X,, _).
+      <span class="nb">split</span>.
+      * <span class="bp">exact</span> (@id_left C X X).
+      * <span class="bp">exact</span> (@id_right C X X).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The automorphism group is a submonoid of the endomorphism monoid *)</span>
+
+<span class="sd">(** When the hom-types of C are sets, we can form the automorphism grp *)</span>
+<span class="kn">Definition</span> <span class="nf">automorphism_grp</span> {<span class="nv">C</span> : category} (<span class="nv">X</span> : ob C) : gr :=
+  gr_merely_invertible_elements (endomorphism_monoid X).
+
+<span class="kn">Example</span> <span class="nf">symmetric_grp</span> (<span class="nv">X</span> : hSet) := @automorphism_grp hset_category X.
+
+<span class="sd">(** *** The endomorphism ring in an additive category *)</span>
+
+<span class="kn">Definition</span> <span class="nf">endomorphism_ring</span> {<span class="nv">C</span> : PreAdditive}
+           (<span class="nv">X</span> : ob (PreAdditive_categoryWithAbgrops C)) : <span class="bp">ring</span>.
+<span class="kn">Proof</span>.
+  <span class="sd">(** The multiplication operation is composition, we reuse the proof</span>
+<span class="sd">      from the endomorphism monoid. The addition operation is the addition</span>
+<span class="sd">      on homsets, we extract this with to_binop *)</span>
+  <span class="nb">pose</span> (end_monoid := @endomorphism_monoid (PreAdditive_categoryWithAbgrops C) X).
+  <span class="nb">refine</span> ((pr1 (pr1 end_monoid),,
+          make_dirprod (to_binop X X) (pr2 (pr1 end_monoid))),, _).
+
+  <span class="nb">split</span>; <span class="nb">split</span>.
+  <span class="sd">(** We know by assumption on C that + is an abgrop.*)</span>
+  - <span class="bp">exact</span> (to_isabgrop _ _).
+  <span class="sd">(** We already proved this *)</span>
+  - <span class="bp">exact</span> (pr2 end_monoid).
+  <span class="sd">(** By assumption on C *)</span>
+  - <span class="nb">intros</span> f g h; <span class="nb">apply</span> (to_premor_monoid C _ _ _ h).
+  - <span class="nb">intros</span> f g h; <span class="nb">apply</span> (to_postmor_monoid C _ _ _ h).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Algebraic structures as categories *)</span>
+
+<span class="sd">(** *** Lemmas about categories with one object *)</span>
+
+<span class="kn">Definition</span> <span class="nf">contr_cat</span> : UU := ∑ C : category, iscontr (ob C).
+<span class="kn">Definition</span> <span class="nf">contr_cat_cat</span> : contr_cat -&gt; category := pr1.
+<span class="kn">Coercion</span> <span class="nf">contr_cat_cat</span> : contr_cat &gt;-&gt; category.
+<span class="kn">Definition</span> <span class="nf">contr_cat_iscontr</span> : ∏ C : contr_cat, iscontr (ob C) := pr2.
+<span class="kn">Definition</span> <span class="nf">contr_cat_center</span> (<span class="nv">C</span> : contr_cat) : ob C :=
+  iscontrpr1 (contr_cat_iscontr C).
+
+<span class="kn">Section</span> <span class="nf">ContrCatLemmas</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : contr_cat}.
+
+  <span class="sd">(** The hom-set between any two objects in a contractible category is</span>
+<span class="sd">      equivalent to the hom-set of endomorphisms of the center (b/c both objects</span>
+<span class="sd">      are, in fact, equal to the center). *)</span>
+  <span class="kn">Lemma</span> <span class="nf">contr_cat_hom_weq</span> :
+    ∏ a b : ob C, (a --&gt; b) ≃ (contr_cat_center C --&gt; contr_cat_center C).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    <span class="nb">pose</span> (aeqcenter := iscontr_uniqueness (contr_cat_iscontr C) a).
+    <span class="nb">pose</span> (beqcenter := iscontr_uniqueness (contr_cat_iscontr C) b).
+    use weq_iso.
+    <span class="sd">(** Construct the arrows using a double transport *)</span>
+    - <span class="nb">intros</span> cab.
+      <span class="nb">pose</span> (tocenter := transportf (<span class="k">λ</span> <span class="nv">x</span>, C ⟦ a, x ⟧) beqcenter cab).
+      <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">x</span>, C ⟦ x, contr_cat_center C ⟧) aeqcenter tocenter).
+    - <span class="nb">intros</span> ccc.
+      <span class="nb">pose</span> (froma := transportf (<span class="k">λ</span> <span class="nv">x</span>, C ⟦ x, contr_cat_center C ⟧) (!aeqcenter) ccc).
+      <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">x</span>, C ⟦ a, x ⟧) (!beqcenter) froma).
+    - <span class="nb">intros</span> x; <span class="nb">cbn</span>.
+      <span class="c">(* We use abstract to make the rewrite-heavy proof opaque *)</span>
+      <span class="kp">abstract</span> (<span class="nb">rewrite</span> (transport_f_f _ (aeqcenter) (! aeqcenter));
+                <span class="nb">rewrite</span> pathsinv0r; <span class="nb">cbn</span>; <span class="nb">unfold</span> idfun;
+                <span class="nb">rewrite</span> (transport_f_f _ (beqcenter) (! beqcenter));
+                <span class="nb">rewrite</span> pathsinv0r; <span class="nb">cbn</span>; <span class="nb">unfold</span> idfun;
+                <span class="bp">reflexivity</span>).
+    - <span class="nb">intros</span> x; <span class="nb">cbn</span>.
+      <span class="kp">abstract</span> (<span class="nb">rewrite</span> (transport_f_f _ (! beqcenter) (beqcenter));
+                <span class="nb">rewrite</span> pathsinv0l; <span class="nb">cbn</span>; <span class="nb">unfold</span> idfun;
+                <span class="nb">rewrite</span> (transport_f_f _ (! aeqcenter) (aeqcenter));
+                <span class="nb">rewrite</span> pathsinv0l; <span class="nb">cbn</span>; <span class="nb">unfold</span> idfun;
+                <span class="bp">reflexivity</span>).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Context</span> {<span class="nv">D</span> : contr_cat}.
+
+  <span class="sd">(** A functor between contractible categories is fully specified by its mapping</span>
+<span class="sd">      of the endomorphisms of the center. *)</span>
+  <span class="kn">Definition</span> <span class="nf">contr_cat_functor_data</span>
+             (<span class="nv">f</span> : C ⟦ contr_cat_center C, contr_cat_center C ⟧ -&gt;
+                  D ⟦ contr_cat_center D, contr_cat_center D ⟧) : functor_data C D.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">apply</span> weqcontrcontr; <span class="nb">apply</span> contr_cat_iscontr.
+    - <span class="nb">intros</span> a b g.
+      <span class="nb">apply</span> f.
+      <span class="nb">apply</span> (contr_cat_hom_weq a b); <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Any fully faithful functor between contractible categories is an isomorphism. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">contr_cat_fully_faithful_to_isiso</span> {<span class="nv">F</span> : functor C D} (<span class="nv">ff</span> : fully_faithful F) :
+    is_catiso F.
+  <span class="kn">Proof</span>.
+    use make_dirprod; [<span class="bp">assumption</span>|].
+    <span class="nb">apply</span> isweqcontrcontr; <span class="nb">apply</span> contr_cat_iscontr.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Two contractible categories are equal if there is a fully faithful</span>
+<span class="sd">      functor between them. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">contr_cat_eq</span> {<span class="nv">F</span> : functor C D} (<span class="nv">ff</span> : fully_faithful F) : C = D.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypePath.
+    - <span class="nb">intro</span>; <span class="nb">apply</span> isapropiscontr.
+    - <span class="nb">apply</span> catiso_to_category_path.
+      use tpair.
+      + <span class="bp">exact</span> F.
+      + <span class="nb">apply</span> contr_cat_fully_faithful_to_isiso; <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">ContrCatLemmas</span>.
+
+<span class="sd">(** *** Monoids *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> multmonoid.
+
+<span class="sd">(** **** Monoids as categories ([monoid_weq_contr_category]) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">monoid_to_category</span> (<span class="nv">Mon</span> : monoid) : contr_cat.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use makecategory.
+    + <span class="bp">exact</span> unit.
+    + <span class="nb">intros</span>; <span class="bp">exact</span> Mon.
+    + <span class="nb">intros</span>; <span class="nb">apply</span> setproperty.
+    + <span class="nb">intros</span>; <span class="bp">exact</span> (unel Mon).
+    + <span class="nb">intros</span>; <span class="bp">exact</span> (f * g).
+    + <span class="nb">intros</span>; <span class="nb">apply</span> lunax.
+    + <span class="nb">intros</span>; <span class="nb">apply</span> runax.
+    + <span class="nb">intros</span>; <span class="nb">cbn</span>; <span class="nb">symmetry</span>; <span class="nb">apply</span> assocax.
+    + <span class="nb">intros</span>; <span class="nb">cbn</span>; <span class="nb">apply</span> assocax.
+  - <span class="nb">apply</span> iscontrunit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">contr_category_to_monoid</span> (<span class="nv">C</span> : category) (<span class="nv">isc</span> : iscontr (ob C)) : monoid.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (center := iscontrpr1 isc).
+  use make_monoid.
+  - use make_setwithbinop.
+    + use make_hSet.
+      * use (center --&gt; center).
+      * <span class="nb">apply</span> homset_property.
+    + <span class="bp">exact</span> (@compose _ center center center).
+  - use make_ismonoidop.
+    + <span class="nb">unfold</span> isassoc; <span class="nb">symmetry</span>; <span class="nb">apply</span> assoc.
+    + use make_isunital.
+      * <span class="nb">apply</span> identity.
+      * use make_isunit;
+          [ <span class="nb">unfold</span> islunit; <span class="nb">apply</span> id_left | <span class="nb">unfold</span> isrunit; <span class="nb">apply</span> id_right ].
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The above functions constitute a weak equivalence. *)</span>
+<span class="kn">Lemma</span> <span class="nf">monoid_weq_contr_category</span> : monoid ≃ contr_cat.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> monoid_to_category.
+  - <span class="bp">exact</span> (uncurry contr_category_to_monoid).
+  - <span class="sd">(** By univalence for monoids, it suffices to show that they are isomorphic *)</span>
+    <span class="nb">intros</span> Mon. <span class="nb">apply</span> is_univalent_monoid_category.
+    use make_z_iso.
+    + use make_monoidfun.
+      * <span class="bp">exact</span> (idfun _).
+      * <span class="kp">abstract</span> <span class="bp">easy</span>.
+    + use make_monoidfun.
+      * <span class="bp">exact</span> (idfun _).
+      * <span class="kp">abstract</span> <span class="bp">easy</span>.
+    + <span class="kp">abstract</span> <span class="bp">now</span> (<span class="nb">apply</span> make_is_inverse_in_precat; <span class="nb">apply</span> monoidfun_eq).
+  - <span class="nb">intros</span> contrcat.
+    use contr_cat_eq.
+    + use make_functor.
+      * <span class="nb">apply</span> contr_cat_functor_data.
+        <span class="nb">apply</span> idfun.
+      * use make_dirprod; <span class="nb">cbn</span>.
+        { <span class="nb">unfold</span> functor_idax.
+          <span class="nb">intros</span> a; <span class="nb">cbn</span> <span class="k">in</span> *.
+          <span class="kp">abstract</span> (<span class="nb">induction</span> a; <span class="bp">reflexivity</span>).
+        }
+        { <span class="nb">unfold</span> functor_compax.
+          <span class="nb">intros</span> a b c.
+          <span class="kp">abstract</span> (<span class="nb">induction</span> a, b, c; <span class="bp">reflexivity</span>).
+        }
+   + <span class="nb">unfold</span> fully_faithful.
+     <span class="nb">intros</span> a b.
+     <span class="kp">abstract</span> (<span class="nb">induction</span> a, b; <span class="bp">exact</span> (idisweq _)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** **** Monoid morphisms as functors ([monoid_fun_weq_functor]) *)</span>
+
+<span class="sd">(** Monoid morphism --&gt; functor *)</span>
+<span class="kn">Definition</span> <span class="nf">monoidfun_to_functor</span> {<span class="nv">Mon1</span> <span class="nv">Mon2</span> : monoid} (<span class="nv">monfun</span> : monoidfun Mon1 Mon2) :
+  functor (monoid_weq_contr_category Mon1) (monoid_weq_contr_category Mon2).
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="nb">apply</span> contr_cat_functor_data.
+    <span class="bp">exact</span> monfun.
+  - use make_dirprod.
+    + <span class="nb">intros</span> a.
+      <span class="kp">abstract</span> (<span class="nb">induction</span> a;
+                <span class="nb">apply</span> monoidfununel).
+    + <span class="nb">intros</span> a b c ? ?.
+      <span class="kp">abstract</span> (<span class="nb">induction</span> a, b, c;
+                <span class="nb">apply</span> monoidfunmul).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Throwaway lemma: transport intertwines composition *)</span>
+<span class="kn">Local Lemma</span> <span class="nf">transport_compose</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : ob C} {<span class="nv">p</span> : a = b}
+           (<span class="nv">f</span> : a --&gt; a) (<span class="nv">g</span> : a --&gt; a) :
+  transportf (<span class="k">λ</span> <span class="nv">x</span>, C ⟦ x, b ⟧) p (transportf (<span class="k">λ</span> <span class="nv">x</span>, C ⟦ a, x ⟧) p f) ·
+  transportf (<span class="k">λ</span> <span class="nv">x</span>, C ⟦ x, b ⟧) p (transportf (<span class="k">λ</span> <span class="nv">x</span>, C ⟦ a, x ⟧) p g)
+  = transportf (<span class="k">λ</span> <span class="nv">x</span>, C ⟦ x, b ⟧) p (transportf (<span class="k">λ</span> <span class="nv">x</span>, C ⟦ a, x ⟧) p (f · g)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Throwaway lemma: transport intertwines identity *)</span>
+<span class="kn">Local Lemma</span> <span class="nf">transport_identity</span> {<span class="nv">C</span> : precategory} {<span class="nv">a</span> <span class="nv">b</span> : ob C} {<span class="nv">p</span> : a = b} :
+  transportf (<span class="k">λ</span> <span class="nv">x</span>, C ⟦ x, b ⟧) p (transportf (<span class="k">λ</span> <span class="nv">x</span>, C ⟦ a, x ⟧) p (identity a)) =
+  identity b.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p; <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Functor --&gt; monoid morphism *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_to_monoidfun</span> {<span class="nv">CC1</span> <span class="nv">CC2</span> : contr_cat} (<span class="nv">funct</span> : functor CC1 CC2) :
+  monoidfun (invmap monoid_weq_contr_category CC1)
+            (invmap monoid_weq_contr_category CC2).
+<span class="kn">Proof</span>.
+  use make_monoidfun.
+  - <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">intros</span> endo.
+    <span class="nb">apply</span> (contr_cat_hom_weq (funct (iscontrpr1 (pr2 CC1)))
+                             (funct (iscontrpr1 (pr2 CC1)))).
+    <span class="bp">exact</span> (# funct endo).
+  - use make_ismonoidfun.
+    + <span class="nb">intros</span> a b; <span class="nb">cbn</span>.
+      <span class="kp">abstract</span> (<span class="nb">rewrite</span> functor_comp;
+                <span class="nb">rewrite</span> &lt;- transport_compose;
+                <span class="bp">reflexivity</span>).
+    + <span class="kp">abstract</span> (<span class="nb">cbn</span>; <span class="nb">rewrite</span> functor_id_id; [|<span class="bp">reflexivity</span>];
+                <span class="nb">rewrite</span> transport_identity;
+                <span class="bp">reflexivity</span>).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The above functions constitute a weak equivalence. *)</span>
+<span class="kn">Lemma</span> <span class="nf">monoid_fun_weq_functor</span> {<span class="nv">Mon1</span> <span class="nv">Mon2</span> : monoid} :
+      (monoidfun Mon1 Mon2) ≃
+      functor (monoid_weq_contr_category Mon1) (monoid_weq_contr_category Mon2).
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> monoidfun_to_functor.
+  - <span class="bp">exact</span> functor_to_monoidfun.
+  - <span class="nb">intros</span> mfun.
+    <span class="nb">apply</span> monoidfun_paths.
+    <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> funct.
+    <span class="nb">apply</span> functor_eq; [<span class="nb">apply</span> homset_property|].
+    use functor_data_eq.
+    + <span class="nb">intro</span>.
+      <span class="bp">exact</span> (!(pr2 iscontrunit _)).
+    + <span class="nb">intros</span> c1 c2 ?.
+      <span class="sd">(** Compare to proof of [contr_cat_hom_weq] *)</span>
+      <span class="kp">abstract</span> (<span class="nb">induction</span> c1, c2; <span class="nb">unfold</span> Univalence.double_transport; <span class="nb">cbn</span>;
+                <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">rewrite</span> (transport_f_f _ (isProofIrrelevantUnit _ _)
+                                             (! (isProofIrrelevantUnit _ _)) _);
+                      <span class="nb">rewrite</span> pathsinv0r; <span class="nb">cbn</span>; <span class="nb">unfold</span> idfun);
+                <span class="bp">reflexivity</span>).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Groups *)</span>
+
+<span class="sd">(** **** Groups as groupoids *)</span>
+
+<span class="sd">(** **** Group morphisms as functors *)</span>
+
+<span class="sd">(** ** Actions *)</span>
+
+<span class="sd">(** *** As homomorphisms *)</span>
+
+<span class="sd">(** **** Monoid (group) actions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">monaction_as_morphism</span> {<span class="nv">C</span> : category} (<span class="nv">Mon</span> : monoid) (<span class="nv">X</span> : ob C) : UU :=
+  monoidfun Mon (endomorphism_monoid X).
+<span class="kn">Identity Coercion</span> <span class="nf">id_monaction</span> :  monaction_as_morphism &gt;-&gt; monoidfun.
+
+<span class="sd">(** Let f and g be actions of M on objects X and Y, respectively. An</span>
+<span class="sd">    _equivariant map_ h from f to g is one that intertwines the actions of M,</span>
+<span class="sd">    that is, for any m : M,</span>
+
+<span class="sd">    &lt;&lt;</span>
+<span class="sd">      X -- f m --&gt; X</span>
+<span class="sd">      |            |</span>
+<span class="sd">      h            h</span>
+<span class="sd">      V            V</span>
+<span class="sd">      Y -- g m --&gt; Y</span>
+<span class="sd">    &gt;&gt;</span>
+
+<span class="sd">    i.e. f m · h = h · g m.</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">monaction_equivariant_map</span>
+           {<span class="nv">C</span> : category} {<span class="nv">M</span> : monoid} {<span class="nv">X</span> <span class="nv">Y</span> : ob C}
+           (<span class="nv">actX</span> : monaction_as_morphism M X)
+           (<span class="nv">actY</span> : monaction_as_morphism M Y) : UU :=
+  ∑ f : X --&gt; Y, ∏ m, actX m · f = f · actY m.
+
+<span class="sd">(** **** Ring actions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">ringaction_as_morphism</span> {<span class="nv">C</span> : PreAdditive } (<span class="nv">R</span> : <span class="bp">ring</span>) (<span class="nv">X</span> : ob C) :=
+  ringfun R (endomorphism_ring X).
+
+<span class="sd">(** *** As functors *)</span>
+
+<span class="sd">(** **** Equivariant maps (intertwiners) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">contr_cat_action</span> (<span class="nv">CC</span> : contr_cat) (<span class="nv">C</span> : category) : UU := (CC ⟶ C).
+<span class="kn">Identity Coercion</span> <span class="nf">id_contr_cat_action</span> : contr_cat_action &gt;-&gt; functor.
+
+<span class="kn">Section</span> <span class="nf">FunctorActions</span>.
+  <span class="kn">Context</span> {<span class="nv">CC</span> : contr_cat} {<span class="nv">C</span> : category}
+          (<span class="nv">actA</span> : contr_cat_action CC C) (<span class="nv">actB</span> : contr_cat_action CC C).
+
+  <span class="sd">(** Now we can provide a uniform definition of equivariant maps for monoids,</span>
+<span class="sd">      groups, and rings: equivariant map, or intertwiner, is simply a natural</span>
+<span class="sd">      transformation. *)</span>
+  <span class="kn">Definition</span> <span class="nf">equivariant_map</span> : UU :=
+    nat_trans (functor_data_from_functor _ _ actA)
+              (functor_data_from_functor _ _ actB).
+
+  <span class="kn">Definition</span> <span class="nf">equivariant_map'</span> : UU :=
+    ∑ f : actA (contr_cat_center CC) --&gt; actB (contr_cat_center CC),
+    ∏ g : CC ⟦ contr_cat_center CC, contr_cat_center CC ⟧,
+      # actA g · f = f · # actB g.
+
+<span class="kn">End</span> <span class="nf">FunctorActions</span>.
+
+<span class="sd">(** **** Monoid (group) actions *)</span>
+
+<span class="sd">(** A monoid action is a functor from the monoid (viewed as a category)</span>
+<span class="sd">    to the target category. *)</span>
+<span class="kn">Definition</span> <span class="nf">monaction_functor</span> (<span class="nv">Mon</span> : monoid) (<span class="nv">C</span> : category) :=
+  contr_cat_action (monoid_weq_contr_category Mon) C.
+
+<span class="sd">(** **** Ring actions *)</span>
+
+<span class="sd">(** ** Theory *)</span>
+
+<span class="sd">(** *** Translation groupoid ([translation_groupoid]) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">translation_groupoid_precat</span> {<span class="nv">CC</span> : contr_cat}
+           (<span class="nv">F</span> : contr_cat_action CC hset_category) : precategory.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (center := contr_cat_center CC).
+  use make_precategory_one_assoc.
+  - use make_precategory_data.
+    + use make_precategory_ob_mor.
+      * <span class="bp">exact</span> (pr1 (F center)).
+      * <span class="nb">intros</span> x1 x2; <span class="bp">exact</span> (∑ c : CC ⟦center, center⟧, # F c x1 = x2).
+    + <span class="nb">intros</span> c; <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">center</span>).
+      <span class="nb">refine</span> (@eqtohomot _ _ (# F (identity center)) (idfun _) _ c).
+      <span class="nb">apply</span> (functor_id F center).
+    + <span class="nb">intros</span> a b c f g.
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">f</span> · pr1 g).
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z _) (functor_comp F (pr1 f) (pr1 g)) @ _); <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (maponpaths _ (pr2 f) @ _).
+      <span class="bp">exact</span> (pr2 g).
+  - use make_dirprod.
+    + use make_dirprod;
+        <span class="nb">intros</span> ? ? ?;
+        <span class="nb">apply</span> subtypePath; <span class="kp">try</span> (<span class="nb">intro</span>; <span class="nb">apply</span> setproperty).
+      * <span class="nb">apply</span> id_left.
+      * <span class="nb">apply</span> id_right.
+    + <span class="nb">cbn</span>.
+      <span class="nb">intros</span> a b c d f g h.
+      <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> setproperty | ].
+      <span class="nb">apply</span> assoc.
+ <span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Actions.v</tt>, line 39)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Preamble.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Prove equivalence of rings as one-object categories
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Preamble.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt; Require Import UniMath.Algebra.Groups.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

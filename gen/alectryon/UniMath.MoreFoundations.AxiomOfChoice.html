@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AxiomOfChoice.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Axiom of choice *)</span>
+
+<span class="kn">Require Export</span> UniMath.MoreFoundations.DecidablePropositions.
+<span class="kn">Require Export</span> UniMath.MoreFoundations.Sets.
+
+<span class="sd">(** ** Preliminaries  *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">pr1_issurjective</span> {<span class="nv">X</span> : UU} {<span class="nv">P</span> : X -&gt; UU} :
+  (∏ x : X, ∥ P x ∥) -&gt; issurjective (pr1 : (∑ x, P x) -&gt; X).
+<span class="c">(* move upstream later *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> ne x. <span class="nb">simple refine</span> (hinhuniv _ (ne x)).
+  <span class="nb">intros</span> p. <span class="nb">apply</span> hinhpr.
+  <span class="bp">exact</span> ((x,,p),,idpath _).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Characterize equivalence relations on [bool] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">eqrel_on_bool</span> (<span class="nv">P</span>:hProp) : eqrel boolset.
+<span class="c">(* an equivalence relation on bool amounts to a single proposition *)</span>
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (ifb := bool_rect (<span class="k">λ</span> <span class="nv">_</span>:bool, hProp)).
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">x</span> <span class="nv">y</span>, <span class="nv">ifb</span> (ifb htrue P y) (ifb P htrue y) x).
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  { <span class="nb">intros</span> x y z a b.
+    <span class="nb">induction</span> x.
+    - <span class="nb">induction</span> z.
+      + <span class="bp">exact</span> tt.
+      + <span class="nb">induction</span> y.
+        * <span class="bp">exact</span> b.
+        * <span class="bp">exact</span> a.
+    - <span class="nb">induction</span> z.
+      + <span class="nb">induction</span> y.
+        * <span class="bp">exact</span> a.
+        * <span class="bp">exact</span> b.
+      + <span class="bp">exact</span> tt. }
+  { <span class="nb">intros</span> x. <span class="nb">induction</span> x; <span class="bp">exact</span> tt. }
+  { <span class="nb">intros</span> x y a. <span class="nb">induction</span> x; <span class="nb">induction</span> y; <span class="bp">exact</span> a. }
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">eqrel_on_bool_iff</span> (<span class="nv">P</span>:hProp) (<span class="nv">E</span> := eqrel_on_bool P) (<span class="nv">f</span> := setquotpr E) : f true = f false &lt;-&gt; P.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  { <span class="nb">intro</span> q. <span class="nb">change</span> (E true false). <span class="nb">apply</span> (invmap (weqpathsinsetquot _ _ _)).
+    <span class="nb">change</span> (f true = f false). <span class="bp">exact</span> q. }
+  { <span class="nb">intro</span> p. <span class="nb">apply</span> iscompsetquotpr. <span class="bp">exact</span> p. }
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Statements of Axiom of Choice *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+
+<span class="sd">(** We write these axioms as types rather than as axioms, which would assert them to be true, to</span>
+<span class="sd">    force them to be mentioned as explicit hypotheses whenever they are used. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">AxiomOfChoice</span> : hProp := <span class="k">∀</span> (<span class="nv">X</span>:hSet), ischoicebase X.
+
+<span class="kn">Definition</span> <span class="nf">AxiomOfChoice_surj</span> : hProp :=
+  <span class="k">∀</span> (<span class="nv">X</span>:hSet) (<span class="nv">Y</span>:UU) (<span class="nv">f</span>:Y→X), issurjective f ⇒ <span class="k">∃</span> <span class="nv">g</span>, <span class="k">∀</span> <span class="nv">x</span>, f (g x) = x.
+<span class="sd">(** Notice that the equation above is a proposition only because X is a set, which is not required</span>
+<span class="sd">    in the previous formulation.  The notation for "=" currently in effect uses [eqset] instead of</span>
+<span class="sd">    [paths].  *)</span>
+
+<span class="sd">(** ** Implications between forms of the Axiom of Choice *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">AC_impl2</span> : AxiomOfChoice &lt;-&gt; AxiomOfChoice_surj.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> AC X Y f surj.
+    use (squash_to_prop (AC _ _ surj) (propproperty _)).
+    <span class="nb">intro</span> s.
+    use hinhpr.
+    use tpair.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, hfiberpr1 f y (s y)).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span>, hfiberpr2 f y (s y)).
+  - <span class="nb">intros</span> AC X P ne.
+    use (hinhuniv _ (AC X _ _ (pr1_issurjective ne))).
+    <span class="nb">intros</span> sec. use hinhpr. <span class="nb">intros</span> x.
+    <span class="nb">induction</span> (pr2 sec x). <span class="bp">exact</span> (pr2 (pr1 sec x)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** The Axiom of Choice implies a type receives a surjective map from a set *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">SetCovering</span> (<span class="nv">X</span>:<span class="kt">Type</span>) : AxiomOfChoice -&gt; <span class="k">∃</span> (<span class="nv">S</span>:hSet) (<span class="nv">f</span>:S-&gt;X), issurjective f.
+<span class="kn">Proof</span>.
+  <span class="sd">(** We use the axiom of choice to find a splitting f of the projection map g from X</span>
+<span class="sd">     onto its set [pi0 X] of connected components.  Since the image of f contains one</span>
+<span class="sd">     point in every component of X, f is surjective.</span>
+<span class="sd">   *)</span>
+  <span class="nb">intros</span> ac.
+  <span class="nb">assert</span> (ac' := pr1 AC_impl2 ac); <span class="nb">clear</span> ac; <span class="nb">unfold</span> AxiomOfChoice_surj <span class="k">in</span> ac'.
+  <span class="nb">set</span> (S := pi0 X : hSet).
+  <span class="nb">set</span> (g := pi0pr X : X -&gt; S).
+  <span class="nb">assert</span> (f := ac' _ _ g (issurjsetquotpr _)); <span class="nb">clear</span> ac'.
+  <span class="nb">apply</span> (squash_to_prop f).
+  { <span class="nb">apply</span> propproperty. }
+  <span class="nb">clear</span> f; <span class="nb">intros</span> [f <span class="nb">eqn</span>].
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> <span class="nv">S</span>.
+  <span class="k">exists</span> <span class="nv">f</span>.
+  <span class="nb">intros</span> x.
+  use (@squash_to_prop (f (g x) = x)%type).
+  { <span class="nb">apply</span> (invmap (weqpathsinsetquot (pathseqrel X) _ _)).
+    <span class="nb">change</span> (g (f (g x)) = g x)%type.
+    <span class="bp">exact</span> (<span class="nb">eqn</span> (g x)). }
+  { <span class="nb">apply</span> propproperty. }
+  <span class="nb">intros</span> e.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> (<span class="nv">g</span> <span class="nv">x</span>).
+  <span class="bp">exact</span> e.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** The Axiom of Choice implies the Law of the Excluded Middle  *)</span>
+
+<span class="sd">(** This result is covered in the HoTT book, is due to Radu Diaconescu, "Axiom of choice and</span>
+<span class="sd">    complementation", Proceedings of the American Mathematical Society, 51 (1975) 176–178, and was</span>
+<span class="sd">    first mentioned on page 4 in F. W. Lawvere, "Toposes, algebraic geometry and logic (Conf.,</span>
+<span class="sd">    Dalhousie Univ., Halifax, N.S., 1971)", pp. 1–12, Lecture Notes in Math., Vol. 274, Springer,</span>
+<span class="sd">    Berlin, 1972.</span>
+
+<span class="sd">    The idea is to define an equivalence relation E on bool by setting [E true false := P], to use</span>
+<span class="sd">    AC to split the surjection f from bool to its quotient Y by E with a function g, and to observe</span>
+<span class="sd">    bool has decidable equality, and thus so does Y, because then Y is a retract of bool, to use</span>
+<span class="sd">    that to decide whether [f true = f false], and thus to decide P. *)</span>
+
+<span class="kn">Theorem</span> <span class="nf">AC_to_LEM</span> : AxiomOfChoice -&gt; LEM.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> AC P.
+  <span class="nb">set</span> (f := setquotpr _ : bool -&gt; setquotinset (eqrel_on_bool P)).
+  <span class="nb">assert</span> (q := pr1 AC_impl2 AC _ _ f (issurjsetquotpr _)).
+  <span class="nb">apply</span> (squash_to_prop q).
+  { <span class="nb">apply</span> isapropdec, propproperty. }
+  <span class="nb">intro</span> sec. <span class="nb">induction</span> sec <span class="k">as</span> [g h].
+  <span class="c">(* reduce decidability of P to decidability of [f true = f false] *)</span>
+  <span class="nb">apply</span> (logeq_dec (eqrel_on_bool_iff P)).
+  <span class="c">(* a retract of a type with decidable equality has decidable equality *)</span>
+  <span class="nb">apply</span> (retract_dec f g h isdeceqbool).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A weaker Axiom of Choice *)</span>
+
+<span class="sd">(** Having proved above that the Axiom of Choice implies the Law of the Excluded Middle, we would</span>
+<span class="sd">    like to formulate a weaker axiom of choice that would be usable in formalization, but without</span>
+<span class="sd">    implying the Law of the Excluded Middle, thus making it a more acceptable omniscience principle.</span>
+<span class="sd">    Our idea here is to add the hypothesis that the base set have decidable equality.  Classically,</span>
+<span class="sd">    there is no difference between the two axioms.  Recall from [isasetifdeceq] that a type with</span>
+<span class="sd">    decidable equality is a set, so we don't include being a set explicitly in the statement of the</span>
+<span class="sd">    axiom. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">AxiomOfDecidableChoice</span> : hProp := <span class="k">∀</span> (<span class="nv">X</span>:UU), isdeceq X ⇒ ischoicebase X.
+
+<span class="kn">Theorem</span> <span class="nf">AC_iff_ADC_and_LEM</span> : AxiomOfChoice ⇔ AxiomOfDecidableChoice ∧ LEM.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> AC. <span class="nb">split</span>.
+    + <span class="nb">intros</span> X i. <span class="bp">exact</span> (AC (make_hSet X (isasetifdeceq X i))).
+    + <span class="bp">exact</span> (AC_to_LEM AC).
+  - <span class="nb">intros</span> [adc lem] X. <span class="nb">refine</span> (adc X _). <span class="nb">intros</span> x y. <span class="bp">exact</span> (lem (x = y)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/AxiomOfChoice.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/DecidablePropositions.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Axiom of choice *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.MoreFoundations.DecidablePropositions.&lt;&lt;&lt;
+  &gt; Require Export UniMath.MoreFoundations.Sets.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,551 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>UntypedForests.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">Syntax of the forest calculus (see https://arxiv.org/abs/1602.04382 by José Espírito Santo, Ralph Matthes, Luís Pinto)</span>
+<span class="sd">in pure Curry style (untyped) as a multisorted signature based on the actegorical development.</span>
+<span class="sd">Thanks to that development, the inductive and the coinductive calculus are exposed in parallel.</span>
+<span class="sd">The entire development is only done for the base category [HSET] and thus profits from having inhabitants of the objects</span>
+<span class="sd">and having functions as morphisms.</span>
+
+<span class="sd">*)</span>
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.PartB.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.Lists.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCoalgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Cochains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Structures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SigmaMonoids.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.SortIndexing.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedBindingSig.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSorted_alt.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSorted_actegorical.
+<span class="kn">Require</span> UniMath.SubstitutionSystems.MultiSortedMonadConstruction_alt.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedMonadConstruction_actegorical.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedMonadConstruction_coind_actegorical.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.ContinuitySignature.InstantiateHSET.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.MultiSortedEmbeddingIndCoindHSET.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.SortIndexing.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Signature</span>.
+
+<span class="sd">(** Some notations *)</span>
+<span class="kn">Local</span> <span class="kn">Infix</span> <span class="s2">"::"</span> := (@cons _).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"[]"</span> := (@nil _) (<span class="kn">at level</span> <span class="mi">0</span>, <span class="kn">format</span> <span class="s2">"[]"</span>).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a + b"</span> := (setcoprod a b) : <span class="nb">set</span>.
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'Id'"</span> := (functor_identity _).
+
+<span class="sd">(** Sorts are syntactic categories for the untyped calculus *)</span>
+<span class="kn">Definition</span> <span class="nf">sort</span> : UU := stn <span class="mi">3</span>.
+
+<span class="kn">Local Definition</span>  <span class="nf">Hsort</span> : isofhlevel <span class="mi">3</span> sort.
+<span class="kn">Proof</span>.
+<span class="bp">exact</span> (isofhlevelssnset <span class="mi">1</span> sort (setproperty (stnset <span class="mi">3</span>))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">Hsort'</span> : isofhlevel <span class="mi">2</span> sort := (setproperty (stnset <span class="mi">3</span>)).
+
+<span class="c">(* variables sort *)</span>
+<span class="kn">Definition</span> <span class="nf">sv</span> : sort := make_stn <span class="mi">3</span> <span class="mi">0</span> (idpath true : <span class="mi">0</span> &lt; <span class="mi">3</span>).
+<span class="c">(* terms sort *)</span>
+<span class="kn">Definition</span> <span class="nf">st</span> : sort := make_stn <span class="mi">3</span> <span class="mi">0</span> (idpath true : <span class="mi">1</span> &lt; <span class="mi">3</span>).
+<span class="c">(* elimination alternatives sort *)</span>
+<span class="kn">Definition</span> <span class="nf">se</span> : sort := make_stn <span class="mi">3</span> <span class="mi">0</span> (idpath true : <span class="mi">2</span> &lt; <span class="mi">3</span>).
+
+<span class="kn">Local Definition</span> <span class="nf">sortToSet</span> : category := SortIndexing.sortToSet sort Hsort.
+<span class="kn">Local Definition</span> <span class="nf">sortToSetSet</span> : category := SortIndexing.sortToSetSet sort Hsort.
+<span class="kn">Local Definition</span> <span class="nf">sortToSet2</span> : category := SortIndexing.sortToSet2 sort Hsort.
+
+<span class="kn">Definition</span> <span class="nf">TsortToSetSet</span> : Terminal sortToSetSet := TsortToCC _ Hsort HSET TerminalHSET.
+
+<span class="kn">Let</span> <span class="nf">projSortToSet</span> : sort -&gt; sortToSetSet := MultiSortedMonadConstruction_alt.projSortToSet sort Hsort.
+<span class="kn">Let</span> <span class="nf">projSortToSetvariable</span> : (sort → sort) → sortToSet2 := projSortToCvariable sort Hsort HSET.
+<span class="kn">Let</span> <span class="nf">hat_functorSet</span> : sort -&gt; HSET ⟶ sortToSet := MultiSortedMonadConstruction_alt.hat_functorSet sort Hsort.
+<span class="kn">Let</span> <span class="nf">sorted_option_functorSet</span> : sort → functor sortToSet sortToSet := MultiSortedMonadConstruction_alt.sorted_option_functorSet sort Hsort.
+
+<span class="kn">Local Definition</span> <span class="nf">BCsortToSet</span> : BinCoproducts sortToSet := SortIndexing.BCsortToSet sort Hsort.
+<span class="kn">Local Definition</span> <span class="nf">BPsortToSet</span> : BinProducts sortToSet := SortIndexing.BPsortToSet sort Hsort.
+
+<span class="kn">Local Definition</span> <span class="nf">TsortToSet</span> : Terminal sortToSet := SortIndexing.TsortToSet sort Hsort.
+<span class="kn">Local Definition</span> <span class="nf">TsortToSet2</span> : Terminal sortToSet2 := SortIndexing.TsortToSet2 sort Hsort.
+
+<span class="kn">Local Definition</span> <span class="nf">BPsortToSetSet</span> : BinProducts sortToSetSet := SortIndexing.BPsortToSetSet sort Hsort.
+
+<span class="kn">Local Lemma</span> <span class="nf">sortToSet2_comp_on_mor</span> (<span class="nv">F</span> <span class="nv">G</span> : sortToSet2) {<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet} (<span class="nv">f</span> : sortToSet⟦ ξ, ξ' ⟧) (<span class="nv">s</span> : sort) (* (elem : pr1 (pr1 (pr1 (functor_compose F G) ξ) s)) *) :
+  pr1 (# (pr1 (functor_compose F G)) f) s = pr1 (# (pr1 G) (# (pr1 F) f)) s.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">postcomp_with_projSortToSet_on_mor</span> (<span class="nv">F</span> : sortToSet2) (<span class="nv">s</span>: sort) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+  (<span class="nv">arg</span> : pr1 (pr1 (functor_compose F (projSortToSet s)) ξ))
+  : # (pr1 (functor_compose F (projSortToSet s))) f arg = pr1 (# (pr1 F) f) s arg.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">UntypedForest_Sig</span> : MultiSortedSig (⟦<span class="mi">3</span>⟧%stn).
+<span class="kn">Proof</span>.
+  use (make_MultiSortedSig (stn <span class="mi">3</span>)).
+  - <span class="nb">apply</span> ((((unit,,isasetunit) + (nat,,isasetnat)) + (nat,, isasetnat))%<span class="nb">set</span>).
+    - <span class="nb">intros</span> H. <span class="nb">induction</span> H  <span class="k">as</span> [term_construct | elim_construct].
+      + <span class="nb">induction</span> term_construct <span class="k">as</span> [abs|sum].
+        * <span class="bp">exact</span> ((((sv :: []) ,,st) :: []),,st).
+        * <span class="bp">exact</span> ((functionToList sum (<span class="k">fun</span> <span class="nv">_</span> =&gt; ([] ,, se))) ,, st ).
+      + <span class="bp">exact</span> ((([],,sv) :: ((functionToList elim_construct (<span class="k">fun</span> <span class="nv">_</span> =&gt; ([] ,, st))))),, se).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The canonical functor associated with UntypedForest_Sig **)</span>
+<span class="kn">Definition</span> <span class="nf">UntypedForest_Functor_H</span> : functor sortToSet2 sortToSet2 :=
+  MultiSorted_actegorical.MultiSortedSigToFunctor' sort Hsort SET
+    TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET UntypedForest_Sig.
+
+
+<span class="sd">(** the functor of which the fixed points are considered *)</span>
+<span class="kn">Definition</span> <span class="nf">UntypedForest_Functor_Id_H</span> : functor sortToSet2 sortToSet2 :=
+  SubstitutionSystems.Id_H sortToSet BCsortToSet UntypedForest_Functor_H.
+
+<span class="sd">(** the canonical strength associated with UntypedForest_Sig *)</span>
+<span class="kn">Local Definition</span> <span class="nf">θUntypedForest</span> := MultiSortedMonadConstruction_actegorical.MultiSortedSigToStrength' sort Hsort SET
+               TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET UntypedForest_Sig.
+
+<span class="kn">Definition</span> <span class="nf">ctx_ext</span> (<span class="nv">ξ</span> : sortToSet) (<span class="nv">s</span> : sort) : sortToSet
+  := sorted_option_functorSet s ξ.
+
+<span class="kn">Definition</span> <span class="nf">ctx_equiv</span> (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) : UU :=  ∏ s : sort, (z_iso ((pr1 ξ) s)  ((pr1 ξ') s)).
+
+<span class="sd">(** the sigma-monoids for wellfounded and non-wellfounded syntax for UntypedForests *)</span>
+<span class="kn">Local Definition</span> <span class="nf">σind</span> : SigmaMonoid θUntypedForest := MultiSortedEmbeddingIndCoindHSET.σind sort Hsort UntypedForest_Sig.
+<span class="kn">Local Definition</span> <span class="nf">σcoind</span> : SigmaMonoid θUntypedForest := MultiSortedEmbeddingIndCoindHSET.σcoind sort Hsort UntypedForest_Sig.
+
+<span class="kn">Section</span> <span class="nf">IndAndCoind</span>.
+
+<span class="kn">Context</span> (<span class="nv">σ</span> : SigmaMonoid θUntypedForest).
+
+<span class="kn">Definition</span> <span class="nf">UntypedForest_gen</span> : sortToSet2 := SigmaMonoid_carrier θUntypedForest σ.
+
+<span class="sd">(** the type of terms in a context of a sort *)</span>
+<span class="kn">Definition</span> <span class="nf">UntypedForest_gen_ctx_sort</span> (<span class="nv">ξ</span> : sortToSet) (<span class="nv">s</span> : sort) : UU
+  := pr1 (pr1 (pr1 UntypedForest_gen ξ) s).
+
+<span class="sd">(** variable inclusion for syntax for UntypedForests *)</span>
+<span class="kn">Definition</span> <span class="nf">UntypedForest_eta_gen</span> : sortToSet2⟦Id,UntypedForest_gen⟧ := SigmaMonoid_η θUntypedForest σ.
+
+<span class="kn">Definition</span> <span class="nf">UntypedForest_eta_gen_natural</span> (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧) :
+# Id f · pr1 UntypedForest_eta_gen ξ' = pr1 UntypedForest_eta_gen ξ · # (pr1 UntypedForest_gen) f
+:= nat_trans_ax (UntypedForest_eta_gen) ξ ξ' f.
+
+<span class="kn">Lemma</span> <span class="nf">UntypedForest_eta_gen_natural'</span> (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧) :
+  f · pr1 UntypedForest_eta_gen ξ' = pr1 UntypedForest_eta_gen ξ · # (pr1 UntypedForest_gen) f.
+<span class="kn">Proof</span>.
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> UntypedForest_eta_gen_natural. }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">UntypedForest_eta_gen_natural'_pointwise</span> (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧) (<span class="nv">u</span> : sort) :
+  pr1 f u · pr1 (pr1 UntypedForest_eta_gen ξ') u = pr1 (pr1 UntypedForest_eta_gen ξ) u · pr1 (# (pr1 UntypedForest_gen) f) u.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq_weq HSET _ _ (UntypedForest_eta_gen_natural' ξ ξ' f)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">UntypedForest_eta_gen_natural'_ppointwise</span> (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧) (<span class="nv">u</span> : sort) (<span class="nv">elem</span> : pr1 (pr1 (pr1 ξ) u)) :
+  pr1 (pr1 UntypedForest_eta_gen ξ') u (pr1 f u elem) =  pr1 (# (pr1 UntypedForest_gen) f) u (pr1 (pr1 UntypedForest_eta_gen ξ) u elem).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (toforallpaths _ _ _ (UntypedForest_eta_gen_natural'_pointwise ξ ξ' f u)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">UntypedForest_tau_gen</span> : UntypedForest_Functor_H UntypedForest_gen --&gt; UntypedForest_gen := SigmaMonoid_τ θUntypedForest σ.
+
+<span class="kn">Definition</span> <span class="nf">app_source_gen</span> (<span class="nv">n</span> : nat) : sortToSet2 :=
+  ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort SET TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET (arity sort UntypedForest_Sig (inr n)) UntypedForest_gen.
+
+<span class="kn">Definition</span> <span class="nf">app_source_gen_newstyle_zero</span> : sortToSet2 :=
+  functor_compose UntypedForest_gen (projSortToSet sv ∙ hat_functorSet st).
+
+<span class="kn">Definition</span> <span class="nf">app_source_gen_newstyle_nonzero_aux</span> (<span class="nv">n</span> : nat) : sortToSet2 :=
+   nat_rect (<span class="k">fun</span> <span class="nv">_</span> =&gt;  sortToSet2)
+     (functor_compose UntypedForest_gen (projSortToSet se ∙ hat_functorSet st))
+     (<span class="k">fun</span> <span class="nv">_</span> <span class="nv">IHn</span> =&gt; BinProduct_of_functors BPsortToSet
+                  (functor_compose UntypedForest_gen (projSortToSet se ∙
+hat_functorSet st)) IHn) n.
+
+<span class="kn">Definition</span> <span class="nf">app_source_gen_newstyle_nonzero</span> (<span class="nv">n</span> : nat) : sortToSet2 :=
+      BinProduct_of_functors BPsortToSet
+        (functor_compose UntypedForest_gen (projSortToSet sv ∙ hat_functorSet st))
+        (app_source_gen_newstyle_nonzero_aux n).
+
+
+<span class="kn">Lemma</span> <span class="nf">app_source_gen_nonzero_eq</span> (<span class="nv">n</span> : nat):
+   app_source_gen (S n) = BinProduct_of_functors BPsortToSet
+     (functor_compose UntypedForest_gen (projSortToSet sv ∙ hat_functorSet st))
+(ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized
+sort Hsort SET TerminalHSET BinProductsHSET BinCoproductsHSET
+CoproductsHSET ((functionToList (S n)  (<span class="k">fun</span> <span class="nv">_</span> =&gt; ([] ,, st)),,se)) UntypedForest_gen).
+<span class="kn">Proof</span>.
+   <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">app_source_gen_newstyle_nonzero_aux_eq</span> (<span class="nv">n</span> : nat):
+   app_source_gen_newstyle_nonzero_aux n =
+ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort
+Hsort SET TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET
+((functionToList (S n)  (<span class="k">fun</span> <span class="nv">_</span> =&gt; ([] ,, st)),,se)) UntypedForest_gen.
+<span class="kn">Proof</span>.
+   <span class="nb">induction</span> n.
+   - <span class="nb">apply</span> idpath.
+   - <span class="nb">change</span> (app_source_gen_newstyle_nonzero_aux (S n)) <span class="k">with</span>
+       (BinProduct_of_functors BPsortToSet
+       (functor_compose UntypedForest_gen (projSortToSet se ∙ hat_functorSet st))
+       (app_source_gen_newstyle_nonzero_aux n)).
+     <span class="nb">rewrite</span> IHn.
+     <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">app_source_zero_gen_ok</span> : app_source_gen_newstyle_zero = app_source_gen <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">app_source_nonzero_gen_ok</span> (<span class="nv">n</span> : nat) : app_source_gen_newstyle_nonzero n = app_source_gen (S n).
+<span class="kn">Proof</span>.
+   <span class="nb">unfold</span> app_source_gen_newstyle_nonzero.
+   <span class="nb">rewrite</span> app_source_gen_newstyle_nonzero_aux_eq.
+   <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">app_map_gen</span> (<span class="nv">n</span> : nat) : sortToSet2⟦app_source_gen n,UntypedForest_gen⟧.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (<span class="k">λ</span> <span class="nv">_</span> , _ )) (inr n) · UntypedForest_tau_gen) .
+  <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">app_map_gen_natural</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+    : # (pr1 (app_source_gen n)) f · pr1 (app_map_gen n) ξ' = pr1 (app_map_gen n) ξ · # (pr1 UntypedForest_gen) f
+    := nat_trans_ax (app_map_gen n) ξ ξ' f.
+
+<span class="kn">Lemma</span> <span class="nf">app_map_gen_natural_pointwise</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet  ⟦ ξ, ξ' ⟧) (<span class="nv">u</span> : sort) :
+  pr1 (# (pr1 (app_source_gen n)) f) u · pr1 (pr1 (app_map_gen n) ξ') u =
+  pr1 (pr1 (app_map_gen n) ξ) u · pr1 (# (pr1 UntypedForest_gen) f) u.
+<span class="kn">Proof</span>.
+   <span class="nb">apply</span> (nat_trans_eq_weq HSET _ _ (app_map_gen_natural n ξ ξ' f)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">app_map_gen_natural_ppointwise</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+    (<span class="nv">u</span> : sort) (<span class="nv">elem</span> : pr1 (pr1 (pr1 (app_source_gen n) ξ) u)) :
+    pr1 (pr1 (app_map_gen n) ξ') u (pr1 (# (pr1 (app_source_gen n)) f) u elem) =
+      pr1 (# (pr1 UntypedForest_gen) f) u (pr1 (pr1 (app_map_gen n) ξ) u elem).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (toforallpaths _ _ _ (app_map_gen_natural_pointwise n ξ ξ' f u)).
+  <span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lam_source_gen_newstyle</span> :  sortToSet2 :=
+    functor_compose
+      (functor_compose
+         (sorted_option_functorSet sv)
+         UntypedForest_gen)
+      (projSortToSet st ∙ hat_functorSet st).
+
+<span class="kn">Definition</span> <span class="nf">lam_source_gen</span> : sortToSet2 :=
+  ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort SET TerminalHSET
+      BinProductsHSET BinCoproductsHSET CoproductsHSET (arity sort UntypedForest_Sig (inl (inl tt ))) UntypedForest_gen.
+
+<span class="kn">Lemma</span> <span class="nf">lam_source_ok</span> : lam_source_gen = lam_source_gen_newstyle.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lam_map_gen</span> : sortToSet2⟦lam_source_gen ,UntypedForest_gen⟧ :=
+    CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (<span class="k">λ</span> <span class="nv">_</span>, _)) (inl (inl tt)) · UntypedForest_tau_gen.
+
+<span class="kn">Definition</span> <span class="nf">lam_map_gen_natural</span> (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> :  sortToSet ⟦ ξ, ξ' ⟧)
+  : # (pr1 lam_source_gen) f · pr1 lam_map_gen ξ' = (pr1 lam_map_gen ξ) · # (pr1 UntypedForest_gen) f
+  := nat_trans_ax lam_map_gen ξ ξ' f.
+
+<span class="kn">Lemma</span> <span class="nf">lam_map_gen_natural_pointwise</span> (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧) (<span class="nv">u</span> : sort)
+    : pr1 (# (pr1 lam_source_gen) f) u · pr1 (pr1 lam_map_gen ξ') u =
+        pr1 (pr1 lam_map_gen ξ) u · pr1 (# (pr1 UntypedForest_gen) f) u.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (nat_trans_eq_weq HSET _ _ (lam_map_gen_natural ξ ξ' f)).
+  <span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lam_map_gen_natural_ppointwise</span> (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+    (<span class="nv">u</span> : sort) (<span class="nv">elem</span> : pr1 (pr1 (pr1 lam_source_gen ξ) u)) :
+    pr1 (pr1 lam_map_gen ξ') u (pr1 (# (pr1 lam_source_gen) f) u elem) =
+      pr1 (# (pr1 UntypedForest_gen) f) u (pr1 (pr1 lam_map_gen ξ) u elem).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (toforallpaths _ _ _ (lam_map_gen_natural_pointwise ξ ξ' f u)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">sum_source_gen</span> (<span class="nv">n</span> : nat) : sortToSet2 :=
+    ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized sort Hsort SET TerminalHSET BinProductsHSET BinCoproductsHSET CoproductsHSET (arity sort UntypedForest_Sig (inl (inr n))) UntypedForest_gen.
+
+<span class="kn">Definition</span> <span class="nf">sum_source_gen_newstyle_zero</span> : sortToSet2 :=
+  functor_compose TsortToSetSet (hat_functorSet st).
+
+<span class="kn">Definition</span> <span class="nf">sum_source_gen_newstyle_nonzero</span> (<span class="nv">n</span> : nat) : sortToSet2 :=
+  nat_rect (<span class="k">fun</span> <span class="nv">_</span> =&gt;  sortToSet2)
+  (functor_compose UntypedForest_gen (projSortToSet se ∙ hat_functorSet st))
+  (<span class="k">fun</span> <span class="nv">_</span> <span class="nv">IHn</span> =&gt; BinProduct_of_functors BPsortToSet
+    (functor_compose UntypedForest_gen (projSortToSet se ∙ hat_functorSet st)) IHn) n.
+
+<span class="kn">Lemma</span> <span class="nf">sum_source_gen_eq</span> (<span class="nv">n</span> : nat):
+   sum_source_gen  n =
+(ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized
+sort Hsort SET TerminalHSET BinProductsHSET BinCoproductsHSET
+CoproductsHSET ((functionToList n  (<span class="k">fun</span> <span class="nv">_</span> =&gt; ([] ,, se)),,st)) UntypedForest_gen).
+<span class="kn">Proof</span>.
+   <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">sum_source_gen_newstyle_nonzero_eq</span> (<span class="nv">n</span> : nat) :
+  sum_source_gen_newstyle_nonzero  n  =
+(ContinuityOfMultiSortedSigToFunctor.hat_exp_functor_list'_optimized
+sort Hsort SET TerminalHSET BinProductsHSET BinCoproductsHSET
+CoproductsHSET ((functionToList  (S n)  (<span class="k">fun</span> <span class="nv">_</span> =&gt; ([] ,, se)),,st)) UntypedForest_gen).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n.
+  -<span class="nb">apply</span> idpath.
+  -<span class="nb">change</span> (sum_source_gen_newstyle_nonzero (S n))  <span class="k">with</span>
+     (BinProduct_of_functors BPsortToSet
+       (functor_compose UntypedForest_gen (projSortToSet se ∙ hat_functorSet st))
+       (sum_source_gen_newstyle_nonzero  n )).
+   <span class="nb">rewrite</span> IHn.
+   <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">sum_source_zero_gen_ok</span> : sum_source_gen_newstyle_zero = sum_source_gen <span class="mi">0</span>.
+<span class="kn">Proof</span>.
+   <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">sum_source_nonzero_gen_ok</span> (<span class="nv">n</span> : nat) : sum_source_gen_newstyle_nonzero n = sum_source_gen (S n).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> sum_source_gen_eq.
+  <span class="nb">rewrite</span> sum_source_gen_newstyle_nonzero_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">sum_map_gen</span> (<span class="nv">n</span> : nat) : sortToSet2⟦sum_source_gen n,UntypedForest_gen⟧.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (CoproductIn _ _ (Coproducts_functor_precat _ _ _ _ (<span class="k">λ</span> <span class="nv">_</span> , _ )) (inl (inr n)) · UntypedForest_tau_gen) .
+  <span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sum_map_gen_natural</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+    : # (pr1 (sum_source_gen n)) f · pr1 (sum_map_gen n) ξ' = pr1 (sum_map_gen n) ξ · # (pr1 UntypedForest_gen) f
+    := nat_trans_ax (sum_map_gen n) ξ ξ' f.
+
+<span class="kn">Lemma</span> <span class="nf">sum_map_gen_natural_pointwise</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet  ⟦ ξ, ξ' ⟧) (<span class="nv">u</span> : sort) :
+  pr1 (# (pr1 (sum_source_gen n)) f) u · pr1 (pr1 (sum_map_gen n) ξ') u =
+  pr1 (pr1 (sum_map_gen n) ξ) u · pr1 (# (pr1 UntypedForest_gen) f) u.
+<span class="kn">Proof</span>.
+   <span class="nb">apply</span> (nat_trans_eq_weq HSET _ _ (sum_map_gen_natural n ξ ξ' f)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">sum_map_gen_natural_ppointwise</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> <span class="nv">ξ'</span> : sortToSet) (<span class="nv">f</span> : sortToSet ⟦ ξ, ξ' ⟧)
+    (<span class="nv">u</span> : sort) (<span class="nv">elem</span> : pr1 (pr1 (pr1 (sum_source_gen n) ξ) u)) :
+    pr1 (pr1 (sum_map_gen n) ξ') u (pr1 (# (pr1 (sum_source_gen n)) f) u elem) =
+      pr1 (# (pr1 UntypedForest_gen) f) u (pr1 (pr1 (sum_map_gen n) ξ) u elem).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (toforallpaths _ _ _ (sum_map_gen_natural_pointwise n ξ ξ' f u)).
+  <span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">Church_int</span>.
+
+  <span class="c">(* The goal fo the following section is to define church integers *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">ChurchZero_gen</span> (<span class="nv">ξ</span> : sortToSet) : UntypedForest_gen_ctx_sort ξ st.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (pr1 (pr1 lam_map_gen _) _ _).
+    <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+    <span class="nb">change</span> (UntypedForest_gen_ctx_sort (ctx_ext ξ sv)  sv).
+    <span class="nb">refine</span> (pr1 (pr1 lam_map_gen _) _ _).
+    <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+    <span class="nb">change</span> (UntypedForest_gen_ctx_sort (ctx_ext (ctx_ext ξ  sv) sv) sv).
+    <span class="nb">simple refine</span> (pr1 (pr1 UntypedForest_eta_gen _) _ _).
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> ii1.
+    <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+    <span class="bp">exact</span> tt.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ChurchOne_gen</span> (<span class="nv">ξ</span> : sortToSet) :  UntypedForest_gen_ctx_sort ξ st.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (pr1 (pr1 lam_map_gen _) _ _).
+    <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+    <span class="nb">refine</span> (pr1 (pr1 lam_map_gen _) _ _).
+    <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+    <span class="nb">refine</span> (pr1 (pr1 (app_map_gen <span class="mi">1</span>) _) _ _).
+    <span class="nb">split</span> ; <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+    - <span class="nb">change</span> (UntypedForest_gen_ctx_sort (ctx_ext (ctx_ext ξ  sv)  sv)  sv).
+      <span class="nb">simple refine</span> (pr1 (pr1 UntypedForest_eta_gen _) _ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> ii2 ; <span class="nb">apply</span> ii1.
+      <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+      <span class="bp">exact</span> tt.
+    - <span class="nb">change</span> (UntypedForest_gen_ctx_sort (ctx_ext (ctx_ext ξ sv) sv) sv).
+      <span class="nb">simple refine</span> (pr1 (pr1 UntypedForest_eta_gen _) _ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> ii1.
+      <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+      <span class="bp">exact</span> tt.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Church_gen_body</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> : sortToSet) : UntypedForest_gen_ctx_sort (ctx_ext (ctx_ext ξ  sv)  sv)  st.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> n.
+    - <span class="nb">simple refine</span> (pr1 (pr1 UntypedForest_eta_gen _) _ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> ii1.
+      <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+      <span class="bp">exact</span> tt.
+    - <span class="nb">refine</span> (pr1 (pr1 (app_map_gen <span class="mi">1</span>) _) _ _).
+       <span class="nb">split</span> ; <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+       + <span class="nb">change</span> (UntypedForest_gen_ctx_sort (ctx_ext (ctx_ext ξ  sv)  sv)  sv).
+         <span class="nb">simple refine</span> (pr1 (pr1 UntypedForest_eta_gen _) _ _).
+         <span class="nb">cbn</span>.
+         <span class="nb">apply</span> ii2.
+         <span class="nb">apply</span> ii1.
+         <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+         <span class="bp">exact</span> tt.
+       + <span class="bp">exact</span> IHn.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">Church_gen_body_rec_eq</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span> : sortToSet) :
+   Church_gen_body (S n) ξ =
+      pr1 (pr1 (app_map_gen <span class="mi">1</span>) (ctx_ext (ctx_ext ξ  sv) sv))  st
+      ((idpath se,,
+        pr1 (pr1 UntypedForest_eta_gen (ctx_ext (ctx_ext ξ  sv) sv)) sv
+        (inr (inl (idpath sv,, tt)) : pr1 (pr1 (Id (ctx_ext (ctx_ext ξ  sv) sv))
+              sv))),,
+        idpath se,, Church_gen_body n  ξ).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span>  <span class="nf">Church_gen_header</span> (<span class="nv">ξ</span> : sortToSet) :
+      UntypedForest_gen_ctx_sort (ctx_ext (ctx_ext ξ  sv) sv) st -&gt; UntypedForest_gen_ctx_sort ξ st.
+      <span class="kn">Proof</span>.
+        <span class="nb">intro</span> body.
+        <span class="nb">refine</span> (pr1 (pr1 lam_map_gen _) _ _).
+        <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+        <span class="nb">refine</span> (pr1 (pr1 lam_map_gen _) _ _).
+        <span class="k">exists</span> (<span class="nv">idpath</span> <span class="nv">_</span>).
+        <span class="bp">exact</span> body.
+      <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">Church_gen</span> (<span class="nv">n</span> : nat) (<span class="nv">ξ</span>  : sortToSet) : UntypedForest_gen_ctx_sort ξ st := Church_gen_header ξ (Church_gen_body n ξ).
+
+
+<span class="kn">End</span> <span class="nf">Church_int</span>.
+
+<span class="kn">End</span> <span class="nf">IndAndCoind</span>.
+
+<span class="kn">Definition</span> <span class="nf">UntypedForest_ctx_sort_ind</span> (<span class="nv">ξ</span> : sortToSet) (<span class="nv">s</span> : sort) : UU := UntypedForest_gen_ctx_sort σind ξ s.
+
+<span class="kn">Definition</span> <span class="nf">UntypedForest_ctx_sort_coind</span> (<span class="nv">ξ</span> : sortToSet) (<span class="nv">s</span> : sort) : UU := UntypedForest_gen_ctx_sort σcoind ξ s.
+
+<span class="kn">Definition</span> <span class="nf">UntypedForest_ind</span> : sortToSet2 := UntypedForest_gen σind.
+<span class="kn">Definition</span> <span class="nf">UntypedForest_coind</span> : sortToSet2 := UntypedForest_gen σcoind.
+
+<span class="kn">Definition</span> <span class="nf">UntypedForest_eta_ind</span> : sortToSet2⟦Id,UntypedForest_ind⟧ := UntypedForest_eta_gen σind.
+<span class="kn">Definition</span> <span class="nf">UntypedForest_eta_coind</span> : sortToSet2⟦Id,UntypedForest_coind⟧ := UntypedForest_eta_gen σcoind.
+
+<span class="kn">Definition</span> <span class="nf">UntypedForest_tau_ind</span> : UntypedForest_Functor_H UntypedForest_ind --&gt; UntypedForest_ind  := SigmaMonoid_τ θUntypedForest σind.
+<span class="kn">Definition</span> <span class="nf">UntypedForest_tau_coind</span> : UntypedForest_Functor_H UntypedForest_coind --&gt; UntypedForest_coind  := SigmaMonoid_τ θUntypedForest σcoind.
+
+<span class="kn">Definition</span> <span class="nf">app_source_ind</span> (<span class="nv">n</span> : nat) : sortToSet2 := app_source_gen σind n.
+<span class="kn">Definition</span> <span class="nf">app_map_ind</span> (<span class="nv">n</span> : nat)  : sortToSet2⟦app_source_ind n, UntypedForest_ind⟧ := app_map_gen σind n.
+<span class="kn">Definition</span> <span class="nf">lam_source_ind</span> : sortToSet2 := lam_source_gen σind.
+<span class="kn">Definition</span> <span class="nf">lam_map_ind</span> : sortToSet2⟦lam_source_ind, UntypedForest_ind⟧ := lam_map_gen σind.
+<span class="kn">Definition</span> <span class="nf">sum_source_ind</span> (<span class="nv">n</span> : nat) : sortToSet2 := sum_source_gen σind n.
+<span class="kn">Definition</span> <span class="nf">sum_map_ind</span> (<span class="nv">n</span> : nat) : sortToSet2⟦sum_source_ind n, UntypedForest_ind⟧ := sum_map_gen σind n.
+
+<span class="kn">Definition</span> <span class="nf">app_source_coind</span> (<span class="nv">n</span> : nat) : sortToSet2 := app_source_gen σcoind n.
+<span class="kn">Definition</span> <span class="nf">app_map_coind</span>  (<span class="nv">n</span> : nat) : sortToSet2⟦app_source_coind n, UntypedForest_coind⟧ := app_map_gen σcoind n.
+<span class="kn">Definition</span> <span class="nf">lam_source_coind</span> : sortToSet2 := lam_source_gen σcoind.
+<span class="kn">Definition</span> <span class="nf">lam_map_coind</span> : sortToSet2⟦lam_source_coind, UntypedForest_coind⟧ := lam_map_gen σcoind.
+<span class="kn">Definition</span> <span class="nf">sum_source_coind</span> (<span class="nv">n</span> : nat) : sortToSet2 := sum_source_gen σcoind n.
+<span class="kn">Definition</span> <span class="nf">sum_map_coind</span> (<span class="nv">n</span> : nat) : sortToSet2⟦sum_source_coind n, UntypedForest_coind⟧ := sum_map_gen σcoind n.
+
+<span class="sd">(** get a handle on the recursion principles *)</span>
+
+<span class="sd">(** the initial algebra *)</span>
+<span class="kn">Definition</span> <span class="nf">UntypedForest_ind_IA</span> : Initial (FunctorAlg UntypedForest_Functor_Id_H)
+  := DatatypeOfMultisortedBindingSig_CAT sort Hsort SET TerminalHSET InitialHSET BinProductsHSET
+       BinCoproductsHSET (<span class="k">fun</span> <span class="nv">s</span> <span class="nv">s'</span> =&gt; ProductsHSET (s=s')) CoproductsHSET (EsortToSet2 sort Hsort)
+       (ColimsHSET_of_shape nat_graph) UntypedForest_Sig.
+<span class="sd">(** notice that this is only the initial algebra and not the initial sigma monoid *)</span>
+
+<span class="sd">(** the final coalgebra *)</span>
+<span class="kn">Definition</span> <span class="nf">UntypedForest_coind_FC</span> : Terminal (CoAlg_category UntypedForest_Functor_Id_H)
+  := coindCodatatypeOfMultisortedBindingSig_CAT sort Hsort HSET TerminalHSET
+         BinProductsHSET BinCoproductsHSET CoproductsHSET (LimsHSET_of_shape conat_graph)
+         I_coproduct_distribute_over_omega_limits_HSET UntypedForest_Sig is_univalent_HSET.
+
+<span class="kn">End</span> <span class="nf">Signature</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/UntypedForests.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; *)
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.PartB.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

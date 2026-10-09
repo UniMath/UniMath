@@ -1,0 +1,811 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CatOfPseudoDoubleCats.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*********************************************************************************</span>
+
+<span class="sd"> The category of pseudo double setcategories</span>
+
+<span class="sd"> In this file, we define the category of pseudo double setcategories. Pseudo double</span>
+<span class="sd"> setcategories are given by:</span>
+<span class="sd"> - A set of objects</span>
+<span class="sd"> - A set of vertical morphisms</span>
+<span class="sd"> - A set of horizontal morphisms</span>
+<span class="sd"> - A set of squares</span>
+<span class="sd"> Unitality and associativity of vertical composition holds strictly, while these</span>
+<span class="sd"> laws only hold weakly (i.e., up to invertible globular squares) for horizontal</span>
+<span class="sd"> morphisms. Note that we require the objects, vertical morphisms, and horizontal</span>
+<span class="sd"> morphisms to form a set, and that we require no further univalent condition.</span>
+
+<span class="sd"> We also show that this category is univalent. More concretely, pseudo double</span>
+<span class="sd"> setcategories satisfy a univalence principle that is given by isomorphisms of</span>
+<span class="sd"> strict double functors between pseudo double categories. Note the contrast with</span>
+<span class="sd"> the univalence principle of univalent pseudo double categories, which identifies</span>
+<span class="sd"> them up to equivalence of lax double functor. As such, there are two differences:</span>
+<span class="sd"> - For pseudo double setcategories, we require that the horizontal identity and</span>
+<span class="sd">   composition is preserved strictly, while for univalent pseudo double categories,</span>
+<span class="sd">   we only require that up to invertible 2-cell.</span>
+<span class="sd"> - For pseudo double setcategories, we look at isomorphisms, whereas for univalent</span>
+<span class="sd">   pseudo double categories, we look at adjoint equivalences.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Preliminary definitions</span>
+<span class="sd"> 2. Displayed category that adds the left unitor</span>
+<span class="sd"> 3. Displayed category that adds the right unitor</span>
+<span class="sd"> 4. Displayed category that adds the associator</span>
+<span class="sd"> 5. Displayed category that adds the unitors and associator</span>
+<span class="sd"> 6. The category of pseudo double setcategories</span>
+
+<span class="sd"> *********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.StrictTwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TransportLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.CatOfStrictDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Preliminary definitions *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_hor_id_to_double_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">I₁</span> : hor_id D₁}
+           {<span class="nv">I₂</span> : hor_id D₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           (<span class="nv">HFF</span> : preserves_hor_id I₁ I₂ FF)
+  : double_functor_hor_id FF I₁ I₂.
+<span class="kn">Proof</span>.
+  use make_double_functor_hor_id.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, idtoiso_twosided_disp (idpath _) (idpath _) (!(HFF x))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> -[idtoiso_twosided_disp] ;
+       <span class="nb">refine</span> (!_) ;
+       <span class="nb">refine</span> (maponpaths
+                 (<span class="k">λ</span> <span class="nv">z</span>, transportf_disp_mor2 _ _ z)
+                 (!(is_natural_preserves_hor_id_alt' HFF f))
+               @ _) ;
+       <span class="nb">unfold</span> transportb_disp_mor2 ;
+       <span class="nb">rewrite</span> transport_f_f_disp_mor2 ;
+       <span class="nb">apply</span> transportf_disp_mor2_idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_hor_comp_to_double_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">Cm₁</span> : hor_comp D₁}
+           {<span class="nv">Cm₂</span> : hor_comp D₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           (<span class="nv">HFF</span> : preserves_hor_comp Cm₁ Cm₂ FF)
+  : double_functor_hor_comp FF Cm₁ Cm₂.
+<span class="kn">Proof</span>.
+  use make_double_functor_hor_comp.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span>, idtoiso_twosided_disp (idpath _) (idpath _) (!(HFF x y z f g))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂ ;
+       <span class="nb">cbn</span> -[idtoiso_twosided_disp] ;
+       <span class="nb">refine</span> (!(is_natural_preserves_hor_comp_alt' HFF s₁ s₂) @ _) ;
+       use transportf_disp_mor2_eq ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Displayed category that adds the left unitor *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_lunitor_ob_mor</span>
+  : disp_cat_ob_mor cat_of_strict_twosided_disp_cat_hor_id_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, double_cat_lunitor (pr12 C) (pr22 C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD₁</span> <span class="nv">CD₂</span> <span class="nv">l₁</span> <span class="nv">l₂</span> <span class="nv">FF</span>,
+           double_functor_lunitor
+             l₁ l₂
+             (preserves_hor_id_to_double_functor (pr12 FF))
+             (preserves_hor_comp_to_double_functor (pr22 FF))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_lunitor_id_comp</span>
+  : disp_cat_id_comp
+      cat_of_strict_twosided_disp_cat_hor_id_comp
+      disp_cat_of_lunitor_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> CD l ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (transportf
+              (<span class="k">λ</span> <span class="nv">z</span>, double_functor_lunitor _ _ z _)
+              _
+              (transportf
+                 (<span class="k">λ</span> <span class="nv">z</span>, double_functor_lunitor _ _ _ z)
+                 _
+                 (identity_functor_lunitor l))).
+    + use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_double_functor_hor_id_laws.
+      }
+      use funextsec ; <span class="nb">intro</span> x.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> idtoiso_twosided_disp_identity.
+    + use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_double_functor_hor_comp_laws.
+      }
+      <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> idtoiso_twosided_disp_identity.
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ FF GG l₁ l₂ l₃ HFF HGG.
+    <span class="nb">refine</span> (transportf
+              (<span class="k">λ</span> <span class="nv">z</span>, double_functor_lunitor _ _ z _)
+              _
+              (transportf
+                 (<span class="k">λ</span> <span class="nv">z</span>, double_functor_lunitor _ _ _ z)
+                 _
+                 (comp_functor_lunitor HFF HGG))).
+    + use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_double_functor_hor_id_laws.
+      }
+      <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+      <span class="nb">cbn</span> -[idtoiso_twosided_disp].
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (idtoiso_twosided_disp_functor' (pr21 GG)).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> (two_disp_post_whisker_f (D := pr121 CD₃)).
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (idtoiso_twosided_disp_concat (D := pr121 CD₃)).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      <span class="nb">rewrite</span> transportf_disp_mor2_idpath.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> is_strict_strict_twosided_disp_cat.
+    + use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_double_functor_hor_comp_laws.
+      }
+      <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+      <span class="nb">cbn</span> -[idtoiso_twosided_disp].
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (idtoiso_twosided_disp_functor' (pr21 GG)).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> (two_disp_post_whisker_f (D := pr121 CD₃)).
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (idtoiso_twosided_disp_concat (D := pr121 CD₃)).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      <span class="nb">rewrite</span> transportf_disp_mor2_idpath.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> is_strict_strict_twosided_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_lunitor_data</span>
+  : disp_cat_data cat_of_strict_twosided_disp_cat_hor_id_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_of_lunitor_ob_mor.
+  - <span class="bp">exact</span> disp_cat_of_lunitor_id_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_cat_of_lunitor_laws</span>
+  : disp_cat_axioms
+      cat_of_strict_twosided_disp_cat_hor_id_comp
+      disp_cat_of_lunitor_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_double_functor_lunitor.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_double_functor_lunitor.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_double_functor_lunitor.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_double_functor_lunitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_lunitor</span>
+  : disp_cat cat_of_strict_twosided_disp_cat_hor_id_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_of_lunitor_data.
+  - <span class="bp">exact</span> disp_cat_of_lunitor_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_disp_cat_of_lunitor</span>
+  : is_univalent_disp disp_cat_of_lunitor.
+<span class="kn">Proof</span>.
+  use is_univalent_disp_from_fibers.
+  <span class="nb">intros</span> CD l₁ l₂.
+  <span class="nb">induction</span> CD <span class="k">as</span> [ [ C D ] [ I Cm ] ].
+  <span class="nb">cbn</span> <span class="k">in</span> C, D, I, Cm.
+  use isweqimplimpl.
+  - <span class="nb">intros</span> FF.
+    <span class="nb">induction</span> FF <span class="k">as</span> [ FF H ].
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_double_lunitor_laws.
+    }
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intro</span> f.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+    }
+    <span class="nb">refine</span> (_ @ !(FF x y f)) ; <span class="nb">cbn</span> -[idtoiso_twosided_disp].
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (idtoiso_twosided_disp_identity (D := D)).
+      }
+      <span class="nb">apply</span> (double_hor_comp_mor_id Cm).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (id_two_disp_left (D := D)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (idtoiso_twosided_disp_identity (D := D)).
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> (two_disp_pre_whisker_f (D := D)).
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> (id_two_disp_left (D := D)).
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">apply</span> transportf_disp_mor2_idpath.
+  - <span class="nb">apply</span> isaset_double_cat_lunitor.
+  - use isaproptotal2.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_z_iso_disp.
+    + <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaprop_double_functor_lunitor.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Displayed category that adds the right unitor *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_runitor_ob_mor</span>
+  : disp_cat_ob_mor cat_of_strict_twosided_disp_cat_hor_id_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, double_cat_runitor (pr12 C) (pr22 C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD₁</span> <span class="nv">CD₂</span> <span class="nv">r₁</span> <span class="nv">r₂</span> <span class="nv">FF</span>,
+           double_functor_runitor
+             r₁ r₂
+             (preserves_hor_id_to_double_functor (pr12 FF))
+             (preserves_hor_comp_to_double_functor (pr22 FF))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_runitor_id_comp</span>
+  : disp_cat_id_comp
+      cat_of_strict_twosided_disp_cat_hor_id_comp
+      disp_cat_of_runitor_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> CD r ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (transportf
+              (<span class="k">λ</span> <span class="nv">z</span>, double_functor_runitor _ _ z _)
+              _
+              (transportf
+                 (<span class="k">λ</span> <span class="nv">z</span>, double_functor_runitor _ _ _ z)
+                 _
+                 (identity_functor_runitor r))).
+    + use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_double_functor_hor_id_laws.
+      }
+      use funextsec ; <span class="nb">intro</span> x.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> idtoiso_twosided_disp_identity.
+    + use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_double_functor_hor_comp_laws.
+      }
+      <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> idtoiso_twosided_disp_identity.
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ FF GG r₁ r₂ r₃ HFF HGG.
+    <span class="nb">refine</span> (transportf
+              (<span class="k">λ</span> <span class="nv">z</span>, double_functor_runitor _ _ z _)
+              _
+              (transportf
+                 (<span class="k">λ</span> <span class="nv">z</span>, double_functor_runitor _ _ _ z)
+                 _
+                 (comp_functor_runitor HFF HGG))).
+    + use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_double_functor_hor_id_laws.
+      }
+      <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+      <span class="nb">cbn</span> -[idtoiso_twosided_disp].
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (idtoiso_twosided_disp_functor' (pr21 GG)).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> (two_disp_post_whisker_f (D := pr121 CD₃)).
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (idtoiso_twosided_disp_concat (D := pr121 CD₃)).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      <span class="nb">rewrite</span> transportf_disp_mor2_idpath.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> is_strict_strict_twosided_disp_cat.
+    + use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_double_functor_hor_comp_laws.
+      }
+      <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+      <span class="nb">cbn</span> -[idtoiso_twosided_disp].
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (idtoiso_twosided_disp_functor' (pr21 GG)).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> (two_disp_post_whisker_f (D := pr121 CD₃)).
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (idtoiso_twosided_disp_concat (D := pr121 CD₃)).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      <span class="nb">rewrite</span> transportf_disp_mor2_idpath.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> is_strict_strict_twosided_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_runitor_data</span>
+  : disp_cat_data cat_of_strict_twosided_disp_cat_hor_id_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_of_runitor_ob_mor.
+  - <span class="bp">exact</span> disp_cat_of_runitor_id_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_cat_of_runitor_laws</span>
+  : disp_cat_axioms
+      cat_of_strict_twosided_disp_cat_hor_id_comp
+      disp_cat_of_runitor_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_double_functor_runitor.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_double_functor_runitor.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_double_functor_runitor.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_double_functor_runitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_runitor</span>
+  : disp_cat cat_of_strict_twosided_disp_cat_hor_id_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_of_runitor_data.
+  - <span class="bp">exact</span> disp_cat_of_runitor_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_disp_cat_of_runitor</span>
+  : is_univalent_disp disp_cat_of_runitor.
+<span class="kn">Proof</span>.
+  use is_univalent_disp_from_fibers.
+  <span class="nb">intros</span> CD r₁ r₂.
+  <span class="nb">induction</span> CD <span class="k">as</span> [ [ C D ] [ I Cm ] ].
+  <span class="nb">cbn</span> <span class="k">in</span> C, D, I, Cm.
+  use isweqimplimpl.
+  - <span class="nb">intros</span> FF.
+    <span class="nb">induction</span> FF <span class="k">as</span> [ FF H ].
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_double_runitor_laws.
+    }
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intro</span> f.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+    }
+    <span class="nb">refine</span> (_ @ !(FF x y f)) ; <span class="nb">cbn</span> -[idtoiso_twosided_disp].
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (idtoiso_twosided_disp_identity (D := D)).
+      }
+      <span class="nb">apply</span> (double_hor_comp_mor_id Cm).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (id_two_disp_left (D := D)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (idtoiso_twosided_disp_identity (D := D)).
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> (two_disp_pre_whisker_f (D := D)).
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> (id_two_disp_left (D := D)).
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">apply</span> transportf_disp_mor2_idpath.
+  - <span class="nb">apply</span> isaset_double_cat_runitor.
+  - use isaproptotal2.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_z_iso_disp.
+    + <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaprop_double_functor_runitor.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Displayed category that adds the associator *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_associator_ob_mor</span>
+  : disp_cat_ob_mor cat_of_strict_twosided_disp_cat_hor_id_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span>, double_cat_associator (pr22 C)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD₁</span> <span class="nv">CD₂</span> <span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">FF</span>,
+           double_functor_associator
+             a₁ a₂
+             (preserves_hor_comp_to_double_functor (pr22 FF))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_associator_id_comp</span>
+  : disp_cat_id_comp
+      cat_of_strict_twosided_disp_cat_hor_id_comp
+      disp_cat_of_associator_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> CD a ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (transportf
+              (<span class="k">λ</span> <span class="nv">z</span>, double_functor_associator _ _ z)
+              _
+              (identity_functor_associator a)).
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_double_functor_hor_comp_laws.
+    }
+    <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> idtoiso_twosided_disp_identity.
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ FF GG a₁ a₂ a₃ HFF HGG.
+    <span class="nb">refine</span> (transportf
+              (<span class="k">λ</span> <span class="nv">z</span>, double_functor_associator _ _ z)
+              _
+              (comp_functor_associator HFF HGG)).
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_double_functor_hor_comp_laws.
+    }
+    <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+    <span class="nb">cbn</span> -[idtoiso_twosided_disp].
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (idtoiso_twosided_disp_functor' (pr21 GG)).
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> (two_disp_post_whisker_f (D := pr121 CD₃)).
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (idtoiso_twosided_disp_concat (D := pr121 CD₃)).
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> transportf_disp_mor2_idpath.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> is_strict_strict_twosided_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_associator_data</span>
+  : disp_cat_data cat_of_strict_twosided_disp_cat_hor_id_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_of_associator_ob_mor.
+  - <span class="bp">exact</span> disp_cat_of_associator_id_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_cat_of_associator_laws</span>
+  : disp_cat_axioms
+      cat_of_strict_twosided_disp_cat_hor_id_comp
+      disp_cat_of_associator_data.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_double_functor_associator.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_double_functor_associator.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_double_functor_associator.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_double_functor_associator.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_associator</span>
+  : disp_cat cat_of_strict_twosided_disp_cat_hor_id_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_of_associator_data.
+  - <span class="bp">exact</span> disp_cat_of_associator_laws.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_disp_cat_of_associator</span>
+  : is_univalent_disp disp_cat_of_associator.
+<span class="kn">Proof</span>.
+  use is_univalent_disp_from_fibers.
+  <span class="nb">intros</span> CD a₁ a₂.
+  <span class="nb">induction</span> CD <span class="k">as</span> [ [ C D ] [ I Cm ] ].
+  <span class="nb">cbn</span> <span class="k">in</span> C, D, I, Cm.
+  use isweqimplimpl.
+  - <span class="nb">intros</span> FF.
+    <span class="nb">induction</span> FF <span class="k">as</span> [ FF H ].
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_double_associator_laws.
+    }
+    use funextsec ; <span class="nb">intro</span> w.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intro</span> z.
+    use funextsec ; <span class="nb">intro</span> f.
+    use funextsec ; <span class="nb">intro</span> g.
+    use funextsec ; <span class="nb">intro</span> h.
+    <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+    }
+    <span class="nb">pose</span> (FF w x y z f g h).
+    <span class="nb">cbn</span> -[idtoiso_twosided_disp] <span class="k">in</span> p.
+    <span class="nb">refine</span> (_
+            @ maponpaths
+                (transportf_disp_mor2 (id_right _ @ id_left _) (id_right _ @ id_left _))
+                (!p)
+            @ _).
+    + <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (idtoiso_twosided_disp_identity (D := D)).
+          }
+          <span class="nb">apply</span> (double_hor_comp_mor_id Cm).
+        }
+        <span class="nb">apply</span> (id_two_disp_left (D := D)).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> (two_disp_pre_whisker_f (D := D)).
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> (idtoiso_twosided_disp_identity (D := D)).
+        }
+        <span class="nb">apply</span> (id_two_disp_left (D := D)).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      <span class="nb">apply</span> transportf_disp_mor2_idpath.
+    + etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> (idtoiso_twosided_disp_identity (D := D)).
+          }
+          <span class="nb">apply</span> (double_hor_comp_mor_id Cm).
+        }
+        <span class="nb">apply</span> (id_two_disp_right (D := D)).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> (two_disp_pre_whisker_f (D := D)).
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> (idtoiso_twosided_disp_identity (D := D)).
+        }
+        <span class="nb">apply</span> (id_two_disp_right (D := D)).
+      }
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      <span class="nb">apply</span> transportf_disp_mor2_idpath.
+  - <span class="nb">apply</span> isaset_double_cat_associator.
+  - use isaproptotal2.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_z_iso_disp.
+    + <span class="nb">intros</span>.
+      <span class="nb">apply</span> isaprop_double_functor_associator.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Displayed category that adds the unitors and associator *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_unitor_associator</span>
+  : disp_cat cat_of_strict_twosided_disp_cat_hor_id_comp
+  := dirprod_disp_cat
+       disp_cat_of_lunitor
+       (dirprod_disp_cat
+          disp_cat_of_runitor
+          disp_cat_of_associator).
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_disp_cat_of_unitor_associator</span>
+  : is_univalent_disp disp_cat_of_unitor_associator.
+<span class="kn">Proof</span>.
+  use dirprod_disp_cat_is_univalent.
+  - <span class="bp">exact</span> is_univalent_disp_cat_of_lunitor.
+  - use dirprod_disp_cat_is_univalent.
+    + <span class="bp">exact</span> is_univalent_disp_cat_of_runitor.
+    + <span class="bp">exact</span> is_univalent_disp_cat_of_associator.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_of_unitor_associator</span>
+  : category
+  := total_category disp_cat_of_unitor_associator.
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_cat_of_unitor_associator</span>
+  : is_univalent cat_of_unitor_associator.
+<span class="kn">Proof</span>.
+  use is_univalent_total_category.
+  - <span class="bp">exact</span> is_univalent_cat_of_strict_twosided_disp_cat_hor_id_comp.
+  - <span class="bp">exact</span> is_univalent_disp_cat_of_unitor_associator.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. The category of pseudo double setcategories *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_of_pseudo_double_setcategory</span>
+  : disp_cat cat_of_unitor_associator
+  := disp_full_sub
+       cat_of_unitor_associator
+       (<span class="k">λ</span> <span class="nv">CD</span>,
+        <span class="k">let</span> <span class="nv">l</span> := pr12 CD <span class="k">in</span>
+        <span class="k">let</span> <span class="nv">r</span> := pr122 CD <span class="k">in</span>
+        <span class="k">let</span> <span class="nv">a</span> := pr222 CD <span class="k">in</span>
+        triangle_law l r a × pentagon_law a).
+
+<span class="kn">Proposition</span> <span class="nf">is_univalent_disp_cat_of_pseudo_double_setcategory</span>
+  : is_univalent_disp disp_cat_of_pseudo_double_setcategory.
+<span class="kn">Proof</span>.
+  use disp_full_sub_univalent.
+  <span class="nb">intro</span> CD.
+  <span class="nb">apply</span> isapropdirprod.
+  - <span class="nb">apply</span> isaprop_triangle_law.
+  - <span class="nb">apply</span> isaprop_pentagon_law.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_cat_of_pseudo_double_setcategory</span>
+  : univalent_category.
+<span class="kn">Proof</span>.
+  use make_univalent_category.
+  - <span class="bp">exact</span> (total_category disp_cat_of_pseudo_double_setcategory).
+  - use is_univalent_total_category.
+    + <span class="bp">exact</span> is_univalent_cat_of_unitor_associator.
+    + <span class="bp">exact</span> is_univalent_disp_cat_of_pseudo_double_setcategory.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Core/CatOfPseudoDoubleCats.v</tt>, line 36)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  6. The category of pseudo double setcategories
+  &gt;
+  &gt;  *********************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

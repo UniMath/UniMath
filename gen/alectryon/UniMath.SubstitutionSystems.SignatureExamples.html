@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SignatureExamples.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">Definitions of various signatures.</span>
+
+<span class="sd">Written by: Anders Mörtberg, 2016</span>
+<span class="sd">Based on a note by Ralph Matthes</span>
+
+<span class="sd">Revised and extended by Ralph Matthes, 2017</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctors.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.Signatures.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.BicatOfCatsElementary.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.<span class="kn">Notation</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subsys.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PointedFunctorsComposition.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">around_δ</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+<span class="c">(* G^n+1 *)</span>
+<span class="kn">Fixpoint</span> <span class="nf">iter_functor1</span> (<span class="nv">G</span>: functor C C) (<span class="nv">n</span> : nat) : functor C C := <span class="k">match</span> n <span class="k">with</span>
+  | O =&gt; G
+  | S n' =&gt; functor_composite (iter_functor1 G n') G
+  <span class="k">end</span>.
+
+<span class="sd">(** The category of pointed endofunctors on [C] *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'Ptd'"</span> := (category_Ptd C).
+<span class="sd">(** The category of endofunctors on [C] *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'EndC'"</span>:= ([C, C]) .
+
+<span class="sd">(** distributivity with laws as a simple form the strength with laws,</span>
+<span class="sd">    for endofunctors on the base category</span>
+
+<span class="sd">    in July 2023, it became clear that this should rather have been</span>
+<span class="sd">    called a pointed lax commutator; since a paper is based on this</span>
+<span class="sd">    notion, we keep the name</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">def_of_δ</span>.
+
+<span class="kn">Context</span> (<span class="nv">G</span> : EndC).
+
+<span class="kn">Definition</span> <span class="nf">δ_source</span> : functor Ptd EndC :=
+  functor_compose (functor_ptd_forget C) (post_comp_functor G).
+
+<span class="kn">Definition</span> <span class="nf">δ_target</span> : functor Ptd EndC :=
+  functor_compose (functor_ptd_forget C) (pre_comp_functor G).
+
+<span class="kn">Section</span> <span class="nf">δ_laws</span>.
+
+<span class="kn">Context</span> (<span class="nv">δ</span> : δ_source ⟹ δ_target).
+
+<span class="c">(* Should be ρ_G^-1 ∘ λ_G ? *)</span>
+<span class="kn">Definition</span> <span class="nf">δ_law1</span> : UU := δ (id_Ptd C) = identity G.
+<span class="kn">Let</span> <span class="nf">D'</span> <span class="nv">Ze</span> <span class="nv">Ze'</span> :=
+  nat_trans_comp (rassociator_CAT (pr1 Ze) (pr1 Ze') G)
+ (nat_trans_comp (lwhisker_CAT (pr1 Ze) (δ Ze'))
+ (nat_trans_comp (lassociator_CAT (pr1 Ze) G (pr1 Ze'))
+ (nat_trans_comp (rwhisker_CAT (pr1 Ze') (δ Ze))
+                 (rassociator_CAT G (pr1 Ze) (pr1 Ze'))))).
+<span class="kn">Definition</span> <span class="nf">δ_law2</span> : UU := ∏ Ze Ze', δ (Ze p• Ze') = D' Ze Ze'.
+
+<span class="sd">(** the following variant is more suitable for communication about the results *)</span>
+<span class="kn">Definition</span> <span class="nf">δ_law2_nicer</span> : UU := ∏ Ze Ze',
+    δ (Ze p• Ze') =
+      # (pre_comp_functor (pr1 Ze)) (δ Ze') · # (post_comp_functor (pr1 Ze')) (δ Ze).
+
+<span class="kn">Lemma</span> <span class="nf">δ_law2_implies_δ_law2_nicer</span>: δ_law2 -&gt; δ_law2_nicer.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hyp Ze Ze'.
+  <span class="nb">assert</span> (Hypinst := Hyp Ze Ze').
+  etrans. { <span class="bp">exact</span> Hypinst. }
+  <span class="nb">unfold</span> D'.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">δ_law2_nicer_implies_δ_law2</span>: δ_law2_nicer -&gt; δ_law2.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hyp Ze Ze'.
+  <span class="nb">assert</span> (Hypinst := Hyp Ze Ze').
+  etrans. { <span class="bp">exact</span> Hypinst. }
+  <span class="nb">unfold</span> D'.
+  <span class="nb">apply</span> nat_trans_eq_alt.
+  <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">δ_laws</span>.
+
+<span class="kn">Definition</span> <span class="nf">DistributiveLaw</span> : UU := ∑ δ : δ_source ⟹ δ_target, δ_law1 δ × δ_law2 δ.
+
+<span class="kn">Definition</span> <span class="nf">δ</span> (<span class="nv">DL</span> : DistributiveLaw) : δ_source ⟹ δ_target := pr1 DL.
+
+<span class="kn">Definition</span> <span class="nf">distributive_law1</span> (<span class="nv">DL</span> : DistributiveLaw) : δ_law1 _ := pr1 (pr2 DL).
+
+<span class="kn">Definition</span> <span class="nf">distributive_law2</span> (<span class="nv">DL</span> : DistributiveLaw) : δ_law2 _ := pr2 (pr2 DL).
+
+<span class="kn">End</span> <span class="nf">def_of_δ</span>.
+
+<span class="kn">Section</span> <span class="nf">δ_for_id</span>.
+
+<span class="kn">Definition</span> <span class="nf">DL_id</span> : DistributiveLaw (functor_identity C).
+<span class="kn">Proof</span>.
+use tpair; <span class="nb">simpl</span>.
++ use tpair; <span class="nb">simpl</span>.
+  * <span class="nb">intro</span> x.
+    { use tpair.
+      - <span class="nb">intro</span> y; <span class="nb">simpl</span>; <span class="nb">apply</span> identity.
+      - <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">intros</span> y y' f; <span class="nb">rewrite</span> id_left, id_right).
+    }
+  * <span class="kp">abstract</span> ( <span class="nb">intros</span> y y' f; <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> z; <span class="nb">simpl</span>; <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right ).
++ <span class="nb">split</span>.
+  * <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>; <span class="nb">apply</span> idpath.
+  * <span class="nb">intros</span> Ze Ze'; <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>. <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> id_right. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> functor_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">δ_for_id</span>.
+
+<span class="sd">(** Construct θ in a Signature in the case when the functor is</span>
+<span class="sd">    precomposition with a functor G from a family of simpler</span>
+<span class="sd">    distributive laws δ *)</span>
+<span class="kn">Section</span> <span class="nf">θ_from_δ</span>.
+
+<span class="kn">Context</span> (<span class="nv">G</span> : functor C C) (<span class="nv">DL</span> : DistributiveLaw G).
+
+<span class="kn">Let</span> <span class="nf">precompG</span> := (pre_composition_functor _ C C G).
+
+<span class="sd">(** See Lemma 11 of "From Signatures to Monads in UniMath" in Ahrens, Matthes and Mörtberg *)</span>
+<span class="kn">Definition</span> <span class="nf">θ_from_δ_mor</span> (<span class="nv">XZe</span> : [C, C] ⊠ Ptd) :
+  [C, C] ⟦ θ_source precompG XZe, θ_target precompG XZe ⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (X := pr1 XZe); <span class="nb">set</span> (Z := pr1 (pr2 XZe)).
+  <span class="nb">set</span> (F1 := rassociator_CAT G Z X).
+  <span class="nb">set</span> (F2 := rwhisker_CAT X (δ G DL (pr2 XZe))).
+  <span class="nb">set</span> (F3 := lassociator_CAT Z G X).
+  <span class="bp">exact</span> (F3 · (F2 · F1)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_θ_from_δ_mor</span> :
+   is_nat_trans (θ_source precompG) (θ_target precompG) θ_from_δ_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H1 H2 αη; <span class="nb">induction</span> H1 <span class="k">as</span> [F1 Ze1]; <span class="nb">induction</span> H2 <span class="k">as</span> [F2 Ze2]; <span class="nb">induction</span> αη <span class="k">as</span> [α η].
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c.
+  <span class="nb">simpl</span>; <span class="nb">rewrite</span> !id_right, !id_left.
+  <span class="nb">generalize</span> (nat_trans_eq_pointwise (nat_trans_ax (δ G DL) Ze1 Ze2 η) c); <span class="nb">simpl</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">rewrite</span> assoc.
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition.
+       <span class="nb">apply</span> functor_comp. }
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> H. }
+  <span class="nb">clear</span> H.
+  <span class="nb">rewrite</span> functor_comp.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> pathsinv0, nat_trans_ax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">θ_from_δ</span> : PrestrengthForSignature precompG := tpair _ _ is_nat_trans_θ_from_δ_mor.
+
+<span class="kn">Lemma</span> <span class="nf">θ_Strength1_int_from_δ</span> : θ_Strength1_int θ_from_δ.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> F.
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> id_left, !id_right.
+  etrans; [<span class="nb">apply</span> maponpaths, (nat_trans_eq_pointwise (distributive_law1 G DL) c)|].
+  <span class="nb">apply</span> functor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">θ_Strength2_int_from_δ</span> : θ_Strength2_int θ_from_δ.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F Ze Ze'; <span class="nb">simpl</span>.
+  <span class="nb">set</span> (Z := pr1 Ze); <span class="nb">set</span> (Z' := pr1 Ze').
+  <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property |] ; <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="nb">generalize</span> (nat_trans_eq_pointwise (distributive_law2 G DL Ze Ze') c); <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !id_left, !id_right; <span class="nb">intro</span> H.
+  etrans; [<span class="nb">apply</span> maponpaths, H|].
+  <span class="nb">apply</span> functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">θ_precompG</span> : StrengthForSignature precompG :=
+  tpair _ θ_from_δ (θ_Strength1_int_from_δ ,, θ_Strength2_int_from_δ).
+
+<span class="kn">Definition</span> <span class="nf">θ_from_δ_Signature</span> : Signature C C C := tpair _ precompG θ_precompG.
+
+<span class="kn">End</span> <span class="nf">θ_from_δ</span>.
+
+<span class="c">(* Composition of δ's *)</span>
+<span class="kn">Section</span> <span class="nf">δ_mul</span>.
+
+  <span class="kn">Context</span> (<span class="nv">G1</span> : [C, C]) (<span class="nv">DL1</span> : DistributiveLaw G1)
+          (<span class="nv">G2</span> : [C, C]) (<span class="nv">DL2</span> : DistributiveLaw G2).
+
+  <span class="kn">Definition</span> <span class="nf">δ_comp_mor</span> (<span class="nv">Ze</span> : ptd_obj C) : [C, C] ⟦pr1 (δ_source (functor_compose G1 G2)) Ze,
+                                                        pr1 (δ_target (functor_compose G1 G2)) Ze⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (Z := pr1 Ze).
+  <span class="nb">set</span> (F1 := lassociator_CAT Z G1 G2).
+  <span class="nb">set</span> (F2 := rwhisker_CAT G2 (δ G1 DL1 Ze)).
+  <span class="nb">set</span> (F3 := rassociator_CAT G1 Z G2).
+  <span class="nb">set</span> (F4 := lwhisker_CAT G1 (δ G2 DL2 Ze)).
+  <span class="nb">set</span> (F5 := lassociator_CAT G1 G2 Z).
+  <span class="bp">exact</span> (F1 · (F2 · (F3 · (F4 · F5)))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_δ_comp_mor</span> : is_nat_trans (δ_source (functor_compose G1 G2))
+                                             (δ_target (functor_compose G1 G2)) δ_comp_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Ze Z'e' αX; <span class="nb">induction</span> Ze <span class="k">as</span> [Z e]; <span class="nb">induction</span> Z'e' <span class="k">as</span> [Z' e']; <span class="nb">induction</span> αX <span class="k">as</span> [α X]; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property |]; <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !id_right, !id_left.
+  <span class="nb">generalize</span> (nat_trans_eq_pointwise (nat_trans_ax (δ G1 DL1) (Z,,e) (Z',, e') (α,,X)) c).
+  <span class="nb">generalize</span> (nat_trans_eq_pointwise (nat_trans_ax (δ G2 DL2) (Z,,e) (Z',, e') (α,,X)) (G1 c)).
+  <span class="nb">intros</span> Hyp1 Hyp2.
+  <span class="nb">cbn</span> <span class="k">in</span> Hyp1, Hyp2.
+  etrans.
+  <span class="mi">2</span>: { <span class="nb">rewrite</span> &lt;- assoc. <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> Hyp1. }
+  <span class="nb">clear</span> Hyp1.
+  etrans.
+  { <span class="nb">rewrite</span> assoc. <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> pathsinv0, functor_comp. }
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition. <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> Hyp2. }
+  <span class="nb">rewrite</span> (functor_comp G2).
+  <span class="nb">apply</span> assoc'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">δ_comp</span> : δ_source (functor_compose G1 G2) ⟹ δ_target (functor_compose G1 G2) :=
+  tpair _ δ_comp_mor is_nat_trans_δ_comp_mor.
+
+<span class="kn">Lemma</span> <span class="nf">δ_comp_law1</span> : δ_law1 (functor_compose G1 G2) δ_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>; <span class="nb">rewrite</span> !id_left, id_right.
+  etrans.
+  { <span class="nb">apply</span> maponpaths, (nat_trans_eq_pointwise (distributive_law1 G2 DL2) (pr1 G1 c)). }
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law1  G1 DL1) c). }
+  <span class="bp">now</span> <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> functor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">δ_comp_law2</span> : δ_law2 (functor_compose G1 G2) δ_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Ze Ze'.
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>; <span class="nb">rewrite</span> !id_left, !id_right.
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition, maponpaths, (nat_trans_eq_pointwise (distributive_law2 G1 DL1 Ze Ze') c). }
+  etrans.
+  { <span class="nb">apply</span> maponpaths, (nat_trans_eq_pointwise (distributive_law2 G2 DL2 Ze Ze') (pr1 G1 c)). }
+  <span class="nb">simpl</span>; <span class="nb">rewrite</span> !id_left, !id_right.
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition, functor_comp. }
+  <span class="nb">rewrite</span> &lt;- !assoc.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> assoc.
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition, (nat_trans_ax (δ G2 DL2 Ze') _ _ (pr1 (δ G1 DL1 Ze) c)). }
+  <span class="nb">simpl</span>; <span class="nb">rewrite</span> &lt;- !assoc.
+  <span class="bp">now</span> <span class="nb">apply</span> maponpaths, pathsinv0, functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">DL_comp</span> : DistributiveLaw (functor_compose G1 G2).
+<span class="kn">Proof</span>.
+use tpair.
+  * <span class="bp">exact</span> δ_comp.
+  * <span class="nb">split</span>.
+    - <span class="bp">exact</span> δ_comp_law1.
+    - <span class="bp">exact</span> δ_comp_law2.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">δ_mul</span>.
+
+<span class="sd">(** Construct the δ when G is generalized option *)</span>
+<span class="kn">Section</span> <span class="nf">genoption_sig</span>.
+
+<span class="kn">Context</span> (<span class="nv">A</span> : C) (<span class="nv">CC</span> : BinCoproducts C).
+
+  <span class="kn">Let</span> <span class="nf">genopt</span> := constcoprod_functor1 CC A.
+
+<span class="kn">Definition</span> <span class="nf">δ_genoption_mor</span> (<span class="nv">Ze</span> : Ptd) (<span class="nv">c</span> : C) :  C ⟦ BinCoproductObject (CC A (pr1 Ze c)),
+                                                     pr1 Ze (BinCoproductObject (CC A c)) ⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (@BinCoproductArrow _ _ _ (CC A (pr1 Ze c)) (pr1 Ze (BinCoproductObject (CC A c)))).
+  - <span class="nb">apply</span> (BinCoproductIn1 (CC A c) · pr2 Ze (BinCoproductObject (CC A c))).
+  - <span class="nb">apply</span> (# (pr1 Ze) (BinCoproductIn2 (CC A c))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_δ_genoption_mor</span> (<span class="nv">Ze</span> : Ptd) :
+  is_nat_trans (δ_source genopt Ze : functor C C) (δ_target genopt Ze : functor C C)
+     (δ_genoption_mor Ze).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b f; <span class="nb">simpl</span>.
+  <span class="nb">induction</span> Ze <span class="k">as</span> [Z e].
+  <span class="nb">unfold</span> BinCoproduct_of_functors_mor; <span class="nb">simpl</span>.
+  etrans.
+  { <span class="nb">apply</span> precompWithBinCoproductArrow. }
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">apply</span> pathsinv0, BinCoproductArrowUnique.
+  - etrans.
+    { <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition, BinCoproductIn1Commutes. }
+    <span class="nb">rewrite</span> &lt;- assoc.
+    etrans.
+    { <span class="nb">apply</span> maponpaths, pathsinv0, (nat_trans_ax e). }
+    <span class="nb">simpl</span>; <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    etrans.
+    { <span class="nb">apply</span> BinCoproductOfArrowsIn1. }
+    <span class="bp">now</span> <span class="nb">rewrite</span> id_left.
+  - <span class="nb">rewrite</span> assoc.
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition, BinCoproductIn2Commutes. }
+    <span class="nb">rewrite</span> &lt;- !functor_comp.
+    <span class="bp">now</span> <span class="nb">apply</span> maponpaths, BinCoproductOfArrowsIn2.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_δ_genoption_mor_nat_trans</span> : is_nat_trans (δ_source genopt) (δ_target genopt)
+     (<span class="k">λ</span> <span class="nv">Ze</span> : Ptd, δ_genoption_mor Ze,, is_nat_trans_δ_genoption_mor Ze).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Ze; <span class="nb">induction</span> Ze <span class="k">as</span> [Z e]; <span class="nb">intro</span> Z'e'; <span class="nb">induction</span> Z'e' <span class="k">as</span> [Z' e']; <span class="nb">intro</span> αX; <span class="nb">induction</span> αX <span class="k">as</span> [α X]; <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">apply</span> nat_trans_eq; [<span class="nb">apply</span> homset_property |]; <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> BinCoproduct_of_functors_mor, BinCoproduct_of_functors_ob, δ_genoption_mor; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> precompWithBinCoproductArrow.
+  <span class="nb">apply</span> pathsinv0, BinCoproductArrowUnique.
+  - <span class="nb">rewrite</span> id_left, assoc.
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition, BinCoproductIn1Commutes. }
+    <span class="nb">rewrite</span> &lt;- assoc.
+    <span class="bp">now</span> <span class="nb">apply</span> maponpaths, X.
+  - <span class="nb">rewrite</span> assoc.
+    etrans.
+    { <span class="nb">apply</span> cancel_postcomposition, BinCoproductIn2Commutes. }
+    <span class="bp">now</span> <span class="nb">apply</span> nat_trans_ax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">δ_genoption</span> : δ_source genopt ⟹ δ_target genopt.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> Ze.
+    <span class="nb">apply</span> (tpair _ (δ_genoption_mor Ze) (is_nat_trans_δ_genoption_mor Ze)).
+  - <span class="nb">apply</span> is_nat_trans_δ_genoption_mor_nat_trans.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">δ_law1_genoption</span> : δ_law1 genopt δ_genoption.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> δ_genoption_mor, BinCoproduct_of_functors_ob; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> pathsinv0, BinCoproduct_endo_is_identity.
+  - <span class="nb">apply</span> BinCoproductIn1Commutes.
+  - <span class="nb">apply</span> BinCoproductIn2Commutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">δ_law2_genoption</span> : δ_law2 genopt δ_genoption.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Ze Z'e'; <span class="nb">induction</span> Ze <span class="k">as</span> [Z e]; <span class="nb">induction</span> Z'e' <span class="k">as</span> [Z' e'].
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> δ_genoption_mor, BinCoproduct_of_functors_ob; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> !id_left, id_right.
+  <span class="nb">apply</span> pathsinv0, BinCoproductArrowUnique.
+- <span class="nb">rewrite</span> assoc.
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition, BinCoproductIn1Commutes. }
+  <span class="nb">rewrite</span> &lt;- assoc.
+  etrans.
+  { <span class="nb">apply</span> maponpaths, pathsinv0, (nat_trans_ax e'). }
+  <span class="nb">simpl</span>; <span class="nb">rewrite</span> assoc.
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition, BinCoproductIn1Commutes. }
+  <span class="nb">rewrite</span> &lt;- !assoc.
+  <span class="bp">now</span> <span class="nb">apply</span> maponpaths.
+- <span class="nb">rewrite</span> assoc.
+  etrans.
+  { <span class="nb">apply</span> cancel_postcomposition, BinCoproductIn2Commutes. }
+  etrans.
+  { <span class="nb">apply</span> pathsinv0, functor_comp. }
+  <span class="bp">now</span> <span class="nb">apply</span> maponpaths, BinCoproductIn2Commutes.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">genoption_DistributiveLaw</span> : DistributiveLaw genopt.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">δ_genoption</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> δ_law1_genoption.
+  - <span class="bp">exact</span> δ_law2_genoption.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precomp_genoption_Signature</span> : Signature C C C :=
+  θ_from_δ_Signature genopt genoption_DistributiveLaw.
+
+<span class="kn">End</span> <span class="nf">genoption_sig</span>.
+
+<span class="sd">(** trivially instantiate previous section to option functor *)</span>
+<span class="kn">Section</span> <span class="nf">option_sig</span>.
+
+<span class="kn">Context</span> (<span class="nv">TC</span> : Terminal C) (<span class="nv">CC</span> : BinCoproducts C).
+
+  <span class="kn">Let</span> <span class="nf">opt</span> := option_functor CC TC.
+
+  <span class="kn">Definition</span> <span class="nf">δ_option</span>: δ_source opt ⟹ δ_target opt := δ_genoption TC CC.
+  <span class="kn">Definition</span> <span class="nf">δ_law1_option</span> :=  δ_law1_genoption TC CC.
+  <span class="kn">Definition</span> <span class="nf">δ_law2_option</span> :=  δ_law2_genoption TC CC.
+  <span class="kn">Definition</span> <span class="nf">option_DistributiveLaw</span> : DistributiveLaw opt := genoption_DistributiveLaw TC CC.
+  <span class="kn">Definition</span> <span class="nf">precomp_option_Signature</span> : Signature C C C := precomp_genoption_Signature TC CC.
+
+<span class="kn">End</span> <span class="nf">option_sig</span>.
+
+<span class="sd">(** Define δ for G = F^n *)</span>
+<span class="kn">Section</span> <span class="nf">iter1_dl</span>.
+
+<span class="kn">Context</span> (<span class="nv">G</span> : functor C C) (<span class="nv">DL</span> : DistributiveLaw G).
+
+<span class="kn">Definition</span> <span class="nf">DL_iter_functor1</span> (<span class="nv">n</span>: nat) : DistributiveLaw (iter_functor1 G n).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+  - <span class="bp">exact</span> DL.
+  - <span class="nb">apply</span> DL_comp.
+    + <span class="nb">apply</span> IHn.
+    + <span class="bp">exact</span> DL.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">iter1_dl</span>.
+
+<span class="kn">End</span> <span class="nf">around_δ</span>.
+
+<span class="kn">Section</span> <span class="nf">id_signature</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> : category).
+
+<span class="kn">Definition</span> <span class="nf">θ_functor_identity</span> : StrengthForSignature (functor_identity [C, D]).
+<span class="kn">Proof</span>.
+  use tpair.
+  + use tpair.
+    * <span class="nb">intro</span> x.
+      { use tpair.
+        - <span class="nb">intro</span> y; <span class="nb">simpl</span>; <span class="nb">apply</span> identity.
+        - <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">intros</span> y y' f; <span class="nb">rewrite</span> id_left, id_right).
+      }
+    * <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">intros</span> y y' f; <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> z;
+                <span class="nb">simpl</span>; <span class="nb">rewrite</span> id_left, id_right).
+  <span class="c">(* If this part is abstract the eval cbn for the LC doesn't reduce properly *)</span>
+  + <span class="bp">now</span> <span class="nb">split</span>; <span class="nb">intros</span> x; <span class="nb">intros</span>; <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>; <span class="nb">rewrite</span> !id_left.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Signature for the Id functor *)</span>
+<span class="kn">Definition</span> <span class="nf">IdSignature</span> : Signature C D D := tpair _ (functor_identity _) θ_functor_identity.
+<span class="sd">(** an alternative approach would be to go through θ_from_δ_Signature, based on the</span>
+<span class="sd">observation that functor_identity [C,C,hsC] and</span>
+<span class="sd">pre_comp_functor hsC hsC (functor_identity C) are isomorphic;</span>
+<span class="sd">however, they are probably not propositionally equal, and so the benefit is marginal *)</span>
+
+<span class="kn">End</span> <span class="nf">id_signature</span>.
+
+<span class="kn">Section</span> <span class="nf">constantly_constant_signature</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">D'</span> : category) (<span class="nv">d</span> : D).
+
+  <span class="kn">Let</span> <span class="nf">H</span> := constant_functor (functor_category C D') (functor_category C D) (constant_functor C D d).
+
+<span class="kn">Definition</span> <span class="nf">θ_const_const</span> : StrengthForSignature H.
+<span class="kn">Proof</span>.
+  use tpair; <span class="nb">simpl</span>.
+  + use tpair; <span class="nb">simpl</span>.
+    * <span class="nb">intro</span> x.
+      { use tpair.
+        - <span class="nb">intro</span> y; <span class="nb">simpl</span>; <span class="nb">apply</span> identity.
+        - <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">intros</span> y y' f; <span class="nb">rewrite</span> id_left, id_right).
+      }
+    * <span class="kp">abstract</span> ( <span class="bp">now</span> <span class="nb">intros</span> y y' f; <span class="nb">apply</span> (nat_trans_eq (homset_property D)); <span class="nb">intro</span> z;
+                <span class="nb">simpl</span>; <span class="nb">rewrite</span> id_left, id_right ).
+  + <span class="bp">now</span> <span class="nb">split</span>; <span class="nb">intros</span> x; <span class="nb">intros</span>; <span class="nb">apply</span> (nat_trans_eq (homset_property D)); <span class="nb">intro</span> c; <span class="nb">simpl</span>; <span class="nb">rewrite</span> !id_left.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ConstConstSignature</span> : Signature C D D' := tpair _ H θ_const_const.
+
+<span class="kn">End</span> <span class="nf">constantly_constant_signature</span>.
+
+<span class="sd">(** Transform a signature with strength θ with underlying functor H into</span>
+<span class="sd">    a signature with strength Gθ for the functor that comes from</span>
+<span class="sd">    post-composition of all HX with a functor G</span>
+<span class="sd">    G need not be an endofunctor, which is why the strength concept had</span>
+<span class="sd">    to be given more heterogeneously than only on endofunctors on</span>
+<span class="sd">    endofunctor categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">θ_for_postcomposition</span>.
+
+<span class="kn">Context</span> (<span class="nv">C</span> <span class="nv">D</span> <span class="nv">D'</span> <span class="nv">E</span> : category).
+
+<span class="sd">(** The category of pointed endofunctors on [C] *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'Ptd'"</span> := (category_Ptd C).
+<span class="sd">(** The category of endofunctors on [C] *)</span>
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'EndC'"</span>:= ([C, C]) .
+
+<span class="kn">Context</span> (<span class="nv">S</span>: Signature C D D').
+
+<span class="kn">Let</span> <span class="nf">H</span> : functor [C, D'] [C, D] := Signature_Functor S.
+<span class="kn">Let</span> <span class="nf">θ</span> : nat_trans (θ_source H) (θ_target H) := theta S.
+<span class="kn">Let</span> <span class="nf">θ_strength1</span> := Sig_strength_law1 S.
+<span class="kn">Let</span> <span class="nf">θ_strength2</span> := Sig_strength_law2 S.
+<span class="kn">Context</span> (<span class="nv">G</span> : [D, E]).
+
+<span class="kn">Let</span> <span class="nf">GH</span> : functor [C, D'] [C, E] := functor_composite H (post_comp_functor G).
+
+<span class="kn">Definition</span> <span class="nf">Gθ_mor</span> (<span class="nv">XZe</span> : [C, D'] ⊠ Ptd) : [C, E] ⟦ θ_source GH XZe, θ_target GH XZe ⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (X := pr1 XZe); <span class="nb">set</span> (Z := pr1 (pr2 XZe) : [C, C]).
+  <span class="nb">set</span> (F1 := lassociator_CAT Z (H X) G).
+  <span class="nb">set</span> (F2 := rwhisker_CAT G (θ XZe)).
+  <span class="bp">exact</span> (F1 · F2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_nat_trans_Gθ_mor</span> : is_nat_trans (θ_source GH) (θ_target GH) Gθ_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H1 H2 αX; <span class="nb">induction</span> H1 <span class="k">as</span> [F1 X1]; <span class="nb">induction</span> H2 <span class="k">as</span> [F2 X2].
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  etrans.
+  { <span class="nb">apply</span> maponpaths, pathsinv0, functor_comp. }
+  etrans.
+  { <span class="nb">apply</span> pathsinv0, functor_comp. }
+  <span class="nb">apply</span> pathsinv0; etrans.
+  { <span class="nb">apply</span> pathsinv0, functor_comp. }
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">generalize</span> (nat_trans_eq_pointwise (nat_trans_ax θ (F1,,X1) (F2,,X2) αX) c).
+  <span class="nb">intro</span> Hyp.
+  <span class="nb">apply</span> Hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Gθ</span> : PrestrengthForSignature GH := tpair _ _ is_nat_trans_Gθ_mor.
+
+<span class="kn">Lemma</span> <span class="nf">Gθ_Strength1_int</span> : θ_Strength1_int Gθ.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> F.
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">rewrite</span> id_left.
+  etrans.
+  { <span class="nb">apply</span> pathsinv0, functor_comp. }
+  <span class="nb">apply</span> pathsinv0; etrans.
+  { <span class="nb">apply</span> pathsinv0, functor_id. }
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">generalize</span> (nat_trans_eq_pointwise (θ_strength1 F) c); <span class="nb">simpl</span>.
+  <span class="nb">intro</span> Hyp.
+  <span class="nb">apply</span> pathsinv0, Hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">Gθ_Strength2_int</span> : θ_Strength2_int Gθ.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F Ze Ze'.
+  <span class="nb">set</span> (Z := pr1 Ze); <span class="nb">set</span> (Z' := pr1 Ze').
+  <span class="nb">apply</span> nat_trans_eq_alt; <span class="nb">intro</span> c; <span class="nb">simpl</span>.
+  <span class="kp">do</span> <span class="mi">4</span> <span class="nb">rewrite</span> id_left.
+  etrans.
+  { <span class="nb">apply</span> pathsinv0, functor_comp. }
+  <span class="nb">apply</span> pathsinv0; etrans.
+  { <span class="nb">apply</span> pathsinv0, functor_comp. }
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">generalize</span> (nat_trans_eq_pointwise (θ_strength2 F Ze Ze') c); <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">intro</span> Hyp.
+  <span class="nb">apply</span> pathsinv0, Hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Gθ_with_laws</span> : StrengthForSignature GH := tpair _ Gθ (Gθ_Strength1_int ,, Gθ_Strength2_int).
+
+<span class="kn">Definition</span> <span class="nf">Gθ_Signature</span> : Signature C E D' := tpair _ GH Gθ_with_laws.
+
+<span class="kn">End</span> <span class="nf">θ_for_postcomposition</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/SignatureExamples.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

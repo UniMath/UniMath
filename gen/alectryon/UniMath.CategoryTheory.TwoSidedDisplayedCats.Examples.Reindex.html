@@ -1,0 +1,702 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Reindex.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Reindexing two-sided displayed categories</span>
+
+<span class="sd"> Suppose, we have a two-sided displayed category `D` over `C₁'` and `C₂'`. Suppose</span>
+<span class="sd"> that we also have functors `F : C₁ ⟶ C₁'` and `G : C₂ ⟶ C₂'`. Then we can</span>
+<span class="sd"> construct a two-sided displayed category over `C₁` and `C₂`.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Transport lemmas</span>
+<span class="sd"> 2. The definition</span>
+<span class="sd"> 3. Isomorphisms</span>
+<span class="sd"> 4. The univalence</span>
+<span class="sd"> 5. Discreteness</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Discrete.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Total.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Reindexing</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+          (<span class="nv">F</span> : C₁ ⟶ C₁')
+          (<span class="nv">G</span> : C₂ ⟶ C₂')
+          (<span class="nv">D</span> : twosided_disp_cat C₁' C₂').
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Transport lemmas</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">twosided_prod_transport_reindex</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+             {<span class="nv">xy₁</span> : D (F x₁) (G y₁)}
+             {<span class="nv">xy₂</span> : D (F x₂) (G y₂)}
+             {<span class="nv">f₁</span> <span class="nv">f₂</span> : x₁ --&gt; x₂}
+             {<span class="nv">g₁</span> <span class="nv">g₂</span> : y₁ --&gt; y₂}
+             (<span class="nv">fg</span> : xy₁ --&gt;[ #F f₁ ][ #G g₁ ] xy₂)
+             (<span class="nv">p</span> : f₁ = f₂)
+             (<span class="nv">q</span> : g₁ = g₂)
+    : transportf
+        (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ #F z ][ _ ] _)
+        p
+        (transportf
+           (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ #G z ] _)
+           q
+           fg)
+      =
+      transportf
+        (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ pr1 z ][ dirprod_pr2 z ] _)
+        (pathsdirprod
+           (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #F z) p)
+           (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #G z) q))
+        fg.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p ; <span class="nb">induction</span> q.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">twosided_prod_transport_alt</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+             {<span class="nv">xy₁</span> : D (F x₁) (G y₁)}
+             {<span class="nv">xy₂</span> : D (F x₂) (G y₂)}
+             {<span class="nv">f₁</span> <span class="nv">f₂</span> : x₁ --&gt; x₂}
+             {<span class="nv">g₁</span> <span class="nv">g₂</span> : y₁ --&gt; y₂}
+             (<span class="nv">fg</span> : xy₁ --&gt;[ #F f₁ ][ #G g₁ ] xy₂)
+             (<span class="nv">p</span> : f₁ = f₂)
+             (<span class="nv">q</span> : g₁ = g₂)
+    : transportf
+        (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ #G z ] _)
+        q
+        (transportf
+           (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ #F z ][ _ ] _)
+           p
+           fg)
+      =
+      transportf
+        (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ pr1 z ][ dirprod_pr2 z ] _)
+        (pathsdirprod
+           (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #F z) p)
+           (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #G z) q))
+        fg.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p ; <span class="nb">induction</span> q.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. The definition</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">reindex_twosided_disp_cat_ob_mor</span>
+    : twosided_disp_cat_ob_mor C₁ C₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, D (F x) (G y)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span> <span class="nv">f</span> <span class="nv">g</span>, xy₁ --&gt;[ #F f ][ #G g ] xy₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_twosided_disp_cat_id_comp</span>
+    : twosided_disp_cat_id_comp reindex_twosided_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">xy</span>,
+             transportb
+               (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _] _)
+               (functor_id _ _)
+               (transportb
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _)
+                  (functor_id _ _)
+                  (id_two_disp _))).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">x₃</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">y₃</span> <span class="nv">xy₁</span> <span class="nv">xy₂</span> <span class="nv">xy₃</span> <span class="nv">f₁</span> <span class="nv">f₂</span> <span class="nv">g₁</span> <span class="nv">g₂</span> <span class="nv">fg₁</span> <span class="nv">fg₂</span>,
+             transportb
+               (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _] _)
+               (functor_comp _ _ _)
+               (transportb
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _)
+                  (functor_comp _ _ _)
+                  (fg₁ ;;<span class="mi">2</span> fg₂))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_twosided_disp_cat_data</span>
+    : twosided_disp_cat_data C₁ C₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> reindex_twosided_disp_cat_ob_mor.
+    - <span class="bp">exact</span> reindex_twosided_disp_cat_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_twosided_disp_cat_axioms</span>
+    : twosided_disp_cat_axioms reindex_twosided_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂ xy₁ xy₂ f g fg ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2, transportb ; <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> twosided_prod_transport.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> two_disp_pre_whisker_left.
+        <span class="nb">rewrite</span> two_disp_pre_whisker_right.
+        etrans.
+        {
+          <span class="nb">apply</span> twosided_prod_transport.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> id_two_disp_left.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> twosided_prod_transport.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> twosided_prod_transport_reindex.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> isaset_dirprod ; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂ xy₁ xy₂ f g fg ; <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2, transportb ; <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> twosided_prod_transport.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> two_disp_post_whisker_left.
+        <span class="nb">rewrite</span> two_disp_post_whisker_right.
+        etrans.
+        {
+          <span class="nb">apply</span> twosided_prod_transport.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> id_two_disp_right.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> twosided_prod_transport.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">rewrite</span> twosided_prod_transport_reindex.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> isaset_dirprod ; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> x₁ x₂ x₃ x₄ y₁ y₂ y₃ y₄ xy₁ xy₂ xy₃ xy₄ f₁ f₂ f₃ g₁ g₂ g₃ fg₁ fg₂ fg₃.
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2, transportb ; <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> twosided_prod_transport.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> two_disp_post_whisker_left.
+        <span class="nb">rewrite</span> two_disp_post_whisker_right.
+        etrans.
+        {
+          <span class="nb">apply</span> twosided_prod_transport.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> assoc_two_disp.
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> twosided_prod_transport.
+      }
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> twosided_prod_transport.
+        }
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> two_disp_pre_whisker_left.
+        <span class="nb">rewrite</span> two_disp_pre_whisker_right.
+        <span class="nb">apply</span> twosided_prod_transport.
+      }
+      <span class="nb">rewrite</span> !twosided_prod_transport_reindex.
+      <span class="nb">rewrite</span> !transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> isaset_dirprod ; <span class="nb">apply</span> homset_property.
+    - <span class="nb">intros</span> x₁ x₂ y₁ y₂ xy₁ xy₂ f g.
+      <span class="nb">apply</span> isaset_disp_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindex_twosided_disp_cat</span>
+    : twosided_disp_cat C₁ C₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> reindex_twosided_disp_cat_data.
+    - <span class="bp">exact</span> reindex_twosided_disp_cat_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Isomorphisms</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">MakeReindexIso</span>.
+    <span class="kn">Context</span> {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+            {<span class="nv">f</span> : x₁ --&gt; x₂}
+            (<span class="nv">Hf</span> : is_z_isomorphism f)
+            {<span class="nv">g</span> : y₁ --&gt; y₂}
+            (<span class="nv">Hg</span> : is_z_isomorphism g)
+            {<span class="nv">xy₁</span> : D (F x₁) (G y₁)}
+            {<span class="nv">xy₂</span> : D (F x₂) (G y₂)}
+            {<span class="nv">fg</span> : xy₁ --&gt;[ #F f ][ #G g ] xy₂}
+            (<span class="nv">Hfg</span> : is_iso_twosided_disp
+                     (functor_on_is_z_isomorphism F Hf)
+                     (functor_on_is_z_isomorphism G Hg)
+                     fg).
+
+    <span class="kn">Definition</span> <span class="nf">is_iso_reindex_twosided_disp_cat</span>
+      : @is_iso_twosided_disp
+           _ _
+           reindex_twosided_disp_cat
+           _ _ _ _ _ _ _ _
+           Hf
+           Hg
+           fg.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      - <span class="bp">exact</span> (iso_inv_twosided_disp Hfg).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ; <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2, transportb ; <span class="nb">cbn</span> ;
+           etrans ; [ <span class="nb">apply</span> twosided_prod_transport | ] ;
+           etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="bp">exact</span> (inv_after_iso_twosided_disp Hfg) | ] ;
+           etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> twosided_prod_transport | ] ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           <span class="nb">refine</span> (!_) ;
+           etrans ; [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> twosided_prod_transport | ] ;
+           etrans ; [ <span class="nb">apply</span> twosided_prod_transport_reindex | ] ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> isaset_dirprod ; <span class="nb">apply</span> homset_property).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ; <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2, transportb ; <span class="nb">cbn</span> ;
+           etrans ; [ <span class="nb">apply</span> twosided_prod_transport | ] ;
+           etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="bp">exact</span> (iso_after_inv_twosided_disp Hfg) | ] ;
+           etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> twosided_prod_transport | ] ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           <span class="nb">refine</span> (!_) ;
+           etrans ; [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> twosided_prod_transport | ] ;
+           etrans ; [ <span class="nb">apply</span> twosided_prod_transport_reindex | ] ;
+           <span class="nb">rewrite</span> transport_f_f ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> isaset_dirprod ; <span class="nb">apply</span> homset_property).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">iso_reindex_twosided_disp_cat</span>
+      : @iso_twosided_disp
+          _ _
+          reindex_twosided_disp_cat
+          _ _ _ _
+          (f ,, Hf)
+          (g ,, Hg)
+          xy₁
+          xy₂
+      := (fg ,, is_iso_reindex_twosided_disp_cat).
+  <span class="kn">End</span> <span class="nf">MakeReindexIso</span>.
+
+  <span class="kn">Section</span> <span class="nf">FromReindexIso</span>.
+    <span class="kn">Context</span> {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+            {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+            {<span class="nv">f</span> : x₁ --&gt; x₂}
+            (<span class="nv">Hf</span> : is_z_isomorphism f)
+            {<span class="nv">g</span> : y₁ --&gt; y₂}
+            (<span class="nv">Hg</span> : is_z_isomorphism g)
+            {<span class="nv">xy₁</span> : D (F x₁) (G y₁)}
+            {<span class="nv">xy₂</span> : D (F x₂) (G y₂)}
+            {<span class="nv">fg</span> : xy₁ --&gt;[ #F f ][ #G g ] xy₂}
+            (<span class="nv">Hfg</span> : @is_iso_twosided_disp
+                      _ _
+                      reindex_twosided_disp_cat
+                      _ _ _ _ _ _ _ _
+                      Hf
+                      Hg
+                      fg).
+
+    <span class="kn">Definition</span> <span class="nf">from_is_iso_reindex_twosided_disp_cat</span>
+      : is_iso_twosided_disp
+          (functor_on_is_z_isomorphism F Hf)
+          (functor_on_is_z_isomorphism G Hg)
+          fg.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      - <span class="bp">exact</span> (iso_inv_twosided_disp Hfg).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ; <span class="nb">unfold</span> transportb ;
+           <span class="nb">pose</span> (p := inv_after_iso_twosided_disp Hfg) ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> twosided_prod_transportb <span class="k">in</span> p ;
+           <span class="nb">pose</span> (@transportf_transpose_right
+                   _
+                   (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ pr1 z ][ dirprod_pr2 z ] _)
+                   _ _
+                   (pathsdirprod _ _)
+                   _ _
+                   p)
+             <span class="k">as</span> p' ;
+           <span class="nb">refine</span> (p' @ _) ;
+           <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2, transportb ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> twosided_prod_transport_reindex ;
+           <span class="nb">rewrite</span> !twosided_prod_transport ;
+           <span class="nb">rewrite</span> !transport_f_f ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> isaset_dirprod ; <span class="nb">apply</span> homset_property).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ; <span class="nb">unfold</span> transportb ;
+           <span class="nb">pose</span> (p := iso_after_inv_twosided_disp Hfg) ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> twosided_prod_transportb <span class="k">in</span> p ;
+           <span class="nb">pose</span> (@transportf_transpose_right
+                   _
+                   (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ pr1 z ][ dirprod_pr2 z ] _)
+                   _ _
+                   (pathsdirprod _ _)
+                   _ _
+                   p)
+             <span class="k">as</span> p' ;
+           <span class="nb">refine</span> (p' @ _) ;
+           <span class="nb">unfold</span> transportb_disp_mor2, transportf_disp_mor2, transportb ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> twosided_prod_transport_reindex ;
+           <span class="nb">rewrite</span> !twosided_prod_transport ;
+           <span class="nb">rewrite</span> !transport_f_f ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> isaset_dirprod ; <span class="nb">apply</span> homset_property).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">iso_from_is_iso_reindex_twosided_disp_cat</span>
+      : @iso_twosided_disp
+          _ _
+          D
+          _ _ _ _
+          (#F f ,, functor_on_is_z_isomorphism F Hf)
+          (#G g ,, functor_on_is_z_isomorphism G Hg)
+          xy₁
+          xy₂
+      := (fg ,, from_is_iso_reindex_twosided_disp_cat).
+  <span class="kn">End</span> <span class="nf">FromReindexIso</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_weq_reindex_twosided_disp_cat</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁}
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂}
+             {<span class="nv">f</span> : x₁ --&gt; x₂}
+             (<span class="nv">Hf</span> : is_z_isomorphism f)
+             {<span class="nv">g</span> : y₁ --&gt; y₂}
+             (<span class="nv">Hg</span> : is_z_isomorphism g)
+             (<span class="nv">xy₁</span> : D (F x₁) (G y₁))
+             (<span class="nv">xy₂</span> : D (F x₂) (G y₂))
+    : @iso_twosided_disp
+         _ _
+         D
+         _ _ _ _
+         (#F f ,, functor_on_is_z_isomorphism F Hf)
+         (#G g ,, functor_on_is_z_isomorphism G Hg)
+         xy₁
+         xy₂
+      ≃
+      @iso_twosided_disp
+         _ _
+         reindex_twosided_disp_cat
+         _ _ _ _
+         (f ,, Hf)
+         (g ,, Hg)
+         xy₁
+         xy₂.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">fg</span>, iso_reindex_twosided_disp_cat Hf Hg (pr2 fg)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">fg</span>, iso_from_is_iso_reindex_twosided_disp_cat Hf Hg (pr2 fg)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> fg ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> fg ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_reindex_twosided_disp_cat_help_to</span>
+             {<span class="nv">x₁</span> : C₁}
+             {<span class="nv">y₁</span> : C₂}
+             (<span class="nv">xy₁</span> <span class="nv">xy₂</span> : reindex_twosided_disp_cat x₁ y₁)
+             (<span class="nv">fg</span> : iso_twosided_disp
+                     (identity_z_iso (F x₁))
+                     (identity_z_iso (G y₁)) xy₁ xy₂)
+    : iso_twosided_disp
+        (_ ,, functor_on_is_z_isomorphism F (identity_is_z_iso x₁))
+        (_ ,, functor_on_is_z_isomorphism G (identity_is_z_iso y₁))
+        xy₁ xy₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> (transportb
+               (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _] _)
+               (functor_id _ _)
+               (transportb
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _)
+                  (functor_id _ _)
+                  (pr1 fg))).
+    - <span class="bp">exact</span> (transportb
+               (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _] _)
+               (functor_id _ _)
+               (transportb
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _)
+                  (functor_id _ _)
+                  (iso_inv_twosided_disp (pr2 fg)))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> two_disp_pre_whisker_left ;
+         <span class="nb">rewrite</span> two_disp_pre_whisker_right ;
+         <span class="nb">rewrite</span> two_disp_post_whisker_left ;
+         <span class="nb">rewrite</span> two_disp_post_whisker_right ;
+         etrans ; [ <span class="nb">apply</span> twosided_prod_transport | ] ;
+         etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> twosided_prod_transport | ] ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         etrans ; [ <span class="nb">apply</span> maponpaths ;<span class="nb">apply</span> (inv_after_iso_twosided_disp (pr2 fg)) | ] ;
+         <span class="nb">unfold</span> transportb ;
+         etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> twosided_prod_transport | ] ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">refine</span> (!_) ;
+         etrans ; [ <span class="nb">apply</span> twosided_prod_transport | ] ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> two_disp_pre_whisker_left ;
+         <span class="nb">rewrite</span> two_disp_pre_whisker_right ;
+         <span class="nb">rewrite</span> two_disp_post_whisker_left ;
+         <span class="nb">rewrite</span> two_disp_post_whisker_right ;
+         etrans ; [ <span class="nb">apply</span> twosided_prod_transport | ] ;
+         etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> twosided_prod_transport | ] ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         etrans ; [ <span class="nb">apply</span> maponpaths ;<span class="nb">apply</span> (iso_after_inv_twosided_disp (pr2 fg)) | ] ;
+         <span class="nb">unfold</span> transportb ;
+         etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> twosided_prod_transport | ] ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">refine</span> (!_) ;
+         etrans ; [ <span class="nb">apply</span> twosided_prod_transport | ] ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. The univalence</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_univalent_reindex_twosided_disp_cat_help_from</span>
+             {<span class="nv">x₁</span> : C₁}
+             {<span class="nv">y₁</span> : C₂}
+             (<span class="nv">xy₁</span> <span class="nv">xy₂</span> : reindex_twosided_disp_cat x₁ y₁)
+             (<span class="nv">fg</span> : iso_twosided_disp
+                     (_ ,, functor_on_is_z_isomorphism F (identity_is_z_iso x₁))
+                     (_ ,, functor_on_is_z_isomorphism G (identity_is_z_iso y₁))
+                     xy₁ xy₂)
+    : iso_twosided_disp
+        (identity_z_iso (F x₁))
+        (identity_z_iso (G y₁))
+        xy₁ xy₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+    - <span class="bp">exact</span> (transportf
+               (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _] _)
+               (functor_id _ _)
+               (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _)
+                  (functor_id _ _)
+                  (pr1 fg))).
+    - <span class="bp">exact</span> (transportf
+               (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ z ][ _] _)
+               (functor_id _ _)
+               (transportf
+                  (<span class="k">λ</span> <span class="nv">z</span>, _ --&gt;[ _ ][ z ] _)
+                  (functor_id _ _)
+                  (iso_inv_twosided_disp (pr2 fg)))).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> two_disp_pre_whisker_left ;
+         <span class="nb">rewrite</span> two_disp_pre_whisker_right ;
+         <span class="nb">rewrite</span> two_disp_post_whisker_left ;
+         <span class="nb">rewrite</span> two_disp_post_whisker_right ;
+         etrans ; [ <span class="nb">apply</span> twosided_prod_transport | ] ;
+         etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> twosided_prod_transport | ] ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         etrans ; [ <span class="nb">apply</span> maponpaths ;<span class="nb">apply</span> (inv_after_iso_twosided_disp (pr2 fg)) | ] ;
+         <span class="nb">unfold</span> transportb ;
+         etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> twosided_prod_transport | ] ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">refine</span> (!_) ;
+         etrans ; [ <span class="nb">apply</span> twosided_prod_transport | ] ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> two_disp_pre_whisker_left ;
+         <span class="nb">rewrite</span> two_disp_pre_whisker_right ;
+         <span class="nb">rewrite</span> two_disp_post_whisker_left ;
+         <span class="nb">rewrite</span> two_disp_post_whisker_right ;
+         etrans ; [ <span class="nb">apply</span> twosided_prod_transport | ] ;
+         etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> twosided_prod_transport | ] ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         etrans ; [ <span class="nb">apply</span> maponpaths ;<span class="nb">apply</span> (iso_after_inv_twosided_disp (pr2 fg)) | ] ;
+         <span class="nb">unfold</span> transportb ;
+         etrans ; [ <span class="nb">apply</span> maponpaths ; <span class="nb">apply</span> twosided_prod_transport | ] ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">refine</span> (!_) ;
+         etrans ; [ <span class="nb">apply</span> twosided_prod_transport | ] ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_reindex_twosided_disp_cat_help_weq</span>
+             {<span class="nv">x₁</span> : C₁}
+             {<span class="nv">y₁</span> : C₂}
+             (<span class="nv">xy₁</span> <span class="nv">xy₂</span> : reindex_twosided_disp_cat x₁ y₁)
+    : iso_twosided_disp (identity_z_iso (F x₁)) (identity_z_iso (G y₁)) xy₁ xy₂
+      ≃
+      iso_twosided_disp
+        (_ ,, functor_on_is_z_isomorphism F (identity_is_z_iso x₁))
+        (_ ,, functor_on_is_z_isomorphism G (identity_is_z_iso y₁))
+        xy₁ xy₂.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> (is_univalent_reindex_twosided_disp_cat_help_to xy₁ xy₂).
+    - <span class="bp">exact</span> (is_univalent_reindex_twosided_disp_cat_help_from xy₁ xy₂).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+         <span class="nb">cbn</span> <span class="k">in</span> * ; <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> !twosided_prod_transport ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">refine</span> (_ @ @idpath_transportf
+                        _
+                        (<span class="k">λ</span> <span class="nv">z</span>, xy₁ --&gt;[ pr1 z ][ dirprod_pr2 z ] xy₂)
+                        (_ ,, _)
+                        (pr1 f)) ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> f ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+         <span class="nb">cbn</span> <span class="k">in</span> * ; <span class="nb">unfold</span> transportb ;
+         <span class="nb">rewrite</span> !twosided_prod_transport ;
+         <span class="nb">rewrite</span> transport_f_f ;
+         <span class="nb">refine</span> (_ @ @idpath_transportf
+                        _
+                        (<span class="k">λ</span> <span class="nv">z</span>, xy₁ --&gt;[ pr1 z ][ dirprod_pr2 z ] xy₂)
+                        (_ ,, _)
+                        (pr1 f)) ;
+         <span class="nb">apply</span> maponpaths_2 ;
+         <span class="nb">apply</span> isasetdirprod ; <span class="nb">apply</span> homset_property).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_reindex_twosided_disp_cat</span>
+             (<span class="nv">HD</span> : is_univalent_twosided_disp_cat D)
+    : is_univalent_twosided_disp_cat reindex_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ p q xy₁ xy₂.
+    <span class="nb">induction</span> p ; <span class="nb">induction</span> q.
+    use weqhomot.
+    - <span class="bp">exact</span> (iso_weq_reindex_twosided_disp_cat _ _ xy₁ xy₂
+             ∘ is_univalent_reindex_twosided_disp_cat_help_weq xy₁ xy₂
+             ∘ make_weq _ (HD _ _ _ _ (idpath _) (idpath _) xy₁ xy₂))%weq.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> p ;
+         <span class="nb">induction</span> p ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Discreteness</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">isaprop_disp_twosided_mor_reindex_twosided_disp_cat</span>
+             (<span class="nv">HD₁</span> : isaprop_disp_twosided_mor D)
+    : isaprop_disp_twosided_mor reindex_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ xy₁ xy₂ f g fg fg'.
+    <span class="nb">apply</span> HD₁.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">all_disp_mor_iso_reindex_twosided_disp_cat</span>
+             (<span class="nv">HD</span> : all_disp_mor_iso D)
+    : all_disp_mor_iso reindex_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> is_iso_reindex_twosided_disp_cat.
+    <span class="nb">apply</span> HD.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_reindex_twosided_disp_cat</span>
+             (<span class="nv">HD</span> : discrete_twosided_disp_cat D)
+    : discrete_twosided_disp_cat reindex_twosided_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">apply</span> isaprop_disp_twosided_mor_reindex_twosided_disp_cat.
+      <span class="nb">apply</span> HD.
+    - <span class="nb">apply</span> all_disp_mor_iso_reindex_twosided_disp_cat.
+      <span class="nb">apply</span> HD.
+    - <span class="nb">apply</span> is_univalent_reindex_twosided_disp_cat.
+      <span class="nb">apply</span> HD.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Reindexing</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/TwoSidedDisplayedCats/Examples/Reindex.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Discreteness
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

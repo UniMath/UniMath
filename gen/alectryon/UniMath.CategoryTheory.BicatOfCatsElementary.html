@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BicatOfCatsElementary.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** the constituents of the bicategory of categories without using the package [Bicategories];</span>
+<span class="sd">    all is expressed with reference to the functor categories</span>
+
+<span class="sd">this is useful for developments that are inspired by bicategorical insights but that are spelt out</span>
+<span class="sd">in elementary form, so as to avoid dependency on the package [Bicategories], in particular used</span>
+<span class="sd">in examples of whiskered monoidal categories and actegories and in the package [SubstitutionSystems]</span>
+
+<span class="sd">author: Ralph Matthes 2023</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="kn">Definition</span> <span class="nf">id1_CAT</span> (<span class="nv">C</span> : category) : [C, C] := functor_identity C.
+
+<span class="sd">(** the data of a [prebicat_2_id_comp_struct] *)</span>
+<span class="kn">Definition</span> <span class="nf">id2_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : [C, D]) : [C, D]⟦F, F⟧ := nat_trans_id (F : functor _ _).
+
+<span class="kn">Definition</span> <span class="nf">lunitor_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : [C, D])
+  : [C, D]⟦functor_compose (id1_CAT C) F, F⟧
+  := nat_trans_id (F : functor _ _).
+
+<span class="kn">Definition</span> <span class="nf">runitor_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : [C, D])
+  : [C, D]⟦functor_compose F (id1_CAT D), F⟧
+  := nat_trans_id (F : functor _ _).
+
+<span class="kn">Definition</span> <span class="nf">linvunitor_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : [C, D])
+  : [C, D]⟦F, functor_compose (id1_CAT C) F⟧
+  := nat_trans_id (F : functor _ _).
+
+<span class="kn">Definition</span> <span class="nf">rinvunitor_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : [C, D])
+  : [C, D]⟦F, functor_compose F (id1_CAT D)⟧
+  := nat_trans_id (F : functor _ _).
+
+<span class="kn">Definition</span> <span class="nf">lassociator_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> <span class="nv">F</span> : category} (<span class="nv">X</span> : [C, D]) (<span class="nv">Y</span> : [D, E]) (<span class="nv">Z</span> : [E, F]) :
+    [C, F] ⟦functor_compose X (functor_compose Y Z), functor_compose (functor_compose X Y) Z⟧
+    := nat_trans_id (functor_composite X (functor_composite Y Z)).
+
+<span class="kn">Definition</span> <span class="nf">rassociator_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> <span class="nv">F</span> : category} (<span class="nv">X</span> : [C, D]) (<span class="nv">Y</span> : [D, E]) (<span class="nv">Z</span> : [E, F]) :
+    [C, F] ⟦functor_compose (functor_compose X Y) Z, functor_compose X (functor_compose Y Z)⟧
+    := nat_trans_id (functor_composite (functor_composite X Y) Z).
+
+<span class="kn">Definition</span> <span class="nf">vcomp2_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> : [C, D]} : [C,D]⟦F, G⟧ -&gt; [C,D]⟦G, H⟧ -&gt; [C,D]⟦F, H⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> α β. <span class="bp">exact</span> (nat_trans_comp _ _ _ α β).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lwhisker_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} (<span class="nv">F</span> : [C, D]) {<span class="nv">G1</span> <span class="nv">G2</span> : [D, E]}
+  : [D, E]⟦G1, G2⟧ -&gt; [C, E]⟦functor_compose F G1, functor_compose F G2⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> α. <span class="bp">exact</span> (pre_whisker (F : functor _ _) α).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">rwhisker_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} {<span class="nv">F1</span> <span class="nv">F2</span> : [C, D]} (<span class="nv">G</span> : [D, E])
+  : [C, D]⟦F1, F2⟧ -&gt; [C, E]⟦functor_compose F1 G, functor_compose F2 G⟧.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> α. <span class="bp">exact</span> (post_whisker α (G : functor _ _)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** the proofs required in [prebicat_laws] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">id2_left_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> <span class="nv">G</span> : [C, D]} (<span class="nv">α</span> : [C, D]⟦F, G⟧) :
+  id2_CAT F · α = α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">id2_right_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> <span class="nv">G</span> : [C, D]} (<span class="nv">α</span> : [C, D]⟦F, G⟧) :
+  α · id2_CAT G = α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vassocr_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> <span class="nv">K</span> : [C, D]}
+  (<span class="nv">α</span> : [C, D]⟦F, G⟧) (<span class="nv">β</span> : [C, D]⟦G, H⟧)(<span class="nv">γ</span> : [C, D]⟦H, K⟧) :
+  α · (β · γ) = (α · β) · γ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> assoc.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lwhisker_id2_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} (<span class="nv">F</span> : [C, D]) (<span class="nv">G</span> : [D, E]) :
+  lwhisker_CAT F (id2_CAT G) = id2_CAT _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pre_whisker_identity.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">id2_rwhisker_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} (<span class="nv">F</span> : [C, D]) (<span class="nv">G</span> : [D, E]) :
+  rwhisker_CAT G (id2_CAT F) = id2_CAT _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> post_whisker_identity.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lwhisker_vcomp_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} (<span class="nv">F</span> : [C, D]) (<span class="nv">G</span> <span class="nv">H</span> <span class="nv">I</span> : [D, E])
+  (<span class="nv">α</span> : [D, E]⟦G, H⟧) (<span class="nv">β</span> : [D, E]⟦H, I⟧) :
+  lwhisker_CAT F α · lwhisker_CAT F β = lwhisker_CAT F (α · β).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0, pre_whisker_composition.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rwhisker_vcomp_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category} (<span class="nv">F</span> <span class="nv">G</span> <span class="nv">H</span> : [C, D]) (<span class="nv">I</span> : [D, E])
+  (<span class="nv">α</span> : [C, D]⟦F, G⟧) (<span class="nv">β</span> : [C, D]⟦G, H⟧) :
+  rwhisker_CAT I α · rwhisker_CAT I β = rwhisker_CAT I (α · β).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0, post_whisker_composition.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vcomp_lunitor_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> <span class="nv">G</span> : [C, D]} (<span class="nv">α</span> : [C, D]⟦F, G⟧) :
+  lwhisker_CAT (id1_CAT C) α · lunitor_CAT G = lunitor_CAT F · α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c.
+  <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vcomp_runitor_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> <span class="nv">G</span> : [C, D]} (<span class="nv">α</span> : [C, D]⟦F, G⟧) :
+  rwhisker_CAT (id1_CAT D) α · runitor_CAT G = runitor_CAT F · α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left. <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lwhisker_lwhisker_CAT</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : [A, B]} {<span class="nv">G</span> : [B, C]} {<span class="nv">H</span> <span class="nv">I</span> : [C, D]}
+  (<span class="nv">α</span> : [C, D]⟦H, I⟧) :
+  lwhisker_CAT F (lwhisker_CAT G α) · lassociator_CAT _ _ _ =
+    lassociator_CAT _ _ _ · lwhisker_CAT (functor_compose F G) α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rwhisker_lwhisker_CAT</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : [A, B]} {<span class="nv">G</span> <span class="nv">H</span> : [B, C]} {<span class="nv">I</span> : [C, D]}
+  (<span class="nv">α</span> : [B, C]⟦G, H⟧) :
+  lwhisker_CAT F (rwhisker_CAT I α) · lassociator_CAT _ _ _ =
+    lassociator_CAT _ _ _ · rwhisker_CAT I (lwhisker_CAT F α).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rwhisker_rwhisker_CAT</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> <span class="nv">G</span> : [A, B]} {<span class="nv">H</span> : [B, C]} {<span class="nv">I</span> : [C, D]}
+  (<span class="nv">α</span> : [A, B]⟦F, G⟧) :
+  lassociator_CAT _ _ _ ·  rwhisker_CAT I (rwhisker_CAT H α) =
+    rwhisker_CAT (functor_compose H I) α · lassociator_CAT _ _ _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left, id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">vcomp_whisker_CAT</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category} {<span class="nv">F</span> <span class="nv">G</span> : [A, B]} {<span class="nv">H</span> <span class="nv">I</span> : [B, C]}
+  (<span class="nv">α</span> : [A, B]⟦F, G⟧) (<span class="nv">β</span> : [B, C]⟦H, I⟧) :
+  rwhisker_CAT H α · lwhisker_CAT G β = lwhisker_CAT F β · rwhisker_CAT I α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq C); <span class="nb">intro</span> c.
+  <span class="nb">apply</span> (pr2 β).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lunitor_linvunitor_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : [C, D]) :
+  lunitor_CAT F · linvunitor_CAT _ = id2_CAT _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">linvunitor_lunitor_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : [C, D]) :
+  linvunitor_CAT F · lunitor_CAT _ = id2_CAT _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">runitor_rinvunitor_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : [C, D]) :
+  runitor_CAT F · rinvunitor_CAT _ = id2_CAT _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rinvunitor_runitor_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : [C, D]) :
+  rinvunitor_CAT F · runitor_CAT _ = id2_CAT _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lassociator_rassociator_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> <span class="nv">F</span> : category} (<span class="nv">X</span> : [C, D]) (<span class="nv">Y</span> : [D, E]) (<span class="nv">Z</span> : [E, F]) :
+  lassociator_CAT X Y Z · rassociator_CAT _ _ _ = id2_CAT _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq F); <span class="nb">intro</span> c.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rassociator_lassociator_CAT</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> <span class="nv">F</span> : category} (<span class="nv">X</span> : [C, D]) (<span class="nv">Y</span> : [D, E]) (<span class="nv">Z</span> : [E, F]) :
+  rassociator_CAT X Y Z · lassociator_CAT _ _ _ = id2_CAT _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq F); <span class="nb">intro</span> c.
+  <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="c">(* [id1_CAT B] is needed in the following formulation, an underscore is not accepted *)</span>
+<span class="kn">Lemma</span> <span class="nf">runitor_rwhisker_CAT</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category} (<span class="nv">F</span> : [A, B]) (<span class="nv">G</span> : [B, C]) :
+  lassociator_CAT F (id1_CAT B) G · (rwhisker_CAT G (runitor_CAT F)) =
+    lwhisker_CAT F (lunitor_CAT G).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq C); <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">apply</span> functor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lassociator_lassociator_CAT</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+  (<span class="nv">F</span> : [A, B]) (<span class="nv">G</span> : [B, C]) (<span class="nv">H</span> : [C, D]) (<span class="nv">I</span> : [D, E]) :
+  lwhisker_CAT F (lassociator_CAT G H I) · lassociator_CAT _ (functor_compose G H)  _ ·
+    (rwhisker_CAT I (lassociator_CAT _ _ _)) =
+    lassociator_CAT F G (functor_compose H I) · lassociator_CAT (functor_compose F G) _ _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq E); <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_left.
+  <span class="nb">apply</span> functor_id.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** now for convenience *)</span>
+<span class="kn">Lemma</span> <span class="nf">lunitor_CAT_pointwise_is_z_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : [C, D]) :
+  is_z_isomorphism (lunitor_CAT F).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">linvunitor_CAT</span> <span class="nv">F</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> lunitor_linvunitor_CAT.
+  - <span class="nb">apply</span> linvunitor_lunitor_CAT.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">runitor_CAT_pointwise_is_z_iso</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : [C, D]) :
+  is_z_isomorphism (runitor_CAT F).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">rinvunitor_CAT</span> <span class="nv">F</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> runitor_rinvunitor_CAT.
+  - <span class="nb">apply</span> rinvunitor_runitor_CAT.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">lassociator_CAT_pointwise_is_z_iso</span> {<span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> <span class="nv">F</span> : category} (<span class="nv">X</span> : functor C D)(<span class="nv">Y</span> : functor D E)(<span class="nv">Z</span> : functor E F) :
+  is_z_isomorphism (lassociator_CAT X Y Z).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">rassociator_CAT</span> <span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span>).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> lassociator_rassociator_CAT.
+  - <span class="nb">apply</span> rassociator_lassociator_CAT.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** laws that are instances of derivable rules in bicategories; here, we just prove them directly *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">lwhisker_lwhisker_rassociator_CAT</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : [A, B]} {<span class="nv">G</span> : [B, C]} {<span class="nv">H</span> <span class="nv">I</span> : [C, D]}
+  (<span class="nv">α</span> : [C, D]⟦H, I⟧) :
+   rassociator_CAT _ _ _ · lwhisker_CAT F (lwhisker_CAT G α) =
+    lwhisker_CAT (functor_compose F G) α · rassociator_CAT _ _ _ .
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rwhisker_lwhisker_rassociator_CAT</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : [A, B]} {<span class="nv">G</span> <span class="nv">H</span> : [B, C]} {<span class="nv">I</span> : [C, D]}
+  (<span class="nv">α</span> : [B, C]⟦G, H⟧) :
+  rassociator_CAT _ _ _ · lwhisker_CAT F (rwhisker_CAT I α) =
+    rwhisker_CAT I (lwhisker_CAT F α) · rassociator_CAT _ _ _.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq D); <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_right; <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rwhisker_rwhisker_alt_CAT</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> : category} {<span class="nv">F</span> : [B, A]} {<span class="nv">G</span> : [C, B]} {<span class="nv">H</span> <span class="nv">I</span> : [D, C]}
+  (<span class="nv">α</span> : [D, C]⟦H, I⟧) :
+  rwhisker_CAT F (rwhisker_CAT G α) · rassociator_CAT _ _ _ =
+    rassociator_CAT _ _ _ · rwhisker_CAT (functor_compose G F) α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq A); <span class="nb">intro</span> d.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left; <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">lunitor_lwhisker_CAT</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : category} (<span class="nv">F</span> : [A, B]) (<span class="nv">G</span> : [B, C]) :
+  rassociator_CAT F (id1_CAT B) G · (lwhisker_CAT F (lunitor_CAT G)) =
+    rwhisker_CAT G (runitor_CAT F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq C); <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">apply</span> pathsinv0, functor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">rassociator_rassociator_CAT</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> <span class="nv">D</span> <span class="nv">E</span> : category}
+  (<span class="nv">F</span> : [A, B]) (<span class="nv">G</span> : [B, C]) (<span class="nv">H</span> : [C, D]) (<span class="nv">I</span> : [D, E]) :
+  rwhisker_CAT I (rassociator_CAT F G H) · rassociator_CAT _ (functor_compose G H)  _ ·
+    (lwhisker_CAT F (rassociator_CAT _ _ _)) =
+    rassociator_CAT (functor_compose F G) H I · rassociator_CAT F G (functor_compose H I).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_trans_eq E); <span class="nb">intro</span> c.
+  <span class="nb">cbn</span>.
+  <span class="kp">do</span> <span class="mi">3</span> <span class="nb">rewrite</span> id_right.
+  <span class="nb">apply</span> functor_id.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/BicatOfCatsElementary.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; author: Ralph Matthes 2023
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

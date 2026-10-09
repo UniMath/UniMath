@@ -1,0 +1,2277 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FiberBicategory2.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** * Bicategories</span>
+<span class="sd">    Benedikt Ahrens, Marco Maggesi</span>
+<span class="sd">    February 2018</span>
+<span class="sd"> ********************************************************************************* *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.FiberCategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.FiberBicategory.FiberBicategory1.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Section</span> <span class="nf">LocalIsoFibration</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+
+  <span class="kn">Variable</span> (<span class="nv">D</span> : disp_bicat C) (<span class="nv">h</span> : local_iso_cleaving D) (<span class="nv">c</span> : C).
+
+  <span class="kn">Local</span> <span class="kn">Arguments</span> transportf {_} {_} {_} {_} {_} _.
+  <span class="kn">Local</span> <span class="kn">Arguments</span> transportb {_} {_} {_} {_} {_} _.
+  <span class="kn">Local</span> <span class="kn">Arguments</span> disp_lassociator {_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _}.
+  <span class="kn">Local</span> <span class="kn">Arguments</span> disp_rassociator {_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _}.
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'ℓ1'"</span> := (local_iso_cleaving_1cell h _ (idempunitor c))
+                             (<span class="kn">at level</span> <span class="mi">0</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'ℓ2'"</span> := (disp_local_iso_cleaving_invertible_2cell h _ (idempunitor c))
+                             (<span class="kn">at level</span> <span class="mi">0</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"f ^-1"</span> := (disp_inv_cell f).
+
+  <span class="kn">Definition</span> <span class="nf">strict_fiber_bicat_data_laws_rassociator_lassociator</span>
+    :  ∏ (a₁ a₂ a₃ a₄ : strict_fiber_bicat_data D h c)
+         (f₁ : strict_fiber_bicat_data D h c ⟦ a₁ , a₂ ⟧)
+         (f₂ : strict_fiber_bicat_data D h c ⟦ a₂ , a₃ ⟧)
+         (f₃ : strict_fiber_bicat_data D h c ⟦ a₃ , a₄ ⟧),
+       rassociator f₁ f₂ f₃ • lassociator f₁ f₂ f₃
+       =
+       id₂ (f₁ · f₂ · f₃).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a₁ a₂ a₃ a₄ f₁ f₂ f₃ ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+    }
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)
+                                _ _ _ _ _ _ @ _).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths_2.
+                  <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths_2.
+                    <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                    etrans.
+                    {
+                      <span class="nb">apply</span> maponpaths.
+                      etrans.
+                      {
+                        <span class="nb">apply</span> maponpaths_2.
+                        <span class="nb">apply</span> (disp_vcomp_linv
+                                 (disp_local_iso_cleaving_invertible_2cell
+                                    h
+                                    (f₁;; local_iso_cleaving_1cell
+                                       h (f₂;; f₃) (idempunitor c))
+                                    (idempunitor c))).
+                      }
+                      etrans.
+                      {
+                        <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                      }
+                      etrans.
+                      {
+                        <span class="nb">apply</span> maponpaths.
+                        <span class="nb">apply</span> disp_id2_left.
+                      }
+                      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                    }
+                    <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                  }
+                  <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                }
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths_2.
+                  <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                }
+                <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+              }
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+          }
+          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">apply</span> disp_lwhisker_vcomp.
+              }
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths.
+                    <span class="bp">exact</span> (disp_vcomp_linv
+                             (disp_local_iso_cleaving_invertible_2cell
+                                h (f₂;; f₃) (idempunitor c))).
+                  }
+                  <span class="nb">apply</span> disp_rwhisker_transport_right.
+                }
+                etrans.
+                {
+                  <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                }
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> disp_lwhisker_id2.
+                }
+                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+              }
+              etrans.
+              {
+                <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+              }
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> disp_id2_left.
+              }
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+          }
+          <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+        }
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> disp_rassociator_lassociator.
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> disp_id2_left.
+            }
+            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+          }
+          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              etrans.
+              {
+                <span class="nb">apply</span> disp_rwhisker_vcomp.
+              }
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="bp">exact</span> (disp_vcomp_rinv
+                         (disp_local_iso_cleaving_invertible_2cell
+                            h (f₁;; f₂) (idempunitor c))).
+              }
+              etrans.
+              {
+                <span class="nb">apply</span> disp_rwhisker_transport_left_new.
+              }
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> disp_id2_rwhisker.
+              }
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> disp_id2_left.
+            }
+            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+          }
+          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (disp_vcomp_rinv
+               (disp_local_iso_cleaving_invertible_2cell
+                  h
+                  (local_iso_cleaving_1cell
+                     h (f₁;; f₂) (idempunitor c);; f₃)
+                  (idempunitor c))).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    <span class="nb">apply</span> (transportf_set (<span class="k">λ</span> <span class="nv">α</span> : id₁ c ==&gt; id₁ c, _ ==&gt;[ α] _) _).
+    <span class="nb">apply</span> C.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_fiber_bicat_data_laws_runitor_rwhisker</span>
+    : ∏ (a₁ a₂ a₃ : strict_fiber_bicat_data D h c)
+        (f : strict_fiber_bicat_data D h c ⟦ a₁ , a₂ ⟧)
+        (g : strict_fiber_bicat_data D h c ⟦ a₂ , a₃ ⟧),
+      lassociator f (id₁ a₂) g • (runitor f ▹ g)
+      =
+      f ◃ lunitor g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a₁ a₂ a₃ f g ; <span class="nb">cbn</span>.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> disp_rwhisker_transport_left_new.
+          }
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+    }
+    <span class="kp">do</span> <span class="mi">3</span> <span class="nb">refine</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : id₁ c ==&gt; id₁ c, _ ==&gt;[ z ] _)
+                                _ _ _ _ _ _ @ _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> disp_rwhisker_transport_right.
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+    }
+    <span class="nb">refine</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : id₁ c ==&gt; id₁ c, _ ==&gt;[ z ] _)
+                           _ _ _ _ _ _ @ _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="bp">exact</span> (disp_vcomp_linv
+                     (disp_local_iso_cleaving_invertible_2cell
+                        h
+                        (local_iso_cleaving_1cell h (f;; id_disp a₂) (idempunitor c);; g)
+                        (idempunitor c))).
+          }
+          <span class="nb">unfold</span> transportb.
+          etrans.
+          {
+            <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (disp_id2_left _).
+          }
+          <span class="nb">unfold</span> transportb.
+          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+        }
+        <span class="nb">unfold</span> transportb.
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+    }
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">refine</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : id₁ c ==&gt; id₁ c, _ ==&gt;[ z ] _)
+                           _ _ _ _ _ _ @ _).
+    etrans.
+    {
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+          }
+          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            etrans.
+            {
+              <span class="nb">apply</span> disp_rwhisker_vcomp.
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {
+                  <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths_2.
+                    <span class="bp">exact</span> (disp_vcomp_linv
+                             (disp_local_iso_cleaving_invertible_2cell
+                                h
+                                (f;; id_disp a₂) (idempunitor c))).
+                  }
+                  etrans.
+                  {
+                    <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                  }
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> disp_id2_left.
+                }
+                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+              }
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+              }
+              <span class="nb">apply</span> disp_rwhisker_transport_left_new.
+            }
+            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+          }
+          <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+        }
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> disp_runitor_rwhisker.
+            }
+            <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+          }
+          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> disp_lwhisker_vcomp.
+            }
+            <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+          }
+          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (disp_vassocl _ _ _).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    }
+    <span class="nb">apply</span> (@transportf_paths _ (<span class="k">λ</span> <span class="nv">α</span> : id₁ c ==&gt; id₁ c, _ ==&gt;[ α] _)).
+    <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">LassociatorLassociator</span>.
+    <span class="kn">Variable</span> (<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">a₃</span> <span class="nv">a₄</span> <span class="nv">a₅</span> : strict_fiber_bicat_data D h c)
+             (<span class="nv">f₁</span> : strict_fiber_bicat_data D h c ⟦ a₁ , a₂ ⟧)
+             (<span class="nv">f₂</span> : strict_fiber_bicat_data D h c ⟦ a₂ , a₃ ⟧)
+             (<span class="nv">f₃</span> : strict_fiber_bicat_data D h c ⟦ a₃ , a₄ ⟧)
+             (<span class="nv">f₄</span> : strict_fiber_bicat_data D h c ⟦ a₄ , a₅ ⟧).
+    <span class="kn">Arguments</span> transportf {_} _ {_} {_} _ _.
+
+    <span class="kn">Local Definition</span> <span class="nf">step1</span>
+      : ∑ p,
+        ((f₁ ◃ lassociator f₂ f₃ f₄)
+           • lassociator f₁ (f₂ · f₃) f₄)
+          • (lassociator f₁ f₂ f₃ ▹ f₄)
+        =
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          p
+          ((((ℓ2 •• (f₁ ◃◃ (((ℓ2 •• (f₂ ◃◃ ℓ2)) •• disp_lassociator)
+                              •• ((ℓ2 ^-<span class="mi">1</span> ▹▹ f₄) •• ℓ2 ^-<span class="mi">1</span>)))) •• ℓ2 ^-<span class="mi">1</span>)
+              •• (((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
+                    •• ((ℓ2 ^-<span class="mi">1</span> ▹▹ f₄) •• ℓ2^-<span class="mi">1</span>)))
+             •• ((ℓ2 •• ((((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
+                            •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₃) •• ℓ2^-<span class="mi">1</span>)) ▹▹ f₄)) •• ℓ2^-<span class="mi">1</span>)).
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+            }
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+            }
+            etrans.
+            {
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                }
+                etrans.
+                {
+                  <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                }
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths_2.
+                    etrans.
+                    {
+                      <span class="nb">apply</span> maponpaths_2.
+                      etrans.
+                      {
+                        <span class="nb">apply</span> maponpaths.
+                        <span class="nb">apply</span> disp_rwhisker_transport_right.
+                      }
+                      <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+                    }
+                    <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                  }
+                  <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                }
+                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+              }
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> disp_rwhisker_transport_left_new.
+                }
+                <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+              }
+              <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+            }
+            <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+          }
+          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+        }
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">step2</span>
+      : ∑ p,
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          p
+          ((((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
+              •• ((ℓ2 ^-<span class="mi">1</span> ▹▹ ℓ1) •• ℓ2^-<span class="mi">1</span>))
+             •• (((ℓ2 •• (ℓ1 ◃◃ ℓ2)) •• disp_lassociator)
+                   •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄) •• ℓ2^-<span class="mi">1</span>)))
+        =
+        lassociator f₁ f₂ (f₃ · f₄) • lassociator (f₁ · f₂) f₃ f₄.
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+        }
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">step3</span>
+      : ∑ p,
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          (pr1 step1)
+          ((((ℓ2 •• (f₁ ◃◃ (((ℓ2 •• (f₂ ◃◃ ℓ2)) •• disp_lassociator)
+                              •• ((ℓ2 ^-<span class="mi">1</span> ▹▹ f₄) •• ℓ2 ^-<span class="mi">1</span>)))) •• ℓ2 ^-<span class="mi">1</span>)
+              •• (((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
+                    •• ((ℓ2 ^-<span class="mi">1</span> ▹▹ f₄) •• ℓ2^-<span class="mi">1</span>)))
+             •• ((ℓ2 •• ((((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
+                            •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₃) •• ℓ2^-<span class="mi">1</span>)) ▹▹ f₄)) •• ℓ2^-<span class="mi">1</span>))
+        =
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+          p
+          ((ℓ2 •• (f₁ ◃◃ (((ℓ2 •• (f₂ ◃◃ ℓ2)) •• disp_lassociator)
+                            •• ((ℓ2 ^-<span class="mi">1</span> ▹▹ f₄) •• ℓ2^-<span class="mi">1</span>))))
+             •• ((((f₁ ◃◃ ℓ2) •• disp_lassociator)
+                    •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄) •• ℓ2^-<span class="mi">1</span>))
+                   •• ((ℓ2 •• ((((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
+                                  •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₃) •• ℓ2^-<span class="mi">1</span>)) ▹▹ f₄))
+                         •• ℓ2^-<span class="mi">1</span>))).
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {<span class="nb">apply</span> maponpaths_2.
+                 <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                 etrans.
+                 {
+                   <span class="nb">apply</span> maponpaths.
+                   etrans.
+                   {
+                     <span class="nb">apply</span> maponpaths_2.
+                     etrans.
+                     {
+                       <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                       <span class="nb">apply</span> maponpaths.
+                       etrans.
+                       {
+                         <span class="nb">apply</span> maponpaths_2.
+                         <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                         etrans.
+                         {
+                           <span class="nb">apply</span> maponpaths.
+                           etrans.
+                           {
+                             <span class="nb">apply</span> maponpaths_2.
+                             <span class="bp">exact</span> (disp_vcomp_linv ℓ2).
+                           }
+                           etrans.
+                           {
+                             <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                           }
+                           etrans.
+                           {
+                             <span class="nb">apply</span> maponpaths.
+                             <span class="nb">apply</span> disp_id2_left.
+                           }
+                           <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                         }
+                         <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                       }
+                       <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                     }
+                     <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                   }
+                   <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                 }
+                 <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                }
+                <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+              }
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+          }
+          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+        }
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">step4</span>
+      : ∑ p,
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)
+          (pr1 step3)
+          ((ℓ2 •• (f₁ ◃◃ (((ℓ2 •• (f₂ ◃◃ ℓ2)) •• disp_lassociator)
+                            •• ((ℓ2 ^-<span class="mi">1</span> ▹▹ f₄) •• ℓ2^-<span class="mi">1</span>))))
+             •• ((((f₁ ◃◃ ℓ2) •• disp_lassociator)
+                    •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄) •• ℓ2^-<span class="mi">1</span>))
+                   •• ((ℓ2 •• ((((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
+                                  •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₃) •• ℓ2^-<span class="mi">1</span>)) ▹▹ f₄))
+                         •• ℓ2^-<span class="mi">1</span>)))
+        =
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          p
+          ((ℓ2 •• (f₁ ◃◃ (((ℓ2 •• (f₂ ◃◃ ℓ2)) •• disp_lassociator)
+                            •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄) •• ℓ2^-<span class="mi">1</span>))))
+             •• (((f₁ ◃◃ ℓ2) •• disp_lassociator)
+                   •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄)
+                         •• (((((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
+                                 •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₃) •• ℓ2^-<span class="mi">1</span>)) ▹▹ f₄)
+                               •• ℓ2^-<span class="mi">1</span>)))).
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths.
+                    etrans.
+                    {
+                      <span class="nb">apply</span> maponpaths_2.
+                      <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                      etrans.
+                      {
+                        <span class="nb">apply</span> maponpaths.
+                        etrans.
+                        {
+                          <span class="nb">apply</span> maponpaths_2.
+                          <span class="bp">exact</span> (disp_vcomp_linv ℓ2).
+                        }
+                        etrans.
+                        {
+                          <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                        }
+                        etrans.
+                        {
+                          <span class="nb">apply</span> maponpaths.
+                          <span class="nb">apply</span> disp_id2_left.
+                        }
+                        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                      }
+                      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                    }
+                    <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                  }
+                  <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                }
+                <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+              }
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+          }
+          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">step5</span>
+      : ∑ p,
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          (pr1 step4)
+          ((ℓ2 •• (f₁ ◃◃ (((ℓ2 •• (f₂ ◃◃ ℓ2)) •• disp_lassociator)
+                            •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄) •• ℓ2^-<span class="mi">1</span>))))
+             •• (((f₁ ◃◃ ℓ2) •• disp_lassociator)
+                   •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄)
+                         •• (((((ℓ2 •• (f₁ ◃◃ ℓ2)) •• disp_lassociator)
+                                 •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₃) •• ℓ2^-<span class="mi">1</span>)) ▹▹ f₄)
+                               •• ℓ2^-<span class="mi">1</span>))))
+        =
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          p
+          ((ℓ2 •• ((f₁ ◃◃ ℓ2)
+                     •• (f₁ ◃◃ ((f₂ ◃◃ ℓ2)
+                                  •• (disp_lassociator
+                                        •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄)
+                                              •• ℓ2^-<span class="mi">1</span>))))))
+             •• (((f₁ ◃◃ ℓ2) •• disp_lassociator)
+                   •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄)
+                         •• (((((ℓ2 •• (f₁ ◃◃ ℓ2))
+                                  •• disp_lassociator)
+                                 •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₃)
+                                       •• ℓ2^-<span class="mi">1</span>)) ▹▹ f₄)
+                               •• ℓ2^-<span class="mi">1</span>)))).
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> disp_vassocl.
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> disp_rwhisker_transport_right.
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> disp_vassocl.
+              }
+              etrans.
+              {
+                <span class="nb">apply</span> disp_rwhisker_transport_right.
+              }
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> disp_lwhisker_vcomp_alt.
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+          }
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">step6</span>
+      : ∑ p,
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          (pr1 step5)
+          ((ℓ2 •• ((f₁ ◃◃ ℓ2)
+                     •• (f₁ ◃◃ ((f₂ ◃◃ ℓ2)
+                                  •• (disp_lassociator
+                                        •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄)
+                                              •• ℓ2^-<span class="mi">1</span>))))))
+             •• (((f₁ ◃◃ ℓ2) •• disp_lassociator)
+                   •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄)
+                         •• (((((ℓ2 •• (f₁ ◃◃ ℓ2))
+                                  •• disp_lassociator)
+                                 •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₃)
+                                       •• ℓ2^-<span class="mi">1</span>)) ▹▹ f₄)
+                               •• ℓ2^-<span class="mi">1</span>))))
+        =
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          p
+          (ℓ2 •• ((f₁ ◃◃ ℓ2)
+                    •• (((f₁ ◃◃ ((f₂ ◃◃ ℓ2)
+                                   •• (disp_lassociator
+                                         •• (ℓ2^-<span class="mi">1</span> ▹▹ f₄))))
+                           •• disp_lassociator)
+                          •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄)
+                                •• (((((ℓ2
+                                          •• (f₁ ◃◃ ℓ2))
+                                         •• disp_lassociator)
+                                        •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₃)
+                                              •• ℓ2^-<span class="mi">1</span>)) ▹▹ f₄)
+                                      •• ℓ2^-<span class="mi">1</span>))))).
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths_2.
+                    <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                    etrans.
+                    {
+                      <span class="nb">apply</span> maponpaths.
+                      etrans.
+                      {
+                        <span class="nb">apply</span> maponpaths_2.
+                        <span class="nb">apply</span> disp_lwhisker_vcomp.
+                      }
+                      etrans.
+                      {
+                        <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                      }
+                      etrans.
+                      {
+                        <span class="nb">apply</span> maponpaths.
+                        etrans.
+                        {
+                          <span class="nb">apply</span> maponpaths_2.
+                          etrans.
+                          {
+                            <span class="nb">apply</span> maponpaths.
+                            <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+                            etrans.
+                            {
+                              <span class="nb">apply</span> maponpaths.
+                              etrans.
+                              {
+                                <span class="nb">apply</span> maponpaths.
+                                <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+                                etrans.
+                                {
+                                  <span class="nb">apply</span> maponpaths.
+                                  etrans.
+                                  {
+                                    <span class="nb">apply</span> maponpaths.
+                                    <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+                                    etrans.
+                                    {
+                                      <span class="nb">apply</span> maponpaths.
+                                      etrans.
+                                      {
+                                        <span class="nb">apply</span> maponpaths.
+                                        <span class="bp">exact</span> (disp_vcomp_linv ℓ2).
+                                      }
+                                      etrans.
+                                      {
+                                        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+                                      }
+                                      <span class="nb">apply</span> maponpaths.
+                                      <span class="nb">apply</span> disp_id2_right.
+                                    }
+                                    etrans.
+                                    {
+                                      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                                    }
+                                    <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                                  }
+                                  <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+                                }
+                                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                              }
+                              <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+                            }
+                            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                          }
+                          <span class="nb">apply</span> disp_rwhisker_transport_right.
+                        }
+                        <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                      }
+                      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                    }
+                    <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                  }
+                  <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                }
+                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+              }
+              <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+            }
+            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+          }
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">step7</span>
+      : ∑ p,
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          (pr1 step6)
+          (ℓ2 •• ((f₁ ◃◃ ℓ2)
+                    •• (((f₁ ◃◃ ((f₂ ◃◃ ℓ2)
+                                   •• (disp_lassociator
+                                         •• (ℓ2^-<span class="mi">1</span> ▹▹ f₄))))
+                           •• disp_lassociator)
+                          •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄)
+                                •• (((((ℓ2
+                                          •• (f₁ ◃◃ ℓ2))
+                                         •• disp_lassociator)
+                                        •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₃)
+                                              •• ℓ2^-<span class="mi">1</span>)) ▹▹ f₄)
+                                      •• ℓ2^-<span class="mi">1</span>)))))
+        =
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          p
+          (ℓ2 •• ((f₁ ◃◃ ℓ2)
+                    •• (((f₁ ◃◃ ((f₂ ◃◃ ℓ2)
+                                   •• disp_lassociator))
+                           •• (disp_lassociator
+                                 •• ((f₁ ◃◃ ℓ2^-<span class="mi">1</span>) ▹▹ f₄)))
+                          •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄)
+                                •• (((((ℓ2 •• (f₁ ◃◃ ℓ2))
+                                         •• disp_lassociator)
+                                        •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₃)
+                                              •• ℓ2^-<span class="mi">1</span>)) ▹▹ f₄)
+                                      •• ℓ2^-<span class="mi">1</span>))))).
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> disp_vassocr.
+                }
+                etrans.
+                {
+                  <span class="nb">apply</span> disp_rwhisker_transport_right.
+                }
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> disp_lwhisker_vcomp_alt.
+                }
+                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+              }
+              etrans.
+              {
+                <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+              }
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths.
+                    <span class="nb">apply</span> disp_rwhisker_lwhisker.
+                  }
+                  <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+                }
+                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+              }
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+          }
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">step8</span>
+      : ∑ p,
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          (pr1 step7)
+          (ℓ2 •• ((f₁ ◃◃ ℓ2)
+                    •• (((f₁ ◃◃ ((f₂ ◃◃ ℓ2)
+                                   •• disp_lassociator))
+                           •• (disp_lassociator
+                                 •• ((f₁ ◃◃ ℓ2^-<span class="mi">1</span>) ▹▹ f₄)))
+                          •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₄)
+                                •• (((((ℓ2 •• (f₁ ◃◃ ℓ2))
+                                         •• disp_lassociator)
+                                        •• ((ℓ2^-<span class="mi">1</span> ▹▹ f₃)
+                                              •• ℓ2^-<span class="mi">1</span>)) ▹▹ f₄)
+                                      •• ℓ2^-<span class="mi">1</span>)))))
+        =
+        transportf (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+                   p
+                   (ℓ2
+                      •• ((f₁ ◃◃ ℓ2)
+                            •• (((f₁ ◃◃ ((f₂ ◃◃ ℓ2)
+                                           •• disp_lassociator))
+                                   •• (disp_lassociator
+                                         •• ((f₁ ◃◃ ℓ2 ^-<span class="mi">1</span>) ▹▹ f₄)))
+                                  •• ((((((f₁ ◃◃ ℓ2)
+                                            •• disp_lassociator)
+                                           •• (ℓ2 ^-<span class="mi">1</span> ▹▹ f₃))
+                                          •• ℓ2 ^-<span class="mi">1</span>) ▹▹ f₄)
+                                        •• ℓ2 ^-<span class="mi">1</span>)))).
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths_2.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> disp_rwhisker_vcomp.
+                  }
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths.
+                    etrans.
+                    {
+                      <span class="nb">apply</span> disp_vassocr.
+                    }
+                    <span class="nb">apply</span> maponpaths.
+                    etrans.
+                    {
+                      <span class="nb">apply</span> disp_vassocr.
+                    }
+                    <span class="nb">apply</span> maponpaths.
+                    etrans.
+                    {
+                      <span class="nb">apply</span> maponpaths_2.
+                      etrans.
+                      {
+                        <span class="nb">apply</span> maponpaths_2.
+                        etrans.
+                        {
+                          <span class="nb">apply</span> disp_vassocr.
+                        }
+                        <span class="nb">apply</span> maponpaths.
+                        etrans.
+                        {
+                          <span class="nb">apply</span> maponpaths_2.
+                          etrans.
+                          {
+                            <span class="nb">apply</span> disp_vassocr.
+                          }
+                          <span class="nb">apply</span> maponpaths.
+                          etrans.
+                          {
+                            <span class="nb">apply</span> maponpaths_2.
+                            <span class="nb">apply</span> (disp_vcomp_linv ℓ2).
+                          }
+                          etrans.
+                          {
+                            <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                          }
+                          etrans.
+                          {
+                            <span class="nb">apply</span> maponpaths.
+                            <span class="nb">apply</span> disp_id2_left.
+                          }
+                          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                        }
+                        etrans.
+                        {
+                          <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                        }
+                        etrans.
+                        {
+                          <span class="nb">apply</span> maponpaths.
+                          <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                        }
+                        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                      }
+                      etrans.
+                      {
+                        <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                      }
+                      etrans.
+                      {
+                        <span class="nb">apply</span> maponpaths.
+                        <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                      }
+                      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                    }
+                    <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                  }
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths.
+                    etrans.
+                    {
+                      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                    }
+                    <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                  }
+                  <span class="nb">apply</span> disp_rwhisker_transport_left_new.
+                }
+                etrans.
+                {
+                  <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                }
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                }
+                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+              }
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+          }
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">step9</span>
+      : ∑ p,
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          (pr1 step8)
+          (ℓ2
+             •• ((f₁ ◃◃ ℓ2)
+                   •• (((f₁ ◃◃ ((f₂ ◃◃ ℓ2)
+                                  •• disp_lassociator))
+                          •• (disp_lassociator
+                                •• ((f₁ ◃◃ ℓ2 ^-<span class="mi">1</span>) ▹▹ f₄)))
+                         •• ((((((f₁ ◃◃ ℓ2)
+                                   •• disp_lassociator)
+                                  •• (ℓ2 ^-<span class="mi">1</span> ▹▹ f₃))
+                                 •• ℓ2 ^-<span class="mi">1</span>) ▹▹ f₄)
+                               •• ℓ2 ^-<span class="mi">1</span>))))
+        =
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          p
+          (ℓ2
+             •• ((f₁ ◃◃ ℓ2)
+                   •• ((f₁ ◃◃ ((f₂ ◃◃ ℓ2) •• disp_lassociator))
+                         •• (disp_lassociator
+                               •• ((((disp_lassociator
+                                        •• (ℓ2 ^-<span class="mi">1</span> ▹▹ f₃))
+                                       •• ℓ2 ^-<span class="mi">1</span>) ▹▹ f₄)
+                                     •• ℓ2 ^-<span class="mi">1</span>))))).
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {
+                  <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths.
+                    etrans.
+                    {
+                      <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                      <span class="nb">apply</span> maponpaths.
+                      etrans.
+                      {
+                        <span class="nb">apply</span> maponpaths_2.
+                        etrans.
+                        {
+                          <span class="nb">apply</span> disp_rwhisker_vcomp.
+                        }
+                        <span class="nb">apply</span> maponpaths.
+                        etrans.
+                        {
+                          <span class="nb">apply</span> maponpaths.
+                          etrans.
+                          {
+                            <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                            <span class="nb">apply</span> maponpaths.
+                            etrans.
+                            {
+                              <span class="nb">apply</span> maponpaths_2.
+                              etrans.
+                              {
+                                <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                                <span class="nb">apply</span> maponpaths.
+                                etrans.
+                                {
+                                  <span class="nb">apply</span> maponpaths_2.
+                                  etrans.
+                                  {
+                                    <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                                    <span class="nb">apply</span> maponpaths.
+                                    etrans.
+                                    {
+                                      <span class="nb">apply</span> maponpaths_2.
+                                      etrans.
+                                      {
+                                        etrans.
+                                        {
+                                          <span class="nb">apply</span> disp_lwhisker_vcomp.
+                                        }
+                                        <span class="nb">apply</span> maponpaths.
+                                        etrans.
+                                        {
+                                          <span class="nb">apply</span> maponpaths.
+                                          <span class="nb">apply</span> (disp_vcomp_linv ℓ2).
+                                        }
+                                        etrans.
+                                        {
+                                          <span class="nb">apply</span> disp_rwhisker_transport_right.
+                                        }
+                                        <span class="nb">apply</span> maponpaths.
+                                        <span class="nb">apply</span> disp_lwhisker_id2.
+                                      }
+                                      <span class="nb">apply</span> (@transport_f_f
+                                               _
+                                               (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                                    }
+                                    etrans.
+                                    {
+                                      <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                                    }
+                                    etrans.
+                                    {
+                                      <span class="nb">apply</span> maponpaths.
+                                      etrans.
+                                      {
+                                        <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                                      }
+                                      etrans.
+                                      {
+                                        <span class="nb">apply</span> maponpaths.
+                                        <span class="nb">apply</span> disp_id2_left.
+                                      }
+                                      <span class="nb">apply</span> (@transport_f_f
+                                               _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                                    }
+                                    <span class="nb">apply</span> (@transport_f_f
+                                             _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                                  }
+                                  <span class="nb">apply</span> (@transport_f_f
+                                           _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                                }
+                                <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                              }
+                              <span class="nb">apply</span> (@transport_f_f
+                                       _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                            }
+                            <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                          }
+                          <span class="nb">apply</span> (@transport_f_f
+                                   _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                        }
+                        <span class="nb">apply</span> disp_rwhisker_transport_left_new.
+                      }
+                      etrans.
+                      {
+                        <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                      }
+                      etrans.
+                      {
+                        <span class="nb">apply</span> maponpaths.
+                        <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                      }
+                      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                    }
+                    <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                  }
+                  <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+                }
+                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+              }
+              <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+            }
+            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+          }
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">step10</span>
+      : ∑ p,
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          (pr1 step9)
+          (ℓ2
+             •• ((f₁ ◃◃ ℓ2)
+                   •• ((f₁ ◃◃ ((f₂ ◃◃ ℓ2) •• disp_lassociator))
+                         •• (disp_lassociator
+                               •• ((((disp_lassociator
+                                        •• (ℓ2 ^-<span class="mi">1</span> ▹▹ f₃))
+                                       •• ℓ2 ^-<span class="mi">1</span>) ▹▹ f₄)
+                                     •• ℓ2 ^-<span class="mi">1</span>)))))
+        =
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          p
+          (ℓ2
+             •• ((f₁ ◃◃ ℓ2)
+                   •• ((f₁ ◃◃ (f₂ ◃◃ ℓ2))
+                         •• (((disp_lassociator •• disp_lassociator)
+                                •• (((ℓ2 ^-<span class="mi">1</span> ▹▹ f₃) •• ℓ2 ^-<span class="mi">1</span>) ▹▹ f₄))
+                               •• ℓ2 ^-<span class="mi">1</span>)))).
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> disp_lwhisker_vcomp_alt.
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+            }
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {
+                  <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                    <span class="nb">apply</span> maponpaths.
+                    etrans.
+                    {
+                      <span class="nb">apply</span> maponpaths_2.
+                      etrans.
+                      {
+                        etrans.
+                        {
+                          <span class="nb">apply</span> maponpaths.
+                          etrans.
+                          {
+                            <span class="nb">apply</span> maponpaths.
+                            <span class="nb">apply</span> disp_vassocl.
+                          }
+                          etrans.
+                          {
+                            <span class="nb">apply</span> disp_rwhisker_transport_left_new.
+                          }
+                          <span class="nb">apply</span> maponpaths.
+                          <span class="nb">apply</span> disp_rwhisker_vcomp_alt.
+                        }
+                        etrans.
+                        {
+                          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+                        }
+                        etrans.
+                        {
+                          <span class="nb">apply</span> maponpaths.
+                          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+                        }
+                        etrans.
+                        {
+                          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                        }
+                        <span class="nb">apply</span> maponpaths.
+                        etrans.
+                        {
+                          <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                          <span class="nb">apply</span> maponpaths.
+                          etrans.
+                          {
+                            <span class="nb">apply</span> maponpaths_2.
+                            <span class="nb">apply</span> disp_lassociator_lassociator.
+                          }
+                          <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                        }
+                        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                      }
+                      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                    }
+                    <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                  }
+                  <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                }
+                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+              }
+              <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+            }
+            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+          }
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">step11</span>
+      : ∑ p,
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          (pr1 step10)
+          (ℓ2
+             •• ((f₁ ◃◃ ℓ2)
+                   •• ((f₁ ◃◃ (f₂ ◃◃ ℓ2))
+                         •• (((disp_lassociator •• disp_lassociator)
+                                •• (((ℓ2 ^-<span class="mi">1</span> ▹▹ f₃) •• ℓ2 ^-<span class="mi">1</span>) ▹▹ f₄))
+                               •• ℓ2 ^-<span class="mi">1</span>))))
+        =
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          p
+          (ℓ2
+             •• ((f₁ ◃◃ ℓ2)
+                   •• ((((disp_lassociator •• (f₁;; f₂ ◃◃ ℓ2)) •• disp_lassociator)
+                          •• (((ℓ2 ^-<span class="mi">1</span> ▹▹ f₃) •• ℓ2 ^-<span class="mi">1</span>) ▹▹ f₄)) •• ℓ2 ^-<span class="mi">1</span>))).
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                etrans.
+                {
+                  <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths_2.
+                    etrans.
+                    {
+                      <span class="nb">apply</span> disp_vassocr.
+                    }
+                    <span class="nb">apply</span> maponpaths.
+                    etrans.
+                    {
+                      <span class="nb">apply</span> maponpaths_2.
+                      <span class="nb">apply</span> disp_lwhisker_lwhisker.
+                    }
+                    <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                  }
+                  etrans.
+                  {
+                    etrans.
+                    {
+                      <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                    }
+                    <span class="nb">apply</span> maponpaths.
+                    <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                  }
+                  <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                }
+                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+              }
+              <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+            }
+            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+          }
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">step12</span>
+      : ∑ p,
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          (pr1 step11)
+          (ℓ2
+             •• ((f₁ ◃◃ ℓ2)
+                   •• ((((disp_lassociator •• (f₁;; f₂ ◃◃ ℓ2)) •• disp_lassociator)
+                          •• (((ℓ2 ^-<span class="mi">1</span> ▹▹ f₃) •• ℓ2 ^-<span class="mi">1</span>) ▹▹ f₄)) •• ℓ2 ^-<span class="mi">1</span>)))
+        =
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          p
+          (ℓ2
+             •• ((f₁ ◃◃ ℓ2)
+                   •• (((disp_lassociator •• (f₁;; f₂ ◃◃ ℓ2))
+                          •• (((ℓ2 ^-<span class="mi">1</span> ▹▹ f₃;; f₄)
+                                 •• disp_lassociator)
+                                •• (ℓ2 ^-<span class="mi">1</span> ▹▹ f₄)))
+                         •• ℓ2 ^-<span class="mi">1</span>))).
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              etrans.
+              {
+                <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths.
+                    <span class="nb">apply</span> disp_rwhisker_vcomp_alt.
+                  }
+                  etrans.
+                  {
+                    <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+                  }
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths.
+                    etrans.
+                    {
+                      <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                      <span class="nb">apply</span> maponpaths.
+                      etrans.
+                      {
+                        <span class="nb">apply</span> maponpaths_2.
+                        <span class="nb">apply</span> disp_rwhisker_rwhisker.
+                      }
+                      <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                    }
+                    <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                  }
+                  <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                }
+                <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+              }
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+          }
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">step13</span>
+      : ∑ p,
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          (pr1 step12)
+          (ℓ2
+             •• ((f₁ ◃◃ ℓ2)
+                   •• (((disp_lassociator •• (f₁;; f₂ ◃◃ ℓ2))
+                          •• (((ℓ2 ^-<span class="mi">1</span> ▹▹ f₃;; f₄)
+                                 •• disp_lassociator)
+                                •• (ℓ2 ^-<span class="mi">1</span> ▹▹ f₄)))
+                         •• ℓ2 ^-<span class="mi">1</span>)))
+        =
+        transportf
+          (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z] _)
+          p
+          (ℓ2
+             •• ((f₁ ◃◃ ℓ2)
+                   •• (((disp_lassociator •• (((ℓ2 ^-<span class="mi">1</span> ▹▹ ℓ1) •• (ℓ1 ◃◃ ℓ2))
+                                                •• disp_lassociator))
+                          •• (ℓ2 ^-<span class="mi">1</span> ▹▹ f₄))
+                         •• ℓ2 ^-<span class="mi">1</span>))).
+    <span class="kn">Proof</span>.
+      <span class="nb">eexists</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              etrans.
+              {
+                <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths_2.
+                  etrans.
+                  {
+                    <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+                    <span class="nb">apply</span> maponpaths.
+                    etrans.
+                    {
+                      <span class="nb">apply</span> maponpaths.
+                      etrans.
+                      {
+                        <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                        <span class="nb">apply</span> maponpaths.
+                        etrans.
+                        {
+                          <span class="nb">apply</span> maponpaths_2.
+                          <span class="nb">apply</span> disp_vcomp_whisker_alt.
+                        }
+                        <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                      }
+                      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                    }
+                    <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+                  }
+                  <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                }
+                <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+              }
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+          }
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local</span> <span class="kn">Arguments</span> transportf {_} _ {_} {_} {_} _.
+
+    <span class="kn">Definition</span> <span class="nf">strict_fiber_bicat_data_laws_lassociator_lassociator</span>
+      : ((f₁ ◃ lassociator f₂ f₃ f₄)
+           • lassociator f₁ (f₂ · f₃) f₄)
+          • (lassociator f₁ f₂ f₃ ▹ f₄)
+        =
+        lassociator f₁ f₂ (f₃ · f₄) • lassociator (f₁ · f₂) f₃ f₄.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (pr2 step1 @ _).
+      <span class="nb">refine</span> (_ @ pr2 step2).
+      <span class="nb">refine</span> (pr2 step3 @ _).
+      <span class="nb">refine</span> (pr2 step4 @ _).
+      <span class="nb">refine</span> (pr2 step5 @ _).
+      <span class="nb">refine</span> (pr2 step6 @ _).
+      <span class="nb">refine</span> (pr2 step7 @ _).
+      <span class="nb">refine</span> (pr2 step8 @ _).
+      <span class="nb">refine</span> (pr2 step9 @ _).
+      <span class="nb">refine</span> (pr2 step10 @ _).
+      <span class="nb">refine</span> (pr2 step11 @ _).
+      <span class="nb">refine</span> (pr2 step12 @ _).
+      <span class="nb">refine</span> (pr2 step13 @ _).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths_2.
+                    <span class="nb">apply</span> disp_vassocl.
+                  }
+                  <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                }
+                <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+              }
+              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+            }
+            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+          }
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {
+                  <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+                  <span class="nb">apply</span> maponpaths.
+                  etrans.
+                  {
+                    <span class="nb">apply</span> maponpaths.
+                    etrans.
+                    {
+                      <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                      <span class="nb">apply</span> maponpaths.
+                      etrans.
+                      {
+                        <span class="nb">apply</span> maponpaths_2.
+                        etrans.
+                        {
+                          <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                          <span class="nb">apply</span> maponpaths.
+                          etrans.
+                          {
+                            <span class="nb">apply</span> maponpaths_2.
+                            etrans.
+                            {
+                              <span class="nb">refine</span> (disp_vassocr _ _ _ @ _).
+                              <span class="nb">apply</span> maponpaths.
+                              etrans.
+                              {
+                                <span class="nb">apply</span> maponpaths_2.
+                                <span class="nb">apply</span> (disp_vcomp_linv ℓ2).
+                              }
+                              etrans.
+                              {
+                                <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                              }
+                              etrans.
+                              {
+                                <span class="nb">apply</span> maponpaths.
+                                <span class="nb">apply</span> disp_id2_left.
+                              }
+                              <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                            }
+                            <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                          }
+                          <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                        }
+                        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                      }
+                      <span class="nb">apply</span> disp_mor_transportf_postwhisker.
+                    }
+                    <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+                  }
+                  <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+                }
+                <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+              }
+              <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+            }
+            <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+          }
+          <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+        }
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">refine</span> (disp_vassocl _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> disp_vassocr.
+              }
+              <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+            }
+            <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+          }
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker.
+        }
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> (@transport_f_f _ (<span class="k">λ</span> <span class="nv">z</span> : _ ==&gt; _, _ ==&gt;[ z ] _)).
+      }
+      <span class="nb">apply</span> (@transportf_paths _ (<span class="k">λ</span> <span class="nv">α</span> : id₁ c ==&gt; id₁ c, _ ==&gt;[ α] _)).
+      <span class="nb">apply</span> cellset_property.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">LassociatorLassociator</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_fiber_bicat_data_laws</span> : prebicat_laws (strict_fiber_bicat_data D h c).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_vcomp_left D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_vcomp_right D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_vcomp_assoc D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_rwhisker_id2 D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_id2_lwhisker D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_vcomp_lwhisker D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_vcomp_rwhisker D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_vcomp_lunitor D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_vcomp_runitor D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_lwhisker_lwhisker D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_rwhisker_lwhisker D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_rwhisker_rwhisker D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_vcomp_whisker D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_lunitor_linvunitor D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_linvunitor_lunitor D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_runitor_rinvunitor D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_rinvunitor_runitor D h c).
+    - <span class="bp">exact</span> (strict_fiber_bicat_data_laws_lassociator_rassociator D h c).
+    - <span class="bp">exact</span> strict_fiber_bicat_data_laws_rassociator_lassociator.
+    - <span class="bp">exact</span> strict_fiber_bicat_data_laws_runitor_rwhisker.
+    - <span class="bp">exact</span> strict_fiber_bicat_data_laws_lassociator_lassociator.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_fiber_prebicat</span> : prebicat.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (strict_fiber_bicat_data D h c).
+    - <span class="bp">exact</span> strict_fiber_bicat_data_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_fiber_bicat</span> : bicat.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> strict_fiber_prebicat.
+    - <span class="nb">intros</span> x y f g.
+      <span class="nb">apply</span> disp_cellset_property.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LocalIsoFibration</span>.
+
+<span class="kn">Definition</span> <span class="nf">strict_fiber_bicat_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">HD</span> : local_iso_cleaving D}
+           {<span class="nv">b</span> : B}
+           {<span class="nv">x</span> <span class="nv">y</span> : strict_fiber_bicat D HD b}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           {<span class="nv">α</span> : f ==&gt; g}
+           (<span class="nv">Hα</span> : is_disp_invertible_2cell (id2_invertible_2cell _) α)
+  : is_invertible_2cell α.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (αcell := (α ,, Hα) : disp_invertible_2cell (id2_invertible_2cell _) f g).
+  use make_is_invertible_2cell.
+  - <span class="bp">exact</span> (disp_inv_cell αcell).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (maponpaths _ (disp_vcomp_rinv αcell) @ _) ;
+       <span class="nb">unfold</span> transportb ;
+       <span class="nb">rewrite</span> transport_f_f ;
+       <span class="nb">refine</span> (_ @ idpath_transportf (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _) _) ;
+       <span class="nb">apply</span> maponpaths_2 ;
+       <span class="nb">apply</span> cellset_property).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (maponpaths _ (disp_vcomp_linv αcell) @ _) ;
+       <span class="nb">unfold</span> transportb ;
+       <span class="nb">rewrite</span> transport_f_f ;
+       <span class="nb">refine</span> (_ @ idpath_transportf (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _) _) ;
+       <span class="nb">apply</span> maponpaths_2 ;
+       <span class="nb">apply</span> cellset_property).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/FiberBicategory/FiberBicategory2.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     February 2018
+  &gt;  ********************************************************************************* *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

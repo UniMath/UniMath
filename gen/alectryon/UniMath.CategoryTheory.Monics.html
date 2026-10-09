@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Monics.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Monics *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definitions of Monics</span>
+<span class="sd">- Construction of the subcategory of Monics</span>
+<span class="sd">- Construction of monics in functor categories</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.covyoneda.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of Monics *)</span>
+<span class="kn">Section</span> <span class="nf">def_monic</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+
+  <span class="sd">(** Definition and construction of isMonic. *)</span>
+  <span class="kn">Definition</span> <span class="nf">isMonic</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : y --&gt; z) : UU :=
+    ∏ (x : C) (g h : x --&gt; y), g · f = h · f -&gt; g = h.
+
+  <span class="kn">Definition</span> <span class="nf">make_isMonic</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : y --&gt; z)
+             (<span class="nv">H</span> : ∏ (x : C) (g h : x --&gt; y), g · f = h · f -&gt; g = h) : isMonic f := H.
+
+  <span class="kn">Lemma</span> <span class="nf">isapropisMonic</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : y --&gt; z) : isaprop (isMonic f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> t.
+    <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> g.
+    <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> h.
+    <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> H.
+    <span class="nb">apply</span> hs.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Definition and construction of Monic. *)</span>
+  <span class="kn">Definition</span> <span class="nf">Monic</span> (<span class="nv">y</span> <span class="nv">z</span> : C) : UU := ∑ f : y --&gt; z, isMonic f.
+
+  <span class="kn">Definition</span> <span class="nf">make_Monic</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : y --&gt; z) (<span class="nv">H</span> : isMonic f) : Monic y z := tpair _ f H.
+
+  <span class="kn">Definition</span> <span class="nf">Monic_eq</span>
+    {<span class="nv">x</span> <span class="nv">y</span> : C}
+    (<span class="nv">f</span> <span class="nv">g</span> : Monic x y)
+    (<span class="nv">H</span> : pr1 f = pr1 g)
+    : f = g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypePath.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isapropisMonic.
+    - <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Gets the arrow out of Monic. *)</span>
+  <span class="kn">Definition</span> <span class="nf">MonicArrow</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">M</span> : Monic y z) : C⟦y, z⟧ := pr1 M.
+  <span class="kn">Coercion</span> <span class="nf">MonicArrow</span> : Monic &gt;-&gt; precategory_morphisms.
+
+  <span class="kn">Definition</span> <span class="nf">MonicisMonic</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">M</span> : Monic y z) : isMonic M := pr2 M.
+
+  <span class="sd">(** Isomorphism to isMonic and Monic. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_iso_isMonic</span> {<span class="nv">y</span> <span class="nv">x</span> : C} (<span class="nv">f</span> : y --&gt; x) (<span class="nv">H</span> : is_z_isomorphism f) : isMonic f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isMonic.
+    <span class="nb">intros</span> z g h X.
+    <span class="nb">apply</span> (post_comp_with_z_iso_is_inj H).
+    <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_iso_Monic</span> {<span class="nv">y</span> <span class="nv">x</span> : C} (<span class="nv">f</span> : y --&gt; x) (<span class="nv">H</span> : is_z_isomorphism f) : Monic y x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_Monic f (is_iso_isMonic f H)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Identity to isMonic and Monic. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">identity_isMonic</span> {<span class="nv">x</span> : C} : isMonic (identity x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (is_iso_isMonic (identity x) (is_z_isomorphism_identity x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">identity_Monic</span> {<span class="nv">x</span> : C} : Monic x x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (tpair _ (identity x) (identity_isMonic)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Composition of isMonics and Monics. *)</span>
+  <span class="kn">Definition</span> <span class="nf">isMonic_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) :
+    isMonic f -&gt; isMonic g -&gt; isMonic (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X X0. <span class="nb">apply</span> make_isMonic. <span class="nb">intros</span> x0 g0 h X1.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> X1. <span class="nb">apply</span> X0 <span class="k">in</span> X1. <span class="nb">apply</span> X <span class="k">in</span> X1. <span class="nb">apply</span> X1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Monic_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">M1</span> : Monic x y) (<span class="nv">M2</span> : Monic y z) :
+    Monic x z := tpair _ (M1 · M2) (isMonic_comp M1 M2 (pr2 M1) (pr2 M2)).
+
+  <span class="sd">(** If precomposition of g with f is a monic, then f is a monic. *)</span>
+  <span class="kn">Definition</span> <span class="nf">isMonic_postcomp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) :
+    isMonic (f · g) -&gt; isMonic f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X. <span class="nb">intros</span> w φ ψ H.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f'</span>, f' · g)) <span class="k">in</span> H.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> H.
+    <span class="nb">apply</span> (X w _ _ H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isMonic_path</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y) (<span class="nv">e</span> : f1 = f2) (<span class="nv">isM</span> : isMonic f1) : isMonic f2.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="bp">exact</span> isM.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Transport of isMonic *)</span>
+  <span class="kn">Lemma</span> <span class="nf">transport_target_isMonic</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">E</span> : isMonic f) (<span class="nv">e</span> : y = z) :
+    isMonic (transportf (precategory_morphisms x) e f).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> E.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_source_isMonic</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : y --&gt; z) (<span class="nv">E</span> : isMonic f) (<span class="nv">e</span> : y = x) :
+    isMonic (transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob C, precategory_morphisms x' z) e f).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> E.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">def_monic</span>.
+<span class="kn">Arguments</span> isMonic [C] [y] [z] _.
+
+
+<span class="sd">(** * Construction of the subcategory consisting of all monics. *)</span>
+<span class="kn">Section</span> <span class="nf">monics_subcategory</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+
+  <span class="kn">Definition</span> <span class="nf">hsubtype_obs_isMonic</span> : hsubtype C := (<span class="k">λ</span> <span class="nv">c</span> : C, make_hProp _ isapropunit).
+
+  <span class="kn">Definition</span> <span class="nf">hsubtype_mors_isMonic</span> : ∏ (a b : C), hsubtype (C⟦a, b⟧) :=
+    (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, (<span class="k">fun</span> <span class="nv">f</span> : C⟦a, b⟧ =&gt; make_hProp _ (isapropisMonic C f))).
+
+  <span class="kn">Definition</span> <span class="nf">subprecategory_of_monics</span> : sub_precategories C.
+  <span class="kn">Proof</span>.
+    use tpair.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> hsubtype_obs_isMonic.
+    - <span class="bp">exact</span> hsubtype_mors_isMonic.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> is_sub_precategory. <span class="nb">cbn</span>.
+      <span class="nb">split</span>.
+      + <span class="nb">intros</span> a tt. <span class="bp">exact</span> (identity_isMonic C).
+      + <span class="nb">apply</span> isMonic_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_homsets_subprecategory_of_monics</span> : has_homsets subprecategory_of_monics.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> is_set_sub_precategory_morphisms.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">subcategory_of_monics</span> : category := make_category _ has_homsets_subprecategory_of_monics.
+
+  <span class="kn">Definition</span> <span class="nf">subprecategory_of_monics_ob</span> (<span class="nv">c</span> : C) : ob (subcategory_of_monics) := tpair _ c tt.
+
+  <span class="kn">Definition</span> <span class="nf">subprecategory_of_monics_mor</span> {<span class="nv">c'</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : c' --&gt; c) (<span class="nv">isM</span> : isMonic f) :
+    subcategory_of_monics⟦subprecategory_of_monics_ob c', subprecategory_of_monics_ob c⟧ :=
+    tpair _ f isM.
+
+  <span class="c">(*A morphism (f,,s) in subcategory_of_monics is a z_iso</span>
+<span class="c">  if the underlying morphism is also a z_iso,</span>
+<span class="c">  because the inverse must be monic.</span>
+<span class="c">  *)</span>
+  <span class="kn">Local Lemma</span> <span class="nf">is_z_iso_in_subcategory_of_monics_from_is_z_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : subcategory_of_monics)
+    (<span class="nv">f</span> : C⟦ pr1 a , pr1 b ⟧)
+    (<span class="nv">p</span> : isMonic f) (<span class="nv">H</span> : is_z_isomorphism f)
+    : is_z_isomorphism (precategory_morphisms_in_subcat f p).
+  <span class="kn">Proof</span>.
+    use make_is_z_isomorphism.
+    + use precategory_morphisms_in_subcat.
+      - <span class="bp">exact</span> (is_z_isomorphism_mor H).
+      - use is_iso_isMonic.
+        use is_z_isomorphism_inv.
+    + <span class="nb">induction</span> (is_z_isomorphism_is_inverse_in_precat H) <span class="k">as</span> (H1,H2).
+      <span class="nb">split</span>.
+      - use eq_in_sub_precategory.
+        <span class="bp">exact</span> H1.
+      - use eq_in_sub_precategory.
+        <span class="bp">exact</span> H2.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(*The converse of the previous result is always true, see [is_z_iso_from_is_z_iso_in_subcategory]*)</span>
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_in_subcategory_of_monics_weq</span> (<span class="nv">a</span> <span class="nv">b</span> : subcategory_of_monics)
+  (<span class="nv">f</span> : a --&gt; b)
+  : (is_z_isomorphism (pr1 f)) ≃ (is_z_isomorphism f).
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    + use is_z_iso_in_subcategory_of_monics_from_is_z_iso.
+    + use is_z_iso_from_is_z_iso_in_subcategory.
+    + use (isaprop_is_z_isomorphism).
+    + use (isaprop_is_z_isomorphism).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_in_subcategory_of_monics_weq</span> (<span class="nv">a</span> <span class="nv">b</span> : subcategory_of_monics)
+    : z_iso (pr1 a) (pr1 b) ≃ z_iso a b.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="nb">intro</span> f.
+      use (make_z_iso _ _ (make_dirprod _ _)).
+      + <span class="bp">exact</span> (is_iso_Monic _ _ (pr2 f)).
+      + <span class="bp">exact</span> (is_iso_Monic _ _ (pr2 (z_iso_inv f))).
+      + <span class="kp">abstract</span> <span class="nb">apply</span> Monic_eq, (z_iso_inv_after_z_iso f).
+      + <span class="kp">abstract</span> <span class="nb">apply</span> Monic_eq, (z_iso_after_z_iso_inv f).
+    - <span class="nb">intro</span> f.
+      <span class="bp">exact</span> (_ ,, invmap (is_z_iso_in_subcategory_of_monics_weq _ _ _) (pr2 f)).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intro</span> f;
+        <span class="nb">apply</span> z_iso_eq;
+        <span class="bp">reflexivity</span>
+      ).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intro</span> f;
+        <span class="nb">apply</span> z_iso_eq;
+        <span class="nb">apply</span> Monic_eq;
+        <span class="bp">reflexivity</span>
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monics_subcategory_paths_weq</span> (<span class="nv">a</span> <span class="nv">b</span> : subcategory_of_monics)
+    : (a = b) ≃ (pr1 a = pr1 b).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (weqonpaths (total2_contr (<span class="k">λ</span> <span class="nv">_</span>, unit) (<span class="k">λ</span> <span class="nv">_</span>, iscontrunit))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_monics_cat</span>
+    (<span class="nv">H</span> : is_univalent C)
+    : is_univalent subcategory_of_monics.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    use weqhomot.
+    - <span class="nb">refine</span> (iso_in_subcategory_of_monics_weq _ _ ∘ _)%weq.
+      <span class="nb">refine</span> (make_weq _ (H _ _) ∘ _)%weq.
+      <span class="nb">refine</span> (monics_subcategory_paths_weq _ _).
+    - <span class="nb">intro</span> x.
+      <span class="nb">induction</span> x.
+      <span class="nb">apply</span> z_iso_eq.
+      <span class="nb">apply</span> Monic_eq.
+      <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">monics_subcategory</span>.
+
+
+<span class="sd">(** * In functor categories monics can be constructed from pointwise monics *)</span>
+<span class="kn">Section</span> <span class="nf">monics_functorcategories</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_nat_trans_monic_from_pointwise_monics</span> (<span class="nv">C</span> <span class="nv">D</span> : category)
+        (<span class="nv">F</span> <span class="nv">G</span> : ob (functor_category C D)) (<span class="nv">α</span> : F --&gt; G) (<span class="nv">H</span> : ∏ a : ob C, isMonic (pr1 α a)) :
+    isMonic α.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> G' β η H'.
+    use (nat_trans_eq).
+    - <span class="nb">apply</span> D.
+    - <span class="nb">intros</span> x.
+      <span class="nb">set</span> (H'' := nat_trans_eq_pointwise H' x). <span class="nb">cbn</span> <span class="k">in</span> H''.
+      <span class="nb">apply</span> (H x) <span class="k">in</span> H''.
+      <span class="bp">exact</span> H''.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">presheaf_monic_isincl</span>
+    {<span class="nv">C</span> : category}
+    {<span class="nv">F</span> <span class="nv">G</span> : C ⟶ HSET}
+    {<span class="nv">α</span> : F ⟹ G}
+    (<span class="nv">H</span> : isMonic (C := [_, _]) α)
+    (<span class="nv">X</span> : C)
+    : isincl (α X).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (invmap (incl_injectivity _)).
+    <span class="nb">intros</span> x y.
+    <span class="nb">refine</span> (pr2 (weqiff (_ ,, _) (setproperty _ _ _) (setproperty _ _ _))).
+    <span class="nb">intro</span> Hxy.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> (<span class="nv">f</span> : HSET⟦_, _⟧), f _) (functor_id F _) @ !_).
+    <span class="nb">refine</span> (eqtohomot (nat_trans_eq_pointwise
+        (H _ (invmap (covyoneda_weq _ X F) x) (invmap (covyoneda_weq _ X F) y) _)
+      X) (identity _)).
+    <span class="nb">apply</span> nat_trans_eq_alt.
+    <span class="nb">intro</span> Y.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span> f.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> (<span class="nv">f</span> : HSET⟦_, _⟧), f _) (nat_trans_ax _ _ _ _) @ !_).
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, # G f x)).
+    <span class="bp">exact</span> Hxy.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">monics_functorcategories</span>.
+
+
+<span class="sd">(** Faithful functors reflect monomorphisms. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">faithful_reflects_mono</span> {<span class="nv">C</span> <span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+      (<span class="nv">FF</span> : faithful F) : reflects_morphism F (@isMonic).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> reflects_morphism.
+  <span class="nb">intros</span> ? ? ? is_monic_Ff.
+  <span class="nb">intros</span> ? ? ? eqcomp.
+  <span class="nb">apply</span> (Injectivity (# F)).
+  - <span class="nb">apply</span> isweqonpathsincl, FF.
+  - <span class="nb">apply</span> is_monic_Ff.
+    <span class="nb">refine</span> (!(functor_comp F g f) @ _).
+    <span class="nb">refine</span> (_ @ functor_comp F h f).
+    <span class="nb">apply</span> maponpaths; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monics.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Construction of monics in functor categories
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

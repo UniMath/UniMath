@@ -1,0 +1,1154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>AugmentedSimplexCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.FiniteSets.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SimplicialSets.
+
+<span class="c">(* This file defines: the augmented simplex category Δ or Δ_sd, in several different ways</span>
+<span class="c">    * as a precategory, [precat_Delta]</span>
+<span class="c">    * as a category, [category_Delta] := ([precat_Delta],, [Delta_has_homsets])</span>
+<span class="c">    * as a monoidal category, [AugmentedSimplexCategory] with tensor product [tensor_functor_ord] given by ordinal addition and unit [tensor_unit] the zero ordinal</span>
+<span class="c">    * as a strict monoidal category, [FinOrdStrict]</span>
+
+<span class="c"> Similarly, it defines the category of finite cardinals, [FinCard] or Δ_sdg,</span>
+<span class="c">    * as a precategory, [precat_fincard]</span>
+<span class="c">    * as a category, [category_fincard] := ([precat_fincard],, [fincard_has_homsets])</span>
+<span class="c">    * as a monoidal category, [FinCard] with tensor product [tensor_product_card] given by ordinal addition and unit [tensor_unit] the zero ordinal</span>
+<span class="c">    * as a strict monoidal category [FinCardStrict]</span>
+
+<span class="c">and the obvious forgetful functor between them,</span>
+<span class="c">    * as a functor [fget_monoton_functor]</span>
+<span class="c">    * as a lax monoidal functor [U_Mon_Lax]</span>
+<span class="c">    * as a strong monoidal functor [U_Mon_Strong]</span>
+
+<span class="c">  In addition the file contains some helper lemmas -</span>
+
+<span class="c">  - [iscontr_inequal],  (n &gt; m) ⨿ (n ≤ m) is contractible for n, m : nat</span>
+<span class="c">  - [iscontr_inequal'], (n &lt; m) ⨿ (n ≥ m) is contractible for n, m : nat</span>
+<span class="c">  - [natlthorgeh_left_branch] and [natlthorgeh_right_branch] which allow you to pursue the left branch or the right branch of the preceding proposition if you know which is true</span>
+<span class="c">  - [fincard_hom_extensionality], maps between finite cardinals agree iff they agree pointwise</span>
+<span class="c">  - [morphism_extensionality] same but for maps between finite ordinals</span>
+<span class="c">  - [U_Faithful], which says that the forgetful functor U is faithful</span>
+<span class="c">  - [mon_iso_mon_inv] - if f : n --&gt; m  in Δ_sd and U(f) is an isomorphism, then U(f)^{-1} is monotonic</span>
+<span class="c">  - [U_reflects_isos] - if f : n--&gt; m in Δ_sd and U(f) is an isomorphism, then so is f</span>
+<span class="c">  - computational lemmas and rules about the behavior of ordinal addition on morphisms, see for example [pr_n_m_l] and [proj_incl_r]</span>
+<span class="c">*)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">fincard_has_homsets</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : isaset ((⟦ n ⟧)%stn -&gt; (⟦ m ⟧)%stn) :=
+  (Propositions.funspace_isaset (isasetstn m)).
+
+<span class="kn">Proposition</span> <span class="nf">iscontr_inequal</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : iscontr ((n &gt; m) ⨿ (n ≤ m)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> iscontr.
+  <span class="k">exists</span> (<span class="nv">natgthorleh</span> <span class="nv">n</span> <span class="nv">m</span>). <span class="nb">intro</span> t.
+  <span class="nb">induction</span> t.
+  - <span class="nb">unfold</span> natgthorleh.
+    <span class="nb">induction</span> (isdecrelnatgth n m).
+    + <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> (pr2 (n &gt; m)).
+    + <span class="bp">contradiction</span>.
+  - <span class="nb">unfold</span> natgthorleh.
+    <span class="nb">induction</span> (isdecrelnatgth n m).
+    + <span class="nb">simpl</span>. <span class="nb">assert</span> (¬ (n &gt; m)). { <span class="nb">apply</span> natlehtonegnatgth. <span class="bp">assumption</span>. } <span class="bp">contradiction</span>.
+    + <span class="nb">simpl</span>. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> (pr2 (n ≤ m)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">iscontr_inequal'</span> (<span class="nv">n</span> <span class="nv">m</span> : nat) : iscontr ((n &lt; m) ⨿ (n ≥ m)).
+<span class="kn">Proof</span>.
+  <span class="nb">change</span> (n &lt; m) <span class="k">with</span> (m &gt; n).
+  <span class="nb">change</span> (n ≥ m) <span class="k">with</span> (m ≤ n).
+  <span class="bp">exact</span> (iscontr_inequal m n).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">fincard_hom_extensionality</span> { <span class="nv">n</span> <span class="nv">m</span> : nat } { <span class="nv">f</span> <span class="nv">g</span> : (⟦ n ⟧)%stn → (⟦ m ⟧)%stn } : (∏ x  : (⟦ n ⟧)%stn, (pr1 (f x)= pr1 (g x))) -&gt; f=g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X. <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> x. <span class="nb">apply</span> subtypeInjectivity_prop.
+  <span class="bp">exact</span> (X x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ordconstr</span> {<span class="nv">n</span> : nat} (<span class="nv">k</span> : nat) (<span class="nv">bd</span> : k &lt; n) : stn n := k,,bd.
+
+<span class="kn">Definition</span> <span class="nf">precat_Delta_precategory_data</span> : precategory_data.
+<span class="c">(* This definition does differ from the one in CategoryTheory.SimplicialSets. The objects of that category are</span>
+<span class="c"> \[0\] = {0}</span>
+<span class="c"> \[1\] = {0,1}</span>
+<span class="c"> \[2\] = {0, 1, 2}</span>
+<span class="c">  and so on. I call this the "topologists' indexing" as calling the ordinal [2] reflects that it is 2-dimensional.</span>
+<span class="c">  The objects of the category in this file are</span>
+<span class="c">  0 = \emptyset</span>
+<span class="c">  1 = {0}</span>
+<span class="c">  2 = {0,1}</span>
+<span class="c">  and so on, as in the definition of the von Neumann ordinals. The category in CategoryTheory.SimplicialSets does not have the unit object which is necessary for the proposed addition functor. The reindexing / renaming of the objects allows us to define the addition bifunctor sensibly, so that n + m has the obvious meaning; in the category in CategoryTheory.SimplicialSets we have the unfortunate fact that [n] \oplus [m] = [n+m+1]. *)</span>
+<span class="kn">Proof</span>.
+  use make_precategory_data.
+  - <span class="bp">exact</span> (make_precategory_ob_mor nat monfunstn).
+  - <span class="nb">intros</span> m. <span class="nb">apply</span> monfunstnid. <span class="c">(* defining identity and composition law *)</span>
+  -  <span class="nb">intros</span> l m n f g. <span class="bp">exact</span> (monfunstncomp f g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precat_Delta_is_precategory</span> : is_precategory precat_Delta_precategory_data.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> precat_Delta_precategory_data.
+  <span class="nb">unfold</span> is_precategory. <span class="nb">split</span>. {
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> a b f. <span class="nb">unfold</span> <span class="s2">"id"</span>. <span class="nb">simpl</span> <span class="k">in</span> *. <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> a b f. <span class="nb">unfold</span> <span class="s2">"id"</span>. <span class="nb">simpl</span> <span class="k">in</span> *. <span class="bp">reflexivity</span>.
+  }  {
+    <span class="nb">split</span>.
+    - <span class="bp">reflexivity</span>.
+    - <span class="bp">reflexivity</span>.
+  }
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">precat_Delta</span> : precategory :=
+  (precat_Delta_precategory_data,, precat_Delta_is_precategory).
+
+<span class="kn">Notation</span> <span class="s2">"C ⊠ D"</span> := (precategory_binproduct C D) (<span class="kn">at level</span> <span class="mi">38</span>).
+
+<span class="kn">Definition</span> <span class="nf">precat_fincard_data</span> : precategory_data.
+<span class="kn">Proof</span>.
+  <span class="nb">unshelve</span> <span class="nb">eapply</span> (make_precategory_data _).
+  - <span class="nb">unshelve</span> <span class="nb">eapply</span> (make_precategory_ob_mor _ _).
+    * <span class="bp">exact</span> nat.
+    * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span>, <span class="k">λ</span> <span class="nv">m</span>, (⟦n⟧%stn → ⟦m⟧%stn)). <span class="c">(* Morphisms *)</span>
+  - <span class="nb">intro</span> c. <span class="bp">exact</span> (idfun (⟦c⟧)%stn).        <span class="c">(* Identity *)</span>
+  - <span class="nb">intros</span> n m k f g. <span class="bp">exact</span> (g∘f).  <span class="c">(* Composition law *)</span>
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">precat_fincard_is_precategory</span> : is_precategory precat_fincard_data.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> precat_Delta_precategory_data.
+  <span class="nb">unfold</span> is_precategory. <span class="nb">split</span>. {
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> a b f. <span class="nb">unfold</span> <span class="s2">"id"</span>. <span class="nb">simpl</span> <span class="k">in</span> *. <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> a b f. <span class="nb">unfold</span> <span class="s2">"id"</span>. <span class="nb">simpl</span> <span class="k">in</span> *. <span class="bp">reflexivity</span>.
+  }  {
+    <span class="nb">split</span>.
+    - <span class="bp">reflexivity</span>.
+    - <span class="bp">reflexivity</span>.
+  }
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">precat_fincard</span> : precategory := (precat_fincard_data,, precat_fincard_is_precategory).
+
+<span class="kn">Proposition</span> <span class="nf">Delta_has_homsets</span> : has_homsets precat_Delta.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> has_homsets. <span class="nb">simpl</span>. <span class="nb">intros</span> a b.
+  <span class="nb">apply</span> isaset_total2.
+  - <span class="bp">exact</span> (fincard_has_homsets a b).
+  - <span class="nb">intro</span> f. <span class="nb">apply</span> impred_isaset. <span class="nb">intro</span> x. <span class="nb">apply</span> impred_isaset. <span class="nb">intro</span> y. <span class="nb">apply</span> impred_isaset.
+    <span class="nb">intro</span>. <span class="bp">exact</span> (isasetaprop (propproperty (f x ≤ f y))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">category_Delta</span> : category := (precat_Delta,, Delta_has_homsets).
+<span class="kn">Definition</span> <span class="nf">category_fincard</span> : category := (precat_fincard,, fincard_has_homsets).
+
+<span class="c">(* The notational convention here is that a subscript d means "has face maps"</span>
+<span class="c">   subscript s means "has degeneracies" and subscript g means "has permutations." *)</span>
+
+<span class="kn">Notation</span> <span class="nf">Δ_sdg</span> := category_fincard.
+<span class="kn">Notation</span> <span class="nf">Δ</span> := category_Delta.
+<span class="kn">Notation</span> <span class="nf">Δ_sd</span> := category_Delta.
+
+<span class="kn">Definition</span> <span class="nf">Δ_ob_constr</span> ( <span class="nv">n</span> : nat) : Δ := n.
+<span class="kn">Definition</span> <span class="nf">Δ_sdg_ob_constr</span> ( <span class="nv">n</span> : nat) : Δ_sdg := n.
+
+<span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">Δ_mor_constr</span> { <span class="nv">n</span> <span class="nv">m</span> : nat } ( <span class="nv">f</span> : (⟦ n ⟧)%stn -&gt; (⟦ m ⟧)%stn )
+           ( <span class="nv">pk</span> : ∏ x y : (⟦ n ⟧)%stn, x ≤ y -&gt; f x ≤ f y) : (Δ_ob_constr n) --&gt; (Δ_ob_constr m)
+:= (make_monfunstn f pk).
+
+<span class="kn">Definition</span> <span class="nf">Δ_sdg_mor_constr</span> { <span class="nv">n</span> <span class="nv">m</span> : nat } ( <span class="nv">f</span> : (⟦ n ⟧)%stn -&gt; (⟦ m ⟧)%stn ) :
+  Δ_sdg_ob_constr n --&gt;   Δ_sdg_ob_constr m := f.
+
+<span class="kn">Definition</span> <span class="nf">fget_monoton_functor_data</span> : functor_data category_Delta category_fincard.
+<span class="kn">Proof</span>.
+    use tpair. { <span class="bp">exact</span> (idfun nat). }
+    <span class="nb">intros</span> a b f. <span class="bp">exact</span> (pr1 f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">fget_monoton_is_functor</span> : is_functor fget_monoton_functor_data.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">unfold</span> functor_idax. <span class="bp">reflexivity</span>.
+  - <span class="nb">unfold</span> functor_compax. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fget_monoton_functor</span> : functor category_Delta category_fincard :=
+  (fget_monoton_functor_data,, fget_monoton_is_functor).
+
+<span class="kn">Local Notation</span> <span class="nf">U</span> := fget_monoton_functor.
+
+<span class="kn">Local Proposition</span> <span class="nf">U_faithful</span> { <span class="nv">a</span> <span class="nv">b</span> : Δ } (<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b) : (# U f = # U g) -&gt; f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypeInjectivity. <span class="nb">unfold</span> isPredicate.
+  <span class="nb">intro</span>. <span class="nb">apply</span> impred_isaprop.
+  <span class="nb">intro</span>. <span class="nb">apply</span> impred_isaprop.
+  <span class="nb">intro</span>. <span class="nb">apply</span> impred_isaprop.
+  <span class="nb">intro</span>. <span class="nb">apply</span> propproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">morphism_extensionality</span> { <span class="nv">a</span> <span class="nv">b</span> : Δ } (<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b) :
+  (∏ x, (# U f) x  = (# U g) x) -&gt; f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ext_hypothesis.
+  <span class="nb">simpl</span> <span class="k">in</span> ext_hypothesis. <span class="nb">apply</span> U_faithful. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> fincard_hom_extensionality. <span class="nb">intro</span> x. <span class="nb">apply</span> maponpaths. <span class="bp">exact</span> (ext_hypothesis x).
+<span class="kn">Qed</span>.
+
+<span class="c">(* If f : n -&gt; m is monotonic and has an inverse in fin_card, its inverse is also monotonic.*)</span>
+<span class="kn">Lemma</span> <span class="nf">mon_iso_mon_inv</span> {<span class="nv">n</span> <span class="nv">m</span> : Δ} {<span class="nv">f</span> : n --&gt; m} (<span class="nv">I</span> : is_z_isomorphism ((# U) f)) :
+  ∏ x y : (⟦m⟧)%stn, x ≤ y -&gt; (is_z_isomorphism_mor I) x ≤ (is_z_isomorphism_mor I) y.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y l.
+  <span class="nb">unfold</span> is_z_isomorphism <span class="k">in</span> I. <span class="nb">simpl</span> <span class="k">in</span> I.
+  <span class="nb">induction</span> I <span class="k">as</span> [I_fn I_is_inverse_in_preord], f <span class="k">as</span> [f_fn f_guarantee].
+  <span class="nb">induction</span> (natlehchoice x y l) <span class="k">as</span> [a | a'].
+  - <span class="nb">induction</span> (natgthorleh (I_fn x) (I_fn y)).
+    + <span class="c">(* We will derive a contradiction by proving x ≥ y in contradiction to a *)</span>
+      <span class="bp">contradiction</span> (natlthtonegnatgeh x y a).
+      <span class="nb">assert</span> (∏ z , f_fn (I_fn z) = z) <span class="k">as</span> X. {
+        <span class="nb">intro</span> z. <span class="nb">change</span> (f_fn (I_fn z)) <span class="k">with</span> (compose (C:=Δ_sdg) I_fn f_fn z).
+        <span class="nb">simpl</span>. <span class="nb">set</span> (j := (pr2 I_is_inverse_in_preord)). <span class="nb">simpl</span> <span class="k">in</span> j.
+        <span class="nb">rewrite</span> j. <span class="bp">reflexivity</span>.
+        }
+      <span class="nb">rewrite</span> &lt;- (X x), &lt;- (X y); <span class="nb">apply</span> f_guarantee. <span class="bp">exact</span> (natlthtoleh _ _ a0).
+    + <span class="bp">exact</span> b.
+  - <span class="nb">simpl</span> is_z_isomorphism_mor. <span class="nb">apply</span> subtypeInjectivity_prop <span class="k">in</span> a'.
+    <span class="nb">induction</span> a'. <span class="bp">exact</span> (isreflnatleh (I_fn x)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">fincard_inv_is_inverse_in_precat</span> (<span class="nv">n</span> <span class="nv">m</span> : Δ) (<span class="nv">f</span> : n --&gt; m ) (<span class="nv">I</span> : is_z_isomorphism ((# U) f)):
+is_inverse_in_precat f (is_z_isomorphism_mor I,, mon_iso_mon_inv I).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_z_isomorphism <span class="k">in</span> I. <span class="nb">simpl</span> <span class="k">in</span> I.
+  <span class="nb">induction</span> I <span class="k">as</span> [g is_inverse], f <span class="k">as</span> [ffun fguarantee].
+  <span class="nb">simpl</span> <span class="k">in</span> is_inverse. <span class="nb">induction</span> is_inverse <span class="k">as</span> [l r].
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> morphism_extensionality. <span class="nb">simpl</span>. <span class="nb">intro</span> x.
+    <span class="nb">change</span> ((@compose precat_fincard _ _ _ ffun g) x = x). <span class="nb">simpl</span>. <span class="nb">rewrite</span> l. <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> morphism_extensionality. <span class="nb">intro</span> x. <span class="nb">simpl</span>.
+    <span class="nb">change</span> (ffun (g x)) <span class="k">with</span> (compose (C:=Δ_sdg) g ffun x).
+    <span class="nb">simpl</span>. <span class="nb">rewrite</span> r. <span class="nb">unfold</span> <span class="s2">"id"</span>. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">U_reflects_isos</span> (<span class="nv">n</span> <span class="nv">m</span> : Δ) ( <span class="nv">f</span> : n --&gt; m ) : (is_z_isomorphism ((# U) f)) -&gt; (is_z_isomorphism f).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> I.
+  use tpair. { <span class="bp">exact</span> (is_z_isomorphism_mor I,, mon_iso_mon_inv I). }
+  <span class="nb">cbv</span> beta.
+  <span class="bp">exact</span> (fincard_inv_is_inverse_in_precat n m f I).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">U_reflects_id</span> (<span class="nv">a</span> : Δ) (<span class="nv">f</span> : a --&gt; a) :
+    (# U f) = id (U a) -&gt; f = id a.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>. <span class="nb">apply</span> U_faithful. <span class="bp">assumption</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">ordinal_addition</span> : (Δ ⊠ Δ) → Δ.
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>.
+  <span class="nb">intro</span> nm. <span class="nb">induction</span> nm <span class="k">as</span> [n m]. <span class="bp">exact</span> (n+m).
+<span class="kn">Defined</span>.
+<span class="kn">Arguments</span> ordinal_addition /.
+
+<span class="kn">Local Definition</span> <span class="nf">pr_n_m_l</span> { <span class="nv">n</span> <span class="nv">m</span> : nat} ( <span class="nv">x</span> : (⟦ n + m⟧)%stn ) (<span class="nv">s</span> : x &lt; n) : (⟦ n ⟧)%stn.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">stntonat</span> <span class="nv">_</span> <span class="nv">x</span>).
+  <span class="bp">exact</span> s.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">pr_n_m_r</span> { <span class="nv">n</span> <span class="nv">m</span> : nat} ( <span class="nv">x</span> : (⟦ n + m⟧)%stn ) (<span class="nv">s</span> : x ≥ n) : (⟦ m ⟧)%stn.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">stntonat</span> <span class="nv">_</span> <span class="nv">x</span> - n).
+  <span class="nb">apply</span> nat_split.
+  - <span class="bp">exact</span> (stnlt x).
+  - <span class="bp">exact</span> s.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">sumfn</span> {<span class="nv">n</span> <span class="nv">n'</span> <span class="nv">m</span> <span class="nv">m'</span> : nat} (<span class="nv">f</span> : (⟦ n ⟧)%stn → (⟦ m ⟧)%stn) ( <span class="nv">g</span> : (⟦ n' ⟧)%stn → (⟦ m' ⟧)%stn) : (⟦ n + n' ⟧)%stn → (⟦ m + m'⟧)%stn.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">induction</span> (natlthorgeh x n) <span class="k">as</span> [less_n | geq_n].
+  - <span class="nb">set</span> (x' := pr_n_m_l x less_n).
+    <span class="nb">refine</span> (ordconstr (n:=m+m') (stntonat _ (f x')) _).
+    <span class="nb">apply</span> (natgehgthtrans _ m _).
+    + <span class="bp">exact</span> (natlehnplusnm m m').
+    + <span class="bp">exact</span> (stnlt (f x')).
+  - <span class="nb">set</span> (x' := pr_n_m_r x geq_n).
+    <span class="nb">refine</span> (ordconstr (stntonat _ (g x')+m) _).
+    <span class="nb">rewrite</span> natpluscomm. <span class="nb">apply</span> natlthandplusl. <span class="bp">exact</span> (stnlt (g x')).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">pr_n_m_l_compute</span> { <span class="nv">n</span> <span class="nv">m</span> : nat}
+      ( <span class="nv">x</span> : (⟦ n + m⟧)%stn ) (<span class="nv">s</span> : x &lt; n) : stntonat _ (pr_n_m_l x s) = stntonat _ x.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">pr_n_m_r_compute</span> { <span class="nv">n</span> <span class="nv">m</span> : nat}
+      ( <span class="nv">x</span> : (⟦ n + m⟧)%stn ) (<span class="nv">s</span> : x ≥ n) : stntonat _ (pr_n_m_r x s) = (stntonat _ x) - n.
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">proj_incl_l</span> { <span class="nv">n</span> <span class="nv">m</span> : nat } ( <span class="nv">x</span> : (⟦ n + m⟧)%stn ) (<span class="nv">s</span> :  x &lt; n) :
+  (stn_left n m) (pr_n_m_l x s) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> stn_left. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> subtypeInjectivity_prop.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">proj_incl_r</span> { <span class="nv">n</span> <span class="nv">m</span> : nat } ( <span class="nv">x</span> : (⟦ n + m⟧)%stn ) (<span class="nv">s</span> : x ≥ n) :
+  (stn_right n m) (pr_n_m_r x s) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> stn_right. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> subtypeInjectivity_prop.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> natpluscomm. <span class="bp">exact</span> (minusplusnmm x n s).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">natlthorgeh_left_branch</span> {<span class="nv">n</span> <span class="nv">m</span> : nat} (<span class="nv">s</span> : n &lt; m) (<span class="nv">j</span> : (n &lt; m) ⨿ (n ≥ m)) : j = inl s
+  := (proofirrelevancecontr (iscontr_inequal m n) j (inl s)).
+<span class="kn">Definition</span> <span class="nf">natlthorgeh_right_branch</span> {<span class="nv">n</span> <span class="nv">m</span> : nat} (<span class="nv">s</span> : n ≥ m) (<span class="nv">j</span> : (n &lt; m) ⨿ (n ≥ m)) : j = inr s
+  := (proofirrelevancecontr (iscontr_inequal m n) j (inr s)).
+
+<span class="kn">Local Proposition</span> <span class="nf">sumfn_l</span> { <span class="nv">n</span> <span class="nv">n'</span> <span class="nv">m</span> <span class="nv">m'</span> : nat}
+      (<span class="nv">f</span> : (⟦ n ⟧)%stn -&gt; (⟦ m ⟧)%stn) ( <span class="nv">g</span> : (⟦ n' ⟧)%stn -&gt; (⟦ m' ⟧)%stn)
+      (<span class="nv">x</span> : (⟦ n + n' ⟧)%stn) ( <span class="nv">s</span> : x &lt; n) : (sumfn f g) x &lt; m.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> sumfn.
+  <span class="nb">rewrite</span> (natlthorgeh_left_branch s _).
+  <span class="nb">simpl</span>.
+  <span class="bp">exact</span> (stnlt (f (pr_n_m_l x s))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">sumfn_r</span> { <span class="nv">n</span> <span class="nv">n'</span> <span class="nv">m</span> <span class="nv">m'</span> : nat }
+      (<span class="nv">f</span> : (⟦ n ⟧)%stn -&gt; (⟦ m ⟧)%stn) (<span class="nv">g</span> : (⟦ n' ⟧)%stn -&gt; (⟦ m' ⟧)%stn)
+      (<span class="nv">x</span> : (⟦ n + n' ⟧)%stn) ( <span class="nv">s</span> : x ≥ n) : (sumfn f g) x ≥ m.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> sumfn. <span class="nb">rewrite</span> (natlthorgeh_right_branch s _).
+  <span class="nb">simpl</span>. <span class="nb">change</span> (g (pr_n_m_r x s) + m ≥ m). <span class="bp">exact</span> (natlehmplusnm _ m).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">sumfn_l1</span> { <span class="nv">n</span> <span class="nv">n'</span> <span class="nv">m</span> <span class="nv">m'</span> : nat}
+      (<span class="nv">f</span> : (⟦ n ⟧)%stn -&gt; (⟦ m ⟧)%stn) ( <span class="nv">g</span> : (⟦ n' ⟧)%stn -&gt; (⟦ m' ⟧)%stn)
+      (<span class="nv">x</span> : (⟦ n + n' ⟧)%stn) ( <span class="nv">s</span> : x &lt; n) :
+  f (pr_n_m_l x s) = pr_n_m_l ((sumfn f g) x) (sumfn_l f g x s).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypeInjectivity_prop.
+  <span class="nb">simpl</span>. <span class="nb">unfold</span> sumfn. <span class="nb">rewrite</span> (natlthorgeh_left_branch s _).
+  <span class="nb">simpl</span>. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">sumfn_r1</span> { <span class="nv">n</span> <span class="nv">n'</span> <span class="nv">m</span> <span class="nv">m'</span> : nat}
+      (<span class="nv">f</span> : (⟦ n ⟧)%stn -&gt; (⟦ m ⟧)%stn) (<span class="nv">g</span> : (⟦ n' ⟧)%stn -&gt; (⟦ m' ⟧)%stn)
+      (<span class="nv">x</span> : (⟦ n + n' ⟧)%stn) ( <span class="nv">s</span> :x ≥ n) :
+  g (pr_n_m_r x s) = pr_n_m_r ((sumfn f g) x) (sumfn_r f g x s).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subtypeInjectivity_prop.
+  <span class="nb">simpl</span>. <span class="nb">unfold</span> sumfn. <span class="nb">rewrite</span> (natlthorgeh_right_branch s _).
+  <span class="nb">simpl</span>. <span class="nb">rewrite</span> ( plusminusnmm _ m). <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">sumfn_l2</span> { <span class="nv">n</span> <span class="nv">n'</span> <span class="nv">m</span> <span class="nv">m'</span> : nat}
+      (<span class="nv">f</span> : (⟦ n ⟧)%stn -&gt; (⟦ m ⟧)%stn) ( <span class="nv">g</span> : (⟦ n' ⟧)%stn -&gt; (⟦ m' ⟧)%stn)
+      (<span class="nv">x</span> : (⟦ n + n' ⟧)%stn) ( <span class="nv">s</span> : x &lt; n) :
+  (stn_left m m') (f (pr_n_m_l x s)) = (sumfn f g) x.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> (sumfn_l1 f g x s). <span class="bp">exact</span> (proj_incl_l (sumfn f g x) (sumfn_l f g x s)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">sumfn_r2</span> { <span class="nv">n</span> <span class="nv">n'</span> <span class="nv">m</span> <span class="nv">m'</span> : nat}
+      (<span class="nv">f</span> : (⟦ n ⟧)%stn -&gt; (⟦ m ⟧)%stn) ( <span class="nv">g</span> : (⟦ n' ⟧)%stn -&gt; (⟦ m' ⟧)%stn)
+      (<span class="nv">x</span> : (⟦ n + n' ⟧)%stn) ( <span class="nv">s</span> : x ≥ n) :
+  (stn_right m m') (g (pr_n_m_r x s)) = (sumfn f g) x.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> (sumfn_r1 f g x s). <span class="bp">exact</span> (proj_incl_r (sumfn f g x) (sumfn_r f g x s)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">stn_left_monotonic</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) :
+  ∏ x y : (⟦ n ⟧)%stn, (x ≤ y) -&gt; ( stn_left n m x ) ≤ ( stn_left n m y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y l.
+  <span class="bp">exact</span> l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">stn_right_monotonic</span> ( <span class="nv">n</span> <span class="nv">m</span> : nat ) :
+  ∏ x y : (⟦ m ⟧)%stn, (x ≤ y) -&gt; ( stn_right n m x ) ≤ ( stn_right n m y).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y l. <span class="nb">simpl</span>.
+  <span class="nb">change</span> (n + x ≤ n + y).
+  <span class="nb">rewrite</span> natpluscomm. <span class="nb">rewrite</span> (natpluscomm n y). <span class="nb">apply</span> natlehandplusr.
+  <span class="bp">exact</span> l.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monfunmonprop</span> { <span class="nv">n</span> <span class="nv">m</span> : nat } (<span class="nv">f</span> : monfunstn n m) := pr2 f.
+
+<span class="kn">Local</span> <span class="kn">Arguments</span> precategory_binproduct_mor /.
+
+<span class="kn">Local Definition</span> <span class="nf">ordinal_hom</span> :
+  ∏ a b : ob (Δ ⊠ Δ), a --&gt; b -&gt; (ordinal_addition a) --&gt; (ordinal_addition b).
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>. <span class="nb">intros</span> nn' mm'. <span class="nb">induction</span> nn' <span class="k">as</span> [n n'], mm' <span class="k">as</span> [m m'].
+  <span class="nb">intro</span> fg. <span class="nb">simpl</span> <span class="k">in</span> fg. <span class="nb">induction</span> fg <span class="k">as</span> [f g].
+  <span class="nb">unshelve</span> <span class="nb">refine</span> (make_monfunstn _ _).
+  - <span class="bp">exact</span> (sumfn f g).
+  - <span class="nb">intros</span> x y.
+    <span class="nb">induction</span> f <span class="k">as</span> [f_fun f_guarantee]. <span class="nb">induction</span> g <span class="k">as</span> [g_fun g_guarantee].
+    <span class="nb">intro</span> l. <span class="nb">simpl</span>. <span class="nb">change</span> (sumfn f_fun g_fun x ≤ sumfn f_fun g_fun y).
+    <span class="nb">unfold</span> sumfn.
+    <span class="nb">induction</span> natlthorgeh <span class="k">as</span> [xl | xgth], (natlthorgeh y n) <span class="k">as</span> [yl | ygth].
+    + <span class="nb">simpl</span>. <span class="bp">exact</span> (f_guarantee (pr_n_m_l x xl) (pr_n_m_l y yl) l).
+    + <span class="nb">simpl</span>. <span class="nb">apply</span> natlthtoleh. <span class="nb">apply</span> (natgehgthtrans _ m _ ).
+      * <span class="bp">exact</span> (natlehmplusnm _ m).
+      * <span class="bp">exact</span> (stnlt (f_fun _)).
+    + <span class="bp">contradiction</span> (natgthnegleh yl). <span class="bp">exact</span> (istransnatleh xgth l).
+    + <span class="nb">simpl</span>. <span class="nb">change</span> (g_fun (pr_n_m_r x xgth) + m ≤ g_fun (pr_n_m_r y ygth) +m ).
+      <span class="nb">apply</span> natlehandplusr. <span class="nb">apply</span> g_guarantee. <span class="nb">rewrite</span> pr_n_m_r_compute.
+      <span class="nb">rewrite</span> pr_n_m_r_compute. <span class="bp">exact</span> (natgehandminusr _ _ n l).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_data_card</span> : (functor_data (Δ_sdg ⊠ Δ_sdg) Δ_sdg).
+<span class="kn">Proof</span>.
+  use functor_data_constr.
+  + <span class="bp">exact</span> ordinal_addition.
+  + <span class="nb">intros</span> a b pr. <span class="nb">induction</span> pr <span class="k">as</span> [f g]. <span class="bp">exact</span> (sumfn f g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_data_ord</span> : (functor_data (Δ ⊠ Δ)  Δ).
+<span class="kn">Proof</span>. use functor_data_constr.
+       + <span class="bp">exact</span> ordinal_addition.
+       + <span class="bp">exact</span> ordinal_hom.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_id_card</span> : (functor_idax tensor_data_card).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> a. <span class="nb">induction</span> a <span class="k">as</span> [n m]. <span class="nb">simpl</span>. <span class="nb">unfold</span> sumfn. <span class="nb">apply</span> fincard_hom_extensionality.
+  <span class="nb">intro</span> x.
+  <span class="nb">induction</span> natlthorgeh.
+  - <span class="nb">simpl</span>. <span class="nb">unfold</span> <span class="s2">"id"</span>. <span class="bp">reflexivity</span>.
+  - <span class="nb">simpl</span>. <span class="nb">unfold</span> <span class="s2">"id"</span>. <span class="nb">simpl</span>. <span class="bp">exact</span> (minusplusnmm x n b).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_id_ord</span> : (functor_idax tensor_data_ord).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> a.
+  <span class="nb">apply</span> U_reflects_id. <span class="nb">unfold</span> tensor_data_ord.
+  <span class="nb">apply</span> (tensor_id_card).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_comp_card</span> : (functor_compax tensor_data_card).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> functor_compax. <span class="nb">unfold</span> tensor_data_card. <span class="nb">simpl</span>.
+  <span class="nb">intros</span> a b c f g.
+  <span class="nb">induction</span> a <span class="k">as</span> [a0 a1], b <span class="k">as</span> [b0 b1], c <span class="k">as</span> [c0 c1].
+  <span class="nb">simpl</span> <span class="k">in</span> f, g. <span class="nb">induction</span> f <span class="k">as</span> [f0 f1], g <span class="k">as</span> [g0 g1].
+
+  <span class="nb">apply</span> fincard_hom_extensionality. <span class="nb">simpl</span>. <span class="nb">intro</span> x.
+  <span class="nb">unfold</span> <span class="s2">"·"</span>. <span class="nb">simpl</span>. <span class="nb">unfold</span> sumfn.
+
+  <span class="nb">induction</span> natlthorgeh.
+  - <span class="nb">rewrite</span> (natlthorgeh_left_branch (stnlt (f0 (ordconstr x a) )) _). <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> subtypeInjectivity_prop.
+                              <span class="bp">reflexivity</span>.
+  - <span class="nb">rewrite</span> (natlthorgeh_right_branch (natgehplusnmm _ b0) _). <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span> : nat, k+c0)). <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> subtypeInjectivity_prop.
+                              <span class="nb">simpl</span>. <span class="bp">exact</span> (pathsinv0 (plusminusnmm _ b0)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_comp_ord</span> : (functor_compax tensor_data_ord).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> functor_compax, tensor_data_ord. <span class="nb">intros</span> a b c f g.
+  <span class="nb">induction</span> f <span class="k">as</span> [f0 f1], g <span class="k">as</span> [g0 g1].
+  <span class="nb">set</span> (Uf := make_dirprod (# U f0) (# U f1)).
+  <span class="nb">set</span> (Ug := make_dirprod (# U g0) (# U g1)).
+  <span class="nb">apply</span> U_faithful. <span class="bp">exact</span> (tensor_comp_card a b c Uf Ug).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_card_is_functor</span> : is_functor tensor_data_card.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  <span class="bp">exact</span> tensor_id_card.
+  <span class="bp">exact</span> tensor_comp_card.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_ord_is_functor</span> : is_functor tensor_data_ord.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  <span class="bp">exact</span> tensor_id_ord.
+  <span class="bp">exact</span> tensor_comp_ord.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_functor_card</span> : functor (Δ_sdg ⊠ Δ_sdg) Δ_sdg.
+<span class="kn">Proof</span>. use make_functor.
+       + <span class="bp">exact</span> tensor_data_card.
+       + <span class="bp">exact</span> tensor_card_is_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_functor_ord</span> : functor (Δ ⊠ Δ) Δ.
+<span class="kn">Proof</span>. use make_functor.
+       + <span class="bp">exact</span> tensor_data_ord.
+       + <span class="bp">exact</span> tensor_ord_is_functor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_unit</span> : Δ :=<span class="mi">0</span>.
+<span class="kn">Arguments</span> tensor_unit /.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_left_unitor_card</span> : left_unitor tensor_functor_card tensor_unit.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> left_unitor, I_pretensor, functor_fix_fst_arg,functor_identity,nat_z_iso.
+  <span class="c">(* We construct the natural transformation. *)</span>
+  use tpair.
+  - <span class="nb">unfold</span> <span class="s2">"⟹"</span>. use tpair.
+    + <span class="nb">unfold</span> nat_trans_data. <span class="nb">intro</span> x. <span class="bp">exact</span> (id x).
+    + <span class="kp">abstract</span> (<span class="nb">cbv</span> beta;
+      <span class="nb">unfold</span> is_nat_trans; <span class="nb">intros</span> n m f;
+      <span class="nb">apply</span> fincard_hom_extensionality;
+      <span class="nb">simpl</span>; <span class="nb">unfold</span> functor_fix_fst_arg_ob, tensor_functor_card;
+      <span class="nb">simpl</span>; <span class="nb">intro</span> x;
+      <span class="nb">simpl</span>; <span class="nb">rewrite</span> natplusr0; <span class="nb">apply</span> maponpaths, maponpaths, subtypeInjectivity_prop; <span class="nb">simpl</span>;
+      <span class="bp">exact</span> (natminuseqn x)).
+  - <span class="nb">cbv</span> beta.                     <span class="c">(* We prove that it's an isomorphism. *)</span>
+    <span class="nb">unfold</span> is_nat_z_iso, is_z_isomorphism, is_inverse_in_precat.
+    <span class="nb">intro</span> c. <span class="k">exists</span> (<span class="nv">id</span> <span class="nv">c</span>).
+    <span class="kp">abstract</span> ( <span class="nb">split</span>; <span class="nb">unfold</span> tensor_functor_card, functor_fix_fst_arg_ob, tensor_data_card;
+      <span class="nb">simpl</span>; <span class="bp">exact</span> (id_left (id c)); <span class="bp">exact</span> (id_left (id c))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_left_unitor_ord</span> : left_unitor tensor_functor_ord tensor_unit.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> left_unitor, I_pretensor, functor_fix_fst_arg,functor_identity,nat_z_iso.
+  <span class="c">(* We construct the natural transformation. *)</span>
+  use tpair.
+  - <span class="nb">unfold</span> <span class="s2">"⟹"</span>. use tpair.
+    + <span class="nb">unfold</span> nat_trans_data. <span class="nb">intro</span> n. <span class="bp">exact</span> (id n).
+    + <span class="kp">abstract</span> (<span class="nb">cbv</span> beta;
+      <span class="nb">unfold</span> is_nat_trans; <span class="nb">intros</span> n m f; <span class="nb">apply</span> morphism_extensionality;
+      <span class="nb">unfold</span> tensor_functor_ord; <span class="nb">simpl</span>;
+      <span class="nb">unfold</span> functor_fix_fst_arg_ob, sumfn;  <span class="nb">simpl</span>;
+      <span class="nb">intro</span> x;
+      <span class="nb">apply</span> subtypeInjectivity_prop;
+      <span class="nb">simpl</span>; <span class="nb">rewrite</span> natplusr0;
+      <span class="nb">apply</span> maponpaths, maponpaths, subtypeInjectivity_prop; <span class="nb">simpl</span>; <span class="bp">exact</span> (natminuseqn x)).
+  - <span class="nb">cbv</span> beta;                   <span class="c">(* We prove that it's an isomorphism. *)</span>
+    <span class="nb">unfold</span> is_nat_z_iso; <span class="nb">intro</span> c; <span class="nb">unfold</span> is_z_isomorphism.
+    <span class="k">exists</span> (<span class="nv">id</span> <span class="nv">c</span>). <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">unfold</span> is_inverse_in_precat;
+    <span class="nb">split</span>;
+    <span class="nb">unfold</span> tensor_functor_ord, functor_fix_fst_arg_ob, tensor_data_ord; <span class="nb">simpl</span>;
+    <span class="bp">exact</span> (id_left (id c))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_right_unitor_card_nt_data</span> : nat_trans_data (I_posttensor tensor_functor_card tensor_unit) (functor_identity Δ_sdg).
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>. <span class="nb">unfold</span> <span class="s2">"⟹"</span>. <span class="nb">unfold</span> nat_trans_data. <span class="nb">simpl</span>. <span class="nb">intro</span> x.
+      <span class="nb">unfold</span> functor_fix_snd_arg_ob, tensor_functor_card, tensor_unit. <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> natplusr0. <span class="bp">exact</span> (idfun _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_right_unitor_card_is_nat_trans</span> : is_nat_trans (I_posttensor tensor_functor_card tensor_unit) (functor_identity Δ_sdg) tensor_right_unitor_card_nt_data.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_nat_trans, tensor_right_unitor_card_nt_data. <span class="nb">simpl</span>.
+  <span class="nb">intros</span> n m f. <span class="nb">unfold</span> functor_fix_snd_arg_mor; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> fincard_hom_extensionality; <span class="nb">unfold</span> functor_fix_snd_arg_ob; <span class="nb">simpl</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">unfold</span> <span class="s2">"·"</span>; <span class="nb">simpl</span>.  <span class="nb">unfold</span> sumfn.
+  <span class="nb">assert</span> (x &lt; n) <span class="k">as</span> j. { <span class="nb">simpl</span>; <span class="nb">induction</span> (natplusr0 n); <span class="bp">exact</span> (stnlt x). }
+  <span class="nb">rewrite</span> (natlthorgeh_left_branch j _). <span class="nb">simpl</span>.
+  <span class="nb">generalize</span> (natgehgthtrans (m+<span class="mi">0</span>) m), (! natplusr0 m). <span class="nb">intros</span> h p.
+  intermediate_path (pr1 (f (ordconstr x j))).
+  - <span class="nb">induction</span> (natplusr0 m).  <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> maponpaths, maponpaths, subtypeInjectivity_prop;
+      <span class="nb">simpl</span>; <span class="nb">induction</span> (natplusr0 n); <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_right_unitor_card</span> : right_unitor tensor_functor_card tensor_unit.
+<span class="kn">Proof</span>.
+  use tpair. { <span class="bp">exact</span> (tensor_right_unitor_card_nt_data,,tensor_right_unitor_card_is_nat_trans).  }
+  <span class="nb">cbv</span> beta.
+  <span class="nb">unfold</span> is_nat_z_iso, is_z_isomorphism. <span class="nb">simpl</span>. <span class="nb">intro</span> c.
+  use tpair.
+    +  <span class="nb">simpl</span>. <span class="nb">unfold</span> functor_fix_snd_arg_ob, tensor_functor_card. <span class="nb">simpl</span>.
+       <span class="nb">rewrite</span> natplusr0. <span class="bp">exact</span> (idfun _).
+    + <span class="kp">abstract</span>(<span class="nb">cbv</span> beta;
+      <span class="nb">unfold</span> is_inverse_in_precat, tensor_right_unitor_card_nt_data;
+      <span class="nb">split</span>;
+      <span class="nb">induction</span> (natplusr0 c); <span class="nb">unfold</span> functor_fix_snd_arg_ob, tensor_functor_card;
+        <span class="nb">simpl</span>;  <span class="bp">exact</span> (id_left (id Δ_sdg_ob_constr (c + <span class="mi">0</span>)));
+      <span class="nb">induction</span> (natplusr0 c); <span class="nb">simpl</span>; <span class="bp">exact</span> (id_left (id Δ_sdg_ob_constr (c + <span class="mi">0</span>)))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_right_unitor_ord_nt_data</span> : nat_trans_data (I_posttensor tensor_functor_ord tensor_unit) (functor_identity Δ_sd).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> nat_trans_data. <span class="nb">intro</span> n. use make_monfunstn.
+  * <span class="nb">simpl</span>. <span class="nb">unfold</span> functor_fix_snd_arg_ob, tensor_functor_ord.
+  <span class="nb">simpl</span>. <span class="nb">rewrite</span> natplusr0. <span class="bp">exact</span> (idfun _).
+  * <span class="nb">cbv</span> beta. <span class="nb">intros</span> x y leq. <span class="nb">induction</span> (natplusr0 n). <span class="bp">exact</span> leq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Arguments</span> tensor_right_unitor_ord_nt_data /.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_right_unitor_ord_is_nat_trans</span> : is_nat_trans (I_posttensor tensor_functor_ord tensor_unit) (functor_identity Δ_sd) tensor_right_unitor_ord_nt_data.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_nat_trans. <span class="nb">intros</span> n m f.
+      <span class="nb">apply</span> U_faithful. <span class="nb">rewrite</span> (functor_comp U). <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> <span class="s2">"·"</span>. <span class="nb">simpl</span>.
+      <span class="nb">apply</span> fincard_hom_extensionality.
+      <span class="nb">unfold</span> functor_fix_snd_arg_ob, tensor_functor_ord. <span class="nb">simpl</span>.
+      <span class="nb">induction</span> (natplusr0 m). <span class="nb">simpl</span>. <span class="nb">intro</span> x.
+
+      <span class="nb">unfold</span> sumfn.
+      <span class="nb">assert</span> (x &lt; n) <span class="k">as</span> xbd. { <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">induction</span> (pathsinv0 (natplusr0 n)). <span class="bp">exact</span> (stnlt x). }
+      <span class="nb">rewrite</span> (natlthorgeh_left_branch xbd _). <span class="nb">simpl</span>.
+      <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypeInjectivity_prop.
+      <span class="nb">induction</span> (natplusr0 n). <span class="nb">simpl</span>. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_right_unitor_ord</span> : right_unitor tensor_functor_ord tensor_unit.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> right_unitor.
+  use tpair. { <span class="bp">exact</span> (tensor_right_unitor_ord_nt_data,,tensor_right_unitor_ord_is_nat_trans). }
+  <span class="nb">cbv</span> beta. <span class="nb">unfold</span> is_nat_z_iso. <span class="nb">simpl</span>. <span class="nb">intro</span> c. <span class="nb">unfold</span> is_z_isomorphism.
+  use tpair. { <span class="nb">simpl</span>. <span class="nb">unfold</span> functor_fix_snd_arg_ob. <span class="nb">simpl</span>.
+               <span class="nb">rewrite</span> natplusr0. <span class="bp">exact</span> (monfunstnid c). }
+  {
+    <span class="kp">abstract</span>(<span class="nb">cbv</span> beta; <span class="nb">unfold</span> tensor_right_unitor_ord_nt_data;
+             <span class="nb">split</span>;
+               <span class="nb">unfold</span> functor_fix_snd_arg_ob; <span class="nb">simpl</span>;
+               <span class="nb">induction</span> (natplusr0 c); <span class="nb">simpl</span>; <span class="bp">reflexivity</span>;
+               <span class="nb">induction</span> (natplusr0 c); <span class="bp">reflexivity</span>).
+  }
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">tensor_associator_card_nat_trans_data</span> : nat_trans_data (assoc_left tensor_functor_card) (assoc_right tensor_functor_card).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> nat_trans_data. <span class="nb">simpl</span>. <span class="nb">induction</span> x <span class="k">as</span> [nm k], nm <span class="k">as</span> [n m].
+   <span class="nb">simpl</span>. <span class="nb">rewrite</span> natplusassoc. <span class="bp">exact</span> (idfun _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Arguments</span> tensor_associator_card_nat_trans_data /.
+
+<span class="kn">Definition</span> <span class="nf">tensor_associator_card_is_nat_trans</span> : is_nat_trans _ _ tensor_associator_card_nat_trans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_nat_trans. <span class="nb">simpl</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [nm k], nm <span class="k">as</span> [n m], x' <span class="k">as</span> [n'm' k'], n'm' <span class="k">as</span> [n' m'].
+  <span class="nb">simpl</span>. <span class="nb">induction</span> f <span class="k">as</span> [fg h], fg <span class="k">as</span> [f g].
+  <span class="nb">unfold</span> <span class="s2">"·"</span>. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> fincard_hom_extensionality. <span class="nb">simpl</span>.
+  <span class="nb">induction</span> x <span class="k">as</span> [xval xbd].
+  <span class="nb">simpl</span>. <span class="nb">induction</span> (natplusassoc n' m' k'). <span class="nb">simpl</span>.
+  <span class="c">(* We go by cases depending on the value of x *)</span>
+  <span class="nb">unfold</span> sumfn. <span class="nb">simpl</span>.
+
+  <span class="nb">set</span> (QQ := internal_paths_rew_r nat (n + m + k ) (n + (m + k )) _ _ _).
+  <span class="nb">assert</span> (xval &lt; n + (m + k)) <span class="k">as</span> xbd'. { <span class="nb">rewrite</span> (pathsinv0 (natplusassoc n m k)). <span class="bp">exact</span> xbd. }
+  <span class="nb">assert</span> ((QQ (xval,, xbd)) = (xval,, xbd')) <span class="k">as</span> j.
+  { <span class="nb">apply</span> subtypeInjectivity_prop. <span class="nb">induction</span> (natplusassoc n m k). <span class="bp">reflexivity</span>. }
+  <span class="nb">simpl</span> <span class="k">in</span> j. <span class="nb">rewrite</span> j.
+  <span class="nb">induction</span> (natlthorgeh _ _) <span class="k">as</span> [INDXLN | INDXGTN].
+  +  <span class="nb">simpl</span>.
+     <span class="nb">assert</span> (xval &lt; (n + m)) <span class="k">as</span> leq <span class="bp">by</span> <span class="bp">exact</span> (natgehgthtrans _ n _ (natlehnplusnm n m) INDXLN).
+     <span class="nb">rewrite</span> (natlthorgeh_left_branch leq _). <span class="nb">simpl</span>.
+     <span class="bp">reflexivity</span>.
+  + <span class="nb">simpl</span>. <span class="nb">induction</span> (natlthorgeh _ _) <span class="k">as</span> [XNLM | XNGTM].
+    * <span class="nb">simpl</span>.
+      <span class="nb">assert</span> ((xval - n) &lt; m) <span class="k">as</span> SS <span class="bp">by</span> <span class="bp">exact</span> (nat_split XNLM INDXGTN).
+      <span class="nb">rewrite</span> (natlthorgeh_left_branch SS _). <span class="nb">simpl</span>.
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, k + n')), maponpaths, maponpaths, subtypeInjectivity_prop.
+      <span class="bp">reflexivity</span>.
+    * <span class="nb">simpl</span>. <span class="nb">assert</span> (xval - n ≥ m) <span class="k">as</span> SS.
+      { <span class="nb">rewrite</span> (pathsinv0 (plusminusnmm m n)).
+        <span class="nb">apply</span> natgehandminusr. <span class="nb">rewrite</span> natpluscomm. <span class="bp">exact</span> XNGTM.
+      }
+      <span class="nb">rewrite</span> (natlthorgeh_right_branch SS _). <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> natplusassoc, (natpluscomm n' m').
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, k + (m' + n'))), maponpaths, maponpaths, subtypeInjectivity_prop.
+      <span class="nb">simpl</span>. <span class="nb">rewrite</span> natminusminus. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">tensor_associator_card_nat_trans</span> : nat_trans (assoc_left tensor_functor_card) (assoc_right tensor_functor_card)
+  := (tensor_associator_card_nat_trans_data,,tensor_associator_card_is_nat_trans).
+
+<span class="kn">Definition</span> <span class="nf">tensor_associator_ord_nat_trans_data</span> :
+  nat_trans_data (assoc_left tensor_functor_ord) (assoc_right tensor_functor_ord).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> nat_trans_data. <span class="nb">intro</span> x. <span class="nb">induction</span> x <span class="k">as</span> [nm k], nm <span class="k">as</span> [n m].
+  <span class="nb">unfold</span> tensor_functor_ord. <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> natplusassoc. <span class="bp">exact</span> (monfunstnid _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Arguments</span> tensor_associator_ord_nat_trans_data /.
+
+<span class="kn">Definition</span> <span class="nf">tensor_associator_ord_is_nat_trans</span> : is_nat_trans _ _ tensor_associator_ord_nat_trans_data.
+<span class="kn">Proof</span>.
+  <span class="nb">cbv</span> beta. <span class="nb">unfold</span> is_nat_trans, tensor_associator_ord_nat_trans_data. <span class="nb">simpl</span>.
+  <span class="nb">intros</span> nmk  n'm'k' fgh. <span class="nb">induction</span> nmk <span class="k">as</span> [nm k], nm <span class="k">as</span> [n m].
+  <span class="nb">induction</span> n'm'k' <span class="k">as</span> [n'm' k'], n'm' <span class="k">as</span> [n' m'].
+  <span class="nb">induction</span> fgh <span class="k">as</span> [fg h], fg <span class="k">as</span> [f g].
+  <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">apply</span> U_faithful. <span class="nb">unfold</span> U. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> fincard_hom_extensionality. <span class="nb">intro</span> x. <span class="nb">simpl</span>.
+  <span class="nb">induction</span> (natplusassoc n' m' k'). <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> sumfn. <span class="nb">simpl</span>.
+  <span class="nb">set</span> (QQ := internal_paths_rew_r nat (n + m + k ) (n + (m + k )) _ _ _).
+  <span class="nb">simpl</span> <span class="k">in</span> QQ.
+  <span class="nb">assert</span> (x &lt; n + (m + k)) <span class="k">as</span> xbd'.
+  { <span class="nb">rewrite</span> (pathsinv0 (natplusassoc n m k)). <span class="bp">exact</span> (stnlt x). }
+  <span class="nb">set</span> (x' := ordconstr (stntonat _ x) xbd').
+  <span class="nb">assert</span> (QQ x =x') <span class="k">as</span> RW.
+  { <span class="nb">apply</span> subtypeInjectivity_prop. <span class="nb">induction</span> (natplusassoc n m k). <span class="bp">reflexivity</span>. }
+  <span class="nb">rewrite</span> RW. <span class="nb">simpl</span>.
+
+  <span class="nb">induction</span> (natlthorgeh x n).
+  + <span class="nb">simpl</span>. <span class="nb">assert</span> (x &lt; (n + m)) <span class="k">as</span> l.
+    { <span class="nb">apply</span> (natgehgthtrans _ n _ ).
+      * <span class="nb">rewrite</span> natpluscomm. <span class="bp">exact</span> (natlehmplusnm m n).
+      * <span class="bp">exact</span> a.
+    }
+    <span class="nb">rewrite</span> (natlthorgeh_left_branch l _). <span class="nb">simpl</span>.
+    <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypeInjectivity_prop. <span class="bp">reflexivity</span>.
+  + <span class="nb">simpl</span>. <span class="nb">induction</span> x <span class="k">as</span> [xval xbd]. <span class="nb">simpl</span>.
+    <span class="nb">induction</span> (natlthorgeh (xval - n)  m).
+    *  <span class="nb">simpl</span>. <span class="nb">assert</span> ( xval &lt; n + m) <span class="k">as</span> l. {
+         <span class="nb">rewrite</span> (pathsinv0 (minusplusnmm xval n b)). <span class="nb">rewrite</span> (natpluscomm n m).
+         <span class="bp">exact</span> (natlthandplusr _ _ n a).
+       } <span class="nb">simpl</span>.
+       <span class="nb">rewrite</span> (natlthorgeh_left_branch l _). <span class="nb">simpl</span>. <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, k + n')).
+       <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypeInjectivity_prop. <span class="bp">reflexivity</span>.
+    * <span class="nb">simpl</span>. <span class="nb">assert</span> (xval ≥ n + m) <span class="k">as</span> geq. {
+        <span class="nb">rewrite</span> (pathsinv0 (minusplusnmm xval n b)). <span class="nb">rewrite</span> (natpluscomm n m).
+        <span class="bp">exact</span> (natlehandplusr _ _ _ b0).
+      }
+      <span class="nb">rewrite</span> (natlthorgeh_right_branch geq _). <span class="nb">simpl</span>. <span class="nb">rewrite</span> (natpluscomm n' m').
+      <span class="nb">rewrite</span> natplusassoc. <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">k</span>, k + (m'+n'))).
+      <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> subtypeInjectivity_prop. <span class="nb">simpl</span>.
+      <span class="bp">exact</span> (pathsinv0 (natminusminus _ _ _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">tensor_associator_ord_nat_trans</span> :
+  nat_trans (assoc_left tensor_functor_ord) (assoc_right tensor_functor_ord):=
+  (tensor_associator_ord_nat_trans_data,, tensor_associator_ord_is_nat_trans).
+
+<span class="kn">Definition</span> <span class="nf">tensor_associator_card</span> : associator tensor_functor_card.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> associator, nat_z_iso, is_nat_z_iso.
+  <span class="k">exists</span> <span class="nv">tensor_associator_card_nat_trans</span>.
+  <span class="nb">induction</span> c <span class="k">as</span> [nm k], nm <span class="k">as</span> [n m].
+  <span class="nb">unfold</span> is_z_isomorphism.
+  use tpair.
+  - <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> natplusassoc. <span class="bp">exact</span> (monfunstnid _).
+  - <span class="kp">abstract</span>(<span class="nb">cbv</span> beta;
+    <span class="nb">unfold</span> is_inverse_in_precat;
+    <span class="nb">split</span>;
+      <span class="nb">simpl</span>; <span class="nb">unfold</span> tensor_associator_card_nat_trans_data; <span class="nb">simpl</span>;
+        <span class="nb">induction</span> (natplusassoc n m k); <span class="nb">simpl</span>;
+        <span class="nb">apply</span> fincard_hom_extensionality; <span class="bp">reflexivity</span>;
+     <span class="nb">simpl</span>; <span class="nb">unfold</span> tensor_associator_card_nat_trans_data;
+      <span class="nb">induction</span> (pathsinv0 (natplusassoc n m k));
+      <span class="nb">simpl</span>; <span class="nb">induction</span> (natplusassoc n m k); <span class="nb">simpl</span>; <span class="nb">apply</span> fincard_hom_extensionality;
+      <span class="bp">reflexivity</span>).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">tensor_associator_ord</span> : associator tensor_functor_ord.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> associator, nat_z_iso.
+  <span class="k">exists</span> <span class="nv">tensor_associator_ord_nat_trans</span>.
+  <span class="nb">unfold</span> is_nat_z_iso.
+  <span class="nb">intro</span> c. <span class="nb">induction</span> c <span class="k">as</span> [nm k]. <span class="nb">induction</span> nm <span class="k">as</span> [n m].
+  <span class="nb">unfold</span> is_z_isomorphism.
+  use tpair. {                  <span class="c">(* We construct the inverse. *)</span>
+    <span class="nb">simpl</span>. <span class="nb">rewrite</span> natplusassoc. <span class="bp">exact</span> (monfunstnid _).
+  }           <span class="c">(* We prove that it is an inverse. *)</span>
+  { <span class="kp">abstract</span>(<span class="nb">cbv</span> beta;
+    <span class="nb">unfold</span> is_inverse_in_precat, tensor_associator_ord_nat_trans,
+      tensor_associator_ord_nat_trans_data;
+     <span class="nb">split</span>;
+      <span class="nb">simpl</span>; <span class="nb">induction</span> (natplusassoc n m k); <span class="nb">simpl</span>;
+        <span class="nb">apply</span> morphism_extensionality; <span class="bp">reflexivity</span>;
+      <span class="nb">simpl</span>; <span class="nb">induction</span> (pathsinv0 (natplusassoc n m k));
+        <span class="nb">simpl</span>; <span class="nb">induction</span> (natplusassoc n m k); <span class="nb">simpl</span>; <span class="nb">apply</span> morphism_extensionality;
+        <span class="bp">reflexivity</span>).
+    }
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">triangle_eq_holds_card</span> : triangle_eq tensor_functor_card tensor_unit tensor_left_unitor_card tensor_right_unitor_card tensor_associator_card.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> triangle_eq. <span class="nb">simpl</span>. <span class="nb">intros</span> a b. <span class="nb">apply</span> fincard_hom_extensionality.
+  <span class="nb">unfold</span> tensor_functor_card, functor_fix_snd_arg_ob,
+    tensor_right_unitor_card_nt_data, tensor_associator_card_nat_trans_data.
+  <span class="nb">simpl</span>.
+  <span class="nb">intro</span> x. <span class="nb">induction</span> x <span class="k">as</span> [xval xbd].
+  <span class="nb">unfold</span> sumfn. <span class="nb">simpl</span>.
+
+  <span class="nb">set</span> (QJ := internal_paths_rew_r nat (a + <span class="mi">0</span> + b)  _ _ _ _ ). <span class="nb">simpl</span> <span class="k">in</span> QJ.
+  <span class="nb">assert</span> (xval &lt; a + b) <span class="k">as</span> XLAB'. { <span class="nb">rewrite</span> (pathsinv0 (natplusr0 a)). <span class="bp">exact</span> xbd. }
+  <span class="nb">set</span> (x' := ordconstr xval XLAB'). <span class="nb">unfold</span> <span class="s2">"·"</span>. <span class="nb">simpl</span>.
+  <span class="nb">assert</span> ((QJ (xval,, xbd)) =  x') <span class="k">as</span> RW.
+  { <span class="nb">apply</span> subtypeInjectivity_prop. <span class="nb">simpl</span> <span class="k">in</span> *.  <span class="nb">unfold</span> QJ. <span class="nb">generalize</span> (natplusassoc a <span class="mi">0</span> b).
+    <span class="nb">simpl</span>. <span class="nb">generalize</span> (a + b). <span class="nb">induction</span> p.  <span class="bp">reflexivity</span>.
+  } <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">rewrite</span> RW.
+  <span class="nb">induction</span> (natlthorgeh xval _) <span class="k">as</span> [XLA | XGA].
+  - <span class="nb">simpl</span>. <span class="nb">assert</span> (xval &lt; a) <span class="k">as</span> XLA'. { <span class="nb">rewrite</span> (natplusr0 a) <span class="k">in</span> XLA.  <span class="bp">exact</span> XLA. }
+    <span class="nb">rewrite</span> (natlthorgeh_left_branch XLA' _). <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">induction</span> (natplusr0 a). <span class="bp">reflexivity</span>.
+  - <span class="nb">simpl</span>. <span class="nb">assert</span> (xval ≥ a) <span class="k">as</span> XGA'. { <span class="nb">rewrite</span> (natplusr0 a) <span class="k">in</span> XGA.  <span class="bp">exact</span> XGA. }
+    <span class="nb">rewrite</span> (natlthorgeh_right_branch XGA' _). <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">rewrite</span> (natplusr0 a). <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">triangle_eq_holds_ord</span> : triangle_eq tensor_functor_ord tensor_unit tensor_left_unitor_ord tensor_right_unitor_ord tensor_associator_ord.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> triangle_eq. <span class="nb">simpl</span>. <span class="nb">intros</span> a b. <span class="nb">apply</span> morphism_extensionality.
+  <span class="nb">unfold</span> tensor_functor_ord, functor_fix_snd_arg_ob. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> tensor_associator_ord_nat_trans_data. <span class="nb">simpl</span>.
+  <span class="nb">intro</span> x. <span class="nb">induction</span> x <span class="k">as</span> [xval xbd].
+  <span class="nb">unfold</span> sumfn. <span class="nb">simpl</span>.
+  <span class="nb">set</span> (QJ := internal_paths_rew_r nat (a + <span class="mi">0</span> + b)  _ _ _ _ ). <span class="nb">simpl</span> <span class="k">in</span> QJ.
+  <span class="nb">assert</span> (xval &lt; a + b) <span class="k">as</span> XLAB'. { <span class="nb">rewrite</span> (pathsinv0 (natplusr0 a)). <span class="bp">exact</span> xbd. }
+  <span class="nb">set</span> (x' := ordconstr xval XLAB'). <span class="nb">unfold</span> <span class="s2">"·"</span>. <span class="nb">simpl</span>.
+  <span class="nb">assert</span> ((QJ (xval,, xbd)) =  x') <span class="k">as</span> RW.
+  { <span class="nb">apply</span> subtypeInjectivity_prop. <span class="nb">simpl</span> <span class="k">in</span> *.  <span class="nb">unfold</span> QJ. <span class="nb">generalize</span> (natplusassoc a <span class="mi">0</span> b).
+    <span class="nb">simpl</span>. <span class="nb">generalize</span> (a + b). <span class="nb">induction</span> p.  <span class="bp">reflexivity</span>.
+  } <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">rewrite</span> RW.
+  <span class="nb">apply</span> subtypeInjectivity_prop.
+  <span class="nb">induction</span> (natlthorgeh xval _) <span class="k">as</span> [XLA | XGA].
+  - <span class="nb">simpl</span>. <span class="nb">assert</span> (xval &lt; a) <span class="k">as</span> XLA'. { <span class="nb">rewrite</span> (natplusr0 a) <span class="k">in</span> XLA.  <span class="bp">exact</span> XLA. }
+    <span class="nb">rewrite</span> (natlthorgeh_left_branch XLA' _). <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> (natplusr0 a). <span class="bp">reflexivity</span>.
+  - <span class="nb">simpl</span>. <span class="nb">assert</span> (xval ≥ a) <span class="k">as</span> XGA'. { <span class="nb">rewrite</span> (natplusr0 a) <span class="k">in</span> XGA.  <span class="bp">exact</span> XGA. }
+    <span class="nb">rewrite</span> (natlthorgeh_right_branch XGA' _). <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">rewrite</span> (natplusr0 a). <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">pentagon_eq_holds_card</span> : pentagon_eq tensor_functor_card tensor_associator_card.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> pentagon_eq. <span class="nb">intros</span>. <span class="nb">apply</span> fincard_hom_extensionality. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> tensor_associator_card_nat_trans_data. <span class="nb">simpl</span>.
+  <span class="nb">intro</span> x. <span class="nb">induction</span> (natplusassoc b c d). <span class="nb">simpl</span>.
+  <span class="nb">induction</span> (natplusassoc a b (c + d)). <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> <span class="s2">"·"</span>. <span class="nb">simpl</span>.
+  <span class="nb">induction</span> (natplusassoc (a + b) c d). <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> <span class="s2">"id"</span>. <span class="nb">simpl</span>. <span class="nb">set</span> (k:=(tensor_id_card (make_dirprod a (b + c + d)))).
+  <span class="nb">unfold</span> <span class="s2">"id"</span> <span class="k">in</span> k. <span class="nb">simpl</span> <span class="k">in</span> k. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> <span class="s2">"id"</span> <span class="k">in</span> k. <span class="nb">simpl</span> <span class="k">in</span> k. <span class="nb">unfold</span> Δ_sdg_ob_constr. <span class="nb">rewrite</span> k.
+  <span class="nb">induction</span> (natplusassoc a (b + c) d), (natplusassoc a b c). <span class="nb">simpl</span>.
+  <span class="nb">set</span> (k':=(tensor_id_card (make_dirprod (a + b + c) d))).
+  <span class="nb">unfold</span> <span class="s2">"id"</span> <span class="k">in</span> k'. <span class="nb">simpl</span> <span class="k">in</span> k'.
+  <span class="nb">unfold</span> <span class="s2">"id"</span> <span class="k">in</span> k'. <span class="nb">simpl</span> <span class="k">in</span> k'. <span class="nb">rewrite</span> k'. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">pentagon_eq_holds_ord</span> : pentagon_eq tensor_functor_ord tensor_associator_ord.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> pentagon_eq.
+  <span class="nb">intros</span>. <span class="nb">apply</span> U_faithful. <span class="nb">rewrite</span> (functor_comp U), (functor_comp U), (functor_comp U).
+  <span class="nb">apply</span> fincard_hom_extensionality.
+  <span class="nb">unfold</span> tensor_associator_ord. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> tensor_associator_ord_nat_trans_data. <span class="nb">simpl</span>.
+  <span class="nb">intro</span> x. <span class="nb">induction</span> (natplusassoc b c d), (natplusassoc a b (c + d)).
+  <span class="nb">unfold</span> <span class="s2">"·"</span>. <span class="nb">simpl</span>.
+  <span class="nb">induction</span> (natplusassoc (a + b) c d).
+  <span class="nb">set</span> (j:= (tensor_id_card (make_dirprod a (b + c + d)))).
+  <span class="nb">unfold</span> tensor_data_card <span class="k">in</span> j. <span class="nb">simpl</span> <span class="k">in</span> j. <span class="nb">unfold</span> <span class="s2">"id"</span> <span class="k">in</span> j. <span class="nb">simpl</span> <span class="k">in</span> j.
+  <span class="nb">unfold</span> idfun. <span class="nb">simpl</span>. <span class="nb">unfold</span> idfun <span class="k">in</span> j. <span class="nb">rewrite</span> j. <span class="nb">induction</span> (natplusassoc a (b + c) d).
+  <span class="nb">simpl</span>.
+  <span class="nb">induction</span> (natplusassoc a b c). <span class="nb">simpl</span>.
+  <span class="nb">set</span> (j' := (tensor_id_card (make_dirprod (a + b + c) d))).
+
+  <span class="nb">unfold</span> tensor_data_card <span class="k">in</span> j'. <span class="nb">simpl</span> <span class="k">in</span> j'.
+  <span class="nb">simpl</span> <span class="k">in</span> j'. <span class="nb">unfold</span> <span class="s2">"id"</span> <span class="k">in</span> j'. <span class="nb">simpl</span> <span class="k">in</span> j'. <span class="nb">unfold</span> idfun <span class="k">in</span> *. <span class="nb">rewrite</span> j'.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">AugmentedSimplexCategory</span> : monoidal_cat.
+<span class="kn">Proof</span>.
+  use make_monoidal_cat.
+  + <span class="bp">exact</span> Δ.
+  + <span class="bp">exact</span> tensor_functor_ord.
+  + <span class="bp">exact</span> tensor_unit.
+  + <span class="bp">exact</span> tensor_left_unitor_ord.
+  + <span class="bp">exact</span> tensor_right_unitor_ord.
+  + <span class="bp">exact</span> tensor_associator_ord.
+  + <span class="bp">exact</span> triangle_eq_holds_ord.
+  + <span class="bp">exact</span> pentagon_eq_holds_ord.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">FinCard</span> : monoidal_cat.
+<span class="kn">Proof</span>.
+  use make_monoidal_cat.
+  + <span class="bp">exact</span> Δ_sdg.
+  + <span class="bp">exact</span> tensor_functor_card.
+  + <span class="bp">exact</span> tensor_unit.
+  + <span class="bp">exact</span> tensor_left_unitor_card.
+  + <span class="bp">exact</span> tensor_right_unitor_card.
+  + <span class="bp">exact</span> tensor_associator_card.
+  + <span class="bp">exact</span> triangle_eq_holds_card.
+  + <span class="bp">exact</span> pentagon_eq_holds_card.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">U_ε</span> : (monoidal_cat_unit FinCard) --&gt; U (monoidal_cat_unit AugmentedSimplexCategory).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> U. <span class="nb">simpl</span>. <span class="nb">unfold</span> monoidal_cat_unit. <span class="nb">simpl</span>. <span class="bp">exact</span> (idfun (⟦ tensor_unit ⟧)%stn).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">U_μ</span> :  monoidal_functor_map AugmentedSimplexCategory FinCard U.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> monoidal_functor_map. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> <span class="s2">"⟹"</span>. use tpair.
+  - <span class="nb">unfold</span> nat_trans_data. <span class="nb">unfold</span> precategory_binproduct_data.
+    <span class="nb">simpl</span>. <span class="nb">simpl</span>. <span class="nb">intro</span> x. <span class="nb">induction</span> x <span class="k">as</span> [n m].
+    <span class="nb">simpl</span>. <span class="bp">exact</span> (idfun (⟦ n + m ⟧)%stn).
+  - <span class="kp">abstract</span>(<span class="nb">cbv</span> beta;
+      <span class="nb">unfold</span> is_nat_trans; <span class="nb">simpl</span>; <span class="nb">intros</span> x x'; <span class="nb">induction</span> x <span class="k">as</span> [n m], x' <span class="k">as</span> [n' m'];
+      <span class="nb">unfold</span> precategory_binproduct_mor; <span class="nb">intro</span> fg; <span class="nb">simpl</span> <span class="k">in</span> fg; <span class="nb">induction</span> fg <span class="k">as</span> [f g];
+      <span class="nb">simpl</span>;
+    <span class="nb">set</span> (s:= id_left (Δ_sdg_mor_constr (AugmentedSimplexCategory.sumfn (pr1 f) (pr1 g))));
+    <span class="nb">unfold</span> <span class="s2">"id"</span> <span class="k">in</span> s; <span class="nb">simpl</span> <span class="k">in</span> s; <span class="nb">unfold</span> Δ_sdg_mor_constr <span class="k">in</span> s;
+    <span class="nb">unfold</span> Δ_sdg_ob_constr <span class="k">in</span> s; <span class="nb">unfold</span> idfun;
+    <span class="nb">simpl</span> <span class="k">in</span> s; <span class="nb">simpl</span>; <span class="nb">induction</span> f <span class="k">as</span> [ffun fguarantee], g <span class="k">as</span> [gfun gguarantee];
+    <span class="nb">simpl</span> <span class="k">in</span> s; <span class="nb">simpl</span>; <span class="nb">unfold</span> <span class="s2">"·"</span>; <span class="nb">unfold</span> <span class="s2">"·"</span> <span class="k">in</span> s; <span class="nb">simpl</span> <span class="k">in</span> s; <span class="nb">simpl</span>;
+    <span class="nb">unfold</span> idfun <span class="k">in</span> s; <span class="nb">rewrite</span> s; <span class="bp">reflexivity</span>).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">U_α</span> : monoidal_functor_associativity AugmentedSimplexCategory FinCard U U_μ.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> monoidal_functor_associativity.
+  <span class="nb">intros</span> x y z. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> MonoidalFunctorsTensored.α_D, MonoidalFunctorsTensored.α_C. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> monoidal_cat_associator. <span class="nb">simpl</span>.
+  <span class="c">(* We get rid of all the identity morphisms. *)</span>
+  <span class="nb">change</span> (idfun (⟦ x + y + z⟧)%stn) <span class="k">with</span> (identity (C:=Δ_sdg) (x + y + z)).
+  <span class="nb">change</span> (idfun (⟦ x + y ⟧)%stn) <span class="k">with</span> (identity (C:=Δ_sdg)  (x + y)).
+  <span class="nb">change</span> (idfun (⟦ x + (y + z) ⟧)%stn) <span class="k">with</span> (identity (C:=Δ_sdg)  (x + (y+z))).
+  <span class="nb">change</span> (idfun (⟦ y + z ⟧)%stn) <span class="k">with</span> (identity (C:=Δ_sdg)  (y+z)).
+  <span class="nb">set</span> (j':= (tensor_id_card (make_dirprod (x + y) z))). <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">rewrite</span> j'.
+  <span class="nb">set</span> (j:= (tensor_id_card (make_dirprod x (y + z)))). <span class="nb">simpl</span> <span class="k">in</span> *. <span class="nb">rewrite</span> j.
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="nb">rewrite</span> (id_right (C:=Δ_sdg)), (id_right (C:=Δ_sdg)),
+  (id_right (C:=Δ_sdg)), (id_left (C:=Δ_sdg)).
+  <span class="c">(* Done. *)</span>
+  <span class="nb">apply</span> fincard_hom_extensionality. <span class="nb">intro</span> t. <span class="c">(* induction t as [tval tbd]. *)</span>
+  <span class="nb">cbn</span>. <span class="nb">unfold</span> tensor_associator_ord_nat_trans_data, tensor_associator_card_nat_trans_data.
+  <span class="nb">cbn</span>.
+  <span class="nb">induction</span> (nat_rect _ _). <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">U_unitality</span> : monoidal_functor_unitality AugmentedSimplexCategory FinCard U U_ε U_μ.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> monoidal_functor_unitality.
+  <span class="nb">simpl</span>. <span class="nb">intro</span> x. <span class="nb">unfold</span> MonoidalFunctorsTensored.<span class="k">λ</span><span class="nv">_D</span>, monoidal_cat_left_unitor. <span class="nb">simpl</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">change</span> (idfun (⟦x⟧)%stn) <span class="k">with</span> (identity (C:=Δ_sdg) x).
+    <span class="nb">rewrite</span> (id_right (C:=Δ_sdg)),  (id_right (C:=Δ_sdg)).
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> U_ε, sumfn. <span class="nb">simpl</span>. <span class="nb">apply</span> funextsec. <span class="nb">intro</span> A. <span class="nb">simpl</span>.
+    <span class="nb">apply</span> subtypeInjectivity_prop. <span class="nb">simpl</span>. <span class="nb">rewrite</span> natminuseqn. <span class="nb">rewrite</span> natplusr0. <span class="bp">reflexivity</span>.
+  - <span class="nb">change</span> (idfun (⟦x⟧)%stn) <span class="k">with</span> (identity (C:=Δ_sdg) x).
+    <span class="nb">unfold</span> MonoidalFunctorsTensored.I_C, monoidal_cat_unit. <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> (id_right (C:=Δ_sdg)). <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> tensor_right_unitor_card_nt_data.
+    <span class="nb">induction</span> (natplusr0 x). <span class="nb">simpl</span>.
+    <span class="nb">apply</span> funextsec. <span class="nb">intro</span> y. <span class="nb">simpl</span>. <span class="nb">unfold</span> sumfn.
+    <span class="nb">induction</span> y <span class="k">as</span> [yval ybd]. <span class="nb">simpl</span>.
+    <span class="nb">assert</span> (yval &lt; x) <span class="k">as</span> j. { <span class="nb">rewrite</span> (natplusr0 x) <span class="k">in</span> ybd. <span class="bp">exact</span> ybd. }
+    <span class="nb">rewrite</span> (natlthorgeh_left_branch j _). <span class="nb">simpl</span>.
+    <span class="nb">induction</span> (! natplusr0 x). <span class="nb">simpl</span>. <span class="nb">apply</span> subtypeInjectivity_prop. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">U_Mon_Lax</span> : lax_monoidal_functor AugmentedSimplexCategory FinCard.
+<span class="kn">Proof</span>.
+  use make_lax_monoidal_functor.
+  + <span class="bp">exact</span> U.
+  + <span class="bp">exact</span> U_ε.
+  + <span class="bp">exact</span> U_μ.
+  + <span class="bp">exact</span> U_α.
+  + <span class="bp">exact</span> U_unitality.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">U_Mon_Strong</span> : strong_monoidal_functor AugmentedSimplexCategory FinCard.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">U_Mon_Lax</span>. <span class="nb">split</span>.
+  - <span class="nb">cbn</span>. <span class="nb">unfold</span> is_z_isomorphism. use tpair.
+    + <span class="nb">simpl</span>. <span class="bp">exact</span> (idfun (⟦ tensor_unit ⟧)%stn).
+    + <span class="kp">abstract</span>(<span class="nb">simpl</span>; <span class="nb">unfold</span> is_inverse_in_precat; <span class="nb">split</span>;
+        <span class="nb">unfold</span> U_ε; <span class="bp">exact</span> (id_right (C:=Δ_sdg) (idfun _));
+        <span class="nb">unfold</span> U_ε; <span class="bp">exact</span> (id_right (C:=Δ_sdg) (idfun _))).
+  - <span class="nb">unfold</span> is_nat_z_iso. <span class="nb">simpl</span>. <span class="nb">intro</span> c. <span class="nb">induction</span> c <span class="k">as</span> [n m].
+    <span class="nb">unfold</span> is_z_isomorphism. <span class="nb">simpl</span>. <span class="k">exists</span> (<span class="nv">idfun</span> (⟦ n + m⟧)%stn).
+    <span class="kp">abstract</span>(<span class="nb">unfold</span> is_inverse_in_precat; <span class="nb">split</span>;
+      <span class="bp">exact</span> (id_right (C:=Δ_sdg) (idfun _));
+      <span class="bp">exact</span> (id_right (C:=Δ_sdg) (idfun _))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">functor_eq_to_object_eq_on_homs</span>
+  (<span class="nv">C</span> <span class="nv">D</span> : precategory) (<span class="nv">F</span> <span class="nv">G</span>  : functor C D) ( <span class="nv">p</span> : F = G) (<span class="nv">c</span> : C) (<span class="nv">d</span> : D) ( <span class="nv">f</span> : d --&gt; G c) :
+    internal_paths_rew_r (C ⟶ D) F G (<span class="k">λ</span> <span class="nv">H</span> : C ⟶ D, D ⟦ d , H c⟧) f p =
+      internal_paths_rew_r D (F c) (G c) (<span class="k">λ</span> <span class="nv">d'</span> : D, D ⟦ d , d' ⟧) f
+                           (maponpaths (<span class="k">λ</span> <span class="nv">H</span> : C ⟶ D, H c) p).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_card_is_strict_left_iso_id</span> :
+  ∏ eq_λ : I_pretensor (monoidal_cat_tensor FinCard)
+         (monoidal_cat_unit FinCard) = functor_identity (pr1 FinCard),
+  (is_nat_z_iso_id eq_λ (monoidal_cat_left_unitor FinCard)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> eq_λ.
+  <span class="nb">unfold</span> is_nat_z_iso_id. <span class="nb">intro</span> c. <span class="nb">unfold</span> nat_comp_to_endo.
+  <span class="nb">rewrite</span> functor_eq_to_object_eq_on_homs. <span class="nb">set</span> (j := maponpaths _ _). <span class="nb">simpl</span> <span class="k">in</span> j. <span class="nb">simpl</span> <span class="k">in</span> c.
+  <span class="nb">assert</span> (j = idpath c) <span class="k">as</span> RW <span class="bp">by</span> <span class="nb">apply</span> (setproperty natset); <span class="nb">rewrite</span> RW.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local</span> <span class="kn">Arguments</span> monoidal_cat_tensor /.
+<span class="kn">Local</span> <span class="kn">Arguments</span> monoidal_cat_unit /.
+<span class="kn">Local</span> <span class="kn">Arguments</span> functor_fix_fst_arg /.
+<span class="kn">Local</span> <span class="kn">Arguments</span> functor_fix_snd_arg /.
+<span class="kn">Local</span> <span class="kn">Arguments</span> functor_fix_fst_arg_ob /.
+<span class="kn">Local</span> <span class="kn">Arguments</span> functor_fix_snd_arg_ob /.
+
+<span class="kn">Local Definition</span> <span class="nf">right_unitor_id</span> (<span class="nv">c</span> : Δ_sdg) :
+           I_posttensor (monoidal_cat_tensor FinCard)
+         (monoidal_cat_unit FinCard) c = functor_identity (pr1 FinCard) c.
+<span class="kn">Proof</span>.
+  <span class="nb">simpl</span>. <span class="bp">exact</span> (natplusr0 c).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_card_is_strict_right_iso_id</span> :   ∏ eq_ρ : I_posttensor (monoidal_cat_tensor FinCard)
+         (monoidal_cat_unit FinCard) = functor_identity (pr1 FinCard),
+  is_nat_z_iso_id eq_ρ (monoidal_cat_right_unitor FinCard).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_nat_z_iso_id. <span class="nb">intros</span> eq_ρ c. <span class="nb">unfold</span> nat_comp_to_endo.
+  <span class="nb">set</span> (Δ_sdg := (pr1 FinCard)).
+  <span class="nb">set</span> (Rtensor0 := (I_posttensor _ _)).
+  <span class="nb">set</span> (idfunctor := (functor_identity _)).
+  <span class="nb">rewrite</span> functor_eq_to_object_eq_on_homs. <span class="nb">set</span> (j := maponpaths _ _).
+  <span class="nb">cbv</span> beta <span class="k">in</span> j.
+  <span class="nb">assert</span> (j = right_unitor_id c) <span class="k">as</span> RW <span class="bp">by</span> <span class="nb">apply</span> (setproperty natset); <span class="nb">rewrite</span> RW.
+  <span class="nb">unfold</span> right_unitor_id, transportb. <span class="nb">apply</span> fincard_hom_extensionality.
+  <span class="nb">intro</span> x. <span class="nb">unfold</span> Rtensor0 <span class="k">in</span> x. <span class="nb">simpl</span> <span class="k">in</span> x.
+  <span class="nb">simpl</span>. <span class="nb">unfold</span> tensor_right_unitor_card_nt_data. <span class="nb">simpl</span>.
+  <span class="nb">induction</span> (natplusr0 c). <span class="nb">simpl</span>. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_card_is_strict_associator_id</span> :
+  ∏ eq_α : assoc_left tensor_functor_card = assoc_right tensor_functor_card,
+  is_nat_z_iso_id eq_α (monoidal_cat_associator FinCard).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_nat_z_iso_id. <span class="nb">intro</span> eq_α.
+  <span class="nb">intro</span> c. <span class="nb">simpl</span> <span class="k">in</span> c. <span class="nb">induction</span> c <span class="k">as</span> [nm k]. <span class="nb">induction</span> nm <span class="k">as</span> [n m].
+  <span class="nb">unfold</span> nat_comp_to_endo. <span class="nb">rewrite</span> functor_eq_to_object_eq_on_homs.
+  <span class="nb">unfold</span> assoc_left. <span class="nb">simpl</span>.
+  <span class="nb">set</span> (j:= maponpaths _ _).
+  <span class="nb">assert</span> (j = (natplusassoc n m k)) <span class="k">as</span> RW <span class="bp">by</span> <span class="nb">apply</span> (pr2 natset). <span class="nb">rewrite</span> RW.
+  <span class="nb">simpl</span>. <span class="nb">generalize</span> (natplusassoc n m k). <span class="nb">induction</span> p. <span class="nb">simpl</span>. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">FinCardStrict</span> : strict_monoidal_cat.
+<span class="kn">Proof</span>.
+  use tpair.  { <span class="bp">exact</span> FinCard. }
+  <span class="nb">cbv</span> beta. <span class="nb">intros</span> eq_λ eq_ρ eq_α.
+  use tpair. { <span class="bp">exact</span> (tensor_card_is_strict_left_iso_id eq_λ). }
+  <span class="nb">cbv</span> beta. <span class="nb">split</span>. { <span class="bp">exact</span> (tensor_card_is_strict_right_iso_id eq_ρ). }
+  <span class="bp">exact</span> (tensor_card_is_strict_associator_id eq_α).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_Δ_left_unitor_is_id</span> :
+  ∏ eq_λ : I_pretensor (monoidal_cat_tensor AugmentedSimplexCategory)
+         (monoidal_cat_unit AugmentedSimplexCategory) = functor_identity (pr1 AugmentedSimplexCategory), (is_nat_z_iso_id eq_λ (monoidal_cat_left_unitor AugmentedSimplexCategory)).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_nat_z_iso_id. <span class="nb">intros</span> eq_λ c.
+  <span class="nb">unfold</span> nat_comp_to_endo. <span class="nb">set</span> (Δ_sd := (pr1 FinCard)).
+  <span class="nb">set</span> (Ltensor0 := (I_pretensor _ _)).
+  <span class="nb">set</span> (idfunctor := (functor_identity _)).
+  <span class="nb">rewrite</span> functor_eq_to_object_eq_on_homs. <span class="nb">set</span> (j := maponpaths _ _).
+  <span class="nb">unfold</span> monoidal_cat_left_unitor. <span class="nb">simpl</span> pr1.
+  <span class="nb">unfold</span> tensor_left_unitor_ord. <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> Ltensor0, idfunctor <span class="k">in</span> j. <span class="nb">simpl</span> <span class="k">in</span> j.
+  <span class="nb">assert</span> (j = idpath c) <span class="k">as</span> RW <span class="bp">by</span> <span class="nb">apply</span> (setproperty natset). <span class="nb">rewrite</span> RW.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_Δ_right_unitor_is_id</span> :
+  ∏ eq_ρ : I_posttensor (monoidal_cat_tensor AugmentedSimplexCategory)
+                        (monoidal_cat_unit AugmentedSimplexCategory) =
+             functor_identity (pr1 AugmentedSimplexCategory),
+  is_nat_z_iso_id eq_ρ (monoidal_cat_right_unitor AugmentedSimplexCategory).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_nat_z_iso_id. <span class="nb">intro</span> eq_ρ. <span class="nb">intro</span> c.
+  <span class="nb">unfold</span> nat_comp_to_endo.
+  <span class="nb">set</span> (Rtensor0 := (I_posttensor _ _)).
+  <span class="nb">set</span> (idfunctor := (functor_identity _)).
+  <span class="nb">rewrite</span> functor_eq_to_object_eq_on_homs. <span class="nb">set</span> (j := maponpaths _ _).
+  <span class="nb">cbv</span> beta <span class="k">in</span> j.
+  <span class="nb">assert</span> (j = right_unitor_id c) <span class="k">as</span> RW. { <span class="nb">apply</span> (setproperty natset). } <span class="nb">rewrite</span> RW.
+  <span class="nb">simpl</span>. <span class="nb">unfold</span> right_unitor_id. <span class="nb">induction</span> (natplusr0 c). <span class="nb">simpl</span>. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Proposition</span> <span class="nf">tensor_ord_is_strict_associator_id</span> :
+  ∏ eq_α : assoc_left tensor_functor_ord = assoc_right tensor_functor_ord,
+  is_nat_z_iso_id eq_α (monoidal_cat_associator AugmentedSimplexCategory).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_nat_z_iso_id. <span class="nb">intro</span> eq_α.
+  <span class="nb">intro</span> c. <span class="nb">simpl</span> <span class="k">in</span> c. <span class="nb">induction</span> c <span class="k">as</span> [nm k],  nm <span class="k">as</span> [n m].
+  <span class="nb">unfold</span> nat_comp_to_endo. <span class="nb">rewrite</span> functor_eq_to_object_eq_on_homs.
+  <span class="nb">unfold</span> assoc_left. <span class="nb">simpl</span>.
+  <span class="nb">set</span> (j:= maponpaths _ _).
+  <span class="nb">assert</span> (j = (natplusassoc n m k)) <span class="k">as</span> RW <span class="bp">by</span> <span class="nb">apply</span> (setproperty natset); <span class="nb">rewrite</span> RW.
+  <span class="nb">simpl</span>. <span class="nb">generalize</span> (natplusassoc n m k). <span class="nb">induction</span> p. <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">FinOrdStrict</span> : strict_monoidal_cat.
+<span class="kn">Proof</span>.
+  use tpair.  { <span class="bp">exact</span> AugmentedSimplexCategory. }
+  <span class="nb">cbv</span> beta. <span class="nb">intros</span> eq_λ eq_ρ eq_α.
+  use tpair. { <span class="bp">exact</span> (tensor_Δ_left_unitor_is_id eq_λ). }
+  <span class="nb">split</span>. { <span class="bp">exact</span> (tensor_Δ_right_unitor_is_id eq_ρ). }
+  <span class="bp">exact</span> (tensor_ord_is_strict_associator_id eq_α).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/AlternativeDefinitions/AugmentedSimplexCategory.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.NaturalNumbers.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

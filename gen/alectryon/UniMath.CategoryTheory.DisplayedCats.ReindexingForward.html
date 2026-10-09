@@ -1,0 +1,1137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ReindexingForward.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* reindexing forward (reindexig_f) for displayed categories </span>
+<span class="c">   and the universal property that it respects.*)</span>
+
+<span class="c">(*    D -- functor reindexing_forward --&gt; reindexing_forward *)</span>
+<span class="c">(*    ↓                     ↓                      ↓         *)</span>
+<span class="c">(*    C ------------------- F -------------------&gt; C'        *)</span>
+
+<span class="c">(* May 2023 *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Export</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.StreetFibration.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat. 
+
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+
+<span class="kn">Declare Scope</span> reindexing_forward_scope.
+<span class="kn">Notation</span> <span class="s2">"↙ x"</span> := (pr1 x)  (<span class="kn">at level</span> <span class="mi">2</span>):reindexing_forward_scope. 
+<span class="kn">Notation</span> <span class="s2">"← x"</span> := (pr2 (pr2 x)) (<span class="kn">at level</span> <span class="mi">2</span>):reindexing_forward_scope.
+<span class="kn">Notation</span> <span class="s2">"¤ x"</span> := (pr1(pr2 x)) (<span class="kn">at level</span> <span class="mi">2</span>):reindexing_forward_scope.
+
+<span class="c">(* Recreate base objects from an object x' over c' of the reindexing_forward *)</span>
+<span class="c">(*  x:= (← x') -----?-----&gt; x' =: (↙ x', ¤ x', ← x') *)</span>
+<span class="c">(*    ↓                     ↓                        *)</span>
+<span class="c">(*  c:= (↙ x') -----F-----&gt; c'                       *)</span>
+<span class="c">(* ¤ x: F c = c'   *)</span>
+
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="kn">Section</span> <span class="nf">reindexing_forward</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> reindexing_forward_scope.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">C'</span>:category} (<span class="nv">D</span> :disp_cat C) (<span class="nv">F</span> :functor C C').
+
+  <span class="c">(*    D -- functor reindexing_forward --&gt; reindexing_forward *)</span>
+  <span class="c">(*    ↓                    ↓                      ↓          *)</span>
+  <span class="c">(*    C ------------------- F -------------------&gt; C'        *)</span>
+
+
+  <span class="kn">Definition</span> <span class="nf">reindexing_forward_ob_mor</span> : disp_cat_ob_mor C'.
+  <span class="kn">Proof</span>.
+    use make_disp_cat_ob_mor.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">c'</span>, ∑c:C,(F c=c' × ob_disp D c)).
+    - <span class="nb">intros</span> a' b' x' y' f'.
+      <span class="bp">exact</span> (∑f:(↙ x')--&gt;(↙ y'),
+      (double_transport (¤ x') (¤ y') (# F f)=f' ×
+      (← x')--&gt;[f](← y'))).
+  <span class="kn">Defined</span>.
+
+  <span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+  <span class="c">(* Some lemmas to caracterize the equality of reindexing_forward objects and morphisms *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">reindexing_forward_ob_eq</span> {<span class="nv">c'</span> : C'}
+  {<span class="nv">x'</span> :ob_disp reindexing_forward_ob_mor c'}
+  {<span class="nv">y'</span> :ob_disp reindexing_forward_ob_mor c'}
+  (<span class="nv">e0</span> : ↙x' = ↙y')
+  : transportf (<span class="k">λ</span> <span class="nv">c</span>, F c = c') e0 ¤x' = ¤y' -&gt; 
+  transportf _ e0 ←x' = ←y' -&gt; 
+  x' = y'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> e1 e2.
+    <span class="nb">apply</span> (total2_paths_f e0).
+    etrans. <span class="bp">exact</span> (transportf_dirprod C (<span class="k">λ</span> <span class="nv">c</span>, F c = c') D x' y' e0).
+    <span class="nb">apply</span> dirprod_paths.
+    - <span class="bp">exact</span> e1.
+    - <span class="bp">exact</span> e2.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* As UIP can be used, equalities between morphisms are simpler *)</span>
+  <span class="kn">Lemma</span> <span class="nf">reindexing_forward_mor_eq</span> {<span class="nv">a'</span> <span class="nv">b'</span>:C'} 
+  {<span class="nv">x'</span> :ob_disp reindexing_forward_ob_mor a'}
+  {<span class="nv">y'</span> :ob_disp reindexing_forward_ob_mor b'}
+  {<span class="nv">f'</span>: C' ⟦ a', b' ⟧}
+  {<span class="nv">Df'</span> : x' --&gt;[ f'] y'} {<span class="nv">Dg'</span> : x' --&gt;[ f'] y'} 
+  (<span class="nv">e</span>:↙ Df' = ↙ Dg')
+  :transportf _ e ←Df' = ←Dg' -&gt; Df'= Dg'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> H.
+    <span class="nb">apply</span> (total2_paths_f e).
+    etrans. <span class="nb">apply</span> (transportf_dirprod (↙x' --&gt; ↙ y')
+    (<span class="k">λ</span> <span class="nv">f</span>, double_transport ¤ (x') ¤ (y') (# F f) = f') 
+    (mor_disp ←x' ←y') Df' Dg' e).
+    <span class="nb">apply</span> dirprod_paths.
+    - <span class="nb">apply</span> uip. <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Same than the one above but with transportf *)</span>
+  <span class="kn">Lemma</span> <span class="nf">reindexing_forward_paths_f_mor</span> {<span class="nv">a'</span> <span class="nv">b'</span>:C'} 
+  {<span class="nv">x'</span> :ob_disp reindexing_forward_ob_mor a'}
+  {<span class="nv">y'</span> :ob_disp reindexing_forward_ob_mor b'}
+  {<span class="nv">f'</span>: C' ⟦ a', b' ⟧} {<span class="nv">g'</span>: C' ⟦ a', b' ⟧} {<span class="nv">p</span>:g'=f'}
+  (<span class="nv">Df'</span> : x' --&gt;[ f'] y') (<span class="nv">Dg'</span> : x' --&gt;[ g'] y') (<span class="nv">e</span>:↙ Dg' = ↙ Df')
+  :← Df' = transportf _ e (← Dg') -&gt; (Df'=transportf _ p Dg').
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> H.
+    <span class="nb">destruct</span> p.
+    <span class="bp">exact</span> (! reindexing_forward_mor_eq e (! H)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">pr1_transportf_mor_disp_reindexing_forward</span>
+    {<span class="nv">a'</span> <span class="nv">b'</span> : C'} {<span class="nv">f'</span> <span class="nv">g'</span> : a' --&gt; b'} 
+    {<span class="nv">x'</span> :ob_disp reindexing_forward_ob_mor a'}
+    {<span class="nv">y'</span> :ob_disp reindexing_forward_ob_mor b'}
+    (<span class="nv">e</span> : f' = g') (<span class="nv">ff'</span> : x' --&gt;[f'] y')
+    : pr1 (transportf (mor_disp x' y') e ff') = pr1 ff'.
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> e. <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+  <span class="kn">Opaque</span> pr1_transportf_mor_disp_reindexing_forward.
+
+  <span class="kn">Lemma</span> <span class="nf">pr22_transportf_mor_disp_reindexing_forward</span>
+    {<span class="nv">a'</span> <span class="nv">b'</span> : C'} {<span class="nv">f'</span> <span class="nv">g'</span> : a' --&gt; b'} 
+    {<span class="nv">x'</span> :ob_disp reindexing_forward_ob_mor a'}
+    {<span class="nv">y'</span> :ob_disp reindexing_forward_ob_mor b'}
+    (<span class="nv">e</span> : f' = g') (<span class="nv">ff'</span> : x' --&gt;[f'] y')
+    : pr22 (transportf (mor_disp x' y') e ff') = 
+    transportf (mor_disp (pr22 x') (pr22 y')) 
+    (! pr1_transportf_mor_disp_reindexing_forward e ff') (pr22 ff').
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> e. <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+  <span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+
+  <span class="kn">Lemma</span> <span class="nf">reindexing_forward_id</span> {<span class="nv">c'</span>: C'} 
+  {<span class="nv">x'</span> : ob_disp reindexing_forward_ob_mor c'}
+  : identity c' = double_transport (¤ x') (¤ x') (# F (identity (↙ x'))).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (¤ x').
+    <span class="nb">apply</span> pathsinv0. 
+    <span class="bp">exact</span> (functor_id_id C C' F _ _ (idpath _)).
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">reindexing_forward_comp</span> {<span class="nv">a'</span> <span class="nv">b'</span> <span class="nv">c'</span>: C'} 
+  {<span class="nv">x'</span> : ob_disp reindexing_forward_ob_mor a'}
+  {<span class="nv">y'</span> : ob_disp reindexing_forward_ob_mor b'}
+  {<span class="nv">z'</span> : ob_disp reindexing_forward_ob_mor c'} 
+  {<span class="nv">f'</span>:C' ⟦ a', b' ⟧} {<span class="nv">g'</span>:C' ⟦ b', c' ⟧}
+  {<span class="nv">Df'</span>:  x' --&gt;[ f'] y'} {<span class="nv">Dg'</span>: y' --&gt;[ g'] z'}
+  :f' · g' = double_transport (¤ x') (¤ z') (# F (↙ Df' · ↙ Dg')).
+  <span class="kn">Proof</span>.
+    <span class="nb">destruct</span> (¤ Df'), (¤ Dg').
+    <span class="nb">destruct</span> (¤ x'), (¤ y'), (¤ z'). <span class="nb">cbn</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> functor_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindexing_forward_id_comp</span> 
+    : disp_cat_id_comp C' reindexing_forward_ob_mor.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> c' x'.
+      <span class="k">exists</span> (<span class="nv">identity</span> (↙ x')).
+      use tpair.
+      * <span class="nb">apply</span> (! reindexing_forward_id). 
+      * <span class="bp">exact</span> (id_disp (← x')).
+    - <span class="nb">intros</span> a' b' c' f' g' x' y' z'.
+      <span class="nb">intros</span> Df' Dg'.
+      <span class="k">exists</span> ((↙ Df')·(↙ Dg')). 
+      use tpair. 
+      * <span class="nb">apply</span> (! reindexing_forward_comp).
+      * <span class="bp">exact</span> (comp_disp (← Df') (← Dg')).
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">reindexing_forward_disp_cat_data</span> : disp_cat_data C'
+    := (reindexing_forward_ob_mor,, reindexing_forward_id_comp).
+
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp. 
+
+  <span class="kn">Definition</span> <span class="nf">reindexing_forward_disp_cat_axioms</span> 
+    : disp_cat_axioms C' reindexing_forward_disp_cat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">apply</span> tpair.
+    - <span class="nb">intros</span> a' b' f' x' y' Df'.
+      <span class="nb">apply</span> (reindexing_forward_paths_f_mor (id_disp x' ;; Df') Df' (! id_left (↙ Df'))).
+      <span class="bp">exact</span> (id_left_disp (← Df')).
+    - <span class="nb">intros</span> a' b' f' x' y' Df'.
+      <span class="nb">apply</span> (reindexing_forward_paths_f_mor (Df';; id_disp y') Df' (! id_right (↙ Df'))).
+      <span class="bp">exact</span> (id_right_disp (← Df')).
+    - <span class="nb">intros</span> a' b' c' d' f' g' h' x' y' z' w' Df' Dg' Dh'.
+      <span class="nb">apply</span> (reindexing_forward_paths_f_mor (Df' ;; (Dg' ;; Dh')) (Df' ;; Dg' ;; Dh') 
+      (! assoc (↙ Df') (↙ Dg') (↙ Dh') )).
+      <span class="bp">exact</span> (assoc_disp (← Df') (← Dg') (← Dh')).
+    - <span class="nb">intros</span> a' b' f' x' y'.
+      <span class="nb">apply</span> isaset_total2.
+      * <span class="nb">apply</span> homset.
+      * <span class="nb">intro</span> f.
+        <span class="nb">apply</span> isaset_dirprod.
+        --<span class="nb">apply</span> isasetaprop. 
+           <span class="nb">apply</span> homset_property.
+        --<span class="nb">apply</span> homsets_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local</span> <span class="kn">Close Scope</span> mor_disp. 
+
+
+  <span class="kn">Local</span> <span class="kn">Close Scope</span> reindexing_forward_scope.
+<span class="kn">End</span> <span class="nf">reindexing_forward</span>.
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">reindexing_forward</span> {<span class="nv">C</span> <span class="nv">C'</span>:category}
+(<span class="nv">D</span>:disp_cat C) (<span class="nv">F</span>: functor C C') : disp_cat C'
+:= (reindexing_forward_disp_cat_data D F,, reindexing_forward_disp_cat_axioms D F).
+
+
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="kn">Section</span> <span class="nf">functor_reindexing_forward</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">C'</span>:category} (<span class="nv">D</span> :disp_cat C) (<span class="nv">F</span> :functor C C').
+
+  <span class="c">(*    D -- functor reindexing_forward --&gt; reindexing_forward *)</span>
+  <span class="c">(*    ↓            ↓             ↓     *)</span>
+  <span class="c">(*    C ---------- F ----------&gt; C'    *)</span>
+
+
+  <span class="kn">Definition</span> <span class="nf">data_functor_reindexing_forward</span> 
+    : disp_functor_data F D (reindexing_forward D F).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">c</span>:C) (<span class="nv">d</span>: D c), (c,, idpath (F c),,  d)).
+    - <span class="nb">intros</span> a b x y f Df.
+      <span class="bp">exact</span> (f ,,idpath (# F f),, Df).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp. 
+
+  <span class="kn">Definition</span> <span class="nf">axioms_reindexing_forward_functor</span>
+    : disp_functor_axioms data_functor_reindexing_forward.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> a x.
+      <span class="nb">apply</span> (reindexing_forward_paths_f_mor D F 
+      (♯ (data_functor_reindexing_forward) (id_disp x)) 
+      (id_disp (data_functor_reindexing_forward a x)) 
+      (idpath _)).
+      <span class="bp">exact</span> (idpath (id_disp x)).
+    - <span class="nb">intros</span> a b c x y z f g Df Dg.
+      <span class="nb">apply</span> (reindexing_forward_paths_f_mor D F 
+      (♯ (data_functor_reindexing_forward) (Df;;Dg))
+      (♯ data_functor_reindexing_forward Df ;; ♯ data_functor_reindexing_forward Dg)
+      (idpath _)).
+      <span class="bp">exact</span> (idpath (Df;;Dg)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local</span> <span class="kn">Close Scope</span> mor_disp. 
+<span class="kn">End</span> <span class="nf">functor_reindexing_forward</span>.
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">functor_reindexing_forward</span> {<span class="nv">C</span> <span class="nv">C'</span>:category} (<span class="nv">D</span>:disp_cat C) (<span class="nv">F</span>:functor C C')
+  : disp_functor F D (reindexing_forward D F)
+  := (data_functor_reindexing_forward D F,, axioms_reindexing_forward_functor D F).
+
+
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="kn">Section</span> <span class="nf">functor_universal_property_reindexing_forward</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">C'</span> <span class="nv">C''</span>: category} {<span class="nv">D</span>:disp_cat C} {<span class="nv">F</span>: functor C C'}.
+  <span class="kn">Let</span> <span class="nf">D'</span> := reindexing_forward D F. <span class="kn">Let</span> <span class="nf">DF</span> := functor_reindexing_forward D F.
+  <span class="kn">Context</span> (<span class="nv">H</span>: functor C' C'') (<span class="nv">D''</span>: disp_cat C'') (<span class="nv">DG</span>: disp_functor (F ∙ H) D D'').
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"X ◦ Y"</span> := (disp_functor_composite X Y) (<span class="kn">at level</span> <span class="mi">45</span>). 
+
+  <span class="c">(*      ---------------- DG ----------------&gt;     *)</span>
+  <span class="c">(*    D -- DF --&gt; D' -- functor univ prop --&gt; D'' *)</span>
+  <span class="c">(*    ↓    ↓      ↓             ↓             ↓   *)</span>
+  <span class="c">(*    C -- F  --&gt; C' ---------- H ----------&gt; C'' *)</span>
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> reindexing_forward_scope.
+
+  <span class="kn">Definition</span> <span class="nf">data_functor_univ_prop_reindexing_forward</span>
+    : disp_functor_data H D' D''.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> c' d'.
+      <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">x</span>, D'' (H x)) (¤ d') (DG  (↙ d') (← d'))).
+    - <span class="nb">intros</span> a' b' x' y' f' Df'.
+      <span class="nb">apply</span> (transportf (<span class="k">λ</span> <span class="nv">f0</span>, mor_disp _ _ (# H f0)) (¤ Df')).
+      <span class="nb">apply</span> double_transport_disp.
+      <span class="bp">exact</span> ((♯ DG (← Df'))%mor_disp).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Close Scope</span> reindexing_forward_scope.
+
+  <span class="kn">Definition</span> <span class="nf">axioms_functor_univ_prop_reindexing_forward</span>
+    : disp_functor_axioms data_functor_univ_prop_reindexing_forward.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intros</span> c' d'.
+      <span class="nb">induction</span> d' <span class="k">as</span> (c,(p,d)).
+      <span class="nb">destruct</span> p. <span class="nb">cbn</span>.
+      etrans. <span class="nb">apply</span> functtransportf.
+      etrans. <span class="nb">apply</span> (maponpaths _ (disp_functor_id DG d)).
+      etrans. <span class="nb">apply</span> transport_f_b.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">apply</span> two_arg_paths.
+      * <span class="nb">apply</span> uip.
+        <span class="nb">apply</span> homset_property.
+      * <span class="bp">reflexivity</span>.
+    - <span class="nb">intros</span> a' b' c' x' y' z' f' g' Df' Dg'.
+      <span class="nb">induction</span> Df' <span class="k">as</span> (f,(pf,Df)).
+      <span class="nb">induction</span> Dg' <span class="k">as</span> (g,(pg,Dg)).
+      <span class="nb">destruct</span> pf, pg. <span class="nb">cbn</span>.
+      etrans. <span class="nb">apply</span> functtransportf.
+      <span class="nb">rewrite</span> (disp_functor_comp DG).
+      <span class="nb">destruct</span> (pr1 (pr2 x')), (pr1 (pr2 z')). <span class="nb">cbn</span>.
+      <span class="nb">destruct</span> (pr1 (pr2 y')). <span class="nb">cbn</span>.
+      etrans. <span class="nb">apply</span> transport_f_b.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">apply</span> two_arg_paths.
+      * <span class="nb">apply</span> uip.
+        <span class="nb">apply</span> homset_property.
+      * <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+
+<span class="kn">End</span> <span class="nf">functor_universal_property_reindexing_forward</span>.
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+
+<span class="kn">Definition</span> <span class="nf">functor_univ_prop_reindexing_forward</span> 
+  {<span class="nv">C</span> <span class="nv">C'</span> <span class="nv">C''</span>: category} {<span class="nv">D</span>:disp_cat C} {<span class="nv">F</span>: functor C C'}
+  (<span class="nv">H</span>: functor C' C'') (<span class="nv">D''</span>: disp_cat C'') (<span class="nv">DG</span>: disp_functor (F ∙ H) D D'')
+  : disp_functor H (reindexing_forward D F) D''
+  := (data_functor_univ_prop_reindexing_forward H D'' DG,,
+  axioms_functor_univ_prop_reindexing_forward H D'' DG).
+
+
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="kn">Section</span> <span class="nf">unicity_universal_property_reindexing_forward</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">C'</span> <span class="nv">C''</span>: category} {<span class="nv">D</span>:disp_cat C} {<span class="nv">F</span>: functor C C'}.
+  <span class="kn">Let</span> <span class="nf">D'</span> := reindexing_forward D F. <span class="kn">Let</span> <span class="nf">DF</span> := functor_reindexing_forward D F.
+  <span class="kn">Context</span> (<span class="nv">H</span>: functor C' C'') (<span class="nv">D''</span>: disp_cat C'') (<span class="nv">DG</span>: disp_functor (F ∙ H) D D'').
+  <span class="kn">Let</span> <span class="nf">DH</span> := functor_univ_prop_reindexing_forward H D'' DG.
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"X ◦ Y"</span> := (disp_functor_composite X Y) (<span class="kn">at level</span> <span class="mi">45</span>). 
+
+  <span class="c">(* Here we prove the unicity of DH *)</span>
+  <span class="c">(*      -------- DG --------&gt;      *)</span>
+  <span class="c">(*    D -- DF --&gt; D' -- DH --&gt; D'' *)</span>
+  <span class="c">(*    ↓    ↓      ↓     ↓      ↓   *)</span>
+  <span class="c">(*    C -- F  --&gt; C' -- H  --&gt; C'' *)</span>
+
+
+  <span class="kn">Definition</span> <span class="nf">univ_prop_reindexing_forward_eq</span> : 
+    disp_functor_composite DF DH= DG.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_functor_eq.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">univ_prop_reindexing_forward</span> : 
+    disp_nat_z_iso (DF ◦ DH) DG (nat_z_iso_id (F ∙ H)).
+  <span class="kn">Proof</span>.
+    - <span class="kp">repeat</span> use tpair.
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">c</span> <span class="nv">d</span>,id_disp (DG c d)).
+      * <span class="nb">intros</span> a b f x y Df.
+        <span class="nb">cbn</span>.
+        etrans. <span class="nb">apply</span> id_right_disp.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="nb">rewrite</span> id_left_disp.
+        etrans. <span class="nb">apply</span> transport_b_b.
+        <span class="nb">apply</span> two_arg_paths.
+        -- <span class="nb">apply</span> uip.
+           <span class="nb">apply</span> homset_property.
+        -- <span class="bp">reflexivity</span>.
+      * <span class="nb">intros</span> c d. <span class="nb">cbn</span>.
+        <span class="k">exists</span> (<span class="nv">id_disp</span> (DG c d)).
+        <span class="nb">split</span>; <span class="nb">apply</span> id_left_disp.
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> reindexing_forward_scope.
+
+  <span class="c">(*Lemma to use the fact that the total functor of DF is invertible*)</span>
+  <span class="kn">Definition</span> <span class="nf">DF_inv_mor</span> (<span class="nv">DM</span> <span class="nv">DN</span>: disp_functor H D' D'') (<span class="nv">c'</span>:C') (<span class="nv">d'</span>:D' c') 
+    : (DF ◦ DM) ↙d' ←d' --&gt;[identity _] (DF ◦ DN) ↙d' ←d' -&gt;
+    DM c' d' --&gt;[identity _] DN c' d'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Hyp.
+    <span class="nb">induction</span> d' <span class="k">as</span> (c,(p,d)).
+    <span class="nb">destruct</span> p.
+    <span class="bp">exact</span> Hyp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">DF_inv_mor_simpl</span> {<span class="nv">DM</span> <span class="nv">DN</span>: disp_functor H D' D''} {<span class="nv">c'</span>:C'} {<span class="nv">d'</span>:D' c'} 
+  (<span class="nv">A</span>: (DF ◦ DM) ↙d' ←d' --&gt;[identity _] (DF ◦ DN) ↙d' ←d')
+  (<span class="nv">B</span>: (DF ◦ DN) ↙d' ← d'--&gt;[identity _] (DF ◦ DM) ↙d' ←d')  
+  : (A;;B = transportb _ (id_left _) (id_disp _)-&gt;
+  (DF_inv_mor DM DN c' d' A);;(DF_inv_mor DN DM c' d' B) = 
+  transportb _ (id_left _) (id_disp (DM c' d')))%mor_disp.
+  <span class="kn">Proof</span>.  
+    <span class="nb">intro</span> Hyp.
+    <span class="nb">induction</span> d' <span class="k">as</span> (c,(p,d)).
+    <span class="nb">destruct</span> p.
+    <span class="bp">exact</span> Hyp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp. 
+
+  <span class="c">(*creation of a natural transformation from DH0 to DH1 for any DH0 and DH1*)</span>
+  <span class="kn">Lemma</span> <span class="nf">DH0_DH1_nat_trans_data</span> {<span class="nv">DH0</span> <span class="nv">DH1</span>:disp_functor H D' D''} 
+  (<span class="nv">β</span>: disp_nat_trans (nat_z_iso_id (F ∙ H)) (DF ◦ DH0) (DF ◦ DH1)) 
+  :disp_nat_trans_data (nat_z_iso_id H) DH0 DH1.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c' d'.
+    <span class="nb">apply</span> (DF_inv_mor DH0 DH1 c' d').
+    <span class="bp">exact</span> (β ↙d' ←d').
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">DH0_DH1_nat_trans_axioms</span> {<span class="nv">DH0</span> <span class="nv">DH1</span> :disp_functor H D' D''} 
+  (<span class="nv">β</span>: disp_nat_trans (nat_z_iso_id (F ∙ H)) (DF ◦ DH0) (DF ◦ DH1)) 
+  : disp_nat_trans_axioms (DH0_DH1_nat_trans_data β).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a' b' f' x' y' Df'.
+    <span class="nb">induction</span> x' <span class="k">as</span> (a,(px,x)).
+    <span class="nb">induction</span> y' <span class="k">as</span> (b,(py,y)).
+    <span class="nb">induction</span> Df' <span class="k">as</span> (f,(pf,Df)).
+    <span class="nb">destruct</span> px, py, pf.
+    <span class="nb">cbn</span>.
+    etrans. <span class="nb">apply</span> (pr2 β a b f x y Df).
+    <span class="nb">apply</span> two_arg_paths.
+    - <span class="nb">apply</span> uip.
+      <span class="nb">apply</span> homset_property.
+    - <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">DH0_DH1_nat_trans</span> {<span class="nv">DH0</span> <span class="nv">DH1</span> :disp_functor H D' D''}
+  (<span class="nv">β</span>: disp_nat_trans (nat_z_iso_id (F ∙ H)) (DF ◦ DH0) (DF ◦ DH1)) 
+  : disp_nat_trans (nat_z_iso_id H) DH0 DH1
+  := (DH0_DH1_nat_trans_data β,, DH0_DH1_nat_trans_axioms β).
+
+  <span class="c">(*Proof that the displayed natural transformation above is an isomorphism*)</span>
+  <span class="kn">Lemma</span> <span class="nf">DH0_DH1_is_disp_nat_z_iso</span> {<span class="nv">DH0</span> <span class="nv">DH1</span> :disp_functor H D' D''}
+  (<span class="nv">β</span>: disp_nat_z_iso (DF ◦ DH0) (DF ◦ DH1) (nat_z_iso_id (F ∙ H)))
+  : is_disp_nat_z_iso (nat_z_iso_id H) (DH0_DH1_nat_trans β).
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (β_inv := disp_nat_z_iso_to_trans_inv β).
+    <span class="nb">intros</span> c' d'.
+    use tpair.
+    - <span class="nb">cbn</span>. 
+      <span class="nb">apply</span> (DF_inv_mor DH1 DH0 c' d').
+      <span class="bp">exact</span> (β_inv ↙d' ←d').
+    - <span class="nb">split</span>. 
+      * <span class="nb">apply</span> DF_inv_mor_simpl.
+        etrans. <span class="nb">apply</span> (pr2 (pr2 β ↙d' ←d')).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">e</span>, transportf _ e _)).
+        <span class="nb">apply</span> uip.
+        <span class="nb">apply</span> homset_property.
+      * <span class="nb">apply</span> DF_inv_mor_simpl.
+        etrans. <span class="nb">apply</span> (pr2 (pr2 β ↙d' ←d')).
+        <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">e</span>, transportf _ e _)).
+        <span class="nb">apply</span> uip.
+        <span class="nb">apply</span> homset_property.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">DH0_DH1_disp_nat_z_iso</span> {<span class="nv">DH0</span> <span class="nv">DH1</span> :disp_functor H D' D''}
+  (<span class="nv">β</span>: disp_nat_z_iso (DF ◦ DH0) (DF ◦ DH1) (nat_z_iso_id (F ∙ H)))
+  : disp_nat_z_iso DH0 DH1 (nat_z_iso_id H).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (DH0_DH1_nat_trans β).
+    - <span class="nb">apply</span> DH0_DH1_is_disp_nat_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">unicity_univ_prop_reindexing_forward</span> : 
+    ∏ DH' :disp_functor H D' D'',
+    disp_nat_z_iso (disp_functor_composite DF DH') DG (nat_z_iso_id (F ∙ H)) -&gt;
+    disp_nat_z_iso DH' DH (nat_z_iso_id H).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> DH' µ'.
+    <span class="nb">apply</span> DH0_DH1_disp_nat_z_iso.
+    <span class="nb">apply</span> (transportf _ (comp_nat_z_iso_id_left (nat_z_iso_id (F ∙ H)))).
+    <span class="nb">apply</span> (disp_nat_z_iso_comp µ').
+    <span class="nb">apply</span> (transportf _ nat_z_iso_inv_id).
+    <span class="bp">exact</span> (disp_nat_z_iso_inv univ_prop_reindexing_forward).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Close Scope</span> mor_disp. 
+  <span class="kn">Local</span> <span class="kn">Close Scope</span> reindexing_forward_scope.
+<span class="kn">End</span> <span class="nf">unicity_universal_property_reindexing_forward</span>.
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="kn">Section</span> <span class="nf">fibrations_and_reindexing_forward</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">C'</span> <span class="nv">C''</span>: category} {<span class="nv">D</span>:disp_cat C} {<span class="nv">F</span>: functor C C'}.
+  <span class="kn">Let</span> <span class="nf">D'</span> := reindexing_forward D F. <span class="kn">Let</span> <span class="nf">DF</span> := functor_reindexing_forward D F.
+  <span class="kn">Context</span> (<span class="nv">H</span>: functor C' C'') (<span class="nv">D''</span>: disp_cat C'') (<span class="nv">DG</span>: disp_functor (F ∙ H) D D'').
+  <span class="kn">Let</span> <span class="nf">DH</span> := functor_univ_prop_reindexing_forward H D'' DG.
+
+  <span class="c">(*      -------- DG --------&gt;      *)</span>
+  <span class="c">(*    D -- DF --&gt; D' -- DH --&gt; D'' *)</span>
+  <span class="c">(*    ↓    ↓      ↓     ↓      ↓   *)</span>
+  <span class="c">(*    C -- F  --&gt; C' -- H  --&gt; C'' *)</span>
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> reindexing_forward_scope.
+
+  <span class="kn">Local Lemma</span> <span class="nf">unicity_gg'</span>
+    {<span class="nv">a'</span> <span class="nv">b'</span> <span class="nv">c'</span>: C'} {<span class="nv">f'</span> : a' --&gt; b'} {<span class="nv">g'</span> : c' --&gt; a'}
+    {<span class="nv">x'</span> : D' a'} {<span class="nv">y'</span> : D' b'} {<span class="nv">z'</span> : D' c'} 
+    (<span class="nv">ff'</span> : x' --&gt;[f'] y') (<span class="nv">gg'</span> : z' --&gt;[g'] x') (<span class="nv">hh'</span> : z' --&gt;[g' · f'] y')
+    <span class="nv">e</span>
+    (<span class="nv">Hyp1</span> : ∏ g : C ⟦ ↙z', ↙x' ⟧, 
+    (# F g = double_transport (!¤z') (!¤x') g') × (g · ↙ff' = ↙hh') -&gt; 
+    ↙gg' = g)
+    (<span class="nv">Hyp2</span> : ∏ (gg : ←z' --&gt;[ ↙gg' ] ←x'), 
+    (gg ;; ←ff')%mor_disp = transportb (mor_disp ←z' ←y') e ←hh' -&gt; 
+    ←gg' = gg)
+    : ∏ gg'_bis : z' --&gt;[ g'] x', (gg'_bis ;; ff')%mor_disp = hh' -&gt;
+    gg'_bis = gg'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> gg'_bis p.
+    <span class="nb">induction</span> gg'_bis <span class="k">as</span> (g_bis, (pg_bis, gg_bis)).
+    <span class="nb">assert</span> (↙gg' = g_bis) <span class="k">as</span> eq_g.
+    { <span class="nb">apply</span> Hyp1.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> (double_transport_transpose pg_bis).
+      - <span class="bp">exact</span> (maponpaths pr1 p). 
+    }
+    <span class="nb">destruct</span> eq_g.
+    <span class="nb">assert</span> (¤gg' = pg_bis) <span class="k">as</span> eq_pg.
+    { <span class="nb">apply</span> uip.
+      <span class="nb">apply</span> homset_property. }
+    <span class="nb">destruct</span> eq_pg.
+    <span class="nb">assert</span> (←gg' = gg_bis) <span class="k">as</span> eq_gg.
+    { <span class="nb">apply</span> Hyp2.
+      <span class="nb">specialize</span> (transportb_transpose_right (fiber_paths p)) <span class="k">as</span> X.
+      etrans. <span class="nb">apply</span> (transportb_transpose_right (fiber_paths X)).
+      etrans. <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, f _) (transportf_const _ _)). <span class="nb">cbn</span>.
+      etrans. <span class="nb">apply</span> pr2_transportf. <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">apply</span> two_arg_paths.
+      - <span class="nb">apply</span> uip. <span class="nb">apply</span> homset_property.
+      - <span class="bp">reflexivity</span>. 
+    }
+    <span class="nb">destruct</span> eq_gg.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">commute_in_C'</span>
+    {<span class="nv">a'</span> <span class="nv">b'</span> <span class="nv">c'</span>: C'} {<span class="nv">f'</span> : a' --&gt; b'} {<span class="nv">g'</span> : c' --&gt; a'}
+    {<span class="nv">x'</span> : D' a'} {<span class="nv">y'</span> : D' b'} {<span class="nv">z'</span> : D' c'}
+    (<span class="nv">ff'</span> : x' --&gt;[f'] y') (<span class="nv">hh'</span> : z' --&gt;[g' · f'] y')
+    : # F ↙hh' = double_transport (! ¤z') (! ¤x') g' · # F ↙ff'.
+  <span class="kn">Proof</span>.
+    etrans. <span class="nb">apply</span> (double_transport_transpose (¤hh')).
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f0'</span>, _ · f0') (double_transport_transpose (¤ff'))).
+    <span class="nb">apply</span> double_transport_compose.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">commute_in_D'</span>
+    {<span class="nv">a'</span> <span class="nv">b'</span> <span class="nv">c'</span>: C'} {<span class="nv">f'</span> : a' --&gt; b'} {<span class="nv">g'</span> : c' --&gt; a'}
+    {<span class="nv">x'</span> : D' a'} {<span class="nv">y'</span> : D' b'} {<span class="nv">z'</span> : D' c'}
+    (<span class="nv">ff'</span> : x' --&gt;[f'] y') (<span class="nv">hh'</span> : z' --&gt;[g' · f'] y')
+    (<span class="nv">Hyp1</span> : ∑ φ : C ⟦ ↙ (z'), ↙ (x') ⟧,
+    (# F φ = double_transport (! ¤z') (! ¤x') g') × (φ · ↙ff' = ↙hh'))
+    (<span class="nv">Hyp2</span> : ∑ gg : ←z' --&gt;[pr1 Hyp1] ←x',
+    (gg ;; ←ff')%mor_disp = transportb (mor_disp ←z' ←y') (pr22 Hyp1) ←hh')
+    (<span class="nv">g</span>:= pr1 Hyp1)
+    (<span class="nv">pg</span> := double_transport_transpose' (pr12 Hyp1))
+    (<span class="nv">gg</span> := pr1 Hyp2)
+    (<span class="nv">gg'</span> := g,, pg,,gg : z' --&gt;[ g'] x')
+    : (gg' ;; ff')%mor_disp = hh'.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (total2_paths_f (pr22 Hyp1 : ↙(gg' ;; ff')%mor_disp = ↙hh')).
+    <span class="nb">assert</span> (pr1 (transportf (<span class="k">λ</span> <span class="nv">f</span> , 
+    ( double_transport ¤z' ¤y' (# F f) =  g' · f' ) × ( ←z' --&gt;[ f] ←y'))
+    (pr22 Hyp1) (pr2 (gg' ;; ff')%mor_disp)) = ¤ hh').
+    { <span class="nb">apply</span> uip. <span class="nb">apply</span> homset_property. }
+    <span class="nb">apply</span> (total2_paths_f X).
+    etrans. <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, f _) (transportf_const _ _)). <span class="nb">cbn</span>.
+    etrans. <span class="nb">apply</span> pr2_transportf. <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (transportf_transpose_left (pr2 Hyp2)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_cartesian_reindexing_forward_of_cleaving</span>
+    {<span class="nv">a'</span> <span class="nv">b'</span> : C'} {<span class="nv">f'</span> : a' --&gt; b'}
+    {<span class="nv">x'</span> : D' a'} {<span class="nv">y'</span> : D' b'} (<span class="nv">ff'</span> : x' --&gt;[f'] y')
+    (<span class="nv">st_car</span> : is_cartesian_sfib F (↙ff')) (<span class="nv">car</span> : is_cartesian (←ff'))
+    : is_cartesian ff'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> c' g' z' hh'.
+    <span class="c">(* introduction of variables *)</span>
+    <span class="nb">set</span> (Hyp1 := st_car (↙z') (↙hh') 
+    (double_transport (!¤z') (!¤x') g') (commute_in_C' ff' hh')).
+    <span class="nb">set</span> (Hyp2 := car (↙z') (pr11 Hyp1) (←z') 
+    (transportb (mor_disp _ _) (pr221 Hyp1) (←hh'))).
+    <span class="nb">set</span> (g:= pr11 Hyp1).
+    <span class="nb">set</span> (pg := double_transport_transpose' (pr121 Hyp1)).
+    <span class="nb">set</span> (gg := pr11 Hyp2).
+    <span class="c">(* introduction of gg' *)</span>
+    <span class="nb">set</span> (gg' := (g,, pg,, gg) : z' --&gt;[ g'] x').
+    <span class="c">(* proof that gg' is unique *)</span>
+    <span class="nb">apply</span> (unique_exists gg' (commute_in_D' ff' hh' (pr1 Hyp1) (pr1 Hyp2))).
+    <span class="nb">intro</span> gg'_bis.
+    - <span class="nb">apply</span> homsets_disp.
+    - <span class="bp">exact</span> (unicity_gg' ff' gg' hh' (pr221 Hyp1) 
+      (<span class="k">λ</span> <span class="nv">g0</span>, uniqueExists (b:= g0) Hyp1 (pr21 Hyp1)) 
+      (<span class="k">λ</span> <span class="nv">gg0</span>, uniqueExists (b:= gg0) Hyp2 (pr21 Hyp2))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">is_cleaving_reindexing_forward_of_cleaving</span> 
+    (<span class="nv">cl</span>:cleaving D) (<span class="nv">st</span>: street_fib F) (<span class="nv">univ</span> : is_univalent C')
+    : cleaving D'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> b' a' f' y'.
+    <span class="c">(* introduction of variables *)</span>
+    <span class="nb">set</span> (st_fib := st ↙y' a' (transportb _ ¤y' f')).
+    <span class="nb">set</span> (a := pr1 st_fib).
+    <span class="nb">set</span> (f := pr112 st_fib : C ⟦ a, ↙y' ⟧). 
+    <span class="nb">set</span> (px := isotoid C' univ (pr212 st_fib) : F a = a').
+    <span class="nb">set</span> (cl_fib := cl ↙y' a f ←y').
+    <span class="nb">set</span> (x := pr1 cl_fib).
+    <span class="nb">set</span> (ff := pr12 cl_fib : x --&gt;[f] ←y').
+    <span class="nb">assert</span> (double_transport px ¤y' (# F f) = f') <span class="k">as</span> pf.
+    { <span class="nb">unfold</span> double_transport. 
+      <span class="nb">apply</span> transportf_transpose_left.
+      etrans. <span class="nb">apply</span> transportf_isotoid.
+      <span class="nb">apply</span> z_iso_inv_on_right.
+      <span class="bp">exact</span> (pr122 st_fib). }
+    <span class="nb">set</span> (x' := (a,, px,, x) : D' a').
+    <span class="nb">set</span> (ff' := (f,, pf,, ff) : x' --&gt;[f'] y').
+    <span class="c">(*cartesian lift*)</span>
+    <span class="k">exists</span> <span class="nv">x'</span>.
+    <span class="k">exists</span> <span class="nv">ff'</span>.
+    <span class="c">(*is cartesian *)</span>
+    <span class="nb">apply</span> (is_cartesian_reindexing_forward_of_cleaving ff' (pr222 st_fib) cl_fib).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local</span> <span class="kn">Close Scope</span> reindexing_forward_scope.
+
+<span class="kn">End</span> <span class="nf">fibrations_and_reindexing_forward</span>.
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="kn">Section</span> <span class="nf">univalence_and_reindexing_forward</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">C'</span> <span class="nv">C''</span>: category} {<span class="nv">D</span>:disp_cat C} {<span class="nv">F</span>: functor C C'}.
+  <span class="kn">Let</span> <span class="nf">D'</span> := reindexing_forward D F.
+
+  <span class="c">(* D ---------&gt; D'*)</span>
+  <span class="c">(* ↓     ↓      ↓ *)</span>
+  <span class="c">(* C --- F ---&gt; C'*)</span>
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"X ⁻¹"</span> := (inv_from_z_iso X) (<span class="kn">at level</span> <span class="mi">0</span>).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"X ⁽⁻¹⁾"</span> := (inv_mor_disp_from_z_iso X) (<span class="kn">at level</span> <span class="mi">0</span>).
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> reindexing_forward_scope.
+
+  <span class="c">(*Type equivalent to eqality in D' *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">Split_eq</span> {<span class="nv">c'</span> : C'} (<span class="nv">x'</span> <span class="nv">y'</span> : D' c')
+    := ∑ (e0:↙x' = ↙y'), 
+    (transportf (<span class="k">λ</span> <span class="nv">c</span>, F c = c') e0 ¤x'= ¤y' 
+    × transportf D e0 ←x' = ←y').
+
+  <span class="c">(*Type equivalent to the z_iso_disp in D' *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">Split_z_iso</span> {<span class="nv">c'</span> : C'} (<span class="nv">x'</span> <span class="nv">y'</span> : D' c')
+    := ∑ (i0 : z_iso ↙x' ↙y'), 
+    (double_transport ¤x' ¤y' (# F i0) = identity c'
+    × z_iso_disp i0 ←x' ←y').
+
+  <span class="kn">Local</span> <span class="kn">Close Scope</span> reindexing_forward_scope.
+
+  <span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+  <span class="kn">Section</span> <span class="nf">weq_Equality_to_Split_eq</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">reindexing_forward_ob_eq_to_Split_eq</span> 
+      {<span class="nv">c'</span> : C'} {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'} (<span class="nv">e</span> : x' = y')
+      : Split_eq x' y'.
+    <span class="kn">Proof</span>.
+      <span class="k">exists</span> (<span class="nv">maponpaths</span> <span class="nv">pr1</span> <span class="nv">e</span>).
+      <span class="nb">split</span>.
+      - etrans. <span class="bp">exact</span> (! functtransportf pr1 _ e _).
+        <span class="bp">exact</span> (transport_section (<span class="k">λ</span> <span class="nv">z'</span>, pr12 z') e).
+      - etrans. <span class="bp">exact</span> (! functtransportf pr1 _ e _).
+        <span class="bp">exact</span> (transport_section (<span class="k">λ</span> <span class="nv">z'</span>, pr22 z') e).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">Split_eq_to_reindexing_forward_ob_eq</span> 
+      {<span class="nv">c'</span> : C'} {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'} (<span class="nv">e'</span> : Split_eq x' y') 
+      : x' = y'
+      := reindexing_forward_ob_eq D F (pr1 e') (pr12 e') (pr22 e').
+
+    <span class="kn">Local Lemma</span> <span class="nf">weq_reindexing_forward_ob_eq_Split_eq_opaque</span>
+      {<span class="nv">c'</span> : C'} {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'} 
+      : (∏ (e : x' = y'), 
+      Split_eq_to_reindexing_forward_ob_eq (reindexing_forward_ob_eq_to_Split_eq e) = e)
+      ×
+      (∏ (e' : Split_eq x' y'),
+      reindexing_forward_ob_eq_to_Split_eq (Split_eq_to_reindexing_forward_ob_eq e') = e').
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> e.
+        <span class="nb">destruct</span> e.
+        <span class="bp">reflexivity</span>.
+      - <span class="nb">intro</span> e'.
+        <span class="nb">induction</span> e' <span class="k">as</span> (e0, (e1, e2)).
+        <span class="nb">induction</span> x' <span class="k">as</span> (a, (px, x)).
+        <span class="nb">induction</span> y' <span class="k">as</span> (b, (py, y)).
+        <span class="nb">cbn</span> <span class="k">in</span> e0. <span class="nb">destruct</span> e0.
+        <span class="nb">cbn</span> <span class="k">in</span> *. <span class="nb">destruct</span> e1, e2.
+        <span class="bp">reflexivity</span>.
+    <span class="kn">Qed</span>.
+
+
+    <span class="kn">Lemma</span> <span class="nf">weq_reindexing_forward_ob_eq_Split_eq</span>
+      {<span class="nv">c'</span> : C'} {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'}
+      : weq (x' = y') (Split_eq x' y').
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (make_weq reindexing_forward_ob_eq_to_Split_eq).
+      <span class="nb">apply</span> (isweq_iso _ Split_eq_to_reindexing_forward_ob_eq).
+      - <span class="bp">exact</span> (pr1 weq_reindexing_forward_ob_eq_Split_eq_opaque).
+      - <span class="bp">exact</span> (pr2 weq_reindexing_forward_ob_eq_Split_eq_opaque).
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">weq_Equality_to_Split_eq</span>.
+  <span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+
+  <span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+  <span class="kn">Section</span> <span class="nf">weq_Split_z_iso_to_z_iso</span>.
+
+    <span class="kn">Context</span> {<span class="nv">c'</span> : C'}.
+    <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"x' --&gt;[] y'"</span> := (mor_disp x' y' (identity_z_iso c')) (<span class="kn">at level</span> <span class="mi">0</span>).
+
+    <span class="kn">Local</span> <span class="kn">Open Scope</span> reindexing_forward_scope.
+
+
+    <span class="kn">Local Lemma</span> <span class="nf">double_transport_z_iso_to_z_iso_inv</span>
+      {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> <span class="nv">d</span>: C'} (<span class="nv">i</span> : z_iso a b) (<span class="nv">i'</span> : z_iso c d)
+      {<span class="nv">e1</span> : a = c} {<span class="nv">e2</span> : b = d}
+      : double_transport e1 e2 (pr1 i) = pr1 i' -&gt;
+      double_transport e2 e1 ( i⁻¹) = i'⁻¹.
+    <span class="kn">Proof</span>.
+      <span class="nb">destruct</span> e1, e2.
+      <span class="nb">intro</span> H.
+      <span class="nb">apply</span> z_iso_eq <span class="k">in</span> H.
+      <span class="nb">apply</span> (maponpaths inv_from_z_iso H).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">disp_inverse_iso_f_from_iso_ff'</span>
+      {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'} {<span class="nv">i0</span> : z_iso ↙x' ↙y'}
+      {<span class="nv">e</span> : double_transport ¤x' ¤y' (# F i0) = identity c'}
+      {<span class="nv">i2</span> : z_iso_disp i0 ←x' ←y'} 
+      : is_disp_inverse (identity_z_iso c') 
+      (↙ i0,, e,, ↙ i2 : x' --&gt;[] y') 
+      (i0⁻¹,, 
+      double_transport_z_iso_to_z_iso_inv (functor_on_z_iso F i0) (identity_z_iso c') e
+      ,, i2⁽⁻¹⁾ : y' --&gt;[] x').
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">refine</span> (reindexing_forward_paths_f_mor D F _ _ _ _).
+        <span class="bp">exact</span> (pr122 i2).
+      - <span class="nb">refine</span> (reindexing_forward_paths_f_mor D F _ _ _ _).
+        <span class="bp">exact</span> (pr222 i2).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">Split_z_iso_to_reindexing_forward_ob_z_iso</span>
+      {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'} (<span class="nv">i</span> : Split_z_iso x' y')
+      : z_iso_disp (identity_z_iso c') x' y'.
+    <span class="kn">Proof</span>.
+      <span class="k">exists</span> ( <span class="nv">pr11</span> <span class="nv">i</span>,, <span class="nv">pr12</span> <span class="nv">i</span> ,, <span class="nv">pr122</span> <span class="nv">i</span> : x' --&gt;[] y'). 
+      <span class="k">exists</span> ((pr1 i)⁻¹,, 
+      double_transport_z_iso_to_z_iso_inv (functor_on_z_iso F (pr1 i)) (identity_z_iso c') (pr12 i),, 
+      (pr22 i)⁽⁻¹⁾ : y' --&gt;[] x').
+      <span class="bp">exact</span> disp_inverse_iso_f_from_iso_ff'.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">is_inverse_iso_f_from_iso_ff'</span>
+      {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'} {<span class="nv">iso_ff'</span> : z_iso_disp (identity_z_iso c') x' y'}
+      : is_inverse_in_precat (pr11 iso_ff') (pr112 iso_ff').
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - etrans. <span class="nb">apply</span> (maponpaths pr1 (pr222 iso_ff')).
+        etrans. <span class="nb">apply</span> (! maponpaths pr1 (id_left_disp (id_disp x'))).
+        <span class="bp">exact</span> (id_left _).
+      - etrans. <span class="nb">apply</span> (maponpaths pr1 (pr122 iso_ff')).
+        etrans. <span class="nb">apply</span> (! maponpaths pr1 (id_left_disp (id_disp y'))).
+        <span class="bp">exact</span> (id_left _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">iso_f_from_iso_ff'</span>
+      {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'} (<span class="nv">iso_ff'</span> : z_iso_disp (identity_z_iso c') x' y') 
+      : z_iso ↙x' ↙y'.
+    <span class="kn">Proof</span>.
+      <span class="k">exists</span> (<span class="nv">pr11</span> <span class="nv">iso_ff'</span>).
+      <span class="k">exists</span> (<span class="nv">pr112</span> <span class="nv">iso_ff'</span>).
+      <span class="bp">exact</span> is_inverse_iso_f_from_iso_ff'.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">pr22_composition</span>
+      {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'}
+      {<span class="nv">f'</span> <span class="nv">g'</span> : c' --&gt; c'}
+      (<span class="nv">ff'</span> : x' --&gt;[f'] y')
+      (<span class="nv">gg'</span> : y' --&gt;[g'] x')
+      (<span class="nv">e</span> : f' · g' = identity c')
+      <span class="nv">e'</span>
+      : (ff' ;; gg')%mor_disp = transportb (mor_disp x' x') e (id_disp x') -&gt;
+      (←ff' ;; ←gg')%mor_disp = transportb (mor_disp ←x' ←x') e' ←(id_disp x').
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> H0.
+      <span class="nb">specialize</span> (fiber_paths (fiber_paths H0)) <span class="k">as</span> H.
+      <span class="nb">cbn</span> <span class="k">in</span> H.
+      <span class="nb">rewrite</span> transportf_const <span class="k">in</span> H.
+      <span class="nb">rewrite</span> pr2_transportf <span class="k">in</span> H.
+      <span class="nb">unfold</span> base_paths, transportb <span class="k">in</span> H.
+      <span class="nb">rewrite</span> pr22_transportf_mor_disp_reindexing_forward <span class="k">in</span> H.
+      <span class="nb">apply</span> transportb_transpose_right <span class="k">in</span> H.
+      etrans. <span class="bp">exact</span> H.
+      etrans. <span class="nb">apply</span> transport_b_b.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> uip.
+      <span class="nb">apply</span> homset_property.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">is_disp_inverse_iso_ff_from_iso_ff'</span>
+      {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'} {<span class="nv">iso_ff'</span> : z_iso_disp (identity_z_iso c') x' y'}
+      : is_disp_inverse (iso_f_from_iso_ff' iso_ff') (pr221 iso_ff') (pr221 (pr2 iso_ff')).
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> (pr22_composition _ _ _ _ (pr122 iso_ff')).
+      - <span class="bp">exact</span> (pr22_composition _ _ _ _ (pr222 iso_ff')).
+    <span class="kn">Qed</span>. 
+
+    <span class="kn">Local Lemma</span> <span class="nf">iso_ff_from_iso_ff'</span>
+      {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'} (<span class="nv">iso_ff'</span> : z_iso_disp (identity_z_iso c') x' y')
+      : z_iso_disp (iso_f_from_iso_ff' iso_ff') ←x' ←y'.
+    <span class="kn">Proof</span>.
+      <span class="k">exists</span> (<span class="nv">pr22</span> (pr1 iso_ff')).
+      <span class="k">exists</span> (<span class="nv">pr22</span> (pr12 iso_ff')).
+      <span class="bp">exact</span> is_disp_inverse_iso_ff_from_iso_ff'.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">reindexing_forward_ob_z_iso_to_Split_z_iso</span>
+      {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'}
+      : z_iso_disp (identity_z_iso c') x' y' -&gt; 
+      Split_z_iso x' y'.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> iso_ff'.
+      <span class="k">exists</span> (<span class="nv">iso_f_from_iso_ff'</span> <span class="nv">iso_ff'</span>).
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> (pr12 (pr1 iso_ff')).
+      - <span class="bp">exact</span> (iso_ff_from_iso_ff' iso_ff').
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">weq_reindexing_forward_Split_z_iso_ob_z_iso_opaque</span>
+      {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'}
+      : (∏ (i' : Split_z_iso x' y'), reindexing_forward_ob_z_iso_to_Split_z_iso
+      (Split_z_iso_to_reindexing_forward_ob_z_iso i') = i')
+      ×
+      (∏ (i : z_iso_disp (identity_z_iso c') x' y'), Split_z_iso_to_reindexing_forward_ob_z_iso
+      (reindexing_forward_ob_z_iso_to_Split_z_iso i) = i).
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> i'.
+        use total2_paths_f.
+        * <span class="nb">apply</span> z_iso_eq. 
+          <span class="bp">reflexivity</span>.
+        * etrans. <span class="nb">apply</span> (transportf_dirprod (z_iso ↙x' ↙y') 
+          (<span class="k">λ</span> <span class="nv">i1</span>, double_transport ¤ x' ¤ y' (# F i1) = identity c') 
+          (<span class="k">λ</span> <span class="nv">i1</span>, z_iso_disp i1 ← x' ← y')).
+          <span class="nb">apply</span> dirprod_paths.
+          + <span class="nb">apply</span> uip.
+            <span class="nb">apply</span> homset_property.
+          + <span class="nb">apply</span> eq_z_iso_disp. 
+            etrans. <span class="nb">apply</span> transportf_z_iso_disp.
+            <span class="nb">apply</span> pathsinv0.
+            etrans. <span class="nb">apply</span> (! idpath_transportf _ (pr122 i')).
+            <span class="nb">apply</span> transportf_paths.
+            <span class="nb">apply</span> uip.
+            <span class="nb">apply</span> homset_property.
+      - <span class="nb">intro</span> i.
+        <span class="nb">apply</span> eq_z_iso_disp.
+        <span class="bp">reflexivity</span>.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">weq_reindexing_forward_Split_z_iso_ob_z_iso</span>
+      {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'}
+      : weq (Split_z_iso x' y') (z_iso_disp (identity_z_iso c') x' y').
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (make_weq Split_z_iso_to_reindexing_forward_ob_z_iso).
+      <span class="nb">apply</span> (isweq_iso _ reindexing_forward_ob_z_iso_to_Split_z_iso).
+      - <span class="bp">exact</span> (pr1 weq_reindexing_forward_Split_z_iso_ob_z_iso_opaque).
+      - <span class="bp">exact</span> (pr2 weq_reindexing_forward_Split_z_iso_ob_z_iso_opaque).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local</span> <span class="kn">Close Scope</span> reindexing_forward_scope.
+  <span class="kn">End</span> <span class="nf">weq_Split_z_iso_to_z_iso</span>.
+  <span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+  <span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+  <span class="kn">Section</span> <span class="nf">weq_Split_eq_to_Split_z_iso</span>.
+
+    <span class="kn">Context</span> (<span class="nv">uC</span> : is_univalent C) (<span class="nv">uC'</span> : is_univalent C') 
+      (<span class="nv">uD</span> : is_univalent_disp D). 
+
+    <span class="kn">Local Lemma</span> <span class="nf">transportf_path_C_paths</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">c'</span> : C'}
+    (<span class="nv">p</span> : F a = c') (<span class="nv">q</span> : F b = c') (<span class="nv">i</span> :z_iso a b)
+    : (! p @ (isotoid C' uC' (functor_on_z_iso F i))) @ q = idpath c' -&gt;
+    transportf (<span class="k">λ</span> <span class="nv">c</span>, F c = c') (isotoid C uC i) p = q.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> H.
+      etrans. <span class="nb">apply</span> (functtransportf F (<span class="k">λ</span> <span class="nv">x</span>, x = c') _ p).
+      etrans. <span class="nb">apply</span> (transportf_id2 (maponpaths F _) p).
+      etrans. <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">e0</span>, ! e0 @ p) (maponpaths_isotoid _ _ _ _ uC' _ _ _)).
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> path_inverse_from_right.
+      etrans. <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">e0</span> , e0 @ q) (! path_comp_inv_inv _ _)).
+      etrans. <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">e0</span>, (_ @ e0) @ _) (pathsinv0inv0 _)).
+      <span class="nb">apply</span> H.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">pr12_Split_eq_to_pr12_Split_z_iso</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">c'</span> : C'}
+    (<span class="nv">px</span> : F a = c') (<span class="nv">py</span> : F b = c')
+    (<span class="nv">i0</span>: z_iso a b)
+    : double_transport px py (# F i0) = identity c' -&gt;
+    transportf (<span class="k">λ</span> <span class="nv">c</span>, F c = c') (isotoid C uC i0) px = py.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> H.
+      <span class="nb">apply</span> transportf_path_C_paths.
+      <span class="nb">apply</span> (idtoiso_inj C' uC').
+      <span class="nb">apply</span> z_iso_eq. <span class="nb">simpl</span>.
+      etrans. <span class="nb">apply</span> pr1_idtoiso_concat.
+      etrans. <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">X</span>, pr1 X · _) (idtoiso_concat _ _ _ _ _ _)). <span class="nb">simpl</span>.
+      etrans. <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">X</span>, _ · pr1 X · _) (idtoiso_isotoid _ _ _ _ _)).
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> (! H).
+      etrans. <span class="nb">apply</span> double_transport_idtoiso.
+      <span class="nb">apply</span> (maponpaths ( <span class="k">λ</span> <span class="nv">var</span>, var · (idtoiso py))).
+      <span class="nb">apply</span> maponpaths_2. 
+      <span class="bp">exact</span> (maponpaths pr1 (! idtoiso_inv _ _ _ _)).
+    <span class="kn">Qed</span>.
+
+
+    <span class="kn">Local Definition</span> <span class="nf">Split_z_iso_to_Split_eq</span> {<span class="nv">c'</span> : C'} {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'}
+    : Split_z_iso x' y' -&gt; Split_eq x' y'.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> i'.
+      <span class="k">exists</span> (<span class="nv">isotoid</span> <span class="nv">C</span> <span class="nv">uC</span> (pr1 i')).
+      <span class="nb">split</span>.
+      - <span class="nb">apply</span> pr12_Split_eq_to_pr12_Split_z_iso.
+        <span class="bp">exact</span> (pr12 i').
+      - <span class="nb">apply</span> (isotoid_disp uD).
+        <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">i</span>, z_iso_disp i _ _) (! idtoiso_isotoid _ _ _ _ _) (pr22 i')).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">pr12_Split_z_iso_to_pr12_Split_eq</span> {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">c'</span> : C'}
+    (<span class="nv">px</span> : F a = c') (<span class="nv">py</span> : F b = c')
+    (<span class="nv">e0</span>: a = b)
+    : transportf (<span class="k">λ</span> <span class="nv">c</span>, F c = c') (e0) px = py -&gt;
+    double_transport px py (# F (idtoiso e0)) = identity c'.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> H.
+      <span class="nb">destruct</span> e0, px, H.
+      <span class="bp">exact</span> (functor_id F a).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">Split_eq_to_Split_z_iso</span> {<span class="nv">c'</span> : C'} {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'}
+    : Split_eq x' y' -&gt; Split_z_iso x' y'.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> e'.
+      <span class="k">exists</span> (<span class="nv">idtoiso</span> (pr1 e')).
+      <span class="nb">split</span>.
+      - <span class="nb">apply</span> pr12_Split_z_iso_to_pr12_Split_eq.
+        <span class="bp">exact</span> (pr12 e').
+      - <span class="nb">apply</span> idtoiso_disp.
+        <span class="bp">exact</span> (pr22 e').
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local</span> <span class="kn">Open Scope</span> reindexing_forward_scope.
+
+    <span class="kn">Lemma</span> <span class="nf">isotoid_disp_transportf_idtoiso_disp</span>
+      {<span class="nv">c</span> <span class="nv">c'</span> : C} {<span class="nv">e0</span> <span class="nv">e1</span>: c = c'} {<span class="nv">d</span> : D c} {<span class="nv">d'</span> : D c'} 
+      (<span class="nv">e</span> : transportf D e0 d = d') <span class="nv">e2</span> <span class="nv">e3</span>
+      : isotoid_disp uD e1 
+      (transportf (<span class="k">λ</span> <span class="nv">i0</span> : z_iso c c', z_iso_disp i0 d d') e2
+      (idtoiso_disp e0 e))
+      = transportf (<span class="k">λ</span> <span class="nv">en</span> : c =c', transportf D en d = d') e3 e.
+    <span class="kn">Proof</span>.
+      <span class="nb">destruct</span> e3, e0, e.
+      <span class="nb">assert</span> (e2 = idpath (identity_z_iso c)) <span class="k">as</span> E.
+      { <span class="nb">apply</span> uip. <span class="nb">apply</span> isaset_z_iso. }
+      <span class="nb">rewrite</span> E.
+      etrans. <span class="nb">apply</span> (isotoid_idtoiso_disp uD (idpath c) (idpath d)).
+      <span class="bp">reflexivity</span>.
+    <span class="kn">Qed</span>.
+
+
+    <span class="kn">Local Lemma</span> <span class="nf">weq_Split_eq_Split_z_iso_opaque</span> 
+      {<span class="nv">c'</span> : C'} {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'}
+      : (∏ (e' : Split_eq x' y'), Split_z_iso_to_Split_eq
+      (Split_eq_to_Split_z_iso e') = e')
+      ×
+      (∏ (i' : Split_z_iso x' y'), Split_eq_to_Split_z_iso
+      (Split_z_iso_to_Split_eq i') = i').
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> e'.
+        <span class="nb">apply</span> pathsinv0.
+        use total2_paths_f.
+        * <span class="bp">exact</span> (! isotoid_idtoiso C uC ↙x' ↙y' (pr1 e')). 
+        * etrans. <span class="nb">apply</span> (transportf_dirprod (↙x' = ↙y') 
+          (<span class="k">λ</span> <span class="nv">e0</span>, transportf (<span class="k">λ</span> <span class="nv">c</span> : C, F c = c') e0 ¤ x' = ¤ y') 
+          (<span class="k">λ</span> <span class="nv">e0</span>, transportf D e0 ← x' = ← y')).
+          <span class="nb">apply</span> dirprod_paths.
+          + <span class="nb">apply</span> uip. 
+            <span class="bp">exact</span> (univalent_category_has_groupoid_ob (C',, uC') (F ↙y') c').
+          + <span class="bp">exact</span> (! isotoid_disp_transportf_idtoiso_disp _ _ _).
+      - <span class="nb">intro</span> i'.
+        <span class="nb">apply</span> pathsinv0.
+        use total2_paths_f. 
+        * <span class="bp">exact</span> (! idtoiso_isotoid C uC ↙x' ↙y' (pr1 i')).
+        * etrans. <span class="nb">apply</span> (transportf_dirprod (z_iso ↙x' ↙y') 
+          (<span class="k">λ</span> <span class="nv">i0</span>, double_transport ¤ x' ¤ y' (# F i0) = identity c') 
+          (<span class="k">λ</span> <span class="nv">i0</span>, z_iso_disp i0 ← x' ← y')).
+          <span class="nb">apply</span> dirprod_paths.
+          + <span class="nb">apply</span> uip. 
+            <span class="nb">apply</span> homset_property.
+          + <span class="bp">exact</span> (! idtoiso_isotoid_disp _ _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">weq_Split_eq_Split_z_iso</span> {<span class="nv">c'</span> : C'} {<span class="nv">x'</span> <span class="nv">y'</span> : D' c'}
+    : weq (Split_eq x' y') (Split_z_iso x' y').
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (make_weq Split_eq_to_Split_z_iso).
+      <span class="nb">apply</span> (isweq_iso _ Split_z_iso_to_Split_eq).
+      - <span class="bp">exact</span> (pr1 weq_Split_eq_Split_z_iso_opaque).
+      - <span class="bp">exact</span> (pr2 weq_Split_eq_Split_z_iso_opaque).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local</span> <span class="kn">Close Scope</span> reindexing_forward_scope.
+  <span class="kn">End</span> <span class="nf">weq_Split_eq_to_Split_z_iso</span>.
+  <span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> reindexing_forward_scope.
+
+  <span class="kn">Theorem</span> <span class="nf">is_univalent_reindexing_forward_of_univalent</span>
+    (<span class="nv">uD</span> : is_univalent_disp D) (<span class="nv">uC'</span> : is_univalent C') (<span class="nv">uC</span> : is_univalent C)
+    : is_univalent_disp D'.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_disp_from_fibers.
+    <span class="nb">intros</span> c' x' y'.
+    use weqhomot.
+    - <span class="nb">apply</span> (weqcomp weq_reindexing_forward_ob_eq_Split_eq).
+      <span class="nb">apply</span> (weqcomp (weq_Split_eq_Split_z_iso uC uC' uD)).
+      <span class="bp">exact</span> weq_reindexing_forward_Split_z_iso_ob_z_iso. 
+    - <span class="nb">intro</span> e.
+      <span class="nb">destruct</span> e.
+      <span class="nb">apply</span> eq_z_iso_disp.
+      <span class="nb">cbn</span>. <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> two_arg_paths.
+      * <span class="nb">apply</span> uip. <span class="nb">apply</span> homset_property.
+      * <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">univalence_and_reindexing_forward</span>.
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+<span class="c">(*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*)</span>
+
+<span class="c">(* End of file. *)</span></span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/ReindexingForward.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (* May 2023 *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

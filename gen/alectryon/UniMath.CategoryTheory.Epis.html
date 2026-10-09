@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Epis.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Epis *)</span>
+<span class="sd">(** ** Contents</span>
+<span class="sd">- Definition of Epis</span>
+<span class="sd">- Construction of the subcategory of Epis</span>
+<span class="sd">- Construction of Epis in functor categories</span>
+
+<span class="sd">More proofs/definitions about epi can be found in EpiFacts</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Definition of Epis *)</span>
+<span class="kn">Section</span> <span class="nf">def_epi</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : precategory.
+  <span class="kn">Hypothesis</span> <span class="nv">hs</span> : has_homsets C.
+
+  <span class="sd">(** Definition and construction of isEpi. *)</span>
+  <span class="kn">Definition</span> <span class="nf">isEpi</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) : UU :=
+    ∏ (z : C) (g h : y --&gt; z), f · g = f · h -&gt; g = h.
+
+  <span class="kn">Definition</span> <span class="nf">make_isEpi</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">H</span> : ∏ (z : C) (g h : y --&gt; z), f · g = f · h -&gt; g = h) : isEpi f := H.
+
+  <span class="kn">Lemma</span> <span class="nf">isapropisEpi</span> {<span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : y --&gt; z) : isaprop (isEpi f).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> t.
+    <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> g.
+    <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> h.
+    <span class="nb">apply</span> impred_isaprop; <span class="nb">intros</span> H.
+    <span class="nb">apply</span> hs.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Definition and construction of Epi. *)</span>
+  <span class="kn">Definition</span> <span class="nf">Epi</span> (<span class="nv">x</span> <span class="nv">y</span> : C) : UU := ∑ f : x --&gt; y, isEpi f.
+  <span class="kn">Definition</span> <span class="nf">make_Epi</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">H</span> : isEpi f) :
+    Epi x y := tpair _ f H.
+
+  <span class="sd">(** Gets the arrow out of Epi. *)</span>
+  <span class="kn">Definition</span> <span class="nf">EpiArrow</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">E</span> : Epi x y) : C⟦x, y⟧ := pr1 E.
+  <span class="kn">Coercion</span> <span class="nf">EpiArrow</span> : Epi &gt;-&gt; precategory_morphisms.
+
+  <span class="kn">Definition</span> <span class="nf">EpiisEpi</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">E</span> : Epi x y) : isEpi E := pr2 E.
+
+  <span class="sd">(** Isomorphism to isEpi and Epi. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">is_iso_isEpi</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">H</span> : is_z_isomorphism f) : isEpi f.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isEpi.
+    <span class="nb">intros</span> z g h X.
+    <span class="nb">apply</span> (pre_comp_with_z_iso_is_inj H).
+    <span class="bp">exact</span> X.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_iso_Epi</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">H</span> : is_z_isomorphism f) : Epi x y.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_Epi f (is_iso_isEpi f H)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Identity to isEpi and Epi. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">identity_isEpi</span> {<span class="nv">x</span> : C} : isEpi (identity x).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (is_iso_isEpi (identity x) (is_z_isomorphism_identity x)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">identity_Epi</span> {<span class="nv">x</span> : C} : Epi x x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (tpair _ (identity x) (identity_isEpi)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Composition of isEpis and Epis. *)</span>
+  <span class="kn">Definition</span> <span class="nf">isEpi_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) :
+    isEpi f -&gt; isEpi g -&gt; isEpi (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X X0. <span class="nb">unfold</span> isEpi. <span class="nb">intros</span> z0 g0 h X1.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> &lt;- assoc <span class="k">in</span> X1. <span class="nb">apply</span> X <span class="k">in</span> X1. <span class="nb">apply</span> X0 <span class="k">in</span> X1. <span class="nb">apply</span> X1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">Epi_comp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">E1</span> : Epi x y) (<span class="nv">E2</span> : Epi y z) :
+    Epi x z := tpair _ (E1 · E2) (isEpi_comp E1 E2 (pr2 E1) (pr2 E2)).
+
+  <span class="sd">(** If precomposition of g with f is an epi, then g is an epi. *)</span>
+  <span class="kn">Definition</span> <span class="nf">isEpi_precomp</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z) : isEpi (f · g) -&gt; isEpi g.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X. <span class="nb">intros</span> w φ ψ H.
+    <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">g'</span>, f · g')) <span class="k">in</span> H.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc <span class="k">in</span> H.
+    <span class="nb">apply</span> (X w _ _ H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isEpi_path</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f1</span> <span class="nv">f2</span> : x --&gt; y) (<span class="nv">e</span> : f1 = f2) (<span class="nv">isE</span> : isEpi f1) : isEpi f2.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="bp">exact</span> isE.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Transport of isEpi *)</span>
+  <span class="kn">Lemma</span> <span class="nf">transport_target_isEpi</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : x --&gt; y) (<span class="nv">E</span> : isEpi f) (<span class="nv">e</span> : y = z) :
+    isEpi (transportf (precategory_morphisms x) e f).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> E.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">transport_source_isEpi</span> {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C} (<span class="nv">f</span> : y --&gt; z) (<span class="nv">E</span> : isEpi f) (<span class="nv">e</span> : y = x) :
+    isEpi (transportf (<span class="k">λ</span> <span class="nv">x'</span> : ob C, precategory_morphisms x' z) e f).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> e. <span class="nb">apply</span> E.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">def_epi</span>.
+<span class="kn">Arguments</span> isEpi [C] [x] [y] _.
+
+<span class="kn">Lemma</span> <span class="nf">precomp_with_epi_isincl</span> {<span class="nv">C</span> : category} {<span class="nv">A</span> <span class="nv">B</span> : ob C} {<span class="nv">f</span> : A --&gt; B} :
+  isEpi f -&gt; ∏ c, isincl (@precomp_with _ _ _ f c).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> is_epi ? ?.
+  <span class="nb">apply</span> invproofirrelevance.
+  <span class="nb">intros</span> z w.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intros</span> ? ?; <span class="nb">apply</span> homset_property|].
+  <span class="nb">apply</span> (is_epi _ (hfiberpr1 _ _ z) (hfiberpr1 _ _ w)).
+  <span class="bp">exact</span> (hfiberpr2 _ _ z @ !hfiberpr2 _ _ w).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * Construction of the subcategory consisting of all epis. *)</span>
+<span class="kn">Section</span> <span class="nf">epis_subcategory</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+
+  <span class="kn">Definition</span> <span class="nf">hsubtype_obs_isEpi</span> : hsubtype C := (<span class="k">λ</span> <span class="nv">c</span> : C, make_hProp _ isapropunit).
+
+  <span class="kn">Definition</span> <span class="nf">hsubtype_mors_isEpi</span> : ∏ (a b : C), hsubtype (C⟦a, b⟧) :=
+    (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> : C, (<span class="k">fun</span> <span class="nv">f</span> : C⟦a, b⟧ =&gt; make_hProp _ (isapropisEpi C C f))).
+
+  <span class="kn">Definition</span> <span class="nf">subprecategory_of_epis</span> : sub_precategories C.
+  <span class="kn">Proof</span>.
+    use tpair.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> hsubtype_obs_isEpi.
+    - <span class="bp">exact</span> hsubtype_mors_isEpi.
+    - <span class="nb">cbn</span>. <span class="nb">unfold</span> is_sub_precategory. <span class="nb">cbn</span>.
+      <span class="nb">split</span>.
+      + <span class="nb">intros</span> a tt. <span class="bp">exact</span> (identity_isEpi C).
+      + <span class="nb">apply</span> isEpi_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_homsets_subprecategory_of_epis</span> : has_homsets subprecategory_of_epis.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b.
+    <span class="nb">apply</span> is_set_sub_precategory_morphisms.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">subprecategory_of_epis_ob</span> (<span class="nv">c</span> : C) : ob (subprecategory_of_epis) := tpair _ c tt.
+
+<span class="kn">End</span> <span class="nf">epis_subcategory</span>.
+
+
+<span class="sd">(** * In functor categories epis can be constructed from pointwise epis *)</span>
+<span class="kn">Section</span> <span class="nf">epis_functorcategories</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_nat_trans_epi_from_pointwise_epis</span> (<span class="nv">C</span> <span class="nv">D</span> : precategory) (<span class="nv">hs</span> : has_homsets D)
+        (<span class="nv">F</span> <span class="nv">G</span> : ob (functor_precategory C D hs)) (<span class="nv">α</span> : F --&gt; G) (<span class="nv">H</span> : ∏ a : ob C, isEpi (pr1 α a)) :
+    isEpi α.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> G' β η H'.
+    use (nat_trans_eq hs).
+    <span class="nb">intros</span> x.
+    <span class="nb">set</span> (H'' := nat_trans_eq_pointwise H' x). <span class="nb">cbn</span> <span class="k">in</span> H''.
+    <span class="nb">apply</span> (H x) <span class="k">in</span> H''.
+    <span class="bp">exact</span> H''.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">epis_functorcategories</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Epis.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; More proofs/definitions about epi can be found in EpiFacts
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

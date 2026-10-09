@@ -1,0 +1,368 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Algebra.RigsAndRings.Ideals</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Algebra.RigsAndRings.Ideals</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab236"></a><h1 class="section">Ideals</h1>
+
+
+<div class="paragraph"> </div>
+
+Author: Langston Barrett (@siddharthist)
+
+<div class="paragraph"> </div>
+
+<a id="lab237"></a><h2 class="section">Contents</h2>
+
+
+<div class="paragraph"> </div>
+
+<ul class="doclist">
+<li> Definitions
+<ul class="doclist">
+<li> Left ideals (<span class="inlinecode"><a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#lideal"><span class="id" title="definition">lideal</span></a></span>)
+
+</li>
+<li> Right ideals (<span class="inlinecode"><a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#rideal"><span class="id" title="definition">rideal</span></a></span>)
+
+</li>
+<li> Two-sided ideals (<span class="inlinecode"><a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a></span>)
+
+</li>
+<li> The above notions coincide for commutative rigs
+
+</li>
+</ul>
+
+</li>
+<li> Kernel ideal
+
+</li>
+<li> Unit ideal
+
+</li>
+<li> Prime ideal
+
+</li>
+<li> Localization at a prime ideal
+ 
+
+</li>
+</ul>
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#"><span class="id" title="library">UniMath.Algebra.RigsAndRings</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.Notations.html#"><span class="id" title="library">UniMath.MoreFoundations.Notations</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">logic</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="tactic">ring</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">rig</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="Definitions" class="idref" href="#Definitions"><span class="id" title="section">Definitions</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="Definitions.R" class="idref" href="#Definitions.R"><span class="id" title="variable">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#rig"><span class="id" title="definition">rig</span></a>}.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab238"></a><h3 class="section">Left ideals (<span class="inlinecode"><a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#lideal"><span class="id" title="definition">lideal</span></a></span>)</h3>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_lideal" class="idref" href="#is_lideal"><span class="id" title="definition">is_lideal</span></a> (<a id="S:2" class="idref" href="#S:2"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.AbelianMonoids.html#subabmonoid"><span class="id" title="definition">subabmonoid</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions.R"><span class="id" title="variable">R</span></a>)) : <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">∀</span></a> <a id="r:3" class="idref" href="#r:3"><span class="id" title="binder">r</span></a> <a id="s:4" class="idref" href="#s:4"><span class="id" title="binder">s</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions.R"><span class="id" title="variable">R</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:2"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#s:4"><span class="id" title="variable">s</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">⇒</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:2"><span class="id" title="variable">S</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#r:3"><span class="id" title="variable">r</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#9c8294c22e07cec74f2f1637ca35e0d0"><span class="id" title="notation">*</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#s:4"><span class="id" title="variable">s</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="lideal" class="idref" href="#lideal"><span class="id" title="definition">lideal</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="S:5" class="idref" href="#S:5"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.AbelianMonoids.html#subabmonoid"><span class="id" title="definition">subabmonoid</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions.R"><span class="id" title="variable">R</span></a>)<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_lideal"><span class="id" title="definition">is_lideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:5"><span class="id" title="variable">S</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="make_lideal" class="idref" href="#make_lideal"><span class="id" title="definition">make_lideal</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="S:6" class="idref" href="#S:6"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.AbelianMonoids.html#subabmonoid"><span class="id" title="definition">subabmonoid</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions.R"><span class="id" title="variable">R</span></a>)<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_lideal"><span class="id" title="definition">is_lideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:6"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#lideal"><span class="id" title="definition">lideal</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <span class="id" title="var">_</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab239"></a><h3 class="section">Right ideals (<span class="inlinecode"><a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#rideal"><span class="id" title="definition">rideal</span></a></span>)</h3>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_rideal" class="idref" href="#is_rideal"><span class="id" title="definition">is_rideal</span></a> (<a id="S:7" class="idref" href="#S:7"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.AbelianMonoids.html#subabmonoid"><span class="id" title="definition">subabmonoid</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions.R"><span class="id" title="variable">R</span></a>)) : <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">∀</span></a> <a id="r:8" class="idref" href="#r:8"><span class="id" title="binder">r</span></a> <a id="s:9" class="idref" href="#s:9"><span class="id" title="binder">s</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions.R"><span class="id" title="variable">R</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:7"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#s:9"><span class="id" title="variable">s</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">⇒</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:7"><span class="id" title="variable">S</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#s:9"><span class="id" title="variable">s</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#9c8294c22e07cec74f2f1637ca35e0d0"><span class="id" title="notation">*</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#r:8"><span class="id" title="variable">r</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="rideal" class="idref" href="#rideal"><span class="id" title="definition">rideal</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="S:10" class="idref" href="#S:10"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.AbelianMonoids.html#subabmonoid"><span class="id" title="definition">subabmonoid</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions.R"><span class="id" title="variable">R</span></a>)<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_rideal"><span class="id" title="definition">is_rideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:10"><span class="id" title="variable">S</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="make_rideal" class="idref" href="#make_rideal"><span class="id" title="definition">make_rideal</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="S:11" class="idref" href="#S:11"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.AbelianMonoids.html#subabmonoid"><span class="id" title="definition">subabmonoid</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions.R"><span class="id" title="variable">R</span></a>)<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_rideal"><span class="id" title="definition">is_rideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:11"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.Foundations.Init.html#c41c566ddac4c1298b9e7dd2bae1c794"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#rideal"><span class="id" title="definition">rideal</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <span class="id" title="var">_</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab240"></a><h3 class="section">Two-sided ideals (<span class="inlinecode"><a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a></span>)</h3>
+
+</div>
+<div class="code">
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_ideal" class="idref" href="#is_ideal"><span class="id" title="definition">is_ideal</span></a> (<a id="S:12" class="idref" href="#S:12"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.AbelianMonoids.html#subabmonoid"><span class="id" title="definition">subabmonoid</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions.R"><span class="id" title="variable">R</span></a>)) : <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Propositions.html#hconj"><span class="id" title="definition">hconj</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_lideal"><span class="id" title="definition">is_lideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:12"><span class="id" title="variable">S</span></a>) (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_rideal"><span class="id" title="definition">is_rideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:12"><span class="id" title="variable">S</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="ideal" class="idref" href="#ideal"><span class="id" title="definition">ideal</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="S:13" class="idref" href="#S:13"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.AbelianMonoids.html#subabmonoid"><span class="id" title="definition">subabmonoid</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions.R"><span class="id" title="variable">R</span></a>)<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_ideal"><span class="id" title="definition">is_ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:13"><span class="id" title="variable">S</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="make_ideal" class="idref" href="#make_ideal"><span class="id" title="definition">make_ideal</span></a> (<a id="S:14" class="idref" href="#S:14"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.AbelianMonoids.html#subabmonoid"><span class="id" title="definition">subabmonoid</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions.R"><span class="id" title="variable">R</span></a>))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="isl:15" class="idref" href="#isl:15"><span class="id" title="binder">isl</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_lideal"><span class="id" title="definition">is_lideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:14"><span class="id" title="variable">S</span></a>) (<a id="isr:16" class="idref" href="#isr:16"><span class="id" title="binder">isr</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_rideal"><span class="id" title="definition">is_rideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:14"><span class="id" title="variable">S</span></a>) : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#tpair"><span class="id" title="constructor">tpair</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:14"><span class="id" title="variable">S</span></a> (<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#isl:15"><span class="id" title="variable">isl</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#isr:16"><span class="id" title="variable">isr</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="ideal_subabmonoid" class="idref" href="#ideal_subabmonoid"><span class="id" title="definition">ideal_subabmonoid</span></a> (<a id="I:17" class="idref" href="#I:17"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a>) : <a class="idref" href="UniMath.Algebra.AbelianMonoids.html#subabmonoid"><span class="id" title="definition">subabmonoid</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions.R"><span class="id" title="variable">R</span></a>) :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#I:17"><span class="id" title="variable">I</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal_subabmonoid"><span class="id" title="definition">ideal_subabmonoid</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal_subabmonoid"><span class="id" title="definition">:</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal_subabmonoid"><span class="id" title="definition">ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal_subabmonoid"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal_subabmonoid"><span class="id" title="definition">subabmonoid</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="ideal_isl" class="idref" href="#ideal_isl"><span class="id" title="definition">ideal_isl</span></a> (<a id="I:18" class="idref" href="#I:18"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a>) : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_lideal"><span class="id" title="definition">is_lideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#I:18"><span class="id" title="variable">I</span></a> := <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr12'_x"><span class="id" title="notation">pr12</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#I:18"><span class="id" title="variable">I</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="ideal_isr" class="idref" href="#ideal_isr"><span class="id" title="definition">ideal_isr</span></a> (<a id="I:19" class="idref" href="#I:19"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a>) : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_rideal"><span class="id" title="definition">is_rideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#I:19"><span class="id" title="variable">I</span></a> := <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr22'_x"><span class="id" title="notation">pr22</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#I:19"><span class="id" title="variable">I</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="isaset_ideal" class="idref" href="#isaset_ideal"><span class="id" title="lemma">isaset_ideal</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isaset_total2"><span class="id" title="lemma">isaset_total2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#isaset_submonoid"><span class="id" title="lemma">isaset_submonoid</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">S</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetaprop"><span class="id" title="lemma">isasetaprop</span></a>, <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#Definitions"><span class="id" title="section">Definitions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#lideal"><span class="id" title="definition">lideal</span></a> <span class="id" title="var">_</span> : <span class="id" title="tactic">clear</span> <span class="id" title="var">implicits</span>.<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#rideal"><span class="id" title="definition">rideal</span></a> <span class="id" title="var">_</span> : <span class="id" title="tactic">clear</span> <span class="id" title="var">implicits</span>.<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a> <span class="id" title="var">_</span> : <span class="id" title="tactic">clear</span> <span class="id" title="var">implicits</span>.<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#isaset_ideal"><span class="id" title="lemma">isaset_ideal</span></a> <span class="id" title="var">_</span> : <span class="id" title="tactic">clear</span> <span class="id" title="var">implicits</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab241"></a><h3 class="section">The above notions for commutative rigs</h3>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="commrig_ideals" class="idref" href="#commrig_ideals"><span class="id" title="lemma">commrig_ideals</span></a> (<a id="R:20" class="idref" href="#R:20"><span class="id" title="binder">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#commrig"><span class="id" title="definition">commrig</span></a>) (<a id="S:21" class="idref" href="#S:21"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.AbelianMonoids.html#subabmonoid"><span class="id" title="definition">subabmonoid</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a>  <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#R:20"><span class="id" title="variable">R</span></a>)) :<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_lideal"><span class="id" title="definition">is_lideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:21"><span class="id" title="variable">S</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_rideal"><span class="id" title="definition">is_rideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:21"><span class="id" title="variable">S</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#weqimplimpl"><span class="id" title="definition">weqimplimpl</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">islid</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span> <span class="id" title="var">ss</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<span class="id" title="var">S</span> (<span class="id" title="var">r</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#9c8294c22e07cec74f2f1637ca35e0d0"><span class="id" title="notation">*</span></a> <span class="id" title="var">s</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <span class="id" title="var">S</span> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigcomm2"><span class="id" title="definition">rigcomm2</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<span class="id" title="var">islid</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span> <span class="id" title="var">ss</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">isrid</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span> <span class="id" title="var">ss</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<span class="id" title="var">S</span> (<span class="id" title="var">s</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#9c8294c22e07cec74f2f1637ca35e0d0"><span class="id" title="notation">*</span></a> <span class="id" title="var">r</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <span class="id" title="var">S</span> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigcomm2"><span class="id" title="definition">rigcomm2</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">apply</span> (<span class="id" title="var">isrid</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span> <span class="id" title="var">ss</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Corollary</span> <a id="commrig_ideals'" class="idref" href="#commrig_ideals'"><span class="id" title="lemma">commrig_ideals'</span></a> (<a id="R:22" class="idref" href="#R:22"><span class="id" title="binder">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#commrig"><span class="id" title="definition">commrig</span></a>) : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#lideal"><span class="id" title="definition">lideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#R:22"><span class="id" title="variable">R</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#dd7277d0940f85bc9f30edc592228b3b"><span class="id" title="notation">≃</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#rideal"><span class="id" title="definition">rideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#R:22"><span class="id" title="variable">R</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartA.html#weqfibtototal"><span class="id" title="definition">weqfibtototal</span></a>; <span class="id" title="tactic">intro</span>; <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#commrig_ideals"><span class="id" title="lemma">commrig_ideals</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab242"></a><h2 class="section">Kernel ideal</h2>
+
+<div class="paragraph"> </div>
+
+ The kernel of a rig homomorphism is a two-sided ideal. 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="kernel_ideal" class="idref" href="#kernel_ideal"><span class="id" title="definition">kernel_ideal</span></a> {<a id="R:23" class="idref" href="#R:23"><span class="id" title="binder">R</span></a> <a id="S:24" class="idref" href="#S:24"><span class="id" title="binder">S</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#rig"><span class="id" title="definition">rig</span></a>} (<a id="f:25" class="idref" href="#f:25"><span class="id" title="binder">f</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigfun"><span class="id" title="definition">rigfun</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#R:23"><span class="id" title="variable">R</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#S:24"><span class="id" title="variable">S</span></a>) : @<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#R:23"><span class="id" title="variable">R</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#make_ideal"><span class="id" title="definition">make_ideal</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#make_submonoid"><span class="id" title="definition">make_submonoid</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (@<a class="idref" href="UniMath.Algebra.Monoids2.html#monoid_kernel_hsubtype"><span class="id" title="definition">monoid_kernel_hsubtype</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <span class="id" title="var">R</span>) (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddabmonoid"><span class="id" title="definition">rigaddabmonoid</span></a> <span class="id" title="var">S</span>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigaddfun"><span class="id" title="definition">rigaddfun</span></a> <span class="id" title="var">f</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;+ </div>
+
+<div class="doc">
+This does, in fact, describe a submonoid 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#kernel_issubmonoid"><span class="id" title="definition">kernel_issubmonoid</span></a>.<br/>
+&nbsp;&nbsp;- </div>
+
+<div class="doc">
+It's closed under × from the left 
+</div>
+<div class="code">
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span> <span class="id" title="var">ss</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Algebra.Monoids2.html#monoidfunmul"><span class="id" title="definition">monoidfunmul</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigmultfun"><span class="id" title="definition">rigmultfun</span></a> <span class="id" title="var">f</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>); <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Foundations.PartA.html#maponpaths"><span class="id" title="definition">maponpaths</span></a> <span class="id" title="var">_</span> <span class="id" title="var">ss</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigmultx0"><span class="id" title="definition">rigmultx0</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">f</span> <span class="id" title="var">r</span>) <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">reflexivity</span>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">r</span> <span class="id" title="var">s</span> <span class="id" title="var">ss</span>; <span class="id" title="var">cbn</span> <span class="id" title="tactic">in</span> *.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Algebra.Monoids2.html#monoidfunmul"><span class="id" title="definition">monoidfunmul</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigmultfun"><span class="id" title="definition">rigmultfun</span></a> <span class="id" title="var">f</span>) <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>); <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">abstract</span> (<span class="id" title="tactic">rewrite</span> <span class="id" title="var">ss</span>; <span class="id" title="tactic">refine</span> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigmult0x"><span class="id" title="definition">rigmult0x</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">f</span> <span class="id" title="var">r</span>) <a class="idref" href="UniMath.Foundations.PartA.html#8b57b11be4275b47948f6caec264b70f"><span class="id" title="notation">@</span></a> <span class="id" title="var">_</span>); <span class="id" title="tactic">reflexivity</span>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab243"></a><h2 class="section">Unit ideal</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="ideal_rigunel2" class="idref" href="#ideal_rigunel2"><span class="id" title="lemma">ideal_rigunel2</span></a> {<a id="R:26" class="idref" href="#R:26"><span class="id" title="binder">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#rig"><span class="id" title="definition">rig</span></a>} (<a id="I:27" class="idref" href="#I:27"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#R:26"><span class="id" title="variable">R</span></a>) : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#I:27"><span class="id" title="variable">I</span></a> 1 <a class="idref" href="UniMath.Foundations.Init.html#::type_scope:x_'-&gt;'_x"><span class="id" title="notation">-&gt;</span></a> <span class="id" title="keyword">forall</span> <a id="x:28" class="idref" href="#x:28"><span class="id" title="binder">x</span></a>, <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#I:27"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#x:28"><span class="id" title="variable">x</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">H</span> <span class="id" title="var">x</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#transportf"><span class="id" title="definition">transportf</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:29" class="idref" href="#x:29"><span class="id" title="binder"><span id="x:30" class="id">x</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">I</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#x:29"><span class="id" title="variable">x</span></a>) (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#rigrunax2"><span class="id" title="definition">rigrunax2</span></a> <span class="id" title="var">_</span> <span class="id" title="var">x</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal_isl"><span class="id" title="definition">ideal_isl</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">H</span>).<br/>
+<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab244"></a><h2 class="section">Prime ideal</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="prime" class="idref" href="#prime"><span class="id" title="section">prime</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="prime.R" class="idref" href="#prime.R"><span class="id" title="variable">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#commring"><span class="id" title="definition">commring</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="is_prime" class="idref" href="#is_prime"><span class="id" title="definition">is_prime</span></a> (<a id="I:32" class="idref" href="#I:32"><span class="id" title="binder">I</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime.R"><span class="id" title="variable">R</span></a>) : <a class="idref" href="UniMath.Foundations.Propositions.html#hProp"><span class="id" title="definition">hProp</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Propositions.html#3668992ecc3e95973d304a75a28051a2"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">∀</span></a> <a id="a:33" class="idref" href="#a:33"><span class="id" title="binder">a</span></a> <a id="b:34" class="idref" href="#b:34"><span class="id" title="binder">b</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#I:32"><span class="id" title="variable">I</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#a:33"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#9c8294c22e07cec74f2f1637ca35e0d0"><span class="id" title="notation">*</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#b:34"><span class="id" title="variable">b</span></a>) <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">⇒</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#I:32"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#a:33"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">∨</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#I:32"><span class="id" title="variable">I</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#b:34"><span class="id" title="variable">b</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#3668992ecc3e95973d304a75a28051a2"><span class="id" title="notation">)</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#3668992ecc3e95973d304a75a28051a2"><span class="id" title="notation">∧</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#3668992ecc3e95973d304a75a28051a2"><span class="id" title="notation">(</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#I:32"><span class="id" title="variable">I</span></a> 1<a class="idref" href="UniMath.Foundations.Propositions.html#3668992ecc3e95973d304a75a28051a2"><span class="id" title="notation">)</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="prime_ideal" class="idref" href="#prime_ideal"><span class="id" title="definition">prime_ideal</span></a> : <a class="idref" href="UniMath.Foundations.Preamble.html#UU"><span class="id" title="definition">UU</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="p:35" class="idref" href="#p:35"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime.R"><span class="id" title="variable">R</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#is_prime"><span class="id" title="definition">is_prime</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:35"><span class="id" title="variable">p</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="make_prime_ideal" class="idref" href="#make_prime_ideal"><span class="id" title="definition">make_prime_ideal</span></a> (<a id="p:36" class="idref" href="#p:36"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime.R"><span class="id" title="variable">R</span></a>) (<a id="H1:39" class="idref" href="#H1:39"><span class="id" title="binder">H1</span></a> : <a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">∀</span></a> <a id="a:37" class="idref" href="#a:37"><span class="id" title="binder">a</span></a> <a id="b:38" class="idref" href="#b:38"><span class="id" title="binder">b</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:36"><span class="id" title="variable">p</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#a:37"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#9c8294c22e07cec74f2f1637ca35e0d0"><span class="id" title="notation">*</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#b:38"><span class="id" title="variable">b</span></a>) <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">⇒</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:36"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#a:37"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">∨</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:36"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#b:38"><span class="id" title="variable">b</span></a>) (<a id="H2:40" class="idref" href="#H2:40"><span class="id" title="binder">H2</span></a> : <a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:36"><span class="id" title="variable">p</span></a> 1) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal"><span class="id" title="definition">prime_ideal</span></a> := <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:36"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#H1:39"><span class="id" title="variable">H1</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#H2:40"><span class="id" title="variable">H2</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="prime_ideal_ideal" class="idref" href="#prime_ideal_ideal"><span class="id" title="definition">prime_ideal_ideal</span></a> (<a id="p:41" class="idref" href="#p:41"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal"><span class="id" title="definition">prime_ideal</span></a>) : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#ideal"><span class="id" title="definition">ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime.R"><span class="id" title="variable">R</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:41"><span class="id" title="variable">p</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Coercion</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal_ideal"><span class="id" title="definition">prime_ideal_ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal_ideal"><span class="id" title="definition">:</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal_ideal"><span class="id" title="definition">prime_ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal_ideal"><span class="id" title="definition">&gt;-&gt;</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal_ideal"><span class="id" title="definition">ideal</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="prime_ideal_ax1" class="idref" href="#prime_ideal_ax1"><span class="id" title="definition">prime_ideal_ax1</span></a> (<a id="p:42" class="idref" href="#p:42"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal"><span class="id" title="definition">prime_ideal</span></a>) : <a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">∀</span></a> <a id="a:43" class="idref" href="#a:43"><span class="id" title="binder">a</span></a> <a id="b:44" class="idref" href="#b:44"><span class="id" title="binder">b</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:42"><span class="id" title="variable">p</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#a:43"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#9c8294c22e07cec74f2f1637ca35e0d0"><span class="id" title="notation">*</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#b:44"><span class="id" title="variable">b</span></a>) <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">⇒</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:42"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#a:43"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#9b27a55e56b4bfcc20e5b8cbd0156a3e"><span class="id" title="notation">∨</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:42"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#b:44"><span class="id" title="variable">b</span></a> := <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr12'_x"><span class="id" title="notation">pr12</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:42"><span class="id" title="variable">p</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="prime_ideal_ax2" class="idref" href="#prime_ideal_ax2"><span class="id" title="definition">prime_ideal_ax2</span></a> (<a id="p:45" class="idref" href="#p:45"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal"><span class="id" title="definition">prime_ideal</span></a>) : <a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:45"><span class="id" title="variable">p</span></a> 1 := <a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr22'_x"><span class="id" title="notation">pr22</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:45"><span class="id" title="variable">p</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime"><span class="id" title="section">prime</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Arguments</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal"><span class="id" title="definition">prime_ideal</span></a> <span class="id" title="var">_</span> : <span class="id" title="tactic">clear</span> <span class="id" title="var">implicits</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="prime_facts" class="idref" href="#prime_facts"><span class="id" title="section">prime_facts</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="prime_facts.R" class="idref" href="#prime_facts.R"><span class="id" title="variable">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#commring"><span class="id" title="definition">commring</span></a>} (<a id="prime_facts.p" class="idref" href="#prime_facts.p"><span class="id" title="variable">p</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal"><span class="id" title="definition">prime_ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#R:46"><span class="id" title="variable">R</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="isaset_prime_ideal" class="idref" href="#isaset_prime_ideal"><span class="id" title="lemma">isaset_prime_ideal</span></a> : <a class="idref" href="UniMath.Foundations.PartB.html#isaset"><span class="id" title="definition">isaset</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal"><span class="id" title="definition">prime_ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_facts.R"><span class="id" title="variable">R</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isaset_total2"><span class="id" title="lemma">isaset_total2</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#isaset_ideal"><span class="id" title="lemma">isaset_ideal</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">I</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.PartB.html#isasetaprop"><span class="id" title="lemma">isasetaprop</span></a>, <a class="idref" href="UniMath.Foundations.Propositions.html#propproperty"><span class="id" title="definition">propproperty</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Lemma</span> <a id="prime_ideal_ax1_contraposition" class="idref" href="#prime_ideal_ax1_contraposition"><span class="id" title="lemma">prime_ideal_ax1_contraposition</span></a> :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">∀</span></a> <a id="a:48" class="idref" href="#a:48"><span class="id" title="binder">a</span></a> <a id="b:49" class="idref" href="#b:49"><span class="id" title="binder">b</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_facts.R"><span class="id" title="variable">R</span></a><a class="idref" href="UniMath.Foundations.Propositions.html#e15f3fa8414cf45e36c73a91b3f5f2c2"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_facts.p"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#a:48"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">⇒</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_facts.p"><span class="id" title="variable">p</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#b:49"><span class="id" title="variable">b</span></a> <a class="idref" href="UniMath.MoreFoundations.Notations.html#6f3d27cc4c2606a851800b73071994a9"><span class="id" title="notation">⇒</span></a> <a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">¬</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_facts.p"><span class="id" title="variable">p</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#a:48"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.html#9c8294c22e07cec74f2f1637ca35e0d0"><span class="id" title="notation">*</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#b:49"><span class="id" title="variable">b</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span> <span class="id" title="var">Ha</span> <span class="id" title="var">Hb</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> (<a class="idref" href="UniMath.Foundations.PartA.html#negf"><span class="id" title="definition">negf</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal_ax1"><span class="id" title="definition">prime_ideal_ax1</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_facts.p"><span class="id" title="variable">p</span></a> <span class="id" title="var">a</span> <span class="id" title="var">b</span>)), <a class="idref" href="UniMath.Foundations.Propositions.html#toneghdisj"><span class="id" title="lemma">toneghdisj</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.PartA.html#make_dirprod"><span class="id" title="definition">make_dirprod</span></a> <span class="id" title="var">Ha</span> <span class="id" title="var">Hb</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Qed</span>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_facts"><span class="id" title="section">prime_facts</span></a>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+<a id="lab245"></a><h2 class="section">Localization at a prime ideal</h2>
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="localization" class="idref" href="#localization"><span class="id" title="section">localization</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Context</span> {<a id="localization.R" class="idref" href="#localization.R"><span class="id" title="variable">R</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#commring"><span class="id" title="definition">commring</span></a>}.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="prime_ideal_complement" class="idref" href="#prime_ideal_complement"><span class="id" title="definition">prime_ideal_complement</span></a> (<a id="p:51" class="idref" href="#p:51"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal"><span class="id" title="definition">prime_ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#localization.R"><span class="id" title="variable">R</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.AbelianMonoids.html#subabmonoid"><span class="id" title="definition">subabmonoid</span></a> (<a class="idref" href="UniMath.Algebra.RigsAndRings.html#ringmultabmonoid"><span class="id" title="definition">ringmultabmonoid</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#localization.R"><span class="id" title="variable">R</span></a>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#make_submonoid"><span class="id" title="definition">make_submonoid</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">intro</span> <span class="id" title="var">x</span>. <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Propositions.html#88e5b10f923d76ca6f6905ec90159254"><span class="id" title="notation">¬</span></a> <span class="id" title="var">p</span> <span class="id" title="var">x</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="var">use</span> <a class="idref" href="UniMath.Algebra.Monoids2.html#make_issubmonoid"><span class="id" title="definition">make_issubmonoid</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">intros</span> <span class="id" title="var">a</span> <span class="id" title="var">b</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal_ax1_contraposition"><span class="id" title="lemma">prime_ideal_ax1_contraposition</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">a</span>) (<a class="idref" href="UniMath.Foundations.Preamble.html#pr2"><span class="id" title="projection">pr2</span></a> <span class="id" title="var">b</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal_ax2"><span class="id" title="definition">prime_ideal_ax2</span></a> <span class="id" title="var">p</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="localization_at" class="idref" href="#localization_at"><span class="id" title="definition">localization_at</span></a> (<a id="p:52" class="idref" href="#p:52"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal"><span class="id" title="definition">prime_ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#localization.R"><span class="id" title="variable">R</span></a>) : <a class="idref" href="UniMath.Algebra.RigsAndRings.html#commring"><span class="id" title="definition">commring</span></a> :=<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.RigsAndRings.html#commringfrac"><span class="id" title="definition">commringfrac</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal_complement"><span class="id" title="definition">prime_ideal_complement</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:52"><span class="id" title="variable">p</span></a>).<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="quotient" class="idref" href="#quotient"><span class="id" title="definition">quotient</span></a> {<a id="p:53" class="idref" href="#p:53"><span class="id" title="binder">p</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal"><span class="id" title="definition">prime_ideal</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#localization.R"><span class="id" title="variable">R</span></a>} (<a id="a:54" class="idref" href="#a:54"><span class="id" title="binder">a</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#localization.R"><span class="id" title="variable">R</span></a>) (<a id="b:55" class="idref" href="#b:55"><span class="id" title="binder">b</span></a> : <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#prime_ideal_complement"><span class="id" title="definition">prime_ideal_complement</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:53"><span class="id" title="variable">p</span></a>) :<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#localization_at"><span class="id" title="definition">localization_at</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#p:53"><span class="id" title="variable">p</span></a> := <a class="idref" href="UniMath.Algebra.RigsAndRings.html#prcommringfrac"><span class="id" title="definition">prcommringfrac</span></a> <span class="id" title="var">_</span> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#a:54"><span class="id" title="variable">a</span></a> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#b:55"><span class="id" title="variable">b</span></a>.<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Algebra.RigsAndRings.Ideals.html#localization"><span class="id" title="section">localization</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

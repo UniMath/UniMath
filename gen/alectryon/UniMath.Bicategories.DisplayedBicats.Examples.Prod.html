@@ -1,0 +1,967 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Prod.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** * Bicategories</span>
+<span class="sd">    Benedikt Ahrens, Marco Maggesi</span>
+<span class="sd">    February 2018</span>
+
+<span class="sd"> Various basic constructions of displayed and non displayed bicategories:</span>
+<span class="sd"> - Unit displayed bicategory of a displayed 1-category.</span>
+<span class="sd"> - Full subbicategory of a bicategory.</span>
+<span class="sd"> - Direct product of bicategories.</span>
+<span class="sd"> ********************************************************************************* *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Initial.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.Final.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispAdjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Direct product of two displayed structures over a bicategory.                   *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">Disp_PreDirprod</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+  <span class="kn">Variable</span> (<span class="nv">D1</span> <span class="nv">D2</span> : disp_prebicat C).
+
+  <span class="kn">Definition</span> <span class="nf">disp_dirprod_prebicat_1_id_comp_cells</span> : disp_prebicat_1_id_comp_cells C.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">dirprod_disp_cat_data</span> <span class="nv">D1</span> <span class="nv">D2</span>).
+    <span class="nb">intros</span> c c' f g x d d' f' g'.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="bp">exact</span> ( (pr1 f' ==&gt;[ x ] pr1 g') × (pr2 f' ==&gt;[ x ] pr2 g')).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_dirprod_prebicat_ops</span> : disp_prebicat_ops disp_dirprod_prebicat_1_id_comp_cells.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (use tpair).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> (make_dirprod (disp_id2 _ ) (disp_id2  _)).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> (make_dirprod (disp_lunitor _ ) (disp_lunitor  _)).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> (make_dirprod (disp_runitor _ ) (disp_runitor  _)).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> (make_dirprod (disp_linvunitor _ ) (disp_linvunitor  _)).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> (make_dirprod (disp_rinvunitor _ ) (disp_rinvunitor  _)).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> (make_dirprod (disp_rassociator _ _ _ ) (disp_rassociator _ _ _)).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> (make_dirprod (disp_lassociator _ _ _ ) (disp_lassociator _ _ _)).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> (make_dirprod (disp_vcomp2 (pr1 X) (pr1 X0)) (disp_vcomp2 (pr2 X) (pr2 X0))).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> (make_dirprod (disp_lwhisker (pr1 ff) (pr1 X)) (disp_lwhisker (pr2 ff) (pr2 X))).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> (make_dirprod (disp_rwhisker (pr1 gg) (pr1 X)) (disp_rwhisker (pr2 gg) (pr2 X))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_dirprod_prebicat_data</span> : disp_prebicat_data C := _ ,, disp_dirprod_prebicat_ops.
+
+  <span class="kn">Definition</span> <span class="nf">disp_dirprod_brebicat_laws</span> : disp_prebicat_laws disp_dirprod_prebicat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span>.
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_id2_left _ @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_id2_right _ @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_vassocr _ _ _ @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_lwhisker_id2 _ _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_id2_rwhisker _ _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_lwhisker_vcomp _ _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_rwhisker_vcomp _ _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_vcomp_lunitor _ @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_vcomp_runitor _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_lwhisker_lwhisker _ _ _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_rwhisker_lwhisker _ _ _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_rwhisker_rwhisker _ _ _ _ _ @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_vcomp_whisker _ _  _ _ _ _ _ _ _ _ _ @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_lunitor_linvunitor _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_linvunitor_lunitor _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_runitor_rinvunitor _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_rinvunitor_runitor _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_lassociator_rassociator _ _ _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_rassociator_lassociator _ _ _ _ @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_runitor_rwhisker _ _  @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+    - <span class="nb">cbn</span>. <span class="nb">intros</span>.
+      <span class="nb">apply</span> dirprod_paths; <span class="nb">cbn</span>; use (disp_lassociator_lassociator _ _ _ _ @ _ ); <span class="nb">apply</span> pathsinv0.
+      + <span class="bp">exact</span> (@pr1_transportf (_ ==&gt; _) _ (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">_</span> , _ ) _ _ _ _  ).
+      + <span class="nb">apply</span> (@pr2_transportf (_ ==&gt; _) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) (<span class="k">λ</span> <span class="nv">a</span>, _ ==&gt;[a]_ ) ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_dirprod_prebicat</span> : disp_prebicat C := _ ,, disp_dirprod_brebicat_laws.
+<span class="kn">End</span> <span class="nf">Disp_PreDirprod</span>.
+
+<span class="kn">Section</span> <span class="nf">Disp_Dirprod</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+  <span class="kn">Variable</span> (<span class="nv">D1</span> <span class="nv">D2</span> : disp_bicat C).
+
+  <span class="kn">Definition</span> <span class="nf">disp_dirprod_bicat</span>
+    : disp_bicat C.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (disp_dirprod_prebicat D1 D2 ,, _).
+    <span class="nb">intros</span> a b f g x aa bb ff gg.
+    <span class="nb">apply</span> isasetdirprod.
+    - <span class="nb">apply</span> D1.
+    - <span class="nb">apply</span> D2.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Local Univalence of the poduct *)</span>
+  <span class="kn">Definition</span> <span class="nf">pair_is_disp_invertible_2cell</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; b}
+             (<span class="nv">x</span> : invertible_2cell f g)
+             {<span class="nv">aa</span> : disp_dirprod_bicat a}
+             {<span class="nv">bb</span> : disp_dirprod_bicat b}
+             {<span class="nv">ff</span> : aa --&gt;[ f ] bb}
+             {<span class="nv">gg</span> : aa --&gt;[ g ] bb}
+             (<span class="nv">xx</span> : ff ==&gt;[ x ] gg)
+    : is_disp_invertible_2cell x (pr1 xx) × is_disp_invertible_2cell x (pr2 xx)
+      →
+      is_disp_invertible_2cell x xx.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    <span class="nb">induction</span> H <span class="k">as</span> [H1 H2].
+    use tpair.
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> (disp_inv_cell (_ ,, H1)).
+      + <span class="bp">exact</span> (disp_inv_cell (_ ,, H2)).
+    - <span class="nb">split</span>.
+      + <span class="nb">refine</span> (total2_paths2 (disp_vcomp_rinv (_ ,, H1)) (disp_vcomp_rinv (_ ,, H2)) @ _).
+        <span class="nb">refine</span> (!(transportb_dirprod (f ==&gt; f)
+                                     (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                     (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                     (_ ,, (_ ,, _))
+                                     (_ ,, (_ ,, _))
+                                     (vcomp_rinv x)
+               )).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (vcomp_rinv _) (disp_id2 _)).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (vcomp_rinv _) (disp_id2 _)).
+      + <span class="nb">refine</span> (total2_paths2 (disp_vcomp_linv (_ ,, H1)) (disp_vcomp_linv (_ ,, H2)) @ _).
+        <span class="nb">refine</span> (!(transportb_dirprod (g ==&gt; g)
+                                     (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                     (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                     (_ ,, (_ ,, _))
+                                     (_ ,, (_ ,, _))
+                                     (vcomp_linv x)
+               )).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (vcomp_linv _) (disp_id2 _)).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (vcomp_linv _) (disp_id2 _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_disp_invertible_2cell</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; b}
+             (<span class="nv">x</span> : invertible_2cell f g)
+             {<span class="nv">aa</span> : disp_dirprod_bicat a}
+             {<span class="nv">bb</span> : disp_dirprod_bicat b}
+             {<span class="nv">ff</span> : aa --&gt;[ f ] bb}
+             {<span class="nv">gg</span> : aa --&gt;[ g ] bb}
+    : disp_invertible_2cell x (pr1 ff) (pr1 gg) × disp_invertible_2cell x (pr2 ff) (pr2 gg)
+      →
+      disp_invertible_2cell x ff gg.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    use tpair.
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> H.
+      + <span class="nb">apply</span> H.
+    - <span class="nb">apply</span> pair_is_disp_invertible_2cell.
+      <span class="nb">split</span>.
+      + <span class="bp">exact</span> (pr2 (pr1 H)).
+      + <span class="bp">exact</span> (pr2 (pr2 H)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_is_disp_invertible_2cell</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; b}
+             (<span class="nv">x</span> : invertible_2cell f g)
+             {<span class="nv">aa</span> : disp_dirprod_bicat a}
+             {<span class="nv">bb</span> : disp_dirprod_bicat b}
+             {<span class="nv">ff</span> : aa --&gt;[ f ] bb}
+             {<span class="nv">gg</span> : aa --&gt;[ g ] bb}
+             (<span class="nv">xx</span> : ff ==&gt;[ x ] gg)
+    : is_disp_invertible_2cell x xx
+      →
+      is_disp_invertible_2cell x (pr1 xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    use tpair.
+    - <span class="bp">exact</span> (pr1 (pr1 H)).
+    - <span class="nb">split</span>.
+      + <span class="nb">refine</span> (maponpaths pr1
+                           (@disp_vcomp_rinv C disp_dirprod_bicat
+                                             a b f g
+                                             aa bb
+                                             x
+                                             ff gg
+                                             (_ ,, H))
+                           @ _).
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (maponpaths pr1 ((transportb_dirprod
+                                   (f ==&gt; f)
+                                   (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                   (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                   (_ ,, (_ ,, _))
+                                   (_ ,, (_ ,, _))
+                                   (vcomp_rinv x)
+               ))).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (vcomp_rinv _) (disp_id2 _)).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (vcomp_rinv _) (disp_id2 _)).
+      + <span class="nb">refine</span> (maponpaths pr1
+                           (@disp_vcomp_linv C disp_dirprod_bicat
+                                             a b f g
+                                             aa bb
+                                             x
+                                             ff gg
+                                             (_ ,, H))
+                           @ _).
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (maponpaths pr1
+                           ((transportb_dirprod
+                               (g ==&gt; g)
+                               (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                               (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                               (_ ,, (_ ,, _))
+                               (_ ,, (_ ,, _))
+                               (vcomp_linv x)
+               ))).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (vcomp_linv _) (disp_id2 _)).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (vcomp_linv _) (disp_id2 _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_disp_invertible_2cell</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; b}
+             (<span class="nv">x</span> : invertible_2cell f g)
+             {<span class="nv">aa</span> : disp_dirprod_bicat a}
+             {<span class="nv">bb</span> : disp_dirprod_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[ f ] bb)
+             (<span class="nv">gg</span> : aa --&gt;[ g ] bb)
+    : disp_invertible_2cell x ff gg
+      →
+      disp_invertible_2cell x (pr1 ff) (pr1 gg).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    use tpair.
+    - <span class="nb">apply</span> H.
+    - <span class="nb">refine</span> (pr1_is_disp_invertible_2cell _ _ _).
+      <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr2_is_disp_invertible_2cell</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; b}
+             (<span class="nv">x</span> : invertible_2cell f g)
+             {<span class="nv">aa</span> : disp_dirprod_bicat a}
+             {<span class="nv">bb</span> : disp_dirprod_bicat b}
+             {<span class="nv">ff</span> : aa --&gt;[ f ] bb}
+             {<span class="nv">gg</span> : aa --&gt;[ g ] bb}
+             (<span class="nv">xx</span> : ff ==&gt;[ x ] gg)
+    : is_disp_invertible_2cell x xx → is_disp_invertible_2cell x (pr2 xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    use tpair.
+    - <span class="bp">exact</span> (pr2 (pr1 H)).
+    - <span class="nb">split</span>.
+      + <span class="nb">refine</span> (maponpaths dirprod_pr2
+                           (@disp_vcomp_rinv C disp_dirprod_bicat
+                                             a b f g
+                                             aa bb
+                                             x
+                                             ff gg
+                                             (_ ,, H))
+                           @ _).
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (maponpaths dirprod_pr2
+                           ((transportb_dirprod
+                               (f ==&gt; f)
+                               (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                               (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                               (_ ,, (_ ,, _))
+                               (_ ,, (_ ,, _))
+                               (vcomp_rinv x)
+               ))).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (vcomp_rinv _) (disp_id2 _)).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (vcomp_rinv _) (disp_id2 _)).
+      + <span class="nb">refine</span> (maponpaths dirprod_pr2
+                           (@disp_vcomp_linv C disp_dirprod_bicat
+                                             a b f g
+                                             aa bb
+                                             x
+                                             ff gg
+                                             (_ ,, H))
+                           @ _).
+        <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (maponpaths dirprod_pr2
+                           ((transportb_dirprod
+                               (g ==&gt; g)
+                               (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                               (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                               (_ ,, (_ ,, _))
+                               (_ ,, (_ ,, _))
+                               (vcomp_linv x)
+               ))).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (vcomp_linv _) (disp_id2 _)).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (vcomp_linv _) (disp_id2 _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr2_disp_invertible_2cell</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; b}
+             (<span class="nv">x</span> : invertible_2cell f g)
+             {<span class="nv">aa</span> : disp_dirprod_bicat a}
+             {<span class="nv">bb</span> : disp_dirprod_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[ f ] bb)
+             (<span class="nv">gg</span> : aa --&gt;[ g ] bb)
+    : disp_invertible_2cell x ff gg → disp_invertible_2cell x (pr2 ff) (pr2 gg).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    use tpair.
+    - <span class="nb">apply</span> H.
+    - <span class="nb">refine</span> (pr2_is_disp_invertible_2cell _ _ _).
+      <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_disp_invertible_2cell_weq</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; b}
+             (<span class="nv">x</span> : invertible_2cell f g)
+             {<span class="nv">aa</span> : disp_dirprod_bicat a}
+             {<span class="nv">bb</span> : disp_dirprod_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[ f ] bb)
+             (<span class="nv">gg</span> : aa --&gt;[ g ] bb)
+    : (disp_invertible_2cell x (pr1 ff) (pr1 gg) × disp_invertible_2cell x (pr2 ff) (pr2 gg))
+        ≃
+        disp_invertible_2cell x ff gg.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (pair_disp_invertible_2cell x).
+    - use isweq_iso.
+      + <span class="nb">intros</span> H.
+        <span class="nb">split</span>.
+        * <span class="nb">apply</span> pr1_disp_invertible_2cell.
+          <span class="bp">exact</span> H.
+        * <span class="nb">apply</span> pr2_disp_invertible_2cell.
+          <span class="bp">exact</span> H.
+      + <span class="nb">intros</span> H ; <span class="nb">cbn</span>.
+        use total2_paths2.
+        * use subtypePath.
+          ** <span class="nb">intro</span> ; <span class="nb">simpl</span>.
+             <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+          ** <span class="bp">reflexivity</span>.
+        * use subtypePath.
+          ** <span class="nb">intro</span> ; <span class="nb">simpl</span>.
+             <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+          ** <span class="bp">reflexivity</span>.
+      + <span class="nb">intros</span> H ; <span class="nb">cbn</span>.
+        use subtypePath.
+        * <span class="nb">intro</span> xx ; <span class="nb">simpl</span>.
+          <span class="nb">apply</span> (@isaprop_is_disp_invertible_2cell C disp_dirprod_bicat).
+        * <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_idtoiso_2_1</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             {<span class="nv">f</span> : a --&gt; b} {<span class="nv">g</span> : a --&gt; b}
+             (<span class="nv">p</span> : f = g)
+             {<span class="nv">aa</span> : disp_dirprod_bicat a}
+             {<span class="nv">bb</span> : disp_dirprod_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[f] bb)
+             (<span class="nv">gg</span> : aa --&gt;[g] bb)
+             (<span class="nv">HD1</span> : disp_univalent_2_1 D1)
+             (<span class="nv">HD2</span> : disp_univalent_2_1 D2)
+    : (transportf (<span class="k">λ</span> <span class="nv">z</span> : C ⟦ a, b ⟧, aa --&gt;[ z] bb) p ff = gg)
+        ≃
+        disp_invertible_2cell (idtoiso_2_1 f g p) ff gg.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (pair_disp_invertible_2cell_weq (idtoiso_2_1 _ _ p) ff gg ∘ _)%weq.
+    <span class="nb">refine</span> (weqdirprodf
+              (_ ,, HD1 a b f g p (pr1 aa) (pr1 bb) (pr1 ff) (pr1 gg))
+              (_ ,, HD2 a b f g p (pr2 aa) (pr2 bb) (pr2 ff) (pr2 gg))
+              ∘ _)%weq.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> WeakEquivalences.pathsdirprodweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_1_dirprod_bicat</span>
+             (<span class="nv">HD1</span> : disp_univalent_2_1 D1)
+             (<span class="nv">HD2</span> : disp_univalent_2_1 D2)
+    : disp_univalent_2_1 disp_dirprod_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f g p aa bb ff gg.
+    use weqhomot.
+    - <span class="bp">exact</span> (prod_idtoiso_2_1 p ff gg HD1 HD2).
+    - <span class="nb">intros</span> q.
+      <span class="nb">induction</span> p, q.
+      use subtypePath.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> (@isaprop_is_disp_invertible_2cell C disp_dirprod_bicat).
+      + <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Global Univalence of the product *)</span>
+  <span class="kn">Definition</span> <span class="nf">pair_left_adjoint_equivalence</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : adjoint_equivalence a b)
+             {<span class="nv">aa</span> : disp_dirprod_bicat a}
+             {<span class="nv">bb</span> : disp_dirprod_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[ f] bb)
+    : disp_left_adjoint_equivalence f (pr1 ff) × disp_left_adjoint_equivalence f (pr2 ff)
+      →
+      disp_left_adjoint_equivalence f ff.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    use tpair.
+    - use tpair ; <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="bp">exact</span> (disp_left_adjoint_right_adjoint f (pr1 H)).
+      + <span class="bp">exact</span> (disp_left_adjoint_right_adjoint f (pr2 H)).
+      + <span class="bp">exact</span> (disp_left_adjoint_unit f (pr1 H)).
+      + <span class="bp">exact</span> (disp_left_adjoint_unit f (pr2 H)).
+      + <span class="bp">exact</span> (disp_left_adjoint_counit f (pr1 H)).
+      + <span class="bp">exact</span> (disp_left_adjoint_counit f (pr2 H)).
+    - <span class="nb">refine</span> ((_ ,, _) ,, (_ ,, _)) ; <span class="nb">cbn</span>.
+      + <span class="nb">refine</span> (total2_paths2 (disp_internal_triangle1 _ (pr1 H))
+                              (disp_internal_triangle1 _ (pr2 H)) @ _).
+        <span class="nb">refine</span> (!(transportb_dirprod (f ==&gt; f)
+                                     (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                     (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                     (_ ,, (_ ,, _))
+                                     (_ ,, (_ ,, _))
+                                     _
+               )).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (internal_triangle1 f) (disp_id2 _)).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (internal_triangle1 f) (disp_id2 _)).
+      + <span class="nb">refine</span> (total2_paths2 (disp_internal_triangle2 _ (pr1 H))
+                              (disp_internal_triangle2 _ (pr2 H)) @ _).
+        <span class="nb">refine</span> (!(transportb_dirprod (_ ==&gt; _)
+                                     (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                     (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                     (_ ,, (_ ,, _))
+                                     (_ ,, (_ ,, _))
+                                     _
+               )).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (internal_triangle2 f) (disp_id2 _)).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (internal_triangle2 f) (disp_id2 _)).
+      + <span class="nb">apply</span> (pair_is_disp_invertible_2cell (_ ,, pr1 (pr2 (pr2 (pr2 f))))).
+        <span class="nb">split</span>.
+        * <span class="nb">apply</span> (pr1 H).
+        * <span class="nb">apply</span> (pr2 H).
+      + <span class="nb">cbn</span>.
+        <span class="nb">apply</span> (pair_is_disp_invertible_2cell
+                 (left_adjoint_counit (pr1 (pr2 f))
+                                      ,, pr2 (pr2 (pr2 (pr2 f))))).
+        <span class="nb">split</span>.
+        * <span class="nb">apply</span> (pr1 H).
+        * <span class="nb">apply</span> (pr2 H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_adjoint_equivalence</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : adjoint_equivalence a b)
+             (<span class="nv">aa</span> : disp_dirprod_bicat a)
+             (<span class="nv">bb</span> : disp_dirprod_bicat b)
+    : disp_adjoint_equivalence f (pr1 aa) (pr1 bb) × disp_adjoint_equivalence f (pr2 aa) (pr2 bb)
+      →
+      disp_adjoint_equivalence f aa bb.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    use tpair.
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> (pr1 H).
+      + <span class="nb">apply</span> (pr2 H).
+    - <span class="nb">apply</span> pair_left_adjoint_equivalence.
+      <span class="nb">cbn</span>.
+      <span class="nb">split</span>.
+      + <span class="nb">apply</span> (pr1 H).
+      + <span class="nb">apply</span> (pr2 H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_left_adjoint_equivalence</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : adjoint_equivalence a b)
+             {<span class="nv">aa</span> : disp_dirprod_bicat a}
+             {<span class="nv">bb</span> : disp_dirprod_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[ f] bb)
+    : disp_left_adjoint_equivalence f ff
+      →
+      disp_left_adjoint_equivalence f (pr1 ff).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    use tpair.
+    - use tpair ; <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="bp">exact</span> (pr1 (disp_left_adjoint_right_adjoint f H)).
+      + <span class="bp">exact</span> (pr1 (disp_left_adjoint_unit f H)).
+      + <span class="bp">exact</span> (pr1 (disp_left_adjoint_counit f H)).
+    - <span class="nb">refine</span> ((_ ,, _) ,, (_ ,, _)) ; <span class="nb">cbn</span>.
+      + <span class="nb">refine</span> (maponpaths pr1 (pr1(pr1(pr2 H))) @ _).
+        <span class="nb">refine</span> (maponpaths pr1 ((transportb_dirprod
+                                   (f ==&gt; f)
+                                   (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                   (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                   (_ ,, (_ ,, _))
+                                   (_ ,, (_ ,, _))
+                                   (internal_triangle1 f)
+               ))).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (internal_triangle1 f) (disp_id2 _)).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (internal_triangle1 f) (disp_id2 _)).
+      + <span class="nb">refine</span> (maponpaths pr1 (pr2(pr1(pr2 H))) @ _).
+        <span class="nb">refine</span> (maponpaths pr1 ((transportb_dirprod
+                                   (_ ==&gt; _)
+                                   (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                   (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                   (_ ,, (_ ,, _))
+                                   (_ ,, (_ ,, _))
+                                   _
+               ))).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (internal_triangle2 f) (disp_id2 _)).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (internal_triangle2 f) (disp_id2 _)).
+      + <span class="nb">apply</span> (pr1_is_disp_invertible_2cell
+                 (left_adjoint_unit f ,, pr1 (pr2 (pr2 (pr2 f))))
+                 (disp_left_adjoint_unit (pr1 (pr2 f)) (pr1 H))
+              ).
+        <span class="nb">apply</span> H.
+      + <span class="nb">apply</span> (pr1_is_disp_invertible_2cell
+                 (left_adjoint_counit f ,, pr2 (pr2 (pr2 (pr2 f))))
+                 (disp_left_adjoint_counit (pr1 (pr2 f)) (pr1 H))
+              ).
+        <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_adjoint_equivalence</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : adjoint_equivalence a b)
+             (<span class="nv">aa</span> : disp_dirprod_bicat a)
+             (<span class="nv">bb</span> : disp_dirprod_bicat b)
+    : disp_adjoint_equivalence f aa bb
+      →
+      disp_adjoint_equivalence f (pr1 aa) (pr1 bb).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    use tpair.
+    - <span class="nb">apply</span> H.
+    - <span class="nb">apply</span> pr1_left_adjoint_equivalence.
+      <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr2_left_adjoint_equivalence</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : adjoint_equivalence a b)
+             {<span class="nv">aa</span> : disp_dirprod_bicat a}
+             {<span class="nv">bb</span> : disp_dirprod_bicat b}
+             (<span class="nv">ff</span> : aa --&gt;[ f] bb)
+    : disp_left_adjoint_equivalence f ff
+      →
+      disp_left_adjoint_equivalence f (pr2 ff).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    use tpair.
+    - use tpair ; <span class="kp">repeat</span> <span class="nb">split</span>.
+      + <span class="bp">exact</span> (pr2 (disp_left_adjoint_right_adjoint f H)).
+      + <span class="bp">exact</span> (pr2 (disp_left_adjoint_unit f H)).
+      + <span class="bp">exact</span> (pr2 (disp_left_adjoint_counit f H)).
+    - <span class="nb">refine</span> ((_ ,, _) ,, (_ ,, _)) ; <span class="nb">cbn</span>.
+      + <span class="nb">refine</span> (maponpaths dirprod_pr2 (pr1(pr1(pr2 H))) @ _).
+        <span class="nb">refine</span> (maponpaths dirprod_pr2 ((transportb_dirprod
+                                   (f ==&gt; f)
+                                   (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                   (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                   (_ ,, (_ ,, _))
+                                   (_ ,, (_ ,, _))
+                                   (internal_triangle1 f)
+               ))).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (internal_triangle1 f) (disp_id2 _)).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (internal_triangle1 f) (disp_id2 _)).
+      + <span class="nb">refine</span> (maponpaths dirprod_pr2 (pr2(pr1(pr2 H))) @ _).
+        <span class="nb">refine</span> (maponpaths dirprod_pr2 ((transportb_dirprod
+                                   (_ ==&gt; _)
+                                   (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                   (<span class="k">λ</span> <span class="nv">α</span>, _ ==&gt;[α] _)
+                                   (_ ,, (_ ,, _))
+                                   (_ ,, (_ ,, _))
+                                   _
+               ))).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (internal_triangle2 f) (disp_id2 _)).
+        * <span class="bp">exact</span> (transportb (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[z] _) (internal_triangle2 f) (disp_id2 _)).
+      + <span class="nb">apply</span> (pr2_is_disp_invertible_2cell
+                 (left_adjoint_unit f ,, pr1 (pr2 (pr2 (pr2 f))))
+                 (disp_left_adjoint_unit (pr1 (pr2 f)) (pr1 H))
+              ).
+        <span class="nb">apply</span> H.
+      + <span class="nb">apply</span> (pr2_is_disp_invertible_2cell
+                 (left_adjoint_counit f ,, pr2 (pr2 (pr2 (pr2 f))))
+                 (disp_left_adjoint_counit (pr1 (pr2 f)) (pr1 H))
+              ).
+        <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr2_adjoint_equivalence</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">f</span> : adjoint_equivalence a b)
+             (<span class="nv">aa</span> : disp_dirprod_bicat a)
+             (<span class="nv">bb</span> : disp_dirprod_bicat b)
+    : disp_adjoint_equivalence f aa bb
+      →
+      disp_adjoint_equivalence f (pr2 aa) (pr2 bb).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> H.
+    use tpair.
+    - <span class="nb">apply</span> H.
+    - <span class="nb">apply</span> pr2_left_adjoint_equivalence.
+      <span class="nb">apply</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pair_adjoint_equivalence_weq</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">HC</span> : is_univalent_2_1 C)
+             (<span class="nv">HD1</span> : disp_univalent_2_1 D1)
+             (<span class="nv">HD2</span> : disp_univalent_2_1 D2)
+             (<span class="nv">f</span> : adjoint_equivalence a b)
+             (<span class="nv">aa</span> : disp_dirprod_bicat a)
+             (<span class="nv">bb</span> : disp_dirprod_bicat b)
+    : (disp_adjoint_equivalence f (pr1 aa) (pr1 bb) × disp_adjoint_equivalence f (pr2 aa) (pr2 bb))
+        ≃
+        (disp_adjoint_equivalence f aa bb).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> (pair_adjoint_equivalence f aa bb).
+    - use isweq_iso.
+      + <span class="nb">intros</span> H.
+        <span class="nb">split</span>.
+        * <span class="bp">exact</span> (pr1_adjoint_equivalence f aa bb H).
+        * <span class="bp">exact</span> (pr2_adjoint_equivalence f aa bb H).
+      + <span class="nb">intros</span> A.
+        use total2_paths2.
+        * use subtypePath.
+          ** <span class="nb">intro</span> ; <span class="nb">simpl</span>.
+             <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence.
+             *** <span class="bp">exact</span> HC.
+             *** <span class="bp">exact</span> HD1.
+          ** <span class="bp">reflexivity</span>.
+        * use subtypePath.
+          ** <span class="nb">intro</span> ; <span class="nb">simpl</span>.
+             <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence.
+             *** <span class="bp">exact</span> HC.
+             *** <span class="bp">exact</span> HD2.
+          ** <span class="bp">reflexivity</span>.
+      + <span class="nb">intros</span> H ; <span class="nb">cbn</span>.
+        use subtypePath.
+        * <span class="nb">intro</span> xx ; <span class="nb">simpl</span>.
+          <span class="nb">apply</span> (@isaprop_disp_left_adjoint_equivalence C disp_dirprod_bicat).
+          ** <span class="bp">exact</span> HC.
+          ** <span class="bp">exact</span> (is_univalent_2_1_dirprod_bicat HD1 HD2).
+        * <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">prod_idtoiso_2_0</span>
+             (<span class="nv">HC</span> : is_univalent_2_1 C)
+             (<span class="nv">HD1</span> : disp_univalent_2 D1)
+             (<span class="nv">HD2</span> : disp_univalent_2 D2)
+             {<span class="nv">a</span> <span class="nv">b</span> : C}
+             (<span class="nv">p</span> : a = b)
+             (<span class="nv">aa</span> : disp_dirprod_bicat a)
+             (<span class="nv">bb</span> : disp_dirprod_bicat b)
+    : (transportf (<span class="k">λ</span> <span class="nv">z</span> : C, disp_dirprod_bicat z) p aa = bb)
+        ≃
+        disp_adjoint_equivalence (idtoiso_2_0 a b p) aa bb.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (pair_adjoint_equivalence_weq HC (pr2 HD1) (pr2 HD2) (idtoiso_2_0 _ _ p) aa bb ∘ _)%weq.
+    <span class="nb">refine</span> (weqdirprodf
+              (_ ,, pr1 HD1 a b p (pr1 aa) (pr1 bb))
+              (_ ,, pr1 HD2 a b p (pr2 aa) (pr2 bb))
+              ∘ _)%weq.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> WeakEquivalences.pathsdirprodweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_0_dirprod_bicat</span>
+             (<span class="nv">HC</span> : is_univalent_2_1 C)
+             (<span class="nv">HD1</span> : disp_univalent_2 D1)
+             (<span class="nv">HD2</span> : disp_univalent_2 D2)
+    : disp_univalent_2_0 disp_dirprod_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b p aa bb.
+    use weqhomot.
+    - <span class="bp">exact</span> (prod_idtoiso_2_0 HC HD1 HD2 p aa bb).
+    - <span class="nb">intros</span> q.
+      <span class="nb">induction</span> p, q.
+      use subtypePath.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> (@isaprop_disp_left_adjoint_equivalence C disp_dirprod_bicat).
+        * <span class="bp">exact</span> HC.
+        * <span class="bp">exact</span> (is_univalent_2_1_dirprod_bicat (pr2 HD1) (pr2 HD2)).
+      + <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_dirprod_bicat</span>
+             (<span class="nv">HC</span> : is_univalent_2_1 C)
+             (<span class="nv">HD1</span> : disp_univalent_2 D1)
+             (<span class="nv">HD2</span> : disp_univalent_2 D2)
+    : disp_univalent_2 disp_dirprod_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> is_univalent_2_0_dirprod_bicat; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> is_univalent_2_1_dirprod_bicat.
+      * <span class="bp">exact</span> (pr2 HD1).
+      * <span class="bp">exact</span> (pr2 HD2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_1_total_dirprod</span>
+             (<span class="nv">HC</span> : is_univalent_2_1 C)
+             (<span class="nv">HD1</span> : disp_univalent_2_1 D1)
+             (<span class="nv">HD2</span> : disp_univalent_2_1 D2)
+    : is_univalent_2_1 (total_bicat disp_dirprod_bicat).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> total_is_univalent_2_1.
+    - <span class="bp">exact</span> HC.
+    - <span class="nb">apply</span> is_univalent_2_1_dirprod_bicat.
+      * <span class="bp">exact</span> HD1.
+      * <span class="bp">exact</span> HD2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_0_total_dirprod</span>
+             (<span class="nv">HC</span> : is_univalent_2 C)
+             (<span class="nv">HD1</span> : disp_univalent_2 D1)
+             (<span class="nv">HD2</span> : disp_univalent_2 D2)
+    : is_univalent_2_0 (total_bicat disp_dirprod_bicat).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> total_is_univalent_2_0.
+    - <span class="bp">exact</span> (pr1 HC).
+    - <span class="nb">apply</span> is_univalent_2_0_dirprod_bicat.
+      + <span class="bp">exact</span> (pr2 HC).
+      + <span class="bp">exact</span> HD1.
+      + <span class="bp">exact</span> HD2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_2_total_dirprod</span>
+             (<span class="nv">HC</span> : is_univalent_2 C)
+             (<span class="nv">HD1</span> : disp_univalent_2 D1)
+             (<span class="nv">HD2</span> : disp_univalent_2 D2)
+    : is_univalent_2 (total_bicat disp_dirprod_bicat).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> is_univalent_2_0_total_dirprod; <span class="bp">assumption</span>.
+    - <span class="nb">apply</span> is_univalent_2_1_total_dirprod.
+      * <span class="bp">exact</span> (pr2 HC).
+      * <span class="bp">exact</span> (pr2 HD1).
+      * <span class="bp">exact</span> (pr2 HD2).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_prod</span>
+             (<span class="nv">HD1</span> : disp_2cells_isaprop D1)
+             (<span class="nv">HD2</span> : disp_2cells_isaprop D2)
+    : disp_2cells_isaprop disp_dirprod_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> HD1.
+    - <span class="nb">apply</span> HD2.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_locally_groupoid_prod</span>
+             (<span class="nv">HD1</span> : disp_locally_groupoid D1)
+             (<span class="nv">HD2</span> : disp_locally_groupoid D2)
+    : disp_locally_groupoid disp_dirprod_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f g x aa bb ff gg xx.
+    <span class="nb">apply</span> pair_is_disp_invertible_2cell.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> HD1.
+    - <span class="nb">apply</span> HD2.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Disp_Dirprod</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Invertible 2-cells in the total bicategory</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">pr1_dirprod_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_bicat B)
+           {<span class="nv">x</span> <span class="nv">y</span> : total_bicat (disp_dirprod_bicat D₁ D₂)}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           (<span class="nv">α</span> : invertible_2cell f g)
+  : @invertible_2cell
+      (total_bicat D₁)
+      (pr1 x ,, pr12 x)
+      (pr1 y ,, pr12 y)
+      (pr1 f ,, pr12 f)
+      (pr1 g ,, pr12 g).
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> (pr11 α ,, pr121 α).
+  - use make_is_invertible_2cell.
+    + <span class="bp">exact</span> (pr1 α^-<span class="mi">1</span> ,, pr12 α^-<span class="mi">1</span>).
+    + <span class="kp">abstract</span>
+        (use total2_paths_f ; [ <span class="nb">apply</span> (maponpaths pr1 (vcomp_rinv α)) | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (_ @ maponpaths pr1 (fiber_paths (vcomp_rinv α))) ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">apply</span> (@pr1_transportf
+                  (pr1 f ==&gt; pr1 f)
+                  (<span class="k">λ</span> <span class="nv">z</span>, pr12 f ==&gt;[ z ] pr12 f)
+                  (<span class="k">λ</span> <span class="nv">z</span> <span class="nv">_</span>, pr22 f ==&gt;[ z ] pr22 f))).
+    + <span class="kp">abstract</span>
+        (use total2_paths_f ; [ <span class="nb">apply</span> (maponpaths pr1 (vcomp_linv α)) | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (_ @ maponpaths pr1 (fiber_paths (vcomp_linv α))) ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">apply</span> (@pr1_transportf
+                  (pr1 g ==&gt; pr1 g)
+                  (<span class="k">λ</span> <span class="nv">z</span>, pr12 g ==&gt;[ z ] pr12 g)
+                  (<span class="k">λ</span> <span class="nv">z</span> <span class="nv">_</span>, pr22 g ==&gt;[ z ] pr22 g))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_dirprod_invertible_2cell</span>
+           {<span class="nv">B</span> : bicat}
+           (<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_bicat B)
+           {<span class="nv">x</span> <span class="nv">y</span> : total_bicat (disp_dirprod_bicat D₁ D₂)}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           (<span class="nv">α</span> : invertible_2cell f g)
+  : @invertible_2cell
+      (total_bicat D₂)
+      (pr1 x ,, pr22 x)
+      (pr1 y ,, pr22 y)
+      (pr1 f ,, pr22 f)
+      (pr1 g ,, pr22 g).
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> (pr11 α ,, pr221 α).
+  - use make_is_invertible_2cell.
+    + <span class="bp">exact</span> (pr1 α^-<span class="mi">1</span> ,, pr22 α^-<span class="mi">1</span>).
+    + <span class="kp">abstract</span>
+        (use total2_paths_f ; [ <span class="nb">apply</span> (maponpaths pr1 (vcomp_rinv α)) | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (_ @ maponpaths dirprod_pr2 (fiber_paths (vcomp_rinv α))) ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">apply</span> (@pr2_transportf
+                  (pr1 f ==&gt; pr1 f)
+                  (<span class="k">λ</span> <span class="nv">z</span>, pr12 f ==&gt;[ z ] pr12 f)
+                  (<span class="k">λ</span> <span class="nv">z</span>, pr22 f ==&gt;[ z ] pr22 f))).
+    + <span class="kp">abstract</span>
+        (use total2_paths_f ; [ <span class="nb">apply</span> (maponpaths pr1 (vcomp_linv α)) | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (_ @ maponpaths dirprod_pr2 (fiber_paths (vcomp_linv α))) ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">apply</span> (@pr2_transportf
+                  (pr1 g ==&gt; pr1 g)
+                  (<span class="k">λ</span> <span class="nv">z</span>, pr12 g ==&gt;[ z ] pr12 g)
+                  (<span class="k">λ</span> <span class="nv">z</span>, pr22 g ==&gt;[ z ] pr22 g))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">disp_2cells_of_dirprod_iscontr</span>
+  {<span class="nv">B</span> : bicat} {<span class="nv">D₁</span> <span class="nv">D₂</span> : disp_bicat B}
+  (<span class="nv">D₁_contr</span> : disp_2cells_iscontr D₁) (<span class="nv">D₂_contr</span> : disp_2cells_iscontr D₂)
+  : disp_2cells_iscontr (disp_dirprod_bicat D₁ D₂).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> iscontr_prod.
+  - <span class="nb">apply</span> D₁_contr.
+  - <span class="nb">apply</span> D₂_contr.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/Prod.v</tt>, line 12)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  - Direct product of bicategories.
+  &gt;  ********************************************************************************* *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

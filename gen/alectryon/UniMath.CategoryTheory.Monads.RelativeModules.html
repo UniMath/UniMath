@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RelativeModules.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* =================================================================================== *)</span>
+<span class="sd">(** * Modules over relative monads                                                     *)</span>
+<span class="c">(* =================================================================================== *)</span>
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** Contents:                                                                          *)</span>
+<span class="sd">(**                                                                                    *)</span>
+<span class="sd">(**   - Definition of module over a relative monads [RelModule]                        *)</span>
+<span class="sd">(**   - Functoriality for modules [mlift]                                              *)</span>
+<span class="sd">(**   - Morphisms between relative modules (over the same monad).                      *)</span>
+<span class="sd">(**                                                                                    *)</span>
+<span class="sd">(** Written by: Marco Maggesi (started March 2018)                                     *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.RelativeMonads.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Miscellanea                                                                     *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isaprop_RelMonad_axioms</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">J</span> : C ⟶ D}
+           (<span class="nv">hs</span> : has_homsets D) (<span class="nv">R</span> : RelMonad_data J)
+  : isaprop (RelMonad_axioms R).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">apply</span> isapropdirprod; <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intros</span>); <span class="nb">apply</span> hs.
+<span class="kn">Qed</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Definition of module over a relative monad.                                     *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">RelModule_Definition</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">J</span> : C ⟶ D}.
+
+  <span class="kn">Definition</span> <span class="nf">RelModule_data</span> (<span class="nv">R</span> : RelMonad_data J) : UU
+    := ∑ F : C → D, ∏ c d, D ⟦J c, R d⟧ → D ⟦F c, F d⟧.
+
+  <span class="kn">Definition</span> <span class="nf">make_relmodule_data</span> (<span class="nv">R</span> : RelMonad_data J) (<span class="nv">F</span> : C → D)
+             (<span class="nv">mbind</span> : ∏ c d, D ⟦J c, R d⟧ → D ⟦F c, F d⟧)
+    : RelModule_data R
+    := F,, mbind.
+
+  <span class="kn">Definition</span> <span class="nf">RelModule_ob</span> {<span class="nv">R</span> : RelMonad_data J} (<span class="nv">M</span> : RelModule_data R)
+    : C → D
+    := pr1 M.
+  <span class="kn">Coercion</span> <span class="nf">RelModule_ob</span> : RelModule_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Section</span> <span class="nf">Projections_and_Laws</span>.
+
+    <span class="kn">Context</span> {<span class="nv">R</span> : RelMonad_data J}.
+
+    <span class="kn">Definition</span> <span class="nf">mbind</span> (<span class="nv">M</span> : RelModule_data R)
+               {<span class="nv">c</span> <span class="nv">d</span>} (<span class="nv">f</span> : D⟦J c, R d⟧)
+      : D ⟦M c, M d⟧
+      := pr2 M _ _ f.
+
+    <span class="kn">Definition</span> <span class="nf">mlift</span> (<span class="nv">M</span> : RelModule_data R) {<span class="nv">a</span> <span class="nv">b</span>} (<span class="nv">f</span> : C ⟦a, b⟧)
+      : D ⟦pr1 M a, pr1 M b⟧
+      := mbind M (#J f · r_eta R _).
+
+    <span class="kn">Definition</span> <span class="nf">relmodule_functor_data</span> (<span class="nv">M</span> : RelModule_data R)
+      : functor_data C D
+      := make_functor_data M (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> (<span class="nv">f</span> : a --&gt;b), mlift M f).
+
+    <span class="kn">Definition</span> <span class="nf">RelModule_laws</span> (<span class="nv">M</span> : RelModule_data R) : UU
+      := RelMonad_axioms R
+       × (∏ c, mbind M (r_eta R c) = identity _ )
+       × (∏ c d e (f : D ⟦J c, R d⟧) (g : D ⟦J d, R e⟧),
+          mbind M f · mbind M g = mbind M (f · r_bind R g)).
+
+    <span class="kn">Coercion</span> <span class="nf">relmonad_axiom_from_relmodule</span> {M : RelModule_data R} (X : RelModule_laws M)
+      : RelMonad_axioms R
+      := pr1 X.
+
+    <span class="kn">Definition</span> <span class="nf">mbind_r_eta</span> {<span class="nv">M</span> : RelModule_data R} (<span class="nv">X</span> : RelModule_laws M)
+      : ∏ c, mbind M (r_eta R c) = identity _ := pr1 (pr2 X).
+
+    <span class="kn">Definition</span> <span class="nf">mbind_mbind</span> {<span class="nv">M</span> : RelModule_data R} (<span class="nv">X</span> : RelModule_laws M)
+      : ∏ c d e (f : D ⟦J c, R d⟧) (g : D ⟦J d, R e⟧),
+        mbind M f · mbind M g = mbind M (f · r_bind R g)
+      := pr2 (pr2 X).
+
+    <span class="kn">Lemma</span> <span class="nf">isaprop_RelModule_laws</span> (<span class="nv">hs</span> : has_homsets D) (<span class="nv">M</span> : RelModule_data R)
+      : isaprop (RelModule_laws M).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> isapropdirprod.
+      - <span class="nb">apply</span> isaprop_RelMonad_axioms, hs.
+      - <span class="nb">apply</span> isapropdirprod; <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intros</span>); <span class="nb">apply</span> hs.
+    <span class="kn">Qed</span>.
+
+
+    <span class="kn">Lemma</span> <span class="nf">mbind_mlift</span> {<span class="nv">M</span> : RelModule_data R} (<span class="nv">X</span> : RelModule_laws M) {<span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : C} (<span class="nv">f</span> : J c --&gt; R d) (<span class="nv">g</span> : d --&gt; e)
+      : mbind M f · mlift M g = mbind M (f · r_lift R g).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (mbind_mbind X).
+    <span class="kn">Qed</span>.
+
+
+  <span class="kn">End</span> <span class="nf">Projections_and_Laws</span>.
+<span class="kn">End</span> <span class="nf">RelModule_Definition</span>.
+
+
+<span class="c">(* We make a separate section with stronger hypothesis [RelMonad] to state</span>
+<span class="c">   another fusion law involving [r_lift]. *)</span>
+<span class="kn">Section</span> <span class="nf">Projections_and_Laws_2</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory}{<span class="nv">J</span> : C ⟶ D} {<span class="nv">R</span> : RelMonad J} {<span class="nv">M</span> : RelModule_data R} (<span class="nv">X</span> : RelModule_laws M).
+
+<span class="kn">Lemma</span> <span class="nf">mlift_mbind</span> {<span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : C} (<span class="nv">f</span> : c --&gt; d) (<span class="nv">g</span> : J d --&gt; R e)
+  : mlift M f · mbind M g = mbind M (#J f · g).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> mlift.
+  etrans. { <span class="nb">apply</span> (mbind_mbind X). }
+          <span class="nb">apply</span> maponpaths.
+  etrans. { <span class="nb">apply</span> pathsinv0, assoc. }
+          <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (r_eta_r_bind R).
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Projections_and_Laws_2</span>.
+
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Packing the full structure of Relative Module together.                         *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Definition</span> <span class="nf">RelModule</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">J</span> : C ⟶ D} (<span class="nv">R</span> : RelMonad_data J) : UU
+  := ∑ M : RelModule_data R, RelModule_laws M.
+
+<span class="kn">Definition</span> <span class="nf">make_RelModule</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">J</span> : C ⟶ D} (<span class="nv">R</span> : RelMonad_data J)
+           (<span class="nv">M</span> : RelModule_data R) (<span class="nv">HM</span> : RelModule_laws M)
+  : RelModule R
+  := (M,, HM).
+
+<span class="kn">Coercion</span> <span class="nf">RelModule_data_from_RelModule</span> {C D : precategory_data} {J : C ⟶ D}
+         {R : RelMonad_data J} (M : RelModule R)
+  : RelModule_data R
+  := pr1 M.
+
+<span class="kn">Coercion</span> <span class="nf">RelModule_laws_from_RelModule</span> {C D : precategory_data} {J : C ⟶ D}
+         {R : RelMonad_data J} (M : RelModule R)
+  : RelModule_laws M
+  := pr2 M.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Functoriality of Modules                                                        *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">Functor_from_RelModule</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory} {<span class="nv">J</span> : C ⟶ D}.
+
+  <span class="kn">Lemma</span> <span class="nf">mlift_id</span> {<span class="nv">R</span> : RelMonad_data J} {<span class="nv">M</span> : RelModule_data R} (<span class="nv">X</span> : RelModule_laws M) (<span class="nv">c</span> : C) :
+    mlift M (identity c) = identity (M c).
+  <span class="kn">Proof</span>.
+    <span class="nb">transitivity</span> (mbind M (r_eta R c)).
+    <span class="mi">2</span>: <span class="nb">apply</span> (mbind_r_eta X).
+    <span class="nb">unfold</span> mlift. <span class="nb">cbn</span>. <span class="nb">apply</span> maponpaths.
+    etrans.
+    <span class="mi">2</span>: <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Context</span> {<span class="nv">R</span> : RelMonad J} {<span class="nv">M</span> : RelModule_data R} (<span class="nv">X</span> : RelModule_laws M).
+
+  <span class="kn">Lemma</span> <span class="nf">mlift_mlift</span> {<span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : C} (<span class="nv">f</span> : c --&gt; d) (<span class="nv">g</span> : d --&gt; e) :
+    mlift M f · mlift M g = mlift M (f · g).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> mlift <span class="nb">at</span> <span class="mi">2</span>.
+    etrans. { <span class="nb">apply</span> (mlift_mbind X). }
+    <span class="nb">unfold</span> mlift. <span class="nb">apply</span> maponpaths.
+    etrans. { <span class="nb">apply</span> assoc. }
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> pathsinv0, functor_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_data_from_relmodule</span> : functor_data C D
+    := functor_data_constr C D
+                           (RelModule_ob M : C → D)
+                           (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> (<span class="nv">f</span> : a --&gt; b), mlift M f).
+
+  <span class="kn">Definition</span> <span class="nf">is_functor_mlift</span> : is_functor functor_data_from_relmodule.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">red</span>; <span class="nb">intro</span> a. <span class="nb">apply</span> (mlift_id X).
+    - <span class="nb">red</span>. <span class="nb">intros</span>. <span class="nb">cbn</span>. <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> mlift_mlift.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_relmodule</span> : C ⟶ D
+    := make_functor functor_data_from_relmodule is_functor_mlift.
+
+<span class="kn">End</span> <span class="nf">Functor_from_RelModule</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Morphisms of modules over a fixe relative monad.                                *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">RelModule_Morphism_Definition</span>.
+<span class="kn">Section</span> <span class="nf">Part1</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">J</span> : C ⟶ D} {<span class="nv">R</span> : RelMonad_data J}.
+
+  <span class="kn">Definition</span> <span class="nf">is_relmodule_mor</span> (<span class="nv">M</span> <span class="nv">N</span> : RelModule_data R) (<span class="nv">φ</span> : ∏ a : C, M a --&gt; N a) : UU
+    := (∏ a b (f : J a --&gt; R b), mbind M f · φ b = φ a · mbind N f).
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_RelModule_Mor_laws</span> (<span class="nv">hs</span> : has_homsets D) (<span class="nv">M</span> <span class="nv">N</span> : RelModule_data R)
+        (<span class="nv">φ</span> : ∏ a : C, M a --&gt; N a)
+    : isaprop (is_relmodule_mor M N φ).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> hs.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">RelModule_Mor</span> (<span class="nv">M</span> <span class="nv">N</span> : RelModule R) : UU :=
+    ∑ (φ : ∏ a : C, M a --&gt; N a), is_relmodule_mor M N φ.
+
+  <span class="kn">Definition</span> <span class="nf">relmodule_mor_map</span> {<span class="nv">M</span> <span class="nv">N</span> : RelModule R} (<span class="nv">φ</span> : RelModule_Mor M N)
+    : ∏ a : C, M a --&gt; N a
+    := pr1 φ.
+  <span class="kn">Coercion</span> <span class="nf">relmodule_mor_map</span> : RelModule_Mor &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Coercion</span> <span class="nf">relmodule_mor_property</span> {M N : RelModule R} (φ : RelModule_Mor M N)
+    : is_relmodule_mor M N φ
+    := pr2 φ.
+
+<span class="kn">End</span> <span class="nf">Part1</span>.
+<span class="sd">(** now with [D : precategory, R : RelMonad J] *)</span>
+<span class="kn">Section</span> <span class="nf">Part2</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory} {<span class="nv">J</span> : C ⟶ D} {<span class="nv">R</span> : RelMonad J}.
+
+  <span class="kn">Definition</span> <span class="nf">is_nat_trans_relmodule_mor</span> {<span class="nv">M</span> <span class="nv">N</span> : RelModule R} {<span class="nv">φ</span> : ∏ a : C, M a --&gt; N a}
+             (<span class="nv">Hφ</span> : is_relmodule_mor M N φ)
+    : is_nat_trans (functor_from_relmodule M) (functor_from_relmodule N) φ.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f. <span class="nb">cbn</span>. <span class="nb">unfold</span> mlift. <span class="nb">apply</span> Hφ.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">RelModule_Mor_equiv</span> (<span class="nv">hs</span> : has_homsets D)
+  {<span class="nv">M</span> <span class="nv">N</span> : RelModule R} (<span class="nv">φ</span> <span class="nv">ψ</span> : RelModule_Mor M N)
+  : φ = ψ ≃ (pr1 φ = pr1 ψ).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> subtypeInjectivity; <span class="nb">intro</span> a.
+    <span class="nb">apply</span> isaprop_RelModule_Mor_laws, hs.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">nat_trans_from_relmodule_mor</span> {<span class="nv">M</span> <span class="nv">N</span> : RelModule R} (<span class="nv">φ</span> : RelModule_Mor M N)
+    : functor_from_relmodule M ⟹ functor_from_relmodule N
+    := make_nat_trans (functor_from_relmodule M) (functor_from_relmodule N)
+                    φ
+                    (is_nat_trans_relmodule_mor φ).
+
+  <span class="kn">Definition</span> <span class="nf">is_relmodule_mor_id</span> (<span class="nv">M</span> : RelModule R)
+    : is_relmodule_mor M M (<span class="k">λ</span> <span class="nv">a</span>, identity (M a)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f. etrans.
+    - <span class="nb">apply</span> id_right.
+    - <span class="nb">apply</span> pathsinv0, id_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">relmodule_mor_id</span> (<span class="nv">M</span> : RelModule R) : RelModule_Mor M M :=
+    ((<span class="k">λ</span> <span class="nv">a</span>, identity (M a)),, is_relmodule_mor_id M).
+
+  <span class="kn">Definition</span> <span class="nf">is_relmodule_mor_comp</span> {<span class="nv">L</span> <span class="nv">M</span> <span class="nv">N</span> : RelModule R}
+             {<span class="nv">φ</span>} (<span class="nv">φ_mor</span> : is_relmodule_mor L M φ)
+             {<span class="nv">ψ</span>} (<span class="nv">ψ_mor</span> : is_relmodule_mor M N ψ)
+    : is_relmodule_mor L N (<span class="k">λ</span> <span class="nv">a</span>, φ a · ψ a).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f.
+    etrans. { <span class="nb">apply</span> assoc. }
+    etrans. { <span class="nb">apply</span> maponpaths_2, φ_mor. }
+    etrans. { <span class="nb">apply</span> pathsinv0, assoc. }
+    etrans. <span class="mi">2</span>: <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> ψ_mor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">relmodule_mor_comp</span> {<span class="nv">L</span> <span class="nv">M</span> <span class="nv">N</span> : RelModule R}
+             (<span class="nv">φ</span> : RelModule_Mor L M) (<span class="nv">ψ</span> : RelModule_Mor M N)
+    : RelModule_Mor L N
+    := ((<span class="k">λ</span> <span class="nv">a</span>, φ a · ψ a),, is_relmodule_mor_comp φ ψ).
+
+<span class="kn">End</span> <span class="nf">Part2</span>.
+
+<span class="kn">End</span> <span class="nf">RelModule_Morphism_Definition</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Category of modules over a fixed relative monad.                                *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">RelModule_Category</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : precategory_data} {<span class="nv">D</span> : precategory} {<span class="nv">J</span> : C ⟶ D} (<span class="nv">R</span> : RelMonad J).
+
+  <span class="kn">Definition</span> <span class="nf">relmodule_precategory_ob_mor</span> : precategory_ob_mor
+    := make_precategory_ob_mor (RelModule R) RelModule_Mor.
+
+  <span class="kn">Definition</span> <span class="nf">relmodule_precategory_data</span> : precategory_data
+    := make_precategory_data
+         relmodule_precategory_ob_mor
+         relmodule_mor_id
+         (<span class="k">λ</span> <span class="nv">M</span> <span class="nv">N</span> <span class="nv">P</span> (<span class="nv">φ</span> : RelModule_Mor M N) (<span class="nv">ψ</span> : RelModule_Mor N P),
+          relmodule_mor_comp φ ψ).
+
+  <span class="kn">Lemma</span> <span class="nf">is_precategory_relmodule</span> (<span class="nv">hs</span> : has_homsets D)
+    : is_precategory relmodule_precategory_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_precategory_one_assoc_to_two.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">apply</span> (invmap (RelModule_Mor_equiv hs _ _ )).
+      <span class="nb">apply</span> funextsec; <span class="nb">intros</span> a. <span class="nb">apply</span> id_left.
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">apply</span> (invmap (RelModule_Mor_equiv hs _ _ )).
+      <span class="nb">apply</span> funextsec; <span class="nb">intros</span> a. <span class="nb">apply</span> id_right.
+    - <span class="nb">intros</span> x y z w f g h.
+      <span class="nb">apply</span> (invmap (RelModule_Mor_equiv hs _ _ )).
+      <span class="nb">apply</span> funextsec. <span class="nb">intros</span> a. <span class="nb">apply</span> assoc.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">RelModule_Precategory</span> (<span class="nv">hs</span> : has_homsets D)
+    : precategory
+    := make_precategory relmodule_precategory_data (is_precategory_relmodule hs).
+
+  <span class="kn">Definition</span> <span class="nf">has_homsets_RelModule_Precategory</span> (<span class="nv">hs</span> : has_homsets D)
+    : has_homsets (RelModule_Precategory hs).
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>. <span class="nb">cbn</span>. <span class="nb">intros</span> M N.
+    <span class="nb">apply</span> isaset_total2.
+    - <span class="nb">apply</span> impred_isaset. <span class="nb">intros</span>. <span class="nb">apply</span> hs.
+    - <span class="nb">intros</span> P. <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isaprop_RelModule_Mor_laws. <span class="nb">apply</span> hs.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">RelModule_Category</span>.
+
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+<span class="sd">(** ** Tautological module                                                             *)</span>
+<span class="c">(*                                                                                     *)</span>
+<span class="sd">(** Any relative monad is a left module over itself.                                   *)</span>
+<span class="c">(* ----------------------------------------------------------------------------------- *)</span>
+
+<span class="kn">Section</span> <span class="nf">Tautological_RelModule</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : precategory_data} {<span class="nv">J</span> : C ⟶ D} (<span class="nv">R</span> : RelMonad J).
+
+  <span class="kn">Definition</span> <span class="nf">tautological_RelModule_data</span> : RelModule_data R
+    := make_relmodule_data R R (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> (<span class="nv">f</span> : D⟦J a, R b⟧), r_bind R f).
+
+  <span class="kn">Lemma</span> <span class="nf">tautological_RelModule_law</span>  : RelModule_laws tautological_RelModule_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> R.
+    - <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">cbn</span>; <span class="nb">intros</span>.
+      + <span class="nb">apply</span> (r_bind_r_eta R).
+      + <span class="nb">apply</span> (r_bind_r_bind R).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tautological_RelModule</span> : RelModule R
+    := make_RelModule R tautological_RelModule_data tautological_RelModule_law.
+
+<span class="kn">End</span> <span class="nf">Tautological_RelModule</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monads/RelativeModules.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** Written by: Marco Maggesi (started March 2018)                                     *)
+  &gt; (* ----------------------------------------------------------------------------------- *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

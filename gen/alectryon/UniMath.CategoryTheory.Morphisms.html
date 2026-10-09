@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Morphisms.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Some general constructions *)</span>
+<span class="sd">(** ** Contensts</span>
+<span class="sd">- Pair of morphisms</span>
+<span class="sd">- Short exact sequence data</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Zero.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Opp.
+
+<span class="sd">(** * Pair of morphisms *)</span>
+<span class="kn">Section</span> <span class="nf">def_morphismpair</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : precategory}.
+
+  <span class="sd">(** ** Morphism **)</span>
+
+  <span class="kn">Definition</span> <span class="nf">Morphism</span> : UU := ∑ (a b : C), a --&gt; b.
+
+  <span class="kn">Definition</span> <span class="nf">make_Morphism</span> {<span class="nv">a</span> <span class="nv">b</span> : C} (<span class="nv">f</span> : a --&gt; b) : Morphism := (a,,(b,,f)).
+
+  <span class="kn">Definition</span> <span class="nf">Source</span> (<span class="nv">M</span> : Morphism) : ob C := pr1 M.
+
+  <span class="kn">Definition</span> <span class="nf">Target</span> (<span class="nv">M</span> : Morphism) : ob C := pr1 (pr2 M).
+
+  <span class="kn">Definition</span> <span class="nf">MorphismMor</span> (<span class="nv">M</span> : Morphism) : C⟦Source M, Target M⟧ := pr2 (pr2 M).
+  <span class="kn">Coercion</span> <span class="nf">MorphismMor</span> : Morphism &gt;-&gt; precategory_morphisms.
+
+
+  <span class="sd">(** ** MorphismPair **)</span>
+
+  <span class="kn">Definition</span> <span class="nf">MorphismPair</span> : UU := ∑ (a b c : C), (a --&gt; b × b --&gt; c).
+
+  <span class="kn">Definition</span> <span class="nf">make_MorphismPair</span> {<span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : C} (<span class="nv">f</span> : a --&gt; b) (<span class="nv">g</span> : b --&gt; c) : MorphismPair.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> a.
+    - use tpair.
+      + <span class="bp">exact</span> b.
+      + use tpair.
+        * <span class="bp">exact</span> c.
+        * use make_dirprod.
+          -- <span class="bp">exact</span> f.
+          -- <span class="bp">exact</span> g.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Accessor function *)</span>
+  <span class="kn">Definition</span> <span class="nf">Ob1</span> (<span class="nv">MP</span> : MorphismPair) : ob C := pr1 MP.
+
+  <span class="kn">Definition</span> <span class="nf">Ob2</span> (<span class="nv">MP</span> : MorphismPair) : ob C := pr1 (pr2 MP).
+
+  <span class="kn">Definition</span> <span class="nf">Ob3</span> (<span class="nv">MP</span> : MorphismPair) : ob C := pr1 (pr2 (pr2 MP)).
+
+  <span class="kn">Definition</span> <span class="nf">Mor1</span> (<span class="nv">MP</span> : MorphismPair) : C⟦Ob1 MP, Ob2 MP⟧ := dirprod_pr1 (pr2 (pr2 (pr2 MP))).
+
+  <span class="kn">Definition</span> <span class="nf">Mor2</span> (<span class="nv">MP</span> : MorphismPair) : C⟦Ob2 MP, Ob3 MP⟧ := dirprod_pr2 (pr2 (pr2 (pr2 MP))).
+
+  <span class="sd">(** Morphism of morphism pairs *)</span>
+  <span class="kn">Definition</span> <span class="nf">MPMorMors</span> (<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair) : UU :=
+    (Ob1 MP1 --&gt; Ob1 MP2) × (Ob2 MP1 --&gt; Ob2 MP2) × (Ob3 MP1 --&gt; Ob3 MP2).
+
+  <span class="kn">Definition</span> <span class="nf">make_MPMorMors</span> {<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair} (<span class="nv">f1</span> : Ob1 MP1 --&gt; Ob1 MP2)
+             (<span class="nv">f2</span> : Ob2 MP1 --&gt; Ob2 MP2) (<span class="nv">f3</span> : Ob3 MP1 --&gt; Ob3 MP2) : MPMorMors MP1 MP2 :=
+    (f1,,(f2,,f3)).
+
+  <span class="kn">Definition</span> <span class="nf">MPMor1</span> {<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair} (<span class="nv">MPM</span> : MPMorMors MP1 MP2) : Ob1 MP1 --&gt; Ob1 MP2 :=
+    dirprod_pr1 MPM.
+
+  <span class="kn">Definition</span> <span class="nf">MPMor2</span> {<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair} (<span class="nv">MPM</span> : MPMorMors MP1 MP2) : Ob2 MP1 --&gt; Ob2 MP2 :=
+    dirprod_pr1 (dirprod_pr2 MPM).
+
+  <span class="kn">Definition</span> <span class="nf">MPMor3</span> {<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair} (<span class="nv">MPM</span> : MPMorMors MP1 MP2) : Ob3 MP1 --&gt; Ob3 MP2 :=
+    dirprod_pr2 (dirprod_pr2 MPM).
+
+  <span class="kn">Definition</span> <span class="nf">MPMorComms</span> {<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair} (<span class="nv">MPM</span> : MPMorMors MP1 MP2) : UU :=
+    (MPMor1 MPM · Mor1 MP2 = Mor1 MP1 · MPMor2 MPM)
+      × (MPMor2 MPM · Mor2 MP2 = Mor2 MP1 · MPMor3 MPM).
+
+  <span class="kn">Definition</span> <span class="nf">make_MPMorComms</span> {<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair} (<span class="nv">MPM</span> : MPMorMors MP1 MP2)
+             (<span class="nv">H1</span> : MPMor1 MPM · Mor1 MP2 = Mor1 MP1 · MPMor2 MPM)
+             (<span class="nv">H2</span> : MPMor2 MPM · Mor2 MP2 = Mor2 MP1 · MPMor3 MPM) : MPMorComms MPM := (H1,,H2).
+
+  <span class="kn">Definition</span> <span class="nf">MPComm1</span> {<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair} {<span class="nv">MPM</span> : MPMorMors MP1 MP2} (<span class="nv">MPMC</span> : MPMorComms MPM) :
+    MPMor1 MPM · Mor1 MP2 = Mor1 MP1 · MPMor2 MPM := dirprod_pr1 MPMC.
+
+  <span class="kn">Definition</span> <span class="nf">MPComm2</span> {<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair} {<span class="nv">MPM</span> : MPMorMors MP1 MP2} (<span class="nv">MPMC</span> : MPMorComms MPM) :
+    MPMor2 MPM · Mor2 MP2 = Mor2 MP1 · MPMor3 MPM := dirprod_pr2 MPMC.
+
+  <span class="kn">Definition</span> <span class="nf">MPMor</span> (<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair) : UU := ∑ MPM : MPMorMors MP1 MP2, MPMorComms MPM.
+
+  <span class="kn">Definition</span> <span class="nf">make_MPMor</span> {<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair} (<span class="nv">MPM</span> : MPMorMors MP1 MP2) (<span class="nv">MPMC</span> : MPMorComms MPM) :
+    MPMor MP1 MP2 := (MPM,,MPMC).
+
+  <span class="kn">Definition</span> <span class="nf">MPMor_MPMorMors</span> {<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair} (<span class="nv">MPM</span> : MPMor MP1 MP2) :
+    MPMorMors MP1 MP2 := pr1 MPM.
+  <span class="kn">Coercion</span> <span class="nf">MPMor_MPMorMors</span> : MPMor &gt;-&gt; MPMorMors.
+
+  <span class="kn">Definition</span> <span class="nf">MPMor_MPMorComms</span> {<span class="nv">MP1</span> <span class="nv">MP2</span> : MorphismPair} (<span class="nv">MPM</span> : MPMor MP1 MP2) :
+    MPMorComms MPM := pr2 MPM.
+  <span class="kn">Coercion</span> <span class="nf">MPMor_MPMorComms</span> : MPMor &gt;-&gt; MPMorComms.
+
+  <span class="kn">Lemma</span> <span class="nf">reverseCommIsoSquare</span> {<span class="nv">M</span> : precategory} {<span class="nv">P</span> <span class="nv">Q</span> <span class="nv">P'</span> <span class="nv">Q'</span>:M} (<span class="nv">f</span>:P'--&gt;P) (<span class="nv">g</span>:Q'--&gt;Q) (<span class="nv">i</span>:z_iso P' Q') (<span class="nv">j</span>:z_iso P Q) :
+    i · g = f · j -&gt; z_iso_inv i · f = g · z_iso_inv j.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> l.
+    <span class="nb">refine</span> (! id_right _ @ _).
+    <span class="nb">refine</span> (maponpaths _ (! is_inverse_in_precat1 (z_iso_is_inverse_in_precat j)) @ _).
+    <span class="nb">refine</span> (! assoc (z_iso_inv i) _ _ @ _).
+    <span class="nb">refine</span> (maponpaths _ (assoc f _ _) @ _).
+    <span class="nb">refine</span> (maponpaths (precomp_with (z_iso_inv i)) (maponpaths (postcomp_with (inv_from_z_iso j)) (!l)) @ _);
+      <span class="nb">unfold</span> precomp_with, postcomp_with.
+    <span class="nb">refine</span> (maponpaths _ (! assoc _ _ _) @ _).
+    <span class="nb">refine</span> (assoc _ _ _ @ _).
+    <span class="nb">refine</span> (maponpaths (postcomp_with (g · inv_from_z_iso j)) (is_inverse_in_precat2 (z_iso_is_inverse_in_precat i)) @ _);
+      <span class="nb">unfold</span> postcomp_with.
+    <span class="bp">exact</span> (id_left _).
+  <span class="kn">Qed</span>.
+  <span class="kn">Lemma</span> <span class="nf">reverseCommIsoSquare'</span> {<span class="nv">M</span> : precategory} {<span class="nv">P</span> <span class="nv">Q</span> <span class="nv">P'</span> <span class="nv">Q'</span>:M} (<span class="nv">f</span>:P'--&gt;P) (<span class="nv">g</span>:Q'--&gt;Q) (<span class="nv">i</span>:z_iso P' Q') (<span class="nv">j</span>:z_iso P Q) :
+    f · j = i · g -&gt; g · z_iso_inv j = z_iso_inv i · f.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> l. <span class="nb">refine</span> (! _). <span class="nb">apply</span> reverseCommIsoSquare. <span class="nb">refine</span> (! _). <span class="bp">exact</span> l.
+  <span class="kn">Qed</span>.
+  <span class="kn">Definition</span> <span class="nf">MorphismPairMap</span> (<span class="nv">P</span> <span class="nv">Q</span> : MorphismPair) :=
+    ∑ (f : Ob1 P --&gt; Ob1 Q) (g : Ob2 P --&gt; Ob2 Q) (h : Ob3 P --&gt; Ob3 Q),
+    f · Mor1 Q = Mor1 P · g  ×  g · Mor2 Q = Mor2 P · h.
+  <span class="kn">Definition</span> <span class="nf">Map1</span> {<span class="nv">P</span> <span class="nv">Q</span> : MorphismPair} (<span class="nv">f</span> : MorphismPairMap P Q) : Ob1 P --&gt; Ob1 Q := pr1 f.
+  <span class="kn">Definition</span> <span class="nf">Map2</span> {<span class="nv">P</span> <span class="nv">Q</span> : MorphismPair} (<span class="nv">f</span> : MorphismPairMap P Q) : Ob2 P --&gt; Ob2 Q := pr1 (pr2 f).
+  <span class="kn">Definition</span> <span class="nf">Map3</span> {<span class="nv">P</span> <span class="nv">Q</span> : MorphismPair} (<span class="nv">f</span> : MorphismPairMap P Q) : Ob3 P --&gt; Ob3 Q := pr1 (pr2 (pr2 f)).
+  <span class="kn">Definition</span> <span class="nf">MorphismPairIsomorphism</span> (<span class="nv">P</span> <span class="nv">Q</span> : MorphismPair) :=
+    ∑ (f : z_iso (Ob1 P) (Ob1 Q)) (g : z_iso (Ob2 P) (Ob2 Q)) (h : z_iso (Ob3 P) (Ob3 Q)),
+    ( f · Mor1 Q = Mor1 P · g
+      ×
+      Mor1 P · g = f · Mor1 Q )
+    ×
+    ( g · Mor2 Q = Mor2 P · h
+      ×
+      Mor2 P · h = g · Mor2 Q ).
+  <span class="kn">Definition</span> <span class="nf">InverseMorphismPairIsomorphism</span> {<span class="nv">P</span> <span class="nv">Q</span> : MorphismPair} :
+    MorphismPairIsomorphism P Q -&gt; MorphismPairIsomorphism Q P.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f.
+    <span class="k">exists</span> (<span class="nv">z_iso_inv</span> (pr1 f)). <span class="k">exists</span> (<span class="nv">z_iso_inv</span> (pr12 f)). <span class="k">exists</span> (<span class="nv">z_iso_inv</span> (pr122 f)).
+    <span class="nb">split</span>.
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> reverseCommIsoSquare. <span class="bp">exact</span> (pr11 (pr222 f)).
+      + <span class="nb">apply</span> reverseCommIsoSquare'. <span class="bp">exact</span> (pr21 (pr222 f)).
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> reverseCommIsoSquare. <span class="bp">exact</span> (pr12 (pr222 f)).
+      + <span class="nb">apply</span> reverseCommIsoSquare'. <span class="bp">exact</span> (pr22 (pr222 f)).
+  <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">make_MorphismPairIsomorphism</span>
+             (<span class="nv">P</span> <span class="nv">Q</span> : MorphismPair)
+             (<span class="nv">f</span> : z_iso (Ob1 P) (Ob1 Q))
+             (<span class="nv">g</span> : z_iso (Ob2 P) (Ob2 Q))
+             (<span class="nv">h</span> : z_iso (Ob3 P) (Ob3 Q)) :
+    f · Mor1 Q = Mor1 P · g -&gt;
+    g · Mor2 Q = Mor2 P · h -&gt; MorphismPairIsomorphism P Q
+    := <span class="k">λ</span> <span class="nv">r</span> <span class="nv">s</span>, (f,,g,,h,,(r,,!r),,(s,,!s)).
+<span class="kn">End</span> <span class="nf">def_morphismpair</span>.
+<span class="kn">Arguments</span> MorphismPair : <span class="kn">clear implicits</span>.
+
+<span class="sd">(** * MorphismPair and opposite categories *)</span>
+<span class="kn">Section</span> <span class="nf">MorphismPair_opp</span>.
+
+  <span class="kn">Definition</span> <span class="nf">MorphismPair_opp</span> {<span class="nv">C</span> : precategory} (<span class="nv">MP</span> : @MorphismPair C) :
+    @MorphismPair (opp_precat C).
+  <span class="kn">Proof</span>.
+    use make_MorphismPair.
+    - <span class="bp">exact</span> (Ob3 MP).
+    - <span class="bp">exact</span> (Ob2 MP).
+    - <span class="bp">exact</span> (Ob1 MP).
+    - <span class="bp">exact</span> (Mor2 MP).
+    - <span class="bp">exact</span> (Mor1 MP).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_MorphismPair</span> {<span class="nv">C</span> : precategory} (<span class="nv">MP</span> : @MorphismPair (opp_precat C)) :
+    @MorphismPair C.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (MorphismPair_opp MP).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">applyFunctorToPair</span> {<span class="nv">M</span> <span class="nv">N</span>:precategory} :
+    (M⟶N) -&gt; @MorphismPair M -&gt; @MorphismPair N
+    := <span class="k">λ</span> <span class="nv">F</span> <span class="nv">P</span>, make_MorphismPair (# F (Mor1 P)) (# F (Mor2 P)).
+  <span class="kn">Definition</span> <span class="nf">applyFunctorToPairIsomorphism</span> {<span class="nv">M</span> <span class="nv">N</span>:precategory}
+             (<span class="nv">F</span> : M⟶N) (<span class="nv">P</span> <span class="nv">Q</span> : @MorphismPair M) :
+    MorphismPairIsomorphism P Q -&gt;
+    MorphismPairIsomorphism (applyFunctorToPair F P) (applyFunctorToPair F Q).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> [i1 [i2 [i3 [[d d'][e e']]]]].
+    <span class="k">exists</span> (<span class="nv">functor_on_z_iso</span> <span class="nv">F</span> <span class="nv">i1</span>).
+    <span class="k">exists</span> (<span class="nv">functor_on_z_iso</span> <span class="nv">F</span> <span class="nv">i2</span>).
+    <span class="k">exists</span> (<span class="nv">functor_on_z_iso</span> <span class="nv">F</span> <span class="nv">i3</span>).
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">refine</span> (! _ @ (maponpaths (# F) d ) @ _);<span class="nb">apply</span> functor_comp.
+    - <span class="nb">refine</span> (! _ @ (maponpaths (# F) d') @ _);<span class="nb">apply</span> functor_comp.
+    - <span class="nb">refine</span> (! _ @ (maponpaths (# F) e ) @ _);<span class="nb">apply</span> functor_comp.
+    - <span class="nb">refine</span> (! _ @ (maponpaths (# F) e') @ _);<span class="nb">apply</span> functor_comp.
+  <span class="kn">Defined</span>.
+  <span class="kn">Definition</span> <span class="nf">opp_MorphismPairIsomorphism</span> {<span class="nv">M</span>:precategory} {<span class="nv">P</span> <span class="nv">Q</span>: @MorphismPair M} :
+    MorphismPairIsomorphism P Q -&gt; MorphismPairIsomorphism (MorphismPair_opp Q) (MorphismPair_opp P)
+    := <span class="k">λ</span> <span class="nv">f</span>, opp_z_iso (pr122 f),,
+            opp_z_iso (pr12 f),,
+            opp_z_iso (pr1 f),,
+            (pr22 (pr222 f),,pr12 (pr222 f)),,
+            (pr21 (pr222 f),,pr11 (pr222 f)).
+
+<span class="kn">End</span> <span class="nf">MorphismPair_opp</span>.
+
+
+<span class="sd">(** * ShortShortExactData *)</span>
+<span class="kn">Section</span> <span class="nf">def_shortshortexactdata</span>.
+
+  <span class="kn">Variable</span> <span class="nv">C</span> : category.
+  <span class="kn">Let</span> <span class="nf">hs</span> : has_homsets C := homset_property C.
+  <span class="kn">Variable</span> <span class="nv">Z</span> : Zero C.
+
+  <span class="sd">(** ** Data for [ShortShortExact]</span>
+<span class="sd">    A pair of morphism such that composition of the morphisms is the zero</span>
+<span class="sd">    morphism. *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">ShortShortExactData</span> : UU :=
+    ∑ MP : MorphismPair C, Mor1 MP · Mor2 MP = ZeroArrow Z _ _.
+
+  <span class="kn">Definition</span> <span class="nf">make_ShortShortExactData</span> (<span class="nv">MP</span> : MorphismPair C)
+             (<span class="nv">H</span> : Mor1 MP · Mor2 MP = ZeroArrow Z _ _) : ShortShortExactData := tpair _ MP H.
+
+  <span class="sd">(** Accessor functions *)</span>
+  <span class="kn">Definition</span> <span class="nf">ShortShortExactData_MorphismPair</span> (<span class="nv">SSED</span> : ShortShortExactData) :
+    MorphismPair C := pr1 SSED.
+  <span class="kn">Coercion</span> <span class="nf">ShortShortExactData_MorphismPair</span> : ShortShortExactData &gt;-&gt; MorphismPair.
+
+  <span class="kn">Definition</span> <span class="nf">ShortShortExactData_Eq</span> (<span class="nv">SSED</span> : ShortShortExactData) :
+    (Mor1 SSED) · (Mor2 SSED) = ZeroArrow Z _ _ := pr2 SSED.
+
+<span class="kn">End</span> <span class="nf">def_shortshortexactdata</span>.
+<span class="kn">Arguments</span> make_ShortShortExactData [C] _ _ _.
+<span class="kn">Arguments</span> ShortShortExactData_Eq [C] _ _.
+
+
+<span class="sd">(** * ShortShortExactData and opposite categories *)</span>
+<span class="kn">Section</span> <span class="nf">shortshortexactdata_opp</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">opp_ShortShortExactData_Eq</span> {<span class="nv">C</span> : category} {<span class="nv">Z</span> : Zero C}
+             (<span class="nv">SSED</span> : ShortShortExactData (op_category C) (Zero_opp C Z)) :
+    Mor1 (opp_MorphismPair SSED) · Mor2 (opp_MorphismPair SSED) =
+    ZeroArrow Z (Ob1 (opp_MorphismPair SSED)) (Ob3 (opp_MorphismPair SSED)).
+  <span class="kn">Proof</span>.
+    use (pathscomp0 (@ShortShortExactData_Eq (op_category C) (Zero_opp C Z) SSED)).
+    <span class="nb">rewrite</span> &lt;- ZeroArrow_opp. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">opp_ShortShortExactData</span> {<span class="nv">C</span> : category} {<span class="nv">Z</span> : Zero C}
+             (<span class="nv">SSED</span> : ShortShortExactData (op_category C) (Zero_opp C Z)) : ShortShortExactData C Z.
+  <span class="kn">Proof</span>.
+    use make_ShortShortExactData.
+    - <span class="bp">exact</span> (opp_MorphismPair SSED).
+    - <span class="bp">exact</span> (opp_ShortShortExactData_Eq SSED).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">ShortShortExactData_opp_Eq</span> {<span class="nv">C</span> : category} {<span class="nv">Z</span> : Zero C}
+        (<span class="nv">SSED</span> : ShortShortExactData C Z) :
+    Mor1 (MorphismPair_opp SSED) · Mor2 (MorphismPair_opp SSED) =
+    ZeroArrow (Zero_opp C Z) (Ob1 (MorphismPair_opp SSED)) (Ob3 (MorphismPair_opp SSED)).
+  <span class="kn">Proof</span>.
+    use (pathscomp0 (@ShortShortExactData_Eq C Z SSED)).
+    <span class="nb">rewrite</span> &lt;- ZeroArrow_opp. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ShortShortExactData_opp</span> {<span class="nv">C</span> : category} {<span class="nv">Z</span> : Zero C}
+             (<span class="nv">SSED</span> : ShortShortExactData C Z) : ShortShortExactData (op_category C) (Zero_opp C Z).
+  <span class="kn">Proof</span>.
+    use make_ShortShortExactData.
+    - <span class="bp">exact</span> (MorphismPair_opp SSED).
+    - <span class="bp">exact</span> (ShortShortExactData_opp_Eq SSED).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">shortshortexactdata_opp</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Morphisms.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Short exact sequence data
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

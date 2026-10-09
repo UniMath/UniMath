@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SigmaMonoids.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** a generalization of Σ-monoids to monoidal categories in place of functor categories</span>
+
+<span class="sd">author: Kobe Wullaert 2023</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Sigma.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+<span class="kn">Require Import</span> UniMath.SubstitutionSystems.GeneralizedSubstitutionSystems.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Import</span> BifunctorNotations.
+
+<span class="kn">Definition</span> <span class="nf">SigmaMonoid_characteristic_equation</span> {<span class="nv">V</span> : category} {<span class="nv">Mon_V</span> : monoidal V} {<span class="nv">H</span> : V ⟶ V}
+    (<span class="nv">x</span> : V) (<span class="nv">η</span> : V ⟦ monoidal_unit Mon_V, x ⟧)
+    (<span class="nv">μ</span> : V ⟦ x ⊗_{ Mon_V} x, x ⟧) (<span class="nv">τ</span> :  V ⟦ H x, x ⟧)
+    (<span class="nv">st</span> : V ⟦ x ⊗_{ Mon_V} H x, H (x ⊗_{ Mon_V} x) ⟧) : UU
+    := st · #H μ · τ = x ⊗^{Mon_V}_{l} τ · μ.
+
+<span class="kn">Section</span> <span class="nf">SigmaMonoid</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category}
+          {<span class="nv">Mon_V</span> : monoidal V}
+          {<span class="nv">H</span> : V ⟶ V}
+          (<span class="nv">θ</span> : pointedtensorialstrength Mon_V H).
+
+  <span class="kn">Definition</span> <span class="nf">SigmaMonoid_disp_cat_no_compatibility</span> : disp_cat V
+    := dirprod_disp_cat (algebra_disp_cat H) (monoid_disp_cat Mon_V).
+
+  <span class="kn">Definition</span> <span class="nf">SigmaMonoid_compatibility</span>
+             (<span class="nv">X</span> : total_category SigmaMonoid_disp_cat_no_compatibility) : UU.
+  <span class="kn">Proof</span>.
+    <span class="nb">set</span> (x := pr1 X).
+    <span class="nb">set</span> (η := monoid_data_unit _ (pr22 X : monoid _ _)).
+    <span class="nb">set</span> (μ := monoid_data_multiplication _ (pr22 X : monoid _ _)).
+    <span class="nb">set</span> (τ := pr12 X : H x --&gt; x).
+    <span class="nb">set</span> (st := pr1 θ (x ,, η) x).
+    <span class="bp">exact</span> (SigmaMonoid_characteristic_equation x η μ τ st).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">SigmaMonoid_disp_cat_without_sigma_constr</span>
+    : disp_cat (total_category SigmaMonoid_disp_cat_no_compatibility)
+    := disp_full_sub
+         (total_category SigmaMonoid_disp_cat_no_compatibility)
+         SigmaMonoid_compatibility.
+
+  <span class="kn">Definition</span> <span class="nf">SigmaMonoid_disp_cat</span>
+    : disp_cat V
+    := sigma_disp_cat SigmaMonoid_disp_cat_without_sigma_constr.
+
+  <span class="kn">Definition</span> <span class="nf">SigmaMonoid</span> : category
+    := total_category SigmaMonoid_disp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">SigmaMonoid_carrier</span> (<span class="nv">σ</span> : SigmaMonoid) : V := pr1 σ.
+  <span class="kn">Definition</span> <span class="nf">SigmaMonoid_η</span> (<span class="nv">σ</span> : SigmaMonoid) : V ⟦ monoidal_unit Mon_V, SigmaMonoid_carrier σ ⟧
+    := monoid_data_unit _ (pr212 σ : monoid _ _).
+  <span class="kn">Definition</span> <span class="nf">SigmaMonoid_μ</span> (<span class="nv">σ</span> : SigmaMonoid) :
+    V ⟦ SigmaMonoid_carrier σ ⊗_{ Mon_V} SigmaMonoid_carrier σ, SigmaMonoid_carrier σ ⟧
+    := monoid_data_multiplication _ (pr212 σ : monoid _ _).
+  <span class="kn">Definition</span> <span class="nf">SigmaMonoid_τ</span> (<span class="nv">σ</span> : SigmaMonoid) : V ⟦ H (SigmaMonoid_carrier σ), SigmaMonoid_carrier σ⟧
+    := pr112 σ.
+
+  <span class="kn">Lemma</span> <span class="nf">SigmaMonoid_is_compatible</span> (<span class="nv">σ</span> : SigmaMonoid) :
+    SigmaMonoid_characteristic_equation (SigmaMonoid_carrier σ)
+      (SigmaMonoid_η σ) (SigmaMonoid_μ σ) (SigmaMonoid_τ σ)
+      (pr1 θ (SigmaMonoid_carrier σ ,, SigmaMonoid_η σ) (SigmaMonoid_carrier σ)).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr22 σ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Let</span> <span class="nf">MON</span> := category_of_monoids_in_monoidal_cat Mon_V.
+
+  <span class="sd">(** the following should be an instance of general results on projection into constituents *)</span>
+  <span class="kn">Definition</span> <span class="nf">SigmaMonoid_to_monoid_data</span> : functor_data SigmaMonoid MON.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">intro</span> σ. <span class="bp">exact</span> (pr1 σ,, pr212 σ).
+    - <span class="nb">intros</span> σ1 σ2 m. <span class="bp">exact</span> (pr1 m,, pr212 m).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">SigmaMonoid_to_monoid_laws</span> : is_functor SigmaMonoid_to_monoid_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span>. <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span>; <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">SigmaMonoid_to_monoid</span> : functor SigmaMonoid MON :=
+    SigmaMonoid_to_monoid_data,,SigmaMonoid_to_monoid_laws.
+
+  <span class="kn">Lemma</span> <span class="nf">SigmaMonoid_mor_eq</span> {<span class="nv">σ</span> <span class="nv">σ'</span> : SigmaMonoid} (<span class="nv">r</span> <span class="nv">r'</span> : SigmaMonoid⟦σ,σ'⟧) : pr1 r = pr1 r' -&gt; r = r'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> Hyp.
+    use (subtypePath _ Hyp).
+    <span class="nb">intro</span>; <span class="kp">do</span> <span class="mi">2</span> <span class="kp">try</span> use isapropdirprod.
+    - use homset_property.
+    - use isaprop_is_monoid_mor.
+    - use isapropunit.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">SigmaMonoid</span>.
+
+<span class="kn">Section</span> <span class="nf">MHSS_to_SigmaMonoid</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category}
+          {<span class="nv">Mon_V</span> : monoidal V}
+          {<span class="nv">H</span> : V ⟶ V}
+          (<span class="nv">θ</span> : pointedtensorialstrength Mon_V H).
+
+  <span class="kn">Definition</span> <span class="nf">mhss_to_sigma_monoid</span> (<span class="nv">t</span> : mhss Mon_V H θ)
+    : SigmaMonoid θ.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">t</span>).
+    <span class="k">exists</span> (<span class="nv">tau_from_alg</span> <span class="nv">Mon_V</span> <span class="nv">H</span> <span class="nv">θ</span> <span class="nv">t</span> ,, <span class="nv">mhss_monoid</span> <span class="nv">Mon_V</span> <span class="nv">H</span> <span class="nv">θ</span> <span class="nv">t</span>).
+    <span class="bp">exact</span> (mfbracket_τ Mon_V H θ t (Z :=  (pr1 t,, μ_0 Mon_V H θ t)) (identity _)).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">MHSS_to_SigmaMonoid</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/SigmaMonoids.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; author: Kobe Wullaert 2023
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

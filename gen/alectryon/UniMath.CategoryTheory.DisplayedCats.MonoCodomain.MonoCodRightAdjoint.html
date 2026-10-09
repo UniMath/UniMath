@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoCodRightAdjoint.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************</span>
+
+<span class="sd"> Universal quantification of monomorphisms</span>
+
+<span class="sd"> In a locally Cartesian closed regular category, we can interpret the universal quantifier</span>
+<span class="sd"> in the displayed category of monomorphisms. The construction is quite direct: the only</span>
+<span class="sd"> thing that we need to show, is that the right adjoint of pullbacks lifts to the level</span>
+<span class="sd"> of monomorphisms. This follows from the fact that right adjoint preserves monomorphisms.</span>
+<span class="sd"> Stability under substitution follows from the fact that the left adjoint of pullback</span>
+<span class="sd"> (i.e., existential quantification) is stable under substitution. From the universal</span>
+<span class="sd"> quanfitier, we can also construct implications.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Preservation of monomorphisms by dependent products</span>
+<span class="sd"> 2. Rules for universal quantification</span>
+<span class="sd"> 3. Stability under substitution for the universal quantifier</span>
+<span class="sd"> 4. The universal quantifier</span>
+<span class="sd"> 5. Introduction/elimination rules for the implication</span>
+<span class="sd"> 6. Stability under substitution for the implication</span>
+<span class="sd"> 7. The implication</span>
+
+<span class="sd"> **************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.AdjunctionMonics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.LocallyCartesianClosed.LocallyCartesianClosed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.MonoCodomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MonoCodomain.FiberMonoCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MonoCodomain.MonoCodLeftAdjoint.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MonoCodomain.MonoCodLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MonoCodomain.Inclusion.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCartesianClosed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DualBeckChevalley.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.RegularAndExact.RegularCategory.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">DependentProductsMonoCodomain</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">HC'</span> : is_regular_category C).
+
+  <span class="kn">Let</span> <span class="nf">PB</span> : Pullbacks C := is_regular_category_pullbacks HC'.
+
+  <span class="kn">Context</span> (<span class="nv">HC</span> : is_locally_cartesian_closed PB).
+
+  <span class="kn">Let</span> <span class="nf">HD</span> : cleaving (disp_mono_codomain C)
+    := mono_cod_disp_cleaving PB.
+
+  <span class="kn">Section</span> <span class="nf">UniversalQuantification</span>.
+    <span class="kn">Context</span> {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+            (<span class="nv">s</span> : Γ₁ --&gt; Γ₂).
+
+    <span class="kn">Let</span> <span class="nf">R</span> := right_adjoint (HC _ _ s).
+    <span class="kn">Let</span> <span class="nf">η</span> := unit_from_left_adjoint (HC _ _ s).
+    <span class="kn">Let</span> <span class="nf">ε</span> := counit_from_left_adjoint (HC _ _ s).
+
+    <span class="sd">(** * 1. Preservation of monomorphisms by dependent products *)</span>
+    <span class="kn">Proposition</span> <span class="nf">is_monic_dependent_product</span>
+                (<span class="nv">φ</span> : C /m Γ₁)
+      : isMonic (cod_mor (R (mono_cod_to_cod_fib Γ₁ φ))).
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (right_adjoint_preserves_monics
+              R
+              (is_right_adjoint_right_adjoint _)
+              (from_monic_slice_to_terminal
+                 (mono_cod_to_cod_fib _ φ)
+                 (codomain_fib_terminal _)
+                 (MonicisMonic _ (monic_of_mono_in_cat φ))))
+        <span class="k">as</span> H.
+      <span class="nb">pose</span> (make_Terminal
+              _
+              (right_adjoint_preserves_terminal
+                 _
+                 (HC _ _ s)
+                 _
+                 (pr2 (codomain_fib_terminal _))))
+        <span class="k">as</span> terminal_Γ₂.
+      <span class="nb">refine</span> (to_monic_slice_from_terminal _ terminal_Γ₂ _).
+      <span class="nb">refine</span> (transportf (<span class="k">λ</span> <span class="nv">z</span>, isMonic z) _ H).
+      <span class="nb">apply</span> (TerminalArrowEq (T := terminal_Γ₂)).
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** * 2. Rules for universal quantification *)</span>
+    <span class="kn">Definition</span> <span class="nf">mono_cod_forall</span>
+               (<span class="nv">φ</span> : C /m Γ₁)
+      : C /m Γ₂.
+    <span class="kn">Proof</span>.
+      use make_mono_cod_fib_ob.
+      - <span class="bp">exact</span> (cod_dom (R (mono_cod_to_cod_fib _ φ))).
+      - use make_Monic.
+        + <span class="bp">exact</span> (cod_mor (R (mono_cod_to_cod_fib _ φ))).
+        + <span class="nb">apply</span> is_monic_dependent_product.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">mono_cod_forall_intro</span>
+               (<span class="nv">φ</span> : C /m Γ₁)
+      : mono_cod_pb PB s (mono_cod_forall φ) --&gt; φ.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (ε (mono_cod_to_cod_fib _ φ) ,, tt).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">mono_cod_forall_elim</span>
+               (<span class="nv">ψ</span> : C /m Γ₁)
+               (<span class="nv">χ</span> : C /m Γ₂)
+               (<span class="nv">p</span> : mono_cod_pb PB s χ --&gt; ψ)
+      : χ --&gt; mono_cod_forall ψ.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (η (mono_cod_to_cod_fib _ χ) · #R _ ,, tt).
+      <span class="bp">exact</span> (pr1 p).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">UniversalQuantification</span>.
+
+  <span class="kn">Definition</span> <span class="nf">mono_cod_dep_prod</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+             (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+    : dependent_product HD s.
+  <span class="kn">Proof</span>.
+    use make_dependent_product_of_mor_poset.
+    - <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+    - <span class="bp">exact</span> @mono_cod_forall.
+    - <span class="bp">exact</span> @mono_cod_forall_intro.
+    - <span class="bp">exact</span> @mono_cod_forall_elim.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. Stability under substitution for the universal quantifier *)</span>
+  <span class="kn">Proposition</span> <span class="nf">mono_cod_right_beck_chevalley</span>
+              {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+              (<span class="nv">f</span> : x --&gt; w)
+              (<span class="nv">g</span> : y --&gt; w)
+              (<span class="nv">h</span> : z --&gt; y)
+              (<span class="nv">k</span> : z --&gt; x)
+              (<span class="nv">p</span> : k · f = h · g)
+              (<span class="nv">H</span> : isPullback p)
+    : right_beck_chevalley
+        HD
+        f g h k
+        p
+        (mono_cod_dep_prod f)
+        (mono_cod_dep_prod h).
+  <span class="kn">Proof</span>.
+    use right_from_left_beck_chevalley.
+    - <span class="bp">exact</span> (pr1 (mono_codomain_has_dependent_sums HC') _ _ g).
+    - <span class="bp">exact</span> (pr1 (mono_codomain_has_dependent_sums HC') _ _ k).
+    - use (pr2 (mono_codomain_has_dependent_sums HC')).
+      <span class="nb">apply</span> is_symmetric_isPullback.
+      <span class="bp">exact</span> H.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. The universal quantifier *)</span>
+  <span class="kn">Definition</span> <span class="nf">has_dependent_products_mono_cod</span>
+    : has_dependent_products HD.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">s</span>, mono_cod_dep_prod s).
+    - <span class="bp">exact</span> @mono_cod_right_beck_chevalley.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 5. Introduction/elimination rules for the implication *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">mono_cod_impl_pb_map</span>
+                   {<span class="nv">Γ</span> : C}
+                   (<span class="nv">xφ</span> <span class="nv">yψ</span> : C /m Γ)
+    : mono_cod_dom (mono_cod_pb PB (mono_cod_mor xφ) yψ)
+      --&gt;
+      mono_cod_dom (binprod_in_fib (mono_codomain_fiberwise_binproducts PB) xφ yψ).
+  <span class="kn">Proof</span>.
+    use PullbackArrow.
+    - <span class="bp">exact</span> (PullbackPr2 _).
+    - <span class="bp">exact</span> (PullbackPr1 _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">refine</span> (!_) ;
+         <span class="nb">apply</span> PullbackSqrCommutes).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">Implication</span>.
+    <span class="kn">Context</span> {<span class="nv">Γ</span> : C}
+            (<span class="nv">xφ</span> <span class="nv">yψ</span> : C /m Γ).
+
+    <span class="kn">Let</span> <span class="nf">x</span> : C := mono_cod_dom xφ.
+    <span class="kn">Let</span> <span class="nf">φ</span> : x --&gt; Γ := mono_cod_mor xφ.
+
+    <span class="kn">Let</span> <span class="nf">y</span> : C := mono_cod_dom yψ.
+    <span class="kn">Let</span> <span class="nf">ψ</span> : y --&gt; Γ := mono_cod_mor yψ.
+
+    <span class="kn">Let</span> <span class="nf">P</span> : Pullback φ ψ := PB _ _ _ φ ψ.
+
+    <span class="kn">Local Definition</span> <span class="nf">mono_cod_implication_pb</span> : C /m x.
+    <span class="kn">Proof</span>.
+      use make_mono_cod_fib_ob.
+      - <span class="bp">exact</span> P.
+      - use make_Monic.
+        + <span class="bp">exact</span> (PullbackPr1 P).
+        + use MonicPullbackisMonic'.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">mono_cod_implication</span>
+      : C /m Γ
+      := mono_cod_forall φ mono_cod_implication_pb.
+
+    <span class="kn">Definition</span> <span class="nf">mono_cod_implication_intro</span>
+      : binprod_in_fib (mono_codomain_fiberwise_binproducts PB) xφ mono_cod_implication
+        --&gt;
+        yψ.
+    <span class="kn">Proof</span>.
+      use make_mono_cod_fib_mor.
+      - <span class="nb">refine</span> (_
+                · mono_dom_mor (mono_cod_forall_intro φ mono_cod_implication_pb)
+                · PullbackPr2 P).
+        <span class="nb">apply</span> mono_cod_impl_pb_map.
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !assoc' ;
+           etrans ;
+           [ <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+             <span class="nb">refine</span> (!(PullbackSqrCommutes P))
+           | ] ;
+           etrans ;
+           [ <span class="nb">apply</span> maponpaths ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">apply</span> (mono_mor_eq (mono_cod_forall_intro φ mono_cod_implication_pb))
+           | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">unfold</span> mono_cod_impl_pb_map ;
+           <span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Context</span> {<span class="nv">zχ</span> : C /m Γ}
+            (<span class="nv">l</span> : binprod_in_fib (mono_codomain_fiberwise_binproducts PB) xφ zχ --&gt; yψ).
+
+    <span class="kn">Let</span> <span class="nf">z</span> : C := mono_cod_dom zχ.
+    <span class="kn">Let</span> <span class="nf">χ</span> : z --&gt; Γ := mono_cod_mor zχ.
+
+    <span class="kn">Let</span> <span class="nf">ζ</span> : _ --&gt; y := mono_dom_mor l.
+
+    <span class="kn">Definition</span> <span class="nf">mono_cod_implication_elim</span>
+      : zχ --&gt; mono_cod_implication.
+    <span class="kn">Proof</span>.
+      use make_mono_cod_fib_mor.
+      - <span class="nb">refine</span> (mono_dom_mor (mono_cod_forall_elim φ _ zχ _)).
+        use make_mono_cod_fib_mor.
+        + use PullbackArrow.
+          * <span class="bp">exact</span> (PullbackPr2 _).
+          * <span class="bp">exact</span> (mono_cod_impl_pb_map _ _ · ζ).
+          * <span class="kp">abstract</span>
+              (<span class="nb">cbn</span> ;
+               <span class="nb">refine</span> (!_) ;
+               etrans ;
+               [ <span class="nb">rewrite</span> !assoc' ;
+                 <span class="nb">apply</span> maponpaths ;
+                 <span class="bp">exact</span> (mono_mor_eq l)
+               | ] ;
+               <span class="nb">cbn</span> ;
+               <span class="nb">unfold</span> mono_cod_impl_pb_map ;
+               <span class="nb">rewrite</span> !assoc ;
+               <span class="nb">rewrite</span> PullbackArrow_PullbackPr1 ;
+               <span class="nb">apply</span> idpath).
+        + <span class="kp">abstract</span>
+            (<span class="nb">cbn</span> ;
+             <span class="nb">apply</span> PullbackArrow_PullbackPr1).
+      - <span class="kp">abstract</span>
+          (<span class="bp">exact</span> (mono_mor_eq (mono_cod_forall_elim _ _ _ _))).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Implication</span>.
+
+  <span class="sd">(** * 6. Stability under substitution for the implication *)</span>
+  <span class="kn">Definition</span> <span class="nf">mono_cod_implication_stable</span>
+             {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+             (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+             (<span class="nv">xφ</span> <span class="nv">yψ</span> : C /m Γ₂)
+    : mono_cod_implication (mono_cod_pb PB s xφ) (mono_cod_pb PB s yψ)
+      --&gt;
+      mono_cod_pb PB s (mono_cod_implication xφ yψ).
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (P := PB _ _ _ (mono_cod_mor xφ) s).
+    <span class="nb">refine</span> (_ · pr1 (mono_cod_right_beck_chevalley _ _ _ _ _ (isPullback_Pullback P) _)).
+    <span class="nb">refine</span> (#(right_adjoint (mono_cod_dep_prod (PullbackPr2 P))) _).
+    use make_mono_cod_fib_mor.
+    - use PullbackArrow.
+      + use PullbackArrow.
+        * <span class="bp">exact</span> (PullbackPr1 _ · PullbackPr1 _).
+        * <span class="bp">exact</span> (PullbackPr2 _ · PullbackPr1 _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> !assoc' ;
+             etrans ;
+             [ <span class="nb">apply</span> maponpaths ;
+               <span class="nb">apply</span> PullbackSqrCommutes
+             | ] ;
+             <span class="nb">rewrite</span> !assoc ;
+             etrans ;
+             [ <span class="nb">apply</span> maponpaths_2 ;
+               <span class="nb">apply</span> PullbackSqrCommutes
+             | ] ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">cbn</span> ;
+             <span class="nb">refine</span> (!_) ;
+             <span class="nb">apply</span> PullbackSqrCommutes).
+      + use PullbackArrow.
+        * <span class="bp">exact</span> (PullbackPr1 _ · PullbackPr1 _).
+        * <span class="bp">exact</span> (PullbackPr2 _ · PullbackPr2 _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> !assoc' ;
+             etrans ;
+             [ <span class="nb">apply</span> maponpaths ;
+               <span class="nb">apply</span> PullbackSqrCommutes
+             | ] ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">apply</span> PullbackSqrCommutes).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !PullbackArrow_PullbackPr1 ;
+           <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ;
+         use (MorphismsIntoPullbackEqual (isPullback_Pullback P)) ;
+         [ <span class="nb">rewrite</span> PullbackArrow_PullbackPr1 ;
+           <span class="nb">apply</span> idpath
+         | <span class="nb">rewrite</span> PullbackArrow_PullbackPr2 ;
+           <span class="nb">refine</span> (!_) ;
+           <span class="nb">apply</span> PullbackSqrCommutes ]).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 7. The implication *)</span>
+  <span class="kn">Definition</span> <span class="nf">fiberwise_exponentials_mono_cod</span>
+    : fiberwise_exponentials (mono_codomain_fiberwise_binproducts PB).
+  <span class="kn">Proof</span>.
+    use make_fiberwise_exponentials_locally_propositional.
+    - <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+    - <span class="bp">exact</span> @mono_cod_implication.
+    - <span class="bp">exact</span> @mono_cod_implication_intro.
+    - <span class="bp">exact</span> @mono_cod_implication_elim.
+    - <span class="bp">exact</span> @mono_cod_implication_stable.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DependentProductsMonoCodomain</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/MonoCodomain/MonoCodRightAdjoint.v</tt>, line 23)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  7. The implication
+  &gt;
+  &gt;  **************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

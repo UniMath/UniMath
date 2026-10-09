@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RXGraphOfRXGraphs.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> The Reflexive Graph of Reflexive Graphs</span>
+
+<span class="sd"> We classify the identifications of (small) reflexive graphs and displayed</span>
+<span class="sd"> reflexive graphs using (large) reflexive graphs.  The work here is based on Jon</span>
+<span class="sd"> Sterling, 2026, "Reflexive graph lenses in Univalent Foundations"</span>
+<span class="sd"> (doi:10.1017/S0960129526100565, arXiv:2404.07854).</span>
+
+<span class="sd"> Users of this library should note the size issues: vertices of</span>
+<span class="sd"> [rxgraph_rxgraph] should be considered *small* reflexive graphs, while</span>
+<span class="sd"> [rxgraph_rxgraph] itself is a *large* reflexive graph.  In particular,</span>
+<span class="sd"> [rxgraph_rxgraph] should not be considered as an element of itself, but as an</span>
+<span class="sd"> element of a larger [rxgraph_rxgraph].  We annotate definitions in this file</span>
+<span class="sd"> which use multiple universes with an imaginary level parameter [ℓ] (\ell) to</span>
+<span class="sd"> clarify.</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Reflexive graph of graphs</span>
+<span class="sd"> 2. Reflexive graph of [rxgraph]s</span>
+<span class="sd"> 3. Reflexive graph of displayed graphs</span>
+<span class="sd"> 4. Reflexive graph of [disp_rxgraph]s</span>
+<span class="sd"> 5. Displayed reflexive graph of [disp_rxgraph]s</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> September 2026</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.IdentitySystems.RXGraph.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.Examples.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.Lenses.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> rxgraph.
+
+<span class="sd">(** ** Reflexive graph of graphs *)</span>
+
+<span class="kn">Definition</span> <span class="nf">graph_on_rxgraph</span> (* ℓ *)
+  : contra_lens <span class="c">(* ℓ+1 *)</span> (UU_rxgraph <span class="c">(* ℓ *)</span>).
+<span class="kn">Proof</span>.
+  use make_contra_lens.
+  - <span class="nb">intros</span> A; <span class="bp">exact</span> (A ~&gt; A ~&gt; UU_rxgraph <span class="c">(* ℓ *)</span>).
+  - <span class="nb">intros</span> x y w e; <span class="nb">cbn</span> <span class="k">in</span> w, e.
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x'</span> <span class="nv">y'</span>, e (w x') (w y')).
+  - <span class="nb">intros</span> A edge; <span class="bp">exact</span> (refl edge).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_graph_on_rxgraph</span> (* ℓ *) (<span class="nv">A</span> : UU (* ℓ *))
+  : is_univalent <span class="c">(* ℓ+1 *)</span> (graph_on_rxgraph <span class="c">(* ℓ *)</span> A).
+<span class="kn">Proof</span>. <span class="bp">exact</span> (∏! _ _, UU_univalent_rxgraph). <span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">graph_rxgraph</span> (* ℓ *) : rxgraph <span class="c">(* ℓ+1 *)</span>
+  := total_rxgraph <span class="c">(* ℓ+1 *)</span>
+       (contra_lens_disp_rxgraph <span class="c">(* ℓ+1 *)</span> (graph_on_rxgraph <span class="c">(* ℓ *)</span>)).
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_graph_rxgraph</span> (* ℓ *)
+  : is_univalent <span class="c">(* ℓ+1 *)</span> (graph_rxgraph <span class="c">(* ℓ *)</span>).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_rxgraph.
+  - <span class="bp">exact</span> UU_univalent_rxgraph.
+  - <span class="nb">apply</span> is_univalent_contra_lens_disp_rxgraph; <span class="nb">intro</span> A.
+    <span class="nb">apply</span> is_univalent_graph_on_rxgraph.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">graph_univalent_rxgraph</span> (* ℓ *) : univalent_rxgraph <span class="c">(* ℓ+1 *)</span>
+  := make_univalent_rxgraph <span class="c">(* ℓ+1 *)</span> _ is_univalent_graph_rxgraph.
+
+<span class="kn">Definition</span> <span class="nf">graph_iso</span> (* ℓ *) (<span class="nv">C</span> <span class="nv">D</span> : graph_rxgraph (* ℓ *)) : UU <span class="c">(* ℓ *)</span> := C ≈ D.
+<span class="kn">Identity Coercion</span> <span class="nf">Id_graph_iso</span> : graph_iso &gt;-&gt; edge.
+
+<span class="kn">Coercion</span> <span class="nf">graph_iso_on_vertex</span> {C D : graph_rxgraph}
+  (w : graph_iso C D) : pr1 C ≃ pr1 D := pr1 w.
+<span class="kn">Definition</span> <span class="nf">graph_iso_on_edge</span> {<span class="nv">C</span> <span class="nv">D</span> : graph_rxgraph}
+  (<span class="nv">w</span> : graph_iso C D)
+  : ∏ {a b : pr1 C}, pr2 C a b ≃ pr2 D (w a) (w b)
+  := pr2 w.
+
+<span class="kn">Definition</span> <span class="nf">make_graph_iso</span> (<span class="nv">C</span> <span class="nv">D</span> : graph_rxgraph)
+  (<span class="nv">v</span> : pr1 C ≃ pr1 D)
+  (<span class="nv">e</span> : ∏ (a b : pr1 C), pr2 C a b ≃ pr2 D (v a) (v b))
+  : graph_iso C D
+  := v,, e.
+
+<span class="sd">(** ** Reflexive graph of [rxgraph]s *)</span>
+
+<span class="kn">Definition</span> <span class="nf">has_refl_rxgraph</span> (* ℓ *)
+  : unbiased_lens <span class="c">(* ℓ+1 *)</span> (graph_rxgraph <span class="c">(* ℓ *)</span>).
+<span class="kn">Proof</span>.
+  use make_unbiased_lens.
+  - <span class="nb">intros</span> C D f.
+    <span class="nb">change</span> (graph_iso C D) <span class="k">in</span> f.
+    <span class="bp">exact</span> (∏~ (a : pr1 C), Δ pr2 D (f a) (f a)).
+  - <span class="nb">intros</span> C D f refl a.
+    <span class="nb">change</span> (graph_iso C D) <span class="k">in</span> f.
+    <span class="nb">cbn</span> <span class="k">in</span> refl.
+    <span class="bp">exact</span> (graph_iso_on_edge f (refl a)).
+  - <span class="nb">intros</span> C D f refl a.
+    <span class="nb">change</span> (graph_iso C D) <span class="k">in</span> f.
+    <span class="nb">cbn</span> <span class="k">in</span> refl.
+    <span class="bp">exact</span> (refl (f a)).
+  - <span class="nb">intros</span> C refl'; <span class="bp">exact</span> (refl refl').
+  - <span class="nb">intros</span> C refl'; <span class="bp">exact</span> (refl refl').
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_has_refl_rxgraph</span> (* ℓ *)
+  {<span class="nv">C</span> <span class="nv">D</span> : graph_rxgraph <span class="c">(* ℓ *)</span>} (<span class="nv">w</span> : graph_iso (* ℓ *) C D)
+  : is_univalent <span class="c">(* ℓ+1 *)</span> (has_refl_rxgraph <span class="c">(* ℓ *)</span> C D w).
+<span class="kn">Proof</span>. <span class="bp">exact</span> (∏! _, Δ _). <span class="kn">Qed</span>.
+
+<span class="c">(* We defined [rxgraph] associated to the right, which means the [total_rxgraph]</span>
+<span class="c">   of [has_refl_rxgraph] is the wrong thing.  We can use [sigma_disp_rxgraph] to</span>
+<span class="c">   associate to the right as needed. *)</span>
+<span class="kn">Definition</span> <span class="nf">rxgraph_rxgraph</span> (* ℓ *) : rxgraph <span class="c">(* ℓ+1 *)</span>
+  := total_rxgraph <span class="c">(* ℓ+1 *)</span>
+       (sigma_disp_rxgraph <span class="c">(* ℓ+1 *)</span> _
+          (unbiased_lens_disp_rxgraph <span class="c">(* ℓ+1 *)</span>
+             (has_refl_rxgraph <span class="c">(* ℓ *)</span>))).
+
+<span class="kn">Example</span> <span class="nf">rxgraph_vertex_rxgraph_rxgraph_compute</span> (* ℓ *)
+  : rxgraph_vertex <span class="c">(* ℓ+1 *)</span> (rxgraph_rxgraph <span class="c">(* ℓ *)</span>)
+    = rxgraph <span class="c">(* ℓ *)</span>.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_rxgraph_rxgraph</span> (* ℓ *)
+  : is_univalent <span class="c">(* ℓ+1 *)</span> (rxgraph_rxgraph <span class="c">(* ℓ *)</span>).
+<span class="kn">Proof</span>.
+  use is_univalent_total_rxgraph.
+  - <span class="bp">exact</span> UU_univalent_rxgraph.
+  - <span class="nb">apply</span> is_univalent_sigma_disp_rxgraph.
+    + <span class="nb">apply</span> is_univalent_contra_lens_disp_rxgraph; <span class="nb">intro</span> A.
+      <span class="nb">apply</span> is_univalent_graph_on_rxgraph.
+    + <span class="nb">apply</span> is_univalent_unbiased_lens_disp_rxgraph.
+      <span class="nb">intros</span> C D w.
+      <span class="nb">apply</span> is_univalent_has_refl_rxgraph.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">rxgraph_univalent_rxgraph</span> (* ℓ *) : univalent_rxgraph <span class="c">(* ℓ+1 *)</span>
+  := make_univalent_rxgraph _ is_univalent_rxgraph_rxgraph.
+
+<span class="kn">Definition</span> <span class="nf">rxgraph_iso</span> (<span class="nv">C</span> <span class="nv">D</span> : rxgraph) : UU := C ≈{rxgraph_rxgraph} D.
+<span class="kn">Identity Coercion</span> <span class="nf">Id_rxgraph_iso</span> : graph_iso &gt;-&gt; edge.
+
+<span class="kn">Coercion</span> <span class="nf">rxgraph_iso_on_vertex</span> {C D : rxgraph}
+  (w : rxgraph_iso C D) : C ≃ D := pr1 w.
+<span class="kn">Definition</span> <span class="nf">rxgraph_iso_on_edge</span> {<span class="nv">C</span> <span class="nv">D</span> : rxgraph}
+  (<span class="nv">w</span> : rxgraph_iso C D)
+  : ∏ {a b : C}, a ≈ b ≃ w a ≈ w b
+  := pr12 w.
+<span class="kn">Definition</span> <span class="nf">rxgraph_iso_on_refl</span> {<span class="nv">C</span> <span class="nv">D</span> : rxgraph}
+  (<span class="nv">w</span> : rxgraph_iso C D)
+  : ∏ (a : C), rxgraph_iso_on_edge w (refl a) = refl (w a)
+  := pr22 w.
+
+<span class="kn">Definition</span> <span class="nf">make_rxgraph_iso</span> (<span class="nv">C</span> <span class="nv">D</span> : rxgraph)
+  (<span class="nv">verts</span> : C ≃ D)
+  (<span class="nv">edges</span> : ∏ {a b : C}, a ≈ b ≃ verts a ≈ verts b)
+  (<span class="nv">refls</span> : ∏ (a : C), edges (refl a) = refl (verts a))
+  : rxgraph_iso C D
+  := verts,, @edges,, refls.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_rxgraph_iso_f</span>
+  (<span class="nv">C</span> <span class="nv">D</span> : rxgraph) (<span class="nv">F</span> : rxgraph_iso C D)
+  (<span class="nv">H</span> : is_univalent C) : is_univalent D.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_from_isaprop_edges_from; <span class="nb">intro</span> a.
+  <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> (Y:=(edges_from C (invmap F a)))).
+  - <span class="nb">apply</span> (weqbandf (invweq F)); <span class="nb">intro</span> b.
+    intermediate_weq (F (invmap F a) ≈ F (invmap F b)).
+    { <span class="nb">rewrite</span> !(homotweqinvweq F).
+      <span class="bp">exact</span> (idweq (a ≈ b)). }
+    <span class="nb">apply</span> invweq, (rxgraph_iso_on_edge F).
+  - <span class="nb">apply</span> is_univalent_to_isaprop_edges_from, H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_rxgraph_iso_b</span>
+  (<span class="nv">C</span> <span class="nv">D</span> : rxgraph) (<span class="nv">F</span> : rxgraph_iso C D)
+  (<span class="nv">H</span> : is_univalent D) : is_univalent C.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_from_isaprop_edges_from; <span class="nb">intro</span> a.
+  <span class="nb">apply</span> (isofhlevelweqb <span class="mi">1</span> (Y:=(edges_from D (F a)))).
+  - <span class="nb">apply</span> (weqbandf F); <span class="nb">intro</span> b.
+    <span class="bp">exact</span> (rxgraph_iso_on_edge F).
+  - <span class="nb">apply</span> is_univalent_to_isaprop_edges_from, H.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Reflexive graph of displayed graphs *)</span>
+
+<span class="kn">Definition</span> <span class="nf">disp_graph_on_rxgraph</span> (* ℓ *) (<span class="nv">B</span> : rxgraph (* ℓ *))
+  : contra_lens <span class="c">(* ℓ+1 *)</span> (B ~&gt; UU_rxgraph <span class="c">(* ℓ *)</span>).
+<span class="kn">Proof</span>.
+  use make_contra_lens.
+  + <span class="nb">intro</span> E.
+    <span class="bp">exact</span> (∏~ (x y : B) (e : x ≈ y),
+            E x ~&gt; E y ~&gt; UU_rxgraph <span class="c">(* ℓ *)</span>).
+  + <span class="nb">cbn</span>; <span class="nb">intros</span> E₁ E₂ w edge x y e a b.
+    <span class="bp">exact</span> (edge x y e (w x a) (w y b)).
+  + <span class="nb">intros</span> E disp_edge; <span class="bp">exact</span> (refl disp_edge).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_graph_on_rxgraph</span> (* ℓ *)
+  (<span class="nv">B</span> : rxgraph (* ℓ *)) (<span class="nv">E</span> : B -&gt; UU (* ℓ *))
+  : is_univalent <span class="c">(* ℓ+1 *)</span> (disp_graph_on_rxgraph <span class="c">(* ℓ *)</span> B E).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> is_univalent_product_rxgraph; <span class="nb">intro</span>).
+  <span class="bp">exact</span> UU_univalent_rxgraph.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_graph_rxgraph</span> (* ℓ *) (<span class="nv">B</span> : rxgraph (* ℓ *))
+  : rxgraph <span class="c">(* ℓ+1 *)</span>
+  := total_rxgraph <span class="c">(* ℓ+1 *)</span>
+       (contra_lens_disp_rxgraph <span class="c">(* ℓ+1 *)</span>
+          (disp_graph_on_rxgraph <span class="c">(* ℓ *)</span> B)).
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_graph_rxgraph</span> (* ℓ *) (<span class="nv">B</span> : rxgraph (* ℓ *))
+  : is_univalent <span class="c">(* ℓ+1 *)</span> (disp_graph_rxgraph <span class="c">(* ℓ *)</span> B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_rxgraph.
+  - <span class="bp">exact</span> (∏! _, UU_univalent_rxgraph).
+  - <span class="nb">apply</span> is_univalent_contra_lens_disp_rxgraph; <span class="nb">intro</span>.
+    <span class="nb">apply</span> is_univalent_disp_graph_on_rxgraph.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Reflexive graph of [disp_rxgraph]s *)</span>
+
+<span class="kn">Definition</span> <span class="nf">has_disp_refl_rxgraph</span> (* ℓ *) (<span class="nv">B</span> : rxgraph (* ℓ *))
+  : unbiased_lens <span class="c">(* ℓ+1 *)</span> (disp_graph_rxgraph <span class="c">(* ℓ *)</span> B).
+<span class="kn">Proof</span>.
+  use make_unbiased_lens.
+  - <span class="nb">intros</span> C D f.
+    <span class="nb">cbn</span> <span class="k">in</span> f.
+    <span class="bp">exact</span> (∏~ (x : B) (a : pr1 C x),
+            Δ pr2 D x x (refl x) (pr1 f x a) (pr1 f x a)).
+  - <span class="nb">intros</span> C D f disp_refl x a.
+    <span class="nb">cbn</span> <span class="k">in</span> f, disp_refl.
+    <span class="bp">exact</span> (pr2 f _ _ (refl x) _ _ (disp_refl x a)).
+  - <span class="nb">intros</span> C D f disp_refl x a.
+    <span class="nb">cbn</span> <span class="k">in</span> f, disp_refl.
+    <span class="bp">exact</span> (disp_refl x (pr1 f x a)).
+  - <span class="nb">intros</span> C disp_refl; <span class="bp">exact</span> (refl disp_refl).
+  - <span class="nb">intros</span> C disp_refl; <span class="bp">exact</span> (refl disp_refl).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_has_disp_refl_rxgraph</span> (* ℓ *) (<span class="nv">B</span> : rxgraph (* ℓ *))
+  {<span class="nv">E₁</span> <span class="nv">E₂</span> : disp_graph_rxgraph <span class="c">(* ℓ *)</span> B} (<span class="nv">f</span> : E₁ ≈ E₂)
+  : is_univalent <span class="c">(* ℓ+1 *)</span> (has_disp_refl_rxgraph <span class="c">(* ℓ *)</span> B _ _ f).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (∏! _ _, Δ _).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_rxgraph_rxgraph</span> (* ℓ *) (<span class="nv">B</span> : rxgraph (* ℓ *))
+  : rxgraph <span class="c">(* ℓ+1 *)</span>
+  := total_rxgraph <span class="c">(* ℓ+1 *)</span>
+       (sigma_disp_rxgraph <span class="c">(* ℓ+1 *)</span> _
+          (unbiased_lens_disp_rxgraph <span class="c">(* ℓ+1 *)</span>
+             (has_disp_refl_rxgraph <span class="c">(* ℓ *)</span> B))).
+
+<span class="kn">Example</span> <span class="nf">rxgraph_vertex_disp_rxgraph_rxgraph_compute</span> (* ℓ *)
+  (<span class="nv">B</span> : rxgraph (* ℓ *))
+  : rxgraph_vertex <span class="c">(* ℓ+1 *)</span> (disp_rxgraph_rxgraph <span class="c">(* ℓ *)</span> B)
+    = disp_rxgraph <span class="c">(* ℓ *)</span> B.
+<span class="kn">Proof</span>. <span class="bp">reflexivity</span>. <span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_rxgraph_rxgraph</span> (* ℓ *) (<span class="nv">B</span> : rxgraph (* ℓ *))
+  : is_univalent <span class="c">(* ℓ+1 *)</span> (disp_rxgraph_rxgraph <span class="c">(* ℓ *)</span> B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_total_rxgraph.
+  - <span class="bp">exact</span> (∏! _, UU_univalent_rxgraph).
+  - <span class="nb">apply</span> is_univalent_sigma_disp_rxgraph.
+    + <span class="nb">apply</span> is_univalent_contra_lens_disp_rxgraph; <span class="nb">intro</span>.
+      <span class="nb">apply</span> is_univalent_disp_graph_on_rxgraph.
+    + <span class="nb">apply</span> is_univalent_unbiased_lens_disp_rxgraph; <span class="nb">intros</span> x y e.
+      <span class="nb">apply</span> is_univalent_has_disp_refl_rxgraph.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_rxgraph_univalent_rxgraph</span> (* ℓ *) (<span class="nv">B</span> : rxgraph (* ℓ *))
+  : univalent_rxgraph <span class="c">(* ℓ+1 *)</span>
+  := make_univalent_rxgraph <span class="c">(* ℓ+1 *)</span> _
+       (is_univalent_disp_rxgraph_rxgraph <span class="c">(* ℓ *)</span> B).
+
+<span class="kn">Definition</span> <span class="nf">disp_rxgraph_iso</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E₁</span> <span class="nv">E₂</span> : disp_rxgraph B) : UU
+  := E₁ ≈{disp_rxgraph_rxgraph B} E₂.
+
+<span class="kn">Definition</span> <span class="nf">make_disp_rxgraph_iso</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E₁</span> <span class="nv">E₂</span> : disp_rxgraph B)
+  (<span class="nv">verts</span> : ∏ {x}, E₁ x ≃ E₂ x)
+  (<span class="nv">edges</span> : ∏ {x y : B} (e : x ≈ y) {a : E₁ x} {b : E₁ y},
+      a ≈[e] b ≃ verts a ≈[e] verts b)
+  (<span class="nv">refls</span> : ∏ (x : B) (a : E₁ x),
+      edges (refl x) (disp_refl x a) = disp_refl x (verts a))
+  : disp_rxgraph_iso E₁ E₂
+  := @verts,, @edges,, refls.
+
+<span class="sd">(** ** Displayed reflexive graph of [disp_rxgraph]s *)</span>
+
+<span class="kn">Definition</span> <span class="nf">transportb_disp_rxgraph</span>
+  {<span class="nv">B₁</span> <span class="nv">B₂</span> : rxgraph} (<span class="nv">i</span> : rxgraph_iso B₁ B₂)
+  (<span class="nv">E</span> : disp_rxgraph B₂)
+  : disp_rxgraph B₁.
+<span class="kn">Proof</span>.
+  use make_disp_rxgraph.
+  - <span class="nb">intros</span> x'.
+    <span class="bp">exact</span> (E (i x')).
+  - <span class="nb">cbn</span>; <span class="nb">intros</span> x y e a b.
+    <span class="bp">exact</span> (a ≈[rxgraph_iso_on_edge i e] b).
+  - <span class="nb">cbn</span>; <span class="nb">intros</span> x a.
+    <span class="nb">refine</span> (transportb (<span class="k">λ</span> <span class="nv">e</span>, a ≈[e] a) _ (disp_refl (i x) a)).
+    <span class="bp">exact</span> (rxgraph_iso_on_refl i x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_rxgraph_lens_structure</span> (* ℓ *)
+  : contra_lens_structure <span class="c">(* ℓ+1 *)</span>
+      (B:=rxgraph_rxgraph <span class="c">(* ℓ *)</span>)
+      (disp_rxgraph_rxgraph <span class="c">(* ℓ *)</span>).
+<span class="kn">Proof</span>.
+  use make_contra_lens_structure.
+  - <span class="nb">intros</span> C D i E.
+    <span class="bp">exact</span> (transportb_disp_rxgraph i E).
+  - <span class="nb">intros</span> B E; <span class="bp">exact</span> (refl E).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_rxgraph_disp_rxgraph</span> (* ℓ *)
+  : disp_rxgraph <span class="c">(* ℓ+1 *)</span> (rxgraph_rxgraph <span class="c">(* ℓ *)</span>)
+  := contra_lens_disp_rxgraph <span class="c">(* ℓ+1 *)</span>
+       (disp_rxgraph_rxgraph <span class="c">(* ℓ *)</span>,, disp_rxgraph_lens_structure <span class="c">(* ℓ *)</span>
+         : contra_lens <span class="c">(* ℓ+1 *)</span> (rxgraph_rxgraph <span class="c">(* ℓ *)</span>)).
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_disp_rxgraph_disp_rxgraph</span>
+  : is_disp_univalent disp_rxgraph_disp_rxgraph.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_contra_lens_disp_rxgraph; <span class="nb">intro</span>.
+  <span class="nb">apply</span> is_univalent_disp_rxgraph_rxgraph.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_rxgraph_univalent_disp_rxgraph</span> (* ℓ *)
+  : univalent_disp_rxgraph <span class="c">(* ℓ+1 *)</span> (rxgraph_rxgraph <span class="c">(* ℓ *)</span>)
+  := make_univalent_disp_rxgraph _ is_univalent_disp_rxgraph_disp_rxgraph.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/IdentitySystems/RXGraphOfRXGraphs.v</tt>, line 30)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidalFunctorsTensored.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** Monoidal functors *)</span>
+
+<span class="sd">(** behaviour w.r.t. to swapped tensor products added by Ralph Matthes in 2019, then iso changed to z_iso in 2021 *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Monoidal_Functor</span>.
+
+<span class="kn">Context</span> (<span class="nv">Mon_C</span> <span class="nv">Mon_D</span> : monoidal_cat).
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_C</span> := monoidal_cat_tensor Mon_C.
+<span class="kn">Notation</span> <span class="s2">"X ⊗_C Y"</span> := (tensor_C (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+<span class="kn">Notation</span> <span class="s2">"f #⊗_C g"</span> := (# tensor_C (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+<span class="kn">Local Definition</span> <span class="nf">I_C</span> := monoidal_cat_unit Mon_C.
+<span class="kn">Local Definition</span> <span class="nf">α_C</span> := monoidal_cat_associator Mon_C.
+<span class="kn">Local Definition</span> <span class="nf">λ_C</span> := monoidal_cat_left_unitor Mon_C.
+<span class="kn">Local Definition</span> <span class="nf">ρ_C</span> := monoidal_cat_right_unitor Mon_C.
+
+<span class="kn">Local Definition</span> <span class="nf">tensor_D</span> := monoidal_cat_tensor Mon_D.
+<span class="kn">Notation</span> <span class="s2">"X ⊗_D Y"</span> := (tensor_D (X , Y)) (<span class="kn">at level</span> <span class="mi">31</span>).
+<span class="kn">Notation</span> <span class="s2">"f #⊗_D g"</span> := (# tensor_D (f #, g)) (<span class="kn">at level</span> <span class="mi">31</span>).
+<span class="kn">Local Definition</span> <span class="nf">I_D</span> := monoidal_cat_unit Mon_D.
+<span class="kn">Local Definition</span> <span class="nf">α_D</span> := monoidal_cat_associator Mon_D.
+<span class="kn">Local Definition</span> <span class="nf">λ_D</span> := monoidal_cat_left_unitor Mon_D.
+<span class="kn">Local Definition</span> <span class="nf">ρ_D</span> := monoidal_cat_right_unitor Mon_D.
+
+<span class="kn">Section</span> <span class="nf">Monoidal_Functor_Conditions</span>.
+
+<span class="kn">Context</span> (<span class="nv">F</span> : Mon_C ⟶ Mon_D).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_functor_map_dom</span> : category_binproduct Mon_C Mon_C ⟶ Mon_D :=
+  functor_composite (pair_functor F F) tensor_D.
+
+<span class="kn">Lemma</span> <span class="nf">monoidal_functor_map_dom_ok</span>: functor_on_objects monoidal_functor_map_dom =
+  <span class="k">λ</span> <span class="nv">c</span>, F (ob1 c) ⊗_D F (ob2 c).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_functor_map_codom</span> : category_binproduct Mon_C Mon_C ⟶ Mon_D :=
+  functor_composite tensor_C F.
+
+<span class="kn">Lemma</span> <span class="nf">monoidal_functor_map_codom_ok</span>: functor_on_objects monoidal_functor_map_codom =
+  <span class="k">λ</span> <span class="nv">c</span>, F (ob1 c ⊗_C ob2 c).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_functor_map</span> :=
+  monoidal_functor_map_dom ⟹ monoidal_functor_map_codom.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_functor_map_funclass</span> (<span class="nv">μ</span> : monoidal_functor_map) :
+  ∏ x : ob (Mon_C ⊠ Mon_C), monoidal_functor_map_dom x --&gt;  monoidal_functor_map_codom x
+  := pr1 μ.
+<span class="kn">Coercion</span> <span class="nf">monoidal_functor_map_funclass</span> : monoidal_functor_map &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_functor_associativity</span> (<span class="nv">μ</span> : monoidal_functor_map) :=
+  ∏ (x y z : Mon_C),
+  μ (x, y) #⊗_D id F(z) · μ (x ⊗_C y, z) · #F (α_C ((x, y), z))
+  =
+  α_D ((F x, F y), F z) · id (F x) #⊗_D μ (y, z) · μ (x, y ⊗_C z).
+
+<span class="kn">Definition</span> <span class="nf">monoidal_functor_unitality</span> (<span class="nv">ϵ</span> : I_D --&gt; F I_C) (<span class="nv">μ</span> : monoidal_functor_map) :=
+  ∏ (x : Mon_C),
+  (<span class="k">λ</span><span class="nv">_D</span> (<span class="nv">F</span> <span class="nv">x</span>) = ϵ #⊗_D (id (F x)) · μ (I_C, x) · #F (<span class="k">λ</span><span class="nv">_C</span> <span class="nv">x</span>))
+  ×
+  (ρ_D (F x) = (id (F x)) #⊗_D ϵ · μ (x, I_C) · #F (ρ_C x)).
+
+<span class="kn">End</span> <span class="nf">Monoidal_Functor_Conditions</span>.
+
+<span class="kn">Definition</span> <span class="nf">lax_monoidal_functor</span> : UU :=
+  ∑ F : Mon_C ⟶ Mon_D, ∑ ϵ : I_D --&gt; F I_C, ∑ μ : monoidal_functor_map F,
+  (monoidal_functor_associativity F μ) × (monoidal_functor_unitality F ϵ μ).
+
+<span class="kn">Definition</span> <span class="nf">make_lax_monoidal_functor</span> (<span class="nv">F</span> : Mon_C ⟶ Mon_D) (<span class="nv">ϵ</span> : I_D --&gt; F I_C)
+  (<span class="nv">μ</span> : monoidal_functor_map F) (<span class="nv">Hass</span>: monoidal_functor_associativity F μ)
+  (<span class="nv">Hunit</span>: monoidal_functor_unitality F ϵ μ): lax_monoidal_functor :=
+  (F,, (ϵ,, (μ,, (Hass,, Hunit)))).
+
+<span class="kn">Definition</span> <span class="nf">lax_monoidal_functor_functor</span> (<span class="nv">lmF</span> : lax_monoidal_functor) : Mon_C ⟶ Mon_D := pr1 lmF.
+<span class="kn">Coercion</span> <span class="nf">lax_monoidal_functor_functor</span> : lax_monoidal_functor &gt;-&gt; functor.
+
+<span class="kn">Definition</span> <span class="nf">lax_monoidal_functor_ϵ</span> (<span class="nv">lmF</span> : lax_monoidal_functor) :
+  I_D --&gt;  lax_monoidal_functor_functor lmF I_C
+  := pr1 (pr2 lmF).
+
+<span class="kn">Definition</span> <span class="nf">lax_monoidal_functor_μ</span> (<span class="nv">lmF</span> : lax_monoidal_functor) :
+  monoidal_functor_map (lax_monoidal_functor_functor lmF)
+  := pr1 (pr2 (pr2 lmF)).
+
+<span class="kn">Definition</span> <span class="nf">lax_monoidal_functor_assoc</span> (<span class="nv">lmF</span> : lax_monoidal_functor) :
+  monoidal_functor_associativity (lax_monoidal_functor_functor lmF) (lax_monoidal_functor_μ lmF)
+  := pr1 (pr2 (pr2 (pr2 lmF))).
+
+<span class="kn">Definition</span> <span class="nf">lax_monoidal_functor_unital</span> (<span class="nv">lmF</span> : lax_monoidal_functor) :
+  monoidal_functor_unitality (lax_monoidal_functor_functor lmF) (lax_monoidal_functor_ϵ lmF) (lax_monoidal_functor_μ lmF)
+  := pr2 (pr2 (pr2 (pr2 lmF))).
+
+
+<span class="kn">Definition</span> <span class="nf">strong_monoidal_functor</span> : UU :=
+  ∑ lmF : lax_monoidal_functor,
+  (is_z_isomorphism (lax_monoidal_functor_ϵ lmF)) <span class="c">(* ϵ is an iso *)</span>
+  ×
+  (is_nat_z_iso (lax_monoidal_functor_μ lmF)). <span class="c">(* μ is an iso *)</span>
+
+<span class="kn">Definition</span> <span class="nf">strong_monoidal_functor_lax_monoidal_functor</span> (<span class="nv">smF</span> : strong_monoidal_functor) : lax_monoidal_functor
+  := pr1 smF.
+<span class="kn">Coercion</span> <span class="nf">strong_monoidal_functor_lax_monoidal_functor</span> : strong_monoidal_functor &gt;-&gt; lax_monoidal_functor.
+
+<span class="kn">Definition</span> <span class="nf">strong_monoidal_functor_ϵ_is_z_iso</span> (<span class="nv">smF</span> : strong_monoidal_functor) :
+  is_z_isomorphism (lax_monoidal_functor_ϵ smF)
+  := pr1 (pr2 smF).
+
+<span class="kn">Definition</span> <span class="nf">strong_monoidal_functor_μ_is_nat_z_iso</span> (<span class="nv">smF</span> : strong_monoidal_functor) :
+  is_nat_z_iso (lax_monoidal_functor_μ smF)
+  := pr2 (pr2 smF).
+
+<span class="kn">Definition</span> <span class="nf">strong_monoidal_functor_ϵ</span> (<span class="nv">smF</span> : strong_monoidal_functor) :
+  z_iso I_D (lax_monoidal_functor_functor smF I_C)
+  := make_z_iso _ _ (strong_monoidal_functor_ϵ_is_z_iso smF).
+
+<span class="kn">Definition</span> <span class="nf">strong_monoidal_functor_ϵ_inv</span> (<span class="nv">smF</span> : strong_monoidal_functor) :
+  lax_monoidal_functor_functor smF I_C  --&gt; I_D
+  := inv_from_z_iso (strong_monoidal_functor_ϵ smF).
+
+<span class="kn">Definition</span> <span class="nf">strong_monoidal_functor_μ</span> (<span class="nv">smF</span> : strong_monoidal_functor) :
+  nat_z_iso (monoidal_functor_map_dom smF) (monoidal_functor_map_codom smF)
+  := make_nat_z_iso _ _
+                    (lax_monoidal_functor_μ smF)
+                    (strong_monoidal_functor_μ_is_nat_z_iso smF).
+
+<span class="kn">Definition</span> <span class="nf">strong_monoidal_functor_μ_inv</span> (<span class="nv">smF</span> : strong_monoidal_functor)
+  : monoidal_functor_map_codom smF ⟹ monoidal_functor_map_dom smF
+  := nat_z_iso_to_trans_inv (strong_monoidal_functor_μ smF).
+
+<span class="kn">End</span> <span class="nf">Monoidal_Functor</span>.
+
+<span class="kn">Arguments</span> lax_monoidal_functor_ϵ {_ _} _ .
+<span class="kn">Arguments</span> lax_monoidal_functor_μ {_ _} _ .
+<span class="kn">Arguments</span> lax_monoidal_functor_assoc {_ _} _ .
+<span class="kn">Arguments</span> lax_monoidal_functor_unital {_ _} _ .
+<span class="kn">Arguments</span> strong_monoidal_functor_ϵ_is_z_iso {_ _} _ .
+<span class="kn">Arguments</span> strong_monoidal_functor_μ_is_nat_z_iso {_ _} _ .
+<span class="kn">Arguments</span> strong_monoidal_functor_ϵ {_ _} _ .
+<span class="kn">Arguments</span> strong_monoidal_functor_ϵ_inv {_ _} _ .
+<span class="kn">Arguments</span> strong_monoidal_functor_μ {_ _} _ .
+<span class="kn">Arguments</span> strong_monoidal_functor_μ_inv {_ _} _ .
+
+<span class="kn">Section</span> <span class="nf">swapped_tensor</span>.
+
+  <span class="kn">Context</span> {<span class="nv">Mon</span> <span class="nv">Mon'</span> : monoidal_cat}.
+
+  <span class="kn">Local Definition</span> <span class="nf">tensor</span> := monoidal_cat_tensor Mon.
+  <span class="kn">Local Definition</span> <span class="nf">tensor'</span> := monoidal_cat_tensor Mon'.
+
+<span class="kn">Lemma</span> <span class="nf">swapping_of_lax_monoidal_functor_assoc</span> (<span class="nv">lmF</span>: lax_monoidal_functor Mon Mon'):
+  monoidal_functor_associativity (swapping_of_monoidal_cat Mon) (swapping_of_monoidal_cat Mon') lmF
+                                 (pre_whisker binswap_pair_functor (lax_monoidal_functor_μ lmF)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> lmF <span class="k">as</span> [F [ϵ [μ [Hass Hunit]]]].
+  <span class="nb">red</span>. <span class="nb">intros</span> x y z.
+  <span class="nb">set</span> (Hass_inst := Hass z y x).
+  <span class="nb">apply</span> pathsinv0. <span class="nb">rewrite</span> &lt;- assoc.
+  <span class="nb">cbn</span>.
+  <span class="nb">set</span> (f := nat_z_iso_pointwise_z_iso (monoidal_cat_associator Mon') ((F z, F y), F x)).
+  <span class="nb">apply</span> (z_iso_inv_on_right _ _ _ f).
+  transparent <span class="nb">assert</span> (isc : (is_z_isomorphism (# F (monoidal_cat_associator Mon ((z, y), x))))).
+  { <span class="nb">apply</span> functor_on_is_z_isomorphism.
+    <span class="nb">apply</span> monoidal_cat_associator.
+  }
+  <span class="nb">set</span> (Hass_inst' := z_iso_inv_on_left _ _ _ _ (_,, isc) _ (! Hass_inst)).
+  etrans.
+  { <span class="bp">exact</span> Hass_inst'. }
+  <span class="nb">clear</span> Hass_inst Hass_inst'.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> cancel_precomposition.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">swapping_of_lax_monoidal_functor</span>: lax_monoidal_functor Mon Mon' -&gt;
+  lax_monoidal_functor (swapping_of_monoidal_cat Mon)
+                       (swapping_of_monoidal_cat Mon').
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> lmF.
+  <span class="nb">induction</span> lmF <span class="k">as</span> [F [ϵ [μ [Hass Hunit]]]].
+  use make_lax_monoidal_functor.
+  - <span class="bp">exact</span> F.
+  - <span class="bp">exact</span> ϵ.
+  - <span class="bp">exact</span> (pre_whisker binswap_pair_functor μ).
+  - <span class="nb">apply</span> (swapping_of_lax_monoidal_functor_assoc (F,, (ϵ,, (μ,, (Hass,, Hunit))))).
+  - <span class="kp">abstract</span> ( <span class="nb">red</span>; <span class="nb">intro</span> x; <span class="nb">induction</span> (Hunit x) <span class="k">as</span> [Hunit1 Hunit2]; <span class="nb">split</span>; <span class="bp">assumption</span> ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">swapping_of_strong_monoidal_functor</span>: strong_monoidal_functor Mon Mon' -&gt;
+  strong_monoidal_functor (swapping_of_monoidal_cat Mon)
+                          (swapping_of_monoidal_cat Mon').
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> smF.
+  <span class="nb">induction</span> smF <span class="k">as</span> [lmF [Hϵ Hμ]].
+  <span class="nb">apply</span> (tpair _ (swapping_of_lax_monoidal_functor lmF)).
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> Hϵ.
+  - <span class="bp">exact</span> (pre_whisker_on_nat_z_iso binswap_pair_functor (lax_monoidal_functor_μ lmF) Hμ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">swapping_of_strong_monoidal_functor_on_objects</span> (<span class="nv">smF</span>: strong_monoidal_functor Mon Mon')(<span class="nv">a</span>: Mon): swapping_of_strong_monoidal_functor smF a = smF a.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">swapped_tensor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monoidal/AlternativeDefinitions/MonoidalFunctorsTensored.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; (** behaviour w.r.t. to swapped tensor products added by Ralph Matthes in 2019, then iso changed to z_iso in 2021 *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

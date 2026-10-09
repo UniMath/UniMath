@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Adamek.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Adámek's theorem</span>
+
+<span class="sd">The main result is Adámek's theorem for constructing initial algebras of</span>
+<span class="sd">omega-cocontinuous functors ([colimAlgIsInitial]) which is used to construct</span>
+<span class="sd">inductive types.</span>
+
+<span class="sd">Written by: Anders Mörtberg and Benedikt Ahrens, 2015-2016</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorAlgebras.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * Adámek's theorem for constructing initial algebras of omega-cocontinuous functors *)</span>
+<span class="sd">(** This section proves that (L,α : F L -&gt; L) is the initial algebra</span>
+<span class="sd">    where L is the colimit of the initial chain:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">         !          F !           F^2 !</span>
+<span class="sd">     0 -----&gt; F 0 ------&gt; F^2 0 --------&gt; F^3 0 ---&gt; ...</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">This result is also known as Adámek's theorem % \cite{Adamek1974}: \par %</span>
+
+<span class="sd">  https://ncatlab.org/nlab/show/initial+algebra+of+an+endofunctor#AdameksTheorem</span>
+
+<span class="sd">Adámek, Jiří. "Free algebras and automata realizations in the language of categories."</span>
+<span class="sd">Commentationes Mathematicae Universitatis Carolinae 015.4 (1974): 589-602.</span>
+
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">colim_initial_algebra</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">InitC</span> : Initial C).
+
+<span class="c">(* It is important that these are not packaged together as it is</span>
+<span class="c">   sometimes necessary to control how opaque HF is. See</span>
+<span class="c">   [isalghom_pr1foldr] in Lists.v *)</span>
+<span class="kn">Context</span> {<span class="nv">F</span> : functor C C} (<span class="nv">HF</span> : is_omega_cocont F).
+
+<span class="kn">Let</span> <span class="nf">Fchain</span> : chain C := initChain InitC F.
+
+<span class="kn">Variable</span> (<span class="nv">CC</span> : ColimCocone Fchain).
+
+<span class="kn">Let</span> <span class="nf">L</span> : C := colim CC.
+<span class="kn">Let</span> <span class="nf">FFchain</span> : chain C := mapchain F Fchain.
+<span class="kn">Let</span> <span class="nf">Fa</span> : cocone FFchain (F L) := mapcocone F _ (colimCocone CC).
+<span class="kn">Let</span> <span class="nf">FHC'</span> : isColimCocone FFchain (F L) Fa :=
+  HF Fchain L (colimCocone CC) (isColimCocone_from_ColimCocone CC).
+<span class="kn">Let</span> <span class="nf">FHC</span> : ColimCocone FFchain := make_ColimCocone _ _ _ FHC'.
+
+<span class="kn">Local Definition</span> <span class="nf">shiftCocone</span> : cocone FFchain L.
+<span class="kn">Proof</span>.
+use make_cocone.
+- <span class="nb">intro</span> n; <span class="nb">apply</span> (coconeIn (colimCocone CC) (S n)).
+- <span class="kp">abstract</span> (<span class="nb">intros</span> m n e; <span class="nb">destruct</span> e ;
+            <span class="nb">apply</span> (coconeInCommutes (colimCocone CC) (S m) _ (idpath _))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">unshiftCocone</span> (<span class="nv">x</span> : C) (<span class="nv">cc</span> : cocone FFchain x) : cocone Fchain x.
+<span class="kn">Proof</span>.
+use make_cocone.
+- <span class="nb">simpl</span>; <span class="nb">intro</span> n.
+  <span class="nb">induction</span> n <span class="k">as</span> [|n]; <span class="nb">simpl</span>.
+  + <span class="nb">apply</span> InitialArrow.
+  + <span class="nb">apply</span> (coconeIn cc _).
+- <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">intros</span> m n e; <span class="nb">destruct</span> e;
+            <span class="nb">destruct</span> m <span class="k">as</span> [|m]; [ <span class="nb">apply</span> InitialArrowUnique
+                                | <span class="nb">apply</span> (coconeInCommutes cc m _ (idpath _))]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">shiftIsColimCocone</span> : isColimCocone FFchain L shiftCocone.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> x cc; <span class="nb">simpl</span>.
+use tpair.
++ use tpair.
+  * <span class="nb">apply</span> colimArrow, (unshiftCocone _ cc).
+  * <span class="kp">abstract</span> (<span class="nb">intro</span> n; <span class="nb">apply</span> (colimArrowCommutes CC x (unshiftCocone x cc) (S n))).
++ <span class="kp">abstract</span> (<span class="nb">intros</span> p; <span class="nb">apply</span> subtypePath;
+             [ <span class="nb">intro</span> f; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property
+             | <span class="nb">apply</span> colimArrowUnique; <span class="nb">intro</span> n;
+               <span class="nb">destruct</span> n <span class="k">as</span> [|n]; [ <span class="nb">apply</span> InitialArrowUnique | <span class="nb">apply</span> (pr2 p) ]]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">shiftColimCocone</span> : ColimCocone FFchain :=
+  make_ColimCocone FFchain L shiftCocone shiftIsColimCocone.
+
+<span class="kn">Definition</span> <span class="nf">colim_algebra_mor</span> : C⟦F L,L⟧ := colimArrow FHC L shiftCocone.
+
+<span class="kn">Definition</span> <span class="nf">colim_algebra_mor_inv</span> : C⟦L,F L⟧ 
+  := colimArrow shiftColimCocone _ (colimCocone FHC).
+
+<span class="kn">Local Definition</span> <span class="nf">is_z_iso_colim_algebra_mor</span> : is_z_isomorphism colim_algebra_mor :=
+  isColim_is_z_iso _ FHC _ _ shiftIsColimCocone.
+
+<span class="kn">Definition</span> <span class="nf">colim_algebra_mor_iso</span> : z_iso (F L) L
+  := make_z_iso' _ is_z_iso_colim_algebra_mor.
+
+<span class="kn">Lemma</span> <span class="nf">colim_algebra_mor_commutes</span> (<span class="nv">n</span> : nat)
+  : #F (colimIn CC n) · colim_algebra_mor = colimIn CC (S n).
+<span class="kn">Proof</span>.
+  use (colimArrowCommutes FHC).
+<span class="kn">Qed</span>.
+
+<span class="kn">Let</span> <span class="nf">α</span> : z_iso (F L) L := make_z_iso' _ is_z_iso_colim_algebra_mor.
+<span class="kn">Let</span> <span class="nf">α_inv</span> : z_iso L (F L) := z_iso_inv_from_z_iso α.
+<span class="kn">Let</span> <span class="nf">α_alg</span> : algebra_ob F := tpair (<span class="k">λ</span> <span class="nv">X</span> : C, C ⟦ F X, X ⟧) L α.
+
+<span class="kn">Lemma</span> <span class="nf">unfold_inv_from_z_iso_α</span> :
+  inv_from_z_iso α = colimArrow shiftColimCocone _ (colimCocone FHC).
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Given an algebra:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">          a</span>
+<span class="sd">   F A ------&gt; A</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd"> we now define an algebra morphism ad:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">          α</span>
+<span class="sd">   F L ------&gt; L</span>
+<span class="sd">    |          |</span>
+<span class="sd">    |          | ad</span>
+<span class="sd">    |          |</span>
+<span class="sd">    V     a    V</span>
+<span class="sd">   F A ------&gt; A</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">algebra_mor</span>.
+
+<span class="kn">Variable</span> (<span class="nv">Aa</span> : algebra_ob F).
+
+<span class="kn">Local Notation</span> <span class="nf">A</span> := (alg_carrier _ Aa).
+<span class="kn">Local Notation</span> <span class="nf">a</span> := (alg_map _ Aa).
+
+<span class="kn">Local Definition</span> <span class="nf">cocone_over_alg</span> (<span class="nv">n</span> : nat) : C ⟦ dob Fchain n, A ⟧.
+<span class="kn">Proof</span>.
+<span class="nb">induction</span> n <span class="k">as</span> [|n Fn]; <span class="nb">simpl</span>.
+- <span class="bp">now</span> <span class="nb">apply</span> InitialArrow.
+- <span class="bp">now</span> <span class="nb">apply</span> (# F Fn · a).
+<span class="kn">Defined</span>.
+
+<span class="c">(* a_n : F^n 0 -&gt; A *)</span>
+<span class="kn">Local Notation</span> <span class="nf">an</span> := cocone_over_alg.
+
+<span class="c">(* This makes Coq not unfold dmor during simpl *)</span>
+<span class="kn">Arguments</span> dmor : <span class="nb">simpl</span> never.
+
+<span class="kn">Lemma</span> <span class="nf">isCoconeOverAlg</span> <span class="nv">n</span> <span class="nv">Sn</span> (<span class="nv">e</span> : edge n Sn) : dmor Fchain e · an Sn = an n.
+<span class="kn">Proof</span>.
+<span class="nb">destruct</span> e.
+<span class="nb">induction</span> n <span class="k">as</span> [|n IHn].
+- <span class="bp">now</span> <span class="nb">apply</span> InitialArrowUnique.
+- <span class="nb">simpl</span>; <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition, pathsinv0.
+  <span class="nb">eapply</span> pathscomp0; [|<span class="nb">simpl</span>; <span class="nb">apply</span> functor_comp].
+  <span class="bp">now</span> <span class="nb">apply</span> maponpaths, pathsinv0, IHn.
+<span class="kn">Qed</span>.
+
+<span class="c">(* ad = a† = a dagger *)</span>
+<span class="kn">Local Definition</span> <span class="nf">ad</span> : C⟦L,A⟧.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> colimArrow.
+use make_cocone.
+- <span class="nb">apply</span> cocone_over_alg.
+- <span class="nb">red</span>; <span class="nb">apply</span> isCoconeOverAlg.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ad_is_algebra_mor</span> : is_algebra_mor _ α_alg Aa ad.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> pathsinv0, z_iso_inv_to_left, colimArrowUnique; <span class="nb">simpl</span>; <span class="nb">intro</span> n.
+<span class="nb">destruct</span> n <span class="k">as</span> [|n].
+- <span class="bp">now</span> <span class="nb">apply</span> InitialArrowUnique.
+- <span class="nb">rewrite</span> assoc, unfold_inv_from_z_iso_α.
+  <span class="nb">eapply</span> pathscomp0;
+    [<span class="nb">apply</span> cancel_postcomposition, (colimArrowCommutes shiftColimCocone)|].
+  <span class="nb">simpl</span>; <span class="nb">rewrite</span> assoc, &lt;- functor_comp.
+  <span class="nb">apply</span> cancel_postcomposition, maponpaths, (colimArrowCommutes CC).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">ad_mor</span> : algebra_mor F α_alg Aa := tpair _ _ ad_is_algebra_mor.
+
+<span class="kn">End</span> <span class="nf">algebra_mor</span>.
+
+<span class="kn">Lemma</span> <span class="nf">colimAlgIsInitial_subproof</span> (<span class="nv">Aa</span> : category_FunctorAlg F)
+        (<span class="nv">Fa'</span> : algebra_mor F α_alg Aa) : Fa' = ad_mor Aa.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> algebra_mor_eq; <span class="nb">simpl</span>.
+<span class="nb">apply</span> colimArrowUnique; <span class="nb">simpl</span>; <span class="nb">intro</span> n.
+<span class="nb">destruct</span> Fa' <span class="k">as</span> [f hf]; <span class="nb">simpl</span>.
+<span class="nb">unfold</span> is_algebra_mor <span class="k">in</span> hf; <span class="nb">simpl</span> <span class="k">in</span> hf.
+<span class="nb">induction</span> n <span class="k">as</span> [|n IHn]; <span class="nb">simpl</span>.
+- <span class="bp">now</span> <span class="nb">apply</span> InitialArrowUnique.
+- <span class="nb">rewrite</span> &lt;- IHn, functor_comp, &lt;- assoc.
+  <span class="nb">eapply</span> pathscomp0; [| <span class="nb">eapply</span> maponpaths; <span class="nb">apply</span> hf].
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition, pathsinv0, (z_iso_inv_to_right _ _ _ _ α).
+  <span class="nb">rewrite</span> unfold_inv_from_z_iso_α; <span class="nb">apply</span> pathsinv0.
+  <span class="bp">now</span> <span class="nb">eapply</span> pathscomp0; [<span class="nb">apply</span> (colimArrowCommutes shiftColimCocone)|].
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">colimAlgIsInitial</span> : isInitial (category_FunctorAlg F) α_alg.
+<span class="kn">Proof</span>.
+<span class="nb">apply</span> make_isInitial; <span class="nb">intros</span> Aa.
+<span class="k">exists</span> (<span class="nv">ad_mor</span> <span class="nv">Aa</span>).
+<span class="nb">apply</span> colimAlgIsInitial_subproof.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">colimAlgInitial</span> : Initial (category_FunctorAlg F) :=
+  make_Initial _ colimAlgIsInitial.
+
+<span class="kn">End</span> <span class="nf">colim_initial_algebra</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Chains/Adamek.v</tt>, line 10)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Written by: Anders Mörtberg and Benedikt Ahrens, 2015-2016
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,793 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RelationalModel.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************</span>
+
+<span class="sd"> The relational model of linear logic</span>
+
+<span class="sd"> In this file, we formalize the relational model of linear logic. To do so,</span>
+<span class="sd"> we use Lafont categories. As such, the only thing that we have to verify is</span>
+<span class="sd"> that the symmetric monoidal category of relations has cofree commutative</span>
+<span class="sd"> comonoids.</span>
+
+<span class="sd"> The proof in this file is based on two sources:</span>
+<span class="sd"> - Theorems 4.1 and 4.7 Free Commutative Monoids in Homotopy Type Theory</span>
+<span class="sd"> - Section 1.1.4 in Bicategorical Orthogonality Constructions for Linear Logic</span>
+
+<span class="sd"> The idea behind the construction of the cofree commutative comonoid is as</span>
+<span class="sd"> follows:</span>
+<span class="sd"> 1. In `SET`, we have free commutative monoids. In UniMath, we can construct</span>
+<span class="sd">    these as quotients, but they can also be constructed with higher inductive</span>
+<span class="sd">    types.</span>
+<span class="sd"> 2. `REL` is equivalent to the Kleisli category of the powerset monad on `SET`.</span>
+<span class="sd"> 3. We can lift monoids in `SET` to monoids in `REL`.</span>
+<span class="sd"> 4. `REL` is self-dual.</span>
+
+<span class="sd"> The main idea behind the third point is that there is a distributive law</span>
+<span class="sd"> between the power set monad and the free commutative monoid monad. The proof</span>
+<span class="sd"> in this file combines these 4 facts.</span>
+
+<span class="sd"> First we construct the cofree comonoid ([cofree_comonoid_REL]) using the free</span>
+<span class="sd"> commutative monoid.</span>
+
+<span class="sd"> Second we show that comonoids in `REL` give rise to monoids in `SET`</span>
+<span class="sd"> ([REL_comonoid_to_monoid]). We need this to prove the universal property. This</span>
+<span class="sd"> is because for the universal property of the cofree comonoid, we get a comonoid</span>
+<span class="sd"> in `REL`, but we can only instantiate the universal property of the free</span>
+<span class="sd"> commutative monoid to commutative monoids. This translation is what allows us</span>
+<span class="sd"> to use this universal property. Note that we use the power set here: a comonoid</span>
+<span class="sd"> over `X` in `REL` gives a monoid in `SET` whose carrier is the power set of `X`.</span>
+
+<span class="sd"> Third we show that monoid homomorphisms in `SET` give rise to comonoid</span>
+<span class="sd"> homomorphisms in `REL` ([cofree_comonoid_REL_map]). The universal property of</span>
+<span class="sd"> the free commutative monoid gives a monoid homomorphism, but we want a comonoid</span>
+<span class="sd"> homomorphism.</span>
+
+<span class="sd"> Fourth we show the converse: comonoid morphisms in `REL` give rise to monoid</span>
+<span class="sd"> homomorphisms in `SET` ([comonoid_mor_REL_to_monoid_mor]). This is so that we</span>
+<span class="sd"> can instantiate the uniqueness of the universal property.</span>
+
+<span class="sd"> The construction of comonoids in `REL` from monoids in `SET` can be seen as the</span>
+<span class="sd"> composition of the following functors.</span>
+<span class="sd"> - We have a functor from `Mon(SET) -&gt; Mon(REL)`. It sends a monoid `X` to the</span>
+<span class="sd">   powerset of `X`. The reason why this functor exists, is because we have a</span>
+<span class="sd">   distributive law between the free monoid monad and the powerset monad.</span>
+<span class="sd"> - For every symmetric monoidal category `V` we have an equivalence</span>
+<span class="sd">   `Mon(V) ≃ Comon(V^op)`. This follows from the fact that the notion of monoid</span>
+<span class="sd">   and comonoid are dual to each other.</span>
+<span class="sd"> - From an equivalence `V ≃ V'` we get an equivalence `Comon(V) ≃ Comon(V')`.</span>
+<span class="sd"> - We have that `REL ≃ REL^op`, because relations can be reversed.</span>
+<span class="sd"> Now we can make the following composition of functors:</span>
+<span class="sd"> `Mon(SET) -&gt; Mon(REL) ≃ Comon(REL^op) ≃ Comon(REL)`</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The cofree comonoid on a set</span>
+<span class="sd"> 2. Every comonoid in `REL` gives rise to a monoid in `SET`</span>
+<span class="sd"> 3. The universal property of the cofree comonoid in `REL`</span>
+<span class="sd"> 4. The relational model of linear logic</span>
+
+<span class="sd"> *******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.Algebra.Free_Monoids_and_Groups.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Rel.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Coreflections.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Adjunctions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.FunctorCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.TotalMonoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Displayed.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Cartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Monoidal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.CommComonoidsCartesian.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.Relations.
+<span class="kn">Require Import</span> UniMath.Semantics.LinearLogic.LafontCategory.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Opaque</span> free_abmonoid free_abmonoid_extend free_abmonoid_unit.
+
+<span class="sd">(** * 1. The cofree comonoid on a set *)</span>
+<span class="kn">Section</span> <span class="nf">CofreeComonoid</span>.
+  <span class="kn">Context</span> (<span class="nv">X</span> : hSet).
+
+  <span class="kn">Let</span> <span class="nf">Mmonoid</span> : abmonoid := free_abmonoid X.
+  <span class="kn">Let</span> <span class="nf">M</span> : hSet := Mmonoid.
+  <span class="kn">Let</span> <span class="nf">z</span> : M := unel Mmonoid.
+  <span class="kn">Let</span> <span class="nf">m</span> : M → M → M := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, op x y.
+
+  <span class="kn">Definition</span> <span class="nf">cofree_comonoid_REL_comult</span>
+    : REL_sym_mon_closed_cat ⟦ M , (M × M)%<span class="nb">set</span> ⟧
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (m (pr1 y) (pr2 y) = x)%logic.
+
+  <span class="kn">Definition</span> <span class="nf">cofree_comonoid_REL_counit</span>
+    : REL_sym_mon_closed_cat ⟦ M , unitset ⟧
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, (x = z)%logic.
+
+  <span class="kn">Proposition</span> <span class="nf">cofree_comonoid_REL_counit_left</span>
+    : cofree_comonoid_REL_comult
+      · (cofree_comonoid_REL_counit #⊗ identity _)
+      · mon_lunitor _
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use hPropUnivalence.
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> H.
+      <span class="nb">induction</span> H <span class="k">as</span> [ [ [] a ] [ H p ] ] ; <span class="nb">cbn</span> <span class="k">in</span> a, p.
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> H.
+      <span class="nb">induction</span> H <span class="k">as</span> [ [ b c ] [ q H ] ] ; <span class="nb">cbn</span> <span class="k">in</span> q.
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ [ [] d ] [ [ r₁ r₂ ] [ r₃ r₄ ] ] ].
+      <span class="nb">cbn</span> <span class="k">in</span> r₁, r₂, r₃, r₄ ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!q @ _ @ p).
+      <span class="nb">rewrite</span> &lt;- r₄.
+      <span class="nb">rewrite</span> &lt;- r₁.
+      <span class="nb">rewrite</span> r₂.
+      <span class="nb">apply</span> (lunax Mmonoid).
+    - <span class="nb">intros</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">induction</span> p.
+      <span class="nb">refine</span> (hinhpr _).
+      <span class="nb">refine</span> ((tt ,, x) ,, _).
+      <span class="nb">refine</span> (_ ,, idpath _).
+      <span class="nb">refine</span> (hinhpr _).
+      <span class="nb">refine</span> ((z ,, x) ,, _ ,, _).
+      + <span class="nb">apply</span> (lunax Mmonoid).
+      + <span class="nb">refine</span> (hinhpr _).
+        <span class="nb">refine</span> ((tt ,, x) ,, _) ; <span class="nb">cbn</span>.
+        <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cofree_comonoid_REL_coassoc</span>
+    : cofree_comonoid_REL_comult
+      · cofree_comonoid_REL_comult #⊗ identity _
+      · mon_lassociator _ _ _
+      =
+      cofree_comonoid_REL_comult
+      · identity _ #⊗ cofree_comonoid_REL_comult.
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    <span class="nb">induction</span> y <span class="k">as</span> [ y₁ [ y₂ y₃ ]].
+    use hPropUnivalence.
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> H.
+      <span class="nb">induction</span> H <span class="k">as</span> [ [ [ a₁ a₂ ] a₃ ] [ H [ p₁ [ p₂ p₃ ] ] ] ] ; <span class="nb">cbn</span> <span class="k">in</span> p₁, p₂, p₃.
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> H.
+      <span class="nb">induction</span> H <span class="k">as</span> [ [ b₁ b₂ ] [ q H ] ] ; <span class="nb">cbn</span> <span class="k">in</span> q.
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> H.
+      <span class="nb">cbn</span> <span class="k">in</span> H.
+      <span class="nb">induction</span> H <span class="k">as</span> [ [ [ c₁ c₂ ] c₃ ] [ [ r₁ r₂ ] [ r₃ r₄ ] ] ] ; <span class="nb">cbn</span> <span class="k">in</span> r₁, r₂, r₃, r₄.
+      <span class="nb">induction</span> p₁, p₂, p₃, r₁, r₄.
+      <span class="nb">pose</span> (r₅ := maponpaths dirprod_pr1 r₃) ; <span class="nb">cbn</span> <span class="k">in</span> r₅.
+      <span class="nb">pose</span> (r₆ := maponpaths dirprod_pr2 r₃) ; <span class="nb">cbn</span> <span class="k">in</span> r₆.
+      <span class="nb">induction</span> r₅, r₆.
+      <span class="nb">rewrite</span> &lt;- r₂ <span class="k">in</span> q.
+      <span class="nb">assert</span> (m (m c₁ c₂) b₂ = m c₁ (m c₂ b₂)) <span class="k">as</span> s.
+      {
+        <span class="bp">exact</span> (assocax Mmonoid c₁ c₂ b₂).
+      }
+      <span class="nb">rewrite</span> s <span class="k">in</span> q.
+      <span class="nb">refine</span> (hinhpr _).
+      <span class="nb">refine</span> ((c₁ ,, m c₂ b₂) ,, _).
+      <span class="nb">split</span>.
+      + <span class="bp">exact</span> q.
+      + <span class="nb">refine</span> (hinhpr _).
+        <span class="bp">exact</span> ((_ ,, _) ,, (idpath _ ,, idpath _) ,, (idpath _ ,, idpath _)).
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> H.
+      <span class="nb">induction</span> H <span class="k">as</span> [ [ a₁ a₂ ] [ p H ]] ; <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> H.
+      <span class="nb">induction</span> H <span class="k">as</span> [ [ b₁ b₂ ] [ [ q₁ q₂ ] [ q₃ q₄ ]]] ; <span class="nb">cbn</span> <span class="k">in</span> q₁, q₂, q₃, q₄.
+      <span class="nb">induction</span> q₁, q₂, q₃.
+      <span class="nb">rewrite</span> &lt;- q₄ <span class="k">in</span> p ; <span class="nb">clear</span> q₄.
+      <span class="nb">assert</span> (m a₁ (m y₂ y₃) = m (m a₁ y₂) y₃) <span class="k">as</span> s.
+      {
+        <span class="bp">exact</span> (!(assocax Mmonoid a₁ y₂ y₃)).
+      }
+      <span class="nb">rewrite</span> s <span class="k">in</span> p.
+      <span class="nb">refine</span> (hinhpr (((a₁ ,, y₂) ,, y₃) ,, _)).
+      <span class="nb">refine</span> (_ ,, idpath _ ,, idpath _ ,, idpath _).
+      <span class="nb">refine</span> (hinhpr ((m a₁ y₂ ,, y₃) ,, p ,, _)).
+      <span class="nb">refine</span> (hinhpr _) ; <span class="nb">cbn</span>.
+      <span class="nb">simple refine</span> (((a₁ ,, y₂) ,, y₃) ,, _) ; <span class="kp">repeat</span> <span class="nb">split</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cofree_comonoid_REL_comm</span>
+    : cofree_comonoid_REL_comult
+      · sym_mon_braiding REL_sym_mon_closed_cat _ _
+      =
+      cofree_comonoid_REL_comult.
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    <span class="nb">induction</span> y <span class="k">as</span> [ y₁ y₂ ].
+    use hPropUnivalence.
+    - use factor_through_squash_hProp ; <span class="nb">cbn</span>.
+      <span class="nb">intros</span> [ [ a₁ a₂ ] [ p₁ [ p₂ p₃ ] ] ] ; <span class="nb">cbn</span> <span class="k">in</span> p₁, p₂, p₃.
+      <span class="nb">induction</span> p₂, p₃.
+      <span class="nb">refine</span> (_ @ p₁).
+      <span class="nb">apply</span> (commax Mmonoid).
+    - <span class="nb">intro</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">refine</span> (hinhpr ((y₂ ,, y₁) ,, _ ,, _ ,, _)) ; <span class="nb">cbn</span>.
+      + <span class="nb">refine</span> (_ @ p).
+        <span class="nb">apply</span> (commax Mmonoid).
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cofree_comonoid_REL</span>
+    : commutative_comonoid REL_sym_mon_closed_cat.
+  <span class="kn">Proof</span>.
+    use make_commutative_comonoid.
+    - <span class="bp">exact</span> M.
+    - <span class="bp">exact</span> cofree_comonoid_REL_comult.
+    - <span class="bp">exact</span> cofree_comonoid_REL_counit.
+    - <span class="bp">exact</span> cofree_comonoid_REL_counit_left.
+    - <span class="bp">exact</span> cofree_comonoid_REL_coassoc.
+    - <span class="bp">exact</span> cofree_comonoid_REL_comm.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CofreeComonoid</span>.
+
+<span class="kn">Definition</span> <span class="nf">map_to_cofree_comonoid_REL</span>
+           (<span class="nv">X</span> : REL)
+  : REL ⟦ cofree_comonoid_REL X , X ⟧
+  := <span class="k">λ</span> <span class="nv">y</span> <span class="nv">x</span>, (free_abmonoid_unit x = y)%logic.
+
+<span class="sd">(** * 2. Every comonoid in `REL` gives rise to a monoid in `SET` *)</span>
+<span class="kn">Section</span> <span class="nf">ComonoidToMonoid</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : commutative_comonoid REL_sym_mon_closed_cat).
+
+  <span class="kn">Let</span> <span class="nf">U</span> : hSet := underlying_commutative_comonoid _ C.
+
+  <span class="kn">Definition</span> <span class="nf">REL_comonoid_to_mult</span>
+             (<span class="nv">X</span> <span class="nv">Y</span> : U → hProp)
+             (<span class="nv">y</span> : U)
+    : hProp
+    := <span class="k">∃</span> (<span class="nv">x₁</span> <span class="nv">x₂</span> : U), X x₁ ∧ Y x₂ ∧ comonoid_comult _ C y (x₁ ,, x₂).
+
+  <span class="kn">Definition</span> <span class="nf">REL_comonoid_to_unit</span>
+    : U → hProp
+    := <span class="k">λ</span> <span class="nv">x</span>, comonoid_counit _ C x tt.
+
+  <span class="kn">Definition</span> <span class="nf">REL_comonoid_to_setwithbinop</span>
+    : setwithbinop.
+  <span class="kn">Proof</span>.
+    use make_setwithbinop.
+    - <span class="bp">exact</span> (funset U hPropset).
+    - <span class="bp">exact</span> REL_comonoid_to_mult.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">REL_comonoid_to_assoc</span>
+    : isassoc (pr2 REL_comonoid_to_setwithbinop).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y Z.
+    use funextsec ; <span class="nb">intro</span> y.
+    use hPropUnivalence.
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( a₁ &amp; a₂ &amp; H &amp; p₁ &amp; p₂ ).
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( b₁ &amp; b₂ &amp; q₁ &amp; q₂ &amp; q₃ ).
+      <span class="nb">pose</span> (eqweqmaphProp
+              (eqtohomot
+                 (eqtohomot
+                    (comonoid_to_law_assoc _ C)
+                    y)
+                 (b₁ ,, (b₂ ,, a₂))))
+        <span class="k">as</span> H.
+      <span class="nb">cbn</span> <span class="k">in</span> H.
+      <span class="nb">assert</span> (H' := H (hinhpr
+                         ((((b₁ ,, b₂) ,, a₂)
+                           ,,
+                           hinhpr
+                             ((a₁ ,, a₂)
+                              ,,
+                              p₂
+                              ,,
+                              idpath _
+                              ,,
+                              q₃)
+                           ,,
+                           idpath _
+                           ,,
+                           idpath _
+                           ,,
+                           idpath _)))).
+      <span class="nb">revert</span> H'.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ [ c₁ c₂ ] [ r₁ [ r₂ r₃ ] ] ] ; <span class="nb">cbn</span> <span class="k">in</span> r₁, r₂, r₃.
+      <span class="nb">induction</span> r₂.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">simple refine</span> (c₁ ,, c₂ ,, q₁ ,, _ ,, _).
+      + use hinhpr ; <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (b₂ ,, a₂ ,, q₂ ,, p₁ ,, r₃).
+      + <span class="bp">exact</span> r₁.
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( a₁ &amp; a₂ &amp; p₁ &amp; H &amp; p₂ ).
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( b₁ &amp; b₂ &amp; q₁ &amp; q₂ &amp; q₃ ).
+      <span class="nb">pose</span> (eqweqmaphProp
+              (!eqtohomot
+                 (eqtohomot
+                    (comonoid_to_law_assoc _ C)
+                    y)
+                 (a₁ ,, (b₁ ,, b₂))))
+        <span class="k">as</span> H.
+      <span class="nb">assert</span> (H' := H (hinhpr ((a₁ ,, a₂) ,, p₂ ,, idpath _ ,, q₃))).
+      <span class="nb">revert</span> H'.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ [ [ c₁ c₂ ] c₃ ] [ K [ r₁ [ r₂ r₃ ] ] ] ] ; <span class="nb">cbn</span> <span class="k">in</span> r₁, r₂, r₃.
+      <span class="nb">revert</span> K.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ [ d₁ d₂ ] [ s₁ [ s₂ s₃ ] ] ] ; <span class="nb">cbn</span> <span class="k">in</span> s₁, s₂, s₃.
+      <span class="nb">induction</span> r₁, r₂, r₃, s₂.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">simple refine</span> (d₁ ,, d₂ ,, _ ,, q₂ ,, s₁).
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      <span class="nb">simple refine</span> (c₁ ,, c₂ ,, p₁ ,, q₁ ,, _) ; <span class="nb">cbn</span>.
+      <span class="bp">exact</span> s₃.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">REL_comonoid_to_lunit</span>
+    : islunit (pr2 REL_comonoid_to_setwithbinop) REL_comonoid_to_unit.
+  <span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  use funextsec ; <span class="nb">intro</span> y ; <span class="nb">cbn</span> <span class="k">in</span> y.
+  use hPropUnivalence.
+  - use factor_through_squash_hProp.
+    <span class="nb">intros</span> ( x₁ &amp; x₂ &amp; p₁ &amp; p₂ &amp; p₃ ).
+    <span class="nb">unfold</span> REL_comonoid_to_unit <span class="k">in</span> p₁.
+    <span class="nb">assert</span> (y = x₂) <span class="k">as</span> q.
+    {
+      <span class="nb">apply</span> (eqweqmaphProp (eqtohomot (eqtohomot (comonoid_to_law_unit_left _ C) y) x₂)).
+      <span class="nb">cbn</span>.
+      use hinhpr.
+      <span class="nb">refine</span> ((tt ,, x₂) ,, _ ,, idpath _).
+      use hinhpr ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> ((x₁ ,, x₂) ,, _) ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (p₃ ,, idpath _ ,, p₁).
+    }
+    <span class="nb">rewrite</span> q.
+    <span class="bp">exact</span> p₂.
+  - <span class="nb">intro</span> Hy.
+    <span class="nb">assert</span> (q := eqweqmaphProp
+                   (!eqtohomot
+                      (eqtohomot
+                         (comonoid_to_law_unit_left _ C)
+                         y)
+                      y)
+                   (idpath _)).
+    <span class="nb">revert</span> q.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> [ [ [] a ] [ H p ] ] ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">induction</span> p.
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> [ [ b₁ b₂ ] [ q₁ [ q₂ q₃ ] ] ] ; <span class="nb">cbn</span> <span class="k">in</span> q₁, q₂, q₃.
+    <span class="nb">induction</span> q₂.
+    use hinhpr.
+    <span class="nb">refine</span> (b₁ ,, b₂ ,, _ ,, _ ,, _) ; <span class="nb">cbn</span>.
+    + <span class="bp">exact</span> q₃.
+    + <span class="bp">exact</span> Hy.
+    + <span class="bp">exact</span> q₁.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">REL_comonoid_to_comm</span>
+    : iscomm (pr2 REL_comonoid_to_setwithbinop).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> X Y.
+    use funextsec ; <span class="nb">intro</span> y ; <span class="nb">cbn</span> <span class="k">in</span> y.
+    use hPropUnivalence.
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( x₁ &amp; x₂ &amp; p₁ &amp; p₂ &amp; H ).
+      use hinhpr.
+      <span class="nb">refine</span> (x₂ ,, x₁ ,, p₂ ,, p₁ ,, _).
+      <span class="nb">assert</span> (q := eqweqmaphProp
+                     (!eqtohomot
+                        (eqtohomot
+                           (commutative_comonoid_is_commutative _ C)
+                           y)
+                        (x₁ ,, x₂))
+                     H).
+      <span class="nb">revert</span> q.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ [ a₁ a₂ ] [ q₁ [ q₂ q₃ ] ] ] ; <span class="nb">cbn</span> <span class="k">in</span> q₁, q₂, q₃.
+      <span class="nb">induction</span> q₂, q₃.
+      <span class="bp">exact</span> q₁.
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( x₁ &amp; x₂ &amp; p₁ &amp; p₂ &amp; H ).
+      use hinhpr.
+      <span class="nb">refine</span> (x₂ ,, x₁ ,, p₂ ,, p₁ ,, _).
+      <span class="nb">assert</span> (q := eqweqmaphProp
+                     (!eqtohomot
+                        (eqtohomot
+                           (commutative_comonoid_is_commutative _ C)
+                           y)
+                        (x₁ ,, x₂))
+                     H).
+      <span class="nb">revert</span> q.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ [ a₁ a₂ ] [ q₁ [ q₂ q₃ ] ] ] ; <span class="nb">cbn</span> <span class="k">in</span> q₁, q₂, q₃.
+      <span class="nb">induction</span> q₂, q₃.
+      <span class="bp">exact</span> q₁.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">REL_comonoid_to_runit</span>
+    : isrunit (pr2 REL_comonoid_to_setwithbinop) REL_comonoid_to_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> X.
+    <span class="nb">refine</span> (REL_comonoid_to_comm _ _ @ _).
+    <span class="nb">apply</span> REL_comonoid_to_lunit.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">REL_comonoid_to_is_unital</span>
+    : isunital (pr2 REL_comonoid_to_setwithbinop).
+  <span class="kn">Proof</span>.
+    use make_isunital.
+    - <span class="bp">exact</span> REL_comonoid_to_unit.
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> REL_comonoid_to_lunit.
+      + <span class="bp">exact</span> REL_comonoid_to_runit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">REL_comonoid_to_is_monoidop</span>
+    : ismonoidop (pr2 REL_comonoid_to_setwithbinop).
+  <span class="kn">Proof</span>.
+    use make_ismonoidop.
+    - <span class="bp">exact</span> REL_comonoid_to_assoc.
+    - <span class="bp">exact</span> REL_comonoid_to_is_unital.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">REL_comonoid_to_is_abmonoidop</span>
+    : isabmonoidop (pr2 REL_comonoid_to_setwithbinop).
+  <span class="kn">Proof</span>.
+    use make_isabmonoidop.
+    - <span class="bp">exact</span> REL_comonoid_to_is_monoidop.
+    - <span class="bp">exact</span> REL_comonoid_to_comm.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">REL_comonoid_to_monoid</span>
+    : abmonoid.
+  <span class="kn">Proof</span>.
+    use make_abmonoid.
+    - <span class="bp">exact</span> REL_comonoid_to_setwithbinop.
+    - <span class="bp">exact</span> REL_comonoid_to_is_abmonoidop.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ComonoidToMonoid</span>.
+
+<span class="sd">(** * 3. The universal property of the cofree comonoid in `REL` *)</span>
+<span class="kn">Section</span> <span class="nf">CofreeComonoidUMP</span>.
+  <span class="kn">Context</span> (<span class="nv">X</span> : REL)
+          (<span class="nv">C</span> : commutative_comonoid REL_sym_mon_closed_cat)
+          (<span class="nv">f</span> : underlying_commutative_comonoid _ C --&gt; X).
+
+  <span class="kn">Definition</span> <span class="nf">cofree_comonoid_REL_underlying</span>
+    : underlying_commutative_comonoid _ C
+      --&gt;
+      underlying_commutative_comonoid _ (cofree_comonoid_REL X)
+    := <span class="k">λ</span> <span class="nv">c</span> <span class="nv">x</span>, @free_abmonoid_extend X (REL_comonoid_to_monoid C) (<span class="k">λ</span> <span class="nv">c</span> <span class="nv">x</span>, f x c) x c.
+
+  <span class="kn">Proposition</span> <span class="nf">cofree_comonoid_REL_map_comult</span>
+    : comonoid_comult REL_sym_mon_closed_cat C
+      · cofree_comonoid_REL_underlying #⊗ cofree_comonoid_REL_underlying
+      =
+      cofree_comonoid_REL_underlying
+      · comonoid_comult REL_sym_mon_closed_cat (cofree_comonoid_REL X).
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intros</span> [ x₁ x₂ ] ; <span class="nb">cbn</span> <span class="k">in</span> x₁, x₂.
+    use hPropUnivalence.
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ [ a₁ a₂ ] [ p H ] ].
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ [ b₁ b₂ ] [ [ q₁ q₂ ] [ q₃ q₄ ] ] ] ; <span class="nb">cbn</span> <span class="k">in</span> q₁, q₂, q₃, q₄.
+      <span class="nb">induction</span> q₁, q₃.
+      <span class="nb">pose</span> (eqweqmaphProp
+              (!(eqtohomot
+                   (monoidfunmul
+                      (@free_abmonoid_extend X (REL_comonoid_to_monoid C) (<span class="k">λ</span> <span class="nv">c</span> <span class="nv">x</span>, f x c))
+                      b₁ x₂)
+                   y))
+              (hinhpr (a₁ ,, a₂ ,, q₂ ,, q₄ ,, p)))
+        <span class="k">as</span> q.
+      <span class="nb">apply</span> hinhpr.
+      <span class="bp">exact</span> (_ ,, q ,, idpath _).
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ a [ p₁ p₂ ]] ; <span class="nb">cbn</span> <span class="k">in</span> p₁, p₂.
+      <span class="nb">induction</span> p₂.
+      <span class="nb">assert</span> (H := eqweqmaphProp
+                     (eqtohomot
+                        (monoidfunmul
+                           (@free_abmonoid_extend X (REL_comonoid_to_monoid C) (<span class="k">λ</span> <span class="nv">c</span> <span class="nv">x</span>, f x c))
+                           x₁ x₂)
+                        y)
+                     p₁).
+      <span class="nb">revert</span> H.
+      use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ a₁ [ a₂ [ q₁ [ q₂ q₃ ] ] ] ] ; <span class="nb">cbn</span> <span class="k">in</span> a₁, a₂, q₁, q₂, q₃.
+      <span class="nb">refine</span> (hinhpr ((a₁ ,, a₂) ,, q₃ ,, _)).
+      <span class="nb">apply</span> hinhpr ; <span class="nb">cbn</span>.
+      <span class="nb">simple refine</span> ((x₁ ,, a₂) ,, (_ ,, _) ,, (_ ,, _)) ; <span class="nb">cbn</span>.
+      + <span class="nb">apply</span> idpath.
+      + <span class="bp">exact</span> q₁.
+      + <span class="nb">apply</span> idpath.
+      + <span class="bp">exact</span> q₂.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cofree_comonoid_REL_map_counit</span>
+    : comonoid_counit REL_sym_mon_closed_cat C
+      =
+      cofree_comonoid_REL_underlying
+      · comonoid_counit REL_sym_mon_closed_cat (cofree_comonoid_REL X).
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intros</span> x₁.
+    use funextsec ; <span class="nb">intros</span> x₂.
+    <span class="nb">induction</span> x₂.
+    use hPropUnivalence.
+    - <span class="nb">intros</span> y.
+      <span class="nb">refine</span> (hinhpr (_ ,, _ ,, idpath _)).
+      <span class="bp">exact</span> (eqweqmaphProp
+               (!eqtohomot
+                  (monoidfununel
+                     (@free_abmonoid_extend X (REL_comonoid_to_monoid C) (<span class="k">λ</span> <span class="nv">c</span> <span class="nv">x</span>, f x c)))
+                  x₁)
+               y).
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> [ a [ p₁ p₂ ]] ; <span class="nb">cbn</span> <span class="k">in</span> p₁, p₂, a.
+      <span class="nb">apply</span> (eqweqmaphProp
+               (eqtohomot
+                  (monoidfununel
+                     (@free_abmonoid_extend X (REL_comonoid_to_monoid C) (<span class="k">λ</span> <span class="nv">c</span> <span class="nv">x</span>, f x c)))
+                  x₁)).
+      <span class="nb">rewrite</span> &lt;- p₂.
+      <span class="bp">exact</span> p₁.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cofree_comonoid_REL_map</span>
+    : C --&gt; cofree_comonoid_REL X.
+  <span class="kn">Proof</span>.
+    use make_commutative_comonoid_mor.
+    - <span class="bp">exact</span> (cofree_comonoid_REL_underlying).
+    - <span class="bp">exact</span> cofree_comonoid_REL_map_comult.
+    - <span class="bp">exact</span> cofree_comonoid_REL_map_counit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cofree_comonoid_REL_map_comm</span>
+    : f = cofree_comonoid_REL_underlying · map_to_cofree_comonoid_REL X.
+  <span class="kn">Proof</span>.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use hPropUnivalence.
+    - <span class="nb">intro</span> p.
+      use hinhpr.
+      <span class="bp">exact</span> (free_abmonoid_unit y ,, p ,, idpath _).
+    - use factor_through_squash_hProp.
+      <span class="nb">intros</span> ( a &amp; H &amp; p ).
+      <span class="nb">simpl</span> <span class="k">in</span> a, H, p.
+      <span class="nb">rewrite</span> &lt;- p <span class="k">in</span> H.
+      <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">ToMonoidMor</span>.
+    <span class="kn">Context</span> (<span class="nv">φ</span> : C --&gt; cofree_comonoid_REL X).
+
+    <span class="kn">Definition</span> <span class="nf">comonoid_mor_REL_to_map</span>
+      : free_abmonoid X → REL_comonoid_to_monoid C
+      := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, pr1 φ y x.
+
+    <span class="kn">Proposition</span> <span class="nf">ismonoidfun_comonoid_mor_REL_to_map</span>
+      : ismonoidfun comonoid_mor_REL_to_map.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intros</span> y₁ y₂.
+        use funextsec ; <span class="nb">intro</span> x.
+        use hPropUnivalence.
+        + <span class="nb">intro</span> z.
+          <span class="nb">assert</span> (H := eqweqmaphProp
+                         (!eqtohomot
+                            (eqtohomot (underlying_comonoid_mor_comult φ) x)
+                            (y₁ ,, y₂))
+                         (hinhpr (_ ,, z ,, idpath _))).
+          <span class="nb">revert</span> H.
+          use factor_through_squash_hProp.
+          <span class="nb">intros</span> [ [ a₁ a₂ ] [ p H ] ].
+          <span class="nb">revert</span> H.
+          use factor_through_squash_hProp.
+          <span class="nb">intros</span> [ [ b₁ b₂ ] [ [ q₁ q₂ ] [ q₃ q₄ ] ] ] ; <span class="nb">cbn</span> <span class="k">in</span> q₁, q₂, q₃, q₄.
+          <span class="nb">induction</span> q₁, q₃.
+          <span class="nb">apply</span> hinhpr.
+          <span class="bp">exact</span> (a₁ ,, a₂ ,, q₂ ,, q₄ ,, p).
+        + use factor_through_squash_hProp.
+          <span class="nb">intros</span> ( a₁ &amp; a₂ &amp; p₁ &amp; p₂ &amp; p₃ ).
+          <span class="nb">assert</span> (H := eqweqmaphProp
+                         (eqtohomot
+                            (eqtohomot (underlying_comonoid_mor_comult φ) x)
+                            (y₁ ,, y₂))
+                         (hinhpr
+                            ((a₁ ,, a₂)
+                             ,,
+                             p₃
+                             ,,
+                             hinhpr ((_ ,, _)
+                                     ,,
+                                     (idpath _ ,, p₁)
+                                     ,,
+                                     (idpath _ ,, p₂))))).
+          <span class="nb">revert</span> H.
+          use factor_through_squash_hProp.
+          <span class="nb">cbn</span>.
+          <span class="nb">intros</span> [ b [ q₁ q₂ ]].
+          <span class="nb">rewrite</span> &lt;- q₂ <span class="k">in</span> q₁.
+          <span class="bp">exact</span> q₁.
+      - use funextsec ; <span class="nb">intro</span> x.
+        use hPropUnivalence.
+        + <span class="nb">intro</span> z.
+          <span class="bp">exact</span> (eqweqmaphProp
+                   (!eqtohomot (eqtohomot (underlying_comonoid_mor_counit φ) x) tt)
+                   (hinhpr (_ ,, z ,, idpath _))).
+        + <span class="nb">intro</span> z ; <span class="nb">cbn</span> <span class="k">in</span> z.
+          <span class="nb">assert</span> (H := eqweqmaphProp
+                         (eqtohomot (eqtohomot (underlying_comonoid_mor_counit φ) x) tt)
+                         z).
+          <span class="nb">revert</span> H.
+          use factor_through_squash_hProp.
+          <span class="nb">intros</span> [ a [ p q ]] ; <span class="nb">cbn</span> <span class="k">in</span> q.
+          <span class="nb">rewrite</span> q <span class="k">in</span> p.
+          <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comonoid_mor_REL_to_monoid_mor</span>
+      : monoidfun (free_abmonoid X) (REL_comonoid_to_monoid C)
+      := make_monoidfun ismonoidfun_comonoid_mor_REL_to_map.
+  <span class="kn">End</span> <span class="nf">ToMonoidMor</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cofree_comonoid_REL_map_unique</span>
+    (<span class="nv">g</span> : C --&gt; cofree_comonoid_REL X)
+    (<span class="nv">Hg</span> : f = # (underlying_commutative_comonoid REL_sym_mon_closed_cat) g · map_to_cofree_comonoid_REL X)
+    : g = cofree_comonoid_REL_map.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> is_locally_propositional_commutative_comonoid.
+    }
+    <span class="nb">enough</span> (comonoid_mor_REL_to_monoid_mor g
+            =
+            comonoid_mor_REL_to_monoid_mor cofree_comonoid_REL_map)
+      <span class="k">as</span> H.
+    {
+      use funextsec ; <span class="nb">intro</span> y₁.
+      use funextsec ; <span class="nb">intro</span> y₂.
+      use hPropUnivalence.
+      - <span class="nb">intro</span> p.
+        <span class="bp">exact</span> (eqweqmaphProp (eqtohomot (monoidfun_eq H y₂) y₁) p).
+      - <span class="nb">intro</span> p.
+        <span class="bp">exact</span> (eqweqmaphProp (!eqtohomot (monoidfun_eq H y₂) y₁) p).
+    }
+    <span class="nb">refine</span> (invmap monoidfun_eq (abelian_monoid_morphism_eq (free_abmonoid_mor_eq
+      (f := monoidfun_to_abelian_monoid_morphism (comonoid_mor_REL_to_monoid_mor _))
+      (g := monoidfun_to_abelian_monoid_morphism (comonoid_mor_REL_to_monoid_mor _)) _))).
+    <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    use funextsec ; <span class="nb">intro</span> y.
+    use hPropUnivalence.
+    - <span class="nb">intros</span> a.
+      <span class="nb">unfold</span> comonoid_mor_REL_to_map <span class="k">in</span> a.
+      <span class="nb">assert</span> (p := eqweqmaphProp
+                     (eqtohomot
+                        (eqtohomot (!Hg @ cofree_comonoid_REL_map_comm) y)
+                        x)
+                     (hinhpr (_ ,, a ,, idpath _))).
+      <span class="nb">revert</span> p.
+      use factor_through_squash_hProp.
+      <span class="nb">cbn</span> ; <span class="nb">intros</span> [ b [ p₁ p₂ ] ].
+      <span class="nb">rewrite</span> &lt;- p₂ <span class="k">in</span> p₁.
+      <span class="bp">exact</span> p₁.
+    - <span class="nb">intros</span> a.
+      <span class="nb">unfold</span> comonoid_mor_REL_to_map <span class="k">in</span> a.
+      <span class="nb">assert</span> (p := eqweqmaphProp
+                     (!eqtohomot
+                        (eqtohomot (!Hg @ cofree_comonoid_REL_map_comm) y)
+                        x)
+                     (hinhpr (_ ,, a ,, idpath _))).
+      <span class="nb">revert</span> p.
+      use factor_through_squash_hProp.
+      <span class="nb">cbn</span> ; <span class="nb">intros</span> [ b [ p₁ p₂ ] ].
+      <span class="nb">rewrite</span> &lt;- p₂ <span class="k">in</span> p₁.
+      <span class="bp">exact</span> p₁.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">CofreeComonoidUMP</span>.
+
+<span class="kn">Definition</span> <span class="nf">cofree_comonoid_REL_coreflection_data</span>
+  (<span class="nv">X</span> : REL_sym_mon_closed_cat)
+  : coreflection_data X (underlying_commutative_comonoid REL_sym_mon_closed_cat).
+<span class="kn">Proof</span>.
+  use make_coreflection_data.
+  - <span class="bp">exact</span> (cofree_comonoid_REL X).
+  - <span class="bp">exact</span> (map_to_cofree_comonoid_REL X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Corollary</span> <span class="nf">cofree_comonoid_REL_is_coreflection</span>
+  (<span class="nv">X</span> : REL_sym_mon_closed_cat)
+  : is_coreflection (cofree_comonoid_REL_coreflection_data X).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  use make_coreflection_arrow.
+  - <span class="nb">apply</span> cofree_comonoid_REL_map.
+    <span class="bp">exact</span> f.
+  - <span class="nb">apply</span> cofree_comonoid_REL_map_comm.
+  - <span class="nb">apply</span> cofree_comonoid_REL_map_unique.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. The relational model of linear logic *)</span>
+<span class="kn">Definition</span> <span class="nf">relational_model</span>
+  : lafont_category.
+<span class="kn">Proof</span>.
+  use make_lafont_category.
+  - <span class="bp">exact</span> REL_sym_mon_closed_cat.
+  - use coreflections_to_is_left_adjoint.
+    <span class="nb">intro</span> X.
+    use make_coreflection.
+    + <span class="bp">exact</span> (cofree_comonoid_REL_coreflection_data X).
+    + <span class="bp">exact</span> (cofree_comonoid_REL_is_coreflection X).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Semantics/LinearLogic/RelationalModel.v</tt>, line 67)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The relational model of linear logic
+  &gt;
+  &gt;  *******************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Algebra.Monoids.
+  &gt; Require Import UniMath.Algebra.Free_Monoids_and_Groups.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

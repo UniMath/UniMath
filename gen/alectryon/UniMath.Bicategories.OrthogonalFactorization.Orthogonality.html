@@ -1,0 +1,800 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Orthogonality.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************************</span>
+
+<span class="sd"> Orthogonality</span>
+
+<span class="sd"> In this file, we define the left and right lifting properties of 1-cells in</span>
+<span class="sd"> bicategories.</span>
+
+<span class="sd"> The context in which we are interested in this notion, is given by orthogonal</span>
+<span class="sd"> factorization system. In such a factorization, we have two classes of</span>
+<span class="sd"> morphisms, which we call `L` and `R`. Each 1-cell in the bicategory can be</span>
+<span class="sd"> factorized as `f · g` where `f` is in `L` and where `g` is in `R`. To</span>
+<span class="sd"> guarantee that this factorization is unique up to unique invertible 2-cell,</span>
+<span class="sd"> we require that a lifting property between maps in `L` and maps in `R`.</span>
+<span class="sd"> This lifting property is expressed via orthogonal morphisms.</span>
+
+<span class="sd"> Suppose that we have 1-cells `f : b₁ --&gt; b₂` and `g` : c₁ --&gt; c₂`. Then we</span>
+<span class="sd"> say that `f` is left orthogonal to `g` (which we write as `f ⊥ g`) if the</span>
+<span class="sd"> following diagrams is a weak pullback of categories:</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd">       B(b₂, c₁) -------------&gt; B(b₁, c₁)</span>
+<span class="sd">           |                        |</span>
+<span class="sd">           |                        |</span>
+<span class="sd">           V                        V</span>
+<span class="sd">       B(b₂, c₂) -------------&gt; B(b₁, c₂)</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd"> The maps are given as follows:</span>
+<span class="sd"> - `B(b₂, c₁) --&gt; B(b₁, c₁)`: precomposition with `f`</span>
+<span class="sd"> - `B(b₂, c₁) --&gt; B(b₂, c₂)`: postcomposition with `g`</span>
+<span class="sd"> - `B(b₂, c₂) --&gt; B(b₁, c₂)`: precomposition with `f`</span>
+<span class="sd"> - `B(b₁, c₁) --&gt; B(b₁, c₂)`: postcomposition with `g`</span>
+
+<span class="sd"> Note that weak pullbacks of categories are given by iso-comma categories. We</span>
+<span class="sd"> express this lifting property by saying that a certain functor is an adjoint</span>
+<span class="sd"> equivalence of categories ([orthogonal]). This functor ([orthogonal_functor])</span>
+<span class="sd"> has type: `hom b₂ c₁ ⟶ iso_comma (post_comp b₁ g) (pre_comp c₂ f)`, so it</span>
+<span class="sd"> is the functor that we obtain from the universal property of the iso-comma</span>
+<span class="sd"> category.</span>
+
+<span class="sd"> To verify whether two classes of morphisms are orthogonal, one needs to</span>
+<span class="sd"> establish that a certain functor is an equivalence. To do so, it suffices to</span>
+<span class="sd"> check that this functor is essentially surjective and fully faithful (assuming</span>
+<span class="sd"> that the bicategory is locally univalent. Each of these properties has a</span>
+<span class="sd"> rather natural interpretation.</span>
+<span class="sd"> - Essential surjectivity ([orthogonal_essentially_surjective]): if we are given</span>
+<span class="sd">   a square as follows</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd">       b₁ ------------&gt; c₁</span>
+<span class="sd">       |                |</span>
+<span class="sd">     f |                | g</span>
+<span class="sd">       |                |</span>
+<span class="sd">       V                V</span>
+<span class="sd">       b₂ ------------&gt; c₂</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd">   where `f` is in the left class and where `g` is in the right class, then</span>
+<span class="sd">   we can find a lift `l : b₂ --&gt; c₁` such that the resulting triangle commute</span>
+<span class="sd">   up to invertible 2-cell (and some coherence condition).</span>
+<span class="sd"> - Fullness ([orthogonal_full]): if we are given two lifts `l₁, l₂ : b₂ --&gt; c₁`,</span>
+<span class="sd">   then we can obtain a 2-cell `l₁ ==&gt; l₂` if we have 2-cells `f · l₁ ==&gt; f · l₂`</span>
+<span class="sd">   and `l₁ · g ==&gt; l₂ · g` (again requiring some coherence condition)</span>
+<span class="sd"> - Faithfulness ([orthogonal_faithful]) expresses the uniqueness of the 2-cell</span>
+<span class="sd">   obtained from fullness.</span>
+
+<span class="sd"> Finally, we show that the definition in this file, is equivalent to definition</span>
+<span class="sd"> of orthogonality expressed via pullbacks.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Orthogonality</span>
+<span class="sd"> 2. Constructing orthogonal morphisms</span>
+<span class="sd"> 3. Projections of orthogonal morphisms</span>
+<span class="sd"> 3.1. Lifting property for for 1-cells</span>
+<span class="sd"> 3.2. Lifting property for for 2-cells</span>
+<span class="sd"> 3.3. Lifting property for for equalities</span>
+<span class="sd"> 4. Orthogonality via pullbacks</span>
+<span class="sd"> 5. Equivalence of the definitions</span>
+
+<span class="sd"> *****************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IsoCommaCategory.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Properties.ClosedUnderInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.PullbackFunctions.
+<span class="kn">Import</span> PullbackFunctions.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.PullbackEquivalences.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Examples.BicatOfUnivCatsLimits.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Comp</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}.
+
+  <span class="kn">Definition</span> <span class="nf">pre_comp_post_comp_commute</span>
+             {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+             (<span class="nv">f</span> : b₁ --&gt; b₂)
+             {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+             (<span class="nv">g</span> : c₁ --&gt; c₂)
+    : pre_comp c₁ f ∙ post_comp b₁ g
+      ⟹
+      post_comp b₂ g ∙ pre_comp c₂ f.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, rassociator _ _ _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> h₁ h₂ α ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> rwhisker_lwhisker_rassociator ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pre_comp_post_comp_commute_z_iso</span>
+             {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+             (<span class="nv">f</span> : b₁ --&gt; b₂)
+             {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+             (<span class="nv">g</span> : c₁ --&gt; c₂)
+    : nat_z_iso
+        (pre_comp c₁ f ∙ post_comp b₁ g)
+        (post_comp b₂ g ∙ pre_comp c₂ f).
+  <span class="kn">Proof</span>.
+    use make_nat_z_iso.
+    - <span class="bp">exact</span> (pre_comp_post_comp_commute f g).
+    - <span class="nb">intro</span>.
+      use is_inv2cell_to_is_z_iso ; <span class="nb">cbn</span>.
+      is_iso.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">Comp</span>.
+
+<span class="sd">(** * 1. Orthogonality *)</span>
+<span class="kn">Definition</span> <span class="nf">orthogonal_functor</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> : B}
+           (<span class="nv">f</span> : b₁ --&gt; b₂)
+           {<span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+           (<span class="nv">g</span> : c₁ --&gt; c₂)
+  : hom b₂ c₁ ⟶ iso_comma (post_comp b₁ g) (pre_comp c₂ f).
+<span class="kn">Proof</span>.
+  use iso_comma_ump1.
+  - <span class="bp">exact</span> (pre_comp c₁ f).
+  - <span class="bp">exact</span> (post_comp b₂ g).
+  - <span class="bp">exact</span> (pre_comp_post_comp_commute_z_iso f g).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">orthogonal</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+           (<span class="nv">f</span> : b₁ --&gt; b₂)
+           (<span class="nv">g</span> : c₁ --&gt; c₂)
+  : UU
+  := adj_equivalence_of_cats (orthogonal_functor f g).
+
+<span class="kn">Notation</span> <span class="s2">"f ⊥ g"</span> := (orthogonal f g) (<span class="kn">at level</span> <span class="mi">60</span>) : cat.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_orthogonal</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+           (<span class="nv">f</span> : b₁ --&gt; b₂)
+           (<span class="nv">g</span> : c₁ --&gt; c₂)
+           (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+  : isaprop (f ⊥ g).
+<span class="kn">Proof</span>.
+  use (isofhlevelweqf
+         <span class="mi">1</span>
+         (@adj_equiv_is_equiv_cat
+            (univ_hom HB_2_1 b₂ c₁)
+            (@univalent_iso_comma
+               (univ_hom HB_2_1 b₁ c₁)
+               (univ_hom HB_2_1 b₂ c₂)
+               (univ_hom HB_2_1 b₁ c₂)
+               (post_comp b₁ g)
+               (pre_comp c₂ f))
+            (orthogonal_functor f g))).
+  <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+  <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Constructing orthogonal morphisms *)</span>
+<span class="kn">Section</span> <span class="nf">ConstructOrthogonality</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+          (<span class="nv">f</span> : b₁ --&gt; b₂)
+          (<span class="nv">g</span> : c₁ --&gt; c₂).
+
+  <span class="kn">Definition</span> <span class="nf">orthogonal_essentially_surjective</span>
+    : UU
+    := ∏ (φ₁ : b₁ --&gt; c₁)
+         (φ₂ : b₂ --&gt; c₂)
+         (α : invertible_2cell (φ₁ · g) (f · φ₂)),
+       ∑ (l : b₂ --&gt; c₁)
+         (ζ₁ : invertible_2cell (f · l) φ₁)
+         (ζ₂ : invertible_2cell (l · g) φ₂),
+       (ζ₁ ▹ g) • α = rassociator _ _ _ • (f ◃ ζ₂).
+
+  <span class="kn">Definition</span> <span class="nf">orthogonal_full</span>
+    : UU
+    := ∏ (l₁ l₂ : b₂ --&gt; c₁)
+         (k₁ : f · l₁ ==&gt; f · l₂)
+         (k₂ : l₁ · g ==&gt; l₂ · g)
+         (p : (k₁ ▹ g) • rassociator _ _ _
+              =
+              rassociator _ _ _ • (f ◃ k₂)),
+       ∑ (ξ : l₁ ==&gt; l₂),
+       f ◃ ξ = k₁
+       ×
+       ξ ▹ g = k₂.
+
+  <span class="kn">Definition</span> <span class="nf">orthogonal_faithful</span>
+    : UU
+    := ∏ (l₁ l₂ : b₂ --&gt; c₁)
+         (ζ₁ ζ₂ : l₁ ==&gt; l₂),
+       f ◃ ζ₁ = f ◃ ζ₂
+       →
+       ζ₁ ▹ g = ζ₂ ▹ g
+       →
+       ζ₁ = ζ₂.
+
+  <span class="kn">Section</span> <span class="nf">MakeOrthogonal</span>.
+    <span class="kn">Context</span> (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+            (<span class="nv">H₁</span> : orthogonal_full)
+            (<span class="nv">H₂</span> : orthogonal_faithful)
+            (<span class="nv">H₃</span> : orthogonal_essentially_surjective).
+
+    <span class="kn">Definition</span> <span class="nf">make_orthogonal_full</span>
+      : full (orthogonal_functor f g).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> l₁ l₂.
+      <span class="nb">intro</span> k.
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (pr1 (H₁ l₁ l₂ (pr11 k) (pr21 k) (pr2 k))).
+      - <span class="kp">abstract</span>
+          (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="bp">exact</span> (pathsdirprod
+                    (pr12 (H₁ l₁ l₂ (pr11 k) (pr21 k) (pr2 k)))
+                    (pr22 (H₁ l₁ l₂ (pr11 k) (pr21 k) (pr2 k))))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_orthogonal_faithful</span>
+      : faithful (orthogonal_functor f g).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> l₁ l₂.
+      <span class="nb">intro</span> im.
+      use invproofirrelevance.
+      <span class="nb">intros</span> ζ₁ ζ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      use (H₂ l₁ l₂ (pr1 ζ₁) (pr1 ζ₂)).
+      - <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z) (pr2 ζ₁)
+               @ !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z) (pr2 ζ₂))).
+      - <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, dirprod_pr2 (pr1 z)) (pr2 ζ₁)
+               @ !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, dirprod_pr2 (pr1 z)) (pr2 ζ₂))).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_orthogonal_fully_faithful</span>
+      : fully_faithful (orthogonal_functor f g).
+    <span class="kn">Proof</span>.
+      use full_and_faithful_implies_fully_faithful.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> make_orthogonal_full.
+      - <span class="bp">exact</span> make_orthogonal_faithful.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_orthogonal_essentially_surjective</span>
+      : essentially_surjective (orthogonal_functor f g).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> h.
+      <span class="nb">pose</span> (ℓ := H₃ (pr11 h) (pr21 h) (z_iso_to_inv2cell (pr2 h))).
+      <span class="nb">apply</span> hinhpr.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> (pr1 ℓ).
+      - use make_z_iso'.
+        + <span class="nb">simple refine</span> ((_ ,, _) ,, _) ; <span class="nb">cbn</span>.
+          * <span class="bp">exact</span> (pr12 ℓ).
+          * <span class="bp">exact</span> (pr122 ℓ).
+          * <span class="bp">exact</span> (pr222 ℓ).
+        + use is_z_iso_iso_comma.
+          * use is_inv2cell_to_is_z_iso.
+            <span class="nb">apply</span> property_from_invertible_2cell.
+          * use is_inv2cell_to_is_z_iso.
+            <span class="nb">apply</span> property_from_invertible_2cell.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">make_orthogonal</span> : f ⊥ g.
+    <span class="kn">Proof</span>.
+      use rad_equivalence_of_cats.
+      - use is_univ_hom.
+        <span class="bp">exact</span> HB_2_1.
+      - <span class="bp">exact</span> make_orthogonal_fully_faithful.
+      - <span class="bp">exact</span> make_orthogonal_essentially_surjective.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">MakeOrthogonal</span>.
+<span class="kn">End</span> <span class="nf">ConstructOrthogonality</span>.
+
+<span class="sd">(** * 3. Projections of orthogonal morphisms *)</span>
+<span class="kn">Section</span> <span class="nf">OrthogonalityProjections</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+          {<span class="nv">f</span> : b₁ --&gt; b₂}
+          {<span class="nv">g</span> : c₁ --&gt; c₂}
+          (<span class="nv">H</span> : f ⊥ g).
+
+  <span class="sd">(** ** 3.1. Lifting property for for 1-cells *)</span>
+  <span class="kn">Section</span> <span class="nf">LiftOne</span>.
+    <span class="kn">Context</span> (<span class="nv">φ₁</span> : b₁ --&gt; c₁)
+            (<span class="nv">φ₂</span> : b₂ --&gt; c₂)
+            (<span class="nv">α</span> : invertible_2cell (φ₁ · g) (f · φ₂)).
+
+      <span class="kn">Definition</span> <span class="nf">orthogonal_lift_1</span>
+        : b₂ --&gt; c₁
+        := right_adjoint (H : adj_equivalence_of_cats _) ((φ₁ ,, φ₂) ,, inv2cell_to_z_iso α).
+
+      <span class="kn">Definition</span> <span class="nf">orthogonal_lift_1_comm_left</span>
+        : invertible_2cell (f · orthogonal_lift_1) φ₁.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> z_iso_to_inv2cell.
+        <span class="bp">exact</span> (functor_on_z_iso
+                (iso_comma_pr1 _ _)
+                (counit_pointwise_z_iso_from_adj_equivalence
+                   H
+                   ((φ₁ ,, φ₂) ,, inv2cell_to_z_iso α))).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">orthogonal_lift_1_comm_right</span>
+        : invertible_2cell (orthogonal_lift_1 · g) φ₂.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> z_iso_to_inv2cell.
+        <span class="bp">exact</span> (functor_on_z_iso
+                 (iso_comma_pr2 _ _)
+                 (counit_pointwise_z_iso_from_adj_equivalence
+                    H
+                    ((φ₁ ,, φ₂) ,, inv2cell_to_z_iso α))).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">orthogonal_lift_1_eq</span>
+        : (orthogonal_lift_1_comm_left ▹ g) • α
+          =
+          rassociator _ _ _ • (f ◃ orthogonal_lift_1_comm_right)
+        := pr2 (counit_from_left_adjoint
+                  (pr1 H)
+                  ((φ₁ ,, φ₂) ,, inv2cell_to_z_iso α)).
+    <span class="kn">End</span> <span class="nf">LiftOne</span>.
+
+    <span class="sd">(** ** 3.2. Lifting property for for 2-cells *)</span>
+    <span class="kn">Section</span> <span class="nf">LiftTwo</span>.
+      <span class="kn">Context</span> (<span class="nv">l₁</span> <span class="nv">l₂</span> : b₂ --&gt; c₁)
+              (<span class="nv">k₁</span> : f · l₁ ==&gt; f · l₂)
+              (<span class="nv">k₂</span> : l₁ · g ==&gt; l₂ · g)
+              (<span class="nv">p</span> : (k₁ ▹ g) • rassociator _ _ _
+                   =
+                   rassociator _ _ _ • (f ◃ k₂)).
+
+      <span class="kn">Let</span> <span class="nf">R</span> : iso_comma (post_comp b₁ g) (pre_comp c₂ f) ⟶ hom b₂ c₁
+        := right_adjoint (H : adj_equivalence_of_cats _).
+
+      <span class="kn">Let</span> <span class="nf">φ</span> : iso_comma (post_comp b₁ g) (pre_comp c₂ f)
+        := (f · l₁ ,, l₁ · g) ,, inv2cell_to_z_iso (rassociator_invertible_2cell _ _ _).
+      <span class="kn">Let</span> <span class="nf">ψ</span> : iso_comma (post_comp b₁ g) (pre_comp c₂ f)
+        := (f · l₂ ,, l₂ · g) ,, inv2cell_to_z_iso (rassociator_invertible_2cell _ _ _).
+      <span class="kn">Let</span> <span class="nf">μ</span> : φ --&gt; ψ
+        := (k₁ ,, k₂) ,, p.
+
+      <span class="kn">Let</span> <span class="nf">η₁</span> : l₁ ==&gt; R φ
+        := unit_from_left_adjoint (H : adj_equivalence_of_cats _) l₁.
+      <span class="kn">Let</span> <span class="nf">η₂</span> : R ψ ==&gt; l₂
+        := (z_iso_to_inv2cell (unit_pointwise_z_iso_from_adj_equivalence H l₂))^-<span class="mi">1</span>.
+      <span class="kn">Let</span> <span class="nf">ε₁</span> : f · R φ ==&gt; f · l₁
+        := pr11 (counit_from_left_adjoint (pr1 H) φ).
+      <span class="kn">Let</span> <span class="nf">ε₂</span> : f · R ψ ==&gt; f · l₂
+        := pr11 (counit_from_left_adjoint (pr1 H) ψ).
+      <span class="kn">Let</span> <span class="nf">ε₁'</span> : R φ · g ==&gt; l₁ · g
+        := pr21 (counit_from_left_adjoint (pr1 H) φ).
+      <span class="kn">Let</span> <span class="nf">ε₂'</span> : R ψ · g ==&gt; l₂ · g
+        := pr21 (counit_from_left_adjoint (pr1 H) ψ).
+
+      <span class="kn">Definition</span> <span class="nf">orthogonal_lift_2</span>
+        : l₁ ==&gt; l₂
+        := η₁ • #R μ • η₂.
+
+      <span class="kn">Local Lemma</span> <span class="nf">orthogonal_lift_2_counit_invertible</span>
+        : is_invertible_2cell ε₂.
+      <span class="kn">Proof</span>.
+        <span class="bp">exact</span> (property_from_invertible_2cell
+                 (z_iso_to_inv2cell
+                    (functor_on_z_iso
+                       (iso_comma_pr1 _ _)
+                       (counit_pointwise_z_iso_from_adj_equivalence H ψ)))).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Local Lemma</span> <span class="nf">orthogonal_lift_2_left_path_1</span>
+        : (f ◃ #R μ) • ε₂ = ε₁ • k₁.
+      <span class="kn">Proof</span>.
+        <span class="bp">exact</span> (maponpaths
+                 (<span class="k">λ</span> <span class="nv">z</span>, pr11 z)
+                 (nat_trans_ax
+                    (counit_from_left_adjoint (H : adj_equivalence_of_cats _))
+                    _ _
+                    μ)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Local Lemma</span> <span class="nf">orthogonal_lift_2_left_path_2</span>
+        : (f ◃ η₁) • ε₁ = id2 _.
+      <span class="kn">Proof</span>.
+        <span class="bp">exact</span> (maponpaths
+                 (<span class="k">λ</span> <span class="nv">z</span>, pr11 z)
+                 (triangle_id_left_ad (pr21 H) l₁)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">orthogonal_lift_2_left</span>
+        : f ◃ orthogonal_lift_2 = k₁.
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> orthogonal_lift_2.
+        <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+        use vcomp_move_R_Mp.
+        {
+          <span class="nb">unfold</span> η₂.
+          is_iso.
+        }
+        use (vcomp_rcancel ε₂).
+        {
+          <span class="bp">exact</span> orthogonal_lift_2_counit_invertible.
+        }
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> orthogonal_lift_2_left_path_1.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !vassocr.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> orthogonal_lift_2_left_path_2.
+        }
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (maponpaths
+                   (<span class="k">λ</span> <span class="nv">z</span>, pr11 z)
+                   (triangle_id_left_ad (pr21 H) l₂)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id2_right.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Local Lemma</span> <span class="nf">orthogonal_lift_2_counit_invertible'</span>
+        : is_invertible_2cell ε₂'.
+      <span class="kn">Proof</span>.
+        <span class="bp">exact</span> (property_from_invertible_2cell
+                 (z_iso_to_inv2cell
+                    (functor_on_z_iso
+                       (iso_comma_pr2 _ _)
+                       (counit_pointwise_z_iso_from_adj_equivalence H ψ)))).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Local Lemma</span> <span class="nf">orthogonal_lift_2_right_path_1</span>
+        : (#R μ ▹ g) • ε₂' = ε₁' • k₂.
+      <span class="kn">Proof</span>.
+        <span class="bp">exact</span> (maponpaths
+                 (<span class="k">λ</span> <span class="nv">z</span>, dirprod_pr2 (pr1 z))
+                 (nat_trans_ax
+                    (counit_from_left_adjoint (H : adj_equivalence_of_cats _))
+                    _ _
+                    μ)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Local Lemma</span> <span class="nf">orthogonal_lift_2_right_path_2</span>
+        : (η₁ ▹ g) • ε₁' = id2 _.
+      <span class="kn">Proof</span>.
+        <span class="bp">exact</span> (maponpaths
+                 (<span class="k">λ</span> <span class="nv">z</span>, dirprod_pr2 (pr1 z))
+                 (triangle_id_left_ad (pr21 H) l₁)).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">orthogonal_lift_2_right</span>
+        : orthogonal_lift_2 ▹ g = k₂.
+      <span class="kn">Proof</span>.
+        <span class="nb">unfold</span> orthogonal_lift_2.
+        <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+        use vcomp_move_R_Mp.
+        {
+          <span class="nb">unfold</span> η₂.
+          is_iso.
+        }
+        <span class="nb">cbn</span>.
+        use (vcomp_rcancel ε₂').
+        {
+          <span class="bp">exact</span> orthogonal_lift_2_counit_invertible'.
+        }
+        <span class="nb">rewrite</span> !vassocl.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> orthogonal_lift_2_right_path_1.
+        }
+        <span class="nb">rewrite</span> !vassocr.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> orthogonal_lift_2_right_path_2.
+        }
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (maponpaths
+                   (<span class="k">λ</span> <span class="nv">z</span>, dirprod_pr2 (pr1 z))
+                   (triangle_id_left_ad (pr21 H) l₂)).
+        }
+        <span class="nb">apply</span> id2_right.
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">LiftTwo</span>.
+
+    <span class="sd">(** ** 3.3. Lifting property for for equalities *)</span>
+    <span class="kn">Definition</span> <span class="nf">orthogonal_lift_eq</span>
+               {<span class="nv">l₁</span> <span class="nv">l₂</span> : b₂ --&gt; c₁}
+               (<span class="nv">ζ₁</span> <span class="nv">ζ₂</span> : l₁ ==&gt; l₂)
+               (<span class="nv">p₁</span> : f ◃ ζ₁ = f ◃ ζ₂)
+               (<span class="nv">p₂</span> : ζ₁ ▹ g = ζ₂ ▹ g)
+      : ζ₁ = ζ₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (pr2 (fully_faithful_implies_full_and_faithful
+                   _ _ _
+                   (fully_faithful_from_equivalence _ _ _ H))
+                l₁ l₂)
+        <span class="k">as</span> Heq.
+      <span class="nb">assert</span> (((f ◃ ζ₁) ▹ g) • rassociator f l₂ g
+              =
+              rassociator f l₁ g • (f ◃ (ζ₁ ▹ g)))
+        <span class="k">as</span> r₁.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> rwhisker_lwhisker_rassociator.
+      }
+      <span class="nb">assert</span> (((f ◃ ζ₂) ▹ g) • rassociator f l₂ g
+              =
+              rassociator f l₁ g • (f ◃ (ζ₂ ▹ g)))
+        <span class="k">as</span> r₂.
+      {
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> rwhisker_lwhisker_rassociator.
+      }
+      <span class="nb">pose</span> (proofirrelevance
+              _
+              (Heq ((f ◃ ζ₁ ,, ζ₁ ▹ g) ,, r₁)))
+        <span class="k">as</span> Hprop.
+      <span class="nb">refine</span> (maponpaths pr1 (Hprop (_ ,, _) (_ ,, _))).
+      - use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> cellset_property.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> idpath.
+      - use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> cellset_property.
+        }
+        <span class="nb">cbn</span>.
+        use pathsdirprod.
+        + <span class="bp">exact</span> (!p₁).
+        + <span class="bp">exact</span> (!p₂).
+    <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">OrthogonalityProjections</span>.
+
+<span class="kn">Section</span> <span class="nf">OrthogonalityViaPullback</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          {<span class="nv">b₁</span> <span class="nv">b₂</span> <span class="nv">c₁</span> <span class="nv">c₂</span> : B}
+          (<span class="nv">f</span> : b₁ --&gt; b₂)
+          (<span class="nv">g</span> : c₁ --&gt; c₂).
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Orthogonality via pullbacks</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">orthogonal_via_pb_cone</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+    : @pb_cone
+        bicat_of_univ_cats
+        (univ_hom HB_2_1 b₁ c₁)
+        (univ_hom HB_2_1 b₂ c₂)
+        (univ_hom HB_2_1 b₁ c₂)
+        (post_comp b₁ g)
+        (pre_comp c₂ f).
+  <span class="kn">Proof</span>.
+    use make_pb_cone.
+    - <span class="bp">exact</span> (univ_hom HB_2_1 b₂ c₁).
+    - <span class="bp">exact</span> (pre_comp c₁ f).
+    - <span class="bp">exact</span> (post_comp b₂ g).
+    - use nat_z_iso_to_invertible_2cell.
+      <span class="bp">exact</span> (pre_comp_post_comp_commute_z_iso f g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">orthogonal_via_pb</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+    : UU
+    := has_pb_ump (orthogonal_via_pb_cone HB_2_1).
+
+  <span class="kn">Definition</span> <span class="nf">isaprop_orthogonal_via_pb</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+    : isaprop (orthogonal_via_pb HB_2_1).
+  <span class="kn">Proof</span>.
+    use isaprop_has_pb_ump.
+    <span class="bp">exact</span> univalent_cat_is_univalent_2_1.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Equivalence of the definitions</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">orthogonal_to_orthogonal_via_pb</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">Hf</span> : f ⊥ g)
+    : orthogonal_via_pb HB_2_1.
+  <span class="kn">Proof</span>.
+    use (left_adjoint_equivalence_to_pb
+           _ _ _
+           (@iso_comma_has_pb_ump
+               (univ_hom HB_2_1 b₁ c₁)
+               (univ_hom HB_2_1 b₂ c₂)
+               (univ_hom HB_2_1 b₁ c₂)
+               (post_comp b₁ g)
+               (pre_comp c₂ f))
+           _
+           _).
+    - <span class="bp">exact</span> univalent_cat_is_univalent_2_0.
+    - <span class="bp">exact</span> (orthogonal_functor f g).
+    - <span class="bp">exact</span> (@equiv_cat_to_adj_equiv
+               (univ_hom HB_2_1 b₂ c₁)
+               (@univalent_iso_comma
+                  (univ_hom HB_2_1 b₁ c₁)
+                  (univ_hom HB_2_1 b₂ c₂)
+                  (univ_hom HB_2_1 b₁ c₂)
+                  (post_comp b₁ g)
+                  (pre_comp c₂ f))
+               (orthogonal_functor f g)
+               Hf).
+    - use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
+      + use make_nat_trans.
+        * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, id2 _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">intros</span> h₁ h₂ α ; <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> id2_left, id2_right ;
+             <span class="nb">apply</span> idpath).
+      + <span class="nb">intro</span>.
+        use is_inv2cell_to_is_z_iso ; <span class="nb">cbn</span>.
+        is_iso.
+    - use nat_z_iso_to_invertible_2cell.
+      use make_nat_z_iso.
+      + use make_nat_trans.
+        * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, id2 _).
+        * <span class="kp">abstract</span>
+            (<span class="nb">intros</span> h₁ h₂ α ; <span class="nb">cbn</span> ;
+             <span class="nb">rewrite</span> id2_left, id2_right ;
+             <span class="nb">apply</span> idpath).
+      + <span class="nb">intro</span>.
+        use is_inv2cell_to_is_z_iso ; <span class="nb">cbn</span>.
+        is_iso.
+    - <span class="kp">abstract</span>
+        (use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> x ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id2_rwhisker, lwhisker_id2 ;
+         <span class="nb">rewrite</span> !id2_left, !id2_right ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">orthogonal_via_pb_to_orthogonal_nat_trans</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+    : orthogonal_functor f g
+      ⟹
+      pr1 (pb_ump_mor
+             (@iso_comma_has_pb_ump
+                (univ_hom HB_2_1 b₁ c₁)
+                (univ_hom HB_2_1 b₂ c₂)
+                (univ_hom HB_2_1 b₁ c₂)
+                (post_comp b₁ g)
+                (pre_comp c₂ f))
+             (orthogonal_via_pb_cone HB_2_1)).
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="nb">intro</span> h.
+      <span class="nb">simple refine</span> ((id2 _ ,, id2 _) ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> id2_rwhisker, lwhisker_id2, id2_left, id2_right ;
+         <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> h₁ h₂ γ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ] ;
+         <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> !id2_left, !id2_right ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">orthogonal_via_pb_to_orthogonal</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">Hf</span> : orthogonal_via_pb HB_2_1)
+    : f ⊥ g.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (@adj_equiv_to_equiv_cat
+             (univ_hom HB_2_1 b₂ c₁)
+             (@univalent_iso_comma
+                (univ_hom HB_2_1 b₁ c₁)
+                (univ_hom HB_2_1 b₂ c₂)
+                (univ_hom HB_2_1 b₁ c₂)
+                (post_comp b₁ g)
+                (pre_comp c₂ f))
+             (orthogonal_functor f g)).
+    <span class="nb">pose</span> (pb_ump_mor_left_adjoint_equivalence
+            _
+            _
+            (@iso_comma_has_pb_ump
+               (univ_hom HB_2_1 b₁ c₁)
+               (univ_hom HB_2_1 b₂ c₂)
+               (univ_hom HB_2_1 b₁ c₂)
+               (post_comp b₁ g)
+               (pre_comp c₂ f))
+            Hf)
+      <span class="k">as</span> p.
+    use (left_adjoint_equivalence_invertible p).
+    - <span class="bp">exact</span> (orthogonal_via_pb_to_orthogonal_nat_trans HB_2_1).
+    - use is_nat_z_iso_to_is_invertible_2cell.
+      <span class="nb">intro</span>.
+      use is_z_iso_iso_comma.
+      + use is_inv2cell_to_is_z_iso ; <span class="nb">cbn</span>.
+        is_iso.
+      + use is_inv2cell_to_is_z_iso ; <span class="nb">cbn</span>.
+        is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">orthogonal_weq_orthogonal_via_pb</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+    : f ⊥ g ≃ orthogonal_via_pb HB_2_1.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="bp">exact</span> (orthogonal_to_orthogonal_via_pb HB_2_1).
+    - <span class="bp">exact</span> (orthogonal_via_pb_to_orthogonal HB_2_1).
+    - <span class="bp">exact</span> (isaprop_orthogonal f g HB_2_1).
+    - <span class="bp">exact</span> (isaprop_orthogonal_via_pb HB_2_1).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">OrthogonalityViaPullback</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/OrthogonalFactorization/Orthogonality.v</tt>, line 81)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. Equivalence of the definitions
+  &gt;
+  &gt;  *****************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,755 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>SetUniverses.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Universes of sets</span>
+
+<span class="sd"> A universe of sets is given by a set `u` together with a map that assigns to each</span>
+<span class="sd"> member of `u` a set. One can require various closure conditions, like closure under</span>
+<span class="sd"> ∑-types and ∏-types, and then this notion gives us a type theoretic universe in the</span>
+<span class="sd"> set model of extensional type theory. In this file, we give some basic notions for</span>
+<span class="sd"> universes of sets.</span>
+
+<span class="sd"> While the type `hSet` of sets is not a set itself, there are various alternative</span>
+<span class="sd"> constructions in homotopy type theory that allow one to construct an actual universe</span>
+<span class="sd"> of sets that is a set itself. These constructions are iterative sets and induction</span>
+<span class="sd"> recursion. Note that induction-recursion requires one to assume a class of inductive</span>
+<span class="sd"> types that are not supported by Rocq, one can construct the type of iterative sets</span>
+<span class="sd"> solely by using W-types.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Basis definition</span>
+<span class="sd"> 2. Equality of codes</span>
+<span class="sd"> 3. Closure under type formers</span>
+<span class="sd"> 3.1. Unit type</span>
+<span class="sd"> 3.2. Natural numbers</span>
+<span class="sd"> 3.3. The type of propositions</span>
+<span class="sd"> 3.4. Resizing</span>
+<span class="sd"> 3.5. ∑-types</span>
+<span class="sd"> 3.6. ∏-types</span>
+<span class="sd"> 4. Topos universes</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="sd">(** * 1. Basis definition *)</span>
+<span class="kn">Definition</span> <span class="nf">set_universe</span> : UU := ∑ (u : hSet), u → hSet.
+
+<span class="kn">Coercion</span> <span class="nf">set_universe_to_universe</span> (u : set_universe) : hSet := pr1 u.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_el</span> {<span class="nv">u</span> : set_universe} (<span class="nv">a</span> : u) : hSet := pr2 u a.
+
+<span class="sd">(** * 2. Equality of codes *)</span>
+<span class="kn">Definition</span> <span class="nf">set_universe_eq</span>
+           {<span class="nv">u</span> : set_universe}
+           {<span class="nv">a₁</span> <span class="nv">a₂</span> : u}
+           (<span class="nv">p</span> : a₁ = a₂)
+           (<span class="nv">x</span> : set_universe_el a₁)
+  : set_universe_el a₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="bp">exact</span> x.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">transportf_set_universe_el</span>
+           {<span class="nv">u</span> : set_universe}
+           {<span class="nv">a₁</span> <span class="nv">a₂</span> : u}
+           (<span class="nv">p</span> : a₁ = a₂)
+           (<span class="nv">x</span> : set_universe_el a₁)
+  : transportf (@set_universe_el u) p x = set_universe_eq p x.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_eq_idpath</span>
+            {<span class="nv">u</span> : set_universe}
+            {<span class="nv">a</span> : u}
+            (<span class="nv">p</span> : a = a)
+            (<span class="nv">x</span> : set_universe_el a)
+  : set_universe_eq p x = x.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (p = idpath _) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_eq_comp</span>
+            {<span class="nv">u</span> : set_universe}
+            {<span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">a₃</span> : u}
+            (<span class="nv">p</span> : a₁ = a₂)
+            (<span class="nv">q</span> : a₂ = a₃)
+            (<span class="nv">x</span> : set_universe_el a₁)
+  : set_universe_eq q (set_universe_eq p x) = set_universe_eq (p @ q) x.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q.
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_eq_path</span>
+            {<span class="nv">u</span> : set_universe}
+            {<span class="nv">a₁</span> <span class="nv">a₂</span> : u}
+            (<span class="nv">p</span> <span class="nv">q</span> : a₁ = a₂)
+            (<span class="nv">x</span> : set_universe_el a₁)
+  : set_universe_eq p x = set_universe_eq q x.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (p = q) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_eq_path'</span>
+            {<span class="nv">u</span> : set_universe}
+            {<span class="nv">a₁</span> <span class="nv">a₂</span> : u}
+            (<span class="nv">p</span> <span class="nv">q</span> : a₁ = a₂)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> : set_universe_el a₁}
+            (<span class="nv">r</span> : x₁ = x₂)
+  : set_universe_eq p x₁ = set_universe_eq q x₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> r.
+  <span class="nb">apply</span> set_universe_eq_path.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_eq_weq</span>
+           {<span class="nv">u</span> : set_universe}
+           {<span class="nv">a₁</span> <span class="nv">a₂</span> : u}
+           (<span class="nv">p</span> : a₁ = a₂)
+  : set_universe_el a₁ ≃ set_universe_el a₂.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> (set_universe_eq p).
+  - <span class="bp">exact</span> (set_universe_eq (!p)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> z ;
+       <span class="nb">rewrite</span> set_universe_eq_comp ;
+       <span class="nb">apply</span> set_universe_eq_idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> z ;
+       <span class="nb">rewrite</span> set_universe_eq_comp ;
+       <span class="nb">apply</span> set_universe_eq_idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Closure under type formers *)</span>
+
+<span class="sd">(** * 3.1. Unit type *)</span>
+<span class="kn">Definition</span> <span class="nf">set_universe_contains_unit</span>
+           (<span class="nv">u</span> : set_universe)
+  : UU
+  := ∑ (un : u), set_universe_el un ≃ unit.
+
+<span class="kn">Definition</span> <span class="nf">make_set_universe_contains_unit</span>
+           (<span class="nv">u</span> : set_universe)
+           (<span class="nv">un</span> : u)
+           (<span class="nv">f</span> : set_universe_el un ≃ unit)
+  : set_universe_contains_unit u
+  := un ,, f.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_unit_code</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">un</span> : set_universe_contains_unit u)
+  : u
+  := pr1 un.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_unit_weq</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">un</span> : set_universe_contains_unit u)
+  : set_universe_el (set_universe_unit_code un) ≃ unit
+  := pr2 un.
+
+<span class="sd">(** * 3.2. Natural numbers *)</span>
+<span class="kn">Definition</span> <span class="nf">set_universe_contains_nat</span>
+           (<span class="nv">u</span> : set_universe)
+  : UU
+  := ∑ (n : u), set_universe_el n ≃ ℕ.
+
+<span class="kn">Definition</span> <span class="nf">make_set_universe_contains_nat</span>
+           (<span class="nv">u</span> : set_universe)
+           (<span class="nv">n</span> : u)
+           (<span class="nv">f</span> : set_universe_el n ≃ ℕ)
+  : set_universe_contains_nat u
+  := n ,, f.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_nat_code</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">n</span> : set_universe_contains_nat u)
+  : u
+  := pr1 n.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_nat_weq</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">n</span> : set_universe_contains_nat u)
+  : set_universe_el (set_universe_nat_code n) ≃ ℕ
+  := pr2 n.
+
+<span class="sd">(** * 3.3. The type of propositions *)</span>
+<span class="kn">Definition</span> <span class="nf">set_universe_contains_hProp</span>
+           (<span class="nv">u</span> : set_universe)
+  : UU
+  := ∑ (ω : u), set_universe_el ω ≃ hProp.
+
+<span class="kn">Definition</span> <span class="nf">make_set_universe_contains_hProp</span>
+           (<span class="nv">u</span> : set_universe)
+           (<span class="nv">ω</span> : u)
+           (<span class="nv">f</span> : set_universe_el ω ≃ hProp)
+  : set_universe_contains_hProp u
+  := ω ,, f.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_hProp_code</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">ω</span> : set_universe_contains_hProp u)
+  : u
+  := pr1 ω.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_hProp_weq</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">ω</span> : set_universe_contains_hProp u)
+  : set_universe_el (set_universe_hProp_code ω) ≃ hProp
+  := pr2 ω.
+
+<span class="sd">(** * 3.4. Resizing *)</span>
+<span class="kn">Definition</span> <span class="nf">set_universe_resizing</span>
+           (<span class="nv">u</span> : set_universe)
+  : UU
+  := ∏ (A : hProp), ∑ (a : u), set_universe_el a ≃ A.
+
+<span class="kn">Definition</span> <span class="nf">make_set_universe_contains_resizing</span>
+           (<span class="nv">u</span> : set_universe)
+           (<span class="nv">resize</span> : hProp → u)
+           (<span class="nv">f</span> : ∏ (A : hProp), set_universe_el (resize A) ≃ A)
+  : set_universe_resizing u
+  := <span class="k">λ</span> <span class="nv">A</span>, resize A ,, f A.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_resizing_code</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">r</span> : set_universe_resizing u)
+           (<span class="nv">A</span> : hProp)
+  : u
+  := pr1 (r A).
+
+<span class="kn">Definition</span> <span class="nf">set_universe_resizing_code'</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">r</span> : set_universe_resizing u)
+           (<span class="nv">A</span> : UU)
+           (<span class="nv">HA</span> : isaprop A)
+  : u
+  := set_universe_resizing_code r (make_hProp A HA).
+
+<span class="kn">Definition</span> <span class="nf">set_universe_resizing_weq</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">r</span> : set_universe_resizing u)
+           (<span class="nv">A</span> : hProp)
+  : set_universe_el (set_universe_resizing_code r A) ≃ A
+  := pr2 (r A).
+
+<span class="kn">Definition</span> <span class="nf">set_universe_resizing_weq'</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">r</span> : set_universe_resizing u)
+           (<span class="nv">A</span> : UU)
+           (<span class="nv">HA</span> : isaprop A)
+  : set_universe_el (set_universe_resizing_code' r A HA) ≃ A
+  := set_universe_resizing_weq r (make_hProp A HA).
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_resizing_code_eq</span>
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">r</span> : set_universe_resizing u)
+            (<span class="nv">A</span> : UU)
+            (<span class="nv">HA</span> <span class="nv">HA'</span> : isaprop A)
+  : set_universe_resizing_code' r A HA = set_universe_resizing_code' r A HA'.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (HA = HA') <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> isapropisaprop.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_resizing_contains_unit</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">r</span> : set_universe_resizing u)
+  : set_universe_contains_unit u.
+<span class="kn">Proof</span>.
+  use make_set_universe_contains_unit.
+  - <span class="bp">exact</span> (set_universe_resizing_code r htrue).
+  - <span class="bp">exact</span> (set_universe_resizing_weq r htrue).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3.5. ∑-types *)</span>
+<span class="kn">Definition</span> <span class="nf">set_universe_contains_sigma</span>
+           (<span class="nv">u</span> : set_universe)
+  : UU
+  := ∏ (a : u)
+       (b : set_universe_el a → u),
+     ∑ (sig : u),
+     set_universe_el sig ≃ ∑ (x : set_universe_el a), set_universe_el (b x).
+
+<span class="kn">Definition</span> <span class="nf">make_set_universe_contains_sigma</span>
+           (<span class="nv">u</span> : set_universe)
+           (<span class="nv">sig</span> : ∏ (a : u), (set_universe_el a → u) → u)
+           (<span class="nv">f</span> : ∏ (a : u) (b : set_universe_el a → u),
+                set_universe_el (sig a b)
+                ≃
+                ∑ (x : set_universe_el a), set_universe_el (b x))
+  : set_universe_contains_sigma u
+  := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, sig a b ,, f a b.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_sigma_code</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">sig</span> : set_universe_contains_sigma u)
+           (<span class="nv">a</span> : u)
+           (<span class="nv">b</span> : set_universe_el a → u)
+  : u
+  := pr1 (sig a b).
+
+<span class="kn">Definition</span> <span class="nf">set_universe_sigma_weq</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">sig</span> : set_universe_contains_sigma u)
+           (<span class="nv">a</span> : u)
+           (<span class="nv">b</span> : set_universe_el a → u)
+  : set_universe_el (set_universe_sigma_code sig a b)
+    ≃
+    ∑ (x : set_universe_el a), set_universe_el (b x)
+  := pr2 (sig a b).
+
+<span class="kn">Definition</span> <span class="nf">set_universe_sigma_map</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">sig</span> : set_universe_contains_sigma u)
+           {<span class="nv">a</span> : u}
+           {<span class="nv">b</span> : set_universe_el a → u}
+           (<span class="nv">z</span> : set_universe_el (set_universe_sigma_code sig a b))
+  : ∑ (x : set_universe_el a), set_universe_el (b x)
+  := set_universe_sigma_weq sig a b z.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_sigma_inv</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">sig</span> : set_universe_contains_sigma u)
+           {<span class="nv">a</span> : u}
+           {<span class="nv">b</span> : set_universe_el a → u}
+           (<span class="nv">z</span> : ∑ (x : set_universe_el a), set_universe_el (b x))
+  : set_universe_el (set_universe_sigma_code sig a b)
+  := invmap (set_universe_sigma_weq sig a b) z.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_sigma_inv_map</span>
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">sig</span> : set_universe_contains_sigma u)
+            {<span class="nv">a</span> : u}
+            {<span class="nv">b</span> : set_universe_el a → u}
+            (<span class="nv">z</span> : set_universe_el (set_universe_sigma_code sig a b))
+  : set_universe_sigma_inv sig (set_universe_sigma_map sig z) = z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (homotinvweqweq (set_universe_sigma_weq sig a b) z).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_sigma_map_inv</span>
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">sig</span> : set_universe_contains_sigma u)
+            {<span class="nv">a</span> : u}
+            {<span class="nv">b</span> : set_universe_el a → u}
+            (<span class="nv">z</span> : ∑ (x : set_universe_el a), set_universe_el (b x))
+  : set_universe_sigma_map sig (set_universe_sigma_inv sig z) = z.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (homotweqinvweq (set_universe_sigma_weq sig a b) z).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_sigma_pr2_eq</span>
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">sig</span> : set_universe_contains_sigma u)
+            {<span class="nv">a</span> : u}
+            {<span class="nv">b</span> : set_universe_el a → u}
+            {<span class="nv">z₁</span> <span class="nv">z₂</span> : ∑ (x : set_universe_el a), set_universe_el (b x)}
+            (<span class="nv">p</span> : z₁ = z₂)
+  : pr2 z₁
+    =
+    set_universe_eq (maponpaths (<span class="k">λ</span> <span class="nv">q</span>, b (pr1 q)) (!p)) (pr2 z₂).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_sigma_code_eq</span>
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">sig</span> : set_universe_contains_sigma u)
+            {<span class="nv">a₁</span> <span class="nv">a₂</span> : u}
+            (<span class="nv">p</span> : a₁ = a₂)
+            {<span class="nv">b₁</span> : set_universe_el a₁ → u}
+            {<span class="nv">b₂</span> : set_universe_el a₂ → u}
+            (<span class="nv">q</span> : ∏ (x : set_universe_el a₁), b₁ x = b₂ (set_universe_eq p x))
+  : set_universe_sigma_code sig a₁ b₁ = set_universe_sigma_code sig a₂ b₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> maponpaths.
+  use funextsec.
+  <span class="nb">intro</span> x.
+  <span class="bp">exact</span> (q x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_sigma_weq_eq_path</span>
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">sig</span> : set_universe_contains_sigma u)
+            {<span class="nv">a₁</span> <span class="nv">a₂</span> : u}
+            (<span class="nv">p</span> : a₁ = a₂)
+            {<span class="nv">b₁</span> : set_universe_el a₁ → u}
+            {<span class="nv">b₂</span> : set_universe_el a₂ → u}
+            (<span class="nv">q</span> : ∏ (x : set_universe_el a₁), b₁ x = b₂ (set_universe_eq p x))
+            (<span class="nv">z</span> : set_universe_el (set_universe_sigma_code sig a₁ b₁))
+            (<span class="nv">z'</span> := set_universe_sigma_map sig
+                     (set_universe_eq (set_universe_sigma_code_eq sig p q) z))
+  : b₂ (pr1 z') = b₁ (set_universe_eq (! p) (pr1 z')).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> z'.
+  <span class="nb">refine</span> (_ @ !(q _)).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> set_universe_eq_comp.
+  <span class="nb">rewrite</span> set_universe_eq_idpath.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_sigma_weq_eq</span>
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">sig</span> : set_universe_contains_sigma u)
+            {<span class="nv">a₁</span> <span class="nv">a₂</span> : u}
+            (<span class="nv">p</span> : a₁ = a₂)
+            {<span class="nv">b₁</span> : set_universe_el a₁ → u}
+            {<span class="nv">b₂</span> : set_universe_el a₂ → u}
+            (<span class="nv">q</span> : ∏ (x : set_universe_el a₁), b₁ x = b₂ (set_universe_eq p x))
+            (<span class="nv">z</span> : set_universe_el (set_universe_sigma_code sig a₁ b₁))
+            (<span class="nv">z'</span> := set_universe_sigma_map sig
+                     (set_universe_eq (set_universe_sigma_code_eq sig p q) z))
+  : set_universe_sigma_map sig z
+    =
+    set_universe_eq
+      (!p)
+      (pr1 z')
+    ,,
+    set_universe_eq
+      (set_universe_sigma_weq_eq_path sig p q z)
+      (pr2 z').
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> z' ; <span class="nb">clear</span> z'.
+  <span class="nb">induction</span> p.
+  <span class="nb">assert</span> (b₁ = b₂) <span class="k">as</span> r.
+  {
+    use funextsec.
+    <span class="bp">exact</span> q.
+  }
+  <span class="nb">induction</span> r ; <span class="nb">cbn</span>.
+  use total2_paths_f.
+  - <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> set_universe_eq_idpath.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> (functtransportf b₁ set_universe_el).
+    <span class="nb">rewrite</span> transportf_set_universe_el.
+    <span class="nb">rewrite</span> set_universe_eq_idpath.
+    <span class="nb">generalize</span> (set_universe_sigma_code_eq sig (idpath a₁) q).
+    <span class="nb">intro</span> p.
+    <span class="nb">assert</span> (p = idpath _) <span class="k">as</span> -&gt;.
+    {
+      <span class="nb">apply</span> setproperty.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> set_universe_eq_idpath.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_sigma_weq_eq_on_el</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">sig</span> : set_universe_contains_sigma u)
+           (<span class="nv">a</span> : u)
+           (<span class="nv">b</span> : set_universe_el a → u)
+           {<span class="nv">z₁</span> <span class="nv">z₂</span> : set_universe_el (set_universe_sigma_code sig a b)}
+           (<span class="nv">p</span> : z₁ = z₂)
+  : pr2 (set_universe_sigma_map sig z₁)
+    =
+    set_universe_eq
+      (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, b (pr1 (set_universe_sigma_map sig x))) (!p))
+      (pr2 (set_universe_sigma_map sig z₂)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_sigma_el_eq</span>
+           {<span class="nv">u</span> : set_universe}
+           {<span class="nv">a</span> : u}
+           {<span class="nv">b</span> : set_universe_el a → u}
+           {<span class="nv">xy₁</span> <span class="nv">xy₂</span> : ∑ (x : set_universe_el a), set_universe_el (b x)}
+           (<span class="nv">p</span> : pr1 xy₁ = pr1 xy₂)
+           (<span class="nv">q</span> : pr2 xy₁ = set_universe_eq (maponpaths b (!p)) (pr2 xy₂))
+  : xy₁ = xy₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> xy₁ <span class="k">as</span> [ x₁ y₁ ].
+  <span class="nb">induction</span> xy₂ <span class="k">as</span> [ x₂ y₂ ].
+  <span class="nb">cbn</span> <span class="k">in</span> p.
+  <span class="nb">induction</span> p.
+  <span class="nb">cbn</span> <span class="k">in</span> q.
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_sigma_map_eq</span>
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">sig</span> : set_universe_contains_sigma u)
+            {<span class="nv">a</span> <span class="nv">a'</span> : u}
+            (<span class="nv">p</span> : a = a')
+            {<span class="nv">b</span> : set_universe_el a → u}
+            {<span class="nv">b'</span> : set_universe_el a' → u}
+            (<span class="nv">q</span> : ∏ (x : set_universe_el a), b x = b' (set_universe_eq p x))
+            (<span class="nv">r</span> : set_universe_sigma_code sig a b = set_universe_sigma_code sig a' b')
+            (<span class="nv">z</span> : set_universe_el (set_universe_sigma_code sig a b))
+  : set_universe_sigma_map sig (set_universe_eq r z)
+    =
+    set_universe_eq p (pr1 (set_universe_sigma_map sig z))
+    ,,
+    set_universe_eq (q _) (pr2 (set_universe_sigma_map sig z)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">assert</span> (b = b') <span class="k">as</span> p.
+  {
+    use funextsec.
+    <span class="bp">exact</span> q.
+  }
+  <span class="nb">induction</span> p.
+  <span class="nb">assert</span> (q (pr1 (set_universe_sigma_map sig z)) = idpath _) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">clear</span> q.
+  <span class="nb">cbn</span>.
+  <span class="nb">assert</span> (r = idpath _) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_sigma_map_inv_eq</span>
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">sig</span> : set_universe_contains_sigma u)
+            {<span class="nv">a</span> <span class="nv">a'</span> : u}
+            (<span class="nv">p</span> : a = a')
+            {<span class="nv">b</span> : set_universe_el a → u}
+            {<span class="nv">b'</span> : set_universe_el a' → u}
+            (<span class="nv">q</span> : ∏ (x : set_universe_el a), b x = b' (set_universe_eq p x))
+            (<span class="nv">r</span> : set_universe_sigma_code sig a b = set_universe_sigma_code sig a' b')
+            (<span class="nv">z₁</span> : set_universe_el a)
+            (<span class="nv">z₂</span> : set_universe_el (b z₁))
+  : set_universe_sigma_map sig (set_universe_eq r (set_universe_sigma_inv sig (z₁ ,, z₂)))
+    =
+    set_universe_eq p z₁
+    ,,
+    set_universe_eq (q _) z₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">assert</span> (b = b') <span class="k">as</span> p.
+  {
+    use funextsec.
+    <span class="bp">exact</span> q.
+  }
+  <span class="nb">induction</span> p.
+  <span class="nb">assert</span> (q z₁ = idpath _) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">clear</span> q.
+  <span class="nb">cbn</span>.
+  <span class="nb">assert</span> (r = idpath _) <span class="k">as</span> -&gt;.
+  {
+    <span class="nb">apply</span> setproperty.
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> set_universe_sigma_map_inv.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3.6. ∏-types *)</span>
+<span class="kn">Definition</span> <span class="nf">set_universe_contains_pi</span>
+           (<span class="nv">u</span> : set_universe)
+  : UU
+  := ∏ (a : u)
+       (b : set_universe_el a → u),
+     ∑ (pi : u),
+     set_universe_el pi ≃ ∏ (x : set_universe_el a), set_universe_el (b x).
+
+<span class="kn">Definition</span> <span class="nf">make_set_universe_contains_pi</span>
+           (<span class="nv">u</span> : set_universe)
+           (<span class="nv">pi</span> : ∏ (a : u), (set_universe_el a → u) → u)
+           (<span class="nv">f</span> : ∏ (a : u) (b : set_universe_el a → u),
+                set_universe_el (pi a b)
+                ≃
+                ∏ (x : set_universe_el a), set_universe_el (b x))
+  : set_universe_contains_pi u
+  := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, pi a b ,, f a b.
+
+<span class="kn">Definition</span> <span class="nf">set_universe_pi_code</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">pi</span> : set_universe_contains_pi u)
+           (<span class="nv">a</span> : u)
+           (<span class="nv">b</span> : set_universe_el a → u)
+  : u
+  := pr1 (pi a b).
+
+<span class="kn">Definition</span> <span class="nf">set_universe_pi_weq</span>
+           {<span class="nv">u</span> : set_universe}
+           (<span class="nv">pi</span> : set_universe_contains_pi u)
+           (<span class="nv">a</span> : u)
+           (<span class="nv">b</span> : set_universe_el a → u)
+  : set_universe_el (set_universe_pi_code pi a b)
+    ≃
+    ∏ (x : set_universe_el a), set_universe_el (b x)
+  := pr2 (pi a b).
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_pi_code_eq</span>
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">pi</span> : set_universe_contains_pi u)
+            {<span class="nv">a₁</span> <span class="nv">a₂</span> : u}
+            (<span class="nv">p</span> : a₁ = a₂)
+            {<span class="nv">b₁</span> : set_universe_el a₁ → u}
+            {<span class="nv">b₂</span> : set_universe_el a₂ → u}
+            (<span class="nv">q</span> : ∏ (x : set_universe_el a₁), b₁ x = b₂ (set_universe_eq p x))
+  : set_universe_pi_code pi a₁ b₁ = set_universe_pi_code pi a₂ b₂.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> maponpaths.
+  use funextsec.
+  <span class="nb">intro</span> x.
+  <span class="bp">exact</span> (q x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_pi_weq_eq</span>
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">pi</span> : set_universe_contains_pi u)
+            {<span class="nv">a₁</span> <span class="nv">a₂</span> : u}
+            (<span class="nv">p</span> : a₁ = a₂)
+            {<span class="nv">b₁</span> : set_universe_el a₁ → u}
+            {<span class="nv">b₂</span> : set_universe_el a₂ → u}
+            (<span class="nv">q</span> : ∏ (x : set_universe_el a₁), b₁ x = b₂ (set_universe_eq p x))
+            (<span class="nv">z</span> : set_universe_el (set_universe_pi_code pi a₁ b₁))
+  : set_universe_pi_weq pi a₁ b₁ z
+    =
+    <span class="k">λ</span> <span class="nv">x</span>,
+    set_universe_eq
+      (!(q x))
+      (set_universe_pi_weq
+         pi
+         a₂ b₂
+         (set_universe_eq (set_universe_pi_code_eq pi p q) z)
+         (set_universe_eq p x)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">assert</span> (b₁ = b₂) <span class="k">as</span> r.
+  {
+    use funextsec.
+    <span class="bp">exact</span> q.
+  }
+  <span class="nb">induction</span> r.
+  use funextsec.
+  <span class="nb">intro</span> x.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !set_universe_eq_idpath.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">set_universe_pi_weq_eq_el</span>
+            {<span class="nv">u</span> : set_universe}
+            (<span class="nv">pi</span> : set_universe_contains_pi u)
+            (<span class="nv">a</span> : u)
+            (<span class="nv">b</span> : set_universe_el a → u)
+            {<span class="nv">z₁</span> <span class="nv">z₂</span> : set_universe_el (set_universe_pi_code pi a b)}
+            (<span class="nv">p</span> : z₁ = z₂)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> : set_universe_el a}
+            (<span class="nv">q</span> : x₁ = x₂)
+  : set_universe_pi_weq pi a b z₁ x₁
+    =
+    set_universe_eq (!(maponpaths b q)) (set_universe_pi_weq pi a b z₂ x₂).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q ; <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Topos universes *)</span>
+<span class="kn">Definition</span> <span class="nf">set_universe_topos</span>
+  : UU
+  := ∑ (u : set_universe),
+     set_universe_contains_nat u
+     ×
+     set_universe_contains_hProp u
+     ×
+     set_universe_resizing u
+     ×
+     set_universe_contains_sigma u
+     ×
+     set_universe_contains_pi u.
+
+<span class="kn">Coercion</span> <span class="nf">set_universe_topos_to_univ</span>
+         (u : set_universe_topos)
+  : set_universe
+  := pr1 u.
+
+<span class="kn">Coercion</span> <span class="nf">set_universe_topos_contains_nat</span>
+         (u : set_universe_topos)
+  : set_universe_contains_nat u
+  := pr12 u.
+
+<span class="kn">Coercion</span> <span class="nf">set_universe_topos_contains_hProp</span>
+         (u : set_universe_topos)
+  : set_universe_contains_hProp u
+  := pr122 u.
+
+<span class="kn">Coercion</span> <span class="nf">set_universe_topos_resizing</span>
+         (u : set_universe_topos)
+  : set_universe_resizing u
+  := pr1 (pr222 u).
+
+<span class="kn">Coercion</span> <span class="nf">set_universe_topos_contains_sigma</span>
+         (u : set_universe_topos)
+  : set_universe_contains_sigma u
+  := pr12 (pr222 u).
+
+<span class="kn">Coercion</span> <span class="nf">set_universe_topos_contains_pi</span>
+         (u : set_universe_topos)
+  : set_universe_contains_pi u
+  := pr22 (pr222 u).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Combinatorics/SetUniverses.v</tt>, line 31)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Topos universes
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt;
+  &gt; (** * 1. Basis definition *)
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

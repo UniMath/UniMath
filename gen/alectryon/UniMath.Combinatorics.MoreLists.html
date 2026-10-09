@@ -1,0 +1,478 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MoreLists.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Additional definitions, lemmas and notations for lists. *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.NaturalNumbers.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Vectors.
+<span class="kn">Require Export</span> UniMath.Combinatorics.Lists.
+<span class="kn">Require Export</span> UniMath.Combinatorics.DecSet.
+<span class="kn">Require Export</span> UniMath.Combinatorics.Maybe.
+
+<span class="sd">(** ** Notations for lists.</span>
+
+<span class="sd">Introduces a new scope, [list_scope], delimited by [list], which adds useful notations for lists.</span>
+<span class="sd">A list of elements [x1], [x2], ..., [xn] may be written a [[x1; x2; ...; xn]]. Moreover</span>
+<span class="sd">[[]] denotes the empty list, [::] is the cons operator and [++] the list concatenation operator.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Declare Scope</span> list_scope.
+
+<span class="kn">Delimit Scope</span> list_scope <span class="k">with</span> list.
+
+<span class="kn">Bind Scope</span> list_scope <span class="k">with</span> list.
+
+<span class="kn">Notation</span> <span class="s2">"[ x ; .. ; y ]"</span> := (cons x .. (cons y nil) ..): list_scope.
+
+<span class="kn">Notation</span> <span class="s2">"[]"</span> := nil (<span class="kn">at level</span> <span class="mi">0</span>, <span class="kn">format</span> <span class="s2">"[]"</span>): list_scope.
+
+<span class="kn">Infix</span> <span class="s2">"::"</span> := cons: list_scope.
+
+<span class="kn">Infix</span> <span class="s2">"++"</span> := concatenate: list_scope.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> list_scope.
+
+<span class="sd">(** ** Proofs that [cons] is injective on both arguments.</span>
+
+<span class="sd">Introduces the [head] and [tail] operations on lists, using the maybe monad defined in</span>
+<span class="sd">[UniMath.Combinatorics.Maybe] for dealing with invalid function applications. Then, proves</span>
+<span class="sd">that [cons] is injective on both arguments and that there are no paths between [cons] and [nil].</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">head</span> {<span class="nv">A</span>: UU}: list A → maybe A.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> list_ind.
+  - <span class="bp">exact</span> nothing.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xs</span> <span class="nv">IH</span>, ii1 x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">tail</span> {<span class="nv">A</span>: UU}: list A → maybe (list A).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> list_ind.
+  - <span class="bp">exact</span> nothing.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">xs</span> <span class="nv">IH</span>, ii1 xs).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">list_head_cons</span> {<span class="nv">A</span>: UU} (<span class="nv">x</span>: A) (<span class="nv">xs</span>: list A)
+  : head (x :: xs) = ii1 x.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">list_tail_cons</span> {<span class="nv">A</span>: UU} (<span class="nv">x</span>: A) (<span class="nv">xs</span>: list A)
+  : tail (x :: xs) = ii1 xs.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">cons_inj1</span> {<span class="nv">A</span>: UU} (<span class="nv">a1</span> <span class="nv">a2</span>: A) (<span class="nv">r1</span> <span class="nv">r2</span>: list A)
+  : a1 :: r1 = a2 :: r2 → a1 = a2.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> (maponpaths head) <span class="k">in</span> H.
+  <span class="nb">change</span> (just a1 = just a2) <span class="k">in</span> H.
+  <span class="nb">apply</span> ii1_injectivity <span class="k">in</span> H.
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Theorem</span> <span class="nf">cons_inj2</span> {<span class="nv">A</span>: UU} (<span class="nv">a1</span> <span class="nv">a2</span>: A) (<span class="nv">r1</span> <span class="nv">r2</span>: list A)
+  : a1 :: r1 = a2 :: r2 → r1 = r2.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> H.
+  <span class="nb">apply</span> (maponpaths tail) <span class="k">in</span> H.
+  <span class="nb">change</span> (just r1 = just r2) <span class="k">in</span> H.
+  <span class="nb">apply</span> ii1_injectivity <span class="k">in</span> H.
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">negpathsconsnil</span> {<span class="nv">A</span>: UU} (<span class="nv">a</span>: A) (<span class="nv">l</span>: list A): a :: l != [].
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> X.
+  <span class="nb">cbv</span> <span class="k">in</span> X.
+  <span class="nb">apply</span> negpathssx0 <span class="k">in</span> X.
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">negpathsnilcons</span> {<span class="nv">A</span>: UU} (<span class="nv">a</span>: A) (<span class="nv">l</span>: list A): [] != a :: l.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  <span class="nb">apply</span> pathsinv0 <span class="k">in</span> X.
+  <span class="nb">apply</span> negpathsconsnil <span class="k">in</span> X.
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Several properties for the length of a list. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">length_cons</span> {<span class="nv">A</span>: UU} (<span class="nv">x</span>: A) (<span class="nv">xs</span>: list A)
+  : length (x :: xs) = S (length xs).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">length_zero_back</span> {<span class="nv">A</span>: UU} (<span class="nv">l</span>: list A): length l = <span class="mi">0</span> → l = [].
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l.
+  <span class="nb">refine</span> (list_ind _ _ _).
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> x xs _ HP.
+    <span class="nb">apply</span> negpathssx0 <span class="k">in</span> HP.
+    <span class="bp">contradiction</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">length_one_back</span> {<span class="nv">A</span>: UU} (<span class="nv">l</span>: list A) (<span class="nv">l1</span>: length l = <span class="mi">1</span>): ∑ x: A, l = [x].
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> l.
+  <span class="nb">cbn</span> <span class="k">in</span> l1.
+  <span class="nb">induction</span> (! l1).
+  <span class="nb">induction</span> pr2 <span class="k">as</span> [x xs].
+  <span class="k">exists</span> <span class="nv">x</span>.
+  <span class="nb">induction</span> xs.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">length_concatenate</span> {<span class="nv">A</span>: UU} (<span class="nv">l1</span>: list A) (<span class="nv">l2</span>: list A)
+  : length (l1 ++ l2) = length l1 + length l2.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l1.
+  <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x xs IH.
+    <span class="nb">change</span> (S (length (xs ++ l2)) = S (length xs + length l2)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> IH.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">length_sublist1</span> {<span class="nv">A</span>: UU} (<span class="nv">l1</span>: list A) (<span class="nv">l2</span>: list A)
+  : length l1 ≤ length (l1 ++ l2).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> length_concatenate.
+  <span class="nb">apply</span> natlehnplusnm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">length_sublist2</span> {<span class="nv">A</span>: UU} (<span class="nv">l1</span>: list A) (<span class="nv">l2</span>: list A)
+  : length l2 ≤ length (l1 ++ l2).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> length_concatenate.
+  <span class="nb">rewrite</span> natpluscomm.
+  <span class="nb">apply</span> natlehnplusnm.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">length_map</span> {<span class="nv">A</span> <span class="nv">B</span>: UU} (<span class="nv">l</span>: list A) (<span class="nv">f</span>: A → B): length (map f l) = length l.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l.
+  <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x xs HPind.
+    <span class="nb">change</span> (map f (x :: xs)) <span class="k">with</span> (f x :: map f xs).
+    <span class="nb">change</span> (S (length (map f xs)) = S(length xs)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> HPind.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Miscellanea of properties and definitions. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">listset</span> (<span class="nv">A</span>: hSet): hSet := make_hSet (list A) (isofhlevellist <span class="mi">0</span> (setproperty A)).
+
+<span class="kn">Definition</span> <span class="nf">fill</span> {<span class="nv">A</span>: UU} (<span class="nv">a</span>: A): nat → list A := <span class="k">λ</span> <span class="nv">n</span>, n ,, vec_fill a n.
+
+<span class="kn">Lemma</span> <span class="nf">map_const</span> {<span class="nv">A</span> <span class="nv">B</span>: UU} (<span class="nv">b</span>: B) (<span class="nv">l</span>: list A): map (<span class="k">λ</span> <span class="nv">_</span>, b) l = fill b (length l).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l.
+  <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x xs HPind.
+    <span class="nb">change</span> (b :: map (<span class="k">λ</span> <span class="nv">_</span>: A, b) xs = b :: fill b (length xs)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> HPind.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">length_fill</span> {<span class="nv">A</span>: UU} (<span class="nv">a</span>: A) (<span class="nv">n</span>: nat): length (fill a n) = n.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** The [drop] operation and related properties.</span>
+
+<span class="sd">If [l] is a list and [n] a natural number, [drop l n] returns the list obtained from [l] after removing</span>
+<span class="sd">the first [n] elements. If _n &gt; length l_, then [drop l n = []].</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">drop</span> {<span class="nv">A</span>: UU} (<span class="nv">l</span>: list A) (<span class="nv">n</span>: nat): list A.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l.
+  <span class="nb">induction</span> n.
+  - <span class="bp">exact</span> (idfun _).
+  - <span class="nb">apply</span> list_ind.
+    + <span class="bp">exact</span> [].
+    + <span class="nb">intros</span> x xs _.
+      <span class="bp">exact</span> (IHn xs).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">drop_nil</span> {<span class="nv">A</span>: UU} {<span class="nv">n</span>: nat}: @drop A [] n = [].
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n ; <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">drop_zero</span> {<span class="nv">A</span>: UU} (<span class="nv">l</span>: list A): drop l <span class="mi">0</span> = l.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l.
+  <span class="nb">apply</span> list_ind; <span class="nb">trivial</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">drop_step</span> {<span class="nv">A</span>: UU} (<span class="nv">x</span>: A) (<span class="nv">xs</span>: list A) (<span class="nv">n</span>: nat)
+  : drop (x :: xs) (S n) = drop xs n.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">drop_full</span> {<span class="nv">A</span>: UU} (<span class="nv">l</span>: list A): drop l (length l) = [].
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l; <span class="nb">apply</span> list_ind ; <span class="nb">trivial</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">drop_concatenate</span> {<span class="nv">A</span>: UU} (<span class="nv">l1</span> <span class="nv">l2</span>: list A) (<span class="nv">n</span>: nat) (<span class="nv">nok</span>: n ≤ length l1): drop (l1 ++ l2) n = (drop l1 n) ++ l2.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l1 nok.
+  <span class="nb">induction</span> n.
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">refine</span> (list_ind _ _ _).
+    + <span class="nb">intros</span>.
+      <span class="bp">contradiction</span> (negnatlehsn0 _ nok).
+    + <span class="nb">intros</span> x xs _ sok.
+      <span class="nb">rewrite</span> concatenateStep.
+      <span class="kp">do</span> <span class="mi">2</span>rewrite drop_step.
+      <span class="nb">apply</span> (IHn xs sok).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">length_drop</span> {<span class="nv">A</span>: UU} (<span class="nv">l</span>: list A) (<span class="nv">n</span>: nat): length (drop l n) = length l - n.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l n.
+  <span class="nb">refine</span> (list_ind _ _ _).
+  - <span class="nb">intro</span> n.
+    <span class="nb">rewrite</span> drop_nil.
+    <span class="nb">induction</span> n.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">change</span> (<span class="mi">0</span> = <span class="mi">0</span> - (<span class="mi">1</span>+ n)).
+      <span class="nb">rewrite</span> &lt;- natminusminus.
+      <span class="bp">assumption</span>.
+  - <span class="nb">intros</span> x xs IH.
+    <span class="nb">induction</span> n.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">rewrite</span> drop_step.
+      <span class="nb">rewrite</span> length_cons.
+      <span class="nb">apply</span> (IH n).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** ** The [prefix_remove] operation and related properties.</span>
+
+<span class="sd">If [l2] is a prefix of [l1], then [prefix_remove l1 l2] returns [just l] where [l] is the only list such</span>
+<span class="sd">that [l2 ++ l = l1]. Otherwise [prefix_remove l1 l2] returns [nothing]. It is required for [l1] and [l2]</span>
+<span class="sd">to be of type [list A] with [A: decSet].</span>
+<span class="sd">*)</span>
+
+<span class="kn">Definition</span> <span class="nf">prefix_remove</span> {<span class="nv">A</span>: decSet} (<span class="nv">l1</span> <span class="nv">l2</span>: list A): maybe (list A).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l1 l2.
+  <span class="nb">refine</span> (list_ind _ _ _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">l</span>, just l).
+  - <span class="nb">intros</span> x xs HP.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    + <span class="bp">exact</span> nothing.
+    + <span class="nb">intros</span> y ys _.
+      <span class="nb">induction</span> (decproperty A x y).
+      * <span class="bp">exact</span> (HP ys).
+      * <span class="bp">exact</span> nothing.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">prefix_remove_stepeq</span> {<span class="nv">A</span>: decSet} (<span class="nv">x</span>: A) (<span class="nv">xs1</span> <span class="nv">xs2</span>: list A)
+  : prefix_remove (x :: xs1) (x :: xs2) = prefix_remove xs1 xs2.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> prefix_remove.
+  <span class="nb">cbn</span>.
+  <span class="nb">induction</span> (decproperty A x x).
+  - <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="bp">contradiction</span> (b (idpath x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">prefix_remove_stepneq</span> {<span class="nv">A</span>: decSet} {<span class="nv">x1</span> <span class="nv">x2</span>: A} (<span class="nv">p</span>: x1 != x2) (<span class="nv">xs1</span> <span class="nv">xs2</span>: list A)
+  : prefix_remove (x1 :: xs1) (x2 :: xs2) = nothing.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> prefix_remove.
+  <span class="nb">cbn</span>.
+  <span class="nb">induction</span> (decproperty A x1 x2).
+  - contradicts a p.
+  - <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">prefix_remove_stepback</span> {<span class="nv">A</span>: decSet} (<span class="nv">x1</span> <span class="nv">x2</span>: A) (<span class="nv">xs1</span> <span class="nv">xs2</span>: list A)
+  : prefix_remove (x1 :: xs1) (x2 :: xs2) != nothing → x1 = x2.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> (decproperty A x1 x2) <span class="k">as</span> [x1eqx2 | x1neqx2] ; <span class="nb">intro</span> HP.
+  - <span class="bp">assumption</span>.
+  - <span class="nb">rewrite</span> (prefix_remove_stepneq x1neqx2) <span class="k">in</span> HP.
+    <span class="nb">apply</span> fromempty.
+    <span class="nb">apply</span> (HP (idpath _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">prefix_remove_back</span> {<span class="nv">A</span>: decSet} (<span class="nv">l1</span> <span class="nv">l2</span> <span class="nv">l3</span>: list A):
+  prefix_remove l1 l2 = just l3 → l2 = l1 ++ l3.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l1 l2.
+  <span class="nb">refine</span> (list_ind _ _ _).
+  - <span class="nb">intros</span> l2 prefixnil.
+    <span class="nb">cbn</span> <span class="k">in</span> prefixnil.
+    <span class="nb">apply</span> just_injectivity <span class="k">in</span> prefixnil.
+    <span class="nb">cbn</span>.
+    <span class="bp">assumption</span>.
+  - <span class="nb">intros</span> x1 xs1 HPind.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    + <span class="nb">intro</span> prefixxs.
+      <span class="nb">cbn</span> <span class="k">in</span> prefixxs.
+      <span class="nb">apply</span> negpathsii2ii1 <span class="k">in</span> prefixxs.
+      <span class="bp">contradiction</span>.
+    + <span class="nb">intros</span> x2 xs2 HP2ind HP.
+      <span class="nb">induction</span> (decproperty A x1 x2) <span class="k">as</span> [x1eqx2 | x1neqx2].
+      * <span class="nb">rewrite</span> x1eqx2 <span class="k">in</span> *.
+        <span class="nb">rewrite</span> prefix_remove_stepeq <span class="k">in</span> HP.
+        <span class="nb">rewrite</span> concatenateStep.
+        <span class="nb">rewrite</span> (HPind xs2 HP).
+        <span class="nb">apply</span> idpath.
+      * <span class="nb">rewrite</span> (prefix_remove_stepneq x1neqx2) <span class="k">in</span> HP.
+        <span class="bp">contradiction</span> (negpathsii2ii1 _ _ HP).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">prefix_remove_self</span> {<span class="nv">A</span>: decSet} (<span class="nv">l</span>: list A): prefix_remove l l = just [].
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l.
+  <span class="nb">apply</span> list_ind.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x xs IH.
+    <span class="nb">rewrite</span> prefix_remove_stepeq.
+    <span class="nb">apply</span> IH.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isprefix</span> {<span class="nv">A</span>: decSet} (<span class="nv">l1</span> <span class="nv">l2</span>: list A): UU := prefix_remove l1 l2 != nothing.
+
+<span class="kn">Lemma</span> <span class="nf">isprefix_self</span> {<span class="nv">A</span>: decSet} (<span class="nv">l</span>: list A): isprefix l l.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> isprefix.
+  <span class="nb">rewrite</span> prefix_remove_self.
+  <span class="nb">apply</span> negpathsii1ii2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">prefix_remove_concatenate</span> {<span class="nv">A</span>: decSet} (<span class="nv">l1</span> <span class="nv">l2</span> <span class="nv">l3</span>: list A) (<span class="nv">tl</span>: list A)
+  : prefix_remove l1 l2 = ii1 tl → prefix_remove l1 (l2 ++ l3) = ii1 (tl ++ l3).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l1 l2.
+  <span class="nb">refine</span> (list_ind _ _ _).
+  - <span class="nb">intros</span> l2 prooftl.
+    <span class="nb">apply</span> ii1_injectivity <span class="k">in</span> prooftl.
+    <span class="nb">rewrite</span> prooftl.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x xs HPind.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    + <span class="nb">intro</span> HP.
+      <span class="nb">cbv</span> <span class="k">in</span> HP.
+      <span class="nb">apply</span> negpathsii2ii1 <span class="k">in</span> HP.
+      <span class="bp">contradiction</span>.
+    + <span class="nb">intros</span> x2 x2s HP2.
+      <span class="nb">rewrite</span> concatenateStep.
+      <span class="nb">induction</span> (decproperty A x x2) <span class="k">as</span> [xeqx2 | xneqx2].
+      * <span class="nb">rewrite</span> xeqx2.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> prefix_remove_stepeq.
+        <span class="nb">apply</span> (HPind x2s).
+      * <span class="nb">rewrite</span> (prefix_remove_stepneq xneqx2).
+        <span class="nb">intro</span> HP.
+        <span class="nb">apply</span> negpathsii2ii1 <span class="k">in</span> HP.
+        <span class="bp">contradiction</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">prefix_remove_concatenate2</span> {<span class="nv">A</span>: decSet} (<span class="nv">l1</span> <span class="nv">l2</span> <span class="nv">l3</span>: list A)
+  : length l1 ≤ length l2 → prefix_remove l1 l2 = nothing → prefix_remove l1 (l2 ++ l3) = nothing.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l1 l2.
+  <span class="nb">refine</span> (list_ind _ _ _).
+  - <span class="nb">intros</span> l2 Hlen Hpref.
+    <span class="bp">contradiction</span> (negpathsii1ii2 _ _ Hpref).
+  - <span class="nb">intros</span> x1 xs1 IH.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    + <span class="nb">intros</span> Hlen Hpref.
+      <span class="bp">contradiction</span> (negnatlehsn0 _ Hlen).
+    + <span class="nb">intros</span> x2 xs2 _ Hlen Hpref.
+      <span class="nb">rewrite</span> concatenateStep.
+      <span class="nb">induction</span> (decproperty A x1 x2) <span class="k">as</span> [x1eqx2 | x1neqx2].
+      * <span class="nb">induction</span> x1eqx2.
+        <span class="nb">rewrite</span> prefix_remove_stepeq.
+        <span class="nb">rewrite</span> prefix_remove_stepeq <span class="k">in</span> Hpref.
+        <span class="nb">apply</span> (IH xs2 Hlen Hpref).
+      * <span class="nb">apply</span> (prefix_remove_stepneq x1neqx2).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">prefix_remove_prefix</span> {<span class="nv">A</span>: decSet} (<span class="nv">l1</span> <span class="nv">l2</span>: list A): prefix_remove l1 (l1 ++ l2) = just l2.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l1.
+  <span class="nb">refine</span> (list_ind _ _ _).
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> x xs IHl1.
+    <span class="nb">rewrite</span> concatenateStep.
+    <span class="nb">rewrite</span> prefix_remove_stepeq.
+    <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">prefix_remove_drop</span> {<span class="nv">A</span>: decSet} (<span class="nv">l1</span> <span class="nv">l2</span>: list A)
+  : prefix_remove l1 l2 != nothing → prefix_remove l1 l2 = just (drop l2 (length l1)).
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> l1 l2.
+  <span class="nb">refine</span> (list_ind _ _ _).
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> x1 xs1 IH.
+    <span class="nb">refine</span> (list_ind _ _ _).
+    + <span class="bp">contradiction</span>.
+    + <span class="nb">intros</span> x2 xs2 _ prefixok.
+      <span class="nb">induction</span> (decproperty A x1 x2) <span class="k">as</span> [x1eqx2 | x1neqx2].
+      * <span class="nb">induction</span> x1eqx2.
+        <span class="nb">rewrite</span> prefix_remove_stepeq.
+        <span class="nb">rewrite</span> prefix_remove_stepeq <span class="k">in</span> prefixok.
+        <span class="nb">apply</span> (IH xs2 prefixok).
+      * <span class="nb">rewrite</span> (prefix_remove_stepneq x1neqx2) <span class="k">in</span> prefixok.
+        <span class="bp">contradiction</span> prefixok.
+        <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Combinatorics/MoreLists.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/NaturalNumbers.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Additional definitions, lemmas and notations for lists. *)
+  &gt; (** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.NaturalNumbers.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Combinatorics.Vectors.
+  &gt; Require Export UniMath.Combinatorics.Lists.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

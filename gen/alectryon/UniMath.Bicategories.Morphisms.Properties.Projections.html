@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Projections.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd"> Properties of projection functions</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. First projection is a Street fibration</span>
+<span class="sd"> 2. First projection is a Street opfibration</span>
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Products.
+<span class="kn">Import</span> Products.Notations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. First projection is a Street fibration</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ProjectionSFib</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat_with_binprod}
+          (<span class="nv">b₁</span> <span class="nv">b₂</span> : B).
+
+  <span class="kn">Section</span> <span class="nf">InvertibleToCartesian</span>.
+    <span class="kn">Context</span> {<span class="nv">a</span> : B}
+            {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b₁ ⊗ b₂}
+            (<span class="nv">α</span> : f ==&gt; g)
+            (<span class="nv">Hα</span> : is_invertible_2cell (α ▹ π₂)).
+
+    <span class="kn">Definition</span> <span class="nf">invertible_to_cartesian_unique</span>
+               (<span class="nv">h</span> : a --&gt; b₁ ⊗ b₂)
+               (<span class="nv">β</span> : h ==&gt; g)
+               (<span class="nv">δp</span> : h · π₁ ==&gt; f · π₁)
+               (<span class="nv">q</span> : β ▹ π₁ = δp • (α ▹ π₁))
+      : isaprop (∑ (δ : h ==&gt; f), δ ▹ π₁ = δp × δ • α = β).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ].
+      use binprod_ump_2cell_unique_alt.
+      - <span class="nb">apply</span> (pr2 B).
+      - <span class="bp">exact</span> (pr12 φ₁ @ !(pr12 φ₂)).
+      - use (vcomp_rcancel _ Hα).
+        <span class="nb">rewrite</span> !rwhisker_vcomp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr22 φ₁ @ !(pr22 φ₂)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">invertible_to_cartesian</span>
+      : is_cartesian_2cell_sfib π₁ α.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> h β δp q.
+      use iscontraprop1.
+      - <span class="bp">exact</span> (invertible_to_cartesian_unique h β δp q).
+      - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        + use binprod_ump_2cell.
+          * <span class="nb">apply</span> (pr2 B).
+          * <span class="bp">exact</span> δp.
+          * <span class="bp">exact</span> (β ▹ _ • Hα^-<span class="mi">1</span>).
+        + <span class="nb">apply</span> binprod_ump_2cell_pr1.
+        + use binprod_ump_2cell_unique_alt.
+          * <span class="nb">apply</span> (pr2 B).
+          * <span class="kp">abstract</span>
+              (<span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+               <span class="nb">rewrite</span> binprod_ump_2cell_pr1 ;
+               <span class="bp">exact</span> (!q)).
+          * <span class="kp">abstract</span>
+              (<span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+               <span class="nb">rewrite</span> binprod_ump_2cell_pr2 ;
+               <span class="nb">rewrite</span> !vassocl ;
+               <span class="nb">refine</span> (_ @ id2_right _) ;
+               <span class="nb">rewrite</span> vcomp_linv ;
+               <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">InvertibleToCartesian</span>.
+
+  <span class="kn">Section</span> <span class="nf">CartesianToInvertible</span>.
+    <span class="kn">Context</span> {<span class="nv">a</span> : B}
+            {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b₁ ⊗ b₂}
+            (<span class="nv">α</span> : f ==&gt; g)
+            (<span class="nv">Hα</span> : is_cartesian_2cell_sfib π₁ α).
+
+    <span class="kn">Let</span> <span class="nf">h</span> : a --&gt; b₁ ⊗ b₂ := ⟨ f · π₁, g · π₂ ⟩.
+    <span class="kn">Let</span> <span class="nf">δ</span> : h ==&gt; g
+      := binprod_ump_2cell
+           (pr2 (pr2 B _ _))
+           (binprod_ump_1cell_pr1 _ _ _ _ • (α ▹ _))
+           (binprod_ump_1cell_pr2 _ _ _ _).
+    <span class="kn">Let</span> <span class="nf">hπ₁</span> : h · π₁ ==&gt; f · π₁ := binprod_ump_1cell_pr1 _ _ _ _.
+
+    <span class="kn">Local Lemma</span> <span class="nf">cartesian_to_invertible_eq</span>
+      : δ ▹ π₁ = hπ₁ • (α ▹ π₁).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> binprod_ump_2cell_pr1.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">lift</span> : <span class="k">∃</span>! δ0 : h ==&gt; f, δ0 ▹ π₁ = hπ₁ × δ0 • α = δ
+      := Hα h δ hπ₁ cartesian_to_invertible_eq.
+    <span class="kn">Let</span> <span class="nf">lift_map</span> : h ==&gt; f := pr11 lift.
+    <span class="kn">Let</span> <span class="nf">inv</span> : g · π₂ ==&gt; f · π₂
+      := (binprod_ump_1cell_pr2 _ _ _ _)^-<span class="mi">1</span> • (lift_map ▹ π₂).
+
+    <span class="kn">Let</span> <span class="nf">ζ</span> : f ==&gt; f
+      := binprod_ump_2cell
+           (pr2 (pr2 B _ _))
+           (id2 _)
+           ((α ▹ π₂) • inv).
+
+    <span class="kn">Local Lemma</span> <span class="nf">cartesian_to_invertible_map_inv_help</span>
+      : ζ = id₂ f.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (maponpaths
+                (<span class="k">λ</span> <span class="nv">z</span>, pr1 z)
+                (proofirrelevance
+                   _
+                   (isapropifcontr (Hα f α (id2 _) (!(id2_left _))))
+                   (ζ ,, _ ,, _)
+                   (id₂ _ ,, _ ,, _))).
+      - <span class="nb">apply</span> binprod_ump_2cell_pr1.
+      - use binprod_ump_2cell_unique_alt.
+        + <span class="nb">apply</span> (pr2 B).
+        + <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+          <span class="nb">unfold</span> ζ.
+          <span class="nb">rewrite</span> binprod_ump_2cell_pr1.
+          <span class="nb">apply</span> id2_left.
+        + <span class="nb">unfold</span> ζ, inv.
+          <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+          <span class="nb">rewrite</span> binprod_ump_2cell_pr2.
+          <span class="nb">rewrite</span> !vassocl.
+          <span class="nb">rewrite</span> rwhisker_vcomp.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (pr221 lift).
+          }
+          <span class="nb">unfold</span> δ.
+          <span class="nb">rewrite</span> binprod_ump_2cell_pr2.
+          <span class="nb">rewrite</span> vcomp_linv.
+          <span class="nb">apply</span> id2_right.
+      - <span class="nb">apply</span> id2_rwhisker.
+      - <span class="nb">apply</span> id2_left.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">cartesian_to_invertible_map_inv</span>
+      : (α ▹ π₂) • inv = id₂ (f · π₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z ▹ π₂) cartesian_to_invertible_map_inv_help @ _).
+      - <span class="nb">unfold</span> ζ.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> binprod_ump_2cell_pr2.
+      - <span class="nb">apply</span> id2_rwhisker.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">cartesian_to_invertible_inv_map</span>
+      : inv • (α ▹ π₂) = id₂ (g · π₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> inv.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr221 lift).
+      }
+      <span class="nb">unfold</span> δ.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> binprod_ump_2cell_pr2.
+      }
+      <span class="nb">apply</span> vcomp_linv.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cartesian_to_invertible</span>
+      : is_invertible_2cell (α ▹ π₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_cartesian_2cell_sfib <span class="k">in</span> Hα.
+      use make_is_invertible_2cell.
+      - <span class="bp">exact</span> inv.
+      - <span class="bp">exact</span> cartesian_to_invertible_map_inv.
+      - <span class="bp">exact</span> cartesian_to_invertible_inv_map.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">CartesianToInvertible</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_internal_cleaving</span>
+    : internal_sfib_cleaving (π₁ : b₁ ⊗ b₂ --&gt; b₁).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a f g α.
+    <span class="nb">simple refine</span> (⟨ f , g · π₂ ⟩
+                     ,, ⟪ α , id2 _ ⟫ • prod_1cell_eta _ g
+                     ,, prod_1cell_pr1 _ f _
+                     ,, _
+                     ,, _) ; <span class="nb">simpl</span>.
+    - <span class="nb">apply</span> invertible_to_cartesian.
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      use is_invertible_2cell_vcomp.
+      + <span class="nb">rewrite</span> prod_2cell_pr2.
+        is_iso.
+        <span class="nb">apply</span> prod_1cell_pr2.
+      + is_iso.
+        <span class="nb">apply</span> prod_1cell_eta.
+    - <span class="kp">abstract</span>
+        (<span class="nb">unfold</span> prod_1cell_eta_map ;
+         <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+         etrans ;
+         [ <span class="nb">apply</span> maponpaths ;
+           <span class="nb">apply</span> binprod_ump_2cell_pr1
+         | ] ;
+         <span class="nb">rewrite</span> prod_2cell_pr1 ;
+         <span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> vcomp_linv ;
+         <span class="nb">rewrite</span> id2_right ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_lwhisker_is_cartesian</span>
+    : lwhisker_is_cartesian (π₁ : b₁ ⊗ b₂ --&gt; b₁).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y h f g γ Hγ.
+    <span class="nb">apply</span> invertible_to_cartesian.
+    <span class="nb">pose</span> (cartesian_to_invertible _ Hγ) <span class="k">as</span> i.
+    use make_is_invertible_2cell.
+    - <span class="bp">exact</span> (rassociator _ _ _ • (h ◃ i^-<span class="mi">1</span>) • lassociator _ _ _).
+    - <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker_rassociator.
+      <span class="nb">refine</span> (_ @ rassociator_lassociator _ _ _).
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> vcomp_rinv.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">apply</span> id2_left.
+    - <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">refine</span> (_ @ rassociator_lassociator _ _ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> vcomp_linv.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">apply</span> id2_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_internal_sfib</span>
+    : internal_sfib (π₁ : b₁ ⊗ b₂ --&gt; b₁).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> pr1_internal_cleaving.
+    - <span class="bp">exact</span> pr1_lwhisker_is_cartesian.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ProjectionSFib</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. First projection is a Street opfibration</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ProjectionSOpFib</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat_with_binprod}
+          (<span class="nv">b₁</span> <span class="nv">b₂</span> : B).
+
+  <span class="kn">Section</span> <span class="nf">InvertibleToOpCartesian</span>.
+    <span class="kn">Context</span> {<span class="nv">a</span> : B}
+            {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b₁ ⊗ b₂}
+            (<span class="nv">α</span> : f ==&gt; g)
+            (<span class="nv">Hα</span> : is_invertible_2cell (α ▹ π₂)).
+
+    <span class="kn">Definition</span> <span class="nf">invertible_to_opcartesian_unique</span>
+               (<span class="nv">h</span> : a --&gt; b₁ ⊗ b₂)
+               (<span class="nv">β</span> : f ==&gt; h)
+               (<span class="nv">δp</span> : g · π₁ ==&gt; h · π₁)
+               (<span class="nv">q</span> : β ▹ π₁ = (α ▹ π₁) • δp)
+      : isaprop (∑ (δ : g ==&gt; h), δ ▹ π₁ = δp × α • δ = β).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> φ₁ φ₂.
+      use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> cellset_property | ].
+      use binprod_ump_2cell_unique_alt.
+      - <span class="nb">apply</span> (pr2 B).
+      - <span class="bp">exact</span> (pr12 φ₁ @ !(pr12 φ₂)).
+      - use (vcomp_lcancel _ Hα).
+        <span class="nb">rewrite</span> !rwhisker_vcomp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr22 φ₁ @ !(pr22 φ₂)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">invertible_to_opcartesian</span>
+      : is_opcartesian_2cell_sopfib π₁ α.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> h β δp q.
+      use iscontraprop1.
+      - <span class="bp">exact</span> (invertible_to_opcartesian_unique h β δp q).
+      - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        + use binprod_ump_2cell.
+          * <span class="nb">apply</span> (pr2 B).
+          * <span class="bp">exact</span> δp.
+          * <span class="bp">exact</span> (Hα^-<span class="mi">1</span> • (β ▹ _)).
+        + <span class="nb">apply</span> binprod_ump_2cell_pr1.
+        + use binprod_ump_2cell_unique_alt.
+          * <span class="nb">apply</span> (pr2 B).
+          * <span class="kp">abstract</span>
+              (<span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+               <span class="nb">rewrite</span> binprod_ump_2cell_pr1 ;
+               <span class="bp">exact</span> (!q)).
+          * <span class="kp">abstract</span>
+              (<span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+               <span class="nb">rewrite</span> binprod_ump_2cell_pr2 ;
+               <span class="nb">rewrite</span> !vassocr ;
+               <span class="nb">refine</span> (_ @ id2_left _) ;
+               <span class="nb">rewrite</span> vcomp_rinv ;
+               <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">InvertibleToOpCartesian</span>.
+
+  <span class="kn">Section</span> <span class="nf">OpCartesianToInvertible</span>.
+    <span class="kn">Context</span> {<span class="nv">a</span> : B}
+            {<span class="nv">f</span> <span class="nv">g</span> : a --&gt; b₁ ⊗ b₂}
+            (<span class="nv">α</span> : f ==&gt; g)
+            (<span class="nv">Hα</span> : is_opcartesian_2cell_sopfib π₁ α).
+
+    <span class="kn">Let</span> <span class="nf">h</span> : a --&gt; b₁ ⊗ b₂ := ⟨ g · π₁, f · π₂ ⟩.
+    <span class="kn">Let</span> <span class="nf">δ</span> : f ==&gt; h
+      := binprod_ump_2cell
+           (pr2 (pr2 B _ _))
+           (α ▹ _ • (binprod_ump_1cell_pr1 _ _ (g · π₁) (f · π₂))^-<span class="mi">1</span>)
+           ((binprod_ump_1cell_pr2 _ _ (g · π₁) (f · π₂))^-<span class="mi">1</span>).
+    <span class="kn">Let</span> <span class="nf">hπ₁</span> : g · π₁ ==&gt; h · π₁
+      := (binprod_ump_1cell_pr1 _ _ (g · π₁) (f · π₂))^-<span class="mi">1</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">opcartesian_to_invertible_eq</span>
+      : δ ▹ π₁ = (α ▹ π₁) • hπ₁.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> binprod_ump_2cell_pr1.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">lift</span> : <span class="k">∃</span>! (δ0 : g ==&gt; h), δ0 ▹ π₁ = hπ₁ × α • δ0 = δ
+      := Hα h δ hπ₁ opcartesian_to_invertible_eq.
+    <span class="kn">Let</span> <span class="nf">lift_map</span> : g ==&gt; h := pr11 lift.
+    <span class="kn">Let</span> <span class="nf">inv</span> : g · π₂ ==&gt; f · π₂
+      := lift_map ▹ π₂ • binprod_ump_1cell_pr2 _ _ _ _.
+
+    <span class="kn">Let</span> <span class="nf">ζ</span> : g ==&gt; g
+      := binprod_ump_2cell
+           (pr2 (pr2 B _ _))
+           (id2 _)
+           (inv • (α ▹ π₂)).
+
+    <span class="kn">Local Lemma</span> <span class="nf">opcartesian_to_invertible_map_inv_help</span>
+      : ζ = id₂ g.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (maponpaths
+                (<span class="k">λ</span> <span class="nv">z</span>, pr1 z)
+                (proofirrelevance
+                   _
+                   (isapropifcontr (Hα g α (id2 _) (!(id2_right _))))
+                   (ζ ,, _ ,, _)
+                   (id₂ _ ,, _ ,, _))).
+      - <span class="nb">apply</span> binprod_ump_2cell_pr1.
+      - use binprod_ump_2cell_unique_alt.
+        + <span class="nb">apply</span> (pr2 B).
+        + <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+          <span class="nb">unfold</span> ζ.
+          <span class="nb">rewrite</span> binprod_ump_2cell_pr1.
+          <span class="nb">apply</span> id2_right.
+        + <span class="nb">unfold</span> ζ, inv.
+          <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+          <span class="nb">rewrite</span> binprod_ump_2cell_pr2.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> rwhisker_vcomp.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (pr221 lift).
+          }
+          <span class="nb">unfold</span> δ.
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> binprod_ump_2cell_pr2.
+          }
+          <span class="nb">rewrite</span> vcomp_linv.
+          <span class="nb">apply</span> id2_left.
+      - <span class="nb">apply</span> id2_rwhisker.
+      - <span class="nb">apply</span> id2_right.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">opcartesian_to_invertible_map_inv</span>
+      : (α ▹ π₂) • inv = id₂ (f · π₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> inv.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (pr221 lift).
+      }
+      <span class="nb">unfold</span> δ.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> binprod_ump_2cell_pr2.
+      }
+      <span class="nb">apply</span> vcomp_linv.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">opcartesian_to_invertible_inv_map</span>
+      : inv • (α ▹ π₂) = id₂ (g · π₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z ▹ π₂) opcartesian_to_invertible_map_inv_help @ _).
+      - <span class="nb">unfold</span> ζ.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> binprod_ump_2cell_pr2.
+      - <span class="nb">apply</span> id2_rwhisker.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">opcartesian_to_invertible</span>
+      : is_invertible_2cell (α ▹ π₂).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> is_cartesian_2cell_sfib <span class="k">in</span> Hα.
+      use make_is_invertible_2cell.
+      - <span class="bp">exact</span> inv.
+      - <span class="bp">exact</span> opcartesian_to_invertible_map_inv.
+      - <span class="bp">exact</span> opcartesian_to_invertible_inv_map.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">OpCartesianToInvertible</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_internal_opcleaving</span>
+    : internal_sopfib_opcleaving (π₁ : b₁ ⊗ b₂ --&gt; b₁).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a f g α.
+    <span class="nb">refine</span> (⟨ g , f · π₂ ⟩
+            ,,
+            (prod_1cell_eta _ f)^-<span class="mi">1</span> • ⟪ α , id2 _ ⟫
+            ,,
+            inv_of_invertible_2cell (prod_1cell_pr1 _ g _)
+            ,,
+            _
+            ,,
+            _).
+    - <span class="nb">apply</span> invertible_to_opcartesian.
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      use is_invertible_2cell_vcomp.
+      + is_iso.
+      + <span class="nb">rewrite</span> prod_2cell_pr2.
+        is_iso.
+        <span class="nb">apply</span> prod_1cell_pr2.
+    - <span class="kp">abstract</span>
+        (<span class="nb">unfold</span> prod_1cell_eta_map ;
+         <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+         <span class="nb">rewrite</span> prod_2cell_pr1 ;
+         <span class="nb">cbn</span> ;
+         etrans ;
+         [ <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">apply</span> binprod_ump_2cell_pr1
+         | ] ;
+         <span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> vcomp_linv ;
+         <span class="nb">rewrite</span> id2_left ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_lwhisker_is_opcartesian</span>
+    : lwhisker_is_opcartesian (π₁ : b₁ ⊗ b₂ --&gt; b₁).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y h f g γ Hγ.
+    <span class="nb">apply</span> invertible_to_opcartesian.
+    <span class="nb">pose</span> (opcartesian_to_invertible _ Hγ) <span class="k">as</span> i.
+    use make_is_invertible_2cell.
+    - <span class="bp">exact</span> (rassociator _ _ _ • (h ◃ i^-<span class="mi">1</span>) • lassociator _ _ _).
+    - <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker_rassociator.
+      <span class="nb">refine</span> (_ @ rassociator_lassociator _ _ _).
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> vcomp_rinv.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">apply</span> id2_left.
+    - <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">refine</span> (_ @ rassociator_lassociator _ _ _).
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> vcomp_linv.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">apply</span> id2_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">pr1_internal_sopfib</span>
+    : internal_sopfib (π₁ : b₁ ⊗ b₂ --&gt; b₁).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> pr1_internal_opcleaving.
+    - <span class="bp">exact</span> pr1_lwhisker_is_opcartesian.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ProjectionSOpFib</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Morphisms/Properties/Projections.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  1. First projection is a Street fibration
+  &gt;  2. First projection is a Street opfibration
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

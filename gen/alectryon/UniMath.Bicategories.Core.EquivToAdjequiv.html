@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EquivToAdjequiv.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+<span class="sd">Internal equivalences in bicategories can be refined to adjoint equivalences.</span>
+
+<span class="sd">Authors: Dan Frumin, Niels van der Weide</span>
+
+<span class="sd">Ported from: https://github.com/nmvdw/groupoids</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+
+<span class="kn">Lemma</span> <span class="nf">representable_faithful</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+           {<span class="nv">f</span> : C⟦X,Y⟧} {<span class="nv">g</span> : C⟦Y,X⟧}
+           (<span class="nv">η</span> : id₁ X ==&gt; g ∘ f)
+           (<span class="nv">k₁</span> <span class="nv">k₂</span> : C⟦Z,X⟧)
+           (<span class="nv">α</span> <span class="nv">β</span> : k₁ ==&gt; k₂)
+           (<span class="nv">Hη</span> : is_invertible_2cell η)
+  : f ◅ α = f ◅ β -&gt; α = β.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hαβ.
+  <span class="nb">rewrite</span> (whisker_l_iso_id₁ η _ _ α Hη).
+  <span class="nb">rewrite</span> (whisker_l_iso_id₁ η _ _ β Hη).
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; _ o z)).
+  <span class="nb">apply</span> (whisker_l_eq k₁ k₂ α β Hαβ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">representable_full</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+           {<span class="nv">f</span> : C⟦X,Y⟧} {<span class="nv">g</span> : C⟦Y,X⟧}
+           (<span class="nv">η</span> : id₁ X ==&gt; g ∘ f)
+           (<span class="nv">θ</span> : f ∘ g ==&gt; id₁ Y)
+           (<span class="nv">Hη</span> : is_invertible_2cell η)
+           (<span class="nv">k₁</span> <span class="nv">k₂</span> : C⟦Z,X⟧)
+           (<span class="nv">α</span> : f ∘ k₁ ==&gt; f ∘ k₂)
+  : k₁ ==&gt; k₂.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ o rinvunitor _).
+  <span class="nb">refine</span> (_ o η ▻ _).
+  <span class="nb">refine</span> (_ o lassociator _ _ _).
+  <span class="nb">refine</span> (_ o g ◅ α).
+  <span class="nb">refine</span> (_ o rassociator _ _ _).
+  <span class="nb">refine</span> (_ o Hη^-<span class="mi">1</span> ▻ k₂).
+  <span class="nb">apply</span> runitor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">full_spec</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : C}
+           {<span class="nv">f</span> : C⟦X,Y⟧} {<span class="nv">g</span> : C⟦Y,X⟧}
+           (<span class="nv">η</span> : id₁ X ==&gt; g ∘ f)
+           (<span class="nv">θ</span> : f ∘ g ==&gt; id₁ Y)
+           (<span class="nv">Hη</span> : is_invertible_2cell η)
+           (<span class="nv">Hθ</span> : is_invertible_2cell θ)
+           (<span class="nv">k₁</span> <span class="nv">k₂</span> : C⟦Z,X⟧)
+           (<span class="nv">α</span> : f ∘ k₁ ==&gt; f ∘ k₂)
+  : f ◅ (representable_full η θ Hη k₁ k₂ α) = α.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (representable_faithful Hθ^-<span class="mi">1</span> (f ∘ k₁) (f ∘ k₂) _ α _ _).
+  { is_iso. }
+  <span class="nb">apply</span> (vcomp_lcancel (lassociator _ _ _)).
+  { is_iso. }
+  <span class="nb">rewrite</span> &lt;- whisker_l_hcomp.
+  <span class="nb">apply</span> (vcomp_rcancel (rassociator _ _ _)).
+  { is_iso. }
+  <span class="nb">rewrite</span> &lt;- !vassocr.
+  <span class="nb">rewrite</span> lassociator_rassociator, id2_right.
+  <span class="nb">apply</span> (vcomp_rcancel (Hη^-<span class="mi">1</span> ▻ k₂)).
+  { is_iso. }
+  <span class="nb">apply</span> (vcomp_rcancel (runitor k₂)).
+  { is_iso. }
+  <span class="nb">apply</span> (vcomp_lcancel (η ▻ k₁)).
+  { is_iso. }
+  <span class="nb">apply</span> (vcomp_lcancel (rinvunitor k₁)).
+  { is_iso. }
+  <span class="nb">rewrite</span> &lt;- !vassocr.
+  <span class="nb">rewrite</span> &lt;- (whisker_l_iso_id₁ η k₁ k₂ (representable_full η θ Hη k₁ k₂ α) Hη).
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">EquivToAdjEquiv</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : bicat}
+          {<span class="nv">X</span> <span class="nv">Y</span> : C}.
+  <span class="kn">Variable</span> (<span class="nv">f</span> : C⟦X,Y⟧)
+           (<span class="nv">Hf</span> : left_equivalence f).
+
+  <span class="kn">Local Definition</span> <span class="nf">g</span> : C⟦Y,X⟧ := left_adjoint_right_adjoint Hf.
+  <span class="kn">Local Definition</span> <span class="nf">η</span> : id₁ X ==&gt; g ∘ f := left_adjoint_unit Hf.
+  <span class="kn">Local Definition</span> <span class="nf">θ</span> : f ∘ g ==&gt; id₁ Y := left_adjoint_counit Hf.
+  <span class="kn">Local Definition</span> <span class="nf">ηiso</span> := left_equivalence_unit_iso Hf.
+  <span class="kn">Local Definition</span> <span class="nf">θiso</span> := left_equivalence_counit_iso Hf.
+
+  <span class="kn">Local Definition</span> <span class="nf">ε</span> : f ∘ g ==&gt; id₁ Y.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (representable_full θiso^-<span class="mi">1</span> ηiso^-<span class="mi">1</span> _ (f ∘ g) (id₁ Y) _).
+    { is_iso. }
+    <span class="bp">exact</span> ((linvunitor g)
+             o runitor g
+             o ηiso^-<span class="mi">1</span> ▻ g
+             o rassociator _ _ _).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">εiso</span> : is_invertible_2cell ε.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> ε, representable_full.
+    is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_to_adjequiv_d</span> : left_adjoint_data f.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (g ,, _).
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> η.
+    - <span class="bp">exact</span> ε.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">first_triangle_law</span>
+    : (lunitor g)
+        o g ◅ ε
+        o lassociator g f g
+        o η ▻ g
+        o rinvunitor _
+      = id₂ g.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">unfold</span> ε.
+    <span class="nb">rewrite</span> (full_spec θiso^-<span class="mi">1</span> ηiso^-<span class="mi">1</span> _ (is_invertible_2cell_inv _) (f ∘ g) (id₁ Y) _).
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="nb">rewrite</span> linvunitor_lunitor, id2_right.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> !(maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; _ o (_ o z)) (!(vassocr _ _ _))).
+    <span class="nb">rewrite</span> lassociator_rassociator, id2_right.
+    <span class="nb">rewrite</span> !(maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; _ o z) (!(vassocr _ _ _))).
+    <span class="nb">rewrite</span> lwhisker_vcomp.
+    <span class="nb">rewrite</span> vcomp_rinv.
+    <span class="nb">rewrite</span> lwhisker_id2.
+    <span class="nb">rewrite</span> id2_right.
+    <span class="nb">apply</span> rinvunitor_runitor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">whisker_ηg_type</span>
+    : <span class="kt">Type</span>.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (η ▻ g = inv_cell (η := (lunitor g o g ◅ ε o lassociator g f g)) _ o runitor g).
+    <span class="nb">unfold</span> ε, representable_full.
+    is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">whisker_ηg</span>
+    : whisker_ηg_type.
+  <span class="kn">Proof</span>.
+    use vcomp_move_L_Mp.
+    { <span class="nb">cbn</span>.
+      is_iso.
+      - <span class="nb">apply</span> Hf.
+      - <span class="nb">apply</span> Hf.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ id2_right _).
+    use vcomp_move_L_pM.
+    { is_iso. }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> first_triangle_law.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">η_natural</span>
+    : η ▻ (g ∘ f) o rinvunitor (g ∘ f) o η
+      =
+      (g ∘ f) ◅ η o linvunitor (g ∘ f) o η.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> rinvunitor_natural.
+    <span class="nb">rewrite</span> linvunitor_natural.
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="nb">rewrite</span> lwhisker_hcomp, rwhisker_hcomp.
+    <span class="nb">rewrite</span> &lt;- !interchange.
+    <span class="nb">rewrite</span> !id2_left, !id2_right.
+    <span class="nb">apply</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; z • _)).
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> lunitor_V_id_is_left_unit_V_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">η_natural_help</span>
+    : η ▻ (g ∘ f) o rinvunitor (g ∘ f)
+      =
+      (g ∘ f) ◅ η o linvunitor (g ∘ f)
+    := vcomp_lcancel η ηiso η_natural.
+
+  <span class="kn">Local Lemma</span> <span class="nf">η_whisker_l_hcomp</span>
+    : (g ∘ f) ◅ η = rassociator (g ∘ f) f g o g ◅ (f ◅ η) o lassociator (id₁ X) f g.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> !vassocr.
+    use vcomp_move_L_Mp.
+    { is_iso. }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> rwhisker_rwhisker.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">η_whisker_r_hcomp</span>
+    : η ▻ (g ∘ f) = lassociator f g(g ∘ f) o η ▻ g ▻ f o rassociator f g (id₁ X).
+  <span class="kn">Proof</span>.
+    use vcomp_move_L_pM.
+    { is_iso. }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> lwhisker_lwhisker.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">help1</span>
+    : lassociator f g (g ∘ f) o (η ▻ g o rinvunitor _) ▻ f
+      =
+      (rassociator (g ∘ f) f g)
+        o g ◅ (f ◅ η)
+        o lassociator (id₁ X) f g
+        o linvunitor (g ∘ f).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- η_whisker_l_hcomp.
+    <span class="nb">rewrite</span> &lt;- lwhisker_vcomp.
+    <span class="nb">rewrite</span> left_unit_inv_assoc.
+    <span class="nb">rewrite</span> &lt;- !vassocr.
+    <span class="nb">rewrite</span> lwhisker_lwhisker.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> !(maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; _ o z) (!(vassocr _ _ _))).
+    <span class="nb">rewrite</span> rassociator_lassociator, id2_right.
+    <span class="bp">exact</span> η_natural_help.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">help2</span>
+    : g ◅ (lassociator f g f o εiso^-<span class="mi">1</span> ▻ f o rinvunitor _)
+      =
+      g ◅ (f ◅ η o linvunitor f).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+    <span class="nb">rewrite</span> !vassocr.
+    <span class="nb">rewrite</span> lwhisker_hcomp, rwhisker_hcomp.
+    <span class="nb">rewrite</span> &lt;- triangle_l_inv.
+    <span class="nb">rewrite</span> !(maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; _ o z) (!(vassocr _ _ _))).
+    <span class="nb">unfold</span> assoc.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_hcomp.
+    <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker.
+    <span class="nb">pose</span> help1 <span class="k">as</span> p.
+    <span class="nb">rewrite</span> whisker_ηg <span class="k">in</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !vassocr <span class="k">in</span> p.
+    <span class="nb">rewrite</span> rinvunitor_runitor, id2_left <span class="k">in</span> p.
+    <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp <span class="k">in</span> p.
+    <span class="nb">rewrite</span> linvunitor_assoc <span class="k">in</span> p.
+    <span class="nb">rewrite</span> &lt;- !vassocr <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !vassocr <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !(maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; _ o (_ o z)) (!(vassocr _ _ _))) <span class="k">in</span> p.
+    <span class="nb">rewrite</span> rassociator_lassociator, id2_right <span class="k">in</span> p.
+    <span class="nb">rewrite</span> rwhisker_vcomp <span class="k">in</span> p.
+    <span class="nb">rewrite</span> &lt;- !vassocr <span class="k">in</span> p.
+    <span class="nb">pose</span> @inverse_pentagon_5 <span class="k">as</span> q.
+    <span class="nb">rewrite</span> !lwhisker_hcomp <span class="k">in</span> p.
+    <span class="nb">rewrite</span> q <span class="k">in</span> p ; <span class="nb">clear</span> q.
+    <span class="nb">rewrite</span> !vassocr <span class="k">in</span> p.
+    use vcomp_rcancel. <span class="mi">2</span>: <span class="bp">exact</span> (rassociator (f · g) f g).
+    { is_iso. }
+    <span class="nb">rewrite</span> rwhisker_vcomp.
+    <span class="nb">refine</span> (_ @ p) ; <span class="nb">clear</span> p.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !vassocr, !lwhisker_hcomp, !rwhisker_hcomp.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">help3</span>
+    : lassociator f g f o εiso^-<span class="mi">1</span> ▻ f o rinvunitor f
+      =
+      f ◅ η o linvunitor f.
+  <span class="kn">Proof</span>.
+    use (representable_faithful _ _ _ _ _ _ help2).
+    - <span class="bp">exact</span> f.
+    - <span class="bp">exact</span> εiso^-<span class="mi">1</span>.
+    - is_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">equiv_to_adjequiv_isadj</span> : left_adjoint_axioms equiv_to_adjequiv_d.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">refine</span> (maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; ((z • _) • _) • _) (!help3) @ _).
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; _ o (_ o z)) (!(vassocr _ _ _))).
+      <span class="nb">rewrite</span> lassociator_rassociator, id2_right.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">fun</span> <span class="nv">z</span> =&gt; _ o z) (!(vassocr _ _ _))).
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> vcomp_linv.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">rewrite</span> id2_right.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="bp">reflexivity</span>.
+    - <span class="nb">rewrite</span> &lt;- !vassocr.
+      <span class="bp">exact</span> first_triangle_law.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_to_isadjequiv</span> : left_adjoint_equivalence f.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="bp">exact</span> equiv_to_adjequiv_d.
+    - <span class="nb">cbn</span>.
+      <span class="nb">split</span>.
+      + <span class="bp">exact</span> equiv_to_adjequiv_isadj.
+      + <span class="nb">split</span>.
+        * <span class="bp">exact</span> ηiso.
+        * <span class="bp">exact</span> εiso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equiv_to_adjequiv</span> : adjoint_equivalence X Y
+    := (f ,, equiv_to_isadjequiv).
+<span class="kn">End</span> <span class="nf">EquivToAdjEquiv</span>.
+
+<span class="kn">Definition</span> <span class="nf">inv_equiv</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+           {<span class="nv">f</span> : X --&gt; Y}
+           (<span class="nv">Hf</span> : left_equivalence f)
+  : left_equivalence (pr11 Hf).
+<span class="kn">Proof</span>.
+  use tpair.
+  - use tpair.
+    + <span class="bp">exact</span> f.
+    + <span class="nb">split</span>.
+      * <span class="bp">exact</span> ((left_equivalence_counit_iso Hf)^-<span class="mi">1</span>).
+      * <span class="bp">exact</span> ((left_equivalence_unit_iso Hf)^-<span class="mi">1</span>).
+  - <span class="nb">split</span> ; <span class="nb">cbn</span> ; is_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">inv_left_adjoint_equivalence</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">Hf</span> : left_adjoint_equivalence f)
+  : left_adjoint_equivalence (left_adjoint_right_adjoint Hf).
+<span class="kn">Proof</span>.
+  use equiv_to_adjequiv.
+  <span class="bp">exact</span> (inv_equiv (left_equivalence_of_left_adjoint_equivalence Hf)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">inv_adjequiv</span>
+           {<span class="nv">C</span> : bicat}
+           {<span class="nv">X</span> <span class="nv">Y</span> : C}
+  : adjoint_equivalence X Y → adjoint_equivalence Y X.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  use equiv_to_adjequiv.
+  - <span class="bp">exact</span> (left_adjoint_right_adjoint f).
+  - <span class="bp">exact</span> (inv_equiv (left_equivalence_of_left_adjoint_equivalence f)).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Core/EquivToAdjequiv.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Ported from: https://github.com/nmvdw/groupoids
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

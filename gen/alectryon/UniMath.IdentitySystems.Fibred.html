@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Fibred.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Fibred Reflexive Graphs</span>
+
+<span class="sd"> The work here is based on Jon Sterling, 2026, "Reflexive graph lenses in</span>
+<span class="sd"> Univalent Foundations" (doi:10.1017/S0960129526100565, arXiv:2404.07854).</span>
+
+<span class="sd"> Contents:</span>
+<span class="sd"> 1. Definitions</span>
+<span class="sd"> 2. Relationship with lenses</span>
+<span class="sd"> 2.1. Pushforwards and pullbacks</span>
+<span class="sd"> 2.2. Straightening of edges</span>
+<span class="sd"> 2.3. Lenses from fibrations</span>
+<span class="sd"> 2.4. Equivalence between fibrations and lenses</span>
+
+<span class="sd"> Author: B. Szilvasy</span>
+<span class="sd"> September 2026</span>
+
+<span class="sd"> ********************************************************************************)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.IdentitySystems.RXGraph.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.Examples.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.Lenses.
+<span class="kn">Require Import</span> UniMath.IdentitySystems.RXGraphOfRXGraphs.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> rxgraph.
+
+<span class="sd">(** ** Definitions *)</span>
+
+<span class="sd">(** Covariant fibrations *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_covy_fibration</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B)
+  := ∏ (x y : B) (e : x ≈ y) (a : E x),
+    <span class="k">∃</span>! (b : E y), a ≈[e] b.
+<span class="kn">Definition</span> <span class="nf">covy_fibration</span> (<span class="nv">B</span> : rxgraph) : UU :=
+  ∑ (E : disp_rxgraph B), is_covy_fibration E.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_covy_fibration</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B)
+  : isaprop (is_covy_fibration E).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_covy_fibration</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : disp_rxgraph B) (<span class="nv">H</span> : is_covy_fibration E)
+  : is_disp_univalent E.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x; <span class="nb">apply</span> is_univalent_from_iscontr_edges_from.
+  <span class="bp">exact</span> (H x x (refl x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">covy_fibration_to_disp_rxgraph</span> {B : rxgraph} (E : covy_fibration B)
+  : univalent_disp_rxgraph B
+  := make_univalent_disp_rxgraph (pr1 E)
+       (is_univalent_covy_fibration (pr1 E) (pr2 E)).
+<span class="kn">Coercion</span> <span class="nf">covy_fibration_property</span> {B : rxgraph} (E : covy_fibration B)
+  : is_covy_fibration E := pr2 E.
+
+<span class="kn">Definition</span> <span class="nf">covy_fibration_lift</span>
+  {<span class="nv">B</span> : rxgraph} {<span class="nv">E</span> : disp_rxgraph B}
+  (<span class="nv">ℓ</span> : is_covy_fibration E)
+  : ∏ {x y : B} (e : x ≈ y) (a : E x),
+    <span class="k">∃</span>! (b : E y), a ≈[e] b
+  := ℓ.
+
+<span class="sd">(** Contravariant fibrations *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_contra_fibration</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B)
+  := ∏ (x y : B) (e : x ≈ y) (b : E y),
+    <span class="k">∃</span>! (a : E x), a ≈[e] b.
+<span class="kn">Definition</span> <span class="nf">contra_fibration</span> (<span class="nv">B</span> : rxgraph) : UU :=
+  ∑ (E : disp_rxgraph B), is_contra_fibration E.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_contra_fibration</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : disp_rxgraph B)
+  : isaprop (is_contra_fibration E).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">4</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropiscontr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_contra_fibration</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : disp_rxgraph B) (<span class="nv">H</span> : is_contra_fibration E)
+  : is_disp_univalent E.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x; <span class="nb">apply</span> is_univalent_from_iscontr_edges_to.
+  <span class="bp">exact</span> (H x x (refl x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">contra_fibration_to_disp_rxgraph</span> {B : rxgraph} (E : contra_fibration B)
+  : univalent_disp_rxgraph B
+  := make_univalent_disp_rxgraph (pr1 E)
+       (is_univalent_contra_fibration (pr1 E) (pr2 E)).
+<span class="kn">Coercion</span> <span class="nf">contra_fibration_property</span> {B : rxgraph} (E : contra_fibration B)
+  : is_contra_fibration E := pr2 E.
+
+<span class="kn">Definition</span> <span class="nf">contra_fibration_lift</span>
+  {<span class="nv">B</span> : rxgraph} {<span class="nv">E</span> : disp_rxgraph B}
+  (<span class="nv">ℓ</span> : is_contra_fibration E)
+  : ∏ {x y : B} (e : x ≈ y) (b : E y),
+    <span class="k">∃</span>! (a : E x), a ≈[e] b
+  := ℓ.
+
+<span class="sd">(** ** Relationship with lenses *)</span>
+
+<span class="sd">(** *** Pushforwards and pullbacks *)</span>
+
+<span class="sd">(** Pushforwards *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pushforwards_are_universal</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_lens B) : UU
+  := ∏ (x y : B) (e : x ≈ y) (a : E x),
+    isaprop (edges_from (E y) (lens_push E e a)).
+
+<span class="kn">Lemma</span> <span class="nf">is_covy_fibration_covy_lens</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_lens B)
+  (<span class="nv">H</span> : pushforwards_are_universal E)
+  : is_covy_fibration (covy_lens_disp_rxgraph E).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y e a.
+  <span class="nb">apply</span> (iscontraprop1 (H x y e a)).
+  <span class="nb">apply</span> edges_from_refl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">covy_lens_pushfowards_are_universal_from_univalent</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_lens B)
+  (<span class="nv">HE</span> : ∏ x, is_univalent (E x))
+  : pushforwards_are_universal E.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y e a.
+  <span class="nb">apply</span> is_univalent_to_isaprop_edges_from, HE.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">covy_lens_univalent_from_pushforwards_are_universal</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_lens B)
+  (<span class="nv">H</span> : pushforwards_are_universal E)
+  : ∏ x, is_univalent (E x).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x; <span class="nb">apply</span> is_univalent_from_isaprop_edges_from; <span class="nb">intro</span> a.
+  <span class="nb">apply</span> (isofhlevelweqf <span class="mi">1</span> (X:=edges_from _ (lens_push E (refl x) a))).
+  - <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> b.
+    <span class="nb">refine</span> (transportb (<span class="k">λ</span> <span class="nv">c</span>, c ≈ b ≃ a ≈ b) _ (idweq _)).
+    <span class="nb">refine</span> (base_paths (edges_from_refl _) (a,, lens_push_refl E x a) _).
+    <span class="nb">apply</span> proofirrelevance, H.
+  - <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">covy_fibration_from_univalent_covy_lens</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : univalent_covy_lens B)
+  : covy_fibration B.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">covy_lens_disp_rxgraph</span> <span class="nv">E</span>).
+  <span class="nb">apply</span> is_covy_fibration_covy_lens, covy_lens_pushfowards_are_universal_from_univalent.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> rxgraph_univalence.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Pullbacks *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pullbacks_are_universal</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_lens B) : UU
+  := ∏ (x y : B) (e : x ≈ y) (a : E y),
+    isaprop (edges_to (E x) (lens_pull E e a)).
+
+<span class="kn">Lemma</span> <span class="nf">is_contra_fibration_contra_lens</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_lens B)
+  (<span class="nv">H</span> : pullbacks_are_universal E)
+  : is_contra_fibration (contra_lens_disp_rxgraph E).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y e a.
+  <span class="nb">apply</span> (iscontraprop1 (H x y e a)).
+  <span class="nb">apply</span> edges_to_refl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">contra_lens_pullfowards_are_universal_from_univalent</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_lens B)
+  (<span class="nv">HE</span> : ∏ x, is_univalent (E x))
+  : pullbacks_are_universal E.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y e a.
+  <span class="nb">apply</span> is_univalent_to_isaprop_edges_to, HE.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">contra_lens_univalent_from_pullbacks_are_universal</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_lens B)
+  (<span class="nv">H</span> : pullbacks_are_universal E)
+  : ∏ x, is_univalent (E x).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x; <span class="nb">apply</span> is_univalent_from_isaprop_edges_to; <span class="nb">intro</span> b.
+  <span class="nb">apply</span> (isofhlevelweqf <span class="mi">1</span> (X:=edges_to _ (lens_pull E (refl x) b))).
+  - <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span> a.
+    <span class="nb">refine</span> (transportb (<span class="k">λ</span> <span class="nv">c</span>, a ≈ c ≃ a ≈ b) _ (idweq _)).
+    <span class="nb">refine</span> (base_paths (edges_to_refl _) (b,, lens_pull_refl E x b) _).
+    <span class="nb">apply</span> proofirrelevance, H.
+  - <span class="nb">apply</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">contra_fibration_from_univalent_contra_lens</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : univalent_contra_lens B)
+  : contra_fibration B.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">contra_lens_disp_rxgraph</span> <span class="nv">E</span>).
+  <span class="nb">apply</span> is_contra_fibration_contra_lens, contra_lens_pullfowards_are_universal_from_univalent.
+  <span class="nb">intro</span> x.
+  <span class="nb">apply</span> rxgraph_univalence.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Straightening of edges *)</span>
+
+<span class="kn">Section</span> <span class="nf">covy_straightening</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_fibration B)
+    {<span class="nv">x</span> <span class="nv">y</span> : B} (<span class="nv">e</span> : x ≈ y) {<span class="nv">a</span> : E x}.
+
+  <span class="kn">Let</span> <span class="nf">p</span> := iscontrpr1 (covy_fibration_lift E e a).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'p*a'"</span> := (pr1 p).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'p†a'"</span> := (pr2 p).
+
+  <span class="kn">Definition</span> <span class="nf">covy_edge_str₀</span>
+    {<span class="nv">b</span> : E y} (<span class="nv">e'</span> : a ≈[e] b)
+    (<span class="nv">H</span> : p = b,, e')
+    : p*a ≈{E⟦y⟧} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (transportb (<span class="k">λ</span> <span class="nv">c</span>, pr1 c ≈{E⟦y⟧} pr1 (b,, e')) H _).
+    <span class="nb">apply</span> refl.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">covy_edge_str</span>
+    {<span class="nv">b</span> : E y} (<span class="nv">e'</span> : a ≈[e] b)
+    : p*a ≈{E⟦y⟧} b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (covy_edge_str₀ e').
+    <span class="nb">apply</span> pathsinv0, iscontr_uniqueness.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">covy_edge_unstr₀</span>
+    {<span class="nv">b</span> : E y} (<span class="nv">e'</span> : p*a ≈{E⟦y⟧} b)
+    (<span class="nv">I</span> : edges_from_refl (G:=E⟦y⟧) p*a = b,, e')
+    : a ≈[e] b.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (transportf (<span class="k">λ</span> <span class="nv">c</span>, a ≈[e] pr1 c) I _).
+    <span class="bp">exact</span> p†a.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">covy_edge_unstr</span>
+    {<span class="nv">b</span> : E y} (<span class="nv">e'</span> : p*a ≈{E⟦y⟧} b)
+    : a ≈[e] b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (covy_edge_unstr₀ e').
+    <span class="nb">apply</span> proofirrelevance, (is_univalent_to_isaprop_edges_from (E⟦y⟧)).
+    <span class="nb">apply</span> is_univalent_covy_fibration, E.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">covy_edge_str₀_after_unstr₀</span>
+    {<span class="nv">b</span> : E y} (<span class="nv">e'</span> : p*a ≈{E⟦y⟧} b)
+    (<span class="nv">I</span> : edges_from_refl (G:=E⟦y⟧) p*a = b,, e')
+    (<span class="nv">H</span> : p = b,, covy_edge_unstr₀ e' I)
+    : covy_edge_str₀ (covy_edge_unstr₀ e' I) H = e'.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (be' := b,, e' : ∑ b, p*a ≈{E⟦y⟧} b).
+    <span class="nb">fold</span> be' <span class="k">in</span> I; <span class="nb">fold</span> (pr1 be') (pr2 be') <span class="k">in</span> H |- *.
+    <span class="nb">induction</span> I; <span class="nb">clear</span> b e'.
+    <span class="nb">cbn</span> <span class="k">in</span> H |- *.
+    <span class="nb">assert</span> (H' : idpath p = H).
+    { <span class="nb">apply</span> proofirrelevancecontr.
+      <span class="nb">refine</span> ((_ : isaprop _) _ _).
+      <span class="nb">apply</span> isapropifcontr, covy_fibration_lift, E. }
+    <span class="nb">induction</span> H'.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">covy_edge_unstr₀_after_str₀</span>
+    {<span class="nv">b</span> : E y} (<span class="nv">e'</span> : a ≈[e] b)
+    (<span class="nv">H</span> : p = b,, e')
+    (<span class="nv">I</span> : edges_from_refl (G:=E⟦y⟧) p*a = b,, covy_edge_str₀ e' H)
+    : covy_edge_unstr₀ (covy_edge_str₀ e' H) I = e'.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (be' := b,, e' : ∑ b, a ≈[e] b).
+    <span class="nb">fold</span> be' <span class="k">in</span> H; <span class="nb">fold</span> (pr1 be') (pr2 be') <span class="k">in</span> I |- *.
+    <span class="nb">induction</span> H; <span class="nb">clear</span> b e'.
+    <span class="nb">cbn</span> <span class="k">in</span> I |- *.
+    <span class="nb">assert</span> (I' : idpath _ = I).
+    { <span class="nb">apply</span> proofirrelevancecontr.
+      <span class="nb">refine</span> ((_ : isaprop _) _ _).
+      <span class="nb">apply</span> isapropifcontr, covy_fibration_lift, E. }
+    <span class="nb">induction</span> I'.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">isweq_covy_edge_str</span> (<span class="nv">b</span> : E y)
+    : isweq (<span class="k">λ</span> (<span class="nv">e'</span> : a ≈[e] b), covy_edge_str e').
+  <span class="kn">Proof</span>.
+    use isweq_iso.
+    - <span class="bp">exact</span> covy_edge_unstr.
+    - <span class="nb">intro</span> e'; <span class="nb">apply</span> covy_edge_unstr₀_after_str₀.
+    - <span class="nb">intro</span> e'; <span class="nb">apply</span> covy_edge_str₀_after_unstr₀.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_covy_edge_str</span> (<span class="nv">b</span> : E y)
+    : a ≈[ e ] b ≃ p*a ≈{E⟦y⟧} b
+    := make_weq _ (isweq_covy_edge_str b).
+
+  <span class="kn">Definition</span> <span class="nf">weq_covy_edge_unstr</span> (<span class="nv">b</span> : E y)
+    : p*a ≈{E⟦y⟧} b ≃ a ≈[ e ] b
+    := invweq (weq_covy_edge_str b).
+
+<span class="kn">End</span> <span class="nf">covy_straightening</span>.
+<span class="kn">Arguments</span> weq_covy_edge_str {B} E {x y} e a b.
+<span class="kn">Arguments</span> weq_covy_edge_unstr {B} E {x y} e a b.
+
+<span class="kn">Section</span> <span class="nf">contra_straightening</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_fibration B)
+    {<span class="nv">x</span> <span class="nv">y</span> : B} (<span class="nv">e</span> : x ≈ y) {<span class="nv">b</span> : E y}.
+
+  <span class="kn">Let</span> <span class="nf">p</span> := iscontrpr1 (contra_fibration_lift E e b).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'p*b'"</span> := (pr1 p).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'p†b'"</span> := (pr2 p).
+
+  <span class="kn">Definition</span> <span class="nf">contra_edge_str₀</span>
+    {<span class="nv">a</span> : E x} (<span class="nv">e'</span> : a ≈[e] b)
+    (<span class="nv">H</span> : p = a,, e')
+    : a ≈{E⟦x⟧} p*b.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (transportb (<span class="k">λ</span> <span class="nv">c</span>, pr1 (a,, e' : ∑ a, a ≈[e] b) ≈{E⟦x⟧} pr1 c) H _).
+    <span class="nb">apply</span> refl.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">contra_edge_str</span>
+    {<span class="nv">a</span> : E x} (<span class="nv">e'</span> : a ≈[e] b)
+    : a ≈{E⟦x⟧} p*b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (contra_edge_str₀ e').
+    <span class="nb">apply</span> pathsinv0, iscontr_uniqueness.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">contra_edge_unstr₀</span>
+    {<span class="nv">a</span> : E x} (<span class="nv">e'</span> : a ≈{E⟦x⟧} p*b)
+    (<span class="nv">I</span> : edges_to_refl (G:=E⟦x⟧) p*b = a,, e')
+    : a ≈[e] b.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (transportf (<span class="k">λ</span> <span class="nv">c</span>, pr1 c ≈[e] b) I _).
+    <span class="bp">exact</span> p†b.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">contra_edge_unstr</span>
+    {<span class="nv">a</span> : E x} (<span class="nv">e'</span> : a ≈{E⟦x⟧} p*b)
+    : a ≈[e] b.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (contra_edge_unstr₀ e').
+    <span class="nb">apply</span> proofirrelevance, (is_univalent_to_isaprop_edges_to (E⟦x⟧)).
+    <span class="nb">apply</span> is_univalent_contra_fibration, E.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">contra_edge_str₀_after_unstr₀</span>
+    {<span class="nv">a</span> : E x} (<span class="nv">e'</span> : a ≈{E⟦x⟧} p*b)
+    (<span class="nv">I</span> : edges_to_refl (G:=E⟦x⟧) p*b = a,, e')
+    (<span class="nv">H</span> : p = a,, contra_edge_unstr₀ e' I)
+    : contra_edge_str₀ (contra_edge_unstr₀ e' I) H = e'.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (ae' := a,, e' : ∑ a, a ≈{E⟦x⟧} p*b).
+    <span class="nb">fold</span> ae' <span class="k">in</span> I; <span class="nb">fold</span> (pr1 ae') (pr2 ae') <span class="k">in</span> H |- *.
+    <span class="nb">induction</span> I; <span class="nb">clear</span> a e'.
+    <span class="nb">cbn</span> <span class="k">in</span> H |- *.
+    <span class="nb">assert</span> (H' : idpath p = H).
+    { <span class="nb">apply</span> proofirrelevancecontr.
+      <span class="nb">refine</span> ((_ : isaprop _) _ _).
+      <span class="nb">apply</span> isapropifcontr, contra_fibration_lift, E. }
+    <span class="nb">induction</span> H'.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">contra_edge_unstr₀_after_str₀</span>
+    {<span class="nv">a</span> : E x} (<span class="nv">e'</span> : a ≈[e] b)
+    (<span class="nv">H</span> : p = a,, e')
+    (<span class="nv">I</span> : edges_to_refl (G:=E⟦x⟧) p*b = a,, contra_edge_str₀ e' H)
+    : contra_edge_unstr₀ (contra_edge_str₀ e' H) I = e'.
+  <span class="kn">Proof</span>.
+    <span class="nb">pose</span> (ae' := a,, e' : ∑ a, a ≈[e] b).
+    <span class="nb">fold</span> ae' <span class="k">in</span> H; <span class="nb">fold</span> (pr1 ae') (pr2 ae') <span class="k">in</span> I |- *.
+    <span class="nb">induction</span> H; <span class="nb">clear</span> a e'.
+    <span class="nb">cbn</span> <span class="k">in</span> I |- *.
+    <span class="nb">assert</span> (I' : idpath _ = I).
+    { <span class="nb">apply</span> proofirrelevancecontr.
+      <span class="nb">refine</span> ((_ : isaprop _) _ _).
+      <span class="nb">apply</span> isapropifcontr, contra_fibration_lift, E. }
+    <span class="nb">induction</span> I'.
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">isweq_contra_edge_str</span> (<span class="nv">a</span> : E x)
+    : isweq (<span class="k">λ</span> (<span class="nv">e'</span> : a ≈[e] b), contra_edge_str e').
+  <span class="kn">Proof</span>.
+    use isweq_iso.
+    - <span class="bp">exact</span> contra_edge_unstr.
+    - <span class="nb">intro</span> e'; <span class="nb">apply</span> contra_edge_unstr₀_after_str₀.
+    - <span class="nb">intro</span> e'; <span class="nb">apply</span> contra_edge_str₀_after_unstr₀.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">weq_contra_edge_str</span> (<span class="nv">a</span> : E x)
+    : a ≈[ e ] b ≃ a ≈{E⟦x⟧} p*b
+    := make_weq _ (isweq_contra_edge_str a).
+
+  <span class="kn">Definition</span> <span class="nf">weq_contra_edge_unstr</span> (<span class="nv">a</span> : E x)
+    : a ≈{E⟦x⟧} p*b ≃ a ≈[ e ] b
+    := invweq (weq_contra_edge_str a).
+
+<span class="kn">End</span> <span class="nf">contra_straightening</span>.
+<span class="kn">Arguments</span> weq_contra_edge_str {B} E {x y} e b a.
+<span class="kn">Arguments</span> weq_contra_edge_unstr {B} E {x y} e b a.
+
+<span class="sd">(** *** Lenses from fibrations *)</span>
+
+<span class="kn">Definition</span> <span class="nf">univalent_covy_lens_from_fibration</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : covy_fibration B)
+  : univalent_covy_lens B.
+<span class="kn">Proof</span>.
+  use make_univalent_covy_lens.
+  - <span class="nb">intro</span> x; <span class="k">exists</span> (<span class="nv">E</span>⟦x⟧).
+    <span class="nb">apply</span> is_univalent_covy_fibration, E.
+  - <span class="nb">intros</span> x y e a.
+    <span class="bp">exact</span> (pr1 (iscontrpr1 (covy_fibration_lift E e a))).
+  - <span class="nb">intros</span> x a.
+    <span class="nb">refine</span> (weq_covy_edge_str E (refl x) a a _).
+    <span class="bp">exact</span> (disp_refl x a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_contra_lens_from_fibration</span> {<span class="nv">B</span> : rxgraph}
+  (<span class="nv">E</span> : contra_fibration B)
+  : univalent_contra_lens B.
+<span class="kn">Proof</span>.
+  use make_univalent_contra_lens.
+  - <span class="nb">intro</span> x; <span class="k">exists</span> (<span class="nv">E</span>⟦x⟧).
+    <span class="nb">apply</span> is_univalent_contra_fibration, E.
+  - <span class="nb">intros</span> x y e a.
+    <span class="bp">exact</span> (pr1 (iscontrpr1 (contra_fibration_lift E e a))).
+  - <span class="nb">intros</span> x a.
+    <span class="nb">refine</span> (weq_contra_edge_str E (refl x) a a _).
+    <span class="bp">exact</span> (disp_refl x a).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Equivalence between fibrations and lenses</span>
+
+<span class="sd"> We do not yet show that the round-trip below</span>
+<span class="sd"> preserves the lens structure itself.</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Definition</span> <span class="nf">disp_rxgraph_from_covy_lens_from_fibration_iso</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : covy_fibration B)
+  : disp_rxgraph_iso E
+      (covy_lens_disp_rxgraph (univalent_covy_lens_from_fibration E)).
+<span class="kn">Proof</span>.
+  use make_disp_rxgraph_iso.
+  - <span class="nb">intros</span> x; <span class="bp">exact</span> (idweq (E x)).
+  - <span class="nb">intros</span> x y e a b; <span class="nb">cbn</span> <span class="k">in</span> a, b |- *.
+    <span class="bp">exact</span> (weq_covy_edge_str E e a b).
+  - <span class="bp">easy</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">covy_lens_from_fibration_from_covy_lens_iso</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : univalent_covy_lens B)
+  : ∏ (x : B),
+    rxgraph_iso
+      (E x)
+      (univalent_covy_lens_from_fibration
+         (covy_fibration_from_univalent_covy_lens E)
+         x).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  use make_rxgraph_iso.
+  - <span class="bp">exact</span> (idweq (E x)).
+  - <span class="nb">intros</span> a b; <span class="nb">cbn</span> <span class="k">in</span> a, b |- *.
+    <span class="nb">eexists</span>.
+    <span class="nb">apply</span> (isweq_edge_comp_left (pr1 E x) (lens_push_refl E x a)).
+  - <span class="nb">intros</span> a; <span class="nb">cbn</span> <span class="k">in</span> a |- *.
+    <span class="nb">apply</span> edge_comp_refl_right.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_rxgraph_from_contra_lens_from_fibration_iso</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : contra_fibration B)
+  : disp_rxgraph_iso E
+      (contra_lens_disp_rxgraph (univalent_contra_lens_from_fibration E)).
+<span class="kn">Proof</span>.
+  use make_disp_rxgraph_iso.
+  - <span class="nb">intros</span> x; <span class="bp">exact</span> (idweq (E x)).
+  - <span class="nb">intros</span> x y e a b; <span class="nb">cbn</span> <span class="k">in</span> a, b |- *.
+    <span class="bp">exact</span> (weq_contra_edge_str E e b a).
+  - <span class="bp">easy</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">contra_lens_from_fibration_from_contra_lens_iso</span>
+  {<span class="nv">B</span> : rxgraph} (<span class="nv">E</span> : univalent_contra_lens B)
+  : ∏ (x : B),
+    rxgraph_iso
+      (E x)
+      (univalent_contra_lens_from_fibration
+         (contra_fibration_from_univalent_contra_lens E)
+         x).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  use make_rxgraph_iso.
+  - <span class="bp">exact</span> (idweq (E x)).
+  - <span class="nb">intros</span> a b; <span class="nb">cbn</span> <span class="k">in</span> a, b |- *.
+    <span class="nb">eexists</span>.
+    <span class="nb">apply</span> (isweq_edge_comp_right (pr1 E x) (lens_pull_refl E x b)).
+  - <span class="nb">intros</span> a; <span class="nb">cbn</span> <span class="k">in</span> a |- *.
+    <span class="nb">apply</span> edge_comp_refl_left.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/IdentitySystems/Fibred.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  ********************************************************************************)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

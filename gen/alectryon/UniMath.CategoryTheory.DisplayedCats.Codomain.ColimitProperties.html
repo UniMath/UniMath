@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ColimitProperties.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************************</span>
+
+<span class="sd"> Properties of colimits in the slice</span>
+
+<span class="sd"> We verify some properties of binary coproducts and initial objects in the slice. More</span>
+<span class="sd"> precisely, we give conditions for when we have a strict initial object in the slice</span>
+<span class="sd"> category, and when we have disjoint and stable coproducts in the slice category.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Strict initial objects in the slice category</span>
+<span class="sd"> 2. Disjoint binary coproducts in the slice</span>
+<span class="sd"> 3. Stable binary coproducts in the slice</span>
+
+<span class="sd"> ***************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.StrictInitial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.DisjointBinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodColimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.IteratedSlice.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ASlice</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">x</span> : C).
+
+  <span class="sd">(** * 1. Strict initial objects in the slice category *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_strict_initial_cod_fib</span>
+             (<span class="nv">I</span> : Initial C)
+             (<span class="nv">HI</span> : is_strict_initial I)
+    : is_strict_initial (initial_cod_fib x I).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y f.
+    use is_z_iso_fiber_from_is_z_iso_disp.
+    use is_z_iso_disp_codomain.
+    <span class="nb">apply</span> HI.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">strict_initial_cod_fib</span>
+             (<span class="nv">I</span> : strict_initial_object C)
+    : strict_initial_object (C/x).
+  <span class="kn">Proof</span>.
+    use make_strict_initial.
+    - <span class="bp">exact</span> (initial_cod_fib x I).
+    - <span class="nb">apply</span> is_strict_initial_cod_fib.
+      <span class="bp">exact</span> (is_strict_initial_strict_initial I).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Disjoint binary coproducts in the slice *)</span>
+  <span class="kn">Definition</span> <span class="nf">disjoint_bincoproducts_cod_fib</span>
+             (<span class="nv">I</span> : Initial C)
+             (<span class="nv">BC</span> : BinCoproducts C)
+             (<span class="nv">H</span> : disjoint_bincoproducts BC I)
+    : disjoint_bincoproducts
+        (bincoproducts_cod_fib x BC)
+        (initial_cod_fib x I).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - use is_monic_cod_fib.
+      <span class="nb">apply</span> H.
+    - use is_monic_cod_fib.
+      <span class="nb">apply</span> H.
+    - use to_is_pullback_slice.
+      + <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> &lt;- !comp_in_cod_fib ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">apply</span> InitialArrowEq).
+      + <span class="nb">apply</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. Stable binary coproducts in the slice *)</span>
+  <span class="kn">Definition</span> <span class="nf">stable_bincoproducts_cod_fib</span>
+             (<span class="nv">BC</span> : BinCoproducts C)
+             (<span class="nv">HC</span> : Pullbacks C)
+             (<span class="nv">H</span> : stable_bincoproducts BC)
+    : stable_bincoproducts (bincoproducts_cod_fib x BC).
+  <span class="kn">Proof</span>.
+    use stable_bincoproducts_from_pb_preserves_bincoproduct.
+    - use codomain_fiberwise_pullbacks.
+      <span class="bp">exact</span> HC.
+    - <span class="nb">intros</span> f g p.
+      use preserves_bincoproduct_cod_pb_iterated.
+      <span class="bp">exact</span> (pb_preserves_bincoproduct_from_stable_bincoproducts BC HC H (dom_mor p)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">ASlice</span>.
+
+<span class="sd">(** * 4. Preservation of colimits by the arrow functor *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_initial_fiber_functor_disp_codomain</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">I</span> : Initial C₁)
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">HF</span> : preserves_initial F)
+           (<span class="nv">x</span> : C₁)
+  : preserves_initial (fiber_functor (disp_codomain_functor F) x).
+<span class="kn">Proof</span>.
+  use preserves_initial_if_preserves_chosen.
+  {
+    <span class="bp">exact</span> (initial_cod_fib x I).
+  }
+  <span class="nb">unfold</span> preserves_chosen_initial.
+  use to_initial_slice.
+  <span class="nb">apply</span> HF.
+  <span class="bp">exact</span> (pr2 I).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_bincoproducts_fiber_functor_disp_codomain</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">BC</span> : BinCoproducts C₁)
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">HF</span> : preserves_bincoproduct F)
+           (<span class="nv">x</span> : C₁)
+  : preserves_bincoproduct (fiber_functor (disp_codomain_functor F) x).
+<span class="kn">Proof</span>.
+  use preserves_bincoproduct_if_preserves_chosen.
+  {
+    <span class="bp">exact</span> (bincoproducts_cod_fib x BC).
+  }
+  <span class="nb">intros</span> f g.
+  use to_bincoproduct_slice.
+  use (isBinCoproduct_eq_arrow
+         _ _
+         (HF _ _ _ _ _ (isBinCoproduct_BinCoproduct _ (BC (cod_dom f) (cod_dom g))))).
+  - <span class="nb">rewrite</span> disp_codomain_fiber_functor_mor.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">rewrite</span> disp_codomain_fiber_functor_mor.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Codomain/ColimitProperties.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Stable binary coproducts in the slice
+  &gt;
+  &gt;  ***************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

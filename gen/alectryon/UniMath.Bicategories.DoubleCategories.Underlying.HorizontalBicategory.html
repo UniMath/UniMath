@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>HorizontalBicategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************</span>
+
+<span class="sd"> Horizontal bicategory of a pseudo double category</span>
+
+<span class="sd"> Every pseudo double category `C` gives rise to a horizontal bicategory defined as</span>
+<span class="sd"> follows:</span>
+<span class="sd"> - Objects: objects of `C`</span>
+<span class="sd"> - 1-cells: horizontal morphisms of `C`</span>
+<span class="sd"> - 2-cells: globular squares</span>
+<span class="sd"> Composition of 2-cells is given as follows</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd"> x --|--&gt; y</span>
+<span class="sd"> |        |</span>
+<span class="sd"> |        |</span>
+<span class="sd"> V        V</span>
+<span class="sd"> x --|--&gt; y</span>
+<span class="sd"> |        |</span>
+<span class="sd"> |        |</span>
+<span class="sd"> V        V</span>
+<span class="sd"> x --|--&gt; y</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd"> This is a globular square, because both vertical sides are equal to the identity</span>
+<span class="sd"> since unitality of vertical morphisms is strict.</span>
+
+<span class="sd"> We also show that this bicategory is univalent if our pseudo double category is</span>
+<span class="sd"> univalent. The idea behind this proof is that equality of horizontal morphisms</span>
+<span class="sd"> is the same as globular isomorphism squares, because we assume the horizontal</span>
+<span class="sd"> categories of `C` to be univalent. Invertible 2-cells in the horizontal</span>
+<span class="sd"> bicategory are the same as globular isomorphism squares.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The data of the horizontal bicategory</span>
+<span class="sd"> 2. The laws of the horizontal bicategory</span>
+<span class="sd"> 3. The horizontal bicategory</span>
+<span class="sd"> 4. Local univalence of the bicategory</span>
+
+<span class="sd"> ********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Strictness.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.PseudoDoubleSetCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.DerivedLaws.
+<span class="kn">Import</span> TransportSquare.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> double_cat.
+
+<span class="kn">Section</span> <span class="nf">HorizontalBicat</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : double_cat).
+
+  <span class="sd">(** * 1. The data of the horizontal bicategory *)</span>
+  <span class="kn">Definition</span> <span class="nf">horizontal_precategory_ob_mor</span>
+    : precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> C.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, x --&gt;h y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">horizontal_precategory_id_comp</span>
+    : precategory_id_comp horizontal_precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, identity_h x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span> <span class="nv">g</span>, f ·h g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">horizontal_precategory_data</span>
+    : precategory_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> horizontal_precategory_ob_mor.
+    - <span class="bp">exact</span> horizontal_precategory_id_comp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">horizontal_prebicat_1_id_comp_cells</span>
+    : prebicat_1_id_comp_cells.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> horizontal_precategory_data.
+    - <span class="nb">intros</span> x y f g ; <span class="nb">cbn</span> <span class="k">in</span> x, y, f, g.
+      <span class="bp">exact</span> (square (identity_v x) (identity_v y) f g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">horizontal_prebicat_2_id_comp_struct</span>
+    : prebicat_2_id_comp_struct horizontal_prebicat_1_id_comp_cells.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, id_v_square f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, lunitor_h f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, runitor_h f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, linvunitor_h f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, rinvunitor_h f).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, rassociator_h f g h).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span>, lassociator_h f g h).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">s₁</span> <span class="nv">s₂</span>,
+             transportf_square
+               (id_v_left _) (id_v_left _)
+               (s₁ ⋆v s₂)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f</span> <span class="nv">g₁</span> <span class="nv">g₂</span> <span class="nv">s</span>, id_v_square f ⋆h s).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">f₁</span> <span class="nv">f₂</span> <span class="nv">g</span> <span class="nv">s</span>, s ⋆h id_v_square g).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">horizontal_prebicat_data</span>
+    : prebicat_data.
+  <span class="kn">Proof</span>.
+    use make_prebicat_data.
+    - <span class="bp">exact</span> horizontal_prebicat_1_id_comp_cells.
+    - <span class="bp">exact</span> horizontal_prebicat_2_id_comp_struct.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. The laws of the horizontal bicategory *)</span>
+  <span class="kn">Proposition</span> <span class="nf">horizontal_prebicat_laws</span>
+    : prebicat_laws horizontal_prebicat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">cbn</span>.
+    - <span class="nb">intros</span> x y f g s.
+      <span class="nb">rewrite</span> square_id_left_v.
+      <span class="nb">rewrite</span> transportfb_square.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y f g s.
+      <span class="nb">rewrite</span> square_id_right_v.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">apply</span> transportf_square_id.
+    - <span class="nb">intros</span> x y f g h k s₁ s₂ s₃.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> transportf_square_postwhisker.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> square_assoc_v.
+      }
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g.
+      <span class="nb">rewrite</span> comp_h_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g.
+      <span class="nb">rewrite</span> comp_h_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g h i s₁ s₂.
+      <span class="nb">rewrite</span> &lt;- comp_h_square_comp.
+      <span class="nb">rewrite</span> square_id_left_v.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_hcomp_r.
+      <span class="nb">rewrite</span> transportf_hcomp_l.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">rewrite</span> transportf_hcomp_l.
+      <span class="nb">rewrite</span> transportf_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g h i s₁ s₂.
+      <span class="nb">rewrite</span> &lt;- comp_h_square_comp.
+      <span class="nb">rewrite</span> square_id_left_v.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_hcomp_l.
+      <span class="nb">rewrite</span> transportf_hcomp_r.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">rewrite</span> transportf_hcomp_l.
+      <span class="nb">rewrite</span> transportf_square_id.
+      <span class="nb">apply</span> maponpaths.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y f g s.
+      <span class="nb">rewrite</span> &lt;- id_h_square_id.
+      <span class="nb">rewrite</span> (lunitor_square s).
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y f g s.
+      <span class="nb">rewrite</span> &lt;- id_h_square_id.
+      <span class="nb">rewrite</span> (runitor_square s).
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z f g h i s.
+      <span class="nb">rewrite</span> lassociator_square.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> &lt;- comp_h_square_id.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z f g h i s.
+      <span class="nb">rewrite</span> lassociator_square.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z f g h i s.
+      <span class="nb">rewrite</span> &lt;- comp_h_square_id.
+      <span class="nb">rewrite</span> lassociator_square.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g h i s₁ s₂.
+      <span class="nb">rewrite</span> &lt;- !comp_h_square_comp.
+      <span class="nb">rewrite</span> !square_id_left_v.
+      <span class="nb">rewrite</span> !square_id_right_v.
+      <span class="nb">unfold</span> transportb_square.
+      use transportf_square_eq.
+      use eq_hcomp_square.
+      + <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> transportf_square_id.
+        use transportf_square_eq.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> transportf_square_id.
+        use transportf_square_eq.
+        <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">rewrite</span> lunitor_linvunitor_h.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> transportf_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">rewrite</span> linvunitor_lunitor_h.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> transportf_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">rewrite</span> runitor_rinvunitor_h.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> transportf_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y f.
+      <span class="nb">rewrite</span> rinvunitor_runitor_h.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> transportf_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z f g h.
+      <span class="nb">rewrite</span> lassociator_rassociator_h.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> transportf_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> w x y z f g h.
+      <span class="nb">rewrite</span> rassociator_lassociator_h.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> transportf_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> x y z f g.
+      <span class="nb">rewrite</span> double_triangle.
+      <span class="nb">unfold</span> transportb_square.
+      <span class="nb">rewrite</span> transportf_f_square.
+      <span class="nb">rewrite</span> transportf_square_id.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> v w x y z f g h i.
+      <span class="nb">rewrite</span> double_pentagon'.
+      <span class="nb">rewrite</span> transportf_square_prewhisker.
+      <span class="nb">rewrite</span> !transportf_f_square.
+      use transportf_square_eq.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">horizontal_prebicat</span>
+    : prebicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> horizontal_prebicat_data.
+    - <span class="bp">exact</span> horizontal_prebicat_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. The horizontal bicategory *)</span>
+  <span class="kn">Definition</span> <span class="nf">horizontal_bicat</span>
+    : bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (horizontal_prebicat ,, _).
+    <span class="nb">intros</span> x y f g.
+    <span class="nb">apply</span> isaset_square.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 4. Local univalence of the bicategory *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_invertible_2cell_weq_is_iso_twosided_disp</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             {<span class="nv">h</span> <span class="nv">k</span> : x --&gt;h y}
+             (<span class="nv">s</span> : square (identity_v x) (identity_v y) h k)
+    : is_iso_twosided_disp (identity_is_z_iso x) (identity_is_z_iso y) s
+      ≃
+      is_invertible_2cell (C := horizontal_bicat) s.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intros</span> Hs.
+      use make_is_invertible_2cell.
+      + <span class="bp">exact</span> (iso_inv_twosided_disp Hs).
+      + <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (inv_after_iso_twosided_disp Hs).
+        }
+        <span class="nb">apply</span> transportfb_square.
+      + <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (iso_after_inv_twosided_disp Hs).
+        }
+        <span class="nb">apply</span> transportfb_square.
+    - <span class="nb">intros</span> Hs.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      + <span class="bp">exact</span> Hs^-<span class="mi">1</span>.
+      + <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(vcomp_rinv Hs)).
+        }
+        <span class="nb">apply</span> transportbf_square.
+      + <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(vcomp_linv Hs)).
+        }
+        <span class="nb">apply</span> transportbf_square.
+    - <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+    - <span class="nb">apply</span> isaprop_is_invertible_2cell.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">HorizontalBicat</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_horizontal_bicat</span>
+           (<span class="nv">C</span> : univalent_double_cat)
+  : is_univalent_2_1 (horizontal_bicat C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y h k.
+  use weqhomot.
+  - <span class="nb">refine</span> (weqfibtototal _ _ _ ∘ path_weq_globular_iso_square h k)%weq.
+    <span class="bp">exact</span> (is_invertible_2cell_weq_is_iso_twosided_disp C).
+  - <span class="nb">intro</span> p.
+    <span class="nb">induction</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_invertible_2cell.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> path_to_globular_iso_square_id.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">locally_strict_horizontal_bicat</span>
+           (<span class="nv">C</span> : pseudo_double_setcat)
+  : locally_strict (horizontal_bicat C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> is_strict_twosided_disp_cat_hor_mor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">globally_strict_horizontal_bicat</span>
+           (<span class="nv">C</span> : pseudo_double_setcat)
+  : globally_strict (horizontal_bicat C).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_setcategory_vertical_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">horizontal_bisetcat</span>
+          (<span class="nv">C</span> : pseudo_double_setcat)
+  : bisetcat.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (horizontal_bicat C ,, _).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> locally_strict_horizontal_bicat.
+  - <span class="nb">apply</span> globally_strict_horizontal_bicat.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Underlying/HorizontalBicategory.v</tt>, line 40)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Local univalence of the bicategory
+  &gt;
+  &gt;  ********************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

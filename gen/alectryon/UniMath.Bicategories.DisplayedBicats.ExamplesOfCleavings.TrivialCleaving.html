@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>TrivialCleaving.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Properties.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.CleavingOfBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Cartesians.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Trivial.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(**</span>
+<span class="sd">The trivial bicategory has a cleaving</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">ConstantCleaving</span>.
+  <span class="kn">Variable</span> (<span class="nv">B₁</span> <span class="nv">B₂</span> : bicat).
+
+  <span class="sd">(** Characterisation of cartesian 2-cells *)</span>
+  <span class="kn">Definition</span> <span class="nf">trivial_invertible_is_cartesian_2cell</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : B₁}
+             {<span class="nv">y₁</span> : trivial_displayed_bicat B₁ B₂ x₁}
+             {<span class="nv">y₂</span> : trivial_displayed_bicat B₁ B₂ x₂}
+             {<span class="nv">f₁</span> <span class="nv">f₂</span> : x₁ --&gt; x₂}
+             {<span class="nv">g₁</span> : y₁ --&gt;[ f₁ ] y₂}
+             {<span class="nv">g₂</span> : y₁ --&gt;[ f₂ ] y₂}
+             (<span class="nv">α</span> : f₁ ==&gt; f₂)
+             (<span class="nv">β</span> : g₁ ==&gt;[ α ] g₂)
+             (<span class="nv">Hβ</span> : is_invertible_2cell β)
+    : is_cartesian_2cell (trivial_displayed_bicat B₁ B₂) β.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> h h' γ ββ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> τ₁ τ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ] ;
+         use (vcomp_rcancel _ Hβ) ;
+         <span class="bp">exact</span> (pr2 τ₁ @ !(pr2 τ₂))).
+    - <span class="nb">refine</span> (ββ • Hβ^-<span class="mi">1</span> ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !vassocl ;
+         <span class="nb">rewrite</span> vcomp_linv ;
+         <span class="nb">apply</span> id2_right).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_cartesian_2cell_is_invertible</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : B₁}
+             {<span class="nv">y₁</span> : trivial_displayed_bicat B₁ B₂ x₁}
+             {<span class="nv">y₂</span> : trivial_displayed_bicat B₁ B₂ x₂}
+             {<span class="nv">f₁</span> <span class="nv">f₂</span> : x₁ --&gt; x₂}
+             {<span class="nv">g₁</span> : y₁ --&gt;[ f₁ ] y₂}
+             {<span class="nv">g₂</span> : y₁ --&gt;[ f₂ ] y₂}
+             (<span class="nv">α</span> : f₁ ==&gt; f₂)
+             (<span class="nv">β</span> : g₁ ==&gt;[ α ] g₂)
+             (<span class="nv">Hβ</span> : is_cartesian_2cell (trivial_displayed_bicat B₁ B₂) β)
+    : is_invertible_2cell β.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> is_cartesian_2cell <span class="k">in</span> Hβ.
+    <span class="nb">pose</span> (Hβ f₁ g₂ (id2 _) (id2 _)) <span class="k">as</span> lift.
+    <span class="nb">pose</span> (inv := iscontrpr1 lift).
+    <span class="nb">cbn</span> <span class="k">in</span> lift, inv.
+    use make_is_invertible_2cell.
+    - <span class="bp">exact</span> (pr1 inv).
+    - <span class="kp">abstract</span>
+        (<span class="nb">pose</span> (Hβ f₁ g₁ (id2 _) β) <span class="k">as</span> m ;
+         <span class="nb">cbn</span> <span class="k">in</span> m ;
+         <span class="nb">pose</span> (proofirrelevance _ (isapropifcontr m)) <span class="k">as</span> i ;
+         <span class="nb">simple refine</span> (maponpaths pr1 (i (β • pr1 inv ,, _) (id₂ g₁ ,, _))) ; <span class="nb">cbn</span> ;
+         [ <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> vassocl ;
+           <span class="nb">rewrite</span> (pr2 inv) ;
+           <span class="nb">apply</span> id2_right
+         | <span class="nb">apply</span> id2_left ]).
+    - <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (pr2 inv)).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** Characterisation of cartesian 2-cells *)</span>
+  <span class="kn">Definition</span> <span class="nf">trivial_invertible_is_opcartesian_2cell</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : B₁}
+             {<span class="nv">y₁</span> : trivial_displayed_bicat B₁ B₂ x₁}
+             {<span class="nv">y₂</span> : trivial_displayed_bicat B₁ B₂ x₂}
+             {<span class="nv">f₁</span> <span class="nv">f₂</span> : x₁ --&gt; x₂}
+             {<span class="nv">g₁</span> : y₁ --&gt;[ f₁ ] y₂}
+             {<span class="nv">g₂</span> : y₁ --&gt;[ f₂ ] y₂}
+             (<span class="nv">α</span> : f₁ ==&gt; f₂)
+             (<span class="nv">β</span> : g₁ ==&gt;[ α ] g₂)
+             (<span class="nv">Hβ</span> : is_invertible_2cell β)
+    : is_opcartesian_2cell (trivial_displayed_bicat B₁ B₂) β.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> h h' γ ββ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> τ₁ τ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ] ;
+         use (vcomp_lcancel _ Hβ) ;
+         <span class="bp">exact</span> (pr2 τ₁ @ !(pr2 τ₂))).
+    - <span class="nb">refine</span> (Hβ^-<span class="mi">1</span> • ββ,, _).
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !vassocr ;
+         <span class="nb">rewrite</span> vcomp_rinv ;
+         <span class="nb">apply</span> id2_left).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_opcartesian_2cell_is_invertible</span>
+             {<span class="nv">x₁</span> <span class="nv">x₂</span> : B₁}
+             {<span class="nv">y₁</span> : trivial_displayed_bicat B₁ B₂ x₁}
+             {<span class="nv">y₂</span> : trivial_displayed_bicat B₁ B₂ x₂}
+             {<span class="nv">f₁</span> <span class="nv">f₂</span> : x₁ --&gt; x₂}
+             {<span class="nv">g₁</span> : y₁ --&gt;[ f₁ ] y₂}
+             {<span class="nv">g₂</span> : y₁ --&gt;[ f₂ ] y₂}
+             (<span class="nv">α</span> : f₁ ==&gt; f₂)
+             (<span class="nv">β</span> : g₁ ==&gt;[ α ] g₂)
+             (<span class="nv">Hβ</span> : is_opcartesian_2cell (trivial_displayed_bicat B₁ B₂) β)
+    : is_invertible_2cell β.
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> is_cartesian_2cell <span class="k">in</span> Hβ.
+    <span class="nb">pose</span> (Hβ f₂ g₁ (id2 _) (id2 _)) <span class="k">as</span> lift.
+    <span class="nb">pose</span> (inv := iscontrpr1 lift).
+    <span class="nb">cbn</span> <span class="k">in</span> lift, inv.
+    use make_is_invertible_2cell.
+    - <span class="bp">exact</span> (pr1 inv).
+    - <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (pr2 inv)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">pose</span> (Hβ f₂ g₂ (id2 _) β) <span class="k">as</span> m ;
+         <span class="nb">cbn</span> <span class="k">in</span> m ;
+         <span class="nb">pose</span> (proofirrelevance _ (isapropifcontr m)) <span class="k">as</span> i ;
+         <span class="nb">simple refine</span> (maponpaths pr1 (i (pr1 inv • β,, _) (id₂ g₂ ,, _))) ; <span class="nb">cbn</span> ;
+         [ <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> vassocr ;
+           <span class="nb">rewrite</span> (pr2 inv) ;
+           <span class="nb">apply</span> id2_left
+         | <span class="nb">apply</span> id2_right ]).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_local_cleaving</span>
+    : local_cleaving (trivial_displayed_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ f₁ f₂ f α.
+    <span class="nb">simple refine</span> (f ,, id2 _ ,, _) ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> trivial_invertible_is_cartesian_2cell.
+    is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_local_opcleaving</span>
+    : local_opcleaving (trivial_displayed_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ f₁ f₂ f α.
+    <span class="nb">simple refine</span> (f ,, id2 _ ,, _) ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> trivial_invertible_is_opcartesian_2cell.
+    is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_local_isocleaving</span>
+    : local_iso_cleaving (trivial_displayed_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ f₁ f₂ f α.
+    <span class="nb">refine</span> (f ,, id2 _ ,, _).
+    <span class="nb">apply</span> trivial_is_invertible_2cell_to_is_disp_invertible.
+    is_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">TrivialCartesianOneCell</span>.
+    <span class="kn">Context</span> {<span class="nv">x₁</span> <span class="nv">x₂</span> : B₁}
+            {<span class="nv">y₁</span> : trivial_displayed_bicat B₁ B₂ x₁}
+            {<span class="nv">y₂</span> : trivial_displayed_bicat B₁ B₂ x₂}
+            (<span class="nv">f</span> : x₁ --&gt; x₂)
+            (<span class="nv">g</span> : y₁ --&gt;[ f ] y₂)
+            (<span class="nv">Hg</span> : left_adjoint_equivalence g).
+
+    <span class="kn">Definition</span> <span class="nf">trivial_lift_1cell</span>
+               {<span class="nv">x₃</span> : B₁}
+               {<span class="nv">y₃</span> : trivial_displayed_bicat B₁ B₂ x₃}
+               (<span class="nv">h</span> : x₃ --&gt; x₁)
+               (<span class="nv">k</span> : y₃ --&gt;[ h · f] y₂)
+      : lift_1cell_factor (trivial_displayed_bicat B₁ B₂) g k.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      - <span class="bp">exact</span> (k · left_adjoint_right_adjoint Hg).
+      - <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+        + <span class="nb">refine</span> (rassociator _ _ _ • (k ◃ _) • runitor _).
+          <span class="bp">exact</span> (left_adjoint_counit Hg).
+        + <span class="nb">cbn</span>.
+          use trivial_is_invertible_2cell_to_is_disp_invertible.
+          is_iso.
+          <span class="nb">apply</span> (left_equivalence_counit_iso Hg).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">trivial_lift_2cell</span>
+               {<span class="nv">w</span> : B₁}
+               {<span class="nv">z</span> : B₂}
+               {<span class="nv">h</span> <span class="nv">h'</span> : w --&gt; x₁}
+               {<span class="nv">k</span> <span class="nv">k'</span> : z --&gt; y₂}
+               (<span class="nv">γ</span> : h ==&gt; h')
+               (<span class="nv">δ</span> : k ==&gt; k')
+               (<span class="nv">Lh</span> : lift_1cell_factor (trivial_displayed_bicat B₁ B₂) g k)
+               (<span class="nv">Lh'</span> : lift_1cell_factor (trivial_displayed_bicat B₁ B₂) g k')
+      : lift_2cell_factor (trivial_displayed_bicat B₁ B₂) g (δ := γ) δ Lh Lh'.
+    <span class="kn">Proof</span>.
+      use iscontraprop1.
+      - <span class="kp">abstract</span>
+          (use invproofirrelevance ;
+           <span class="nb">intros</span> φ₁ φ₂ ;
+           <span class="nb">induction</span> φ₁ <span class="k">as</span> [ φ₁ ψ₁ ] ;
+           <span class="nb">induction</span> φ₂ <span class="k">as</span> [ φ₂ ψ₂ ] ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ] ;
+           <span class="nb">cbn</span> <span class="k">in</span> * ;
+           <span class="nb">rewrite</span> transportf_const <span class="k">in</span> ψ₁, ψ₂ ;
+           <span class="nb">cbn</span> <span class="k">in</span> * ;
+           <span class="nb">apply</span> (fully_faithful_1cell_faithful (adj_equiv_fully_faithful Hg)) ;
+           <span class="nb">pose</span> (p₂ := trivial_disp_invertible_to_invertible_2cell (pr2 Lh')) ;
+           use (vcomp_rcancel p₂) ; [ <span class="nb">apply</span> p₂ | ] ;
+           <span class="bp">exact</span> (ψ₁ @ !ψ₂)).
+      - <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+        + <span class="bp">exact</span> (fully_faithful_1cell_inv_map
+                   (adj_equiv_fully_faithful Hg)
+                   (pr12 Lh
+                    • δ
+                    • (trivial_disp_invertible_to_invertible_2cell
+                         (pr2 Lh'))^-<span class="mi">1</span>)).
+        + <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> transportf_const ; <span class="nb">cbn</span> ;
+             etrans ;
+             [ <span class="nb">apply</span> maponpaths_2 ;
+               <span class="nb">apply</span> (fully_faithful_1cell_inv_map_eq (adj_equiv_fully_faithful Hg))
+             | ] ;
+             <span class="nb">cbn</span> <span class="k">in</span> * ;
+             <span class="nb">rewrite</span> !vassocl ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">refine</span> (_ @ id2_right _) ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> (vcomp_linv
+                      (trivial_disp_invertible_to_invertible_2cell (pr2 Lh')))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">trivial_cartesian_1cell</span>
+      : cartesian_1cell (trivial_displayed_bicat B₁ B₂) g.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> @trivial_lift_1cell.
+      - <span class="bp">exact</span> @trivial_lift_2cell.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">TrivialCartesianOneCell</span>.
+
+  <span class="kn">Section</span> <span class="nf">Cartesian1CellToAdjEquiv</span>.
+    <span class="kn">Context</span> {<span class="nv">x₁</span> <span class="nv">x₂</span> : B₁}
+            {<span class="nv">y₁</span> : trivial_displayed_bicat B₁ B₂ x₁}
+            {<span class="nv">y₂</span> : trivial_displayed_bicat B₁ B₂ x₂}
+            (<span class="nv">f</span> : x₁ --&gt; x₂)
+            (<span class="nv">g</span> : y₁ --&gt;[ f ] y₂)
+            (<span class="nv">Hg</span> : cartesian_1cell (trivial_displayed_bicat B₁ B₂) g).
+
+    <span class="kn">Let</span> <span class="nf">inv</span> : y₂ --&gt; y₁ := pr1 (pr1 Hg x₁ y₂ (id₁ _) (id₁ _)).
+    <span class="kn">Let</span> <span class="nf">ε</span> : inv · g ==&gt; id₁ y₂ := pr12 (pr1 Hg x₁ y₂ (id₁ _) (id₁ _)).
+    <span class="kn">Let</span> <span class="nf">εinv</span>
+      : is_invertible_2cell ε
+      := trivial_disp_invertible_to_invertible_2cell
+           (pr2 (pr1 Hg x₁ y₂ (id₁ _) (id₁ _))).
+
+    <span class="kn">Local Definition</span> <span class="nf">unit_help_lift₁</span>
+      : lift_1cell_factor (trivial_displayed_bicat B₁ B₂) (h := id₁ _) g g.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _) ; <span class="nb">cbn</span>.
+      - <span class="nb">apply</span> id₁.
+      - <span class="nb">apply</span> lunitor.
+      - use trivial_is_invertible_2cell_to_is_disp_invertible.
+        is_iso.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">unit_help_lift₂</span>
+      : lift_1cell_factor (trivial_displayed_bicat B₁ B₂) (h := id₁ _) g g.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _) ; <span class="nb">cbn</span>.
+      - <span class="bp">exact</span> (g · inv).
+      - <span class="bp">exact</span> (rassociator _ _ _ • (g ◃ ε) • runitor _).
+      - use trivial_is_invertible_2cell_to_is_disp_invertible.
+        is_iso.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">unit</span>
+      : id₁ y₁ ==&gt; g · inv
+      := cartesian_1cell_lift_2cell
+           _ _
+           Hg
+           (δ := id2 _) (id2 _)
+           unit_help_lift₁ unit_help_lift₂.
+
+    <span class="kn">Definition</span> <span class="nf">trivial_cartesian_1cell_left_adj_data</span>
+      : left_adjoint_data g
+      := (inv ,, unit ,, ε).
+
+    <span class="kn">Definition</span> <span class="nf">trivial_cartesian_1cell_left_equiv_axioms</span>
+      : left_equivalence_axioms trivial_cartesian_1cell_left_adj_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - use (trivial_is_disp_invertible_to_is_invertible_2cell (α := id2 (id₁ _))).
+        + is_iso.
+        + <span class="nb">refine</span> (cartesian_1cell_lift_2cell_invertible
+                   _ Hg _ _
+                   unit_help_lift₁
+                   unit_help_lift₂).
+          use trivial_is_invertible_2cell_to_is_disp_invertible.
+          is_iso.
+      - <span class="bp">exact</span> εinv.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">trivial_cartesian_1cell_is_adj_equiv</span>
+      : left_adjoint_equivalence g.
+    <span class="kn">Proof</span>.
+      use equiv_to_adjequiv.
+      <span class="nb">simple refine</span> (_ ,, _).
+      - <span class="bp">exact</span> trivial_cartesian_1cell_left_adj_data.
+      - <span class="bp">exact</span> trivial_cartesian_1cell_left_equiv_axioms.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Cartesian1CellToAdjEquiv</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_global_cleaving</span>
+    : global_cleaving (trivial_displayed_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂.
+    <span class="nb">simple refine</span> (y₁ ,, id₁ _ ,, _) ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> trivial_cartesian_1cell.
+    <span class="nb">apply</span> (internal_adjoint_equivalence_identity y₁).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_lwhisker_cartesian</span>
+    : lwhisker_cartesian (trivial_displayed_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ? ? ? ? ? ? ? ? ? ? ? ? Hαα.
+    <span class="nb">apply</span> trivial_invertible_is_cartesian_2cell.
+    <span class="nb">cbn</span>.
+    is_iso.
+    <span class="nb">apply</span> trivial_cartesian_2cell_is_invertible.
+    <span class="nb">apply</span> Hαα.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_rwhisker_cartesian</span>
+    : rwhisker_cartesian (trivial_displayed_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ? ? ? ? ? ? ? ? ? ? ? ? Hαα.
+    <span class="nb">apply</span> trivial_invertible_is_cartesian_2cell.
+    <span class="nb">cbn</span>.
+    is_iso.
+    <span class="nb">apply</span> trivial_cartesian_2cell_is_invertible.
+    <span class="nb">apply</span> Hαα.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_lwhisker_opcartesian</span>
+    : lwhisker_opcartesian (trivial_displayed_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ? ? ? ? ? ? ? ? ? ? ? ? Hαα.
+    <span class="nb">apply</span> trivial_invertible_is_opcartesian_2cell.
+    <span class="nb">cbn</span>.
+    is_iso.
+    <span class="nb">apply</span> trivial_opcartesian_2cell_is_invertible.
+    <span class="nb">apply</span> Hαα.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_rwhisker_opcartesian</span>
+    : rwhisker_opcartesian (trivial_displayed_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> ? ? ? ? ? ? ? ? ? ? ? ? ? ? Hαα.
+    <span class="nb">apply</span> trivial_invertible_is_opcartesian_2cell.
+    <span class="nb">cbn</span>.
+    is_iso.
+    <span class="nb">apply</span> trivial_opcartesian_2cell_is_invertible.
+    <span class="nb">apply</span> Hαα.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trivial_cleaving_of_bicats</span>
+    : cleaving_of_bicats (trivial_displayed_bicat B₁ B₂).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="bp">exact</span> trivial_local_cleaving.
+    - <span class="bp">exact</span> trivial_global_cleaving.
+    - <span class="bp">exact</span> trivial_lwhisker_cartesian.
+    - <span class="bp">exact</span> trivial_rwhisker_cartesian.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ConstantCleaving</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/ExamplesOfCleavings/TrivialCleaving.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,1040 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Dialgebras.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Dialgebra</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂).
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_disp_cat</span> : disp_cat C₁.
+  <span class="kn">Proof</span>.
+    use disp_struct.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, F x --&gt; G x).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">hx</span> <span class="nv">hy</span> <span class="nv">f</span>, hx · #G f = #F f · hy).
+    - <span class="nb">intros</span>. <span class="nb">apply</span> C₂.
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> x hx ; <span class="nb">cbn</span>;
+      <span class="nb">rewrite</span> !functor_id;
+      <span class="nb">rewrite</span> id_left, id_right;
+      <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> x y z f g hx hy hz hf hg ; <span class="nb">cbn</span> <span class="k">in</span> *;
+      <span class="nb">rewrite</span> !functor_comp;
+      <span class="nb">rewrite</span> !assoc;
+      <span class="nb">rewrite</span> hf;
+      <span class="nb">rewrite</span> !assoc';
+      <span class="nb">rewrite</span> hg;
+      <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_locally_propositional_dialgebra_disp_cat</span> : locally_propositional dialgebra_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="nb">intros</span>; <span class="nb">apply</span> C₂.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_z_iso_disp_dialgebra</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+             {<span class="nv">f</span> : x --&gt; y}
+             (<span class="nv">Hf</span> : is_z_isomorphism f)
+             {<span class="nv">hx</span> : dialgebra_disp_cat x}
+             {<span class="nv">hy</span> : dialgebra_disp_cat y}
+             (<span class="nv">hf</span> : hx --&gt;[ f ] hy)
+    : is_z_iso_disp (make_z_iso' f Hf) hf.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, (_ ,, _)) ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    - <span class="nb">rewrite</span> !functor_on_inv_from_z_iso.
+      <span class="nb">refine</span> (!_).
+      use z_iso_inv_on_left.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> !assoc'.
+      use z_iso_inv_on_right.
+      <span class="bp">exact</span> hf.
+    - <span class="nb">apply</span> homset_property.
+    - <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Corollary</span> <span class="nf">groupoidal_dialgebra_disp_cat</span> : groupoidal_disp_cat dialgebra_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span>; <span class="nb">intros</span>; <span class="nb">apply</span> is_z_iso_disp_dialgebra.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_dialgebra_disp_cat</span>
+    : is_univalent_disp dialgebra_disp_cat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y e hx hy ; <span class="nb">induction</span> e.
+    use isweqimplimpl.
+    - <span class="nb">intro</span> i.
+      <span class="nb">refine</span> (_ @ pr1 i @ _) ; <span class="nb">cbn</span>.
+      + <span class="nb">rewrite</span> functor_id.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">rewrite</span> functor_id.
+        <span class="nb">apply</span> id_left.
+    - <span class="nb">apply</span> homset_property.
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_iso_disp.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra</span> : category
+    := total_category dialgebra_disp_cat.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_dialgebra</span>
+             (<span class="nv">H₁</span> : is_univalent C₁)
+    : is_univalent dialgebra.
+  <span class="kn">Proof</span>.
+    use is_univalent_total_category.
+    - <span class="bp">exact</span> H₁.
+    - <span class="nb">apply</span> is_univalent_dialgebra_disp_cat.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_dialgebra</span>
+             (<span class="nv">x</span> : C₁)
+             (<span class="nv">f</span> : F x --&gt; G x)
+    : dialgebra
+    := x ,, f.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_mor_path</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : dialgebra}
+             (<span class="nv">f</span> : pr1 x --&gt; pr1 y)
+    : UU
+    := pr2 x · # G f = # F f · pr2 y.
+
+  <span class="kn">Definition</span> <span class="nf">make_dialgebra_mor</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : dialgebra}
+             (<span class="nv">f</span> : pr1 x --&gt; pr1 y)
+             (<span class="nv">p</span> : dialgebra_mor_path f)
+    : x --&gt; y
+    := f ,, p.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_pr1</span> : dialgebra ⟶ C₁ := pr1_category _.
+
+<span class="sd">(** Equivalence between nat. transformations and functors into the dialgebras</span>
+
+<span class="sd">    This is a simplification of the exercise 4 on p.47 in the 2nd edition of MacLane's book.</span>
+<span class="sd">    Appears in a less streamlined form in the CPP'22 paper by Ahrens, Matthes and Mörtberg. *)</span>
+
+<span class="sd">(** This direction could also be spelt out more elementarily without sections. *)</span>
+  <span class="kn">Definition</span> <span class="nf">nat_trans_to_section</span> (<span class="nv">η</span>: F ⟹ G):
+      @section_disp C₁ dialgebra_disp_cat.
+    <span class="kn">Proof</span>.
+      use tpair.
+      - use tpair.
+        + <span class="nb">intro</span> c. <span class="bp">exact</span> (η c).
+        + <span class="nb">intros</span> c c' f.
+          <span class="nb">red</span>. <span class="nb">unfold</span> dialgebra_disp_cat. <span class="nb">hnf</span>.
+          <span class="nb">apply</span> pathsinv0, nat_trans_ax.
+      - <span class="nb">split</span>.
+        + <span class="nb">intro</span> c.
+          <span class="nb">apply</span> C₂.
+        + <span class="nb">intros</span> c1 c2 c3 f f'.
+          <span class="nb">apply</span> C₂.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">nat_trans_to_functor</span> (<span class="nv">η</span>: F ⟹ G): C₁ ⟶ dialgebra :=
+      @section_functor C₁ dialgebra_disp_cat (nat_trans_to_section η).
+
+    <span class="kn">Definition</span> <span class="nf">nat_trans_to_functor_cor</span> (<span class="nv">η</span>: F ⟹ G):
+      functor_composite (nat_trans_to_functor η) dialgebra_pr1 = functor_identity C₁.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> from_section_functor.
+    <span class="kn">Defined</span>.
+
+<span class="sd">(** the backwards direction essentially uses the sections - already for the statements *)</span>
+    <span class="kn">Definition</span> <span class="nf">section_to_nat_trans</span>:
+      @section_disp C₁ dialgebra_disp_cat -&gt; F ⟹ G.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> sd.
+      <span class="nb">induction</span> sd <span class="k">as</span> [[sdob sdmor] [sdid sdcomp]].
+      use make_nat_trans.
+      - <span class="nb">intro</span> c. <span class="bp">exact</span> (sdob c).
+      - <span class="nb">intros</span> c c' f.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="bp">exact</span> (sdmor c c' f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">roundtrip1_with_sections</span> (<span class="nv">η</span>: F ⟹ G):
+      section_to_nat_trans (nat_trans_to_section η) = η.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> nat_trans_eq; [ <span class="nb">apply</span> C₂ |].
+      <span class="nb">intro</span> c.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">roundtrip2_with_sections</span> (<span class="nv">sd</span>: @section_disp C₁ dialgebra_disp_cat):
+      nat_trans_to_section (section_to_nat_trans sd) = sd.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> sd <span class="k">as</span> [[sdob sdmor] [sdid sdcomp]].
+      <span class="nb">unfold</span> nat_trans_to_section, section_to_nat_trans.
+      <span class="nb">cbn</span>.
+      use total2_paths_f; <span class="nb">simpl</span>.
+      - use total2_paths_f; <span class="nb">simpl</span>.
+        + <span class="nb">apply</span> idpath.
+        + <span class="nb">cbn</span>.
+          <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+          <span class="nb">apply</span> pathsinv0inv0.
+      - <span class="k">match goal with</span> |- @paths <span class="nl">?ID</span> _ _ =&gt; <span class="nb">set</span> (goaltype := ID); <span class="nb">simpl</span> <span class="k">in</span> goaltype <span class="k">end</span>.
+        <span class="nb">assert</span> (Hprop: isaprop goaltype).
+        <span class="mi">2</span>: { <span class="nb">apply</span> Hprop. }
+        <span class="nb">apply</span> isapropdirprod.
+        + <span class="nb">apply</span> impred. <span class="nb">intro</span> c.
+          <span class="nb">apply</span> hlevelntosn.
+          <span class="nb">apply</span> C₂.
+        + <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+          <span class="nb">apply</span> hlevelntosn.
+          <span class="nb">apply</span> C₂.
+    <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">Dialgebra</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_dialgebra</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : univalent_category.
+<span class="kn">Proof</span>.
+  use make_univalent_category.
+  - <span class="bp">exact</span> (dialgebra F G).
+  - <span class="nb">apply</span> is_univalent_dialgebra.
+    <span class="bp">exact</span> (pr2 C₁).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">eq_dialgebra</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+           {<span class="nv">x</span> <span class="nv">y</span> : dialgebra F G}
+           {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+           (<span class="nv">p</span> : pr1 f = pr1 g)
+  : f = g.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_z_iso_dialgebra</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+           {<span class="nv">x</span> <span class="nv">y</span> : dialgebra F G}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">Hf</span> : is_z_isomorphism (pr1 f))
+  : is_z_isomorphism f.
+<span class="kn">Proof</span>.
+  use is_z_iso_total.
+  - <span class="bp">exact</span> Hf.
+  - <span class="nb">apply</span> is_z_iso_disp_dialgebra.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_dialgebra</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+           {<span class="nv">x</span> <span class="nv">y</span> : dialgebra F G}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">Hf</span> : is_z_isomorphism (pr1 f))
+  : z_iso x y.
+<span class="kn">Proof</span>.
+  use make_z_iso'.
+  - <span class="bp">exact</span> f.
+  - <span class="nb">apply</span> is_z_iso_dialgebra.
+    <span class="bp">exact</span> Hf.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">from_is_z_iso_dialgebra</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+           {<span class="nv">x</span> <span class="nv">y</span> : dialgebra F G}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">Hf</span> : is_z_isomorphism f)
+  : is_z_isomorphism (pr1 f)
+  := pr2 (functor_on_z_iso (dialgebra_pr1 F G) (make_z_iso' _ Hf)).
+
+<span class="kn">Definition</span> <span class="nf">from_z_iso_dialgebra</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}
+           {<span class="nv">x</span> <span class="nv">y</span> : dialgebra F G}
+           (<span class="nv">f</span> : z_iso x y)
+  : z_iso (pr1 x) (pr1 y)
+  := functor_on_z_iso (dialgebra_pr1 F G) f.
+
+<span class="kn">Definition</span> <span class="nf">dialgebra_nat_trans_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : nat_trans_data
+      (dialgebra_pr1 F G ∙ F)
+      (dialgebra_pr1 F G ∙ G)
+  := <span class="k">λ</span> <span class="nv">x</span>, pr2 x.
+
+<span class="kn">Definition</span> <span class="nf">dialgebra_nat_trans_is_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : is_nat_trans _ _ (dialgebra_nat_trans_data F G).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f.
+  <span class="bp">exact</span> (!(pr2 f)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">dialgebra_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : dialgebra_pr1 F G ∙ F ⟹ dialgebra_pr1 F G ∙ G.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (dialgebra_nat_trans_data F G).
+  - <span class="bp">exact</span> (dialgebra_nat_trans_is_nat_trans F G).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_to_dialgebra_lifting</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₂ ⟶ C₃}
+           (<span class="nv">K</span> : C₁ ⟶ C₂)
+           (<span class="nv">α</span> : K ∙ F ⟹ K ∙ G)
+  : functor_lifting (dialgebra_disp_cat F G) K.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use tpair.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, α x).
+    + <span class="nb">intros</span> x y f.
+      <span class="bp">exact</span> (!(nat_trans_ax α _ _ f)).
+  - <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">apply</span> C₃.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_to_dialgebra</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₂ ⟶ C₃}
+           (<span class="nv">K</span> : C₁ ⟶ C₂)
+           (<span class="nv">α</span> : K ∙ F ⟹ K ∙ G)
+  : C₁ ⟶ dialgebra F G
+  := lifted_functor (nat_trans_to_dialgebra_lifting K α).
+<span class="sd">(** [nat_trans_to_functor] above is essentially a specialization of this construction *)</span>
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_to_dialgebra_pr1</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₂ ⟶ C₃}
+           (<span class="nv">K</span> : C₁ ⟶ C₂)
+           (<span class="nv">α</span> : K ∙ F ⟹ K ∙ G)
+  : nat_trans_to_dialgebra K α ∙ dialgebra_pr1 F G ⟹ K.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, identity _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> id_left, id_right ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_to_dialgebra_pr1_nat_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₂ ⟶ C₃}
+           (<span class="nv">K</span> : C₁ ⟶ C₂)
+           (<span class="nv">α</span> : K ∙ F ⟹ K ∙ G)
+  : nat_z_iso
+      (nat_trans_to_dialgebra K α ∙ dialgebra_pr1 F G)
+      K.
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> (nat_trans_to_dialgebra_pr1 K α).
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> identity_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** a more generic way of obtaining it: *)</span>
+<span class="kn">Definition</span> <span class="nf">nat_trans_to_dialgebra_pr1_alt_nat_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₂ ⟶ C₃}
+           (<span class="nv">K</span> : C₁ ⟶ C₂)
+           (<span class="nv">α</span> : K ∙ F ⟹ K ∙ G)
+  : nat_z_iso
+      (nat_trans_to_dialgebra K α ∙ dialgebra_pr1 F G)
+      K.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (nat_z_iso_from_z_iso C₂).
+  <span class="bp">exact</span> (idtoiso (C:=[C₁, C₂]) (from_lifted_functor (nat_trans_to_dialgebra_lifting K α))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_to_dialgebra_pr1_alt</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₂ ⟶ C₃}
+           (<span class="nv">K</span> : C₁ ⟶ C₂)
+           (<span class="nv">α</span> : K ∙ F ⟹ K ∙ G)
+  : nat_trans_to_dialgebra K α ∙ dialgebra_pr1 F G ⟹ K.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (nat_trans_to_dialgebra_pr1_alt_nat_z_iso K α).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dialgebra_lifting_to_nat_trans</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₂ ⟶ C₃}
+           (<span class="nv">K</span> : C₁ ⟶ C₂)
+  : functor_lifting (dialgebra_disp_cat F G) K -&gt; K ∙ F ⟹ K ∙ G.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> fl.
+  <span class="nb">induction</span> fl <span class="k">as</span> [[sdob sdmor] _].
+  use make_nat_trans.
+  - <span class="nb">intro</span> c. <span class="bp">exact</span> (sdob c).
+  - <span class="nb">intros</span> c c' f.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="bp">exact</span> (sdmor c c' f).
+<span class="kn">Defined</span>.
+<span class="sd">(** [section_to_nat_trans] above is essentially a specialization of this construction *)</span>
+
+<span class="sd">(** we obtain [dialgebra_nat_trans] as an instance of this construction *)</span>
+<span class="kn">Definition</span> <span class="nf">dialgebra_nat_trans_alt</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂)
+  : dialgebra_pr1 F G ∙ F ⟹ dialgebra_pr1 F G ∙ G.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> dialgebra_lifting_to_nat_trans.
+  use tpair.
+  - use tpair.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr2 x).
+    + <span class="nb">intros</span> x y f. <span class="nb">cbn</span>.
+      <span class="bp">exact</span> (pr2 f).
+  - <span class="nb">split</span>; <span class="nb">intros</span>; <span class="nb">apply</span> C₂.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">roundtrip1_with_liftings</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+  {<span class="nv">F</span> <span class="nv">G</span> : C₂ ⟶ C₃}
+  (<span class="nv">K</span> : C₁ ⟶ C₂)
+  (<span class="nv">α</span> : K ∙ F ⟹ K ∙ G) :
+  dialgebra_lifting_to_nat_trans K (nat_trans_to_dialgebra_lifting K α) = α.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq; [ <span class="nb">apply</span> C₃ |].
+  <span class="nb">intro</span> c.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">roundtrip2_with_liftings</span>
+  {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+  {<span class="nv">F</span> <span class="nv">G</span> : C₂ ⟶ C₃}
+  (<span class="nv">K</span> : C₁ ⟶ C₂)
+  (<span class="nv">fl</span> : functor_lifting (dialgebra_disp_cat F G) K) :
+  nat_trans_to_dialgebra_lifting K (dialgebra_lifting_to_nat_trans K fl) = fl.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> fl <span class="k">as</span> [[sdob sdmor] [sdid sdcomp]].
+  <span class="nb">unfold</span>  nat_trans_to_dialgebra_lifting, dialgebra_lifting_to_nat_trans.
+  <span class="nb">cbn</span>.
+  use total2_paths_f; <span class="nb">simpl</span>.
+  - use total2_paths_f; <span class="nb">simpl</span>.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">cbn</span>.
+      <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+      <span class="nb">apply</span> pathsinv0inv0.
+  - <span class="k">match goal with</span> |- @paths <span class="nl">?ID</span> _ _ =&gt; <span class="nb">set</span> (goaltype := ID); <span class="nb">simpl</span> <span class="k">in</span> goaltype <span class="k">end</span>.
+    <span class="nb">assert</span> (Hprop: isaprop goaltype).
+    <span class="mi">2</span>: { <span class="nb">apply</span> Hprop. }
+    <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> impred. <span class="nb">intro</span> c.
+      <span class="nb">apply</span> hlevelntosn.
+      <span class="nb">apply</span> C₃.
+    + <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+      <span class="nb">apply</span> hlevelntosn.
+      <span class="nb">apply</span> C₃.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">build_nat_trans_to_dialgebra</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">F</span> <span class="nv">G</span> : C₂ ⟶ C₃}
+           (<span class="nv">K₁</span> <span class="nv">K₂</span> : C₁ ⟶ dialgebra F G)
+           (<span class="nv">α</span> : K₁ ∙ dialgebra_pr1 F G ⟹ K₂ ∙ dialgebra_pr1 F G)
+           (<span class="nv">p</span> : ∏ (x : C₁), pr2 (K₁ x) · # G (α x) = # F (α x) · pr2 (K₂ x))
+  : K₁ ⟹ K₂.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, α x ,, p x).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x₁ x₂ f ;
+       use eq_dialgebra ;
+       <span class="bp">exact</span> (nat_trans_ax α _ _ f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">DialgebraEquivalence</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₁'</span> <span class="nv">C₂</span> <span class="nv">C₂'</span> : category}
+          {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₁'}
+          {<span class="nv">F'</span> <span class="nv">G'</span> : C₂ ⟶ C₂'}
+          {<span class="nv">L</span> : C₁ ⟶ C₂}
+          (<span class="nv">HL</span> : adj_equivalence_of_cats L)
+          {<span class="nv">L'</span> : C₁' ⟶ C₂'}
+          (<span class="nv">HL'</span> : adj_equivalence_of_cats L')
+          (<span class="nv">α</span> : nat_z_iso (L ∙ F') (F ∙ L'))
+          (<span class="nv">β</span> : nat_z_iso (L ∙ G') (G ∙ L')).
+
+  <span class="kn">Let</span> <span class="nf">R</span> : C₂ ⟶ C₁
+    := right_adjoint HL.
+  <span class="kn">Let</span> <span class="nf">R'</span> : C₂' ⟶ C₁'
+    := right_adjoint HL'.
+  <span class="kn">Let</span> <span class="nf">η</span> : nat_z_iso (functor_identity _) (L ∙ R)
+    := unit_nat_z_iso_from_adj_equivalence_of_cats HL.
+  <span class="kn">Let</span> <span class="nf">η'</span> : nat_z_iso (functor_identity _) (L' ∙ R')
+    := unit_nat_z_iso_from_adj_equivalence_of_cats HL'.
+  <span class="kn">Let</span> <span class="nf">ε</span> : nat_z_iso  (R ∙ L) (functor_identity _)
+    := counit_nat_z_iso_from_adj_equivalence_of_cats HL.
+  <span class="kn">Let</span> <span class="nf">ε'</span> : nat_z_iso (R' ∙ L') (functor_identity _)
+    := counit_nat_z_iso_from_adj_equivalence_of_cats HL'.
+  <span class="kn">Let</span> <span class="nf">ηinv</span> : nat_z_iso (L ∙ R) (functor_identity _)
+    := nat_z_iso_inv η.
+  <span class="kn">Let</span> <span class="nf">ηinv'</span> : nat_z_iso (L' ∙ R') (functor_identity _)
+    := nat_z_iso_inv η'.
+  <span class="kn">Let</span> <span class="nf">εinv</span> : nat_z_iso  (functor_identity _) (R ∙ L)
+    := nat_z_iso_inv ε.
+  <span class="kn">Let</span> <span class="nf">εinv'</span> : nat_z_iso (functor_identity _) (R' ∙ L')
+    := nat_z_iso_inv ε'.
+  <span class="kn">Let</span> <span class="nf">αinv</span> : nat_z_iso (F ∙ L') (L ∙ F')
+    := nat_z_iso_inv α.
+  <span class="kn">Let</span> <span class="nf">βinv</span> : nat_z_iso (G ∙ L') (L ∙ G')
+    := nat_z_iso_inv β.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_nat_trans_data</span>
+    : nat_trans_data
+        (dialgebra_pr1 F G ∙ L ∙ F')
+        (dialgebra_pr1 F G ∙ L ∙ G')
+    := <span class="k">λ</span> <span class="nv">x</span>,
+       α (pr1 x)
+       · #L' (pr2 x)
+       · βinv (pr1 x).
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_is_nat_trans</span>
+    : is_nat_trans _ _ dialgebra_equivalence_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> dialgebra_equivalence_nat_trans_data.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (nat_trans_ax α).
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- (functor_comp L').
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!(pr2 f)).
+    }
+    <span class="nb">rewrite</span> (functor_comp L').
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (nat_trans_ax βinv).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_nat_trans</span>
+    : dialgebra_pr1 F G ∙ L ∙ F'
+      ⟹
+      dialgebra_pr1 F G ∙ L ∙ G'.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> dialgebra_equivalence_nat_trans_data.
+    - <span class="bp">exact</span> dialgebra_equivalence_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_functor</span>
+    : dialgebra F G ⟶ dialgebra F' G'
+    := nat_trans_to_dialgebra
+         (dialgebra_pr1 _ _ ∙ L)
+         dialgebra_equivalence_nat_trans.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_inv_nat_trans_data</span>
+    : nat_trans_data
+        (dialgebra_pr1 F' G' ∙ R ∙ F)
+        (dialgebra_pr1 F' G' ∙ R ∙ G)
+    := <span class="k">λ</span> <span class="nv">x</span>,
+       η' (F (R (pr1 x)))
+       · #R' (αinv _ · #F' (ε _) · pr2 x · #G' (εinv _) · β _)
+       · ηinv' _.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_inv_is_nat_trans</span>
+    : is_nat_trans
+        _ _
+        dialgebra_equivalence_of_cats_inv_nat_trans_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f.
+    <span class="nb">cbn</span> -[η] ; <span class="nb">unfold</span> dialgebra_equivalence_of_cats_inv_nat_trans_data.
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">6</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (nat_trans_ax η').
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span> -[η αinv εinv ε ηinv'].
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (nat_trans_ax αinv).
+    }
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span> -[η αinv εinv ε ηinv'].
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (nat_trans_ax ε).
+    }
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span> -[η αinv εinv ηinv'].
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (!(pr2 f)).
+    }
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (nat_trans_ax εinv).
+    }
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">cbn</span> -[η αinv εinv ηinv'].
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (nat_trans_ax β).
+    }
+    <span class="nb">rewrite</span> functor_comp.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (nat_trans_ax ηinv').
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_inv_nat_trans</span>
+    : dialgebra_pr1 F' G' ∙ R ∙ F
+      ⟹
+      dialgebra_pr1 F' G' ∙ R ∙ G.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> dialgebra_equivalence_of_cats_inv_nat_trans_data.
+    - <span class="bp">exact</span> dialgebra_equivalence_of_cats_inv_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_inv_functor</span>
+    : dialgebra F' G' ⟶ dialgebra F G
+    := nat_trans_to_dialgebra
+         (dialgebra_pr1 _ _ ∙ R)
+         dialgebra_equivalence_of_cats_inv_nat_trans.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_unit_data_path</span>
+             (<span class="nv">x</span> : dialgebra F G)
+    : @dialgebra_mor_path
+        _ _ _ _ _
+        ((dialgebra_equivalence_of_cats_functor
+          ∙
+          dialgebra_equivalence_of_cats_inv_functor)
+          x)
+        (η (pr1 x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> dialgebra_mor_path.
+    <span class="nb">cbn</span> -[η] ; <span class="nb">unfold</span> dialgebra_equivalence_of_cats_inv_nat_trans_data.
+    <span class="nb">unfold</span> dialgebra_equivalence_nat_trans_data.
+    <span class="nb">cbn</span> -[η ε η' ε' ηinv εinv ηinv' εinv' αinv βinv].
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">assert</span> (H₁ : εinv (L (pr1 x)) = #L (η (pr1 x))).
+    {
+      <span class="nb">refine</span> (!(id_left _) @ _).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (z_iso_inv_on_left _ _ _ _ (_,,dirprod_pr2 (pr2 HL) (L (pr1 x)))).
+      <span class="bp">exact</span> (!(triangle_id_left_ad (pr21 HL) (pr1 x))).
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> H₁.
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax β).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      { <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> (z_iso_after_z_iso_inv (_,,pr2 β (pr1 x))). }
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">clear</span> H₁.
+    <span class="nb">assert</span> (H₂ : ε (L (pr1 x)) = #L (ηinv (pr1 x))).
+    {
+      <span class="nb">cbn</span> -[ε].
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, (functor_on_inv_from_z_iso L (_,,dirprod_pr1 (pr2 HL) (pr1 x))). }
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> z_iso_inv_on_right.
+      <span class="bp">exact</span> (!(triangle_id_left_ad (pr21 HL) (pr1 x))).
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> H₂.
+      }
+      <span class="nb">rewrite</span> assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax α).
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">cbn</span> -[ηinv].
+      etrans.
+      { <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">apply</span> (z_iso_after_z_iso_inv (_,,pr2 α (R (L (pr1 x))))). }
+      <span class="nb">apply</span> id_left.
+    }
+    <span class="nb">rewrite</span> !functor_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (!(nat_trans_ax η' _ _ _)).
+    }
+    <span class="nb">cbn</span> -[η ε η' ε' ηinv εinv ηinv' εinv'].
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">cbn</span> -[η η'].
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (z_iso_inv_after_z_iso (make_z_iso' _ _)).
+      }
+      <span class="nb">rewrite</span> functor_id.
+      <span class="nb">apply</span> id_left.
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax η').
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax η').
+    }
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span> -[η'].
+      <span class="bp">exact</span> (z_iso_inv_after_z_iso (make_z_iso' _ _)).
+    }
+    <span class="nb">apply</span> id_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_unit_data</span>
+    : nat_trans_data
+        (functor_identity _)
+        (dialgebra_equivalence_of_cats_functor
+         ∙ dialgebra_equivalence_of_cats_inv_functor).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">x</span>, make_dialgebra_mor _ _ _ _).
+    - <span class="bp">exact</span> (η (pr1 x)).
+    - <span class="bp">exact</span> (dialgebra_equivalence_of_cats_unit_data_path x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_unit_is_nat_trans</span>
+    : is_nat_trans
+        _ _
+        dialgebra_equivalence_of_cats_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f.
+    use eq_dialgebra ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (nat_trans_ax η).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_unit</span>
+    : functor_identity _
+      ⟹
+      dialgebra_equivalence_of_cats_functor
+      ∙ dialgebra_equivalence_of_cats_inv_functor.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> dialgebra_equivalence_of_cats_unit_data.
+    - <span class="bp">exact</span> dialgebra_equivalence_of_cats_unit_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_counit_path</span>
+             (<span class="nv">x</span> : dialgebra F' G')
+    : @dialgebra_mor_path
+        _ _ _ _
+        ((dialgebra_equivalence_of_cats_inv_functor
+          ∙ dialgebra_equivalence_of_cats_functor)
+         x)
+        _
+        (ε (pr1 x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> dialgebra_mor_path.
+    <span class="nb">cbn</span> -[ε] ; <span class="nb">unfold</span> dialgebra_equivalence_of_cats_inv_nat_trans_data.
+    <span class="nb">unfold</span> dialgebra_equivalence_nat_trans_data.
+    <span class="nb">cbn</span> -[η ε η' ε' ηinv εinv ηinv' εinv' αinv βinv].
+    <span class="nb">rewrite</span> !(functor_comp L').
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">assert</span> (# L' (ηinv' (G (R (pr1 x))))
+            =
+            ε' (L' (G (R (pr1 x)))))
+      <span class="k">as</span> H₁.
+    {
+      <span class="nb">refine</span> (!(id_right _) @ !_).
+      <span class="nb">unfold</span> ηinv' ; <span class="nb">cbn</span> -[η' ε'].
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> cancel_postcomposition, pathsinv0, (functor_on_inv_from_z_iso L' (_,,pr2 η' (G (R (pr1 x))))). }
+      <span class="nb">refine</span> (!_).
+      use z_iso_inv_on_right.
+      <span class="bp">exact</span> (!(triangle_id_left_ad (pr21 HL') (G (R (pr1 x))))).
+    }
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> H₁.
+    }
+    <span class="nb">clear</span> H₁.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (nat_trans_ax ε').
+    }
+    <span class="nb">cbn</span> -[η ε η' ε' ηinv εinv ηinv' εinv' αinv βinv].
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">do</span> <span class="mi">7</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (triangle_id_left_ad (pr21 HL') (F (R (pr1 x)))).
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">6</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (z_iso_inv_after_z_iso (make_z_iso' _ _)).
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (z_iso_inv_after_z_iso (make_z_iso' _ _)).
+    }
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> &lt;- functor_comp.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (z_iso_after_z_iso_inv (make_z_iso' _ _)).
+    }
+    <span class="nb">apply</span> functor_id.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_counit_data</span>
+    : nat_trans_data
+        (dialgebra_equivalence_of_cats_inv_functor
+         ∙ dialgebra_equivalence_of_cats_functor)
+        (functor_identity _).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">x</span>, make_dialgebra_mor _ _ _ _).
+    - <span class="bp">exact</span> (ε (pr1 x)).
+    - <span class="bp">exact</span> (dialgebra_equivalence_of_cats_counit_path x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_counit_is_nat_trans</span>
+    : is_nat_trans
+        _ _
+        dialgebra_equivalence_of_cats_counit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ f.
+    use eq_dialgebra ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> (nat_trans_ax ε).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_counit</span>
+    : dialgebra_equivalence_of_cats_inv_functor
+      ∙ dialgebra_equivalence_of_cats_functor
+      ⟹
+      functor_identity _.
+  <span class="kn">Proof</span>.
+    use make_nat_trans.
+    - <span class="bp">exact</span> dialgebra_equivalence_of_cats_counit_data.
+    - <span class="bp">exact</span> dialgebra_equivalence_of_cats_counit_is_nat_trans.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_unit_is_nat_z_iso</span>
+    : is_nat_z_iso dialgebra_equivalence_of_cats_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use is_z_iso_dialgebra.
+    <span class="nb">apply</span> η.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats_counit_is_nat_z_iso</span>
+    : is_nat_z_iso dialgebra_equivalence_of_cats_counit.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> x.
+    use is_z_iso_dialgebra.
+    <span class="nb">apply</span> ε.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_equivalence_of_cats</span>
+    : equivalence_of_cats (dialgebra F G) (dialgebra F' G').
+  <span class="kn">Proof</span>.
+    use make_equivalence_of_cats.
+    - use make_adjunction_data.
+      + <span class="bp">exact</span> dialgebra_equivalence_of_cats_functor.
+      + <span class="bp">exact</span> dialgebra_equivalence_of_cats_inv_functor.
+      + <span class="bp">exact</span> dialgebra_equivalence_of_cats_unit.
+      + <span class="bp">exact</span> dialgebra_equivalence_of_cats_counit.
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> dialgebra_equivalence_of_cats_unit_is_nat_z_iso.
+      + <span class="bp">exact</span> dialgebra_equivalence_of_cats_counit_is_nat_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_adj_equivalence_of_cats</span>
+    : adj_equivalence_of_cats dialgebra_equivalence_of_cats_functor
+    := adjointification dialgebra_equivalence_of_cats.
+<span class="kn">End</span> <span class="nf">DialgebraEquivalence</span>.
+
+
+<span class="kn">Section</span> <span class="nf">DiAlgebraCoercions</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">F</span> <span class="nv">G</span> : C₁ ⟶ C₂}.
+
+  <span class="kn">Definition</span> <span class="nf">dialgebra_carrier</span> (<span class="nv">x</span> : dialgebra F G)
+    : ob C₁ := pr1 x.
+  <span class="kn">Definition</span> <span class="nf">dialgebra_map</span> (<span class="nv">x</span> : dialgebra F G)
+    : C₂⟦F (dialgebra_carrier x), G (dialgebra_carrier x)⟧ := pr2 x.
+
+  <span class="kn">Definition</span> <span class="nf">mor_from_dialgebra_mor</span> {<span class="nv">x</span> <span class="nv">y</span> : dialgebra F G} (<span class="nv">f</span> : (dialgebra F G)⟦x,y⟧)
+    :  C₁ ⟦ dialgebra_carrier x, dialgebra_carrier y ⟧ := pr1 f.
+
+  <span class="kn">Lemma</span> <span class="nf">dialgebra_mor_commutes</span> {<span class="nv">x</span> <span class="nv">y</span> : dialgebra F G} (<span class="nv">f</span> : (dialgebra F G)⟦x,y⟧)
+    :  (dialgebra_map x) · # G (mor_from_dialgebra_mor f)
+       = # F (mor_from_dialgebra_mor f) · (dialgebra_map y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 f).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">DiAlgebraCoercions</span>.
+
+<span class="kn">Section</span> <span class="nf">AlgebrasAndCoalgebras</span>.
+
+  <span class="kn">Definition</span> <span class="nf">FunctorAlg</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functor C C) : category
+    := dialgebra F (functor_identity C).
+
+  <span class="kn">Definition</span> <span class="nf">CoAlg_category</span> {<span class="nv">C</span> : category} (<span class="nv">F</span> : functor C C) : category
+    := dialgebra (functor_identity C) F.
+
+<span class="kn">End</span> <span class="nf">AlgebrasAndCoalgebras</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/Dialgebras.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

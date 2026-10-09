@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>FiberwiseProducts.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************************</span>
+
+<span class="sd"> Fiberwise products</span>
+
+<span class="sd"> In this file, we define fiberwise binary products for fibrations. We also define when</span>
+<span class="sd"> a displayed functor preserves fiberwise products.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Fiberwise products</span>
+<span class="sd"> 2. Preservation of fiberwise products</span>
+
+<span class="sd"> ***************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Fiberwise products *)</span>
+<span class="kn">Definition</span> <span class="nf">fiberwise_binproducts</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           (<span class="nv">HD</span> : cleaving D)
+  : UU
+  := (∏ (x : C),
+      BinProducts (D[{x}]))
+     ×
+     (∏ (x y : C)
+        (f : x --&gt; y),
+      preserves_binproduct (fiber_functor_from_cleaving D HD f)).
+
+<span class="kn">Definition</span> <span class="nf">binprod_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           (<span class="nv">P</span> : fiberwise_binproducts HD)
+           {<span class="nv">x</span> : C}
+           (<span class="nv">xx</span> <span class="nv">yy</span> : D x)
+  : BinProduct (D[{x}]) xx yy
+  := pr1 P x xx yy.
+
+<span class="kn">Definition</span> <span class="nf">preserves_binproduct_in_fib</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : disp_cat C}
+           {<span class="nv">HD</span> : cleaving D}
+           (<span class="nv">P</span> : fiberwise_binproducts HD)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : preserves_binproduct (fiber_functor_from_cleaving D HD f)
+  := pr2 P x y f.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_fiberwise_binproducts</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : disp_univalent_category C}
+            (<span class="nv">HD</span> : cleaving D)
+  : isaprop (fiberwise_binproducts HD).
+<span class="kn">Proof</span>.
+  use isapropdirprod.
+  - <span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).
+    use isaprop_BinProduct.
+    use is_univalent_fiber.
+    <span class="nb">apply</span> disp_univalent_category_is_univalent_disp.
+  - <span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_preserves_binproduct.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">FiberwiseBinProductPoset</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">D</span> : disp_cat C}
+          (<span class="nv">HD</span> : cleaving D)
+          (<span class="nv">HD'</span> : locally_propositional D)
+          (<span class="nv">and</span> : ∏ (Γ : C), D[{Γ}] → D[{Γ}] → D[{Γ}])
+          (<span class="nv">and_pr1</span> : ∏ (Γ : C) (φ ψ : D[{Γ}]),
+                     and _ φ ψ --&gt;[ identity _ ] φ)
+          (<span class="nv">and_pr2</span> : ∏ (Γ : C) (φ ψ : D[{Γ}]),
+                     and _ φ ψ --&gt;[ identity _ ] ψ)
+          (<span class="nv">and_in</span> : ∏ (Γ : C) (φ ψ χ : D[{Γ}]),
+                    χ --&gt;[ identity _ ] φ
+                    → χ --&gt;[ identity _ ] ψ
+                    → χ --&gt;[ identity _ ] and _ φ ψ)
+          (<span class="nv">and_sub</span> : ∏ (Γ₁ Γ₂ : C)
+                       (s : Γ₁ --&gt; Γ₂)
+                       (φ ψ : D[{Γ₂}]),
+                     and Γ₁ (pr1 (HD Γ₂ Γ₁ s φ)) (pr1 (HD Γ₂ Γ₁ s ψ))
+                     --&gt;
+                     pr1 (HD Γ₂ Γ₁ s (and Γ₂ φ ψ))).
+
+  <span class="kn">Definition</span> <span class="nf">make_binproduct_fiber_locally_propositional</span>
+             (<span class="nv">Γ</span> : C)
+    : BinProducts D[{Γ}].
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> φ ψ.
+    use make_BinProduct.
+    - <span class="bp">exact</span> (<span class="kn">and</span> Γ φ ψ).
+    - <span class="bp">exact</span> (and_pr1 Γ φ ψ).
+    - <span class="bp">exact</span> (and_pr2 Γ φ ψ).
+    - <span class="nb">intros</span> χ p₁ p₂.
+      use iscontraprop1.
+      + <span class="kp">abstract</span>
+          (use invproofirrelevance ;
+           <span class="nb">intros</span> q₁ q₂ ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property | ] ;
+           <span class="nb">apply</span> HD').
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _) ; [ | <span class="nb">apply</span> HD' | <span class="nb">apply</span> HD' ].
+        <span class="bp">exact</span> (and_in Γ φ ψ χ p₁ p₂).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_fiberwise_binproducts_locally_propositional</span>
+    : fiberwise_binproducts HD.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="bp">exact</span> make_binproduct_fiber_locally_propositional.
+    - <span class="nb">intros</span> Γ₁ Γ₂ s.
+      use preserves_binproduct_if_preserves_chosen.
+      + <span class="nb">apply</span> make_binproduct_fiber_locally_propositional.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> φ ψ ;
+           use (isBinProduct_z_iso
+                  (isBinProduct_BinProduct
+                     _
+                     (make_binproduct_fiber_locally_propositional
+                        Γ₁
+                        (fiber_functor_from_cleaving D HD s φ)
+                        (fiber_functor_from_cleaving D HD s ψ)))) ;
+           [ | <span class="nb">apply</span> HD' | <span class="nb">apply</span> HD' ] ;
+           use make_z_iso ; [ | <span class="nb">apply</span> and_sub | <span class="nb">split</span> ; <span class="nb">apply</span> HD' ] ;
+           <span class="nb">apply</span> BinProductArrow ;
+           [ <span class="bp">exact</span> (#(fiber_functor_from_cleaving D HD s) (BinProductPr1 _ _))
+           | <span class="bp">exact</span> (#(fiber_functor_from_cleaving D HD s) (BinProductPr2 _ _)) ]).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FiberwiseBinProductPoset</span>.
+
+<span class="sd">(** * 2. Preservation of fiberwise products *)</span>
+<span class="kn">Definition</span> <span class="nf">preserves_fiberwise_binproducts</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">D₁</span> : disp_cat C₁}
+           {<span class="nv">D₂</span> : disp_cat C₂}
+           (<span class="nv">FF</span> : disp_functor F D₁ D₂)
+  : UU
+  := ∏ (x : C₁),
+     preserves_binproduct (fiber_functor FF x).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_preserves_fiberwise_binproducts</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">D₁</span> : disp_cat C₁}
+            {<span class="nv">D₂</span> : disp_cat C₂}
+            (<span class="nv">FF</span> : disp_functor F D₁ D₂)
+  : isaprop (preserves_fiberwise_binproducts FF).
+<span class="kn">Proof</span>.
+  use impred ; <span class="nb">intro</span>.
+  <span class="nb">apply</span> isaprop_preserves_binproduct.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_preserves_fiberwise_binproducts</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">D</span> : disp_cat C)
+  : preserves_fiberwise_binproducts (disp_functor_identity D).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y₁ y₂ z p q H.
+  <span class="bp">exact</span> H.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_preserves_fiberwise_binproducts</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">G</span> : C₂ ⟶ C₃}
+           {<span class="nv">D₁</span> : disp_cat C₁}
+           {<span class="nv">D₂</span> : disp_cat C₂}
+           {<span class="nv">D₃</span> : disp_cat C₃}
+           {<span class="nv">FF</span> : disp_functor F D₁ D₂}
+           (<span class="nv">HFF</span> : preserves_fiberwise_binproducts FF)
+           {<span class="nv">GG</span> : disp_functor G D₂ D₃}
+           (<span class="nv">HGG</span> : preserves_fiberwise_binproducts GG)
+  : preserves_fiberwise_binproducts (disp_functor_composite FF GG).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y₁ y₂ z p q H.
+  use (isBinProduct_eq_arrow _ _ (HGG _ _ _ _ _ _ (HFF _ _ _ _ _ _ H))) ; <span class="nb">cbn</span>.
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> disp_functor_transportf ;
+       <span class="nb">rewrite</span> transport_f_f ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> disp_functor_transportf ;
+       <span class="nb">rewrite</span> transport_f_f ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Fiberwise/FiberwiseProducts.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Preservation of fiberwise products
+  &gt;
+  &gt;  ***************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

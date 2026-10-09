@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Limits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ** (Co)limits in full subprecategories</span>
+
+<span class="sd">If</span>
+
+<span class="sd"> * C has (co)limits of shape F,</span>
+<span class="sd"> * C' : ob C → UU is a proposition on the objects of C, and</span>
+<span class="sd"> * C' is closed under the formation of (co)limits of shape F,</span>
+
+<span class="sd">then the full subcategory on C'-objects has (co)limits of shape F.</span>
+
+<span class="sd">Such proofs are mostly just a lot of insertions of</span>
+
+<span class="sd"> * [precategory_object_from_sub_precategory_object]</span>
+<span class="sd"> * [precategory_morphism_from_sub_precategory_morphism]</span>
+
+<span class="sd">and their "inverses"</span>
+
+<span class="sd"> * [precategory_morphisms_in_subcat]</span>
+<span class="sd"> * [precategory_object_in_subcat].</span>
+
+<span class="sd">Author: Langston Barrett (@siddharthist) (March 2018)</span>
+
+<span class="sd">*)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">- Limits</span>
+<span class="sd">  - Binary products</span>
+<span class="sd">- Colimits</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartA.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** The subcategory inclusion reflects limits *)</span>
+
+<span class="kn">Corollary</span> <span class="nf">reflects_all_limits_sub_precategory_inclusion</span>
+          {<span class="nv">C</span> : category} (<span class="nv">C'</span> : hsubtype (ob C)) :
+  reflects_all_limits (sub_precategory_inclusion C (full_sub_precategory C')).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> fully_faithful_reflects_all_limits.
+  <span class="nb">apply</span> fully_faithful_sub_precategory_inclusion.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">Limits</span>.
+
+<span class="sd">(** ** Limits *)</span>
+
+<span class="sd">(** *** Terminal objects *)</span>
+
+<span class="sd">(** As long as the predicate holds for the terminal object, it's terminal in the full subcategory. *)</span>
+<span class="kn">Lemma</span> <span class="nf">terminal_in_full_subcategory</span> {<span class="nv">C</span> : category} (<span class="nv">C'</span> : hsubtype (ob C))
+        (<span class="nv">TC</span> : Terminal C) (<span class="nv">TC'</span> : C' (TerminalObject TC)) :
+  Terminal (full_sub_precategory C').
+<span class="kn">Proof</span>.
+  use tpair.
+  - use precategory_object_in_subcat.
+    + <span class="bp">exact</span> (TerminalObject TC).
+    + <span class="bp">assumption</span>.
+  - <span class="nb">cbn</span>.
+    <span class="nb">intros</span> X.
+    use make_iscontr.
+    + use morphism_in_full_subcat.
+      <span class="nb">apply</span> TerminalArrow.
+    + <span class="nb">intro</span>; <span class="nb">apply</span> eq_in_sub_precategory; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> TerminalArrowUnique.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Binary products *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">bin_products_in_full_subcategory</span> {<span class="nv">C</span> : category} (<span class="nv">C'</span> : hsubtype (ob C))
+      (<span class="nv">BPC</span> : BinProducts C)
+      (<span class="nv">all</span> : ∏ c1 c2 : ob C, C' c1 -&gt; C' c2 -&gt; C' (BinProductObject _ (BPC c1 c2))) :
+  BinProducts (full_sub_precategory C').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c1' c2'.
+  <span class="nb">pose</span> (c1'_in_C := (precategory_object_from_sub_precategory_object _ _ c1')).
+  <span class="nb">pose</span> (c2'_in_C := (precategory_object_from_sub_precategory_object _ _ c2')).
+  use tpair; [use tpair|]; [|use make_dirprod|].
+  - use precategory_object_in_subcat.
+    + <span class="nb">apply</span> (BinProductObject _ (BPC c1'_in_C c2'_in_C)).
+    + <span class="nb">apply</span> <span class="kp">all</span>.
+      * <span class="bp">exact</span> (pr2 c1').
+      * <span class="bp">exact</span> (pr2 c2').
+  - use morphism_in_full_subcat; <span class="nb">apply</span> BinProductPr1.
+  - use morphism_in_full_subcat; <span class="nb">apply</span> BinProductPr2.
+  - <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> isBinProduct.
+    <span class="nb">intros</span> bp' f g.
+    use tpair.
+    + use tpair.
+      * use precategory_morphisms_in_subcat;
+          [<span class="nb">apply</span> BinProductArrow|<span class="bp">exact</span> tt];
+          <span class="nb">apply</span> (precategory_morphism_from_sub_precategory_morphism _ (full_sub_precategory C'));
+          <span class="bp">assumption</span>.
+      * <span class="nb">cbn</span>.
+        use make_dirprod; <span class="nb">apply</span> eq_in_sub_precategory.
+        { <span class="nb">apply</span> BinProductPr1Commutes. }
+        { <span class="nb">apply</span> BinProductPr2Commutes. }
+    + <span class="nb">intros</span> otherarrow.
+      <span class="sd">(** This is where we use the condition that C has homsets. *)</span>
+      <span class="nb">apply</span> subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isapropdirprod;
+          <span class="nb">apply</span> is_set_sub_precategory_morphisms.
+      }
+      {
+        <span class="nb">apply</span> eq_in_sub_precategory.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> BinProductArrowUnique.
+        - <span class="bp">exact</span> (maponpaths pr1 (dirprod_pr1 (pr2 otherarrow))).
+        - <span class="bp">exact</span> (maponpaths pr1 (dirprod_pr2 (pr2 otherarrow))).
+      }
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** General limits *)</span>
+
+<span class="sd">(** Lift a diagram from a full subcategory into the parent category *)</span>
+<span class="kn">Definition</span> <span class="nf">lift_diagram_full_subcategory</span> {<span class="nv">C</span> : category} {<span class="nv">C'</span> : hsubtype (ob C)} {<span class="nv">g</span> : graph}
+      (<span class="nv">d</span> : diagram g (full_sub_precategory C')) :
+  diagram g C.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intros</span> v.
+    <span class="nb">apply</span> (precategory_object_from_sub_precategory_object _ (full_sub_precategory C')).
+    <span class="bp">exact</span> (dob d v).
+  - <span class="nb">intros</span> u v e.
+    <span class="nb">apply</span> (precategory_morphism_from_sub_precategory_morphism _ (full_sub_precategory C')).
+    <span class="bp">exact</span> (dmor d e).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Equivalence between cones in the parent category and those in the subcategory *)</span>
+<span class="kn">Definition</span> <span class="nf">cone_in_full_subcategory</span> {<span class="nv">C</span> : category} {<span class="nv">g</span> : graph} (<span class="nv">C'</span> : hsubtype (ob C))
+      {<span class="nv">d</span> : diagram g (full_sub_precategory C')}
+      (<span class="nv">c</span> : ob C)
+      (<span class="nv">tip</span> : C' c) :
+  cone (lift_diagram_full_subcategory d) c ≃ cone d (c,, tip).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> cone.
+  use weqbandf.
+  - <span class="nb">apply</span> weqonsecfibers; <span class="nb">intros</span> x.
+    <span class="nb">cbn</span> beta.
+    <span class="sd">(** The following line works because of the computational behavior of</span>
+<span class="sd">        [lift_diagram_full_subcategory], namely:</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">        (∏ v : vertex g, C' (dob (lift_diagram_full_subcategory d) v))</span>
+<span class="sd">        → C' c</span>
+<span class="sd">        → ∏ v : vertex g,</span>
+<span class="sd">            pr1 (dob d v) = dob (lift_diagram_full_subcategory d) v</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">      *)</span>
+    <span class="nb">apply</span> (@weq_hom_in_subcat_from_hom_in_precat C C' (c,, tip) (dob d x)).
+  - <span class="nb">intro</span> legs.
+    <span class="nb">cbn</span> beta.
+    <span class="nb">apply</span> weqonsecfibers; <span class="nb">intros</span> u;
+      <span class="nb">apply</span> weqonsecfibers; <span class="nb">intros</span> v;
+      <span class="nb">apply</span> weqonsecfibers; <span class="nb">intros</span> e.
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> invweq.
+    <span class="nb">refine</span> (subtypeInjectivity _ _ _ _).
+    <span class="nb">intro</span>; <span class="nb">apply</span> propproperty.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A full subcategory has a limit of a given shape if the proposition holds</span>
+<span class="sd">    for the tip of the lifted limit diagram in the parent category. *)</span>
+<span class="kn">Lemma</span> <span class="nf">lim_cone_in_full_subcategory</span> {<span class="nv">C</span> : category} (<span class="nv">C'</span> : hsubtype (ob C))
+      {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (full_sub_precategory C')}
+      (<span class="nv">LC</span> : Lims_of_shape g C) :
+  C' (lim (LC (lift_diagram_full_subcategory d))) -&gt; LimCone d.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">pose</span> (Z := LC (lift_diagram_full_subcategory d)).
+  <span class="nb">unfold</span> LimCone.
+  use tpair.
+  - use tpair.
+    + use precategory_object_in_subcat.
+      * <span class="nb">eapply</span> lim; <span class="bp">eassumption</span>.
+      * <span class="bp">assumption</span>.
+    + <span class="nb">apply</span> cone_in_full_subcategory, limCone.
+  - <span class="nb">apply</span> (reflects_all_limits_sub_precategory_inclusion C' g d).
+    <span class="nb">apply</span> (pr2 Z).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Colimits *)</span>
+
+<span class="sd">(** *** Initial objects *)</span>
+
+<span class="sd">(** As long as the predicate holds for the initial object, it's initial in the full subcategory. *)</span>
+<span class="kn">Lemma</span> <span class="nf">initial_in_full_subcategory</span> {<span class="nv">C</span> : category} (<span class="nv">C'</span> : hsubtype (ob C))
+      (<span class="nv">IC</span> : Initial C) (<span class="nv">IC'</span> : C' (InitialObject IC)) :
+  Initial (full_sub_precategory C').
+<span class="kn">Proof</span>.
+  use tpair.
+  - use precategory_object_in_subcat.
+    + <span class="bp">exact</span> (InitialObject IC).
+    + <span class="bp">assumption</span>.
+  - <span class="nb">cbn</span>.
+    <span class="nb">intros</span> X.
+    use make_iscontr.
+    + use morphism_in_full_subcat.
+      <span class="nb">apply</span> InitialArrow.
+    + <span class="nb">intro</span>; <span class="nb">apply</span> eq_in_sub_precategory; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> InitialArrowUnique.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Binary coproducts *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">bin_coproducts_in_full_subcategory</span> {<span class="nv">C</span> : category} (<span class="nv">C'</span> : hsubtype (ob C))
+      (<span class="nv">BPC</span> : BinCoproducts C)
+      (<span class="nv">all</span> : ∏ c1 c2 : ob C, C' c1 -&gt; C' c2 -&gt; C' (BinCoproductObject (BPC c1 c2))) :
+  BinCoproducts (full_sub_precategory C').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> c1' c2'.
+  <span class="nb">pose</span> (c1'_in_C := (precategory_object_from_sub_precategory_object _ _ c1')).
+  <span class="nb">pose</span> (c2'_in_C := (precategory_object_from_sub_precategory_object _ _ c2')).
+  use tpair; [use tpair|]; [|use make_dirprod|].
+  - use precategory_object_in_subcat.
+    + <span class="nb">apply</span> (BinCoproductObject (BPC c1'_in_C c2'_in_C)).
+    + <span class="nb">apply</span> <span class="kp">all</span>.
+      * <span class="bp">exact</span> (pr2 c1').
+      * <span class="bp">exact</span> (pr2 c2').
+  - use morphism_in_full_subcat; <span class="nb">apply</span> BinCoproductIn1.
+  - use morphism_in_full_subcat; <span class="nb">apply</span> BinCoproductIn2.
+  - <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> isBinCoproduct.
+    <span class="nb">intros</span> bp' f g.
+    use tpair.
+    + use tpair.
+      * use precategory_morphisms_in_subcat;
+          [<span class="nb">apply</span> BinCoproductArrow|<span class="bp">exact</span> tt];
+          <span class="nb">apply</span> (precategory_morphism_from_sub_precategory_morphism _ (full_sub_precategory C'));
+          <span class="bp">assumption</span>.
+      * <span class="nb">cbn</span>.
+        use make_dirprod; <span class="nb">apply</span> eq_in_sub_precategory.
+        { <span class="nb">apply</span> BinCoproductIn1Commutes. }
+        { <span class="nb">apply</span> BinCoproductIn2Commutes. }
+    + <span class="nb">intros</span> otherarrow.
+      <span class="sd">(** This is where we use the condition that C has homsets. *)</span>
+      <span class="nb">apply</span> subtypePath.
+      { <span class="nb">intro</span>. <span class="nb">apply</span> isapropdirprod;
+          <span class="nb">apply</span> is_set_sub_precategory_morphisms.
+      }
+      {
+        <span class="nb">apply</span> eq_in_sub_precategory.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> BinCoproductArrowUnique.
+        - <span class="bp">exact</span> (maponpaths pr1 (dirprod_pr1 (pr2 otherarrow))).
+        - <span class="bp">exact</span> (maponpaths pr1 (dirprod_pr2 (pr2 otherarrow))).
+      }
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Limits</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Subcategory/Limits.v</tt>, line 32)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartA.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; - Colimits
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartA.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

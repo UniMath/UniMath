@@ -1,0 +1,817 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LocalProperties.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************************</span>
+
+<span class="sd"> Local Properties of Categories</span>
+
+<span class="sd"> There are numerous type formers that one would like to consider in the categorical semantics</span>
+<span class="sd"> of dependent type theory. If we have a comprehension category with a fibration `D` over `C`,</span>
+<span class="sd"> then such type formers are interpreted by finding suitable structure in the fiber categories</span>
+<span class="sd"> `D[{x}]` of `x`. Such structure tends to correspond with categorical properties that have</span>
+<span class="sd"> been established over the time in category theory. For example, empty types correspond to</span>
+<span class="sd"> fiberwise initial objects that are stable under pullback and sum types correspond to</span>
+<span class="sd"> fiberwise coproducts that are stable under pullback.</span>
+
+<span class="sd"> Now we would like to extend the biequivalence between categories with finite limits and</span>
+<span class="sd"> DFL comprehension categories to include additional type formers. More concretely, we are</span>
+<span class="sd"> looking to obtain a biequivalence between:</span>
+<span class="sd"> - Categories with finite limits that satisfy some property `P`</span>
+<span class="sd"> - DFL comprehension categories for which each fiber satisfies the property `P` and such that</span>
+<span class="sd">   the substitution functors preserve `P`.</span>
+<span class="sd"> Concrete instances of `P` would be:</span>
+<span class="sd"> - Initial objects that are stable under pullback (i.e., empty types)</span>
+<span class="sd"> - Binary coproducts that are stable under pullback (i.e., sum types)</span>
+<span class="sd"> - Subobject classifiers (i.e., a universe of propositions)</span>
+<span class="sd"> - Exactness (i.e., quotient types)</span>
+<span class="sd"> - Extensiveness (i.e., sum types with a disjointness axiom)</span>
+
+<span class="sd"> For that purpose, we look at local properties of categories following Maietti (Proposition</span>
+<span class="sd"> 2.13 in "Modular correspondence between dependent type theories and categories including</span>
+<span class="sd"> pretopoi and topoi"). A local property ([local_property]) is given by:</span>
+<span class="sd"> - A type-valued predicate `P₀` on categories that is a proposition for univalent categories</span>
+<span class="sd"> - A predicate `P₁` on functors</span>
+<span class="sd"> - The predicate `P₁` is satisfied by the identity functor</span>
+<span class="sd"> - The predicate `P₁` is preserved under composition</span>
+<span class="sd"> - If `C` satisfies `P₀`, then so does `C/x` for every `x`</span>
+<span class="sd"> - The substitution functors `C/y ⟶ C/x` satisfy `P₁`</span>
+<span class="sd"> - If we have a functor `F : C₁ ⟶ C₂` satisfying `P₁`, then the fiber functors</span>
+<span class="sd">   `C₁/x ⟶ C₂/(F x)` satisfy `P₁`</span>
+<span class="sd"> Note that in the formalization, we give `P₀` as a type family on categories. This is purely</span>
+<span class="sd"> for convenience, because we do not have to carry proofs of categories being univalent around.</span>
+<span class="sd"> In addition, we think of a local property as a property on univalent categories rather than</span>
+<span class="sd"> as structure on categories. The main examples (initial objects, coproducts, extensiveness,</span>
+<span class="sd"> and exactness) give rise to a predicate on univalent categories, but not to a predicate on</span>
+<span class="sd"> categories that are not necessarily univalent. These examples are actually instance of</span>
+<span class="sd"> 'property-like structure' since they are unique up to isomorphism. This means that in</span>
+<span class="sd"> univalent categories they actually are unique, and they thus form a proposition. It is also</span>
+<span class="sd"> good to note that the notion of `cat_property` is quite similar to a notion of structure as</span>
+<span class="sd"> defined in Definition 9.8.1 of the HoTT book. The main difference is that we require</span>
+<span class="sd"> uniqueness of structures for univalent categories, while in Definition 9.8.1, there is no</span>
+<span class="sd"> such requirement. In addition, our local properties are automatically standard if we restrict</span>
+<span class="sd"> our attention to univalent categories: this follows directly from the fact they form a</span>
+<span class="sd"> proposition in that case.</span>
+
+<span class="sd"> Note that if we look at univalent categories, `P₀` and `P₁` are automatically closed under</span>
+<span class="sd"> adjoint equivalence and natural isomorphism respectively.</span>
+
+<span class="sd"> Concretely, a local property is one that is closed under slicing. The reason why local</span>
+<span class="sd"> properties are useful in the study of dependent type theories, is because they generalize</span>
+<span class="sd"> a common pattern among type formers. To provide categorical semantics for a type former,</span>
+<span class="sd"> we must show that each fiber has some structure and that this structure is preserved</span>
+<span class="sd"> under substitution. Local properties describe this precisely for the codomain fibration.</span>
+
+<span class="sd"> Note that the final requirement is not required in the work by Maietti. We add this</span>
+<span class="sd"> requirement, because then our operations are suitably functorial, which guarantees that</span>
+<span class="sd"> we obtain a biequivalence.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Modular correspondence between dependent type theories and categories including pretopoi</span>
+<span class="sd">   and topoi" by Maietti</span>
+<span class="sd"> - The HoTT book</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Properties of categories</span>
+<span class="sd"> 2. Fiberwise versions of properties</span>
+<span class="sd"> 3. Local properties</span>
+
+<span class="sd"> *******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.PreservationProperties.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.CompositesAndInverses.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.StructuredCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.BicatOfCompCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.ComprehensionCat.DFLCompCat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Properties of categories *)</span>
+<span class="kn">Definition</span> <span class="nf">cat_property_data</span>
+  : UU
+  := ∑ (P₀ : univ_cat_with_finlim → UU),
+     ∏ (C₁ C₂ : univ_cat_with_finlim),
+     P₀ C₁ → P₀ C₂ → functor_finlim C₁ C₂ → UU.
+
+<span class="kn">Definition</span> <span class="nf">make_cat_property_data</span>
+           (<span class="nv">P₀</span> : univ_cat_with_finlim → UU)
+           (<span class="nv">P₁</span> : ∏ (C₁ C₂ : univ_cat_with_finlim),
+                 P₀ C₁ → P₀ C₂ → functor_finlim C₁ C₂ → UU)
+  : cat_property_data
+  := P₀ ,, P₁.
+
+<span class="kn">Definition</span> <span class="nf">cat_property_ob</span>
+           (<span class="nv">P</span> : cat_property_data)
+           (<span class="nv">C</span> : univ_cat_with_finlim)
+  : UU
+  := pr1 P C.
+
+<span class="kn">Coercion</span> <span class="nf">cat_property_ob</span> : cat_property_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_property_functor</span>
+           (<span class="nv">P</span> : cat_property_data)
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           (<span class="nv">H₁</span> : P C₁)
+           (<span class="nv">H₂</span> : P C₂)
+           (<span class="nv">F</span> : functor_finlim C₁ C₂)
+  : UU
+  := pr2 P C₁ C₂ H₁ H₂ F.
+
+<span class="kn">Definition</span> <span class="nf">cat_property_laws</span>
+           (<span class="nv">P</span> : cat_property_data)
+  : UU
+  := (∏ (C : univ_cat_with_finlim),
+      isaprop (P C))
+     ×
+     (∏ (C₁ C₂ : univ_cat_with_finlim)
+        (H₁ : P C₁)
+        (H₂ : P C₂)
+        (F : functor_finlim C₁ C₂),
+      isaprop (cat_property_functor P H₁ H₂ F))
+     ×
+     (∏ (C : univ_cat_with_finlim)
+        (H : P C),
+      cat_property_functor P H H (identity C))
+     ×
+     (∏ (C₁ C₂ C₃ : univ_cat_with_finlim)
+        (H₁ : P C₁)
+        (H₂ : P C₂)
+        (H₃ : P C₃)
+        (F : functor_finlim C₁ C₂)
+        (G : functor_finlim C₂ C₃),
+      cat_property_functor P H₁ H₂ F
+      →
+      cat_property_functor P H₂ H₃ G
+      →
+      cat_property_functor P H₁ H₃ (F · G)).
+
+<span class="kn">Definition</span> <span class="nf">cat_property</span>
+  : UU
+  := ∑ (P : cat_property_data), cat_property_laws P.
+
+<span class="kn">Definition</span> <span class="nf">make_cat_property</span>
+           (<span class="nv">P</span> : cat_property_data)
+           (<span class="nv">H</span> : cat_property_laws P)
+  : cat_property
+  := P ,, H.
+
+<span class="kn">Coercion</span> <span class="nf">cat_property_to_data</span>
+         (P : cat_property)
+  : cat_property_data.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 P).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">CatPropertyLaws</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : cat_property).
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_cat_property_ob</span>
+              (<span class="nv">C</span> : univ_cat_with_finlim)
+    : isaprop (P C).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr2 P) C).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">isaprop_cat_property_functor</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+              (<span class="nv">H₁</span> : P C₁)
+              (<span class="nv">H₂</span> : P C₂)
+              (<span class="nv">F</span> : functor_finlim C₁ C₂)
+    : isaprop (cat_property_functor P H₁ H₂ F).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 (pr2 P) C₁ C₂ H₁ H₂ F).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_id_functor</span>
+              {<span class="nv">C</span> : univ_cat_with_finlim}
+              (<span class="nv">H</span> : P C)
+    : cat_property_functor P H H (identity C).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 (pr2 P) C H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_id_functor'</span>
+              {<span class="nv">C</span> : univ_cat_with_finlim}
+              (<span class="nv">H</span> <span class="nv">H'</span> : P C)
+    : cat_property_functor P H H' (identity C).
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (H = H') <span class="k">as</span> p.
+    {
+      <span class="nb">apply</span> isaprop_cat_property_ob.
+    }
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> cat_property_id_functor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_comp_functor</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : univ_cat_with_finlim}
+              {<span class="nv">H₁</span> : P C₁}
+              {<span class="nv">H₂</span> : P C₂}
+              {<span class="nv">H₃</span> : P C₃}
+              {<span class="nv">F</span> : functor_finlim C₁ C₂}
+              {<span class="nv">G</span> : functor_finlim C₂ C₃}
+              (<span class="nv">HF</span> : cat_property_functor P H₁ H₂ F)
+              (<span class="nv">HG</span> : cat_property_functor P H₂ H₃ G)
+    : cat_property_functor P H₁ H₃ (F · G).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr222 (pr2 P) C₁ C₂ C₃ H₁ H₂ H₃ F G HF HG).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_adj_equiv</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+              (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+              (<span class="nv">H₁</span> : P C₁)
+              (<span class="nv">H₂</span> : P C₂)
+    : cat_property_functor P H₁ H₂ (pr1 F).
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> C₁ C₂ F H₁ H₂.
+    use J_2_0.
+    {
+      <span class="bp">exact</span> is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+    }
+    <span class="nb">intros</span> C H₁ H₂.
+    <span class="nb">apply</span> cat_property_id_functor'.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_adj_equivalence_of_cats</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+              (<span class="nv">F</span> : functor_finlim C₁ C₂)
+              (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+              (<span class="nv">H₁</span> : P C₁)
+              (<span class="nv">H₂</span> : P C₂)
+    : cat_property_functor P H₁ H₂ F.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (cat_property_adj_equiv (F ,, _) H₁ H₂).
+    use left_adjoint_equivalence_univ_cat_with_finlim.
+    <span class="bp">exact</span> HF.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_adj_equivalence_of_cats'</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+              (<span class="nv">F</span> : C₁ ⟶ C₂)
+              (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+              (<span class="nv">H₁</span> : P C₁)
+              (<span class="nv">H₂</span> : P C₂)
+    : cat_property_functor P H₁ H₂ (make_functor_finlim_adjequiv F HF).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> cat_property_adj_equivalence_of_cats.
+    <span class="bp">exact</span> HF.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_ob_adj_equiv_f_help</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+              (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+              (<span class="nv">H</span> : P C₁)
+    : P C₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> C₁ C₂ F H.
+    use J_2_0.
+    {
+      <span class="bp">exact</span> is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+    }
+    <span class="nb">intros</span> C H.
+    <span class="bp">exact</span> H.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_ob_left_adjoint_equivalence_f</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+              (<span class="nv">F</span> : functor_finlim C₁ C₂)
+              (<span class="nv">HF</span> : left_adjoint_equivalence F)
+              (<span class="nv">H</span> : P C₁)
+    : P C₂.
+  <span class="kn">Proof</span>.
+    use (cat_property_ob_adj_equiv_f_help _ H).
+    <span class="bp">exact</span> (F ,, HF).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_ob_adj_equiv_f</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+              (<span class="nv">F</span> : functor_finlim C₁ C₂)
+              (<span class="nv">HF</span> : adj_equivalence_of_cats (pr1 F))
+              (<span class="nv">H</span> : P C₁)
+    : P C₂.
+  <span class="kn">Proof</span>.
+    use (cat_property_ob_left_adjoint_equivalence_f _ _ H).
+    - <span class="bp">exact</span> F.
+    - use left_adjoint_equivalence_univ_cat_with_finlim.
+      <span class="bp">exact</span> HF.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_ob_adj_equiv_f'</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+              (<span class="nv">F</span> : (C₁ : category) ⟶ C₂)
+              (<span class="nv">HF</span> : adj_equivalence_of_cats F)
+              (<span class="nv">H</span> : P C₁)
+    : P C₂.
+  <span class="kn">Proof</span>.
+    use (cat_property_ob_left_adjoint_equivalence_f _ _ H).
+    - <span class="bp">exact</span> (make_functor_finlim_adjequiv F HF).
+    - use left_adjoint_equivalence_univ_cat_with_finlim.
+      <span class="bp">exact</span> HF.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_functor_nat_z_iso_f_help</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+              {<span class="nv">H₁</span> : P C₁}
+              {<span class="nv">H₂</span> : P C₂}
+              {<span class="nv">F</span> <span class="nv">G</span> : functor_finlim C₁ C₂}
+              (<span class="nv">τ</span> : invertible_2cell F G)
+              (<span class="nv">HF</span> : cat_property_functor P H₁ H₂ F)
+    : cat_property_functor P H₁ H₂ G.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> C₁ C₂ F G τ H₁ H₂ HF.
+    use J_2_1.
+    {
+      <span class="bp">exact</span> is_univalent_2_1_bicat_of_univ_cat_with_finlim.
+    }
+    <span class="nb">intros</span> C₁ C₂ F H₁ H₂ HF.
+    <span class="bp">exact</span> HF.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_functor_nat_z_iso_f</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+              {<span class="nv">H₁</span> : P C₁}
+              {<span class="nv">H₂</span> : P C₂}
+              {<span class="nv">F</span> <span class="nv">G</span> : functor_finlim C₁ C₂}
+              (<span class="nv">τ</span> : nat_z_iso (pr1 F) (pr1 G))
+              (<span class="nv">HF</span> : cat_property_functor P H₁ H₂ F)
+    : cat_property_functor P H₁ H₂ G.
+  <span class="kn">Proof</span>.
+    use (cat_property_functor_nat_z_iso_f_help _ HF).
+    use invertible_2cell_cat_with_finlim.
+    <span class="bp">exact</span> τ.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_functor_nat_z_iso_adj_equiv_f_help</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : univ_cat_with_finlim}
+              {<span class="nv">HC₁</span> : P C₁}
+              {<span class="nv">HC₂</span> : P C₂}
+              {<span class="nv">HD₁</span> : P D₁}
+              {<span class="nv">HD₂</span> : P D₂}
+              (<span class="nv">EC</span> : adjoint_equivalence C₁ C₂)
+              (<span class="nv">ED</span> : adjoint_equivalence D₁ D₂)
+              (<span class="nv">F</span> : functor_finlim C₁ D₁)
+              (<span class="nv">G</span> : functor_finlim C₂ D₂)
+              (<span class="nv">τ</span> : nat_z_iso (pr1 F ∙ pr11 ED) (pr11 EC ∙ pr1 G))
+              (<span class="nv">HF</span> : cat_property_functor P HC₁ HD₁ F)
+    : cat_property_functor P HC₂ HD₂ G.
+  <span class="kn">Proof</span>.
+    <span class="nb">revert</span> C₁ C₂ EC D₁ D₂ ED HC₁ HC₂ HD₁ HD₂ F G τ HF.
+    use J_2_0.
+    {
+      <span class="bp">exact</span> is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+    }
+    <span class="nb">intros</span> C.
+    use J_2_0.
+    {
+      <span class="bp">exact</span> is_univalent_2_0_bicat_of_univ_cat_with_finlim.
+    }
+    <span class="nb">intros</span> D HC₁ HC₂ HD₁ HD₂ F G τ HF.
+    <span class="nb">assert</span> (HC₁ = HC₂) <span class="k">as</span> p.
+    {
+      <span class="nb">apply</span> isaprop_cat_property_ob.
+    }
+    <span class="nb">induction</span> p.
+    <span class="nb">assert</span> (HD₁ = HD₂) <span class="k">as</span> p.
+    {
+      <span class="nb">apply</span> isaprop_cat_property_ob.
+    }
+    <span class="nb">induction</span> p.
+    use (cat_property_functor_nat_z_iso_f τ).
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (transportf _ _ HF).
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_functor_nat_z_iso_adj_equiv_f</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : univ_cat_with_finlim}
+              {<span class="nv">HC₁</span> : P C₁}
+              {<span class="nv">HC₂</span> : P C₂}
+              {<span class="nv">HD₁</span> : P D₁}
+              {<span class="nv">HD₂</span> : P D₂}
+              {<span class="nv">EC</span> : functor_finlim C₁ C₂} {<span class="nv">ED</span> : functor_finlim D₁ D₂}
+              (<span class="nv">HEC</span> : adj_equivalence_of_cats (pr1 EC))
+              (<span class="nv">HED</span> : adj_equivalence_of_cats (pr1 ED))
+              (<span class="nv">F</span> : functor_finlim C₁ D₁)
+              (<span class="nv">G</span> : functor_finlim C₂ D₂)
+              (<span class="nv">τ</span> : nat_z_iso (pr1 F ∙ pr1 ED) (pr1 EC ∙ pr1 G))
+              (<span class="nv">HF</span> : cat_property_functor P HC₁ HD₁ F)
+    : cat_property_functor P HC₂ HD₂ G.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (cat_property_functor_nat_z_iso_adj_equiv_f_help (EC ,, _) (ED ,, _) _ _ τ HF).
+    - use left_adjoint_equivalence_univ_cat_with_finlim.
+      <span class="bp">exact</span> HEC.
+    - use left_adjoint_equivalence_univ_cat_with_finlim.
+      <span class="bp">exact</span> HED.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cat_property_functor_nat_z_iso_adj_equiv_f'</span>
+              {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">D₁</span> <span class="nv">D₂</span> : univ_cat_with_finlim}
+              {<span class="nv">HC₁</span> : P C₁}
+              {<span class="nv">HC₂</span> : P C₂}
+              {<span class="nv">HD₁</span> : P D₁}
+              {<span class="nv">HD₂</span> : P D₂}
+              {<span class="nv">EC</span> : functor C₁ C₂} {<span class="nv">ED</span> : functor D₁ D₂}
+              (<span class="nv">HEC</span> : adj_equivalence_of_cats EC)
+              (<span class="nv">HED</span> : adj_equivalence_of_cats ED)
+              (<span class="nv">F</span> : functor_finlim C₁ D₁)
+              (<span class="nv">G</span> : functor_finlim C₂ D₂)
+              (<span class="nv">τ</span> : nat_z_iso (pr1 F ∙ ED) (EC ∙ pr1 G))
+              (<span class="nv">HF</span> : cat_property_functor P HC₁ HD₁ F)
+    : cat_property_functor P HC₂ HD₂ G.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (cat_property_functor_nat_z_iso_adj_equiv_f
+             (EC := make_functor_finlim_adjequiv _ HEC)
+             (ED := make_functor_finlim_adjequiv _ HED)
+             HEC HED
+             F G
+             τ
+             HF).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">CatPropertyLaws</span>.
+
+<span class="sd">(** * 2. Fiberwise versions of properties *)</span>
+<span class="kn">Definition</span> <span class="nf">fiberwise_cat_property</span>
+           (<span class="nv">P</span> : cat_property)
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+  : UU
+  := ∑ (H : ∏ (Γ : C), P (dfl_full_comp_cat_fiber Γ)),
+     ∏ (Γ₁ Γ₂ : C)
+       (s : Γ₁ --&gt; Γ₂),
+     cat_property_functor P (H Γ₂) (H Γ₁) (dfl_full_comp_cat_fiber_functor s).
+
+<span class="kn">Definition</span> <span class="nf">make_fiberwise_cat_property</span>
+           (<span class="nv">P</span> : cat_property)
+           (<span class="nv">C</span> : dfl_full_comp_cat)
+           (<span class="nv">H</span> : ∏ (Γ : C), P (dfl_full_comp_cat_fiber Γ))
+           (<span class="nv">H'</span> : ∏ (Γ₁ Γ₂ : C)
+                   (s : Γ₁ --&gt; Γ₂),
+                 cat_property_functor
+                   P
+                   (H Γ₂) (H Γ₁)
+                   (dfl_full_comp_cat_fiber_functor s))
+  : fiberwise_cat_property P C
+  := H ,, H'.
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_cat_property_ob</span>
+           {<span class="nv">P</span> : cat_property}
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">H</span> : fiberwise_cat_property P C)
+           (<span class="nv">Γ</span> : C)
+  : P (dfl_full_comp_cat_fiber Γ)
+  := pr1 H Γ.
+
+<span class="kn">Coercion</span> <span class="nf">fiberwise_cat_property_ob</span> : fiberwise_cat_property &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_cat_property_mor</span>
+           {<span class="nv">P</span> : cat_property}
+           {<span class="nv">C</span> : dfl_full_comp_cat}
+           (<span class="nv">H</span> : fiberwise_cat_property P C)
+           {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : C}
+           (<span class="nv">s</span> : Γ₁ --&gt; Γ₂)
+  : cat_property_functor
+      P
+      (H Γ₂) (H Γ₁)
+      (dfl_full_comp_cat_fiber_functor s).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 H Γ₁ Γ₂ s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_fiberwise_cat_property</span>
+            {<span class="nv">P</span> : cat_property}
+            (<span class="nv">C</span> : dfl_full_comp_cat)
+  : isaprop (fiberwise_cat_property P C).
+<span class="kn">Proof</span>.
+  use isaproptotal2.
+  - <span class="nb">intro</span> H.
+    <span class="kp">do</span> <span class="mi">3</span> (use impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isaprop_cat_property_functor.
+  - <span class="nb">intros</span>.
+    use funextsec ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> (isaprop_cat_property_ob P).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cat_property_fiber_functor_id</span>
+            (<span class="nv">P</span> : cat_property)
+            (<span class="nv">C</span> : dfl_full_comp_cat)
+            (<span class="nv">Γ</span> : C)
+            (<span class="nv">p</span> : P (dfl_full_comp_cat_fiber Γ))
+  : cat_property_functor P p p (identity _).
+<span class="kn">Proof</span>.
+  use (cat_property_functor_nat_z_iso_f
+         P
+         _
+         (cat_property_id_functor P _)).
+  <span class="nb">apply</span> fiber_functor_identity.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cat_property_fiber_functor_id'</span>
+            (<span class="nv">P</span> : cat_property)
+            (<span class="nv">C</span> : dfl_full_comp_cat)
+            (<span class="nv">Γ</span> : C)
+            (<span class="nv">p</span> : P (dfl_full_comp_cat_fiber Γ))
+  : cat_property_functor
+      P
+      p p
+      (dfl_full_comp_cat_functor_fiber_functor (identity C) Γ).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (transportf
+            (cat_property_functor P p p)
+            _
+            (cat_property_fiber_functor_id P C Γ p)).
+  use subtypePath.
+  {
+    <span class="nb">intro</span> ; <span class="nb">simpl</span>.
+    <span class="kp">repeat</span> (use isapropdirprod).
+    - <span class="nb">apply</span> isapropunit.
+    - <span class="nb">apply</span> isaprop_preserves_terminal.
+    - <span class="nb">apply</span> isapropunit.
+    - <span class="nb">apply</span> isaprop_preserves_pullback.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_functor.
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">cat_property_fiber_functor_comp</span>
+            (<span class="nv">P</span> : cat_property)
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : dfl_full_comp_cat}
+            {<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂}
+            {<span class="nv">G</span> : dfl_full_comp_cat_functor C₂ C₃}
+            {<span class="nv">Γ</span> : C₁}
+            {<span class="nv">p₁</span> : P (dfl_full_comp_cat_fiber Γ)}
+            {<span class="nv">p₂</span> : P (dfl_full_comp_cat_fiber (F Γ))}
+            {<span class="nv">p₃</span> : P (dfl_full_comp_cat_fiber (G(F Γ)))}
+            (<span class="nv">HF</span> : cat_property_functor P p₁ p₂ (dfl_full_comp_cat_functor_fiber_functor F Γ))
+            (<span class="nv">HG</span> : cat_property_functor P p₂ p₃ (dfl_full_comp_cat_functor_fiber_functor G (F Γ)))
+  : cat_property_functor P p₁ p₃ (dfl_full_comp_cat_functor_fiber_functor (F · G) Γ).
+<span class="kn">Proof</span>.
+  use (cat_property_functor_nat_z_iso_f
+         P
+         _
+         (cat_property_comp_functor P HF HG)).
+  <span class="nb">apply</span> fiber_functor_comp_nat_z_iso.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">fiberwise_cat_property_functor</span>
+           {<span class="nv">P</span> : cat_property}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : dfl_full_comp_cat}
+           (<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂)
+           (<span class="nv">H₁</span> : fiberwise_cat_property P C₁)
+           (<span class="nv">H₂</span> : fiberwise_cat_property P C₂)
+  : UU
+  := ∏ (Γ : C₁),
+     cat_property_functor
+       P
+       (H₁ Γ) (H₂ (F Γ))
+       (dfl_full_comp_cat_functor_fiber_functor F Γ).
+
+<span class="kn">Proposition</span> <span class="nf">identity_fiberwise_cat_property_functor</span>
+            {<span class="nv">P</span> : cat_property}
+            {<span class="nv">C</span> : dfl_full_comp_cat}
+            (<span class="nv">H</span> : fiberwise_cat_property P C)
+  : fiberwise_cat_property_functor (id₁ C) H H.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="bp">exact</span> (cat_property_fiber_functor_id' P C x (H x)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">comp_fiberwise_cat_property_functor</span>
+            {<span class="nv">P</span> : cat_property}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : dfl_full_comp_cat}
+            {<span class="nv">H₁</span> : fiberwise_cat_property P C₁}
+            {<span class="nv">H₂</span> : fiberwise_cat_property P C₂}
+            {<span class="nv">H₃</span> : fiberwise_cat_property P C₃}
+            {<span class="nv">F</span> : dfl_full_comp_cat_functor C₁ C₂}
+            (<span class="nv">HF</span> : fiberwise_cat_property_functor F H₁ H₂)
+            {<span class="nv">G</span> : dfl_full_comp_cat_functor C₂ C₃}
+            (<span class="nv">HG</span> : fiberwise_cat_property_functor G H₂ H₃)
+  : fiberwise_cat_property_functor (F · G) H₁ H₃.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="bp">exact</span> (cat_property_fiber_functor_comp P (HF x) (HG _)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Local properties *)</span>
+<span class="kn">Definition</span> <span class="nf">slice_univ_cat_with_finlim</span>
+           {<span class="nv">C</span> : univ_cat_with_finlim}
+           (<span class="nv">x</span> : C)
+  : univ_cat_with_finlim.
+<span class="kn">Proof</span>.
+  use make_univ_cat_with_finlim.
+  - <span class="nb">refine</span> (C/x ,, _).
+    <span class="nb">apply</span> is_univalent_cod_slice.
+  - <span class="nb">apply</span> codomain_fib_terminal.
+  - use codomain_fiberwise_pullbacks.
+    <span class="bp">exact</span> (pullbacks_univ_cat_with_finlim C).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">slice_univ_cat_pb_finlim</span>
+           {<span class="nv">C</span> : univ_cat_with_finlim}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : functor_finlim
+      (slice_univ_cat_with_finlim y)
+      (slice_univ_cat_with_finlim x).
+<span class="kn">Proof</span>.
+  use make_functor_finlim.
+  - <span class="bp">exact</span> (cod_pb (pullbacks_univ_cat_with_finlim C) f).
+  - <span class="nb">apply</span> codomain_fib_preserves_terminal.
+  - use preserves_pullback_from_binproduct_equalizer.
+    + use codomain_fib_binproducts.
+      <span class="nb">apply</span> pullbacks_univ_cat_with_finlim.
+    + use codomain_fib_equalizer.
+      <span class="nb">apply</span> equalizers_univ_cat_with_finlim.
+    + <span class="nb">apply</span> codomain_fib_preserves_binproduct.
+    + <span class="nb">apply</span> codomain_fib_preserves_equalizer.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">slice_univ_cat_fiber</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+           (<span class="nv">F</span> : functor_finlim C₁ C₂)
+           (<span class="nv">x</span> : C₁)
+  : functor_finlim
+      (slice_univ_cat_with_finlim x)
+      (slice_univ_cat_with_finlim (F x)).
+<span class="kn">Proof</span>.
+  use make_functor_finlim.
+  - <span class="bp">exact</span> (fiber_functor (disp_codomain_functor F) x).
+  - <span class="nb">apply</span> preserves_terminal_fiber_disp_codomain_functor.
+  - use preserves_pullback_from_binproduct_equalizer.
+    + use codomain_fib_binproducts.
+      <span class="nb">apply</span> pullbacks_univ_cat_with_finlim.
+    + use codomain_fib_equalizer.
+      <span class="nb">apply</span> equalizers_univ_cat_with_finlim.
+    + <span class="nb">apply</span> preserves_binproduct_fiber_disp_codomain_functor.
+      <span class="bp">exact</span> (functor_finlim_preserves_pullback F).
+    + use preserves_equalizer_fiber_disp_codomain_functor.
+      <span class="nb">apply</span> functor_finlim_preserves_equalizer.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_local_property</span>
+           (<span class="nv">P</span> : cat_property)
+  : UU
+  := ∑ (H : ∏ (C : univ_cat_with_finlim) (x : C),
+            P C → P (slice_univ_cat_with_finlim x)),
+     (∏ (C : univ_cat_with_finlim)
+        (p : P C)
+        (x y : C)
+        (f : x --&gt; y),
+      cat_property_functor
+        P
+        (H C y p) (H C x p)
+        (slice_univ_cat_pb_finlim f))
+     ×
+     (∏ (C₁ C₂ : univ_cat_with_finlim)
+        (p₁ : P C₁)
+        (p₂ : P C₂)
+        (F : functor_finlim C₁ C₂)
+        (HF : cat_property_functor P p₁ p₂ F)
+        (x : C₁),
+      cat_property_functor
+        P
+        (H C₁ x p₁) (H C₂ (F x) p₂)
+        (slice_univ_cat_fiber F x)).
+
+<span class="kn">Definition</span> <span class="nf">make_is_local_property</span>
+           {<span class="nv">P</span> : cat_property}
+           (<span class="nv">H</span> : ∏ (C : univ_cat_with_finlim) (x : C),
+                P C → P (slice_univ_cat_with_finlim x))
+           (<span class="nv">Hpb</span> : ∏ (C : univ_cat_with_finlim)
+                    (p : P C)
+                    (x y : C)
+                    (f : x --&gt; y),
+                  cat_property_functor
+                    P
+                    (H C y p) (H C x p)
+                    (slice_univ_cat_pb_finlim f))
+           (<span class="nv">Hfib</span> : ∏ (C₁ C₂ : univ_cat_with_finlim)
+                     (p₁ : P C₁)
+                     (p₂ : P C₂)
+                     (F : functor_finlim C₁ C₂)
+                     (HF : cat_property_functor P p₁ p₂ F)
+                     (x : C₁),
+                   cat_property_functor
+                     P
+                     (H C₁ x p₁) (H C₂ (F x) p₂)
+                     (slice_univ_cat_fiber F x))
+  : is_local_property P
+  := H ,, Hpb ,, Hfib.
+
+<span class="kn">Definition</span> <span class="nf">local_property</span>
+  : UU
+  := ∑ (P : cat_property), is_local_property P.
+
+<span class="kn">Definition</span> <span class="nf">make_local_property</span>
+           (<span class="nv">P</span> : cat_property)
+           (<span class="nv">H</span> : is_local_property P)
+  : local_property
+  := P ,, H.
+
+<span class="kn">Coercion</span> <span class="nf">local_property_to_cat_property</span>
+         (P : local_property)
+  : cat_property.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 P).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">LocalPropertyLaws</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : local_property).
+
+  <span class="kn">Definition</span> <span class="nf">local_property_slice</span>
+             (<span class="nv">C</span> : univ_cat_with_finlim)
+             (<span class="nv">x</span> : C)
+             (<span class="nv">H</span> : P C)
+    : P (slice_univ_cat_with_finlim x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 P C x H).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">local_property_pb</span>
+             {<span class="nv">C</span> : univ_cat_with_finlim}
+             (<span class="nv">p</span> : P C)
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+    : cat_property_functor
+        P
+        (local_property_slice C y p) (local_property_slice C x p)
+        (slice_univ_cat_pb_finlim f).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 P C p x y f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">local_property_fiber_functor</span>
+             {<span class="nv">C₁</span> <span class="nv">C₂</span> : univ_cat_with_finlim}
+             (<span class="nv">p₁</span> : P C₁)
+             (<span class="nv">p₂</span> : P C₂)
+             (<span class="nv">F</span> : functor_finlim C₁ C₂)
+             (<span class="nv">HF</span> : cat_property_functor P p₁ p₂ F)
+             (<span class="nv">x</span> : C₁)
+    : cat_property_functor
+        P
+        (local_property_slice C₁ x p₁) (local_property_slice C₂ (F x) p₂)
+        (slice_univ_cat_fiber F x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr222 P C₁ C₂ p₁ p₂ F HF x).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">LocalPropertyLaws</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/ComprehensionCat/LocalProperty/LocalProperties.v</tt>, line 76)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Local properties
+  &gt;
+  &gt;  *******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

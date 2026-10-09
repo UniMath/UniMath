@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Groupoids.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* Any groupoid becomes a †-category by defining f^† := f^-1</span>
+<span class="c">Furthermore, a groupoid is dagger univalent if and only if it is univalent.</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Unitary.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DaggerCategories.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">GroupoidsAsDaggers</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : groupoid).
+
+  <span class="kn">Definition</span> <span class="nf">GRP_dagger_structure</span> : dagger_structure C.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    <span class="bp">exact</span> (pr1 (z_iso_inv (_ ,, groupoid_is_pregroupoid C x y f))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">GRP_dagger_laws</span> : dagger_laws GRP_dagger_structure.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; use inverse_unique_precat.
+    - <span class="bp">exact</span> (identity x).
+    - <span class="nb">apply</span> groupoid_is_pregroupoid.
+    - <span class="nb">apply</span> is_inverse_in_precat_identity.
+    - <span class="bp">exact</span> (f · g).
+    - <span class="nb">apply</span> groupoid_is_pregroupoid.
+    - <span class="nb">apply</span> is_inverse_in_precat_comp ; <span class="nb">apply</span> groupoid_is_pregroupoid.
+    - <span class="nb">apply</span> groupoid_is_pregroupoid ; <span class="bp">exact</span> f.
+    - <span class="nb">apply</span> groupoid_is_pregroupoid.
+    - <span class="nb">apply</span> is_inverse_in_precat_inv ; <span class="nb">apply</span> groupoid_is_pregroupoid.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">GRP_dagger</span> : dagger C
+    := _ ,, GRP_dagger_laws.
+
+<span class="kn">End</span> <span class="nf">GroupoidsAsDaggers</span>.
+
+<span class="kn">Section</span> <span class="nf">UnivalenceOfGroupoids</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : groupoid).
+
+  <span class="kn">Definition</span> <span class="nf">univalence_to_dagger_univalence</span>
+        {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : z_iso x y)
+    : unitary (GRP_dagger C) x y.
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">morphism_from_z_iso</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">f</span>).
+    <span class="nb">apply</span> groupoid_is_pregroupoid.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dagger_univalence_to_univalence</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : unitary (GRP_dagger C) x y)
+    : z_iso x y
+    := make_z_iso _ _ (pr2 f).
+
+  <span class="kn">Definition</span> <span class="nf">z_iso_is_unitary</span> (<span class="nv">x</span> <span class="nv">y</span> : C)
+    : z_iso x y ≃ unitary (GRP_dagger C) x y.
+  <span class="kn">Proof</span>.
+    use weq_iso.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span>, univalence_to_dagger_univalence p).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">p</span>, dagger_univalence_to_univalence p).
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> z_iso_eq, idpath.
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> unitary_eq, idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">idtodagger_as_idtoiso_pointwise</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : x = y)
+    : idtodaggeriso (GRP_dagger C) x y p = z_iso_is_unitary x y (idtoiso p).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (unitary_eq (idtodaggeriso (GRP_dagger C) x y p) (univalence_to_dagger_univalence (idtoiso p))).
+    <span class="nb">induction</span> p ; <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">idtoiso_as_idtodagger_pointwise</span> {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">p</span> : x = y)
+    : idtoiso p = dagger_univalence_to_univalence (idtodaggeriso (GRP_dagger C) x y p).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (z_iso_eq (idtoiso p) (dagger_univalence_to_univalence (idtodaggeriso (GRP_dagger C) x y p))).
+    <span class="nb">induction</span> p ; <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">groupoid_univalence_equiv_dagger_univalence</span>
+    : is_univalent C ≃ is_univalent_dagger (GRP_dagger C).
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intros</span> u x y.
+      <span class="nb">apply</span> (isweqhomot' (<span class="k">λ</span> <span class="nv">p</span>, z_iso_is_unitary x y (idtoiso p))).
+      + <span class="nb">apply</span> (twooutof3c (idtoiso (a := x) (b := y)) (z_iso_is_unitary x y)).
+        * <span class="nb">apply</span> u.
+        * <span class="nb">apply</span> z_iso_is_unitary.
+      + <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">p</span>, ! idtodagger_as_idtoiso_pointwise p).
+    - <span class="nb">intros</span> u x y.
+      <span class="nb">apply</span> (isweqhomot' (<span class="k">λ</span> <span class="nv">p</span>, invweq (z_iso_is_unitary x y) (idtodaggeriso (GRP_dagger C) _ _ p))).
+      + <span class="nb">apply</span> (twooutof3c (idtodaggeriso (GRP_dagger C) x y) (invweq (z_iso_is_unitary x y))).
+        * <span class="nb">apply</span> u.
+        * <span class="nb">apply</span> (invweq (z_iso_is_unitary _ _)).
+      + <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">p</span>, ! idtoiso_as_idtodagger_pointwise p).
+    - <span class="nb">apply</span> isaprop_is_univalent.
+    - <span class="nb">apply</span> isaprop_is_univalent_dagger.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">UnivalenceOfGroupoids</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DaggerCategories/Examples/Groupoids.v</tt>, line 5)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; Furthermore, a groupoid is dagger univalent if and only if it is univalent.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

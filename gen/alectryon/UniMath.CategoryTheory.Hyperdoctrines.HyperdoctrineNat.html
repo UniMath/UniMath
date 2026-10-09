@@ -1,0 +1,474 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>HyperdoctrineNat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Natural numbers in a first-order hyperdoctrine</span>
+
+<span class="sd"> Our goal is to show that the topos arising from a tripos has a natural numbers</span>
+<span class="sd"> object. To do so, we need to assume some additional properties of the tripos.</span>
+<span class="sd"> Specifically, we need to assume the following:</span>
+<span class="sd"> - we have a type `N`</span>
+<span class="sd"> - we have terms `z : N` and `s : N -&gt; N`</span>
+<span class="sd"> - in the internal language, we can prove `s n ≠ z` and that we have `n = m`</span>
+<span class="sd">   whenever we have `s n = s m`</span>
+<span class="sd"> Under these assumptions, we can show that the tripos to topos construction</span>
+<span class="sd"> comes with a natural numbers object.</span>
+
+<span class="sd"> In this file, we establish the basic notions regarding natural numbers in a</span>
+<span class="sd"> first-order hyperdoctrine.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Natural numbers in a first-order hyperdoctrine</span>
+<span class="sd"> 2. Properties of natural numbers</span>
+<span class="sd"> 3. Natural numbers of the weak tripos associated to a tripos</span>
+<span class="sd"> 4. Natural numbers in a first-order preorder hyperdoctrine</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Hyperdoctrines.Tripos.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> hd.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> weak_tripos.
+
+<span class="sd">(** * 1. Natural numbers in a first-order hyperdoctrine *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_nats_data</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+  : UU
+  := ∑ (N : ty H), tm <span class="mi">𝟙</span> N × tm N N.
+
+<span class="kn">Definition</span> <span class="nf">make_first_order_hyperdoctrine_nats_data</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">N</span> : ty H)
+           (<span class="nv">z</span> : tm <span class="mi">𝟙</span> N)
+           (<span class="nv">s</span> : tm N N)
+  : first_order_hyperdoctrine_nats_data H
+  := N ,, z ,, s.
+
+<span class="kn">Coercion</span> <span class="nf">first_order_hyperdoctrine_nats_ty</span>
+         {H : first_order_hyperdoctrine}
+         (N : first_order_hyperdoctrine_nats_data H)
+  : ty H
+  := pr1 N.
+
+<span class="kn">Definition</span> <span class="nf">hd_nats_z</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">N</span> : first_order_hyperdoctrine_nats_data H)
+           (<span class="nv">Γ</span> : ty H)
+  : tm Γ N
+  := pr12 N [ !! ]tm.
+
+<span class="kn">Proposition</span> <span class="nf">subst_hd_nats_z</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            (<span class="nv">N</span> : first_order_hyperdoctrine_nats_data H)
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+  : (hd_nats_z N _) [ s ]tm = hd_nats_z N _.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hd_nats_z.
+  hypersimplify.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hd_nats_s</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">N</span> : first_order_hyperdoctrine_nats_data H)
+           {<span class="nv">Γ</span> : ty H}
+           (<span class="nv">n</span> : tm Γ N)
+  : tm Γ N
+  := pr22 N [ n ]tm.
+
+<span class="kn">Proposition</span> <span class="nf">subst_hd_nats_s</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            (<span class="nv">N</span> : first_order_hyperdoctrine_nats_data H)
+            {<span class="nv">Γ₁</span> <span class="nv">Γ₂</span> : ty H}
+            (<span class="nv">s</span> : tm Γ₁ Γ₂)
+            (<span class="nv">n</span> : tm Γ₂ N)
+  : (hd_nats_s N n) [ s ]tm = hd_nats_s N (n [ s ]tm).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hd_nats_s.
+  hypersimplify.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">app_hd_nat_s</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            (<span class="nv">N</span> : first_order_hyperdoctrine_nats_data H)
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">n</span> <span class="nv">m</span> : tm Γ N}
+            {<span class="nv">Δ</span> : form Γ}
+            (<span class="nv">p</span> : Δ ⊢ n ≡ m)
+  : Δ ⊢ hd_nats_s N n ≡ hd_nats_s N m.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> hd_nats_s.
+  use hyperdoctrine_subst_eq.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_nats_zs_axiom</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">N</span> : first_order_hyperdoctrine_nats_data H)
+  : UU
+  := <span class="k">let</span> <span class="nv">n</span> := π₂ (tm_var (<span class="mi">𝟙</span> ×h N)) <span class="k">in</span>
+     (⊤ ⊢ <span class="k">∀</span><span class="nv">h</span> (¬(hd_nats_s N n ≡ hd_nats_z N _))).
+
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_nats_mono_axiom</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">N</span> : first_order_hyperdoctrine_nats_data H)
+  : UU
+  := <span class="k">let</span> <span class="nv">n</span> := π₂ (tm_var ((<span class="mi">𝟙</span> ×h N) ×h N)) <span class="k">in</span>
+     <span class="k">let</span> <span class="nv">m</span> := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h N) ×h N))) <span class="k">in</span>
+     (⊤ ⊢ <span class="k">∀</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span> (<span class="nv">hd_nats_s</span> <span class="nv">N</span> <span class="nv">n</span> ≡ hd_nats_s N m ⇒ n ≡ m)).
+
+<span class="kn">Definition</span> <span class="nf">contains_zero</span>
+           {<span class="nv">H</span> : weak_tripos}
+           (<span class="nv">N</span> : first_order_hyperdoctrine_nats_data H)
+  : form (ℙ N)
+  := hd_nats_z N _ ∈ tm_var _.
+
+<span class="kn">Definition</span> <span class="nf">closed_suc</span>
+           {<span class="nv">H</span> : weak_tripos}
+           (<span class="nv">N</span> : first_order_hyperdoctrine_nats_data H)
+  : form (ℙ N)
+  := <span class="k">let</span> <span class="nv">p</span> := π₁ (tm_var (ℙ N ×h N)) <span class="k">in</span>
+     <span class="k">let</span> <span class="nv">n</span> := π₂ (tm_var (ℙ N ×h N)) <span class="k">in</span>
+     (<span class="k">∀</span><span class="nv">h</span> (<span class="nv">n</span> ∈ p ⇒ hd_nats_s N n ∈ p)).
+
+<span class="kn">Definition</span> <span class="nf">weak_tripos_nats_ind_axiom</span>
+           {<span class="nv">H</span> : weak_tripos}
+           (<span class="nv">N</span> : first_order_hyperdoctrine_nats_data H)
+  : UU
+  := <span class="k">let</span> <span class="nv">φ</span> := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h ℙ N) ×h N))) <span class="k">in</span>
+     <span class="k">let</span> <span class="nv">n</span> := π₂ (tm_var ((<span class="mi">𝟙</span> ×h ℙ N) ×h N)) <span class="k">in</span>
+     ⊤ ⊢ (<span class="k">∀</span><span class="nv">h</span> ((contains_zero N) [ π₂ (tm_var _) ]
+              ⇒ (closed_suc N) [ π₂ (tm_var _) ]
+              ⇒ <span class="k">∀</span><span class="nv">h</span> (<span class="nv">n</span> ∈ φ))).
+
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_nats_axioms</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">N</span> : first_order_hyperdoctrine_nats_data H)
+  : UU
+  := first_order_hyperdoctrine_nats_zs_axiom N
+     ×
+     first_order_hyperdoctrine_nats_mono_axiom N.
+
+<span class="kn">Definition</span> <span class="nf">first_order_hyperdoctrine_nats</span>
+           (<span class="nv">H</span> : first_order_hyperdoctrine)
+  : UU
+  := ∑ (N : first_order_hyperdoctrine_nats_data H),
+     first_order_hyperdoctrine_nats_axioms N.
+
+<span class="kn">Definition</span> <span class="nf">make_first_order_hyperdoctrine_nats</span>
+           {<span class="nv">H</span> : first_order_hyperdoctrine}
+           (<span class="nv">N</span> : first_order_hyperdoctrine_nats_data H)
+           (<span class="nv">P</span> : first_order_hyperdoctrine_nats_axioms N)
+  : first_order_hyperdoctrine_nats H
+  := N ,, P.
+
+<span class="kn">Coercion</span> <span class="nf">first_order_hyperdoctrine_nats_to_data</span>
+         {H : first_order_hyperdoctrine}
+         (N : first_order_hyperdoctrine_nats H)
+  : first_order_hyperdoctrine_nats_data H
+  := pr1 N.
+
+<span class="kn">Definition</span> <span class="nf">weak_tripos_nats</span>
+           (<span class="nv">H</span> : weak_tripos)
+  : UU
+  := ∑ (N : first_order_hyperdoctrine_nats H),
+     weak_tripos_nats_ind_axiom N.
+
+<span class="kn">Coercion</span> <span class="nf">weak_tripos_nats_to_data</span>
+         {H : weak_tripos}
+         (N : weak_tripos_nats H)
+  : first_order_hyperdoctrine_nats H
+  := pr1 N.
+
+<span class="sd">(** * 2. Properties of natural numbers *)</span>
+<span class="kn">Proposition</span> <span class="nf">first_order_hyperdoctrine_nats_z_neq_s</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            (<span class="nv">N</span> : first_order_hyperdoctrine_nats H)
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            (<span class="nv">n</span> : tm Γ N)
+  : Δ ⊢ ¬ (hd_nats_s N n ≡ hd_nats_z N _).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+  {
+    <span class="nb">refine</span> (hyperdoctrine_cut
+              _
+              (hyperdoctrine_proof_subst !! (pr12 N))).
+    hypersimplify.
+    <span class="nb">apply</span> truth_intro.
+  }
+  hypersimplify.
+  <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+  {
+    <span class="bp">exact</span> (forall_elim (hyperdoctrine_hyp _) n).
+  }
+  hypersimplify.
+  <span class="nb">rewrite</span> !subst_hd_nats_z.
+  <span class="nb">rewrite</span> !subst_hd_nats_s.
+  <span class="nb">rewrite</span> hyperdoctrine_pr2_subst.
+  <span class="nb">rewrite</span> var_tm_subst.
+  <span class="nb">rewrite</span> hyperdoctrine_pair_pr2.
+  <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">first_order_hyperdoctrine_nats_z_neq_s_all</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            (<span class="nv">N</span> : first_order_hyperdoctrine_nats H)
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> <span class="nv">φ</span> : form Γ}
+            (<span class="nv">n</span> : tm Γ N)
+            (<span class="nv">p</span> : Δ ⊢ hd_nats_s N n ≡ hd_nats_z N _)
+  : Δ ⊢ φ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (neg_elim p _).
+  <span class="nb">apply</span> first_order_hyperdoctrine_nats_z_neq_s.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">first_order_hyperdoctrine_nats_s_mono</span>
+            {<span class="nv">H</span> : first_order_hyperdoctrine}
+            (<span class="nv">N</span> : first_order_hyperdoctrine_nats H)
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            {<span class="nv">n</span> <span class="nv">m</span> : tm Γ N}
+            (<span class="nv">p</span> : Δ ⊢ hd_nats_s N n ≡ hd_nats_s N m)
+  : Δ ⊢ n ≡ m.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+  {
+    <span class="bp">exact</span> p.
+  }
+  <span class="nb">refine</span> (weaken_cut _ _).
+  {
+    <span class="nb">refine</span> (hyperdoctrine_cut
+              _
+              (hyperdoctrine_proof_subst !! (pr22 N))).
+    hypersimplify.
+    <span class="nb">apply</span> truth_intro.
+  }
+  hypersimplify.
+  use hyp_sym.
+  <span class="nb">refine</span> (weaken_cut _ _).
+  {
+    <span class="nb">refine</span> (forall_elim _ m).
+    use weaken_left.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  }
+  use hyp_ltrans.
+  use weaken_right.
+  hypersimplify.
+  use hyp_sym.
+  <span class="nb">refine</span> (weaken_cut _ _).
+  {
+    <span class="nb">refine</span> (forall_elim _ n).
+    use weaken_left.
+    <span class="nb">apply</span> hyperdoctrine_hyp.
+  }
+  use hyp_ltrans.
+  use weaken_right.
+  hypersimplify.
+  <span class="nb">refine</span> (impl_elim _ (weaken_right (hyperdoctrine_hyp _) _)).
+  use weaken_left.
+  <span class="nb">rewrite</span> !subst_hd_nats_s.
+  <span class="nb">rewrite</span> !hyperdoctrine_pr2_subst.
+  <span class="nb">rewrite</span> !hyperdoctrine_pr1_subst.
+  <span class="nb">rewrite</span> !var_tm_subst.
+  <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2.
+  <span class="nb">rewrite</span> !hyperdoctrine_pair_pr1.
+  <span class="nb">rewrite</span> !hyperdoctrine_pair_pr2.
+  <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">weak_tripos_nats_ind</span>
+            {<span class="nv">H</span> : weak_tripos}
+            (<span class="nv">N</span> : weak_tripos_nats H)
+            {<span class="nv">Γ</span> : ty H}
+            {<span class="nv">Δ</span> : form Γ}
+            (<span class="nv">φ</span> : tm Γ (ℙ N))
+            (<span class="nv">n</span> : tm Γ N)
+            (<span class="nv">p</span> : Δ ⊢ (contains_zero N) [ φ ])
+            (<span class="nv">q</span> : Δ ⊢ (closed_suc N) [ φ ])
+  : Δ ⊢ n ∈ φ.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+  {
+    <span class="nb">refine</span> (conj_intro p _).
+    <span class="nb">refine</span> (conj_intro q _).
+    <span class="nb">refine</span> (hyperdoctrine_cut _ (hyperdoctrine_proof_subst !! (pr2 N))).
+    hypersimplify.
+    <span class="nb">apply</span> truth_intro.
+  }
+  hypersimplify.
+  use hyp_rtrans.
+  use hyp_sym.
+  <span class="nb">refine</span> (weaken_cut _ _).
+  {
+    use weaken_left.
+    <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+    <span class="bp">exact</span> φ.
+  }
+  use hyp_ltrans.
+  use weaken_right.
+  hypersimplify.
+  use hyp_sym.
+  <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+  {
+    <span class="nb">refine</span> (impl_elim _ _).
+    - <span class="kp">do</span> <span class="mi">2</span> use weaken_right.
+      <span class="nb">apply</span> hyperdoctrine_hyp.
+    - <span class="nb">refine</span> (impl_elim _ _).
+      + use weaken_right.
+        use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+      + use weaken_left.
+        <span class="nb">apply</span> hyperdoctrine_hyp.
+  }
+  <span class="nb">refine</span> (hyperdoctrine_cut _ _).
+  {
+    <span class="nb">refine</span> (forall_elim (hyperdoctrine_hyp _) _).
+    <span class="bp">exact</span> n.
+  }
+  hypersimplify.
+  <span class="nb">apply</span> hyperdoctrine_hyp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Natural numbers of the weak tripos associated to a tripos *)</span>
+<span class="kn">Definition</span> <span class="nf">tripos_to_weak_tripos_nats</span>
+           (<span class="nv">H</span> : tripos)
+           (<span class="nv">N</span> : first_order_hyperdoctrine_nats H)
+  : first_order_hyperdoctrine_nats (tripos_to_weak_tripos H).
+<span class="kn">Proof</span>.
+  use make_first_order_hyperdoctrine_nats.
+  - use make_first_order_hyperdoctrine_nats_data.
+    + <span class="bp">exact</span> N.
+    + <span class="bp">exact</span> (pr121 N).
+    + <span class="bp">exact</span> (pr221 N).
+  - <span class="nb">split</span>.
+    + <span class="bp">exact</span> (pr12 N).
+    + <span class="bp">exact</span> (pr22 N).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Natural numbers in a first-order preorder hyperdoctrine *)</span>
+<span class="kn">Definition</span> <span class="nf">first_order_preorder_hyperdoctrine_nats_data</span>
+           (<span class="nv">H</span> : first_order_preorder_hyperdoctrine)
+  : UU
+  := ∑ (N : ty H), tm <span class="mi">𝟙</span> N × tm N N.
+
+<span class="kn">Definition</span> <span class="nf">make_first_order_preorder_hyperdoctrine_nats_data</span>
+           {<span class="nv">H</span> : first_order_preorder_hyperdoctrine}
+           (<span class="nv">N</span> : ty H)
+           (<span class="nv">z</span> : tm <span class="mi">𝟙</span> N)
+           (<span class="nv">s</span> : tm N N)
+  : first_order_preorder_hyperdoctrine_nats_data H
+  := N ,, z ,, s.
+
+<span class="kn">Coercion</span> <span class="nf">first_order_preorder_hyperdoctrine_nats_ty</span>
+         {H : first_order_preorder_hyperdoctrine}
+         (N : first_order_preorder_hyperdoctrine_nats_data H)
+  : ty H
+  := pr1 N.
+
+<span class="kn">Definition</span> <span class="nf">hd_nats_z_pre</span>
+           {<span class="nv">H</span> : first_order_preorder_hyperdoctrine}
+           (<span class="nv">N</span> : first_order_preorder_hyperdoctrine_nats_data H)
+           (<span class="nv">Γ</span> : ty H)
+  : tm Γ N
+  := pr12 N [ !! ]tm.
+
+<span class="kn">Definition</span> <span class="nf">hd_nats_s_pre</span>
+           {<span class="nv">H</span> : first_order_preorder_hyperdoctrine}
+           (<span class="nv">N</span> : first_order_preorder_hyperdoctrine_nats_data H)
+           {<span class="nv">Γ</span> : ty H}
+           (<span class="nv">n</span> : tm Γ N)
+  : tm Γ N
+  := pr22 N [ n ]tm.
+
+<span class="kn">Section</span> <span class="nf">PreorderHyperdoctrineAxioms</span>.
+  <span class="kn">Context</span> {<span class="nv">H</span> : first_order_preorder_hyperdoctrine}
+          (<span class="nv">N</span> : first_order_preorder_hyperdoctrine_nats_data H).
+
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'⊤'"</span> := first_order_preorder_hyperdoctrine_truth.
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'⊥'"</span> := first_order_preorder_hyperdoctrine_false.
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"φ ⇒ ψ"</span> := (first_order_preorder_hyperdoctrine_impl φ ψ).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'∀h' φ"</span> := (first_order_preorder_hyperdoctrine_forall φ).
+  <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"t₁ ≡ t₂"</span> := (first_order_preorder_hyperdoctrine_equal t₁ t₂).
+
+  <span class="kn">Definition</span> <span class="nf">first_order_preorder_hyperdoctrine_nats_zs_axiom</span>
+    : UU
+    := <span class="k">let</span> <span class="nv">n</span> := π₂ (tm_var (<span class="mi">𝟙</span> ×h N)) <span class="k">in</span>
+       (⊤ ⊢ <span class="k">∀</span><span class="nv">h</span> ((hd_nats_s_pre N n ≡ hd_nats_z_pre N _) ⇒ ⊥)).
+
+  <span class="kn">Definition</span> <span class="nf">first_order_preorder_hyperdoctrine_nats_mono_axiom</span>
+    : UU
+    := <span class="k">let</span> <span class="nv">n</span> := π₂ (tm_var ((<span class="mi">𝟙</span> ×h N) ×h N)) <span class="k">in</span>
+       <span class="k">let</span> <span class="nv">m</span> := π₂ (π₁ (tm_var ((<span class="mi">𝟙</span> ×h N) ×h N))) <span class="k">in</span>
+       (⊤ ⊢ <span class="k">∀</span><span class="nv">h</span> <span class="k">∀</span><span class="nv">h</span> (<span class="nv">hd_nats_s_pre</span> <span class="nv">N</span> <span class="nv">n</span> ≡ hd_nats_s_pre N m ⇒ n ≡ m)).
+
+  <span class="kn">Definition</span> <span class="nf">first_order_preorder_hyperdoctrine_nats_axioms</span>
+    : UU
+    := first_order_preorder_hyperdoctrine_nats_zs_axiom
+       ×
+       first_order_preorder_hyperdoctrine_nats_mono_axiom.
+<span class="kn">End</span> <span class="nf">PreorderHyperdoctrineAxioms</span>.
+
+<span class="kn">Definition</span> <span class="nf">first_order_preorder_hyperdoctrine_nats</span>
+           (<span class="nv">H</span> : first_order_preorder_hyperdoctrine)
+  : UU
+  := ∑ (N : first_order_preorder_hyperdoctrine_nats_data H),
+     first_order_preorder_hyperdoctrine_nats_axioms N.
+
+<span class="kn">Definition</span> <span class="nf">make_first_order_preorder_hyperdoctrine_nats</span>
+           {<span class="nv">H</span> : first_order_preorder_hyperdoctrine}
+           (<span class="nv">N</span> : first_order_preorder_hyperdoctrine_nats_data H)
+           (<span class="nv">P</span> : first_order_preorder_hyperdoctrine_nats_axioms N)
+  : first_order_preorder_hyperdoctrine_nats H
+  := N ,, P.
+
+<span class="kn">Coercion</span> <span class="nf">first_order_preorder_hyperdoctrine_nats_to_data</span>
+         {H : first_order_preorder_hyperdoctrine}
+         (N : first_order_preorder_hyperdoctrine_nats H)
+  : first_order_preorder_hyperdoctrine_nats_data H
+  := pr1 N.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Hyperdoctrines/HyperdoctrineNat.v</tt>, line 25)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Natural numbers in a first-order preorder hyperdoctrine
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

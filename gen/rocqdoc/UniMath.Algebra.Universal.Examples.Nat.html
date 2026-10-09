@@ -1,0 +1,121 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Algebra.Universal.Examples.Nat</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Algebra.Universal.Examples.Nat</h1>
+
+<div class="code">
+</div>
+
+<div class="doc">
+<a id="lab302"></a><h1 class="section">Example on natural numbers</h1>
+ Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 
+<div class="paragraph"> </div>
+
+This file contains the definition of the signature of natural numbers with zero and addition,
+the algebras of natural numbers and booleans and the morphism between them.
+
+</div>
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#"><span class="id" title="library">UniMath.Combinatorics.StandardFiniteSets</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#"><span class="id" title="library">UniMath.Combinatorics.MoreLists</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#"><span class="id" title="library">UniMath.Algebra.Universal.Algebras</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Algebra.Universal.Terms.html#"><span class="id" title="library">UniMath.Algebra.Universal.Terms</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">stn</span>.<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">hom</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="nat_signature" class="idref" href="#nat_signature"><span class="id" title="definition">nat_signature</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#make_signature_simple_single_sorted"><span class="id" title="definition">make_signature_simple_single_sorted</span></a> <a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">[</span></a> 0 <a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">;</span></a> 1 <a class="idref" href="UniMath.Combinatorics.MoreLists.html#aeedce1f2c4a6d7ef1a6e229b6f963d3"><span class="id" title="notation">]</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="nat_sort" class="idref" href="#nat_sort"><span class="id" title="definition">nat_sort</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#sorts"><span class="id" title="definition">sorts</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_signature"><span class="id" title="definition">nat_signature</span></a> := <a class="idref" href="UniMath.Foundations.Preamble.html#tt"><span class="id" title="constructor">tt</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="nat_zero_op" class="idref" href="#nat_zero_op"><span class="id" title="definition">nat_zero_op</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_signature"><span class="id" title="definition">nat_signature</span></a> := <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>0.<br/>
+<span class="id" title="keyword">Definition</span> <a id="nat_succ_op" class="idref" href="#nat_succ_op"><span class="id" title="definition">nat_succ_op</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#names"><span class="id" title="definition">names</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_signature"><span class="id" title="definition">nat_signature</span></a> := <a class="idref" href="UniMath.Combinatorics.StandardFiniteSets.html#5f3d7369ddb6b36990eda02579ec67f0"><span class="id" title="notation">●</span></a>1.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="nat_algebra" class="idref" href="#nat_algebra"><span class="id" title="definition">nat_algebra</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#make_algebra_simple_single_sorted'"><span class="id" title="definition">make_algebra_simple_single_sorted'</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_signature"><span class="id" title="definition">nat_signature</span></a> <a class="idref" href="UniMath.Foundations.NaturalNumbers.html#natset"><span class="id" title="definition">natset</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">[(</span></a> 0 <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#S"><span class="id" title="constructor">S</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">)]</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">ops'</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">nat_algebra</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">nat_zero_op</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm" class="idref" href="#Unnamed_thm"><span class="id" title="definition">0</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">ops'</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">nat_algebra</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">nat_succ_op</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">1</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm0" class="idref" href="#Unnamed_thm0"><span class="id" title="definition">2</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="z2_algebra" class="idref" href="#z2_algebra"><span class="id" title="definition">z2_algebra</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#make_algebra_simple_single_sorted'"><span class="id" title="definition">make_algebra_simple_single_sorted'</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_signature"><span class="id" title="definition">nat_signature</span></a> <a class="idref" href="UniMath.Foundations.Sets.html#boolset"><span class="id" title="definition">boolset</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">[(</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">;</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#negb"><span class="id" title="definition">negb</span></a> <a class="idref" href="UniMath.Algebra.Universal.HVectors.html#5502e074078eff7f6b03af7ca34f578d"><span class="id" title="notation">)]</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="nat_to_z2" class="idref" href="#nat_to_z2"><span class="id" title="definition">nat_to_z2</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_algebra"><span class="id" title="definition">nat_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.SortedTypes.html#bc6710f1e445495c09a9634a26956f90"><span class="id" title="notation">s</span></a><a class="idref" href="UniMath.Algebra.Universal.SortedTypes.html#bc6710f1e445495c09a9634a26956f90"><span class="id" title="notation">→</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#z2_algebra"><span class="id" title="definition">z2_algebra</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="s:1" class="idref" href="#s:1"><span class="id" title="binder">s</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Signatures.html#sorts"><span class="id" title="definition">sorts</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_signature"><span class="id" title="definition">nat_signature</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#nat_rect"><span class="id" title="definition">nat_rect</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#bool"><span class="id" title="inductive">bool</span></a>) <a class="idref" href="UniMath.Foundations.Preamble.html#false"><span class="id" title="constructor">false</span></a> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="n:2" class="idref" href="#n:2"><span class="id" title="binder">n</span></a> <a id="HP:3" class="idref" href="#HP:3"><span class="id" title="binder">HP</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#negb"><span class="id" title="definition">negb</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#HP:3"><span class="id" title="variable">HP</span></a>).<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm1" class="idref" href="#Unnamed_thm1"><span class="id" title="definition">nat_to_z2</span></a> <a id="Unnamed_thm1" class="idref" href="#Unnamed_thm1"><span class="id" title="definition">nat_sort</span></a> <a id="Unnamed_thm1" class="idref" href="#Unnamed_thm1"><span class="id" title="definition">0</span></a> <a id="Unnamed_thm1" class="idref" href="#Unnamed_thm1"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm1" class="idref" href="#Unnamed_thm1"><span class="id" title="definition">false</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm2" class="idref" href="#Unnamed_thm2"><span class="id" title="definition">nat_to_z2</span></a> <a id="Unnamed_thm2" class="idref" href="#Unnamed_thm2"><span class="id" title="definition">nat_sort</span></a> <a id="Unnamed_thm2" class="idref" href="#Unnamed_thm2"><span class="id" title="definition">1</span></a> <a id="Unnamed_thm2" class="idref" href="#Unnamed_thm2"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm2" class="idref" href="#Unnamed_thm2"><span class="id" title="definition">true</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Goal</span> <a id="Unnamed_thm3" class="idref" href="#Unnamed_thm3"><span class="id" title="definition">nat_to_z2</span></a> <a id="Unnamed_thm3" class="idref" href="#Unnamed_thm3"><span class="id" title="definition">nat_sort</span></a> <a id="Unnamed_thm3" class="idref" href="#Unnamed_thm3"><span class="id" title="definition">2</span></a> <a id="Unnamed_thm3" class="idref" href="#Unnamed_thm3"><span class="id" title="definition">=</span></a> <a id="Unnamed_thm3" class="idref" href="#Unnamed_thm3"><span class="id" title="definition">false</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>. <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Foundations.Preamble.html#idpath"><span class="id" title="abbreviation">idpath</span></a>. <span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Lemma</span> <a id="ishom_nat_to_z2" class="idref" href="#ishom_nat_to_z2"><span class="id" title="lemma">ishom_nat_to_z2</span></a>: @<a class="idref" href="UniMath.Algebra.Universal.Algebras.html#ishom"><span class="id" title="definition">ishom</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_algebra"><span class="id" title="definition">nat_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#z2_algebra"><span class="id" title="definition">z2_algebra</span></a> (<a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_to_z2"><span class="id" title="definition">nat_to_z2</span></a>).<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">unfold</span> <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#ishom"><span class="id" title="definition">ishom</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">intros</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">induction</span> <span class="id" title="var">nm</span> <span class="id" title="keyword">as</span> [<span class="id" title="var">n</span> <span class="id" title="var">proofn</span>].<br/>
+&nbsp;&nbsp;<span class="id" title="var">inductive_reflexivity</span> <span class="id" title="var">n</span> <span class="id" title="var">proofn</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="natz2" class="idref" href="#natz2"><span class="id" title="definition">natz2</span></a> : <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_algebra"><span class="id" title="definition">nat_algebra</span></a> <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#0bf23ac197c7afb3fbb2b5b873d864c2"><span class="id" title="notation">↷</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#z2_algebra"><span class="id" title="definition">z2_algebra</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Algebras.html#make_hom"><span class="id" title="definition">make_hom</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#ishom_nat_to_z2"><span class="id" title="lemma">ishom_nat_to_z2</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="nat_zero" class="idref" href="#nat_zero"><span class="id" title="definition">nat_zero</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Terms.html#build_gterm'"><span class="id" title="definition">build_gterm'</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_zero_op"><span class="id" title="definition">nat_zero_op</span></a>.<br/>
+<span class="id" title="keyword">Definition</span> <a id="nat_succ" class="idref" href="#nat_succ"><span class="id" title="definition">nat_succ</span></a> := <a class="idref" href="UniMath.Algebra.Universal.Terms.html#build_gterm'"><span class="id" title="definition">build_gterm'</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_succ_op"><span class="id" title="definition">nat_succ_op</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="nat2term" class="idref" href="#nat2term"><span class="id" title="definition">nat2term</span></a> (<a id="n:4" class="idref" href="#n:4"><span class="id" title="binder">n</span></a>: <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>): <a class="idref" href="UniMath.Algebra.Universal.Terms.html#gterm"><span class="id" title="abbreviation">gterm</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_signature"><span class="id" title="definition">nat_signature</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_sort"><span class="id" title="definition">nat_sort</span></a><br/>
+&nbsp;&nbsp;:= <a class="idref" href="UniMath.Foundations.Preamble.html#nat_rect"><span class="id" title="definition">nat_rect</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <span class="id" title="var">_</span><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Algebra.Universal.Terms.html#gterm"><span class="id" title="abbreviation">gterm</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_signature"><span class="id" title="definition">nat_signature</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_sort"><span class="id" title="definition">nat_sort</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_zero"><span class="id" title="definition">nat_zero</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">(</span></a><a id="n:5" class="idref" href="#n:5"><span class="id" title="binder">n</span></a>: <a class="idref" href="UniMath.Foundations.Preamble.html#nat"><span class="id" title="inductive">nat</span></a>) (<a id="tn:6" class="idref" href="#tn:6"><span class="id" title="binder">tn</span></a>: <a class="idref" href="UniMath.Algebra.Universal.Terms.html#gterm"><span class="id" title="abbreviation">gterm</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_signature"><span class="id" title="definition">nat_signature</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_sort"><span class="id" title="definition">nat_sort</span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#nat_succ"><span class="id" title="definition">nat_succ</span></a> <a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#tn:6"><span class="id" title="variable">tn</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Algebra.Universal.Examples.Nat.html#n:4"><span class="id" title="variable">n</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,1325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>IsPullback.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*******************************************************************************</span>
+
+<span class="sd"> Pullbacks from the Grothendieck construction</span>
+
+<span class="sd"> We show that the following square is a pullback square</span>
+
+<span class="sd">    ∫ G₁ ⟶ ∫ G₂</span>
+<span class="sd">      |       |</span>
+<span class="sd">      V       V</span>
+<span class="sd">      C₁ ⟶   C₂</span>
+
+<span class="sd"> *******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.StreetOpFibration.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckConstruction.TotalCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckConstruction.Projection.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckConstruction.IsosInTotal.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">PullbackFromTotal</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : setcategory}
+          {<span class="nv">F</span> : C₁ ⟶ C₂}
+          {<span class="nv">G₁</span> : C₁ ⟶ cat_of_setcategory}
+          {<span class="nv">G₂</span> : C₂ ⟶ cat_of_setcategory}
+          (<span class="nv">α</span> : G₁ ⟹ F ∙ G₂)
+          (<span class="nv">Hα</span> : is_nat_z_iso α).
+
+  <span class="kn">Let</span> <span class="nf">αiso</span> : nat_z_iso G₁ (F ∙ G₂) := α ,, Hα.
+  <span class="kn">Let</span> <span class="nf">αinv</span> : F ∙ G₂ ⟹ G₁ := nat_z_iso_inv αiso.
+
+  <span class="kn">Local Lemma</span> <span class="nf">α_iso_α_inv</span>
+              (<span class="nv">x</span> : C₁)
+              (<span class="nv">y</span> : pr1 (G₂ (F x)))
+    : pr1 (α x) (pr1 (αinv x) y) = y.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (maponpaths
+             (<span class="k">λ</span> <span class="nv">z</span>, pr11 z y)
+             (z_iso_after_z_iso_inv
+                (nat_z_iso_pointwise_z_iso αiso x))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">α_iso_α_inv_on_mor</span>
+              (<span class="nv">x</span> : C₁)
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : pr1 (G₂ (F x))}
+              (<span class="nv">f</span> : y₁ --&gt; y₂)
+    : # (pr1 (α x)) (# (pr1 (αinv x)) f)
+      =
+      idtoiso (α_iso_α_inv x y₁)
+      · f
+      · idtoiso (!(α_iso_α_inv x y₂)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (path_functor_mor_right
+             (z_iso_after_z_iso_inv
+                (nat_z_iso_pointwise_z_iso αiso x)) f @ _) ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> setcategory_eq_idtoiso_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">α_inv_α_iso</span>
+              (<span class="nv">x</span> : C₁)
+              (<span class="nv">y</span> : pr1 (G₁ x))
+    : pr1 (αinv x) (pr1 (α x) y) = y.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (maponpaths
+             (<span class="k">λ</span> <span class="nv">z</span>, pr11 z y)
+             (z_iso_inv_after_z_iso
+                (nat_z_iso_pointwise_z_iso αiso x))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">α_inv_α_iso_on_mor</span>
+              (<span class="nv">x</span> : C₁)
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : pr1 (G₁ x)}
+              (<span class="nv">f</span> : y₁ --&gt; y₂)
+    : # (pr1 (αinv x)) (# (pr1 (α x)) f)
+      =
+      idtoiso (α_inv_α_iso x y₁)
+      · f
+      · idtoiso (!(α_inv_α_iso x y₂)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (path_functor_mor_right
+              (z_iso_inv_after_z_iso
+                 (nat_z_iso_pointwise_z_iso αiso x)) f @ _) ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> setcategory_eq_idtoiso_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Section</span> <span class="nf">PbMor</span>.
+    <span class="kn">Context</span> {<span class="nv">C₀</span> : setcategory}
+            (<span class="nv">P₁</span> : C₀ ⟶ C₁)
+            (<span class="nv">P₂</span> : C₀ ⟶ total_setcategory_of_set_functor G₂)
+            (<span class="nv">β</span> : P₁ ∙ F ⟹ P₂ ∙ pr1_total_category_of_set_functor G₂)
+            (<span class="nv">Hβ</span> : is_nat_z_iso β).
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_1_mor_eq</span>
+               {<span class="nv">x</span> <span class="nv">y</span> : C₀}
+               (<span class="nv">f</span> : x --&gt; y)
+      : pr1 (# G₁ (# P₁ f)) ((pr11 (αinv (P₁ x))) ((pr11 (# G₂ (pr1 (Hβ x)))) (pr2 (P₂ x))))
+        =
+        pr1 (αinv (P₁ y)) (pr1 (# G₂ (pr1 (Hβ y))) (pr1 (# G₂ (pr1 (# P₂ f))) (pr2 (P₂ x)))).
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (maponpaths
+              (<span class="k">λ</span> <span class="nv">z</span>, pr11 z ((pr11 (# G₂ (pr1 (Hβ x)))) (pr2 (P₂ x))))
+              (nat_trans_ax αinv _ _ (#P₁ f)))
+        <span class="k">as</span> p.
+      <span class="nb">cbn</span> -[αinv] <span class="k">in</span> p.
+      <span class="nb">refine</span> (!p @ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (maponpaths
+                (<span class="k">λ</span> <span class="nv">z</span>, pr11 z (pr2 (P₂ x)))
+                (!(functor_comp G₂ (pr1 (Hβ x)) (# F (# P₁ f)))) @ _).
+      <span class="nb">refine</span> (!(maponpaths
+                  (<span class="k">λ</span> <span class="nv">z</span>, pr1 (# G₂ z) (pr2 (P₂ x)))
+                  (nat_trans_ax (nat_z_iso_inv (β ,, Hβ)) _ _ f)) @ _).
+      <span class="bp">exact</span> (maponpaths
+               (<span class="k">λ</span> <span class="nv">z</span>, pr11 z (pr2 (P₂ x)))
+               (functor_comp G₂ _ _)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_1_mor_data</span>
+      : functor_data
+          C₀
+          (total_setcategory_of_set_functor G₁).
+    <span class="kn">Proof</span>.
+      use make_functor_data.
+      - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, P₁ x ,, _).
+        <span class="nb">apply</span> (αinv (P₁ x)).
+        <span class="nb">apply</span> (# G₂ (pr1 (Hβ x))).
+        <span class="bp">exact</span> (pr2 (P₂ x)).
+      - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>,
+                #P₁ f
+                ,,
+                _ · #(pr1 (αinv (P₁ y))) (# (pr1 (# G₂ (pr1 (Hβ y)))) (pr2 (# P₂ f)))).
+        <span class="nb">apply</span> idtoiso.
+        <span class="bp">exact</span> (total_set_category_pb_ump_1_mor_eq f).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_1_mor_is_functor</span>
+      : is_functor total_set_category_pb_ump_1_mor_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">intro</span> x.
+        use eq_mor_category_of_set_functor.
+        + <span class="nb">apply</span> functor_id.
+        + <span class="nb">cbn</span> -[αinv].
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (eq_mor_category_of_set_functor_pr2 (functor_id P₂ x)).
+          }
+          <span class="nb">cbn</span> -[αinv].
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> (pr1_idtoiso_concat
+                         _
+                         (eq_in_set_fiber (functor_id G₂ _) _)).
+              }
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₂ (pr1 (Hβ x)))).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (P₁ x))).
+          }
+          etrans.
+          {
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat (total_set_category_pb_ump_1_mor_eq _)).
+          }
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     _
+                     (eq_in_set_fiber (functor_id G₁ (P₁ x)) _)).
+          }
+          <span class="nb">apply</span> setcategory_eq_idtoiso.
+      - <span class="nb">intros</span> x y z f g.
+        use eq_mor_category_of_set_functor.
+        + <span class="nb">apply</span> functor_comp.
+        + <span class="nb">cbn</span> -[αinv].
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="bp">exact</span> (eq_mor_category_of_set_functor_pr2 (functor_comp P₂ f g)).
+              }
+              <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> functor_comp.
+            }
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> functor_comp.
+          }
+          <span class="nb">cbn</span> -[αinv].
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₂ (pr1 (Hβ z)))).
+            }
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (P₁ z))).
+          }
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">refine</span> (!_).
+                  <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₂ (pr1 (Hβ z)))).
+                }
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (P₁ z))).
+              }
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_idtoiso_concat (total_set_category_pb_ump_1_mor_eq (f · g))).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat (total_set_category_pb_ump_1_mor_eq (f · g) @ _)).
+          }
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₁ (# P₁ g))).
+            }
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_idtoiso_concat
+                       _
+                       (eq_in_set_fiber (functor_comp G₁ (# P₁ f) (# P₁ g)) _)).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     (_ @ eq_in_set_fiber (functor_comp G₁ (# P₁ f) (# P₁ g)) _)).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (!path_functor_mor_left
+                     ((nat_trans_ax αinv _ _ (# P₁ g)))
+                     (# (pr1 (# G₂ (pr1 (Hβ y)))) (pr2 (# P₂ f)))).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     ((_ @ eq_in_set_fiber (functor_comp G₁ (# P₁ f) (# P₁ g)) _) @ _)).
+          }
+          <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat _ (total_set_category_pb_ump_1_mor_eq g)).
+          }
+          <span class="nb">cbn</span> -[αinv].
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="bp">exact</span> (path_functor_mor_right
+                       (!functor_comp G₂ (pr1 (Hβ y)) (# F (# P₁ g))
+                        @ maponpaths
+                            (<span class="k">λ</span> <span class="nv">q</span>, # G₂ q)
+                            (!(nat_trans_ax (nat_z_iso_inv (β ,, Hβ)) _ _ g))
+                       @ functor_comp G₂ _ _)
+                       (pr2 (# P₂ f))).
+            }
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> functor_comp.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">refine</span> (assoc _ _ _ @ _) ; <span class="nb">apply</span> maponpaths_2).
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (P₁ z))).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     (((_ @ eq_in_set_fiber (functor_comp G₁ _ _) _) @ _) @ _)).
+          }
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          etrans.
+          {
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (P₁ z))).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     _
+                     (_ @ total_set_category_pb_ump_1_mor_eq g)).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> setcategory_refl_idtoiso.
+            }
+            <span class="nb">apply</span> id_right.
+          }
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> setcategory_eq_idtoiso.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_1_mor</span>
+      : C₀ ⟶ total_setcategory_of_set_functor G₁.
+    <span class="kn">Proof</span>.
+      use make_functor.
+      - <span class="bp">exact</span> total_set_category_pb_ump_1_mor_data.
+      - <span class="bp">exact</span> total_set_category_pb_ump_1_mor_is_functor.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_1_mor_pr1</span>
+      : total_set_category_pb_ump_1_mor ∙ pr1_total_category_of_set_functor G₁
+        ⟹
+        P₁.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, identity _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_left, id_right ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_1_mor_pr1_is_nat_z_iso</span>
+      : is_nat_z_iso total_set_category_pb_ump_1_mor_pr1.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> x.
+      <span class="nb">apply</span> is_z_isomorphism_identity.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_1_mor_pr2_eq</span>
+               (<span class="nv">x</span> : C₀)
+      : pr1 (# G₂ (β x))
+          (pr1 (pr1 α (P₁ x))
+             ((pr11 (αinv (P₁ x)))
+                ((pr11 (# G₂ (pr1 (Hβ x))))
+                   (pr2 (P₂ x)))))
+        =
+        pr2 (P₂ x).
+    <span class="kn">Proof</span>.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> α_iso_α_inv.
+      }
+      etrans.
+      {
+        <span class="bp">exact</span> (maponpaths
+                 (<span class="k">λ</span> <span class="nv">z</span>, pr11 z (pr2 (P₂ x)))
+                 (!(functor_comp G₂ (pr1 (Hβ x)) (β x)))).
+      }
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (z_iso_after_z_iso_inv (_ ,, Hβ x)).
+      }
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="bp">exact</span> (maponpaths
+                 (<span class="k">λ</span> <span class="nv">z</span>, pr11 z (pr2 (P₂ x)))
+                 (functor_id G₂ _)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_1_mor_pr2_data</span>
+      : nat_trans_data
+          (total_set_category_pb_ump_1_mor ∙ functor_total_category_of_set_functor F α)
+          P₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, β x ,, _).
+      <span class="nb">refine</span> (idtoiso _).
+      <span class="nb">apply</span> total_set_category_pb_ump_1_mor_pr2_eq.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_1_mor_pr2_is_nat_trans</span>
+      : is_nat_trans
+          _ _
+          total_set_category_pb_ump_1_mor_pr2_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f.
+      use eq_mor_category_of_set_functor.
+      - <span class="nb">apply</span> (nat_trans_ax β).
+      - <span class="nb">cbn</span> -[αinv].
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths_2.
+                  <span class="nb">refine</span> (!_).
+                  <span class="nb">apply</span> (pr1_maponpaths_idtoiso (α (P₁ y))).
+                }
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> α_iso_α_inv_on_mor.
+                }
+                <span class="nb">refine</span> (assoc _ _ _ @ _).
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">refine</span> (assoc _ _ _ @ _).
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> (pr1_idtoiso_concat
+                         (maponpaths
+                            (pr11 (α (P₁ y)))
+                            (total_set_category_pb_ump_1_mor_eq f))).
+              }
+              <span class="nb">refine</span> (assoc _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (assoc _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_idtoiso_concat
+                       _
+                       (maponpaths
+                          (pr11 (α (P₁ y)))
+                          (total_set_category_pb_ump_1_mor_eq f) @ _)).
+            }
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₂ (β y))).
+            }
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₂ (β y))).
+          }
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   (eq_in_set_fiber (functor_comp G₂ _ _) _)).
+        }
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   _
+                   (total_set_category_pb_ump_1_mor_pr2_eq y)).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (path_functor_mor_right
+                   ((!functor_comp G₂ (pr1 (Hβ y)) (β y))
+                    @ maponpaths
+                        (<span class="k">λ</span> <span class="nv">z</span>, # G₂ z)
+                        (z_iso_after_z_iso_inv (_ ,, Hβ y))
+                    @ functor_id G₂ _)
+                   (pr2 (# P₂ f))).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   _
+                   (_ @ total_set_category_pb_ump_1_mor_pr2_eq y)).
+        }
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc _ _ _ @ _).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   (eq_in_set_fiber (functor_comp G₂ _ _) _ @ _)).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> setcategory_refl_idtoiso.
+        }
+        <span class="nb">refine</span> (id_right _ @ _).
+        <span class="nb">refine</span> (_ @ assoc' _ _ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₂ (pr1 (# P₂ f)))).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     (eq_in_set_fiber (functor_comp G₂ _ _) _)).
+          }
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   _
+                   (eq_in_set_fiber (functor_comp G₂ _ _) _ @ _)).
+        }
+        <span class="nb">apply</span> setcategory_eq_idtoiso.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_1_mor_pr2</span>
+      : total_set_category_pb_ump_1_mor ∙ functor_total_category_of_set_functor F α
+        ⟹
+        P₂.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> total_set_category_pb_ump_1_mor_pr2_data.
+      - <span class="bp">exact</span> total_set_category_pb_ump_1_mor_pr2_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_1_mor_pr2_is_nat_z_iso_eq</span>
+               (<span class="nv">x</span> : C₀)
+      : pr1 (# G₂ (pr1 (Hβ x))) (pr2 (P₂ x))
+        =
+        pr1 (pr1 α (P₁ x))
+          ((pr11 (αinv (P₁ x)))
+             ((pr11 (# G₂ (pr1 (Hβ x)))) (pr2 (P₂ x)))).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> α_iso_α_inv.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_1_mor_pr2_is_nat_z_iso</span>
+      : is_nat_z_iso total_set_category_pb_ump_1_mor_pr2.
+    <span class="kn">Proof</span>.
+      <span class="nb">intro</span> x.
+      use is_z_iso_total_setcategory_of_set_functor.
+      - <span class="bp">exact</span> (Hβ x).
+      - <span class="bp">exact</span> (idtoiso (total_set_category_pb_ump_1_mor_pr2_is_nat_z_iso_eq x)).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           etrans ;
+           [ <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">refine</span> (!_) ;
+             <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₂ (pr1 (Hβ x))))
+           | ] ;
+           etrans ;
+           [ <span class="nb">refine</span> (!_) ;
+             <span class="nb">apply</span> (pr1_idtoiso_concat
+                      _
+                      (total_set_category_pb_ump_1_mor_pr2_is_nat_z_iso_eq x))
+           | ] ;
+           <span class="nb">apply</span> setcategory_eq_idtoiso).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           etrans ;
+           [ <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">refine</span> (!_) ;
+             <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₂ (β x)))
+           | ] ;
+           etrans ;
+           [ <span class="nb">refine</span> (!_) ;
+             <span class="nb">apply</span> (pr1_idtoiso_concat
+                      _
+                      (total_set_category_pb_ump_1_mor_pr2_eq x))
+           | ] ;
+           <span class="nb">apply</span> setcategory_eq_idtoiso).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">PbMor</span>.
+
+  <span class="kn">Section</span> <span class="nf">PbCell</span>.
+    <span class="kn">Context</span> {<span class="nv">C₀</span> : setcategory}
+            {<span class="nv">φ₁</span> <span class="nv">φ₂</span> : pr1 C₀ ⟶ total_setcategory_of_set_functor G₁}
+            (<span class="nv">δ₁</span> : φ₁ ∙ pr1_total_category_of_set_functor G₁
+                  ⟹
+                  φ₂ ∙ pr1_total_category_of_set_functor G₁)
+            (<span class="nv">δ₂</span> : φ₁ ∙ functor_total_category_of_set_functor F α
+                  ⟹
+                  φ₂ ∙ functor_total_category_of_set_functor F α)
+            (<span class="nv">q</span> : ∏ (x : C₀), pr1 (δ₂ x) = # F (δ₁ x)).
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_2_unique</span>
+      : isaprop
+          (∑ (γ : φ₁ ⟹ φ₂),
+            post_whisker γ (pr1_total_category_of_set_functor G₁) = δ₁
+            ×
+            post_whisker γ (functor_total_category_of_set_functor F α) = δ₂).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> ζ ξ.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        use isapropdirprod ; <span class="nb">apply</span> isaset_nat_trans ; <span class="nb">apply</span> homset_property.
+      }
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x.
+      use eq_mor_category_of_set_functor.
+      - <span class="bp">exact</span> (nat_trans_eq_pointwise (pr12 ζ) x @ !(nat_trans_eq_pointwise (pr12 ξ) x)).
+      - <span class="nb">assert</span> (p := maponpaths
+                       (<span class="k">λ</span> <span class="nv">z</span>, #(pr1 (αinv (pr1 (φ₂ x)))) z)
+                       (eq_mor_category_of_set_functor_pr2
+                          (nat_trans_eq_pointwise (pr22 ζ) x
+                           @ !(nat_trans_eq_pointwise (pr22 ξ) x)))).
+        <span class="nb">cbn</span> -[αinv] <span class="k">in</span> p.
+        <span class="nb">assert</span> (pr1 (# G₁ (pr1 (pr1 ζ x))) (pr2 (φ₁ x))
+                =
+                pr1 (αinv (pr1 (φ₂ x)))
+                  (pr1 (# G₂ (# F (pr1 ((pr11 ζ) x))))
+                         (pr1 (pr1 α (pr1 (φ₁ x))) (pr2 (φ₁ x)))))
+          <span class="k">as</span> X.
+        {
+          <span class="nb">pose</span> (maponpaths
+                   (<span class="k">λ</span> <span class="nv">z</span>, pr11 z (pr1 (pr1 α (pr1 (φ₁ x))) (pr2 (φ₁ x))))
+                   (nat_trans_ax αinv _ _ (pr1 (pr11 ζ x))))
+            <span class="k">as</span> r.
+          <span class="nb">cbn</span> -[αinv] <span class="k">in</span> r.
+          <span class="nb">refine</span> (_ @ !r).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> α_inv_α_iso.
+        }
+        <span class="nb">simple refine</span> (_
+                       @ maponpaths
+                           (<span class="k">λ</span> <span class="nv">z</span>, idtoiso X · z · idtoiso (α_inv_α_iso _ _))
+                           p
+                       @ _).
+        + <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> α_inv_α_iso_on_mor.
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ x)))).
+            }
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            <span class="nb">refine</span> (assoc' _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> setcategory_refl_idtoiso.
+          }
+          <span class="nb">refine</span> (id_right _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> setcategory_refl_idtoiso.
+          }
+          <span class="nb">apply</span> id_left.
+        + etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">apply</span> α_inv_α_iso_on_mor.
+              }
+              <span class="nb">refine</span> (assoc _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (assoc _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths_2.
+
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ x)))).
+              }
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> pr1_idtoiso_concat.
+            }
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ x)))).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_idtoiso_concat.
+          }
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> pr1_idtoiso_concat.
+              }
+              <span class="nb">apply</span> setcategory_refl_idtoiso.
+            }
+            <span class="nb">apply</span> id_right.
+          }
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> setcategory_eq_idtoiso.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_2_cell_data</span>
+      : nat_trans_data φ₁ φ₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span>, δ₁ x ,, _).
+      <span class="nb">refine</span> (idtoiso _ · # (pr1 (αinv (pr1 (φ₂ x)))) (pr2 (δ₂ x)) · idtoiso _).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> q ;
+           <span class="nb">cbn</span> -[αinv] ;
+           <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr11 z (pr2 (φ₁ x))) (nat_trans_ax α _ _ (δ₁ x))) <span class="k">as</span> p ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">refine</span> (!_) ;
+           etrans ;
+             [ <span class="nb">apply</span> maponpaths ;
+               <span class="bp">exact</span> (!p)
+             | ] ;
+           <span class="nb">apply</span> α_inv_α_iso).
+      - <span class="nb">apply</span> α_inv_α_iso.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_2_cell_is_nat_trans</span>
+      : is_nat_trans φ₁ φ₂ total_set_category_pb_ump_2_cell_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y f.
+      use eq_mor_category_of_set_functor.
+      - <span class="bp">exact</span> (nat_trans_ax δ₁ _ _ f).
+      - <span class="nb">cbn</span> -[αinv].
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   _
+                   (eq_in_set_fiber (functor_comp G₁ _ _) _)).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> functor_comp.
+          }
+          <span class="nb">rewrite</span> !assoc.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₁ (pr1 (# φ₂ f)))).
+          }
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   (_ @ eq_in_set_fiber (functor_comp G₁ _ _) _)).
+        }
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!path_functor_mor_left
+                   (nat_trans_ax αinv _ _ (pr1 (# φ₂ f)))
+                   (pr2 (δ₂ x))).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (assoc' _ _ _ @ _).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (assoc' _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₁ (pr1 (# φ₂ f)))).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     _
+                     (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr1 (# G₁ (pr1 (# φ₂ f))) z) _)).
+          }
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   (_ @ maponpaths (<span class="k">λ</span> <span class="nv">z</span>, pr1 (# G₁ (pr1 (# φ₂ f))) z) _)).
+        }
+        <span class="nb">pose</span> (maponpaths
+                (<span class="k">λ</span> <span class="nv">z</span>, # (pr1 (αinv (pr1 (φ₂ y)))) z)
+                (eq_mor_category_of_set_functor_pr2
+                   (nat_trans_ax δ₂ _ _ f)))
+          <span class="k">as</span> p.
+        <span class="nb">cbn</span> -[αinv] <span class="k">in</span> p.
+        <span class="nb">assert</span> (pr1 (# G₁ (pr1 (# φ₁ f) · δ₁ y)) (pr2 (φ₁ x))
+                =
+                pr1 (αinv (pr1 (φ₂ y)))
+                      (pr1 (# G₂ (# F (pr1 (# φ₁ f)) · pr1 (δ₂ y)))
+                              (pr1 (pr1 α (pr1 (φ₁ x)))
+                                 (pr2 (φ₁ x)))))
+          <span class="k">as</span> X1.
+        {
+          <span class="nb">rewrite</span> q.
+          <span class="nb">cbn</span> -[αinv].
+          <span class="nb">rewrite</span> &lt;- functor_comp.
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="nb">apply</span> (maponpaths
+                     (<span class="k">λ</span> <span class="nv">z</span>, pr11 z (pr1 (pr1 α (pr1 (φ₁ x))) (pr2 (φ₁ x))))
+                     (nat_trans_ax αinv _ _ (pr1 (# φ₁ f) · δ₁ y))).
+          }
+          <span class="nb">cbn</span> -[αinv].
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> α_inv_α_iso.
+        }
+        <span class="nb">simple refine</span> (_
+                       @ maponpaths
+                           (<span class="k">λ</span> <span class="nv">z</span>, idtoiso X1 · z · idtoiso (α_inv_α_iso _ _))
+                           (!p)
+                       @ _).
+        + <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ y)))).
+              }
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths.
+                  <span class="nb">apply</span> α_inv_α_iso_on_mor.
+                }
+                <span class="nb">refine</span> (assoc  _ _ _ @ _).
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">refine</span> (assoc  _ _ _ @ _).
+                <span class="nb">apply</span> maponpaths_2.
+                etrans.
+                {
+                  <span class="nb">apply</span> maponpaths_2.
+                  <span class="nb">refine</span> (!_).
+                  <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ y)))).
+                }
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> pr1_idtoiso_concat.
+              }
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ y)))).
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="kp">do</span> <span class="mi">3</span> <span class="nb">refine</span> (assoc _ _ _ @ _).
+              <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (assoc _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths_2.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> pr1_idtoiso_concat.
+              }
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> pr1_idtoiso_concat.
+            }
+            <span class="kp">do</span> <span class="mi">3</span> <span class="nb">refine</span> (assoc' _ _ _ @ _).
+            <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> pr1_idtoiso_concat.
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> setcategory_refl_idtoiso.
+            }
+            <span class="nb">apply</span> id_right.
+          }
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> setcategory_eq_idtoiso_comp.
+        + <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ y)))).
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              etrans.
+              {
+                <span class="nb">apply</span> maponpaths.
+                <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+                <span class="nb">apply</span> maponpaths_2.
+                <span class="nb">refine</span> (!_).
+                <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₂ (pr1 (δ₂ y)))).
+              }
+              <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (αinv (pr1 (φ₂ y)))).
+            }
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_idtoiso_concat.
+          }
+          <span class="nb">refine</span> (assoc _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="bp">exact</span> (path_functor_mor_right
+                       (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #G₂ z) (q y))
+                       (# (pr1 (α (pr1 (φ₁ y)))) (pr2 (# φ₁ f)))).
+            }
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> pr1_maponpaths_idtoiso.
+            }
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_maponpaths_idtoiso.
+          }
+          etrans.
+          {
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> (path_functor_mor_right
+                     (nat_trans_ax αinv _ _(δ₁ y))
+                     (# (pr1 (α (pr1 (φ₁ y)))) (pr2 (# φ₁ f)))).
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            <span class="nb">refine</span> (assoc' _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">cbn</span> -[αinv].
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">apply</span> α_inv_α_iso_on_mor.
+            }
+            <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> functor_comp.
+          }
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">refine</span> (assoc _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths_2.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₁ (δ₁ y))).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_idtoiso_concat.
+          }
+          etrans.
+          {
+            <span class="nb">refine</span> (assoc' _ _ _ @ _).
+            <span class="nb">apply</span> maponpaths.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (# G₁ (δ₁ y))).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> pr1_idtoiso_concat.
+          }
+          <span class="nb">apply</span> setcategory_eq_idtoiso_comp.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_2_cell</span>
+      : φ₁ ⟹ φ₂.
+    <span class="kn">Proof</span>.
+      use make_nat_trans.
+      - <span class="bp">exact</span> total_set_category_pb_ump_2_cell_data.
+      - <span class="bp">exact</span> total_set_category_pb_ump_2_cell_is_nat_trans.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_2_pr1</span>
+      : post_whisker
+          total_set_category_pb_ump_2_cell
+          (pr1_total_category_of_set_functor G₁)
+        =
+        δ₁.
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">total_set_category_pb_ump_2_pr2</span>
+      : post_whisker
+          total_set_category_pb_ump_2_cell
+          (functor_total_category_of_set_functor F α)
+        =
+        δ₂.
+    <span class="kn">Proof</span>.
+      use nat_trans_eq.
+      {
+        <span class="nb">apply</span> homset_property.
+      }
+      <span class="nb">intro</span> x.
+      use eq_mor_category_of_set_functor.
+      - <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (!(q x)).
+      - <span class="nb">cbn</span> -[αinv].
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (functor_comp _ _ _ @ _).
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> α_iso_α_inv_on_mor.
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_maponpaths_idtoiso (α (pr1 (φ₂ x)))).
+          }
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> pr1_idtoiso_concat.
+        }
+        <span class="nb">rewrite</span> !assoc.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths.
+              <span class="nb">refine</span> (!_).
+              <span class="nb">apply</span> (pr1_maponpaths_idtoiso (α (pr1 (φ₂ x)))).
+            }
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (pr1_idtoiso_concat
+                     (functor_total_category_of_set_functor_eq
+                        F α
+                        (total_set_category_pb_ump_2_cell_data x))).
+          }
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> (pr1_idtoiso_concat
+                   (functor_total_category_of_set_functor_eq
+                      F α
+                      (total_set_category_pb_ump_2_cell_data x) @ _)).
+        }
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> setcategory_refl_idtoiso.
+        }
+        <span class="nb">refine</span> (id_right _ @ _).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> setcategory_eq_idtoiso.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">PbCell</span>.
+<span class="kn">End</span> <span class="nf">PullbackFromTotal</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/GrothendieckConstruction/IsPullback.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;       C₁ ⟶   C₂
+  &gt;
+  &gt;  *******************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

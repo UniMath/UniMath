@@ -1,0 +1,338 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Modification.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* ******************************************************************************* *)</span>
+<span class="sd">(** * Modifications between pseudo transformations</span>
+<span class="sd">    Niccolò Veltri, Niels van der Weide</span>
+<span class="sd">    April 2019</span>
+<span class="sd"> ********************************************************************************* *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Base.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map1Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Map2Cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Identitor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.Compositor.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.Display.PseudoFunctorBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.PseudoFunctors.PseudoFunctor.
+<span class="kn">Import</span> PseudoFunctor.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Transformations.PseudoTransformation.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">modification</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           (<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G)
+  : UU
+  := prebicat_cells (psfunctor_bicat B B') σ τ.
+
+<span class="kn">Definition</span> <span class="nf">modification_data</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           (<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G)
+  : UU
+  := ∏ (X : B), σ X ==&gt; τ X.
+
+<span class="kn">Definition</span> <span class="nf">is_modification</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           (<span class="nv">m</span> : modification_data σ τ)
+  : UU
+  := ∏ (X Y : B) (f : X --&gt; Y),
+       psnaturality_of σ f • (m Y ▻ #F f)
+       =
+       #G f ◅ m X • psnaturality_of τ f.
+
+<span class="kn">Definition</span> <span class="nf">modcomponent_of</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           (<span class="nv">m</span> : modification σ τ)
+  : ∏ (X : B), σ X ==&gt; τ X
+  := pr111 m.
+
+<span class="kn">Coercion</span> <span class="nf">modcomponent_of</span> : modification &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">modnaturality_of</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           (<span class="nv">m</span> : modification σ τ)
+  : is_modification m
+  := pr211 m.
+
+<span class="kn">Definition</span> <span class="nf">mod_inv_naturality_of</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           (<span class="nv">m</span> : modification σ τ)
+  : ∏ (X Y : B) (f : X --&gt; Y),
+    (m Y ▻ #F f) • (psnaturality_of τ f)^-<span class="mi">1</span>
+    =
+    (psnaturality_of σ f)^-<span class="mi">1</span> • (#G f ◅ m X).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y f.
+  use vcomp_move_L_pM.
+  { is_iso. }
+  <span class="nb">rewrite</span> vassocr.
+  use vcomp_move_R_Mp.
+  { is_iso. }
+  <span class="bp">exact</span> (modnaturality_of m X Y f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_modification</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           (<span class="nv">m</span> : modification_data σ τ)
+           (<span class="nv">Hm</span> : is_modification m)
+  : modification σ τ
+  := (((m ,, Hm) ,, (tt ,, tt ,, tt)),, tt).
+
+<span class="kn">Definition</span> <span class="nf">modification_eq</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           {<span class="nv">m</span> <span class="nv">m'</span> : modification σ τ}
+           (<span class="nv">p</span> : ∏ (X : B), m X = m' X)
+  : m = m'.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  { <span class="nb">intro</span>. <span class="nb">simpl</span>.
+    <span class="bp">exact</span> isapropunit.
+  }
+  use subtypePath.
+  { <span class="nb">intro</span>. <span class="nb">simpl</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> isapropdirprod) ; <span class="nb">apply</span> isapropunit.
+  }
+  use subtypePath.
+  { <span class="nb">intro</span>. <span class="nb">simpl</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> B'.
+  }
+  use funextsec.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaset_modification</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           (<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G)
+  : isaset (modification σ τ).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (<span class="nb">apply</span> isaset_total2).
+  - <span class="nb">apply</span> impred_isaset ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> B'.
+  - <span class="nb">intro</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> impred_isaset ; <span class="nb">intro</span>).
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> B'.
+  - <span class="nb">intro</span> ; <span class="nb">simpl</span>.
+    <span class="kp">repeat</span> (<span class="nb">apply</span> isaset_dirprod) ; <span class="nb">apply</span> isasetunit.
+  - <span class="nb">intro</span> ; <span class="nb">apply</span> isasetunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_invertible_modification</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           (<span class="nv">m</span> : modification σ τ)
+  : UU
+  := @is_invertible_2cell (psfunctor_bicat B B') _ _ _ _ m.
+
+<span class="kn">Definition</span> <span class="nf">invertible_modification</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           (<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G)
+  : UU
+  := @invertible_2cell (psfunctor_bicat B B') _ _ σ τ.
+
+<span class="kn">Definition</span> <span class="nf">modcomponent_eq</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           {<span class="nv">m</span> <span class="nv">m'</span> : modification σ τ}
+           (<span class="nv">p</span> : m = m')
+  : ∏ (X : B), m X = m' X.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  <span class="nb">induction</span> p.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">invertible_modification_data</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           (<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G)
+  : UU
+  := ∏ (X : B), invertible_2cell (σ X) (τ X).
+
+<span class="kn">Coercion</span> <span class="nf">invertible_modification_data_to_modification_data</span>
+           {B B' : bicat}
+           {F G : psfunctor B B'}
+           {σ τ : pstrans F G}
+           (m : invertible_modification_data σ τ)
+  : modification_data σ τ.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  <span class="bp">exact</span> (m X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_invertible_modcomponent_of</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           (<span class="nv">m</span> : modification σ τ)
+           (<span class="nv">Hm</span> : is_invertible_modification m)
+  : ∏ (X : B), is_invertible_2cell (m X).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  use make_is_invertible_2cell.
+  - <span class="bp">exact</span> ((Hm^-<span class="mi">1</span> : modification _ _) X).
+  - <span class="bp">exact</span> (modcomponent_eq (vcomp_rinv Hm) X).
+  - <span class="bp">exact</span> (modcomponent_eq (vcomp_linv Hm) X).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_is_invertible_modification</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           (<span class="nv">m</span> : modification σ τ)
+           (<span class="nv">Hm</span> : ∏ (X : B), is_invertible_2cell (m X))
+  : is_invertible_modification m.
+<span class="kn">Proof</span>.
+  use make_is_invertible_2cell.
+  - use make_modification.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">X</span>, (Hm X)^-<span class="mi">1</span>).
+    + <span class="nb">intros</span> X Y f.
+      <span class="nb">simpl</span>.
+      use vcomp_move_R_Mp.
+      { is_iso. }
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> &lt;- vassocr.
+      use vcomp_move_L_pM.
+      { is_iso. }
+      <span class="nb">symmetry</span>.
+      <span class="nb">simpl</span>.
+      <span class="nb">apply</span> (modnaturality_of m).
+  - use modification_eq.
+    <span class="nb">intro</span> X.
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (vcomp_rinv (Hm X)).
+  - use modification_eq.
+    <span class="nb">intro</span> X.
+    <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (vcomp_linv (Hm X)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">invertible_modcomponent_of</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           (<span class="nv">m</span> : invertible_modification σ τ)
+  : ∏ (X : B), invertible_2cell (σ X) (τ X).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> X.
+  use make_invertible_2cell.
+  - <span class="bp">exact</span> ((cell_from_invertible_2cell m : modification _ _) X).
+  - <span class="nb">apply</span> is_invertible_modcomponent_of.
+    <span class="bp">exact</span> (property_from_invertible_2cell m).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_invertible_modification</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           (<span class="nv">m</span> : invertible_modification_data σ τ)
+           (<span class="nv">Hm</span> : is_modification m)
+  : invertible_modification σ τ.
+<span class="kn">Proof</span>.
+  use make_invertible_2cell.
+  - use make_modification.
+    + <span class="nb">unfold</span> modification_data.
+      <span class="nb">apply</span> m.
+    + <span class="bp">exact</span> Hm.
+  - <span class="nb">apply</span> make_is_invertible_modification.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> m.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Only on data *)</span>
+<span class="kn">Definition</span> <span class="nf">invertible_modification_data_on_data</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor_data B B'}
+           (<span class="nv">σ</span> <span class="nv">τ</span> : pstrans_on_data F G)
+  : UU
+  := ∏ (X : B), invertible_2cell (pr11 σ X) (pr11 τ X).
+
+<span class="kn">Definition</span> <span class="nf">invertible_modification_on_data_is_modification</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor_data B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans_on_data F G}
+           (<span class="nv">m</span> : invertible_modification_data_on_data σ τ)
+  : UU
+  := ∏ (X Y : B) (f : X --&gt; Y),
+     pr21 σ _ _ f • (_ ◃ m Y) = (m X ▹ _) • pr21 τ _ _ f.
+
+<span class="kn">Definition</span> <span class="nf">invertible_modification_on_data</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor_data B B'}
+           (<span class="nv">σ</span> <span class="nv">τ</span> : pstrans_on_data F G)
+  : UU
+  := ∑ (m : invertible_modification_data_on_data σ τ),
+     invertible_modification_on_data_is_modification m.
+
+<span class="kn">Definition</span> <span class="nf">make_invertible_modification_on_data</span>
+           {<span class="nv">B</span> <span class="nv">B'</span> : bicat}
+           {<span class="nv">F</span> <span class="nv">G</span> : psfunctor B B'}
+           {<span class="nv">σ</span> <span class="nv">τ</span> : pstrans F G}
+           (<span class="nv">m</span> : invertible_modification_on_data (pr1 σ) (pr1 τ))
+  : invertible_modification σ τ.
+<span class="kn">Proof</span>.
+  use make_invertible_modification.
+  - <span class="bp">exact</span> (pr1 m).
+  - <span class="bp">exact</span> (pr2 m).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/Modifications/Modification.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     April 2019
+  &gt;  ********************************************************************************* *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

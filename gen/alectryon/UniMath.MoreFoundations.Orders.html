@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Orders.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ** More results on types of ordering *)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Propositions.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Sets.
+
+
+<span class="sd">(** * Preorders *)</span>
+<span class="sd">(** [po] is defined in [Foundations.Sets], but with some access functions missing *)</span>
+
+<span class="kn">Section</span> <span class="nf">po_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+<span class="kn">Context</span> (<span class="nv">R</span> : po X).
+
+<span class="kn">Definition</span> <span class="nf">istrans_po</span> : istrans R :=
+  pr1 (pr2 R).
+<span class="kn">Definition</span> <span class="nf">isrefl_po</span> : isrefl R :=
+  pr2 (pr2 R).
+
+<span class="kn">End</span> <span class="nf">po_pty</span>.
+
+
+
+<span class="sd">(** * Strong orders *)</span>
+<span class="sd">(** A _strong ordering_ is a transitive, irreflexive, and cotransitive relation.</span>
+
+<span class="sd">The terminology is our own, and the definition is not very well-established.  Classically, this is nearly equivalent to the more established _strict total order_ (transitive, irreflexive, trichotomous).  Constructively/computationally, cotransitivity is generally better than trichotomy — in particular, it is constructively provable for the reals — so it is more used in such settings.   *)</span>
+
+<span class="kn">Definition</span> <span class="nf">isStrongOrder</span> {<span class="nv">X</span> : UU} (<span class="nv">R</span> : hrel X) : UU :=
+  istrans R × iscotrans R × isirrefl R.
+
+<span class="kn">Lemma</span> <span class="nf">isapropisStrongOrder</span> {<span class="nv">X</span> : hSet} (<span class="nv">R</span> : hrel X) :
+  isaprop (isStrongOrder R).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod.
+  - <span class="nb">apply</span> isaprop_istrans.
+  - <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isaprop_iscotrans.
+    + <span class="nb">apply</span> isaprop_isirrefl.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">isso_pty</span>.
+
+<span class="kn">Context</span> {<span class="nv">X</span> : UU}.
+<span class="kn">Context</span> {<span class="nv">R</span> : hrel X}
+        (<span class="nv">iss</span> : isStrongOrder R).
+
+<span class="kn">Definition</span> <span class="nf">istrans_isStrongOrder</span> : istrans R :=
+  pr1 iss.
+<span class="kn">Definition</span> <span class="nf">iscotrans_isStrongOrder</span> : iscotrans R :=
+  pr1 (pr2 iss).
+<span class="kn">Definition</span> <span class="nf">isirrefl_isStrongOrder</span> : isirrefl R :=
+  pr2 (pr2 iss).
+<span class="kn">Definition</span> <span class="nf">isasymm_isStrongOrder</span> : isasymm R :=
+  istransandirrefltoasymm
+    istrans_isStrongOrder
+    isirrefl_isStrongOrder.
+
+<span class="kn">End</span> <span class="nf">isso_pty</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isStrongOrder_hnegispreorder</span> :
+  ∏ (X : hSet) (R : hrel X),
+  isStrongOrder R → ispreorder (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> : X, (¬ R x y)%logic).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X R iss.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y z Hxy Hyz Hxz.
+    <span class="nb">generalize</span> (iscotrans_isStrongOrder iss _ y _ Hxz).
+    <span class="nb">apply</span> toneghdisj.
+    <span class="nb">split</span>.
+    + <span class="bp">exact</span> Hxy.
+    + <span class="bp">exact</span> Hyz.
+  - <span class="bp">exact</span> (isirrefl_isStrongOrder iss).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isStrongOrder_bck</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : Y → X) (<span class="nv">gt</span> : hrel X) :
+  isStrongOrder gt → isStrongOrder (fun_hrel_comp f gt).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> iss.
+  <span class="nb">split</span> ; [ | <span class="nb">split</span> ].
+  - <span class="nb">intros</span> x y z.
+    <span class="nb">apply</span> (istrans_isStrongOrder iss).
+  - <span class="nb">intros</span> x y z.
+    <span class="nb">apply</span> (iscotrans_isStrongOrder iss).
+  - <span class="nb">intros</span> x.
+    <span class="nb">apply</span> (isirrefl_isStrongOrder iss).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">StrongOrder</span> (<span class="nv">X</span> : UU) := ∑ R : hrel X, isStrongOrder R.
+<span class="kn">Definition</span> <span class="nf">make_StrongOrder</span> {<span class="nv">X</span> : UU} (<span class="nv">R</span> : hrel X) (<span class="nv">iss</span> : isStrongOrder R) : StrongOrder X :=
+  R,,iss.
+<span class="kn">Definition</span> <span class="nf">pr1StrongOrder</span> {<span class="nv">X</span> : UU} : StrongOrder X → hrel X := pr1.
+<span class="kn">Coercion</span>  <span class="nf">pr1StrongOrder</span> : StrongOrder &gt;-&gt; hrel.
+<span class="kn">Definition</span> <span class="nf">pr2StrongOrder</span> {<span class="nv">X</span> : UU} {<span class="nv">R</span> : StrongOrder X} : isStrongOrder R := pr2 R.
+<span class="kn">Coercion</span> <span class="nf">pr2StrongOrder</span> : StrongOrder &gt;-&gt; isStrongOrder.
+
+<span class="kn">Definition</span> <span class="nf">StrongOrder_bck</span> {<span class="nv">X</span> <span class="nv">Y</span> : UU} (<span class="nv">f</span> : Y → X)
+           (<span class="nv">gt</span> : StrongOrder X) : StrongOrder Y :=
+  (fun_hrel_comp f gt) ,, isStrongOrder_bck f _ (pr2 gt).
+
+<span class="kn">Lemma</span> <span class="nf">isStrongOrder_setquot</span> {<span class="nv">X</span> : UU} {<span class="nv">R</span> : eqrel X} {<span class="nv">L</span> : hrel X} (<span class="nv">isc</span> : iscomprelrel R L) :
+  isStrongOrder L → isStrongOrder (quotrel isc).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H.
+  <span class="nb">split</span> ; [ | <span class="nb">split</span>].
+  - <span class="nb">apply</span> istransquotrel, (istrans_isStrongOrder H).
+  - <span class="nb">apply</span> iscotransquotrel, (iscotrans_isStrongOrder H).
+  - <span class="nb">apply</span> isirreflquotrel, (isirrefl_isStrongOrder H).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">StrongOrder_setquot</span> {<span class="nv">X</span> : UU} {<span class="nv">R</span> : eqrel X} {<span class="nv">L</span> : StrongOrder X}
+           (<span class="nv">isc</span> : iscomprelrel R L) : StrongOrder (setquot R) :=
+  quotrel isc,, isStrongOrder_setquot isc (pr2 L).
+
+
+<span class="sd">(** * Reverse orders *)</span>
+<span class="sd">(** or how easily define ge x y := le x y *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hrel_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : hrel X) := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, l y x.
+
+<span class="kn">Lemma</span> <span class="nf">istrans_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : hrel X) :
+  istrans l → istrans (hrel_reverse l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hl x y z Hxy Hyz.
+  <span class="bp">now</span> <span class="nb">apply</span> (Hl z y x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isrefl_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : hrel X) :
+  isrefl l → isrefl (hrel_reverse l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hl x.
+  <span class="bp">now</span> <span class="nb">apply</span> Hl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ispreorder_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : hrel X) :
+  ispreorder l → ispreorder (hrel_reverse l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H.
+  <span class="nb">split</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> istrans_reverse, (pr1 H).
+  <span class="bp">now</span> <span class="nb">apply</span> isrefl_reverse, (pr2 H).
+<span class="kn">Qed</span>.
+<span class="kn">Definition</span> <span class="nf">po_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : po X) :=
+  make_po (hrel_reverse l) (ispreorder_reverse l (pr2 l)).
+<span class="kn">Lemma</span> <span class="nf">po_reverse_correct</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : po X) :
+  ∏ x y : X, po_reverse l x y = l y x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="bp">now</span> <span class="nb">apply</span> paths_refl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">issymm_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : hrel X) :
+  issymm l → issymm (hrel_reverse l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hl x y.
+  <span class="bp">now</span> <span class="nb">apply</span> Hl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iseqrel_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : hrel X) :
+  iseqrel l → iseqrel (hrel_reverse l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H.
+  <span class="nb">split</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> ispreorder_reverse, (pr1 H).
+  <span class="bp">now</span> <span class="nb">apply</span> issymm_reverse, (pr2 H).
+<span class="kn">Qed</span>.
+<span class="kn">Definition</span> <span class="nf">eqrel_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : eqrel X) :=
+  make_eqrel (hrel_reverse l) (iseqrel_reverse l (pr2 l)).
+<span class="kn">Lemma</span> <span class="nf">eqrel_reverse_correct</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : eqrel X) :
+  ∏ x y : X, eqrel_reverse l x y = l y x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="bp">now</span> <span class="nb">apply</span> paths_refl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isirrefl_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : hrel X) :
+  isirrefl l → isirrefl (hrel_reverse l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hl x.
+  <span class="bp">now</span> <span class="nb">apply</span> Hl.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">iscotrans_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : hrel X) :
+  iscotrans l -&gt; iscotrans (hrel_reverse l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hl x y z H.
+  <span class="bp">now</span> <span class="nb">apply</span> islogeqcommhdisj, Hl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isStrongOrder_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : hrel X) :
+  isStrongOrder l → isStrongOrder (hrel_reverse l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">apply</span> istrans_reverse, (istrans_isStrongOrder H).
+  - <span class="nb">apply</span> iscotrans_reverse,(iscotrans_isStrongOrder H).
+  - <span class="nb">apply</span> isirrefl_reverse, (isirrefl_isStrongOrder H).
+<span class="kn">Qed</span>.
+<span class="kn">Definition</span> <span class="nf">StrongOrder_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : StrongOrder X) :=
+  make_StrongOrder (hrel_reverse l) (isStrongOrder_reverse l (pr2 l)).
+<span class="kn">Lemma</span> <span class="nf">StrongOrder_reverse_correct</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : StrongOrder X) :
+  ∏ x y : X, StrongOrder_reverse l x y = l y x.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="bp">now</span> <span class="nb">apply</span> paths_refl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isasymm_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : hrel X) :
+  isasymm l → isasymm (hrel_reverse l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hl x y.
+  <span class="bp">now</span> <span class="nb">apply</span> Hl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iscoasymm_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : hrel X) :
+  iscoasymm l → iscoasymm (hrel_reverse l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hl x y.
+  <span class="bp">now</span> <span class="nb">apply</span> Hl.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">istotal_reverse</span> {<span class="nv">X</span> : UU} (<span class="nv">l</span> : hrel X) :
+  istotal l → istotal (hrel_reverse l).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hl x y.
+  <span class="bp">now</span> <span class="nb">apply</span> Hl.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/MoreFoundations/Orders.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Propositions.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** ** More results on types of ordering *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.Propositions.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Sets.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

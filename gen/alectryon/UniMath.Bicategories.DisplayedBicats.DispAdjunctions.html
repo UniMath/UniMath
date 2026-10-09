@@ -1,0 +1,1028 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DispAdjunctions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(* *********************************************************************************** *)</span>
+<span class="sd">(** * Internal adjunction in displayed bicategories</span>
+
+<span class="sd">    Benedikt Ahrens, Marco Maggesi, Niels van der Weide, Dan Frumin</span>
+<span class="sd">    April 2018                                                                         *)</span>
+<span class="c">(* *********************************************************************************** *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat. <span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat. <span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Export</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispInvertibles.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="sd">(** * Definitions and properties of displayed adjunctions *)</span>
+<span class="kn">Section</span> <span class="nf">Displayed_Internal_Adjunction</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat} {<span class="nv">D</span> : disp_prebicat C}.
+
+<span class="sd">(** ** Displayed left adjoints *)</span>
+<span class="sd">(** *** Data &amp; laws for left adjoints *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_left_adjoint_data</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">αd</span> : left_adjoint_data f)
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+           (<span class="nv">ff</span> : aa --&gt;[f] bb)
+ : UU
+  := ∑ (gg : bb --&gt;[left_adjoint_right_adjoint αd] aa),
+         (id_disp aa ==&gt;[left_adjoint_unit αd] ff ;; gg)
+       × (gg ;; ff ==&gt;[left_adjoint_counit αd] id_disp bb).
+
+<span class="kn">Definition</span> <span class="nf">disp_left_adjoint_right_adjoint</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">αd</span> : left_adjoint_data f)
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+           {<span class="nv">ff</span> : aa --&gt;[f] bb}
+           (<span class="nv">ααd</span> : disp_left_adjoint_data αd ff) :
+  bb --&gt;[left_adjoint_right_adjoint αd] aa := pr1 ααd.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_adjoint_unit</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">αd</span> : left_adjoint_data f)
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+           {<span class="nv">ff</span> : aa --&gt;[f] bb}
+           (<span class="nv">ααd</span> : disp_left_adjoint_data αd ff) :
+  id_disp aa ==&gt;[left_adjoint_unit αd] ff ;; disp_left_adjoint_right_adjoint αd ααd
+  := pr12 ααd.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_adjoint_counit</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">αd</span> : left_adjoint_data f)
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+           {<span class="nv">ff</span> : aa --&gt;[f] bb}
+           (<span class="nv">ααd</span> : disp_left_adjoint_data αd ff) :
+  disp_left_adjoint_right_adjoint αd ααd ;; ff ==&gt;[left_adjoint_counit αd] id_disp bb
+  := pr22 ααd.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_adjoint_axioms</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">j</span> : left_adjoint f)
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+           {<span class="nv">ff</span> : aa --&gt;[f] bb}
+           (<span class="nv">ααd</span> : disp_left_adjoint_data j ff)
+  : UU
+  := <span class="k">let</span> <span class="nv">gg</span> := disp_left_adjoint_right_adjoint j ααd <span class="k">in</span>
+     <span class="k">let</span> <span class="nv">ηη</span> := disp_left_adjoint_unit j ααd <span class="k">in</span>
+     <span class="k">let</span> <span class="nv">εε</span> := disp_left_adjoint_counit j ααd <span class="k">in</span>
+( disp_linvunitor ff •• (ηη ▹▹ ff) •• disp_rassociator _ _ _ ••
+         (ff ◃◃ εε) •• disp_runitor ff =
+         transportb (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) (internal_triangle1 j) (disp_id2 ff) )
+     × ( disp_rinvunitor gg •• (gg ◃◃ ηη) •• disp_lassociator _ _ _ ••
+         (εε ▹▹ gg) •• disp_lunitor gg =
+         transportb (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _) (internal_triangle2 j) (disp_id2 gg) ).
+
+<span class="kn">Definition</span> <span class="nf">disp_internal_triangle1</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">j</span> : left_adjoint f)
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+           {<span class="nv">ff</span> : aa --&gt;[f] bb}
+           {<span class="nv">ααd</span> : disp_left_adjoint_data j ff}
+           (<span class="nv">H</span> : disp_left_adjoint_axioms j ααd)
+  := pr1 H.
+
+<span class="kn">Definition</span> <span class="nf">disp_internal_triangle2</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">j</span> : left_adjoint f)
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+           {<span class="nv">ff</span> : aa --&gt;[f] bb}
+           {<span class="nv">ααd</span> : disp_left_adjoint_data j ff}
+           (<span class="nv">H</span> : disp_left_adjoint_axioms j ααd)
+  := pr2 H.
+
+<span class="kn">Definition</span> <span class="nf">internal_triangle2</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C} {<span class="nv">f</span> : C⟦a,b⟧}
+           {<span class="nv">adj</span> : left_adjoint_data f}
+           (<span class="nv">L</span> : left_adjoint_axioms adj)
+           (<span class="nv">g</span> := left_adjoint_right_adjoint adj)
+  : rinvunitor g • (g ◃ left_adjoint_unit adj) • lassociator _ _ _ • (left_adjoint_counit adj ▹ g) • lunitor g = id2 g
+  := pr2 L.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_adjoint</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           {<span class="nv">f</span> : a --&gt; b}
+           (<span class="nv">α</span> : left_adjoint f)
+           {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+           (<span class="nv">ff</span> : aa --&gt;[f] bb)
+  := ∑ (ααd : disp_left_adjoint_data α ff),
+       disp_left_adjoint_axioms α ααd.
+
+<span class="kn">Coercion</span> <span class="nf">disp_data_of_left_adjoint</span>
+         {a b : C}
+         {f : a --&gt; b}
+         (α : left_adjoint f)
+         {aa : D a} {bb : D b}
+         {ff : aa --&gt;[f] bb}
+         (αα : disp_left_adjoint α ff)
+  : disp_left_adjoint_data α ff
+  := pr1 αα.
+
+<span class="kn">Coercion</span> <span class="nf">disp_axioms_of_left_adjoint</span>
+         {a b : C}
+         {f : a --&gt; b}
+         (α : left_adjoint f)
+         {aa : D a} {bb : D b}
+         {ff : aa --&gt;[f] bb}
+         (αα : disp_left_adjoint α ff)
+  : disp_left_adjoint_axioms α αα
+  := pr2 αα.
+
+<span class="sd">(** *** Laws for equivalences *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_left_equivalence_axioms</span>
+         {<span class="nv">a</span> <span class="nv">b</span> : C}
+         {<span class="nv">f</span> : a --&gt; b}
+         (<span class="nv">αe</span> : left_equivalence f)
+         {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+         {<span class="nv">ff</span> : aa --&gt;[f] bb}
+         (<span class="nv">ααd</span> : disp_left_adjoint_data αe ff)
+  : UU
+  := is_disp_invertible_2cell (left_equivalence_unit_iso _)
+       (disp_left_adjoint_unit αe ααd)
+   × is_disp_invertible_2cell (left_equivalence_counit_iso _)
+   (disp_left_adjoint_counit αe ααd).
+
+<span class="kn">Definition</span> <span class="nf">disp_left_equivalence</span>
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">Hf</span> : left_equivalence f)
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+  : UU
+  := ∑ (d : disp_left_adjoint_data Hf ff),
+     disp_left_equivalence_axioms Hf d.
+
+
+<span class="kn">Definition</span> <span class="nf">disp_left_adjoint_equivalence</span>
+         {<span class="nv">a</span> <span class="nv">b</span> : C}
+         {<span class="nv">f</span> : a --&gt; b}
+         (<span class="nv">αe</span> : left_adjoint_equivalence f)
+         {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+         (<span class="nv">ff</span> : aa --&gt;[f] bb)
+  := ∑ (ααd : disp_left_adjoint_data αe ff),
+       disp_left_adjoint_axioms αe ααd
+     × disp_left_equivalence_axioms αe ααd.
+
+<span class="c">(* the coercion to the adjoint axioms will be induced *)</span>
+<span class="kn">Coercion</span> <span class="nf">disp_left_adjoint_of_left_adjoint_equivalence</span>
+         {a b : C}
+         {f : a --&gt; b}
+         {αe : left_adjoint_equivalence f}
+         {aa : D a} {bb : D b}
+         {ff : aa --&gt;[f] bb}
+         (ααe : disp_left_adjoint_equivalence αe ff)
+  : disp_left_adjoint αe ff := (pr1 ααe,, pr12 ααe).
+
+<span class="kn">Coercion</span> <span class="nf">axioms_of_left_adjoint_equivalence</span>
+         {a b : C}
+         {f : a --&gt; b}
+         {αe : left_adjoint_equivalence f}
+         {aa : D a} {bb : D b}
+         {ff : aa --&gt;[f] bb}
+         (ααe : disp_left_adjoint_equivalence αe ff)
+  : disp_left_equivalence_axioms αe ααe := pr22 ααe.
+
+<span class="sd">(** *** Packaged *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_adjunction</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           (<span class="nv">f</span> : adjunction a b)
+           (<span class="nv">aa</span> : D a) (<span class="nv">bb</span> : D b) : UU
+  := ∑ ff : aa --&gt;[f] bb, disp_left_adjoint f ff.
+
+<span class="kn">Coercion</span> <span class="nf">disp_arrow_of_adjunction</span>
+         {a b : C}
+         {f : adjunction a b}
+         {aa : D a} {bb : D b}
+         (ff : disp_adjunction f aa bb)
+  : aa --&gt;[f] bb
+  := pr1 ff.
+
+<span class="kn">Coercion</span> <span class="nf">disp_left_adjoint_of_adjunction</span>
+         {a b : C}
+         {f : adjunction a b}
+         {aa : D a} {bb : D b}
+         (ff : disp_adjunction f aa bb)
+  : disp_left_adjoint f ff
+  := pr2 ff.
+
+<span class="kn">Definition</span> <span class="nf">disp_adjoint_equivalence</span>
+           {<span class="nv">a</span> <span class="nv">b</span> : C}
+           (<span class="nv">f</span> : adjoint_equivalence a b)
+           (<span class="nv">aa</span> : D a) (<span class="nv">bb</span> : D b) : UU
+  := ∑ ff : aa --&gt;[f] bb, disp_left_adjoint_equivalence f ff.
+
+<span class="kn">Coercion</span> <span class="nf">disp_adjunction_of_adjoint_equivalence</span>
+         {a b : C}
+         {f : adjoint_equivalence a b}
+         {aa : D a} {bb : D b}
+         (ff : disp_adjoint_equivalence f aa bb)
+  : disp_adjunction f aa bb.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (pr1 ff,, _).
+  <span class="nb">apply</span> (disp_left_adjoint_of_left_adjoint_equivalence (pr2 ff)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Coercion</span> <span class="nf">disp_left_adjoint_equivalence_of_adjoint_equivalence</span>
+         {a b : C}
+         {f : adjoint_equivalence a b}
+         {aa : D a} {bb : D b}
+         (ff : disp_adjoint_equivalence f aa bb)
+  : disp_left_adjoint_equivalence f ff
+  := pr2 ff.
+
+<span class="c">(* Definition internal_right_adjoint {a b : C} *)</span>
+<span class="c">(*            (f : adjunction a b) : C⟦b,a⟧ := *)</span>
+<span class="c">(*   left_adjoint_right_adjoint f. *)</span>
+
+<span class="kn">End</span> <span class="nf">Displayed_Internal_Adjunction</span>.
+
+<span class="sd">(** From now on, we need the [has_disp_cellset property]. *)</span>
+
+<span class="sd">(** ** Identity is a displayed adjoint *)</span>
+<span class="c">(* TODO LOL MOVE THIS TO DISPLAYED UNIVALNCE  *)</span>
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Definition</span> <span class="nf">disp_internal_adjunction_data_identity</span>
+           {<span class="nv">C</span> : bicat} {<span class="nv">D</span> : disp_bicat C}
+           {<span class="nv">a</span> : C}
+           (<span class="nv">aa</span> : D a)
+  : disp_left_adjoint_data (internal_adjoint_equivalence_identity a)
+                           (id_disp aa).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">id_disp</span> <span class="nv">_</span> ).
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (disp_linvunitor _ ).
+  - <span class="bp">exact</span> (disp_lunitor _ ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_internal_adjunction_identity</span>
+           {<span class="nv">C</span> : bicat} {<span class="nv">D</span> : disp_bicat C}
+           {<span class="nv">a</span> : C} (<span class="nv">aa</span> : D a)
+  : disp_left_adjoint_axioms
+      (internal_adjoint_equivalence_identity a)
+      (disp_internal_adjunction_data_identity aa).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - etrans.
+    { <span class="nb">apply</span> maponpaths_2.
+      etrans; [<span class="nb">apply</span> disp_vassocl | ].
+      etrans.
+      { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths.
+        etrans; [<span class="nb">apply</span> disp_lunitor_lwhisker | ].
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> disp_runitor_lunitor_identity. }
+      etrans. { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> disp_mor_transportf_prewhisker. }
+      etrans. { <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)). }
+      etrans.
+      { etrans.
+        { <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> disp_rwhisker_transport_left_new. }
+        <span class="nb">cbn</span>.
+        etrans.
+        { <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> disp_mor_transportf_prewhisker. }
+        etrans. { <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)). }
+        etrans.
+        { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> disp_vassocl. }
+        etrans. { <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)). }
+        etrans.
+        { <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths.
+          etrans; [<span class="nb">apply</span> disp_rwhisker_vcomp | ].
+          etrans; [<span class="nb">apply</span> maponpaths, maponpaths, disp_linvunitor_lunitor | ].
+          etrans.
+          { <span class="nb">apply</span> maponpaths.
+            <span class="nb">apply</span> disp_rwhisker_transport_left_new. }
+          etrans. { <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)). }
+          <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> disp_id2_rwhisker.
+        }
+        etrans. { <span class="nb">apply</span> maponpaths, disp_mor_transportf_prewhisker. }
+        etrans; [ <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+        etrans. { <span class="nb">apply</span> maponpaths, disp_mor_transportf_prewhisker. }
+        etrans; [ <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+        <span class="nb">apply</span> maponpaths, disp_id2_right. }
+      <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)).
+    }
+    etrans; [ <span class="nb">apply</span> disp_mor_transportf_postwhisker | ].
+    etrans.
+    { <span class="nb">apply</span> maponpaths.
+      etrans; [ <span class="nb">apply</span> maponpaths, disp_runitor_lunitor_identity | ].
+      etrans; [ <span class="nb">apply</span> disp_mor_transportf_prewhisker | ].
+      <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> disp_linvunitor_lunitor.
+    }
+    etrans; [ <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+    etrans; [ <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cellset_property.
+  - etrans.
+    { <span class="nb">apply</span> maponpaths_2.
+      etrans; [<span class="nb">apply</span> disp_vassocl | ].
+      etrans.
+      { <span class="nb">apply</span> maponpaths, maponpaths.
+        etrans; [ <span class="nb">apply</span> maponpaths, maponpaths, disp_lunitor_runitor_identity | ].
+        etrans; [ <span class="nb">apply</span> maponpaths, disp_rwhisker_transport_left_new | ].
+        etrans; [ <span class="nb">apply</span> disp_mor_transportf_prewhisker | ].
+        <span class="nb">apply</span> maponpaths, disp_runitor_rwhisker. }
+      etrans; [<span class="nb">apply</span> maponpaths, disp_vassocl | ].
+      <span class="nb">apply</span> maponpaths, maponpaths.
+      etrans; [ <span class="nb">apply</span> maponpaths, disp_mor_transportf_prewhisker | ].
+      etrans; [ <span class="nb">apply</span> disp_mor_transportf_prewhisker | ].
+      etrans.
+      { <span class="nb">apply</span> maponpaths, maponpaths.
+        etrans; [ <span class="nb">apply</span> disp_mor_transportf_prewhisker | ].
+        <span class="nb">apply</span> maponpaths, disp_lwhisker_vcomp. }
+      etrans; [ <span class="nb">apply</span> maponpaths, disp_mor_transportf_prewhisker | ].
+      etrans; [ <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+      <span class="nb">apply</span> maponpaths.
+      etrans; [ <span class="nb">apply</span> disp_mor_transportf_prewhisker | ].
+      { <span class="nb">apply</span> maponpaths, maponpaths, maponpaths.
+        <span class="nb">apply</span> disp_linvunitor_lunitor. }
+    }
+    etrans; [ <span class="nb">apply</span> disp_mor_transportf_postwhisker | ].
+    etrans; [ <span class="nb">apply</span> maponpaths, disp_mor_transportf_postwhisker | ].
+    etrans; [ <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+    etrans; [ <span class="nb">apply</span> maponpaths, disp_mor_transportf_postwhisker | ].
+    etrans; [ <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+    etrans; [ <span class="nb">apply</span> maponpaths, disp_mor_transportf_postwhisker | ].
+    etrans; [ <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+    etrans.
+    { <span class="nb">apply</span> maponpaths.
+      etrans; [<span class="nb">apply</span> disp_vassocl | ].
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        etrans.
+        { <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> disp_rwhisker_transport_right. }
+        <span class="nb">cbn</span>.
+        etrans; [ <span class="nb">apply</span> disp_mor_transportf_postwhisker | ].
+        etrans; [ <span class="nb">apply</span> maponpaths, maponpaths_2, disp_lwhisker_id2 | ].
+        etrans; [ <span class="nb">apply</span> maponpaths, disp_mor_transportf_postwhisker | ].
+        etrans; [ <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+        <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> disp_id2_left.
+      }
+      etrans; [ <span class="nb">apply</span> maponpaths, (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+      etrans; [ <span class="nb">apply</span> disp_mor_transportf_prewhisker | ].
+      etrans; [ <span class="nb">apply</span> maponpaths, maponpaths, disp_lunitor_runitor_identity | ].
+      etrans; [ <span class="nb">apply</span> maponpaths, disp_mor_transportf_prewhisker | ].
+      etrans; [ <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+      etrans.
+      { <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> disp_rinvunitor_runitor. }
+      <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)).
+    }
+    etrans; [ <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+    etrans; [ <span class="nb">apply</span> (transport_f_f (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)) | ].
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> transportb.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> cellset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_identity_adjoint_equivalence</span>
+           {<span class="nv">C</span> : bicat} {<span class="nv">D</span> : disp_bicat C}
+           {<span class="nv">a</span> : C} (<span class="nv">aa</span> : D a)
+  : disp_adjoint_equivalence (internal_adjoint_equivalence_identity a) aa aa.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">apply</span> disp_internal_adjunction_data_identity.
+  - <span class="nb">cbn</span>. use tpair.
+    + <span class="nb">apply</span> disp_internal_adjunction_data_identity.
+    + <span class="nb">cbn</span>. <span class="nb">split</span>.
+      { <span class="nb">apply</span> is_disp_internal_adjunction_identity. }
+      {
+        <span class="nb">split</span>.
+        - use tpair.
+          + <span class="nb">apply</span> disp_lunitor.
+          + <span class="nb">split</span>.
+            * <span class="nb">cbn</span>.
+              <span class="nb">refine</span> (disp_linvunitor_lunitor (id_disp aa) @ _).
+              <span class="nb">apply</span> (@transportf_paths _ (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)).
+              <span class="nb">apply</span> C.
+            * <span class="nb">cbn</span>.
+              <span class="nb">refine</span> (disp_lunitor_linvunitor (id_disp aa) @ _).
+              <span class="nb">apply</span> (@transportf_paths _ (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)).
+              <span class="nb">apply</span> C.
+        - use tpair.
+          + <span class="nb">apply</span> disp_linvunitor.
+          + <span class="nb">split</span>.
+            * <span class="nb">cbn</span>.
+              <span class="nb">refine</span> (disp_lunitor_linvunitor (id_disp aa) @ _).
+              <span class="nb">apply</span> (@transportf_paths _ (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)).
+              <span class="nb">apply</span> C.
+            * <span class="nb">cbn</span>.
+              <span class="nb">refine</span> (disp_linvunitor_lunitor (id_disp aa) @ _).
+              <span class="nb">apply</span> (@transportf_paths _ (<span class="k">λ</span> <span class="nv">z</span>, _ ==&gt;[ z ] _)).
+              <span class="nb">apply</span> C. }
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** * Classification of internal adjunctions in the total category *)</span>
+<span class="kn">Section</span> <span class="nf">Total_Internal_Adjunction</span>.
+
+<span class="kn">Context</span> {<span class="nv">B</span> : bicat} {<span class="nv">D</span> : disp_bicat B}.
+<span class="kn">Local Definition</span> <span class="nf">E</span> := total_bicat D.
+
+<span class="sd">(** Equivalences for data *)</span>
+<span class="kn">Local Definition</span> <span class="nf">left_adjoint_data_total_to_base</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb} :
+  @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff) →
+  left_adjoint_data f.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f_d.
+  <span class="nb">set</span> (g' := pr1 f_d).
+  <span class="nb">set</span> (Hdat := pr2 f_d).
+  <span class="nb">set</span> (g := pr1 g').
+  <span class="nb">set</span> (η := pr1 (pr1 Hdat)).
+  <span class="nb">set</span> (ε := pr1 (pr2 Hdat)).
+  <span class="k">exists</span> <span class="nv">g</span>.
+  <span class="bp">exact</span> (η,,ε).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">left_adjoint_data_total_to_fiber</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb} :
+  <span class="k">forall</span> (<span class="nv">j</span> : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)),
+  disp_left_adjoint_data (left_adjoint_data_total_to_base j) ff.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f_d.
+  <span class="nb">set</span> (g' := pr1 f_d).
+  <span class="nb">set</span> (Hdat := pr2 f_d).
+  <span class="nb">set</span> (gg := pr2 g').
+  <span class="nb">set</span> (ηη := pr2 (pr1 Hdat)).
+  <span class="nb">set</span> (εε := pr2 (pr2 Hdat)).
+  <span class="k">exists</span> <span class="nv">gg</span>. <span class="bp">exact</span> (ηη,,εε).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_data_total_to_disp</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      (<span class="nv">ff</span> : aa --&gt;[f] bb) :
+  @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff) →
+  ∑ (α : left_adjoint_data f), disp_left_adjoint_data α ff.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> j.
+  <span class="k">exists</span> (<span class="nv">left_adjoint_data_total_to_base</span> <span class="nv">j</span>).
+  <span class="nb">apply</span> left_adjoint_data_total_to_fiber.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_data_disp_to_total</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      (<span class="nv">ff</span> : aa --&gt;[f] bb) :
+  (∑ (α : left_adjoint_data f), disp_left_adjoint_data α ff) →
+  @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> j'.
+  <span class="nb">pose</span> (j := pr1 j').
+  <span class="nb">pose</span> (jj := pr2 j').
+  <span class="nb">pose</span> (g := left_adjoint_right_adjoint j).
+  <span class="nb">pose</span> (gg := (disp_left_adjoint_right_adjoint _ jj : bb --&gt;[g] aa)).
+  use tpair.
+  - <span class="bp">exact</span> (g,, gg).
+  - <span class="nb">simpl</span>. <span class="c">(* Units/counits *)</span>
+    use tpair.
+    + <span class="c">(* Units *)</span>
+      use tpair; <span class="nb">simpl</span>.
+      * <span class="nb">apply</span> (left_adjoint_unit j).
+      * <span class="nb">apply</span> (disp_left_adjoint_unit _ jj).
+    + <span class="c">(* Counits *)</span>
+      use tpair; <span class="nb">simpl</span>.
+      * <span class="nb">apply</span> (left_adjoint_counit j).
+      * <span class="nb">apply</span> (disp_left_adjoint_counit _ jj).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_data_total_weq</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      (<span class="nv">ff</span> : aa --&gt;[f] bb) :
+  @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff) ≃
+  ∑ (α : left_adjoint_data f), disp_left_adjoint_data α ff.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">left_adjoint_data_total_to_disp</span> <span class="nv">ff</span>).
+  use isweq_iso.
+  - <span class="bp">exact</span> (left_adjoint_data_disp_to_total ff).
+  - <span class="nb">intro</span>. <span class="bp">reflexivity</span>.
+  - <span class="nb">intro</span>. <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The equivalence for adjunction laws *)</span>
+<span class="kn">Definition</span> <span class="nf">left_adjoint_axioms_total_to_base</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      {<span class="nv">td</span> : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)} :
+  left_adjoint_axioms td →
+  left_adjoint_axioms (left_adjoint_data_total_to_base td).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hlaw.
+  use tpair.
+  + <span class="nb">apply</span> (base_paths _ _ (pr1 Hlaw)).
+  + <span class="nb">apply</span> (base_paths _ _ (pr2 Hlaw)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_axioms_total_to_fiber</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      (<span class="nv">td</span> : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff))
+      (<span class="nv">ta</span> : left_adjoint_axioms td) :
+  disp_left_adjoint_axioms
+    (_,, left_adjoint_axioms_total_to_base ta)
+    (left_adjoint_data_total_to_fiber td).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">apply</span> (transportf_transpose_right (P:=<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)).
+    etrans; [| <span class="nb">apply</span> (fiber_paths (pr1 ta)) ].
+    <span class="nb">apply</span> (transportf_transpose_right (P:=<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)).
+    <span class="nb">apply</span> (transportfbinv (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)).
+  - <span class="nb">apply</span> (transportf_transpose_right (P:=<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)).
+    etrans; [| <span class="nb">apply</span> (fiber_paths (pr2 ta)) ].
+    <span class="nb">apply</span> (transportf_transpose_right (P:=<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)).
+    <span class="nb">apply</span> (transportfbinv (<span class="k">λ</span> <span class="nv">x</span>, _ ==&gt;[x] _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_axioms_total_to_disp</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      (<span class="nv">td</span> : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff))
+      (<span class="nv">ta</span> : left_adjoint_axioms td) :
+  ∑ (ba : left_adjoint_axioms _),
+    disp_left_adjoint_axioms
+      (_,, ba)
+      (left_adjoint_data_total_to_fiber td).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">left_adjoint_axioms_total_to_base</span> <span class="nv">ta</span>).
+  <span class="nb">apply</span> left_adjoint_axioms_total_to_fiber.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_axioms_disp_to_total</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      (<span class="nv">td</span> : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)) :
+  (∑ (ba : left_adjoint_axioms _),
+     disp_left_adjoint_axioms
+       (_,, ba)
+       (left_adjoint_data_total_to_fiber td))
+ → left_adjoint_axioms td.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> j'.
+  <span class="nb">pose</span> (j := pr1 j').
+  <span class="nb">pose</span> (jj := pr2 j').
+  <span class="nb">simpl</span>; <span class="nb">split</span>; use total2_paths_b; (<span class="nb">apply</span> j || <span class="nb">apply</span> jj).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_adjoint_axioms_total_weq</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      (<span class="nv">td</span> : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)):
+  left_adjoint_axioms td
+ ≃
+ ∑ (ba : left_adjoint_axioms _),
+  disp_left_adjoint_axioms
+    (_,, ba)
+    (left_adjoint_data_total_to_fiber td).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqimplimpl.
+  - <span class="bp">exact</span> (left_adjoint_axioms_total_to_disp td).
+  - <span class="bp">exact</span> (left_adjoint_axioms_disp_to_total td).
+  - <span class="nb">apply</span> isofhleveltotal2; <span class="kp">try</span> <span class="nb">intro</span>; <span class="nb">apply</span> cellset_property.
+  - <span class="nb">apply</span> isofhleveltotal2.
+    { <span class="nb">apply</span> isofhleveltotal2; <span class="kp">try</span> <span class="nb">intro</span>; <span class="nb">apply</span> cellset_property. }
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isofhleveltotal2; <span class="kp">try</span> <span class="nb">intro</span>; <span class="nb">apply</span> disp_cellset_property.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** The equivalence for equivalence laws *)</span>
+<span class="kn">Definition</span> <span class="nf">left_equivalence_axioms_total_to_base</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      {<span class="nv">td</span> : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)} :
+  left_equivalence_axioms td →
+  left_equivalence_axioms (left_adjoint_data_total_to_base td).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> Hlaw.
+  <span class="nb">pose</span> (Hη := pr1 Hlaw).
+  <span class="nb">pose</span> (Hε := pr2 Hlaw).
+  use tpair.
+  + <span class="nb">apply</span> (is_invertible_total_to_base _ _ Hη).
+  + <span class="nb">apply</span> (is_invertible_total_to_base _ _ Hε).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_equivalence_axioms_total_to_fiber</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      (<span class="nv">td</span> : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff))
+      (<span class="nv">ta</span> : left_equivalence_axioms td) :
+  disp_left_equivalence_axioms
+    (left_adjoint_data_total_to_base td,,
+     left_equivalence_axioms_total_to_base ta)
+    (left_adjoint_data_total_to_fiber td).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (Hη := pr1 ta).
+  <span class="nb">pose</span> (Hε := pr2 ta).
+  <span class="nb">cbn</span> <span class="k">in</span> Hη,Hε.
+  use tpair.
+  - <span class="nb">apply</span> (is_invertible_total_to_fiber _ _ Hη).
+  - <span class="nb">apply</span> (is_invertible_total_to_fiber _ _ Hε).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_equivalence_axioms_total_to_disp</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      (<span class="nv">td</span> : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff))
+      (<span class="nv">ta</span> : left_equivalence_axioms td) :
+  ∑ (ba : left_equivalence_axioms _),
+    disp_left_equivalence_axioms
+      (_,, ba)
+      (left_adjoint_data_total_to_fiber td).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">left_equivalence_axioms_total_to_base</span> <span class="nv">ta</span>).
+  <span class="nb">apply</span> left_equivalence_axioms_total_to_fiber.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_equivalence_axioms_disp_to_total</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      (<span class="nv">td</span> : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)) :
+  (∑ (ba : left_equivalence_axioms _),
+     disp_left_equivalence_axioms
+       (_,, ba)
+       (left_adjoint_data_total_to_fiber td))
+ → left_equivalence_axioms td.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> αe.
+  <span class="nb">pose</span> (ba := pr1 αe).
+  <span class="nb">pose</span> (ta := pr2 αe).
+  <span class="nb">cbn</span> <span class="k">in</span> ba, ta.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> is_invertible_disp_to_total.
+    use tpair.
+    + <span class="nb">apply</span> ba.
+    + <span class="nb">apply</span> ta.
+  - <span class="nb">apply</span> is_invertible_disp_to_total.
+    use tpair.
+    + <span class="nb">apply</span> ba.
+    + <span class="nb">apply</span> ta.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">left_equivalence_axioms_total_weq</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      {<span class="nv">f</span> : a --&gt; b}
+      {<span class="nv">ff</span> : aa --&gt;[f] bb}
+      (<span class="nv">td</span> : @left_adjoint_data E (a,,aa) (b,,bb) (f,,ff)):
+  left_equivalence_axioms td
+ ≃
+ ∑ (ba : left_equivalence_axioms _),
+  disp_left_equivalence_axioms
+    (_,, ba)
+    (left_adjoint_data_total_to_fiber td).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqimplimpl.
+  - <span class="bp">exact</span> (left_equivalence_axioms_total_to_disp td).
+  - <span class="bp">exact</span> (left_equivalence_axioms_disp_to_total td).
+  - <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+  - <span class="nb">apply</span> isofhleveltotal2.
+    { <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> isaprop_is_invertible_2cell. }
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+<span class="kn">Defined</span>.
+
+<span class="sd">(***************************************************)</span>
+<span class="sd">(***************************************************)</span>
+<span class="sd">(***************************************************)</span>
+
+<span class="kn">Lemma</span> <span class="nf">adjunction_total_disp_weq</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      (<span class="nv">aa</span> : D a) (<span class="nv">bb</span> : D b) :
+  @adjunction E (a,,aa) (b,,bb)
+≃ ∑ (f : adjunction a b), disp_adjunction f aa bb.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> adjunction. <span class="nb">cbn</span>.
+  <span class="c">(* First we get out the base left adjoint f *)</span>
+  <span class="nb">eapply</span> weqcomp. {
+    <span class="nb">apply</span> weqinvweq.
+    <span class="nb">apply</span> weqtotal2asstol. }
+  <span class="nb">eapply</span> weqcomp. <span class="mi">2</span>: {
+    <span class="nb">apply</span> weqtotal2asstol. }
+  <span class="nb">eapply</span> weqfibtototal. <span class="nb">intros</span> f.
+
+  <span class="c">(* Getting rid of the displayed arrow ff *)</span>
+  <span class="nb">unfold</span> disp_adjunction. <span class="nb">cbn</span>.
+  <span class="nb">eapply</span> weqcomp. <span class="mi">2</span>: {
+    <span class="nb">apply</span> weqtotal2comm. }
+  <span class="nb">eapply</span> weqfibtototal. <span class="nb">intros</span> ff.
+
+  <span class="nb">unfold</span> left_adjoint.
+
+  <span class="c">(* Apply the equivalence for data &amp; laws *)</span>
+  <span class="nb">eapply</span> weqcomp. {
+    <span class="nb">pose</span> (Q:=<span class="k">λ</span> (<span class="nv">w</span> : (∑ αd, disp_left_adjoint_data αd ff)),
+                    (∑ l, disp_left_adjoint_axioms (pr1 w,,l) (pr2 w))).
+    <span class="nb">eapply</span> (weqbandf (left_adjoint_data_total_weq ff) _ Q).
+    <span class="nb">intros</span> td. <span class="nb">unfold</span> Q; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> left_adjoint_axioms_total_weq. }
+  <span class="nb">cbn</span>.
+
+  <span class="c">(* Move the quantifiers around *)</span>
+  <span class="nb">eapply</span> weqcomp. {
+    <span class="nb">apply</span> weqinvweq.
+    <span class="nb">apply</span> weqtotal2asstol. }
+  <span class="nb">cbn</span>.
+  <span class="nb">eapply</span> weqcomp. <span class="mi">2</span>: {
+    <span class="nb">apply</span> weqtotal2asstol. }
+  <span class="nb">cbn</span>.
+  <span class="nb">eapply</span> weqfibtototal. <span class="nb">intros</span> αd.
+  <span class="nb">eapply</span> weqcomp. {
+    <span class="nb">apply</span> weqtotal2comm. }
+  <span class="nb">cbn</span>.
+  <span class="nb">apply</span> idweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">left_adjoint_equivalence_total_disp_weq</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      {<span class="nv">aa</span> : D a} {<span class="nv">bb</span> : D b}
+      (<span class="nv">f</span> : a --&gt; b)
+      (<span class="nv">ff</span> : aa --&gt;[f] bb) :
+  @left_adjoint_equivalence E (a,,aa) (b,,bb) (f,,ff)
+≃ ∑ (αe : left_adjoint_equivalence f),
+  disp_left_adjoint_equivalence αe ff.
+<span class="kn">Proof</span>.
+  <span class="c">(* Factor this out *)</span>
+  <span class="c">(* left adjoint equivalences part *)</span>
+  <span class="nb">unfold</span> left_adjoint_equivalence.
+  <span class="nb">cbn</span>.
+  <span class="c">(* Apply the equivalence for data &amp; laws *)</span>
+  <span class="nb">eapply</span> weqcomp. {
+    <span class="nb">pose</span> (Q:=
+      <span class="k">λ</span> (<span class="nv">w</span> : (∑ αd, disp_left_adjoint_data αd ff)),
+        (∑ l, disp_left_adjoint_axioms (pr1 w,,l) (pr2 w))
+      × (∑ l, disp_left_equivalence_axioms (pr1 w,,l) (pr2 w))).
+    <span class="nb">eapply</span> (weqbandf (left_adjoint_data_total_weq ff) _ Q).
+    <span class="nb">intros</span> td. <span class="nb">unfold</span> Q; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> weqdirprodf.
+    - <span class="nb">apply</span> left_adjoint_axioms_total_weq.
+    - <span class="nb">apply</span> left_equivalence_axioms_total_weq. }
+  <span class="nb">cbn</span>.
+  <span class="c">(* TIME TO REARANGE THE QUANTIFIERS OwO *)</span>
+  <span class="nb">cbn</span>.
+  <span class="c">(* Getting rid of the left adjoint data for the base *)</span>
+  <span class="nb">eapply</span> weqcomp. {
+    <span class="nb">apply</span> weqinvweq.
+    <span class="nb">apply</span> weqtotal2asstol. }
+  <span class="nb">cbn</span>.
+  <span class="nb">eapply</span> weqcomp. <span class="mi">2</span>: {
+    <span class="nb">apply</span> weqtotal2asstol. }
+  <span class="nb">cbn</span>.
+  <span class="nb">eapply</span> weqfibtototal. <span class="nb">intros</span> αd.
+
+  <span class="c">(* Getting rid of the displayed left adjoint data *)</span>
+  <span class="nb">unfold</span> disp_left_adjoint_equivalence.
+  <span class="nb">cbn</span>.
+  <span class="nb">eapply</span> weqcomp. <span class="mi">2</span>: {
+    <span class="nb">apply</span> weqtotal2comm. }
+  <span class="nb">cbn</span>.
+  <span class="nb">eapply</span> weqfibtototal. <span class="nb">intros</span> ααd.
+  <span class="nb">cbn</span>.
+
+  <span class="c">(* now to distribute the ∑s *)</span>
+  <span class="nb">eapply</span> weqcomp. <span class="mi">2</span>: {
+    <span class="nb">apply</span> weqtotal2asstol. }
+  <span class="nb">cbn</span>.
+  <span class="nb">eapply</span> weqcomp. {
+    <span class="nb">apply</span> weqinvweq.
+    <span class="nb">apply</span> weqtotal2asstol. }
+  <span class="nb">cbn</span>.
+  <span class="nb">eapply</span> weqfibtototal. <span class="nb">intros</span> αa.
+  <span class="nb">cbn</span>.
+  <span class="nb">eapply</span> weqcomp. {
+    <span class="nb">apply</span> weqtotal2comm. }
+  <span class="nb">apply</span> idweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">adjoint_equivalence_total_disp_weq</span>
+      {<span class="nv">a</span> <span class="nv">b</span> : B}
+      (<span class="nv">aa</span> : D a) (<span class="nv">bb</span> : D b) :
+  @adjoint_equivalence E (a,,aa) (b,,bb)
+≃ ∑ (f : adjoint_equivalence a b), disp_adjoint_equivalence f aa bb.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> adjoint_equivalence, disp_adjoint_equivalence. <span class="nb">cbn</span>.
+  <span class="c">(* First we get out the base left adjoint f *)</span>
+  <span class="nb">eapply</span> weqcomp. {
+    <span class="nb">apply</span> weqinvweq.
+    <span class="nb">apply</span> weqtotal2asstol. }
+  <span class="nb">eapply</span> weqcomp. <span class="mi">2</span>: {
+    <span class="nb">apply</span> weqtotal2asstol. }
+  <span class="nb">eapply</span> weqfibtototal. <span class="nb">intros</span> f.
+
+  <span class="c">(* Getting rid of the displayed arrow ff *)</span>
+  <span class="nb">cbn</span>.
+  <span class="nb">eapply</span> weqcomp. <span class="mi">2</span>: {
+    <span class="nb">apply</span> weqtotal2comm. }
+  <span class="nb">eapply</span> weqfibtototal. <span class="nb">intros</span> ff.
+
+  <span class="nb">apply</span> left_adjoint_equivalence_total_disp_weq.
+<span class="kn">Defined</span>.
+
+
+<span class="c">(* TODO. DF: MOVE TO A SANER PLACE, merge with transportf_subtypePath' *)</span>
+<span class="c">(* Definition transportf_subtypePath'_QUALITY *)</span>
+<span class="c">(*            {A : UU} *)</span>
+<span class="c">(*            {P : A → UU} *)</span>
+<span class="c">(*            (Pprop : ∏ (a : A), isaprop (P a)) *)</span>
+<span class="c">(*            {C : total2 P → UU} *)</span>
+<span class="c">(*            (x : A) (P₁ P₂ : P x) *)</span>
+<span class="c">(*            (y : C (x,,P₁)) : *)</span>
+<span class="c">(*   transportf (λ (z : total2 P), C z) *)</span>
+<span class="c">(*              (@subtypePath' _ _ (x,,P₁) (x,,P₂) (idpath x) (Pprop x)) *)</span>
+<span class="c">(*              y *)</span>
+<span class="c">(*   = transportf (λ (p : P x), C (x,, p)) (pr1 (Pprop x P₁ P₂)) y. *)</span>
+<span class="c">(* Proof. *)</span>
+<span class="c">(*   cbn. *)</span>
+<span class="c">(*   induction (Pprop x P₁ P₂) as [p q]. *)</span>
+<span class="c">(*   induction p. *)</span>
+<span class="c">(*   reflexivity. *)</span>
+<span class="c">(* Defined. *)</span>
+
+<span class="kn">End</span> <span class="nf">Total_Internal_Adjunction</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_equivalence_to_total</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> : x --&gt; y}
+           {<span class="nv">Hf</span> : left_equivalence f}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           (<span class="nv">Hff</span> : disp_left_equivalence Hf ff)
+  : @left_equivalence (total_bicat D) (x ,, xx) (y ,, yy) (f ,, ff).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (left_adjoint_data_disp_to_total ff (pr1 Hf ,, pr1 Hff)).
+  - use (left_equivalence_axioms_disp_to_total _ (_ ,, _)).
+    + <span class="bp">exact</span> (pr2 Hf).
+    + <span class="bp">exact</span> (pr2 Hff).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_equivalence_to_left_adjoint_equivalence</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> : x --&gt; y}
+           {<span class="nv">Hf</span> : left_equivalence f}
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           {<span class="nv">ff</span> : xx --&gt;[ f ] yy}
+           (<span class="nv">Hff</span> : disp_left_equivalence Hf ff)
+  : ∑ (Hf' : left_adjoint_equivalence f),
+    disp_left_adjoint_equivalence Hf' ff
+  := left_adjoint_equivalence_total_disp_weq
+       f ff
+       (pr2 (equiv_to_adjequiv _ (disp_left_equivalence_to_total Hff))).
+
+<span class="kn">Definition</span> <span class="nf">disp_left_equivalence_to_left_adjoint_equivalence_over_id</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">HB</span> : is_univalent_2_1 B)
+           {<span class="nv">x</span> : B}
+           {<span class="nv">xx</span> <span class="nv">yy</span> : D x}
+           {<span class="nv">ff</span> : xx --&gt;[ id₁ x ] yy}
+           (<span class="nv">Hff</span> : disp_left_equivalence (internal_adjoint_equivalence_identity _) ff)
+  : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity _) ff.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (transportf
+            (<span class="k">λ</span> <span class="nv">z</span>, disp_left_adjoint_equivalence z ff)
+            _
+            (pr2 (disp_left_equivalence_to_left_adjoint_equivalence Hff))).
+  <span class="nb">apply</span> (isaprop_left_adjoint_equivalence _ HB).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Convenient builders for displayed adjoint equivalences *)</span>
+<span class="kn">Definition</span> <span class="nf">make_disp_adjequiv_prop_grpd</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">HD₁</span> : disp_2cells_isaprop D)
+           (<span class="nv">HD₂</span> : disp_locally_groupoid D)
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">Hf</span> : left_adjoint_equivalence f)
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+           (<span class="nv">gg</span> : yy --&gt;[ left_adjoint_right_adjoint Hf ] xx)
+           (<span class="nv">ηη</span> : id_disp xx ==&gt;[ left_adjoint_unit Hf ] ff ;; gg)
+           (<span class="nv">εε</span> : gg ;; ff ==&gt;[ left_adjoint_counit Hf ] id_disp yy)
+  : disp_left_adjoint_equivalence Hf ff.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> ((_ ,, _ ,, _) ,, _ ,, _).
+  - <span class="bp">exact</span> gg.
+  - <span class="bp">exact</span> ηη.
+  - <span class="bp">exact</span> εε.
+  - <span class="kp">abstract</span>
+      (<span class="nb">split</span> ; <span class="nb">apply</span> HD₁).
+  - <span class="kp">abstract</span>
+      (<span class="nb">split</span> ; <span class="nb">apply</span> HD₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_disp_adjequiv_contr</span>
+           {<span class="nv">B</span> : bicat}
+           {<span class="nv">D</span> : disp_bicat B}
+           (<span class="nv">HD</span> : disp_2cells_iscontr D)
+           {<span class="nv">x</span> <span class="nv">y</span> : B}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">Hf</span> : left_adjoint_equivalence f)
+           {<span class="nv">xx</span> : D x}
+           {<span class="nv">yy</span> : D y}
+           (<span class="nv">ff</span> : xx --&gt;[ f ] yy)
+           (<span class="nv">gg</span> : yy --&gt;[ left_adjoint_right_adjoint Hf ] xx)
+  : disp_left_adjoint_equivalence Hf ff.
+<span class="kn">Proof</span>.
+  use make_disp_adjequiv_prop_grpd.
+  - <span class="bp">exact</span> (disp_2cells_isaprop_from_disp_2cells_iscontr _ HD).
+  - <span class="bp">exact</span> (disp_2cells_isgroupoid_from_disp_2cells_iscontr _ HD).
+  - <span class="bp">exact</span> gg.
+  - <span class="nb">apply</span> HD.
+  - <span class="nb">apply</span> HD.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/DispAdjunctions.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     April 2018                                                                         *)
+  &gt; (* *********************************************************************************** *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

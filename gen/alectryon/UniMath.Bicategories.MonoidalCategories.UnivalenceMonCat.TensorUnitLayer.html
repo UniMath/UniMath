@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>TensorUnitLayer.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">This is the third of a sequence of files with the purpose of showing that the bicategory of univalent monoidal categories is again univalent.</span>
+<span class="c">In this file we construct the total category of the (direct) product of the unit and tensor layer. This finishes the first layer.</span>
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.TensorLayer.
+<span class="kn">Require Import</span> UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.UnitLayer.
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="kn">Section</span> <span class="nf">TensorUnitLayer</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_tensor_unit</span> : disp_bicat _
+    := disp_dirprod_bicat bidisp_tensor_disp_bicat bidisp_unit_disp_bicat.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_tensorunit_is_disp_univalent_2</span> : disp_univalent_2 bidisp_tensor_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_2_dirprod_bicat.
+    - <span class="nb">apply</span> univalent_cat_is_univalent_2.
+    - <span class="nb">apply</span> bidisp_tensor_disp_prebicat_is_univalent_2.
+    - <span class="nb">apply</span> bidisp_unit_disp_prebicat_is_univalent_2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_tensor_unit_total</span> : bicat := total_bicat bidisp_tensor_unit.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_tensorunit_is_univalent_2</span>: is_univalent_2 bidisp_tensor_unit_total.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> is_univalent_2_total_dirprod.
+    - <span class="nb">apply</span> univalent_cat_is_univalent_2.
+    - <span class="nb">apply</span> bidisp_tensor_disp_prebicat_is_univalent_2.
+    - <span class="nb">apply</span> bidisp_unit_disp_prebicat_is_univalent_2.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_tensorunit_univalentcat</span> (<span class="nv">C</span> : bidisp_tensor_unit_total) : univalent_category
+    := pr1 C.
+
+  <span class="kn">Definition</span> <span class="nf">tensorunit_unit</span> (<span class="nv">C</span> : bidisp_tensor_unit_total) : (pr1 C : univalent_category) := pr22 C.
+
+  <span class="kn">Definition</span> <span class="nf">tensorunit_tensor</span> (<span class="nv">C</span> : bidisp_tensor_unit_total) : tensor (pr1 C : univalent_category) := pr12 C.
+
+  <span class="kn">Definition</span> <span class="nf">tensorunit_preserves_unit</span> {<span class="nv">C</span> <span class="nv">D</span> : bidisp_tensor_unit_total}
+             (<span class="nv">F</span> : bidisp_tensor_unit_total⟦C, D⟧)
+    : (pr1 D : univalent_category)⟦
+          tensorunit_unit D,
+          (pr1 F : functor
+                     (pr1 C : univalent_category)
+                     (pr1 D : univalent_category)) (tensorunit_unit C)
+        ⟧ := pr22 F.
+
+  <span class="kn">Definition</span> <span class="nf">tensorunit_preserves_tensor_data</span> {<span class="nv">C</span> <span class="nv">D</span> : bidisp_tensor_unit_total}
+             (<span class="nv">F</span> : bidisp_tensor_unit_total⟦C, D⟧)
+    : preserves_tensor_data _ _ (pr1 F : functor _ _) := pr112 F.
+
+  <span class="kn">Definition</span> <span class="nf">equality_tensor_unit_with_layer</span> (<span class="nv">C</span> : bicat_of_univ_cats) :
+    bidisp_tensor_unit C = tensor_unit (C : univalent_category).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equality_functor_tensor_unit_with_layer</span>
+             (<span class="nv">C</span> <span class="nv">D</span> : bicat_of_univ_cats) (<span class="nv">F</span> : bicat_of_univ_cats⟦C,D⟧)
+             (<span class="nv">tuC</span> : bidisp_tensor_unit C)
+             (<span class="nv">tuD</span> : bidisp_tensor_unit D)
+    : tuC --&gt;[F] tuD = functor_tensor_unit tuC tuD F.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">tu_cat</span> := bidisp_tensor_unit_total.
+  <span class="kn">Definition</span> <span class="nf">uc</span> (<span class="nv">C</span> : tu_cat) : univalent_category := pr1 C.
+  <span class="kn">Definition</span> <span class="nf">tu</span> (<span class="nv">C</span> : tu_cat) : tensor_unit (uc C) := pr2 C.
+  <span class="kn">Definition</span> <span class="nf">fuc</span> {<span class="nv">C</span> <span class="nv">D</span> : tu_cat} (<span class="nv">F</span> : tu_cat⟦C,D⟧) : functor (uc C) (uc D) := pr1 F.
+  <span class="kn">Definition</span> <span class="nf">ftu</span> {<span class="nv">C</span> <span class="nv">D</span> : tu_cat} (<span class="nv">F</span> : tu_cat⟦C,D⟧) : functor_tensor_unit (tu C) (tu D) (fuc F)
+    := pr2 F.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_tensorunit_disp_2cells_isaprop</span> : disp_2cells_isaprop bidisp_tensor_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_2cells_isaprop_prod.
+    - <span class="nb">apply</span> bidisp_tensor_disp_2cells_isaprop.
+    - <span class="nb">apply</span> bidisp_unit_disp_2cells_isaprop.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bidisp_tensorunit_disp_locally_groupoid</span> : disp_locally_groupoid bidisp_tensor_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> disp_locally_groupoid_prod.
+    - <span class="nb">apply</span> bidisp_tensor_disp_locally_groupoid.
+    - <span class="nb">apply</span> bidisp_unit_disp_locally_groupoid.
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">TensorUnitLayer</span>.
+
+<span class="kn">Module</span> <span class="nf">TensorUnitNotations</span>.
+  <span class="kn">Notation</span> <span class="s2">"I_{ C }"</span> := (tensorunit_unit C).
+  <span class="kn">Notation</span> <span class="s2">"T_{ C }"</span> := (tensorunit_tensor C).
+  <span class="kn">Notation</span> <span class="s2">"pu_{ F }"</span> := (tensorunit_preserves_unit F).
+  <span class="kn">Notation</span> <span class="s2">"pt_{ F }"</span> := (tensorunit_preserves_tensor_data F).
+  <span class="kn">Notation</span> <span class="s2">"x ⊗_{ C } y"</span> := (tensor_on_ob T_{C} x y) (<span class="kn">at level</span> <span class="mi">31</span>).
+  <span class="kn">Notation</span> <span class="s2">"f ⊗^{ C } g"</span> := (tensor_on_hom T_{C} _ _ _ _ f g) (<span class="kn">at level</span> <span class="mi">31</span>).
+
+<span class="kn">End</span> <span class="nf">TensorUnitNotations</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/UnivalenceMonCat/TensorUnitLayer.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Bicategories/MonoidalCategories/UnivalenceMonCat/CurriedMonoidalCategories.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; In this file we construct the total category of the (direct) product of the unit and tensor layer. This finishes the first layer.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.CurriedMonoidalCategories.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.TensorLayer.
+  &gt; Require Import UniMath.Bicategories.MonoidalCategories.UnivalenceMonCat.UnitLayer.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

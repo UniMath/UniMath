@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoCodFunctor.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************************</span>
+
+<span class="sd"> Functors between displayed categories of monomorphisms</span>
+
+<span class="sd"> Every functor that preserves monomorphisms gives rise to a displayed functor between</span>
+<span class="sd"> the displayed categories of mononomorphisms. We also show that this displayed functor</span>
+<span class="sd"> is a weak equivalence if the original functor is one.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Displayed functor between displayed categories of monomorphisms</span>
+<span class="sd"> 2. Conditions for which this functor is a weak equivalence</span>
+<span class="sd"> 3. Properties of the fiber functor</span>
+
+<span class="sd"> ***************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.MonoCodomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.MonoCodomain.FiberMonoCod.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">MonoCodomainFunctor</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          (<span class="nv">F</span> : C₁ ⟶ C₂)
+          (<span class="nv">HF</span> : ∏ (x y : C₁) (f : x --&gt; y), isMonic f → isMonic (#F f)).
+
+  <span class="sd">(** * 1. Displayed functor between displayed categories of monomorphisms *)</span>
+  <span class="kn">Definition</span> <span class="nf">disp_mono_codomain_functor_data</span>
+    : disp_functor_data F (disp_mono_codomain C₁) (disp_mono_codomain C₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">gy</span>, make_mono_cod_fib_ob (make_Monic _ (#F (mono_cod_mor gy)) _)).
+      <span class="kp">abstract</span>
+        (<span class="nb">apply</span> HF ;
+         <span class="nb">apply</span> MonicisMonic).
+    - <span class="nb">simple refine</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">gy₁</span> <span class="nv">gy₂</span> <span class="nv">f</span> <span class="nv">p</span>, (#F (pr11 p) ,, _) ,, tt).
+      <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> &lt;- !functor_comp ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (pr21 p)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_mono_codomain_functor</span>
+    : disp_functor F (disp_mono_codomain C₁) (disp_mono_codomain C₂).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_mono_codomain_functor_data.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Conditions for which this functor is a weak equivalence *)</span>
+  <span class="kn">Proposition</span> <span class="nf">disp_mono_codomain_functor_ess_surj</span>
+              (<span class="nv">HF'</span> : essentially_surjective F)
+              (<span class="nv">HF''</span> : fully_faithful F)
+    : disp_functor_disp_ess_surj disp_mono_codomain_functor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x gy.
+    <span class="nb">pose proof</span> (HF' (mono_cod_dom gy)) <span class="k">as</span> H.
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> z.
+    <span class="nb">induction</span> z <span class="k">as</span> [ z f ].
+    <span class="nb">simple refine</span> (hinhpr (_ ,, _)).
+    - use make_mono_cod_fib_ob.
+      + <span class="bp">exact</span> z.
+      + use make_Monic.
+        * <span class="bp">exact</span> (fully_faithful_inv_hom HF'' z x (f · mono_cod_mor gy)).
+        * <span class="kp">abstract</span>
+            (<span class="nb">intros</span> w g h p ;
+             use (invmaponpathsweq (make_weq _ (HF'' w z))) ; <span class="nb">cbn</span> ;
+             use (cancel_z_iso _ _ f) ;
+             use (MonicisMonic _ (mono_cod_mor gy)) ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, #F z) p) <span class="k">as</span> q ;
+             <span class="nb">cbn</span> -[fully_faithful_inv_hom] <span class="k">in</span> q ;
+             <span class="nb">rewrite</span> !functor_comp <span class="k">in</span> q ;
+             <span class="nb">refine</span> (!_ @ q @ _) ;
+             <span class="nb">apply</span> maponpaths ;
+             <span class="nb">apply</span> (homotweqinvweq (make_weq _ (HF'' z x)))).
+    - <span class="nb">simple refine</span> ((_ ,, tt) ,, _).
+      + <span class="nb">refine</span> (pr1 f ,, _).
+        <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> id_right ;
+           <span class="nb">refine</span> (!_) ;
+           <span class="nb">apply</span> (homotweqinvweq (make_weq _ (HF'' z x)))).
+      + use is_z_iso_disp_mono_codomain'.
+        <span class="nb">apply</span> f.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_mono_codomain_functor_ff</span>
+              (<span class="nv">HF'</span> : fully_faithful F)
+    : disp_functor_ff disp_mono_codomain_functor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ gy₁ gy₂ f.
+    use isweqimplimpl.
+    - <span class="nb">intros</span> ff.
+      <span class="nb">simple refine</span> ((_ ,, _) ,, tt).
+      + <span class="bp">exact</span> (fully_faithful_inv_hom HF' _ _ (pr11 ff)).
+      + use (invmaponpathsweq (make_weq _ (HF' _ _))).
+        <span class="nb">cbn</span> -[fully_faithful_inv_hom].
+        <span class="nb">rewrite</span> !functor_comp.
+        <span class="nb">refine</span> (_ @ pr21 ff).
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (homotweqinvweq (make_weq _ (HF' _ _))).
+    - <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+    - <span class="nb">apply</span> locally_propositional_mono_cod_disp_cat.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** * 3. Properties of the fiber functor *)</span>
+  <span class="kn">Proposition</span> <span class="nf">disp_mono_codomain_fiber_functor_essentially_surjective</span>
+              (<span class="nv">HF'</span> : essentially_surjective F)
+              (<span class="nv">HF''</span> : fully_faithful F)
+              (<span class="nv">x</span> : C₁)
+    : essentially_surjective (fiber_functor disp_mono_codomain_functor x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (fiber_functor_essentially_surjective
+             _
+             (disp_mono_codomain_functor_ess_surj HF' HF'')
+             x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">disp_mono_codomain_fiber_functor_ff</span>
+              (<span class="nv">HF'</span> : fully_faithful F)
+              (<span class="nv">x</span> : C₁)
+    : fully_faithful (fiber_functor disp_mono_codomain_functor x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (fiber_functor_ff _ (disp_mono_codomain_functor_ff HF') x).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">MonoCodomainFunctor</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/MonoCodomain/MonoCodFunctor.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Properties of the fiber functor
+  &gt;
+  &gt;  ***************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

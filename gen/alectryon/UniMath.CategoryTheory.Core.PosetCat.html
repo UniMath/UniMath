@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>PosetCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************************************</span>
+
+<span class="sd"> Posetal categories</span>
+
+<span class="sd"> Posetal categories, also known as thin categories, are univalent categories for which</span>
+<span class="sd"> there is at most one morphism between every two objects. Equivalently, one could say that</span>
+<span class="sd"> a posetal category is a univalent category for which every hom set `x --&gt; y` is a homotopy</span>
+<span class="sd"> proposition.</span>
+
+<span class="sd"> The type of posetal categories is equivalent to the type of posets. For this reason, one</span>
+<span class="sd"> might wonder why one would look at this notion: after all, why not just use posets? Well,</span>
+<span class="sd"> it depends on the situation. By using posetal categories, one can very directly reuse all</span>
+<span class="sd"> of the infrastructure that has been developed for categories. This allows one to very</span>
+<span class="sd"> concisely define more advanced notions such as quantales: a quantale is a symmetric closed</span>
+<span class="sd"> monoidal category that is both complete and cocomplete and also a posetal category. With</span>
+<span class="sd"> that definition in place, we can also reuse everything that has been developed for enriched</span>
+<span class="sd"> categories, and we obtain the notion of a quantale-enriched set. We can also reuse everything</span>
+<span class="sd"> that has been developed about enriched profunctors and so on.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Posetal categories</span>
+<span class="sd"> 2. Every posetal category is a poset</span>
+<span class="sd"> 3. Every poset is a posetal category</span>
+<span class="sd"> 4. Equivalence between posetal categories and posets</span>
+
+<span class="sd"> *****************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.CategoryEquality.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Posetal categories *)</span>
+<span class="kn">Definition</span> <span class="nf">is_poset_category</span>
+           (<span class="nv">C</span> : univalent_category)
+  : UU
+  := ∏ (x y : C), isaprop (x --&gt; y).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_poset_category</span>
+            (<span class="nv">C</span> : univalent_category)
+  : isaprop (is_poset_category C).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isapropisaprop.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">poset_category</span>
+  : UU
+  := ∑ (C : univalent_category), is_poset_category C.
+
+<span class="kn">Definition</span> <span class="nf">make_poset_category</span>
+           (<span class="nv">C</span> : univalent_category)
+           (<span class="nv">HC</span> : is_poset_category C)
+  : poset_category
+  := C ,, HC.
+
+<span class="kn">Coercion</span> <span class="nf">poset_category_to_category</span>
+         (C : poset_category)
+  : univalent_category
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">is_poset_poset_category</span>
+           (<span class="nv">C</span> : poset_category)
+  : is_poset_category C
+  := pr2 C.
+
+<span class="kn">Definition</span> <span class="nf">isaset_ob_poset</span>
+           (<span class="nv">C</span> : poset_category)
+  : isaset C.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  use (isofhlevelweqb <span class="mi">1</span> (make_weq _ (univalent_category_is_univalent C x y))).
+  use isaproptotal2.
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_z_isomorphism.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> is_poset_poset_category.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">z_iso_poset_category</span>
+           {<span class="nv">C</span> : poset_category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">g</span> : y --&gt; x)
+  : z_iso x y.
+<span class="kn">Proof</span>.
+  use make_z_iso.
+  - <span class="bp">exact</span> f.
+  - <span class="bp">exact</span> g.
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> is_poset_poset_category.
+    + <span class="nb">apply</span> is_poset_poset_category.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ob_eq_poset_category</span>
+           {<span class="nv">C</span> : poset_category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+           (<span class="nv">g</span> : y --&gt; x)
+  : x = y.
+<span class="kn">Proof</span>.
+  use (isotoid C (univalent_category_is_univalent C)).
+  <span class="bp">exact</span> (z_iso_poset_category f g).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. Every posetal category is a poset *)</span>
+<span class="kn">Definition</span> <span class="nf">poset_category_to_poset</span>
+           (<span class="nv">C</span> : poset_category)
+  : Poset.
+<span class="kn">Proof</span>.
+  use make_Poset.
+  - use make_hSet.
+    + <span class="bp">exact</span> C.
+    + <span class="bp">exact</span> (isaset_ob_poset C).
+  - use make_PartialOrder.
+    + <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, make_hProp (x --&gt; y) _).
+      <span class="nb">apply</span> is_poset_poset_category.
+    + <span class="kp">repeat</span> <span class="nb">split</span>.
+      * <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+           <span class="bp">exact</span> (f · g)).
+      * <span class="kp">abstract</span>
+          (<span class="nb">intro</span> x ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+           <span class="nb">apply</span> identity).
+      * <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x y f g ; <span class="nb">cbn</span> <span class="k">in</span> * ;
+           <span class="bp">exact</span> (ob_eq_poset_category f g)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Every poset is a posetal category *)</span>
+<span class="kn">Section</span> <span class="nf">ToPosetCategory</span>.
+  <span class="kn">Context</span> (<span class="nv">P</span> : Poset).
+
+  <span class="kn">Definition</span> <span class="nf">poset_to_precategory_data</span>
+    : precategory_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - use make_precategory_ob_mor.
+      + <span class="bp">exact</span> P.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, x ≤ y)%poset.
+    - use isrefl_posetRelation.
+    - use istrans_posetRelation.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">poset_to_precategory</span>
+    : precategory.
+  <span class="kn">Proof</span>.
+    use make_precategory.
+    - <span class="bp">exact</span> poset_to_precategory_data.
+    - <span class="kp">abstract</span> (<span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> propproperty).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">poset_to_category</span>
+    : category.
+  <span class="kn">Proof</span>.
+    use make_category.
+    - <span class="bp">exact</span> poset_to_precategory.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> x y ;
+         <span class="nb">apply</span> isasetaprop ;
+         <span class="nb">apply</span> propproperty).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_univalent_poset_to_category</span>
+    : is_univalent poset_to_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    use isweqimplimpl.
+    - <span class="nb">intro</span> f.
+      use isantisymm_posetRelation.
+      + <span class="nb">apply</span> f.
+      + <span class="bp">exact</span> (inv_from_z_iso f).
+    - <span class="nb">apply</span> setproperty.
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_z_isomorphism.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">poset_to_univalent_category</span>
+    : univalent_category.
+  <span class="kn">Proof</span>.
+    use make_univalent_category.
+    - <span class="bp">exact</span> poset_to_category.
+    - <span class="bp">exact</span> is_univalent_poset_to_category.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">poset_to_poset_category</span>
+    : poset_category.
+  <span class="kn">Proof</span>.
+    use make_poset_category.
+    - <span class="bp">exact</span> poset_to_univalent_category.
+    - <span class="nb">intros</span> x y.
+      <span class="nb">apply</span> propproperty.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ToPosetCategory</span>.
+
+<span class="kn">Definition</span> <span class="nf">hProp_category</span>
+  : poset_category.
+<span class="kn">Proof</span>.
+  use poset_to_poset_category.
+  use make_Poset.
+  - <span class="bp">exact</span> hPropset.
+  - use make_PartialOrder.
+    + <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">P</span> <span class="nv">Q</span> : hProp), P ⇒ Q)%logic.
+    + <span class="kp">repeat</span> <span class="nb">split</span>.
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">P₁</span> <span class="nv">P₂</span> <span class="nv">P₃</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">x</span>, g(f x)).
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">P</span> <span class="nv">x</span>, x).
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">P₁</span> <span class="nv">P₂</span> <span class="nv">f</span> <span class="nv">g</span>, hPropUnivalence _ _ f g).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. Equivalence between posetal categories and posets *)</span>
+<span class="kn">Definition</span> <span class="nf">poset_category_weq_poset_left</span>
+           (<span class="nv">C</span> : poset_category)
+  : poset_to_poset_category (poset_category_to_poset C) = C.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    use isaprop_is_poset_category.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_univalent.
+  }
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_has_homsets.
+  }
+  use (invmap (path_precat _ _ (homset_property C))).
+  use total2_paths_f.
+  - <span class="nb">apply</span> idpath.
+  - <span class="nb">cbn</span>.
+    use pathsdirprod.
+    + use funextsec ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> (is_poset_poset_category C).
+    + <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> (is_poset_poset_category C).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">poset_category_weq_poset_right</span>
+            (<span class="nv">P</span> : Poset)
+  : poset_category_to_poset (poset_to_poset_category P) = P.
+<span class="kn">Proof</span>.
+  use total2_paths_f.
+  - use total2_paths_f.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> isapropisaset.
+  - use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_isPartialOrder.
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> (@pr1_transportf hSet hrel).
+    }
+    etrans.
+    {
+      <span class="nb">apply</span> transportf_total2_paths_f.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">poset_category_weq_poset</span>
+  : poset_category ≃ Poset.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> poset_category_to_poset.
+  - <span class="bp">exact</span> poset_to_poset_category.
+  - <span class="bp">exact</span> poset_category_weq_poset_left.
+  - <span class="bp">exact</span> poset_category_weq_poset_right.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Core/PosetCat.v</tt>, line 27)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. Equivalence between posetal categories and posets
+  &gt;
+  &gt;  *****************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Isos.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

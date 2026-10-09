@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ComonadCoalgebras.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ***************************************************************</span>
+
+<span class="sd">Contents :</span>
+
+<span class="sd">  - Definition of the category of coCoalgebras of a comonad</span>
+
+<span class="sd">******************************************************************)</span>
+
+
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Ltac</span> <span class="nf">rewrite_cbn</span> x := <span class="k">let</span> <span class="nv">H</span> := <span class="kp">fresh</span> <span class="k">in</span> (<span class="nb">set</span> (H := x); <span class="nb">cbn</span> <span class="k">in</span> H; <span class="nb">rewrite</span> H; <span class="nb">clear</span> H).
+<span class="kn">Ltac</span> <span class="nf">rewrite_cbn_inv</span> x := <span class="k">let</span> <span class="nv">H</span> := <span class="kp">fresh</span> <span class="k">in</span> (<span class="nb">set</span> (H := x); <span class="nb">cbn</span> <span class="k">in</span> H; <span class="nb">rewrite</span> &lt;- H; <span class="nb">clear</span> H).
+
+
+<span class="kn">Section</span> <span class="nf">Coalgebras</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Comonad C).
+
+
+<span class="sd">(** Definition of an Coalgebra of a monad T *)</span>
+
+<span class="kn">Section</span> <span class="nf">Coalgebra_def</span>.
+
+<span class="kn">Definition</span> <span class="nf">Coalgebra_data</span> : UU := ∑ X : C, X --&gt; T X.
+
+<span class="kn">Coercion</span> <span class="nf">Coalg_carrier</span> (X : Coalgebra_data) : C := pr1 X.
+
+<span class="kn">Definition</span> <span class="nf">Coalg_map</span> (<span class="nv">X</span> : Coalgebra_data) : X --&gt; T X := pr2 X.
+
+<span class="kn">Definition</span> <span class="nf">Coalgebra_laws</span> (<span class="nv">X</span> : Coalgebra_data) : UU
+  := (Coalg_map X · ε T X  = identity X)
+   × (Coalg_map X · δ T X = Coalg_map X · #T (Coalg_map X)).
+
+<span class="kn">Definition</span> <span class="nf">Coalgebra</span> : UU := ∑ X : Coalgebra_data, Coalgebra_laws X.
+
+<span class="kn">Coercion</span> <span class="nf">Coalgebra_data_from_Coalgebra</span> (X : Coalgebra) : Coalgebra_data := pr1 X.
+
+<span class="kn">Definition</span> <span class="nf">Coalgebra_idlaw</span> (<span class="nv">X</span> : Coalgebra) : Coalg_map X · ε T X = identity X
+  := pr1 (pr2 X).
+
+<span class="kn">Definition</span> <span class="nf">Coalgebra_multlaw</span> (<span class="nv">X</span> : Coalgebra) : Coalg_map X · δ T X = Coalg_map X · #T (Coalg_map X)
+  := pr2 (pr2 X).
+
+<span class="kn">Definition</span> <span class="nf">free_Coalgebra</span> (<span class="nv">X</span> : C) : Coalgebra.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="k">exists</span> (<span class="nv">T</span> <span class="nv">X</span>).
+    <span class="bp">exact</span> (δ T X).
+  - <span class="kp">abstract</span> (<span class="nb">split</span>;
+              [<span class="nb">apply</span> Comonad_law1 |
+               <span class="nb">apply</span> pathsinv0;
+               <span class="nb">apply</span> Comonad_law3]).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Coalgebra_def</span>.
+
+
+<span class="sd">(** Data for the category of Coalgebras of the monad T, following FunctorCoalgebras.v *)</span>
+
+<span class="kn">Section</span> <span class="nf">Coalgebra_precategory_data</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_Coalgebra_mor</span> {<span class="nv">X</span> <span class="nv">Y</span> : Coalgebra} (<span class="nv">f</span> : X --&gt; Y) : UU
+  := f · Coalg_map Y = Coalg_map X · #T f.
+
+<span class="kn">Definition</span> <span class="nf">Coalgebra_mor</span> (<span class="nv">X</span> <span class="nv">Y</span> : Coalgebra) : UU
+  := ∑ f : X --&gt; Y, is_Coalgebra_mor f.
+
+<span class="kn">Coercion</span> <span class="nf">mor_from_Coalgebra_mor</span> {X Y : Coalgebra} (f : Coalgebra_mor X Y)
+  : X --&gt; Y := pr1 f.
+
+<span class="kn">Definition</span> <span class="nf">Coalgebra_mor_commutes</span> {<span class="nv">X</span> <span class="nv">Y</span> : Coalgebra} (<span class="nv">f</span> : Coalgebra_mor X Y)
+  : f · Coalg_map Y = Coalg_map X · #T f := pr2 f.
+
+<span class="kn">Definition</span> <span class="nf">Coalgebra_mor_id</span> (<span class="nv">X</span> : Coalgebra) : Coalgebra_mor X X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">identity</span> <span class="nv">X</span>).
+  <span class="kp">abstract</span> (<span class="nb">unfold</span> is_Coalgebra_mor;
+            <span class="nb">rewrite</span> functor_id, id_right, id_left;
+            <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">Coalgebra_mor_comp</span> (<span class="nv">X</span> <span class="nv">Y</span> <span class="nv">Z</span> : Coalgebra) (<span class="nv">f</span> : Coalgebra_mor X Y) (<span class="nv">g</span> : Coalgebra_mor Y Z)
+  : Coalgebra_mor X Z.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">f</span> · g).
+  <span class="kp">abstract</span> (<span class="nb">unfold</span> is_Coalgebra_mor;
+            <span class="nb">rewrite</span> assoc';
+            <span class="nb">rewrite</span> Coalgebra_mor_commutes;
+            <span class="nb">rewrite</span> assoc;
+            <span class="nb">rewrite</span> Coalgebra_mor_commutes;
+            <span class="nb">rewrite</span> functor_comp, assoc;
+            <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_Coalg_ob_mor</span> : precategory_ob_mor
+  := (Coalgebra,, Coalgebra_mor).
+
+<span class="kn">Definition</span> <span class="nf">precategory_Coalg_data</span> : precategory_data
+  := (precategory_Coalg_ob_mor,, Coalgebra_mor_id,, Coalgebra_mor_comp).
+
+<span class="kn">End</span> <span class="nf">Coalgebra_precategory_data</span>.
+
+<span class="kn">End</span> <span class="nf">Coalgebras</span>.
+
+
+<span class="sd">(** Definition of the category ComonadCoalg of Coalgebras for T. Requires that C is a category. *)</span>
+
+<span class="kn">Section</span> <span class="nf">Coalgebra_category</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">T</span> : Comonad C).
+
+<span class="kn">Definition</span> <span class="nf">Coalgebra_mor_eq</span> {<span class="nv">X</span> <span class="nv">Y</span> : Coalgebra T} {<span class="nv">f</span> <span class="nv">g</span> : Coalgebra_mor T X Y}
+  : (f : X --&gt; Y) = g ≃ f = g.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> invweq.
+  <span class="nb">apply</span> subtypeInjectivity.
+  <span class="nb">intro</span> h.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_precategory_Coalg_data</span> : is_precategory (precategory_Coalg_data T).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> make_is_precategory; <span class="nb">intros</span>;
+  <span class="nb">apply</span> Coalgebra_mor_eq.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> id_right.
+  - <span class="nb">apply</span> assoc.
+  - <span class="nb">apply</span> assoc'.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ComonadCoalg_precat</span> : precategory := ( _,, is_precategory_precategory_Coalg_data).
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_ComonadCoalg</span> : has_homsets ComonadCoalg_precat.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y.
+  <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>).
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ComonadCoalg</span>: category := ComonadCoalg_precat ,, has_homsets_ComonadCoalg.
+
+<span class="kn">End</span> <span class="nf">Coalgebra_category</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Monads/ComonadCoalgebras.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

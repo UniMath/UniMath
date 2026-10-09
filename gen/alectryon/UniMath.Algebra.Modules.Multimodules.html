@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Multimodules.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  Multimodules</span>
+
+<span class="sd">  This file defines multimodules: abelian groups with compatible R_i-actions for all i : I. This</span>
+<span class="sd">  is a generalization of R-S-bimodules, based on the following observation:</span>
+<span class="sd">  The definition of a compatible R-S-bimodule structure is phrased in terms of associativity for</span>
+<span class="sd">  left and right actions: (rm)s=r(ms). Modulo notation, this is really a statement about the actions</span>
+<span class="sd">  intertwining one another and in the same way, we can define a multimodule based on every action</span>
+<span class="sd">  being compatible.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Multimodules [multimodule]</span>
+<span class="sd">  2. Multimodule morphisms</span>
+<span class="sd">  2.1. Multilinearity [ismultilinear] [multilinearfun]</span>
+<span class="sd">  2.2. Multimodule morphisms [multimodulefun]</span>
+<span class="sd">  3. Properties of the ring actions</span>
+
+<span class="sd">  Originally written by Langston Barrett (@siddharthist), November-December 2017</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.Algebra.Groups.
+<span class="kn">Require Import</span> UniMath.Algebra.Modules.Core.
+<span class="kn">Require Import</span> UniMath.Algebra.RigsAndRings.
+
+<span class="sd">(** ** 1. Multimodules *)</span>
+
+<span class="sd">(** Definition from Algebra by Bourbaki, II §1, no. 14. *)</span>
+<span class="kn">Definition</span> <span class="nf">arecompatibleactions</span> {<span class="nv">R</span> <span class="nv">S</span> <span class="nv">G</span>}
+           (<span class="nv">mr</span> : module_struct R G) (<span class="nv">ms</span> : module_struct S G) :=
+  <span class="k">let</span> <span class="nv">m1</span> := module_mult (G,, mr) <span class="k">in</span>
+  <span class="k">let</span> <span class="nv">m2</span> := module_mult (G,, ms)
+  <span class="k">in</span> ∏ (r1 : R) (r2 : S), (m1 r1 ∘ m2 r2 = m2 r2 ∘ m1 r1)%functions.
+
+<span class="kn">Definition</span> <span class="nf">multimodule_struct</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} {<span class="nv">G</span> : abgr}
+           (<span class="nv">structs</span> : ∏ i : I, module_struct (rings i) G) :=
+  ∏ (i1 i2 : I) (ne : (i1 = i2) -&gt; hfalse),
+    arecompatibleactions (structs i1) (structs i2).
+
+<span class="kn">Definition</span> <span class="nf">multimodule</span> {<span class="nv">I</span> : UU} (<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>) : UU
+  := ∑ G (ms : ∏ i : I, module_struct (rings i) G), multimodule_struct ms.
+
+<span class="sd">(** We define a few things in the same way for multimodules as we did for modules *)</span>
+
+<span class="kn">Definition</span> <span class="nf">pr1multimodule</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} (<span class="nv">MM</span> : multimodule rings) : abgr
+  := pr1 MM.
+
+<span class="kn">Coercion</span> <span class="nf">pr1multimodule</span> : multimodule &gt;-&gt; abgr.
+
+<span class="kn">Definition</span> <span class="nf">pr2multimodule</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} (<span class="nv">MM</span> : multimodule rings)
+  : ∏ i : I, module_struct (rings i) (pr1multimodule MM) := (pr1 (pr2 MM)).
+
+<span class="kn">Definition</span> <span class="nf">pr3bimodule</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} (<span class="nv">MM</span> : multimodule rings)
+  : multimodule_struct (pr2multimodule MM) := (pr2 (pr2 MM)).
+
+<span class="kn">Definition</span> <span class="nf">ith_module</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} (<span class="nv">MM</span> : multimodule rings) (<span class="nv">i</span> : I)
+  : module (rings i) := (pr1multimodule MM,, pr2multimodule MM i).
+
+<span class="sd">(** Propositions *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isaproparecompatibleactions</span>
+      {<span class="nv">R</span> <span class="nv">S</span> <span class="nv">G</span>} (<span class="nv">mr</span> : module_struct R G) (<span class="nv">ms</span> : module_struct S G) :
+  isaprop (arecompatibleactions mr ms).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred_isaprop; <span class="nb">intro</span>).
+  <span class="nb">refine</span> ((_ : isaset _) _ _).
+  <span class="nb">apply</span> funspace_isaset.
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isapropmultimodule_struct</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} {<span class="nv">G</span> : abgr}
+                                (<span class="nv">structs</span> : ∏ i : I, module_struct (rings i) G) :
+  isaprop (multimodule_struct structs).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (impredtwice <span class="mi">1</span>); <span class="nb">intros</span> i1 i2.
+  <span class="nb">apply</span> impredfun.
+  <span class="nb">apply</span> isaproparecompatibleactions.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Multimodule morphisms *)</span>
+
+<span class="sd">(** ** 2.1. Multilinearity*)</span>
+
+<span class="sd">(** A function is multilinear precisely when it is linear for each module *)</span>
+
+<span class="kn">Definition</span> <span class="nf">ismultilinear</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings} (<span class="nv">f</span> : MM -&gt; NN)
+  := ∏ i : I, @islinear (rings i) (ith_module MM i) (ith_module NN i) f.
+
+<span class="kn">Definition</span> <span class="nf">multilinearfun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} (<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings)
+  : UU := ∑ f : MM -&gt; NN, ismultilinear f.
+
+<span class="kn">Definition</span> <span class="nf">make_multilinearfun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings}
+           (<span class="nv">f</span> : MM -&gt; NN) (<span class="nv">isc</span> : ismultilinear f) : multilinearfun MM NN
+  := tpair _ f isc.
+
+<span class="kn">Definition</span> <span class="nf">pr1multilinearfun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings}
+           (<span class="nv">f</span> : multilinearfun MM NN) : MM -&gt; NN := pr1 f.
+
+<span class="kn">Coercion</span> <span class="nf">pr1multilinearfun</span> : multilinearfun &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">ith_linearfun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings}
+           (<span class="nv">f</span> : multilinearfun MM NN) (<span class="nv">i</span> : I) :
+  linearfun (ith_module MM i) (ith_module NN i) :=
+  (pr1 f,, pr2 f i).
+
+<span class="kn">Definition</span> <span class="nf">ismultilinearfuncomp</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+           {<span class="nv">MM</span> <span class="nv">NN</span> <span class="nv">PP</span> : multimodule rings} (<span class="nv">f</span> : multilinearfun MM NN)
+           (<span class="nv">g</span> : multilinearfun NN PP) : ismultilinear (pr1 g ∘ pr1 f)%functions :=
+  (<span class="k">fun</span> <span class="nv">i</span> =&gt; islinearfuncomp (ith_linearfun f i) (ith_linearfun g i)).
+
+<span class="kn">Definition</span> <span class="nf">multilinearfuncomp</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+           {<span class="nv">MM</span> <span class="nv">NN</span> <span class="nv">PP</span> : multimodule rings} (<span class="nv">f</span> : multilinearfun MM NN)
+           (<span class="nv">g</span> : multilinearfun NN PP) : multilinearfun MM PP :=
+  (funcomp f g,, ismultilinearfuncomp f g).
+
+<span class="sd">(** ** 2.2. Multimodule morphisms *)</span>
+
+<span class="kn">Definition</span> <span class="nf">ismultimodulefun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+           {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings} (<span class="nv">f</span> : MM -&gt; NN) : UU :=
+   (isbinopfun f) × (ismultilinear f).
+
+<span class="kn">Lemma</span> <span class="nf">isapropismultimodulefun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+      {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings} (<span class="nv">f</span> : MM -&gt; NN) : isaprop (ismultimodulefun f).
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (@isofhleveldirprod <span class="mi">1</span> (isbinopfun f) (ismultilinear f)
+                             (isapropisbinopfun f) _).
+  <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> (impred <span class="mi">1</span> _); <span class="nb">intros</span> ?).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">multimodulefun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+           (<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings) : UU := ∑ f : MM -&gt; NN, ismultimodulefun f.
+
+<span class="kn">Definition</span> <span class="nf">make_multimodulefun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+           {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings} (<span class="nv">f</span> : MM -&gt; NN) (<span class="nv">isc</span> : ismultimodulefun f) :
+  multimodulefun MM NN := tpair _ f isc.
+
+<span class="kn">Definition</span> <span class="nf">pr1multimodulefun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+           {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings} (<span class="nv">f</span> : multimodulefun MM NN) : MM -&gt; NN := pr1 f.
+
+<span class="kn">Coercion</span> <span class="nf">pr1multimodulefun</span> : multimodulefun &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Definition</span> <span class="nf">multimodulefun_to_isbinopfun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+           {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings} (<span class="nv">f</span> : multimodulefun MM NN) :
+  isbinopfun f := pr12 f.
+
+<span class="kn">Definition</span> <span class="nf">multimodulefun_to_binopfun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+           {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings} (<span class="nv">f</span> : multimodulefun MM NN) :
+  binopfun MM NN := make_binopfun (pr1multimodulefun f)
+                                   (multimodulefun_to_isbinopfun f).
+
+<span class="kn">Definition</span> <span class="nf">multimodulefun_to_ith_islinear</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+           {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings} (<span class="nv">f</span> : multimodulefun MM NN) (<span class="nv">i</span> : I) :
+  islinear (M := ith_module MM i) (N := ith_module NN i) f := pr22 f i.
+
+<span class="kn">Definition</span> <span class="nf">multimodulefun_to_ith_linearfun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+           {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings} (<span class="nv">f</span> : multimodulefun MM NN) (<span class="nv">i</span> : I) :
+  linearfun (ith_module MM i) (ith_module NN i) :=
+  make_linearfun (M := ith_module MM i) (N := ith_module NN i) f (multimodulefun_to_ith_islinear f i).
+
+<span class="kn">Definition</span> <span class="nf">ith_modulefun</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>} {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings}
+           (<span class="nv">f</span> : multimodulefun MM NN) (<span class="nv">i</span> : I) :
+  modulefun (ith_module MM i) (ith_module NN i)
+  := make_modulefun _
+    (make_ismodulefun (M := ith_module MM i) (N := ith_module NN i) (multimodulefun_to_isbinopfun f) (multimodulefun_to_ith_islinear f i)).
+
+<span class="sd">(** * 3. Properties of the ring actions *)</span>
+
+<span class="kn">Definition</span> <span class="nf">multimodule_ith_mult</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+           (<span class="nv">MM</span> : multimodule rings) (<span class="nv">i</span> : I) : (rings i) -&gt; MM -&gt; MM :=
+  @module_mult (rings i) (ith_module MM i).
+
+<span class="sd">(** If you take the underlying group of the ith module, its the same as the</span>
+<span class="sd">    underlying group of the multimodule. *)</span>
+<span class="kn">Definition</span> <span class="nf">multimodule_same_abgrp</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+  (<span class="nv">MM</span> : multimodule rings) (<span class="nv">i</span> : I)
+  : (MM : abgr) = (ith_module MM i)
+  := idpath _.
+
+<span class="sd">(** Multiplying something by 0 always gives you the identity.</span>
+<span class="sd">    Equationally, 0R * x = 0G for all x. *)</span>
+<span class="kn">Definition</span> <span class="nf">multimodule_ith_mult_0_to_0</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+           {<span class="nv">MM</span> : multimodule rings} (<span class="nv">i</span> : I) (<span class="nv">x</span> : MM) :
+  multimodule_ith_mult MM i (@ringunel1 (rings i)) x = @unel MM :=
+  @module_mult_0_to_0 (rings i) (ith_module MM i) x.
+
+<span class="kn">Definition</span> <span class="nf">multimodulefun_unel</span> {<span class="nv">I</span> : UU} {<span class="nv">rings</span> : I -&gt; <span class="bp">ring</span>}
+  {<span class="nv">MM</span> <span class="nv">NN</span> : multimodule rings} (<span class="nv">f</span> : multimodulefun MM NN)
+  : f (unel MM) = unel NN
+  := binopfun_preserves_unit f (multimodulefun_to_isbinopfun _).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Modules/Multimodules.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   Originally written by Langston Barrett (&#64;siddharthist), November-December 2017
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Algebra.Groups.
+  &gt; Require Import UniMath.Algebra.Modules.Core.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

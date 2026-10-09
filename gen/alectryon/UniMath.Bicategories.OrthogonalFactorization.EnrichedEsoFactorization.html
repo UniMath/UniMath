@@ -1,0 +1,1106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EnrichedEsoFactorization.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> The (eso, ff)-factorization system for enriched categories</span>
+
+<span class="sd"> In this file, we construct an orthogonal factorization system on the bicategory of</span>
+<span class="sd"> enriched categories. This classes of maps in this orthogonal factorization system</span>
+<span class="sd"> are given by the by the essentially surjective enriched functors and by the fully</span>
+<span class="sd"> faithful enriched functors. The orthogonality says that for every square as follows</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd">         B₁ --------&gt; C₁</span>
+<span class="sd">         |            |</span>
+<span class="sd">       F |            | G</span>
+<span class="sd">         |            |</span>
+<span class="sd">         V            V</span>
+<span class="sd">         B₂ --------&gt; C₂</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd"> where `F` is essentially surjective and `G` is fully faithful, there is a unique</span>
+<span class="sd"> lift up to unique invertible 2-cell.</span>
+
+<span class="sd"> In addition, we must give a factorization for every enriched functor as an</span>
+<span class="sd"> essentially surjective functor followed by a fully faithful functor. For this,</span>
+<span class="sd"> we use the full image factorization.</span>
+
+<span class="sd"> The main challenge of this construction lies in the proof of orthogonality and</span>
+<span class="sd"> solving the lifting problems. However, the ideas are the same as for categories.</span>
+<span class="sd"> Let's say that we have the following square that commutes up to natural</span>
+<span class="sd"> isomorphism:</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd">               Φ₁</span>
+<span class="sd">         B₁ --------&gt; C₁</span>
+<span class="sd">         |            |</span>
+<span class="sd">       F |            | G</span>
+<span class="sd">         |            |</span>
+<span class="sd">         V            V</span>
+<span class="sd">         B₂ --------&gt; C₂</span>
+<span class="sd">               Φ₂</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd"> Our goal is to construct a lift `B₂ --&gt; C₁`. To do so, we first show that for every</span>
+<span class="sd"> object `x : B₂` the type of objects `y : C₁` together with an isomorphism</span>
+<span class="sd"> `G y ≅ Φ₂ x` is contractible ([iscontr_enriched_eso_ff_lift_ob]). The reason why</span>
+<span class="sd"> we use contractability here, is because it allows us to use the assumption that</span>
+<span class="sd"> `F` is essentially surjectiev (we can only get a preimage for `x` under `F` if</span>
+<span class="sd"> we are proving a proposition). For morphisms, we do something similar, but</span>
+<span class="sd"> expressed using morphisms instead of objects.</span>
+
+<span class="sd"> Compared to the case of categories, the additional thing that we must do, is</span>
+<span class="sd"> constructing an enrichment for our lift. The construction of the enrichment</span>
+<span class="sd"> follows the proof of functoriality, but expressed in the language of enriched</span>
+<span class="sd"> categories.</span>
+
+<span class="sd"> Finally, as a consequence of this factorization system, we deduce that every</span>
+<span class="sd"> enriched functor that is essentially surjective and fully faithful, is an adjoint</span>
+<span class="sd"> equivalence as well. Due to the bicategorical phrasing of our proof, we can only</span>
+<span class="sd"> use this statement if both the source and target of the functor are univalent</span>
+<span class="sd"> enriched categories. However, in the proof, we only use that the source of the</span>
+<span class="sd"> functor is univalent.</span>
+
+<span class="sd"> Source: Lemma 4.3.5 in Categorical notions of fibration by Loregian and Riehl.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1, The left and right class of the factorization system</span>
+<span class="sd"> 2. Image factorization</span>
+<span class="sd"> 3. Lifts of 1-cells</span>
+<span class="sd"> 4. Lifts of 2-cells</span>
+<span class="sd"> 5. Uniqueness of lifts of 2-cells</span>
+<span class="sd"> 6. Fully faithful 1-cells are closed under invertible 2-cells</span>
+<span class="sd"> 7. The factorization system</span>
+<span class="sd"> 8. Essentially surjective+fully faithful implies adjoint equivalence</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Full.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.ImageEnriched.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.Adjunctions.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.EnrichedCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.OrthogonalFactorization.Orthogonality.
+<span class="kn">Require Import</span> UniMath.Bicategories.OrthogonalFactorization.FactorizationSystem.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">EnrichedFactorizationSystem</span>.
+  <span class="kn">Context</span> (<span class="nv">V</span> : monoidal_cat).
+
+  <span class="sd">(** * 1, The left and right class of the factorization system *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_eso_1cell</span>
+             (<span class="nv">C₁</span> <span class="nv">C₂</span> : enriched_cat V)
+             (<span class="nv">F</span> : enriched_functor C₁ C₂)
+    : hProp.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (essentially_surjective F ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">intros</span> ;
+       <span class="nb">apply</span> isaprop_essentially_surjective).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_ff_1cell</span>
+             (<span class="nv">C₁</span> <span class="nv">C₂</span> : enriched_cat V)
+             (<span class="nv">F</span> : enriched_functor C₁ C₂)
+    : hProp.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (fully_faithful_enriched_functor (enriched_functor_enrichment F) ,, _).
+    <span class="kp">abstract</span>
+      (<span class="nb">intros</span> ;
+       <span class="nb">apply</span> isaprop_fully_faithful_enriched_functor).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Image factorization *)</span>
+  <span class="kn">Section</span> <span class="nf">Factorization</span>.
+    <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : enriched_cat V}
+            (<span class="nv">F</span> : enriched_functor C₁ C₂).
+
+    <span class="kn">Definition</span> <span class="nf">enriched_image</span>
+      : enriched_cat V.
+    <span class="kn">Proof</span>.
+      use make_enriched_cat.
+      - <span class="bp">exact</span> (univalent_image F).
+      - <span class="bp">exact</span> (image_enrichment C₂ F).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_image_proj</span>
+      : enriched_functor C₁ enriched_image.
+    <span class="kn">Proof</span>.
+      use make_enriched_functor.
+      - <span class="bp">exact</span> (functor_full_img F).
+      - <span class="bp">exact</span> (image_proj_enrichment (enriched_functor_enrichment F)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_image_incl</span>
+      : enriched_functor enriched_image C₂.
+    <span class="kn">Proof</span>.
+      use make_enriched_functor.
+      - <span class="bp">exact</span> (sub_precategory_inclusion _ _).
+      - <span class="bp">exact</span> (image_incl_enrichment C₂ F).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_image_comm</span>
+      : invertible_2cell (enriched_image_proj · enriched_image_incl) F.
+    <span class="kn">Proof</span>.
+      use make_invertible_2cell.
+      - use make_enriched_nat_trans.
+        + <span class="nb">apply</span> full_image_inclusion_commute_nat_iso.
+        + <span class="nb">apply</span> image_factorization_enriched_commutes.
+      - use make_is_invertible_2cell_enriched.
+        <span class="nb">intro</span> x.
+        <span class="nb">apply</span> is_z_isomorphism_identity.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_factorization</span>
+      : factorization_1cell
+          enriched_eso_1cell
+          enriched_ff_1cell
+          F.
+    <span class="kn">Proof</span>.
+      use make_factorization_1cell.
+      - <span class="bp">exact</span> enriched_image.
+      - <span class="bp">exact</span> enriched_image_proj.
+      - <span class="bp">exact</span> enriched_image_incl.
+      - <span class="nb">apply</span> functor_full_img_essentially_surjective.
+      - <span class="nb">apply</span> image_incl_enrichment_fully_faithful.
+      - <span class="bp">exact</span> enriched_image_comm.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Factorization</span>.
+
+  <span class="kn">Section</span> <span class="nf">Lifting</span>.
+    <span class="kn">Context</span> {<span class="nv">B₁</span> <span class="nv">B₂</span> <span class="nv">C₁</span> <span class="nv">C₂</span> : enriched_cat V}
+            (<span class="nv">F</span> : enriched_functor B₁ B₂)
+            (<span class="nv">G</span> : enriched_functor C₁ C₂)
+            (<span class="nv">HF</span> : enriched_eso_1cell _ _ F)
+            (<span class="nv">HG</span> : enriched_ff_1cell _ _ G).
+
+    <span class="kn">Let</span> <span class="nf">G_fully_faithful</span> : fully_faithful G
+      := fully_faithful_enriched_functor_to_fully_faithful _ HG.
+
+    <span class="sd">(** * 3. Lifts of 1-cells *)</span>
+    <span class="kn">Section</span> <span class="nf">Lift1Cell</span>.
+      <span class="kn">Context</span> (<span class="nv">Φ₁</span> : enriched_functor B₁ C₁)
+              (<span class="nv">Φ₂</span> : enriched_functor B₂ C₂)
+              (<span class="nv">τ</span> : invertible_2cell (Φ₁ · G) (F · Φ₂)).
+
+      <span class="kn">Let</span> <span class="nf">τ_iso</span> : nat_z_iso _ _ := from_is_invertible_2cell_enriched _ τ.
+
+      <span class="kn">Section</span> <span class="nf">OnOb</span>.
+        <span class="kn">Context</span> (<span class="nv">x</span> : B₂).
+
+        <span class="kn">Proposition</span> <span class="nf">isaprop_enriched_eso_ff_lift_ob</span>
+          : isaprop (∑ (y : C₁), z_iso (G y) (Φ₂ x)).
+        <span class="kn">Proof</span>.
+          use invproofirrelevance.
+          <span class="nb">intros</span> φ₁ φ₂.
+          use total2_paths_f.
+          - <span class="nb">apply</span> (isotoid _).
+            + <span class="nb">apply</span> univalent_category_is_univalent.
+            + <span class="bp">exact</span> (make_z_iso'
+                       _
+                       (fully_faithful_reflects_iso_proof
+                          _ _ _
+                          G_fully_faithful
+                          _ _
+                          (z_iso_comp (pr2 φ₁) (z_iso_inv_from_z_iso (pr2 φ₂))))).
+          - use subtypePath.
+            {
+              <span class="nb">intro</span>.
+              <span class="nb">apply</span> isaprop_is_z_isomorphism.
+            }
+            etrans.
+            {
+              <span class="nb">apply</span> transportf_z_iso_functors.
+            }
+            <span class="nb">rewrite</span> functor_on_inv_from_z_iso.
+            use z_iso_inv_on_right.
+            <span class="nb">refine</span> (!_).
+            etrans.
+            {
+              <span class="nb">apply</span> maponpaths_2.
+              <span class="nb">cbn</span>.
+              <span class="nb">rewrite</span> idtoiso_isotoid.
+              <span class="nb">apply</span> (homotweqinvweq (make_weq _ (G_fully_faithful _ _)) _).
+            }
+            <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+            <span class="nb">apply</span> id_right.
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">iscontr_enriched_eso_ff_lift_ob</span>
+          : iscontr (∑ (y : C₁), z_iso (G y) (Φ₂ x)).
+        <span class="kn">Proof</span>.
+          <span class="nb">assert</span> (H := HF x).
+          <span class="nb">revert</span> H.
+          use factor_through_squash.
+          {
+            <span class="nb">apply</span> isapropiscontr.
+          }
+          <span class="nb">intros</span> w.
+          <span class="nb">induction</span> w <span class="k">as</span> [ w f ].
+          use iscontraprop1.
+          - <span class="bp">exact</span> isaprop_enriched_eso_ff_lift_ob.
+          - <span class="nb">refine</span> (Φ₁ w ,, _).
+            <span class="bp">exact</span> (z_iso_comp
+                     (nat_z_iso_pointwise_z_iso τ_iso w)
+                     (functor_on_z_iso Φ₂ f)).
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_ob</span>
+          : C₁
+          := pr11 iscontr_enriched_eso_ff_lift_ob.
+
+        <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_z_iso</span>
+          : z_iso (G enriched_eso_ff_lift_ob) (Φ₂ x)
+          := pr21 iscontr_enriched_eso_ff_lift_ob.
+      <span class="kn">End</span> <span class="nf">OnOb</span>.
+
+      <span class="kn">Section</span> <span class="nf">OnMor</span>.
+        <span class="kn">Context</span> {<span class="nv">x</span> <span class="nv">y</span> : B₂}
+                (<span class="nv">f</span> : x --&gt; y).
+
+        <span class="kn">Definition</span> <span class="nf">iscontr_enriched_eso_ff_lift_mor</span>
+          : iscontr
+              (∑ (g : enriched_eso_ff_lift_ob x --&gt; enriched_eso_ff_lift_ob y),
+               #G g
+               =
+               enriched_eso_ff_lift_z_iso x
+               · #Φ₂ f
+               · inv_from_z_iso (enriched_eso_ff_lift_z_iso y)).
+        <span class="kn">Proof</span>.
+          use iscontraprop1.
+          - use invproofirrelevance.
+            <span class="nb">intros</span> φ₁ φ₂.
+            use subtypePath.
+            {
+              <span class="nb">intro</span>.
+              <span class="nb">apply</span> homset_property.
+            }
+            use (invmaponpathsweq (make_weq _ (G_fully_faithful _ _))).
+            <span class="nb">cbn</span>.
+            <span class="bp">exact</span> (pr2 φ₁ @ !(pr2 φ₂)).
+          - <span class="nb">simple refine</span> (_ ,, _).
+            + use (invmap (make_weq _ (G_fully_faithful _ _))).
+              <span class="bp">exact</span> (enriched_eso_ff_lift_z_iso x
+                     · # Φ₂ f
+                     · inv_from_z_iso (enriched_eso_ff_lift_z_iso y)).
+            + <span class="nb">apply</span> (homotweqinvweq (make_weq _ (G_fully_faithful _ _))).
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_mor</span>
+          : enriched_eso_ff_lift_ob x --&gt; enriched_eso_ff_lift_ob y
+          := pr11 iscontr_enriched_eso_ff_lift_mor.
+
+        <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_mor_eq</span>
+          : #G enriched_eso_ff_lift_mor
+            =
+            enriched_eso_ff_lift_z_iso x
+            · #Φ₂ f
+            · inv_from_z_iso (enriched_eso_ff_lift_z_iso y)
+          := pr21 iscontr_enriched_eso_ff_lift_mor.
+
+        <span class="kn">Proposition</span> <span class="nf">eq_to_enriched_eso_ff_lift_mor</span>
+                    {<span class="nv">g</span> : enriched_eso_ff_lift_ob x --&gt; enriched_eso_ff_lift_ob y}
+                    (<span class="nv">p</span> : #G g
+                         =
+                         enriched_eso_ff_lift_z_iso x
+                         · #Φ₂ f
+                         · inv_from_z_iso (enriched_eso_ff_lift_z_iso y))
+          : enriched_eso_ff_lift_mor = g.
+        <span class="kn">Proof</span>.
+          <span class="bp">exact</span> (!(maponpaths pr1 (pr2 iscontr_enriched_eso_ff_lift_mor (g ,, p)))).
+        <span class="kn">Qed</span>.
+      <span class="kn">End</span> <span class="nf">OnMor</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_functor_data</span>
+        : functor_data B₂ C₁.
+      <span class="kn">Proof</span>.
+        use make_functor_data.
+        - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, enriched_eso_ff_lift_ob x).
+        - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, enriched_eso_ff_lift_mor f).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">enriched_eso_ff_lift_functor_laws</span>
+        : is_functor enriched_eso_ff_lift_functor_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">split</span>.
+        - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+          use eq_to_enriched_eso_ff_lift_mor.
+          <span class="nb">rewrite</span> !functor_id.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+          <span class="nb">apply</span> idpath.
+        - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+          use eq_to_enriched_eso_ff_lift_mor.
+          <span class="nb">rewrite</span> !functor_comp.
+          <span class="nb">rewrite</span> !enriched_eso_ff_lift_mor_eq.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_functor</span>
+        : B₂ ⟶ C₁.
+      <span class="kn">Proof</span>.
+        use make_functor.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_functor_data.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_functor_laws.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_functor_enrichment_data</span>
+        : functor_enrichment_data enriched_eso_ff_lift_functor B₂ C₁
+        := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>,
+           enriched_functor_enrichment Φ₂ x y
+           · precomp_arr C₂ _ (enriched_eso_ff_lift_z_iso x)
+           · postcomp_arr C₂ _ (inv_from_z_iso (enriched_eso_ff_lift_z_iso y))
+           · inv_from_z_iso (fully_faithful_enriched_functor_z_iso HG _ _).
+
+      <span class="kn">Arguments</span> enriched_eso_ff_lift_functor_enrichment_data /.
+
+      <span class="kn">Proposition</span> <span class="nf">enriched_eso_ff_lift_functor_enrichment_laws</span>
+        : is_functor_enrichment enriched_eso_ff_lift_functor_enrichment_data.
+      <span class="kn">Proof</span>.
+        <span class="kp">repeat</span> <span class="nb">split</span>.
+        - <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> functor_enrichment_id.
+          <span class="nb">rewrite</span> enriched_id_precomp_arr.
+          <span class="nb">rewrite</span> enriched_from_arr_postcomp.
+          <span class="nb">rewrite</span> z_iso_inv_after_z_iso.
+          <span class="nb">rewrite</span> enriched_from_arr_id.
+          <span class="nb">refine</span> (_ @ id_right _).
+          <span class="nb">rewrite</span> &lt;- (z_iso_inv_after_z_iso
+                        (fully_faithful_enriched_functor_z_iso
+                           HG
+                           (enriched_eso_ff_lift_ob x)
+                           (enriched_eso_ff_lift_ob x))).
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> functor_enrichment_id.
+          <span class="nb">apply</span> idpath.
+        - <span class="nb">intros</span> x y z ; <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> functor_enrichment_comp.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> tensor_comp_mor.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> enriched_comp_precomp_arr.
+          <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> enriched_comp_postcomp_arr.
+            <span class="nb">apply</span> idpath.
+          }
+          etrans.
+          {
+            <span class="nb">rewrite</span> !assoc.
+            <span class="nb">rewrite</span> &lt;- tensor_split.
+            <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">refine</span> (_ @ id_right _).
+          <span class="nb">rewrite</span> &lt;- (z_iso_inv_after_z_iso
+                        (fully_faithful_enriched_functor_z_iso
+                           HG
+                           (enriched_eso_ff_lift_ob x)
+                           (enriched_eso_ff_lift_ob z))).
+          <span class="nb">rewrite</span> !assoc ; <span class="nb">cbn</span>.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> functor_enrichment_comp.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">refine</span> (!_).
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">rewrite</span> &lt;- tensor_comp_mor.
+            <span class="nb">rewrite</span> !assoc'.
+            <span class="nb">rewrite</span> !z_iso_after_z_iso_inv.
+            <span class="nb">rewrite</span> !id_right.
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">rewrite</span> precomp_postcomp_arr.
+            <span class="nb">apply</span> idpath.
+          }
+          <span class="nb">rewrite</span> tensor_comp_mor.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> tensor_split.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> precomp_postcomp_arr_assoc.
+          <span class="nb">refine</span> (_ @ id_left _).
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+          <span class="nb">rewrite</span> &lt;- tensor_id_id.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- postcomp_arr_comp.
+          <span class="nb">rewrite</span> &lt;- postcomp_arr_id.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> z_iso_after_z_iso_inv.
+        - <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- functor_enrichment_from_arr.
+          <span class="nb">rewrite</span> enriched_from_arr_precomp.
+          <span class="nb">rewrite</span> enriched_from_arr_postcomp.
+          <span class="nb">rewrite</span> &lt;- enriched_eso_ff_lift_mor_eq.
+          <span class="nb">rewrite</span> (functor_enrichment_from_arr (enriched_functor_enrichment G)).
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">refine</span> (!(id_right _) @ !_).
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (z_iso_inv_after_z_iso
+                   (fully_faithful_enriched_functor_z_iso HG (enriched_eso_ff_lift_ob x)
+                      (enriched_eso_ff_lift_ob y))).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_functor_enrichment</span>
+        : functor_enrichment enriched_eso_ff_lift_functor B₂ C₁.
+      <span class="kn">Proof</span>.
+        <span class="nb">simple refine</span> (_ ,, _).
+        - <span class="bp">exact</span> enriched_eso_ff_lift_functor_enrichment_data.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_functor_enrichment_laws.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_enriched_functor</span>
+        : enriched_functor B₂ C₁.
+      <span class="kn">Proof</span>.
+        use make_enriched_functor.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_functor.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_functor_enrichment.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_comm1_nat_trans_data</span>
+        : nat_trans_data
+            (F · enriched_eso_ff_lift_enriched_functor : enriched_functor _ _)
+            Φ₁
+        := <span class="k">λ</span> <span class="nv">x</span>,
+           invmap
+             (make_weq _ (G_fully_faithful _ _))
+             (enriched_eso_ff_lift_z_iso (pr1 (pr1 F) x)
+              · inv_from_z_iso (nat_z_iso_pointwise_z_iso τ_iso x)).
+
+      <span class="kn">Proposition</span> <span class="nf">enriched_eso_ff_lift_comm1_nat_trans_data_eq</span>
+                  (<span class="nv">x</span> : B₁)
+        : #G (enriched_eso_ff_lift_comm1_nat_trans_data x)
+          =
+          enriched_eso_ff_lift_z_iso (pr1 (pr1 F) x)
+          · inv_from_z_iso (nat_z_iso_pointwise_z_iso τ_iso x).
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> (homotweqinvweq (make_weq _ (G_fully_faithful _ _))).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">enriched_eso_ff_lift_comm1_nat_trans_laws</span>
+        : is_nat_trans _ _ enriched_eso_ff_lift_comm1_nat_trans_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> x y f.
+        use (invmaponpathsweq (make_weq _ (G_fully_faithful _ _))) ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !functor_comp.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> enriched_eso_ff_lift_comm1_nat_trans_data_eq.
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> enriched_eso_ff_lift_comm1_nat_trans_data_eq.
+        }
+        etrans.
+        {
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(nat_trans_ax (nat_z_iso_inv τ_iso) _ _ f)).
+        }
+        <span class="nb">refine</span> (!_).
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (enriched_eso_ff_lift_mor_eq _).
+        }
+        <span class="nb">refine</span> (_ @ id_right _).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_comm1_nat_trans</span>
+        : nat_trans
+            (F · enriched_eso_ff_lift_enriched_functor : enriched_functor _ _)
+            Φ₁.
+      <span class="kn">Proof</span>.
+        use make_nat_trans.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_comm1_nat_trans_data.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_comm1_nat_trans_laws.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">enriched_eso_ff_lift_comm1_nat_trans_enrichment</span>
+        : nat_trans_enrichment
+            enriched_eso_ff_lift_comm1_nat_trans
+            (enriched_functor_enrichment (F · enriched_eso_ff_lift_enriched_functor))
+            (enriched_functor_enrichment Φ₁).
+      <span class="kn">Proof</span>.
+        use nat_trans_enrichment_via_comp.
+        <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">refine</span> (!(id_right _) @ _ @ id_right _).
+        <span class="nb">rewrite</span> &lt;- !(z_iso_inv_after_z_iso (fully_faithful_enriched_functor_z_iso HG _ _)).
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2 ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- functor_enrichment_precomp_arr.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (enriched_eso_ff_lift_comm1_nat_trans_data_eq x).
+        }
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">5</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- functor_enrichment_postcomp_arr.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (enriched_eso_ff_lift_comm1_nat_trans_data_eq y).
+        }
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+          <span class="nb">apply</span> id_left.
+        }
+        <span class="nb">rewrite</span> &lt;- postcomp_arr_comp.
+        etrans.
+        {
+          <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> precomp_postcomp_arr.
+        etrans.
+        {
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (!(nat_trans_enrichment_to_comp (τ^-<span class="mi">1</span> : enriched_nat_trans _ _) x y)).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> &lt;- precomp_arr_comp.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_comm1_enriched_nat_trans</span>
+        : enriched_nat_trans
+            (F · enriched_eso_ff_lift_enriched_functor)
+            Φ₁.
+      <span class="kn">Proof</span>.
+        use make_enriched_nat_trans.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_comm1_nat_trans.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_comm1_nat_trans_enrichment.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_comm1_is_nat_z_iso</span>
+        : is_nat_z_iso enriched_eso_ff_lift_comm1_nat_trans.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> x.
+        <span class="nb">apply</span> (fully_faithful_reflects_iso_proof
+                 _
+                 _
+                 _
+                 _
+                 _
+                 _
+                 (z_iso_comp
+                    (enriched_eso_ff_lift_z_iso (F x))
+                    (z_iso_inv (nat_z_iso_pointwise_z_iso τ_iso x)))).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_comm1_nat_z_iso</span>
+        : nat_z_iso
+            (F · enriched_eso_ff_lift_enriched_functor : enriched_functor _ _)
+            Φ₁.
+      <span class="kn">Proof</span>.
+        use make_nat_z_iso.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_comm1_nat_trans.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_comm1_is_nat_z_iso.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_comm1_inv2cell</span>
+        : invertible_2cell
+            (F · enriched_eso_ff_lift_enriched_functor)
+            Φ₁.
+      <span class="kn">Proof</span>.
+        use make_invertible_2cell.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_comm1_enriched_nat_trans.
+        - use make_is_invertible_2cell_enriched.
+          <span class="nb">apply</span> enriched_eso_ff_lift_comm1_is_nat_z_iso.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_comm2_nat_trans_data</span>
+        : nat_trans_data
+            (enriched_eso_ff_lift_enriched_functor · G : enriched_functor _ _)
+            Φ₂
+        := enriched_eso_ff_lift_z_iso.
+
+      <span class="kn">Arguments</span> enriched_eso_ff_lift_comm2_nat_trans_data /.
+
+      <span class="kn">Proposition</span> <span class="nf">enriched_eso_ff_lift_comm2_is_nat_trans</span>
+        : is_nat_trans
+            _ _
+            enriched_eso_ff_lift_comm2_nat_trans_data.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (enriched_eso_ff_lift_mor_eq f).
+        }
+        <span class="nb">refine</span> (_ @ id_right _).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_comm2_nat_trans</span>
+        : nat_trans
+            (enriched_eso_ff_lift_enriched_functor · G : enriched_functor _ _)
+            Φ₂.
+      <span class="kn">Proof</span>.
+        use make_nat_trans.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_comm2_nat_trans_data.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_comm2_is_nat_trans.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">enriched_eso_ff_lift_comm2_nat_trans_enrichment</span>
+        : nat_trans_enrichment
+            enriched_eso_ff_lift_comm2_nat_trans
+            (enriched_functor_enrichment (enriched_eso_ff_lift_enriched_functor · G))
+            (enriched_functor_enrichment Φ₂).
+      <span class="kn">Proof</span>.
+        use nat_trans_enrichment_via_comp.
+        <span class="nb">intros</span> x y ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!(id_right _) @ _).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+          <span class="nb">apply</span> id_left.
+        }
+        <span class="nb">rewrite</span> &lt;- postcomp_arr_comp.
+        <span class="nb">rewrite</span> &lt;- postcomp_arr_id.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> z_iso_after_z_iso_inv.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_comm2_enriched_nat_trans</span>
+        : enriched_nat_trans
+            (enriched_eso_ff_lift_enriched_functor · G)
+            Φ₂.
+      <span class="kn">Proof</span>.
+        use make_enriched_nat_trans.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_comm2_nat_trans.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_comm2_nat_trans_enrichment.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_comm2_enriched_is_nat_z_iso</span>
+        : is_nat_z_iso enriched_eso_ff_lift_comm2_nat_trans.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> x.
+        <span class="nb">apply</span> z_iso_is_z_isomorphism.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_comm2_inv2cell</span>
+        : invertible_2cell (enriched_eso_ff_lift_enriched_functor · G) Φ₂.
+      <span class="kn">Proof</span>.
+        use make_invertible_2cell.
+        - <span class="bp">exact</span> enriched_eso_ff_lift_comm2_enriched_nat_trans.
+        - use make_is_invertible_2cell_enriched.
+          <span class="nb">apply</span> enriched_eso_ff_lift_comm2_enriched_is_nat_z_iso.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">enriched_eso_ff_lift_comm_eq</span>
+        : (enriched_eso_ff_lift_comm1_inv2cell ▹ G) • τ
+          =
+          rassociator _ _ _ • (F ◃ enriched_eso_ff_lift_comm2_inv2cell).
+      <span class="kn">Proof</span>.
+        use eq_enriched_nat_trans.
+        <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_left.
+        <span class="nb">refine</span> (_ @ id_right _).
+        <span class="nb">refine</span> (!_).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso τ_iso x))).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="bp">exact</span> (enriched_eso_ff_lift_comm1_nat_trans_data_eq x).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">Lift1Cell</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_1cell</span>
+      : orthogonal_essentially_surjective F G.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> Φ₁ Φ₂ τ.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _ ,, _).
+      - <span class="bp">exact</span> (enriched_eso_ff_lift_enriched_functor Φ₁ Φ₂ τ).
+      - <span class="bp">exact</span> (enriched_eso_ff_lift_comm1_inv2cell Φ₁ Φ₂ τ).
+      - <span class="bp">exact</span> (enriched_eso_ff_lift_comm2_inv2cell Φ₁ Φ₂ τ).
+      - <span class="bp">exact</span> (enriched_eso_ff_lift_comm_eq Φ₁ Φ₂ τ).
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** * 4. Lifts of 2-cells *)</span>
+    <span class="kn">Section</span> <span class="nf">Lift2Cell</span>.
+      <span class="kn">Context</span> {<span class="nv">L₁</span> <span class="nv">L₂</span> : enriched_functor B₂ C₁}
+              (<span class="nv">τ₁</span> : enriched_nat_trans (F · L₁) (F · L₂))
+              (<span class="nv">τ₂</span> : enriched_nat_trans (L₁ · G) (L₂ · G))
+              (<span class="nv">p</span> : (τ₁ ▹ G) • rassociator F L₂ G
+                   =
+                   rassociator F L₁ G • (F ◃ τ₂)).
+
+      <span class="kn">Section</span> <span class="nf">Lift2CellData</span>.
+        <span class="kn">Context</span> (<span class="nv">x</span> : B₂).
+
+        <span class="kn">Definition</span> <span class="nf">isaprop_enriched_eso_ff_lift_2cell_data</span>
+          : isaprop (∑ (f : L₁ x --&gt; L₂ x), #G f = τ₂ x).
+        <span class="kn">Proof</span>.
+          use invproofirrelevance.
+          <span class="nb">intros</span> f g.
+          use subtypePath.
+          {
+            <span class="nb">intro</span>.
+            <span class="nb">apply</span> homset_property.
+          }
+          use (invmaponpathsweq (make_weq _ (G_fully_faithful _ _))).
+          <span class="nb">cbn</span>.
+          <span class="bp">exact</span> (pr2 f @ !(pr2 g)).
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">iscontr_enriched_eso_ff_lift_2cell_data</span>
+          : iscontr (∑ (f : L₁ x --&gt; L₂ x), #G f = τ₂ x).
+        <span class="kn">Proof</span>.
+          use iscontraprop1.
+          - <span class="bp">exact</span> isaprop_enriched_eso_ff_lift_2cell_data.
+          - <span class="nb">simple refine</span> (_ ,, _).
+            + use (invmap (make_weq _ (G_fully_faithful _ _))).
+              <span class="nb">apply</span> τ₂.
+            + <span class="nb">cbn</span>.
+              <span class="bp">exact</span> (homotweqinvweq (make_weq _ (G_fully_faithful _ _)) _).
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Definition</span> <span class="nf">iscontr_enriched_eso_ff_lift_2cell_el</span>
+          : L₁ x --&gt; L₂ x
+          := pr11 iscontr_enriched_eso_ff_lift_2cell_data.
+
+        <span class="kn">Proposition</span> <span class="nf">iscontr_enriched_eso_ff_lift_2cell_eq</span>
+          : #G iscontr_enriched_eso_ff_lift_2cell_el = τ₂ x.
+        <span class="kn">Proof</span>.
+          <span class="bp">exact</span> (pr21 iscontr_enriched_eso_ff_lift_2cell_data).
+        <span class="kn">Qed</span>.
+
+        <span class="kn">Proposition</span> <span class="nf">eq_to_iscontr_enriched_eso_ff_lift_2cell_el</span>
+                    (<span class="nv">f</span> : L₁ x --&gt; L₂ x)
+                    (<span class="nv">q</span> : #G f = τ₂ x)
+          : f = iscontr_enriched_eso_ff_lift_2cell_el.
+        <span class="kn">Proof</span>.
+          <span class="bp">exact</span> (maponpaths pr1 (pr2 (iscontr_enriched_eso_ff_lift_2cell_data) (f ,, q))).
+        <span class="kn">Qed</span>.
+      <span class="kn">End</span> <span class="nf">Lift2CellData</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">is_nat_trans_enriched_eso_ff_lift_2cell_nat_trans</span>
+        : is_nat_trans L₁ L₂ iscontr_enriched_eso_ff_lift_2cell_el.
+      <span class="kn">Proof</span>.
+        <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+        use (invmaponpathsweq (make_weq _ (G_fully_faithful _ _))) ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !functor_comp.
+        <span class="nb">rewrite</span> !iscontr_enriched_eso_ff_lift_2cell_eq.
+        <span class="nb">apply</span> (nat_trans_ax τ₂).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_2cell_nat_trans</span>
+        : L₁ ⟹ L₂.
+      <span class="kn">Proof</span>.
+        use make_nat_trans.
+        - <span class="bp">exact</span> iscontr_enriched_eso_ff_lift_2cell_el.
+        - <span class="bp">exact</span> is_nat_trans_enriched_eso_ff_lift_2cell_nat_trans.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">enriched_eso_ff_lift_2cell_enrichment</span>
+        : nat_trans_enrichment
+            enriched_eso_ff_lift_2cell_nat_trans
+            (enriched_functor_enrichment L₁)
+            (enriched_functor_enrichment L₂).
+      <span class="kn">Proof</span>.
+        use nat_trans_enrichment_via_comp.
+        <span class="nb">intros</span> x y.
+        <span class="nb">refine</span> (!(id_right _) @ _ @ id_right _).
+        <span class="nb">rewrite</span> &lt;- (z_iso_inv_after_z_iso (_ ,, HG (L₁ x) (L₂ y))) ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (_ @ nat_trans_enrichment_to_comp τ₂ x y @ _) ; <span class="nb">cbn</span>.
+        - <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- functor_enrichment_precomp_arr.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">apply</span> iscontr_enriched_eso_ff_lift_2cell_eq.
+        - <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> &lt;- functor_enrichment_postcomp_arr.
+          <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+          <span class="nb">refine</span> (!_).
+          <span class="nb">apply</span> iscontr_enriched_eso_ff_lift_2cell_eq.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_2cell_enriched_nat_trans</span>
+        : enriched_nat_trans L₁ L₂.
+      <span class="kn">Proof</span>.
+        <span class="nb">refine</span> (enriched_eso_ff_lift_2cell_nat_trans ,, enriched_eso_ff_lift_2cell_enrichment).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">enriched_eso_ff_lift_2cell_enriched_nat_trans_eq_F</span>
+        : F ◃ enriched_eso_ff_lift_2cell_enriched_nat_trans = τ₁.
+      <span class="kn">Proof</span>.
+        use eq_enriched_nat_trans.
+        <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (!_).
+        use eq_to_iscontr_enriched_eso_ff_lift_2cell_el.
+        <span class="nb">pose</span> (from_eq_enriched_nat_trans p x) <span class="k">as</span> q.
+        <span class="nb">cbn</span> <span class="k">in</span> q.
+        <span class="nb">rewrite</span> id_right, id_left <span class="k">in</span> q.
+        <span class="bp">exact</span> q.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">enriched_eso_ff_lift_2cell_enriched_nat_trans_eq_G</span>
+        : enriched_eso_ff_lift_2cell_enriched_nat_trans ▹ G = τ₂.
+      <span class="kn">Proof</span>.
+        use eq_enriched_nat_trans.
+        <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">apply</span> iscontr_enriched_eso_ff_lift_2cell_eq.
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">Lift2Cell</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_2cell</span>
+      : orthogonal_full F G.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> L₁ L₂ τ₁ τ₂ p.
+      <span class="nb">simple refine</span> (_ ,, _ ,, _).
+      - <span class="bp">exact</span> (enriched_eso_ff_lift_2cell_enriched_nat_trans τ₂).
+      - <span class="bp">exact</span> (enriched_eso_ff_lift_2cell_enriched_nat_trans_eq_F _ _ p).
+      - <span class="bp">exact</span> (enriched_eso_ff_lift_2cell_enriched_nat_trans_eq_G τ₂).
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** * 5. Uniqueness of lifts of 2-cells *)</span>
+    <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_lift_eq</span>
+      : orthogonal_faithful F G.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> Φ₁ Φ₂ ζ₁ ζ₂ p q.
+      use eq_enriched_nat_trans.
+      <span class="nb">intro</span> x.
+      <span class="nb">assert</span> (faithful G) <span class="k">as</span> H.
+      {
+        <span class="bp">exact</span> (fully_faithful_enriched_functor_to_faithful _ HG).
+      }
+      use (invmaponpathsincl _ (H _ _)).
+      <span class="bp">exact</span> (from_eq_enriched_nat_trans q x).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_orthogonal</span>
+      : F ⊥ G.
+    <span class="kn">Proof</span>.
+      use make_orthogonal.
+      - <span class="bp">exact</span> (is_univalent_2_1_bicat_of_enriched_cats V).
+      - <span class="bp">exact</span> enriched_eso_ff_lift_2cell.
+      - <span class="bp">exact</span> enriched_eso_ff_lift_eq.
+      - <span class="bp">exact</span> enriched_eso_ff_lift_1cell.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">Lifting</span>.
+
+  <span class="sd">(** * 6. Fully faithful 1-cells are closed under invertible 2-cells *)</span>
+  <span class="kn">Section</span> <span class="nf">FullyFaithfulInv2cell</span>.
+    <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : enriched_cat V}
+            {<span class="nv">F</span> <span class="nv">G</span> : enriched_functor C₁ C₂}
+            (<span class="nv">τ</span> : invertible_2cell F G)
+            (<span class="nv">HF</span> : enriched_ff_1cell _ _ F).
+
+    <span class="kn">Let</span> <span class="nf">τc</span> : enriched_nat_trans _ _ := pr1 τ.
+    <span class="kn">Let</span> <span class="nf">τi</span> : enriched_nat_trans _ _ := τ^-<span class="mi">1</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">enriched_fully_faithful_iso_left</span>
+                (<span class="nv">x</span> : C₁)
+      : τi x · τc x = identity _.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (from_eq_enriched_nat_trans (vcomp_linv τ) x).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Lemma</span> <span class="nf">enriched_fully_faithful_iso_right</span>
+                (<span class="nv">x</span> : C₁)
+      : τc x · τi x = identity _.
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (from_eq_enriched_nat_trans (vcomp_rinv τ) x).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_fully_faithful_hom_iso</span>
+               (<span class="nv">x</span> <span class="nv">y</span> : C₁)
+      : z_iso (C₂ ⦃ F x , F y ⦄) (C₂ ⦃ G x , G y ⦄).
+    <span class="kn">Proof</span>.
+      use make_z_iso.
+      - <span class="bp">exact</span> (precomp_arr _ _ (τi x) · postcomp_arr _ _ (τc y)).
+      - <span class="bp">exact</span> (precomp_arr _ _ (τc x) · postcomp_arr _ _ (τi y)).
+      - <span class="nb">split</span>.
+        + <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)) ;
+             <span class="nb">rewrite</span> &lt;- precomp_postcomp_arr ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> &lt;- postcomp_arr_comp ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> &lt;- precomp_arr_comp ;
+             <span class="nb">rewrite</span> !enriched_fully_faithful_iso_right ;
+             <span class="nb">rewrite</span> precomp_arr_id ;
+             <span class="nb">rewrite</span> postcomp_arr_id ;
+             <span class="nb">apply</span> id_right).
+        + <span class="kp">abstract</span>
+            (<span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)) ;
+             <span class="nb">rewrite</span> &lt;- precomp_postcomp_arr ;
+             <span class="nb">rewrite</span> !assoc' ;
+             <span class="nb">rewrite</span> &lt;- postcomp_arr_comp ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">rewrite</span> &lt;- precomp_arr_comp ;
+             <span class="nb">rewrite</span> !enriched_fully_faithful_iso_left ;
+             <span class="nb">rewrite</span> precomp_arr_id ;
+             <span class="nb">rewrite</span> postcomp_arr_id ;
+             <span class="nb">apply</span> id_right).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">enriched_fully_faithful_invertible_2cell</span>
+      : enriched_ff_1cell _ _ G.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> x y.
+      <span class="nb">assert</span> (enriched_functor_enrichment G x y
+              =
+              enriched_functor_enrichment F x y · enriched_fully_faithful_hom_iso x y)
+        <span class="k">as</span> p.
+      {
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> precomp_postcomp_arr.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> &lt;- (nat_trans_enrichment_to_comp τc x y).
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> &lt;- precomp_arr_comp.
+        <span class="nb">rewrite</span> enriched_fully_faithful_iso_left.
+        <span class="nb">rewrite</span> precomp_arr_id.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> p.
+      use is_z_isomorphism_comp.
+      - <span class="nb">apply</span> HF.
+      - <span class="nb">apply</span> z_iso_is_z_isomorphism.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">FullyFaithfulInv2cell</span>.
+
+  <span class="sd">(** * 7. The factorization system *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_orthogonal_factorization_system</span>
+    : orthogonal_factorization_system (bicat_of_enriched_cats V).
+  <span class="kn">Proof</span>.
+    use make_orthogonal_factorization_system.
+    - <span class="bp">exact</span> enriched_eso_1cell.
+    - <span class="bp">exact</span> enriched_ff_1cell.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> propproperty.
+    - <span class="nb">intros</span>.
+      <span class="nb">apply</span> propproperty.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">F</span>, enriched_eso_ff_factorization F).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> C₁ C₂ F G τ HF ; <span class="nb">cbn</span> ;
+         use (essentially_surjective_nat_z_iso _ HF) ;
+         <span class="bp">exact</span> (from_is_invertible_2cell_enriched _ τ)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> C₁ C₂ F G τ HF ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (enriched_fully_faithful_invertible_2cell τ HF)).
+    - <span class="nb">intros</span> B₁ B₂ C₁ C₂.
+      <span class="bp">exact</span> enriched_eso_ff_orthogonal.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 8. Essentially surjective+fully faithful implies adjoint equivalence *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_eso_ff_adjoint_equivalence</span>
+             {<span class="nv">C₁</span> <span class="nv">C₂</span> : enriched_cat V}
+             (<span class="nv">F</span> : enriched_functor C₁ C₂)
+             (<span class="nv">HF₁</span> : essentially_surjective F)
+             (<span class="nv">HF₂</span> : fully_faithful_enriched_functor
+                      (enriched_functor_enrichment F))
+    : left_adjoint_equivalence F.
+  <span class="kn">Proof</span>.
+    use (orthogonal_left_right_to_adjequiv
+           enriched_eso_ff_orthogonal_factorization_system).
+    - <span class="bp">exact</span> HF₁.
+    - <span class="bp">exact</span> HF₂.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EnrichedFactorizationSystem</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/OrthogonalFactorization/EnrichedEsoFactorization.v</tt>, line 75)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Essentially surjective+fully faithful implies adjoint equivalence
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

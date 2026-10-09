@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonotoneFunctions.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Monotone functions between posets</span>
+
+<span class="sd"> We define the notion of monotone function and we give some basic</span>
+<span class="sd"> examples of them</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Monotone functions</span>
+<span class="sd"> 2. Equality of posets via monotone functions</span>
+<span class="sd"> 3. Examples of monotone functions</span>
+<span class="sd"> 4. The poset of monotone functions</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.Basics.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Monotone functions</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">is_monotone</span>
+           {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+           (<span class="nv">R₁</span> : PartialOrder X₁)
+           (<span class="nv">R₂</span> : PartialOrder X₂)
+           (<span class="nv">f</span> : X₁ → X₂)
+  : UU
+  := ∏ (x₁ x₂ : X₁), R₁ x₁ x₂ → R₂ (f x₁) (f x₂).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_is_monotone</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            (<span class="nv">R₁</span> : PartialOrder X₁)
+            (<span class="nv">R₂</span> : PartialOrder X₂)
+            (<span class="nv">f</span> : X₁ → X₂)
+  : isaprop (is_monotone R₁ R₂ f).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> (pr1 R₂).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monotone_function</span>
+           {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+           (<span class="nv">R₁</span> : PartialOrder X₁)
+           (<span class="nv">R₂</span> : PartialOrder X₂)
+  : UU
+  := ∑ (f : X₁ → X₂), is_monotone R₁ R₂ f.
+
+<span class="kn">Definition</span> <span class="nf">monotone_function_to_function</span>
+           {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+           {<span class="nv">R₁</span> : PartialOrder X₁}
+           {<span class="nv">R₂</span> : PartialOrder X₂}
+           (<span class="nv">f</span> : monotone_function R₁ R₂)
+  : X₁ → X₂
+  := pr1 f.
+
+<span class="kn">Coercion</span> <span class="nf">monotone_function_to_function</span> : monotone_function &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_monotone_function</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            {<span class="nv">R₁</span> : PartialOrder X₁}
+            {<span class="nv">R₂</span> : PartialOrder X₂}
+            (<span class="nv">f</span> <span class="nv">g</span> : monotone_function R₁ R₂)
+            (<span class="nv">p</span> : ∏ (x : X₁), f x = g x)
+  : f = g.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_monotone.
+  }
+  use funextsec.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">monotone_function_hSet</span>
+           {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+           (<span class="nv">R₁</span> : PartialOrder X₁)
+           (<span class="nv">R₂</span> : PartialOrder X₂)
+  : hSet.
+<span class="kn">Proof</span>.
+  use make_hSet.
+  - <span class="bp">exact</span> (monotone_function R₁ R₂).
+  - use isaset_total2.
+    + use funspace_isaset.
+      <span class="bp">exact</span> (pr2 X₂).
+    + <span class="nb">intro</span> f.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> isaprop_is_monotone.
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Equality of posets via monotone functions</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">eq_PartialOrder</span>
+            {<span class="nv">X</span> : hSet}
+            {<span class="nv">PX</span> <span class="nv">PX'</span> : PartialOrder X}
+            (<span class="nv">p</span> : is_monotone PX PX' (<span class="k">λ</span> <span class="nv">x</span>, x))
+            (<span class="nv">q</span> : is_monotone PX' PX (<span class="k">λ</span> <span class="nv">x</span>, x))
+  : PX = PX'.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_isPartialOrder.
+  }
+  use funextsec ; <span class="nb">intro</span>.
+  use funextsec ; <span class="nb">intro</span>.
+  use weqtopathshProp.
+  use weqimplimpl.
+  - <span class="nb">apply</span> p.
+  - <span class="nb">apply</span> q.
+  - <span class="nb">apply</span> (pr1 PX).
+  - <span class="nb">apply</span> (pr1 PX').
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Examples of monotone functions</span>
+<span class="sd"> *)</span>
+<span class="kn">Proposition</span> <span class="nf">idfun_is_monotone</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">R</span> : PartialOrder X)
+  : is_monotone R R (idfun X).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">p</span>, p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">id_monotone_function</span>
+           {<span class="nv">X</span> : hSet}
+           (<span class="nv">R</span> : PartialOrder X)
+  : monotone_function R R
+  := _ ,, idfun_is_monotone R.
+
+<span class="kn">Proposition</span> <span class="nf">comp_is_monotone</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> : hSet}
+            {<span class="nv">R₁</span> : PartialOrder X₁}
+            {<span class="nv">R₂</span> : PartialOrder X₂}
+            {<span class="nv">R₃</span> : PartialOrder X₃}
+            {<span class="nv">f</span> : X₁ → X₂}
+            {<span class="nv">g</span> : X₂ → X₃}
+            (<span class="nv">Hf</span> : is_monotone R₁ R₂ f)
+            (<span class="nv">Hg</span> : is_monotone R₂ R₃ g)
+  : is_monotone R₁ R₃ (<span class="k">λ</span> <span class="nv">z</span>, g(f z)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">p</span>, Hg _ _ (Hf _ _ p)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_monotone_function</span>
+           {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">X₃</span> : hSet}
+           {<span class="nv">R₁</span> : PartialOrder X₁}
+           {<span class="nv">R₂</span> : PartialOrder X₂}
+           {<span class="nv">R₃</span> : PartialOrder X₃}
+           (<span class="nv">f</span> : monotone_function R₁ R₂)
+           (<span class="nv">g</span> : monotone_function R₂ R₃)
+  : monotone_function R₁ R₃
+  := _ ,, comp_is_monotone (pr2 f) (pr2 g).
+
+<span class="kn">Proposition</span> <span class="nf">dirprod_pr1_is_monotone</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            (<span class="nv">R₁</span> : PartialOrder X₁)
+            (<span class="nv">R₂</span> : PartialOrder X₂)
+  : is_monotone (prod_PartialOrder R₁ R₂) R₁ pr1.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">p</span>, pr1 p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr1_monotone_function</span>
+           {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+           (<span class="nv">R₁</span> : PartialOrder X₁)
+           (<span class="nv">R₂</span> : PartialOrder X₂)
+  : monotone_function (prod_PartialOrder R₁ R₂) R₁
+  := _ ,, dirprod_pr1_is_monotone R₁ R₂.
+
+<span class="kn">Proposition</span> <span class="nf">dirprod_pr2_is_monotone</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            (<span class="nv">R₁</span> : PartialOrder X₁)
+            (<span class="nv">R₂</span> : PartialOrder X₂)
+  : is_monotone (prod_PartialOrder R₁ R₂) R₂ pr2.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">p</span>, pr2 p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">pr2_monotone_function</span>
+           {<span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+           (<span class="nv">R₁</span> : PartialOrder X₁)
+           (<span class="nv">R₂</span> : PartialOrder X₂)
+  : monotone_function (prod_PartialOrder R₁ R₂) R₂
+  := _ ,, dirprod_pr2_is_monotone R₁ R₂.
+
+<span class="kn">Proposition</span> <span class="nf">prodtofun_is_monotone</span>
+            {<span class="nv">W</span> <span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+            {<span class="nv">RW</span> : PartialOrder W}
+            {<span class="nv">R₁</span> : PartialOrder X₁}
+            {<span class="nv">R₂</span> : PartialOrder X₂}
+            {<span class="nv">f</span> : W → X₁}
+            {<span class="nv">g</span> : W → X₂}
+            (<span class="nv">Hf</span> : is_monotone RW R₁ f)
+            (<span class="nv">Hg</span> : is_monotone RW R₂ g)
+  : is_monotone RW (prod_PartialOrder R₁ R₂) (prodtofuntoprod (f,, g)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span>, Hf _ _ p ,, Hg _ _ p).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">prodtofun_monotone_function</span>
+           {<span class="nv">W</span> <span class="nv">X₁</span> <span class="nv">X₂</span> : hSet}
+           {<span class="nv">RW</span> : PartialOrder W}
+           {<span class="nv">R₁</span> : PartialOrder X₁}
+           {<span class="nv">R₂</span> : PartialOrder X₂}
+           (<span class="nv">f</span> : monotone_function RW R₁)
+           (<span class="nv">g</span> : monotone_function RW R₂)
+  : monotone_function RW (prod_PartialOrder R₁ R₂)
+  := _ ,, prodtofun_is_monotone (pr2 f) (pr2 g).
+
+<span class="kn">Proposition</span> <span class="nf">Equalizer_pr1_monotone</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">RX</span> : PartialOrder X)
+            (<span class="nv">Y</span> : hSet)
+            (<span class="nv">f</span> <span class="nv">g</span> : X → Y)
+  : is_monotone
+      (Equalizer_order RX Y f g)
+      RX
+      (<span class="k">λ</span> <span class="nv">z</span>, pr1 z).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y p.
+  <span class="bp">exact</span> p.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">Equalizer_monotone_function</span>
+           {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+           (<span class="nv">RX</span> : PartialOrder X)
+           (<span class="nv">RY</span> : PartialOrder Y)
+           (<span class="nv">f</span> <span class="nv">g</span> : X → Y)
+  : monotone_function (Equalizer_order RX Y f g) RX
+  := (<span class="k">λ</span> <span class="nv">z</span>, pr1 z) ,, Equalizer_pr1_monotone RX Y f g.
+
+<span class="kn">Proposition</span> <span class="nf">Equalizer_map_monotone</span>
+            {<span class="nv">X</span> : hSet}
+            (<span class="nv">RX</span> : PartialOrder X)
+            (<span class="nv">Y</span> : hSet)
+            (<span class="nv">f</span> <span class="nv">g</span> : X → Y)
+            {<span class="nv">W</span> : hSet}
+            (<span class="nv">RW</span> : PartialOrder W)
+            {<span class="nv">h</span> : W → X}
+            (<span class="nv">Rh</span> : is_monotone RW RX h)
+            (<span class="nv">p</span> : ∏ (w : W), f(h w) = g(h w))
+  : is_monotone
+      RW
+      (Equalizer_order RX Y f g)
+      (<span class="k">λ</span> <span class="nv">w</span>, h w ,, p w).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w₁ w₂ q.
+  <span class="nb">apply</span> Rh.
+  <span class="bp">exact</span> q.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_monotone_depfunction_poset_pr</span>
+            {<span class="nv">X</span> : UU}
+            (<span class="nv">Y</span> : X → hSet)
+            (<span class="nv">RY</span> : ∏ (x : X), PartialOrder (Y x))
+            (<span class="nv">x</span> : X)
+  : is_monotone (depfunction_poset Y RY) (RY x) (<span class="k">λ</span> <span class="nv">f</span>, f x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f g p.
+  <span class="bp">exact</span> (p x).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_monotone_depfunction_poset_pair</span>
+            {<span class="nv">W</span> : hSet}
+            {<span class="nv">X</span> : UU}
+            {<span class="nv">Y</span> : X → hSet}
+            {<span class="nv">RW</span> : PartialOrder W}
+            {<span class="nv">RY</span> : ∏ (x : X), PartialOrder (Y x)}
+            (<span class="nv">fs</span> : ∏ (x : X), W → Y x)
+            (<span class="nv">Hfs</span> : ∏ (x : X), is_monotone RW (RY x) (fs x))
+  : is_monotone RW (depfunction_poset Y RY) (<span class="k">λ</span> <span class="nv">w</span> <span class="nv">x</span>, fs x w).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w₁ w₂ p x.
+  <span class="bp">exact</span> (Hfs x _ _ p).
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 4. The poset of monotone functions</span>
+<span class="sd"> *)</span>
+<span class="kn">Section</span> <span class="nf">FunctionOrder</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet}
+          (<span class="nv">RX</span> : PartialOrder X)
+          (<span class="nv">RY</span> : PartialOrder Y).
+
+  <span class="kn">Definition</span> <span class="nf">monotone_function_order</span>
+    : hrel (monotone_function_hSet RX RY).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f g ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    use make_hProp.
+    - <span class="bp">exact</span> (∏ (x : X), RY (f x) (g x)).
+    - <span class="kp">abstract</span>
+        (use impred ; <span class="nb">intro</span> ;
+         <span class="nb">apply</span> (pr1 RY)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">monotone_function_isPartialOrder</span>
+    : isPartialOrder monotone_function_order.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, _) ,, _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">g</span> <span class="nv">h</span> <span class="nv">p</span> <span class="nv">q</span> <span class="nv">x</span>, trans_PartialOrder RY (p x) (q x)).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">f</span> <span class="nv">x</span>, refl_PartialOrder RY (pr1 f x)).
+    - <span class="nb">intros</span> f g p q.
+      use eq_monotone_function.
+      <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (antisymm_PartialOrder RY (p x) (q x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">monotone_function_PartialOrder</span>
+    : PartialOrder (monotone_function_hSet RX RY).
+  <span class="kn">Proof</span>.
+    use make_PartialOrder.
+    - <span class="bp">exact</span> monotone_function_order.
+    - <span class="bp">exact</span> monotone_function_isPartialOrder.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">eval_monotone_function</span>
+    : monotone_function
+        (prod_PartialOrder RX monotone_function_PartialOrder)
+        RY.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xf</span>, pr2 xf (pr1 xf)).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> xf yg pq ;
+         <span class="nb">induction</span> xf <span class="k">as</span> [ x f ] ;
+         <span class="nb">induction</span> yg <span class="k">as</span> [ y g ] ;
+         <span class="nb">induction</span> pq <span class="k">as</span> [ p q ] ;
+         <span class="nb">cbn</span> <span class="k">in</span> * ;
+         <span class="bp">exact</span> (trans_PartialOrder RY (q x) (pr2 g x y p))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lam_monotone_function</span>
+             {<span class="nv">Z</span> : hSet}
+             {<span class="nv">RZ</span> : PartialOrder Z}
+             (<span class="nv">f</span> : monotone_function (prod_PartialOrder RX RZ) RY)
+    : monotone_function RZ monotone_function_PartialOrder.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _) ; <span class="nb">cbn</span>.
+    - <span class="nb">intro</span> z.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, f (x ,, z)).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intros</span> x₁ x₂ p ;
+           <span class="nb">apply</span> f ; <span class="nb">cbn</span> ;
+           <span class="nb">refine</span> (p ,, _) ;
+           <span class="nb">apply</span> refl_PartialOrder).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> z₁ z₂ p x ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> f ; <span class="nb">cbn</span> ;
+         <span class="bp">exact</span> (refl_PartialOrder RX x ,, p)).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FunctionOrder</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/Posets/MonotoneFunctions.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The poset of monotone functions
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.OrderTheory.Posets.Basics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

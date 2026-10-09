@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CoproductsInActegories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** studies coproducts in the categories on which is being acted in actegories</span>
+
+<span class="sd">author: Ralph Matthes, 2023</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.Actegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.MorphismsOfActegories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.ProductActegory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Actegories.ConstructionOfActegories.
+<span class="c">(* Require Import UniMath.CategoryTheory.coslicecat. *)</span>
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.ProductCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="c">(* Require Import UniMath.CategoryTheory.Monoidal.Examples.MonoidalPointedObjects. *)</span>
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Import</span> BifunctorNotations.
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Import</span> ActegoryNotations.
+
+<span class="kn">Section</span> <span class="nf">FixAMonoidalCategory</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V). <span class="sd">(** given the monoidal category that acts upon categories *)</span>
+
+
+<span class="kn">Section</span> <span class="nf">BinaryCoproduct</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">BCP</span> : BinCoproducts C) (<span class="nv">Act</span> : actegory Mon_V C).
+
+  <span class="kn">Definition</span> <span class="nf">actegory_bincoprod_antidistributor</span> : ∏ (a : V) (c c' : C),
+      BCP (leftwhiskering_functor Act a c) (leftwhiskering_functor Act a c') --&gt; leftwhiskering_functor Act a (BCP c c')
+    := bifunctor_bincoprod_antidistributor BCP BCP Act.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_bincoprod_antidistributor_nat_left</span> (<span class="nv">v</span> : V) (<span class="nv">cd1</span> <span class="nv">cd2</span> : category_binproduct C C) (<span class="nv">g</span> : cd1 --&gt; cd2) :
+    actegory_bincoprod_antidistributor v (pr1 cd1) (pr2 cd1) · v ⊗^{Act}_{l} #(bincoproduct_functor BCP) g =
+    #(bincoproduct_functor BCP) (v ⊗^{actegory_binprod Mon_V Act Act}_{l} g) · actegory_bincoprod_antidistributor v (pr1 cd2) (pr2 cd2).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> bincoprod_antidistributor_nat_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_bincoprod_antidistributor_nat_right</span> (<span class="nv">v1</span> <span class="nv">v2</span> : V) (<span class="nv">cd</span> : category_binproduct C C) (<span class="nv">f</span> : v1 --&gt; v2) :
+    actegory_bincoprod_antidistributor v1 (pr1 cd) (pr2 cd) · f ⊗^{ Act}_{r} bincoproduct_functor BCP cd  =
+    #(bincoproduct_functor BCP) (f ⊗^{ actegory_binprod Mon_V Act Act}_{r} cd) · actegory_bincoprod_antidistributor v2 (pr1 cd) (pr2 cd).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> bincoprod_antidistributor_nat_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">bincoprod_antidistributor_pentagon_identity</span> (<span class="nv">v</span> <span class="nv">w</span> : V) (<span class="nv">cd</span> : category_binproduct C C) :
+    # (bincoproduct_functor BCP) aα^{actegory_binprod Mon_V Act Act}_{v, w, cd} ·
+                                      actegory_bincoprod_antidistributor v (w ⊗_{Act} pr1 cd) (w ⊗_{ Act} pr2 cd) ·
+                                      v ⊗^{Act}_{l} actegory_bincoprod_antidistributor w (pr1 cd) (pr2 cd) =
+      actegory_bincoprod_antidistributor (v ⊗_{Mon_V} w) (pr1 cd) (pr2 cd)
+        · aα^{Act}_{v, w, bincoproduct_functor BCP cd}.
+  <span class="kn">Proof</span>.
+    etrans.
+    { <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> postcompWithBinCoproductArrow. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, postcompWithBinCoproductArrow. }
+    <span class="nb">apply</span> maponpaths_12.
+    - etrans.
+      { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinCoproductIn1Commutes. }
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> actegory_actornatleft. }
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      { <span class="nb">apply</span> pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> BinCoproductIn1Commutes.
+    - etrans.
+      { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+        <span class="nb">apply</span> cancel_postcomposition.
+        <span class="nb">rewrite</span> assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinCoproductIn2Commutes. }
+      etrans.
+      <span class="mi">2</span>: { <span class="nb">apply</span> actegory_actornatleft. }
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      etrans.
+      { <span class="nb">apply</span> pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> BinCoproductIn2Commutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">bincoprod_antidistributor_triangle_identity</span> (<span class="nv">cd</span> : category_binproduct C C) :
+    #(bincoproduct_functor BCP) au^{actegory_binprod Mon_V Act Act}_{cd} =
+      actegory_bincoprod_antidistributor I_{Mon_V} (pr1 cd) (pr2 cd) · au^{Act}_{bincoproduct_functor BCP cd}.
+  <span class="kn">Proof</span>.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, postcompWithBinCoproductArrow. }
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> BinCoproductOfArrows.
+    <span class="nb">apply</span> maponpaths_12; <span class="nb">apply</span> pathsinv0, actegory_unitornat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_bincoprod_antidistributor_commutes_with_associativity_of_coproduct</span> (<span class="nv">v</span> : V) (<span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : C) :
+    #(bincoproduct_functor BCP) (catbinprodmor (actegory_bincoprod_antidistributor v c d) (identity (v ⊗_{Act} e))) ·
+      actegory_bincoprod_antidistributor v (BCP c d) e ·
+      v ⊗^{Act}_{l} bincoprod_associator_data BCP c d e =
+    bincoprod_associator_data BCP (v ⊗_{Act} c) (v ⊗_{Act} d) (v ⊗_{Act} e) ·
+      #(bincoproduct_functor BCP) (catbinprodmor (identity (v ⊗_{Act} c)) (actegory_bincoprod_antidistributor v d e)) ·
+      actegory_bincoprod_antidistributor v c (BCP d e).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> bincoprod_antidistributor_commutes_with_associativity_of_coproduct.
+  <span class="kn">Qed</span>.
+
+
+  <span class="kn">Definition</span> <span class="nf">actegory_bincoprod_distributor_data</span> : UU := bifunctor_bincoprod_distributor_data BCP BCP Act.
+  <span class="kn">Identity Coercion</span> <span class="nf">actegory_bincoprod_distributor_data_coercion</span>: actegory_bincoprod_distributor_data &gt;-&gt; bifunctor_bincoprod_distributor_data.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_bincoprod_distributor_iso_law</span> (<span class="nv">δ</span> : actegory_bincoprod_distributor_data) : UU :=
+    bifunctor_bincoprod_distributor_iso_law BCP BCP Act δ.
+  <span class="kn">Definition</span> <span class="nf">actegory_bincoprod_distributor</span> : UU := bifunctor_bincoprod_distributor BCP BCP Act.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_bincoprod_distributor_to_data</span> (<span class="nv">δ</span> : actegory_bincoprod_distributor) : actegory_bincoprod_distributor_data := pr1 δ.
+  <span class="kn">Coercion</span> <span class="nf">actegory_bincoprod_distributor_to_data</span> : actegory_bincoprod_distributor &gt;-&gt; actegory_bincoprod_distributor_data.
+
+  <span class="kn">Definition</span> <span class="nf">bincoprod_functor_lineator_data</span> (<span class="nv">δ</span> : actegory_bincoprod_distributor) :
+    lineator_data Mon_V (actegory_binprod Mon_V Act Act) Act (bincoproduct_functor BCP).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v cd.
+    <span class="bp">exact</span> (δ v (pr1 cd) (pr2 cd)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bincoprod_functor_lineator_strongly</span> (<span class="nv">δ</span> : actegory_bincoprod_distributor) :
+    lineator_strongly _ _ _ _ (bincoprod_functor_lineator_data δ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v cd.
+    <span class="k">exists</span> (<span class="nv">actegory_bincoprod_antidistributor</span> <span class="nv">v</span> (pr1 cd) (pr2 cd)).
+    <span class="nb">apply</span> (pr2 δ v).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">bincoprod_functor_lineator_laxlaws</span> (<span class="nv">δ</span> : actegory_bincoprod_distributor) :
+    lineator_laxlaws _ _ _ _ (bincoprod_functor_lineator_data δ).
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">red</span>.
+      <span class="nb">intros</span> v cd1 cd2 g.
+      <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ (_,,bincoprod_functor_lineator_strongly δ v _)).
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ v _)).
+      <span class="nb">apply</span> (bincoprod_antidistributor_nat_left _ _ Act).
+    - <span class="nb">red</span>.
+      <span class="nb">intros</span> v1 v2 cd f.
+      <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).
+      <span class="nb">apply</span> (bincoprod_antidistributor_nat_right _ _ Act).
+    - <span class="nb">red</span>.
+      <span class="nb">intros</span> v w cd.
+      <span class="nb">apply</span> pathsinv0, (z_iso_inv_to_right _ _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ (functor_on_z_iso (leftwhiskering_functor Act v)
+                                           (_,,bincoprod_functor_lineator_strongly δ _ _))).
+      <span class="nb">apply</span> pathsinv0, bincoprod_antidistributor_pentagon_identity.
+    - <span class="nb">red</span>.
+      <span class="nb">intro</span> cd.
+      <span class="nb">apply</span> pathsinv0, (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ _ _)).
+      <span class="nb">apply</span> pathsinv0, bincoprod_antidistributor_triangle_identity.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">bincoprod_functor_lineator</span> (<span class="nv">δ</span> : actegory_bincoprod_distributor) :
+    lineator Mon_V (actegory_binprod Mon_V Act Act) Act (bincoproduct_functor BCP).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="k">exists</span> (<span class="nv">bincoprod_functor_lineator_data</span> <span class="nv">δ</span>).
+      <span class="bp">exact</span> (bincoprod_functor_lineator_laxlaws δ).
+    - <span class="nb">apply</span> bincoprod_functor_lineator_strongly.
+  <span class="kn">Defined</span>.
+
+
+  <span class="kn">Lemma</span> <span class="nf">bincoprod_distributor_commutes_with_associativity_of_coproduct</span> (<span class="nv">δ</span> : actegory_bincoprod_distributor) (<span class="nv">v</span> : V) (<span class="nv">c</span> <span class="nv">d</span> <span class="nv">e</span> : C) :
+    v ⊗^{Act}_{l} bincoprod_associator_data BCP c d e ·
+      δ v c (BCP d e) ·
+      #(bincoproduct_functor BCP) (catbinprodmor (identity (v ⊗_{Act} c)) (δ v d e)) =
+    δ v (BCP c d) e ·
+      #(bincoproduct_functor BCP) (catbinprodmor (δ v c d) (identity (v ⊗_{Act} e))) ·
+      bincoprod_associator_data BCP (v ⊗_{Act} c) (v ⊗_{Act} d) (v ⊗_{Act} e).
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (_,,bincoprod_functor_lineator_strongly δ v (((BCP c d): C),, e))).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ (functor_on_z_iso (functor_fix_fst_arg _ _ _
+                                                           (bincoproduct_functor BCP) (v ⊗_{ Act} c))
+                                         (_,,bincoprod_functor_lineator_strongly δ v (d,,e)))).
+    <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ (_,,bincoprod_functor_lineator_strongly δ v (c,,((BCP d e): C)))).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (functor_on_z_iso (functor_fix_snd_arg _ _ _
+                                                           (bincoproduct_functor BCP) (v ⊗_{ Act} e))
+                                      (_,,bincoprod_functor_lineator_strongly δ v (c,,d)))).
+    <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+    <span class="nb">apply</span> actegory_bincoprod_antidistributor_commutes_with_associativity_of_coproduct.
+  <span class="kn">Qed</span>.
+
+
+<span class="kn">End</span> <span class="nf">BinaryCoproduct</span>.
+
+<span class="kn">Section</span> <span class="nf">Coproduct</span>.
+
+  <span class="kn">Context</span> {<span class="nv">I</span> : UU} {<span class="nv">C</span> : category} (<span class="nv">CP</span> : Coproducts I C) (<span class="nv">Act</span> : actegory Mon_V C).
+
+  <span class="kn">Definition</span> <span class="nf">actegory_coprod_antidistributor</span> := bifunctor_coprod_antidistributor CP CP Act.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_coprod_antidistributor_nat_left</span> (<span class="nv">v</span> : V)
+    (<span class="nv">cs1</span> <span class="nv">cs2</span> : power_category I C) (<span class="nv">g</span> : cs1 --&gt; cs2) :
+    actegory_coprod_antidistributor v cs1 · v ⊗^{Act}_{l} #(coproduct_functor I CP) g =
+      #(coproduct_functor I CP) (v ⊗^{actegory_power Mon_V I Act}_{l} g) ·
+        actegory_coprod_antidistributor v cs2.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> coprod_antidistributor_nat_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">actegory_coprod_antidistributor_nat_right</span> (<span class="nv">v1</span> <span class="nv">v2</span> : V)
+    (<span class="nv">cs</span> : power_category I C) (<span class="nv">f</span> : v1 --&gt; v2) :
+    actegory_coprod_antidistributor v1 cs · f ⊗^{Act}_{r} coproduct_functor I CP cs  =
+      #(coproduct_functor I CP) (f ⊗^{actegory_power Mon_V I Act}_{r} cs) ·
+        actegory_coprod_antidistributor v2 cs.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> coprod_antidistributor_nat_right.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">coprod_antidistributor_pentagon_identity</span> (<span class="nv">v</span> <span class="nv">w</span> : V) (<span class="nv">cs</span> : power_category I C) :
+    # (coproduct_functor I CP) aα^{actegory_power Mon_V I Act}_{v, w, cs} ·
+                                      actegory_coprod_antidistributor v (<span class="k">fun</span> <span class="nv">i</span> =&gt; w ⊗_{Act} (cs i)) ·
+                                      v ⊗^{Act}_{l} actegory_coprod_antidistributor w cs =
+     actegory_coprod_antidistributor (v ⊗_{Mon_V} w) cs
+        · aα^{Act}_{v, w, coproduct_functor I CP cs}.
+  <span class="kn">Proof</span>.
+    etrans.
+    { <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> postcompWithCoproductArrow. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, postcompWithCoproductArrow. }
+    <span class="nb">apply</span> maponpaths; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i.
+    etrans.
+    { <span class="kp">repeat</span> <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> CoproductInCommutes. }
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> actegory_actornatleft. }
+    <span class="nb">rewrite</span> assoc'.
+    <span class="nb">apply</span> maponpaths.
+    etrans.
+    { <span class="nb">apply</span> pathsinv0, (functor_comp (leftwhiskering_functor Act v)). }
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> CoproductInCommutes.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">coprod_antidistributor_triangle_identity</span> (<span class="nv">cs</span> : power_category I C) :
+    #(coproduct_functor I CP) au^{actegory_power Mon_V I Act}_{cs} =
+      actegory_coprod_antidistributor I_{Mon_V} cs · au^{Act}_{coproduct_functor I CP cs}.
+  <span class="kn">Proof</span>.
+    etrans.
+    <span class="mi">2</span>: { <span class="nb">apply</span> pathsinv0, postcompWithCoproductArrow. }
+    <span class="nb">cbn</span>. <span class="nb">unfold</span> CoproductOfArrows.
+    <span class="nb">apply</span> maponpaths, funextsec; <span class="nb">intro</span> i; <span class="nb">apply</span> pathsinv0, actegory_unitornat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_coprod_distributor_data</span> : UU := bifunctor_coprod_distributor_data CP CP Act.
+  <span class="kn">Identity Coercion</span> <span class="nf">actegory_coprod_distributor_data_coercion</span>:
+    actegory_coprod_distributor_data &gt;-&gt; bifunctor_coprod_distributor_data.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_coprod_distributor_iso_law</span> (<span class="nv">δ</span> : actegory_coprod_distributor_data) : UU :=
+    bifunctor_coprod_distributor_iso_law CP CP Act δ.
+  <span class="kn">Definition</span> <span class="nf">actegory_coprod_distributor</span> : UU := bifunctor_coprod_distributor CP CP Act.
+
+  <span class="kn">Definition</span> <span class="nf">actegory_coprod_distributor_to_data</span> (<span class="nv">δ</span> : actegory_coprod_distributor) :
+    actegory_coprod_distributor_data := pr1 δ.
+  <span class="kn">Coercion</span> <span class="nf">actegory_coprod_distributor_to_data</span> :
+    actegory_coprod_distributor &gt;-&gt; actegory_coprod_distributor_data.
+
+  <span class="kn">Definition</span> <span class="nf">coprod_functor_lineator_data</span> (<span class="nv">δ</span> : actegory_coprod_distributor_data) :
+    lineator_data Mon_V (actegory_power Mon_V I Act) Act (coproduct_functor I CP).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v cs.
+    <span class="bp">exact</span> (δ v cs).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprod_functor_lineator_strongly</span> (<span class="nv">δ</span> : actegory_coprod_distributor) :
+    lineator_strongly _ _ _ _ (coprod_functor_lineator_data δ).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> v cs.
+    <span class="k">exists</span> (<span class="nv">actegory_coprod_antidistributor</span> <span class="nv">v</span> <span class="nv">cs</span>).
+    <span class="nb">apply</span> (pr2 δ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">coprod_functor_lineator_laxlaws</span> (<span class="nv">δ</span> : actegory_coprod_distributor) :
+    lineator_laxlaws _ _ _ _ (coprod_functor_lineator_data δ).
+  <span class="kn">Proof</span>.
+    <span class="nb">red</span>; <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">red</span>.
+      <span class="nb">intros</span> v cs1 cs2 g.
+      <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ (_,,coprod_functor_lineator_strongly δ v _)).
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (_,,coprod_functor_lineator_strongly δ v _)).
+      <span class="nb">apply</span> actegory_coprod_antidistributor_nat_left.
+    - <span class="nb">red</span>.
+      <span class="nb">intros</span> v1 v2 cs f.
+      <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ (_,,coprod_functor_lineator_strongly δ _ _)).
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (_,,coprod_functor_lineator_strongly δ _ _)).
+      <span class="nb">apply</span> actegory_coprod_antidistributor_nat_right.
+    - <span class="nb">red</span>.
+      <span class="nb">intros</span> v w cs.
+      <span class="nb">apply</span> pathsinv0, (z_iso_inv_to_right _ _ _ _ (_,,coprod_functor_lineator_strongly δ _ _)).
+      <span class="nb">rewrite</span> assoc'.
+      <span class="nb">apply</span> (z_iso_inv_to_left _ _ _ (_,,coprod_functor_lineator_strongly δ _ _)).
+      <span class="nb">rewrite</span> assoc.
+      <span class="nb">apply</span> (z_iso_inv_to_right _ _ _ _ (functor_on_z_iso (leftwhiskering_functor Act v)
+                                           (_,,coprod_functor_lineator_strongly δ _ _))).
+      <span class="nb">apply</span> pathsinv0, coprod_antidistributor_pentagon_identity.
+    - <span class="nb">red</span>.
+      <span class="nb">intro</span> cs.
+      <span class="nb">apply</span> pathsinv0, (z_iso_inv_to_left _ _ _ (_,,coprod_functor_lineator_strongly δ _ _)).
+      <span class="nb">apply</span> pathsinv0, coprod_antidistributor_triangle_identity.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">coprod_functor_lineator</span> (<span class="nv">δ</span> : actegory_coprod_distributor) :
+    lineator Mon_V (actegory_power Mon_V I Act) Act (coproduct_functor I CP).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="k">exists</span> (<span class="nv">coprod_functor_lineator_data</span> <span class="nv">δ</span>).
+      <span class="bp">exact</span> (coprod_functor_lineator_laxlaws δ).
+    - <span class="nb">apply</span> coprod_functor_lineator_strongly.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Coproduct</span>.
+
+<span class="kn">End</span> <span class="nf">FixAMonoidalCategory</span>.
+
+<span class="kn">Section</span> <span class="nf">TwoMonoidalCategories</span>.
+
+  <span class="kn">Context</span> {<span class="nv">V</span> : category} (<span class="nv">Mon_V</span> : monoidal V) {<span class="nv">C</span> : category} (<span class="nv">Act</span> : actegory Mon_V C)
+    {<span class="nv">W</span> : category} (<span class="nv">Mon_W</span> : monoidal W)
+    {<span class="nv">F</span> : W ⟶ V} (<span class="nv">U</span> : fmonoidal Mon_W Mon_V F).
+
+  <span class="kn">Let</span> <span class="nf">ActW</span> : actegory Mon_W C := reindexed_actegory Mon_V Act Mon_W U.
+
+<span class="kn">Section</span> <span class="nf">BinaryCase</span>.
+
+  <span class="kn">Context</span> (<span class="nv">BCP</span> : BinCoproducts C) (<span class="nv">δ</span> : actegory_bincoprod_distributor Mon_V BCP Act).
+
+  <span class="kn">Definition</span> <span class="nf">reindexed_bincoprod_distributor_data</span> : actegory_bincoprod_distributor_data Mon_W BCP ActW.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w c c'.
+    <span class="nb">apply</span> (δ (F w)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">reindexed_bincoprod_distributor_law</span> :
+    actegory_bincoprod_distributor_iso_law _ _ _ reindexed_bincoprod_distributor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w c c'.
+    <span class="nb">split</span>; <span class="nb">unfold</span> reindexed_bincoprod_distributor_data; <span class="nb">apply</span> (pr2 δ (F w)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindexed_bincoprod_distributor</span> : actegory_bincoprod_distributor Mon_W BCP ActW :=
+    _,,reindexed_bincoprod_distributor_law.
+
+<span class="kn">End</span> <span class="nf">BinaryCase</span>.
+
+<span class="kn">Section</span> <span class="nf">IndexedCase</span>.
+
+  <span class="kn">Context</span> {<span class="nv">I</span> : UU} (<span class="nv">CP</span> : Coproducts I C) (<span class="nv">δ</span> : actegory_coprod_distributor Mon_V CP Act).
+
+  <span class="kn">Definition</span> <span class="nf">reindexed_coprod_distributor_data</span> : actegory_coprod_distributor_data Mon_W CP ActW.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w cs.
+    <span class="nb">apply</span> (δ (F w)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">reindexed_coprod_distributor_law</span> :
+    actegory_coprod_distributor_iso_law _ _ _ reindexed_coprod_distributor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> w cs.
+    <span class="nb">split</span>; <span class="nb">unfold</span> reindexed_coprod_distributor_data; <span class="nb">apply</span> (pr2 δ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">reindexed_coprod_distributor</span> : actegory_coprod_distributor Mon_W CP ActW :=
+    _,,reindexed_coprod_distributor_law.
+
+<span class="kn">End</span> <span class="nf">IndexedCase</span>.
+
+<span class="kn">End</span> <span class="nf">TwoMonoidalCategories</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Actegories/CoproductsInActegories.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; author: Ralph Matthes, 2023
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

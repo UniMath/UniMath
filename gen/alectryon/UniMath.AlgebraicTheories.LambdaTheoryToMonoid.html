@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LambdaTheoryToMonoid.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">  The Monoid of a Lambda Theory</span>
+
+<span class="sd">  From a lambda theory L with β-equality, we can construct a monoid. The underlying set consists of</span>
+<span class="sd">  the terms f : L 0 that satisfy η-equality, or, equivalently, the terms for which there exists</span>
+<span class="sd">  g : L 1 such that f = abs g. The operation is given by 'function composition' and the unit is</span>
+<span class="sd">  λ x, x. We need η-equality to make the unit laws work.</span>
+<span class="sd">  This monoid is isomorphic to the 'algebraic theory monoid' L 1.</span>
+<span class="sd">  If we consider the monoid as a category and take its setcategory Karoubi envelope RS, the result</span>
+<span class="sd">  is equal to the 'category of retracts' R of L, because the constructions of R and R^S are</span>
+<span class="sd">  parallel.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The monoid [lambda_theory_to_monoid]</span>
+<span class="sd">  2. It is isomorphic to the algebraic theory monoid [lambda_theory_to_monoid_iso]</span>
+<span class="sd">  2.1. This induces an equivalence on the Karoubi envelopes [lambda_theory_to_monoid_karoubi_equiv]</span>
+<span class="sd">  3. The setcategory Karoubi envelope is equal to the category of retracts</span>
+<span class="sd">    [lambda_theory_to_monoid_cat_equality]</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.CategoryOfSetCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.KaroubiEnvelope.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.KaroubiEnvelope.SetKaroubi.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Monoid.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.MonoidToCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.IdempotentsAndSplitting.Retracts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Tuples.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheoryToMonoid.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.CategoryOfRetracts.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.Combinators.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheories.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> lambda_calculus.
+
+<span class="kn">Section</span> <span class="nf">Monoid</span>.
+
+  <span class="kn">Context</span> (<span class="nv">L</span> : β_lambda_theory).
+  <span class="kn">Let</span> <span class="nf">Lβ</span> : has_β L := β_lambda_theory_has_β L.
+
+<span class="sd">(** * 1. The monoid *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">satisfies_η</span>
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">f</span> : L n)
+    : hProp
+    := (abs (appx f) = f)%logic.
+
+  <span class="kn">Definition</span> <span class="nf">abs_satisfies_η</span>
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">f</span> : L (S n))
+    : satisfies_η (abs f)
+    := maponpaths abs (Lβ _ _).
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_set</span>
+    : hSet
+    := carrier_subset (X := L <span class="mi">0</span>) satisfies_η.
+
+  <span class="kn">Coercion</span> <span class="nf">lambda_theory_to_monoid_set_to_lambda</span>
+    (f : lambda_theory_to_monoid_set)
+    : L <span class="mi">0</span>
+    := pr1 f.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_set_satisfies_η</span>
+    (<span class="nv">f</span> : lambda_theory_to_monoid_set)
+    : satisfies_η f
+    := pr2 f.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_set_eq</span>
+    (<span class="nv">f</span> <span class="nv">g</span> : lambda_theory_to_monoid_set)
+    (<span class="nv">H</span> : (f : L <span class="mi">0</span>) = g)
+    : f = g
+    := subtypePath (<span class="k">λ</span> <span class="nv">x</span>, propproperty _) H.
+
+  <span class="kn">Definition</span> <span class="nf">make_lambda_theory_to_monoid_set</span>
+    (<span class="nv">f</span> : L <span class="mi">0</span>)
+    (<span class="nv">H</span> : satisfies_η f)
+    : lambda_theory_to_monoid_set
+    := f ,, H.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_binop</span>
+    : binop lambda_theory_to_monoid_set.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f g.
+    use make_lambda_theory_to_monoid_set.
+    - <span class="bp">exact</span> (f ∘ g).
+    - <span class="kp">abstract</span> <span class="nb">apply</span> abs_satisfies_η.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lambda_theory_to_monoid_assoc</span>
+    : isassoc lambda_theory_to_monoid_binop.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> f g h.
+    <span class="nb">apply</span> lambda_theory_to_monoid_set_eq.
+    <span class="bp">exact</span> (!compose_assoc L Lβ _ _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_unit</span>
+    : lambda_theory_to_monoid_set.
+  <span class="kn">Proof</span>.
+    use make_lambda_theory_to_monoid_set.
+    - <span class="bp">exact</span> (U L Lβ).
+    - <span class="kp">abstract</span> <span class="nb">apply</span> abs_satisfies_η.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lambda_theory_to_monoid_isunit</span>
+    : isunit lambda_theory_to_monoid_binop lambda_theory_to_monoid_unit.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_isunit;
+      <span class="nb">intro</span> f;
+      <span class="nb">apply</span> lambda_theory_to_monoid_set_eq;
+      <span class="nb">simpl</span>;
+      <span class="nb">rewrite</span> &lt;- (lambda_theory_to_monoid_set_satisfies_η f).
+    - <span class="nb">apply</span> (U_compose L Lβ).
+    - <span class="nb">apply</span> (compose_U L Lβ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid</span>
+    : monoid
+    := make_monoid
+        (make_setwithbinop
+            lambda_theory_to_monoid_set
+            lambda_theory_to_monoid_binop)
+        (make_ismonoidop
+          lambda_theory_to_monoid_assoc
+          (make_isunital
+            lambda_theory_to_monoid_unit
+            lambda_theory_to_monoid_isunit)).
+
+<span class="sd">(** * 2. The isomorphism with the algebraic theory monoid *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_iso_mor</span>
+    (<span class="nv">f</span> : lambda_theory_to_monoid)
+    : (algebraic_theory_to_monoid (L : algebraic_theory)) : monoid
+    := appx (f : lambda_theory_to_monoid_set).
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_iso_inv</span>
+    (<span class="nv">f</span> : (algebraic_theory_to_monoid (L : algebraic_theory)) : monoid)
+    : lambda_theory_to_monoid
+    := make_lambda_theory_to_monoid_set (abs f) (abs_satisfies_η _).
+
+  <span class="kn">Lemma</span> <span class="nf">lambda_theory_to_monoid_iso_is_inverse</span>
+    : is_inverse_in_precat
+        (C := HSET)
+        lambda_theory_to_monoid_iso_mor
+        lambda_theory_to_monoid_iso_inv.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_inverse_in_precat;
+      <span class="nb">apply</span> funextfun;
+      <span class="nb">intro</span> f.
+    - <span class="nb">apply</span> lambda_theory_to_monoid_set_eq.
+      <span class="nb">apply</span> lambda_theory_to_monoid_set_satisfies_η.
+    - <span class="nb">apply</span> Lβ.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lambda_theory_to_monoid_is_monoidfun</span>
+    : ismonoidfun lambda_theory_to_monoid_iso_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_ismonoidfun;
+      <span class="nb">unfold</span> lambda_theory_to_monoid_iso_mor, isbinopfun;
+      <span class="nb">simpl</span>.
+    - <span class="nb">intros</span> f g.
+      <span class="nb">rewrite</span> !appx_to_app.
+      <span class="nb">rewrite</span> inflate_compose.
+      <span class="nb">rewrite</span> (app_compose _ Lβ).
+      <span class="nb">rewrite</span> subst_app.
+      <span class="nb">rewrite</span> subst_inflate.
+      <span class="nb">rewrite</span> var_subst.
+      <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, app (<span class="nb">subst</span> _ x) _)).
+      <span class="nb">apply</span> (proofirrelevancecontr (iscontr_empty_tuple _)).
+    - <span class="bp">now</span> <span class="nb">rewrite</span> !appx_to_app,
+        inflate_U_term,
+        (app_U _ Lβ).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_iso</span>
+    : z_iso lambda_theory_to_monoid (algebraic_theory_to_monoid (L : algebraic_theory))
+    := make_monoid_z_iso
+        (make_z_iso (C := HSET)
+            lambda_theory_to_monoid_iso_mor
+            lambda_theory_to_monoid_iso_inv
+            lambda_theory_to_monoid_iso_is_inverse)
+        lambda_theory_to_monoid_is_monoidfun.
+
+<span class="sd">(** ** 2.1. This induces an equivalence on the Karoubi envelopes *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_karoubi_equiv</span>
+    : adj_equiv
+      (set_set_karoubi (monoid_to_category lambda_theory_to_monoid))
+      (set_set_karoubi (monoid_to_category (algebraic_theory_to_monoid (L : algebraic_theory))))
+    := z_iso_to_adj_equiv
+        (functor_on_z_iso set_karoubi_monad
+          (functor_on_z_iso _
+            lambda_theory_to_monoid_iso)).
+
+<span class="sd">(** * 3. The setcategory Karoubi envelope is equal to the category of retracts *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_cat</span>
+    : setcategory
+    := monoid_to_category lambda_theory_to_monoid.
+
+  <span class="kn">Definition</span> <span class="nf">R_setcategory</span>
+    : setcategory
+    := make_setcategory
+      (R (n := <span class="mi">0</span>) L Lβ)
+      (isaset_carrier_subset _ (<span class="k">λ</span> <span class="nv">l</span>, make_hProp _ (setproperty _ _ _))).
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_cat_equality_functor_data</span>
+    : functor_data R_setcategory (set_karoubi lambda_theory_to_monoid_cat).
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="nb">refine</span> (<span class="k">λ</span> (<span class="nv">A</span> : R_ob L), _).
+      use (make_set_karoubi_ob).
+      + <span class="bp">exact</span> tt.
+      + <span class="nb">apply</span> (make_lambda_theory_to_monoid_set A).
+        <span class="kp">abstract</span> <span class="bp">exact</span> (transportf satisfies_η (R_ob_idempotent _ A) (abs_satisfies_η _)).
+      + <span class="kp">abstract</span> <span class="nb">apply</span> lambda_theory_to_monoid_set_eq, R_ob_idempotent.
+    - <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">A</span> <span class="nv">B</span> (<span class="nv">f</span> : R_mor _ A B), _).
+      use make_set_karoubi_mor.
+      + <span class="nb">apply</span> (make_lambda_theory_to_monoid_set f).
+        <span class="kp">abstract</span> <span class="nb">refine</span> (transportf satisfies_η (R_mor_is_mor _ f) (abs_satisfies_η _)).
+      + <span class="kp">abstract</span> <span class="nb">apply</span> lambda_theory_to_monoid_set_eq, (R_mor_is_mor_right _ f).
+      + <span class="kp">abstract</span> <span class="nb">apply</span> lambda_theory_to_monoid_set_eq, (R_mor_is_mor_left _ f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lambda_theory_to_monoid_cat_equality_is_functor</span>
+    : is_functor lambda_theory_to_monoid_cat_equality_functor_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> make_is_functor;
+      <span class="kp">repeat</span> <span class="nb">intro</span>;
+      <span class="bp">now</span> <span class="nb">apply</span> set_karoubi_mor_eq,
+        lambda_theory_to_monoid_set_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_cat_equality_functor</span>
+    : R_setcategory ⟶ set_karoubi lambda_theory_to_monoid_cat
+    := make_functor
+        lambda_theory_to_monoid_cat_equality_functor_data
+        lambda_theory_to_monoid_cat_equality_is_functor.
+
+  <span class="kn">Section</span> <span class="nf">FullyFaithful</span>.
+
+    <span class="kn">Context</span> (<span class="nv">A</span> <span class="nv">B</span> : R_ob (n := <span class="mi">0</span>) L).
+
+    <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_cat_equality_fully_faithful_inv</span>
+      (<span class="nv">f</span> : set_karoubi_mor lambda_theory_to_monoid_cat
+            (lambda_theory_to_monoid_cat_equality_functor A)
+            (lambda_theory_to_monoid_cat_equality_functor B))
+      : R_mor _ A B.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (make_R_mor _ ((set_karoubi_mor_morphism _ f) : lambda_theory_to_monoid_set)).
+      + <span class="kp">abstract</span> <span class="bp">exact</span> (base_paths _ _ (set_karoubi_mor_commutes_left _ f)).
+      + <span class="kp">abstract</span> <span class="bp">exact</span> (base_paths _ _ (set_karoubi_mor_commutes_right _ f)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">lambda_theory_to_monoid_cat_equality_fully_faithful_weqinvweq</span>
+      (<span class="nv">f</span> : R_setcategory⟦A, B⟧)
+      : lambda_theory_to_monoid_cat_equality_fully_faithful_inv
+          (#lambda_theory_to_monoid_cat_equality_functor f)
+        = f.
+    <span class="kn">Proof</span>.
+      <span class="bp">now</span> <span class="nb">apply</span> R_mor_eq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">lambda_theory_to_monoid_cat_equality_fully_faithful_invweqweq</span>
+      (<span class="nv">f</span> : set_karoubi lambda_theory_to_monoid_cat⟦
+            lambda_theory_to_monoid_cat_equality_functor A,
+            lambda_theory_to_monoid_cat_equality_functor B⟧)
+      : #lambda_theory_to_monoid_cat_equality_functor
+          (lambda_theory_to_monoid_cat_equality_fully_faithful_inv f)
+        = f.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> set_karoubi_mor_eq.
+      <span class="bp">now</span> <span class="nb">apply</span> lambda_theory_to_monoid_set_eq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_cat_equality_fully_faithful</span>
+      : isweq (<span class="k">λ</span> (<span class="nv">f</span> : R_setcategory⟦A, B⟧), #lambda_theory_to_monoid_cat_equality_functor f)
+      := isweq_iso _
+          lambda_theory_to_monoid_cat_equality_fully_faithful_inv
+          lambda_theory_to_monoid_cat_equality_fully_faithful_weqinvweq
+          lambda_theory_to_monoid_cat_equality_fully_faithful_invweqweq.
+
+  <span class="kn">End</span> <span class="nf">FullyFaithful</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_cat_equality_object_equivalence_inv</span>
+    (<span class="nv">A</span> : set_karoubi_ob lambda_theory_to_monoid_cat)
+    : R (n := <span class="mi">0</span>) L Lβ.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (make_R_ob _ (((set_karoubi_ob_idempotent _ A) : _ --&gt; _) : lambda_theory_to_monoid_set)).
+    <span class="kp">abstract</span> <span class="bp">exact</span> (base_paths _ _ (idempotent_is_idempotent (set_karoubi_ob_idempotent _ A))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lambda_theory_to_monoid_cat_equality_object_equivalence_weqinvweq</span>
+    (<span class="nv">A</span> : R_setcategory)
+    : lambda_theory_to_monoid_cat_equality_object_equivalence_inv
+        (lambda_theory_to_monoid_cat_equality_functor A)
+      = A.
+  <span class="kn">Proof</span>.
+    <span class="bp">now</span> <span class="nb">apply</span> R_ob_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">lambda_theory_to_monoid_cat_equality_object_equivalence_invweqweq</span>
+    (<span class="nv">A</span> : set_karoubi lambda_theory_to_monoid_cat)
+    : lambda_theory_to_monoid_cat_equality_functor
+        (lambda_theory_to_monoid_cat_equality_object_equivalence_inv A)
+      = A.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (pathsdirprod (Y := idempotent (tt : lambda_theory_to_monoid_cat)) _ _).
+    - <span class="bp">now</span> <span class="nb">induction</span> (pr1 A).
+    - <span class="nb">apply</span> subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> (setproperty lambda_theory_to_monoid_set).
+      }
+      <span class="bp">now</span> <span class="nb">apply</span> lambda_theory_to_monoid_set_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_cat_equality_object_equivalence</span>
+    : isweq lambda_theory_to_monoid_cat_equality_functor
+    := isweq_iso _
+        lambda_theory_to_monoid_cat_equality_object_equivalence_inv
+        lambda_theory_to_monoid_cat_equality_object_equivalence_weqinvweq
+        lambda_theory_to_monoid_cat_equality_object_equivalence_invweqweq.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_cat_equality_is_isomorphism</span>
+    : is_z_isomorphism
+        (C := cat_of_setcategory)
+        (b := set_set_karoubi lambda_theory_to_monoid_cat)
+        lambda_theory_to_monoid_cat_equality_functor
+    := is_catiso_weq_is_z_isomorphism
+        (D := set_set_karoubi _)
+        lambda_theory_to_monoid_cat_equality_functor
+        (make_dirprod
+          lambda_theory_to_monoid_cat_equality_fully_faithful
+          lambda_theory_to_monoid_cat_equality_object_equivalence).
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_cat_equality_iso</span>
+    : z_iso
+        (C := cat_of_setcategory)
+        R_setcategory
+        (set_set_karoubi lambda_theory_to_monoid_cat)
+    := make_z_iso' (C := cat_of_setcategory) (b := set_set_karoubi lambda_theory_to_monoid_cat)
+        lambda_theory_to_monoid_cat_equality_functor
+        lambda_theory_to_monoid_cat_equality_is_isomorphism.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_cat_equiv</span>
+    : adj_equiv R_setcategory (set_set_karoubi lambda_theory_to_monoid_cat)
+    := z_iso_to_adj_equiv lambda_theory_to_monoid_cat_equality_iso.
+
+  <span class="kn">Definition</span> <span class="nf">lambda_theory_to_monoid_cat_equality</span>
+    : R_setcategory = set_set_karoubi lambda_theory_to_monoid_cat
+    := isotoid _ (is_univalent_cat_of_setcategory) lambda_theory_to_monoid_cat_equality_iso.
+
+<span class="kn">End</span> <span class="nf">Monoid</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/LambdaTheoryToMonoid.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     [lambda_theory_to_monoid_cat_equality]
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

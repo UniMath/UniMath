@@ -1,0 +1,1390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisplayMapBicatToDispBicat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************************</span>
+
+<span class="sd"> Every display map bicategory gives rise to a displayed bicategory</span>
+
+<span class="sd"> *****************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.StreetFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Unitors.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.BicategoryLaws.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.AdjointUnique.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.EquivToAdjequiv.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.FullyFaithful.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Morphisms.InternalStreetOpFibration.
+<span class="kn">Require Import</span> UniMath.Bicategories.Logic.DisplayMapBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Codomain.
+<span class="kn">Require Import</span> UniMath.Bicategories.Limits.Pullbacks.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">ArrowSubBicatToDispBicat</span>.
+  <span class="kn">Context</span> {<span class="nv">B</span> : bicat}
+          (<span class="nv">D</span> : arrow_subbicat B).
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_ob</span>
+             (<span class="nv">y</span> : B)
+    : UU
+    := ∑ (x : B) (h : x --&gt; y), pred_ob D h.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_map_bicat_ob</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             (<span class="nv">h</span> : x --&gt; y)
+             (<span class="nv">H</span> : pred_ob D h)
+    : disp_map_bicat_ob y
+    := (x ,, h ,, H).
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_mor</span>
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : B}
+             (<span class="nv">h₁</span> : disp_map_bicat_ob y₁)
+             (<span class="nv">h₂</span> : disp_map_bicat_ob y₂)
+             (<span class="nv">g</span> : y₁ --&gt; y₂)
+    : UU
+    := ∑ (f : pr1 h₁ --&gt; pr1 h₂),
+       pred_mor D (pr12 h₁) (pr12 h₂) f
+       ×
+       invertible_2cell (pr12 h₁ · g) (f · pr12 h₂).
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_map_bicat_mor</span>
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : B}
+             {<span class="nv">h₁</span> : disp_map_bicat_ob y₁}
+             {<span class="nv">h₂</span> : disp_map_bicat_ob y₂}
+             (<span class="nv">g</span> : y₁ --&gt; y₂)
+             (<span class="nv">f</span> : pr1 h₁ --&gt; pr1 h₂)
+             (<span class="nv">H</span> : pred_mor D (pr12 h₁) (pr12 h₂) f)
+             (<span class="nv">γ</span> : invertible_2cell (pr12 h₁ · g) (f · pr12 h₂))
+    : disp_map_bicat_mor h₁ h₂ g
+    := (f ,, H ,, γ).
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_to_disp_cat_ob_mor</span>
+    : disp_cat_ob_mor B.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> disp_map_bicat_ob.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, disp_map_bicat_mor).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_to_disp_cat_id_comp</span>
+    : disp_cat_id_comp B disp_map_bicat_to_disp_cat_ob_mor.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> y h.
+      use make_disp_map_bicat_mor.
+      + <span class="bp">exact</span> (id₁ _).
+      + <span class="nb">apply</span> id_pred_mor.
+      + <span class="bp">exact</span> (comp_of_invertible_2cell
+                 (runitor_invertible_2cell _)
+                 (linvunitor_invertible_2cell _)).
+    - <span class="nb">intros</span> y₁ y₂ y₃ g₁ g₂ h₁ h₂ h₃ f₁ f₂.
+      use make_disp_map_bicat_mor.
+      + <span class="bp">exact</span> (pr1 f₁ · pr1 f₂).
+      + <span class="bp">exact</span> (comp_pred_mor
+                 D
+                 (pr12 f₁) (pr12 f₂)).
+      + <span class="bp">exact</span> (comp_of_invertible_2cell
+                 (lassociator_invertible_2cell _ _ _)
+                 (comp_of_invertible_2cell
+                    (rwhisker_of_invertible_2cell _ (pr22 f₁))
+                    (comp_of_invertible_2cell
+                       (rassociator_invertible_2cell _ _ _)
+                       (comp_of_invertible_2cell
+                          (lwhisker_of_invertible_2cell _ (pr22 f₂))
+                          (lassociator_invertible_2cell _ _ _))))).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_to_disp_cat_data</span>
+    : disp_cat_data B
+    := (disp_map_bicat_to_disp_cat_ob_mor ,, disp_map_bicat_to_disp_cat_id_comp).
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_cell</span>
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : B}
+             {<span class="nv">g₁</span> <span class="nv">g₂</span> : y₁ --&gt; y₂}
+             {<span class="nv">h₁</span> : disp_map_bicat_ob y₁}
+             {<span class="nv">h₂</span> : disp_map_bicat_ob y₂}
+             (<span class="nv">f₁</span> : disp_map_bicat_mor h₁ h₂ g₁)
+             (<span class="nv">f₂</span> : disp_map_bicat_mor h₁ h₂ g₂)
+             (<span class="nv">β</span> : g₁ ==&gt; g₂)
+    : UU
+    := ∑ (α : pr1 f₁ ==&gt; pr1 f₂),
+       pr122 f₁ • (α ▹ _)
+       =
+       (_ ◃ β) • pr122 f₂.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_map_bicat_cell</span>
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : B}
+             {<span class="nv">g₁</span> <span class="nv">g₂</span> : y₁ --&gt; y₂}
+             {<span class="nv">β</span> : g₁ ==&gt; g₂}
+             {<span class="nv">h₁</span> : disp_map_bicat_ob y₁}
+             {<span class="nv">h₂</span> : disp_map_bicat_ob y₂}
+             {<span class="nv">f₁</span> : disp_map_bicat_mor h₁ h₂ g₁}
+             {<span class="nv">f₂</span> : disp_map_bicat_mor h₁ h₂ g₂}
+             (<span class="nv">α</span> : pr1 f₁ ==&gt; pr1 f₂)
+             (<span class="nv">p</span> : pr122 f₁ • (α ▹ _)
+                  =
+                  (_ ◃ β) • pr122 f₂)
+    : disp_map_bicat_cell f₁ f₂ β
+    := (α ,, p).
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_to_disp_prebicat_1_id_comp_cells</span>
+    : disp_prebicat_1_id_comp_cells B.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (disp_map_bicat_to_disp_cat_data ,, _).
+    <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">g₁</span> <span class="nv">g₂</span> <span class="nv">β</span> <span class="nv">h₁</span> <span class="nv">h₂</span> <span class="nv">f₁</span> <span class="nv">f₂</span>, disp_map_bicat_cell f₁ f₂ β).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_to_disp_prebicat_ops</span>
+    : disp_prebicat_ops disp_map_bicat_to_disp_prebicat_1_id_comp_cells.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+    - <span class="nb">intros</span> x y f hx hy hf ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use make_disp_map_bicat_cell.
+      + <span class="bp">exact</span> (id2 _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> id2_rwhisker, lwhisker_id2 ;
+           <span class="nb">rewrite</span> id2_left, id2_right ;
+           <span class="nb">apply</span> idpath).
+    - <span class="nb">intros</span> x y f hx hy hf ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use make_disp_map_bicat_cell.
+      + <span class="bp">exact</span> (lunitor _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> &lt;- rwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> runitor_rwhisker ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> lunitor_triangle ;
+           <span class="nb">rewrite</span> vcomp_lunitor ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> &lt;- linvunitor_assoc ;
+           <span class="nb">rewrite</span> linvunitor_lunitor ;
+           <span class="nb">apply</span> id2_left).
+    - <span class="nb">intros</span> x y f hx hy hf ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use make_disp_map_bicat_cell.
+      + <span class="bp">exact</span> (runitor _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> runitor_rwhisker ;
+           <span class="nb">rewrite</span> lwhisker_vcomp ;
+           <span class="nb">rewrite</span> linvunitor_lunitor ;
+           <span class="nb">rewrite</span> lwhisker_id2 ;
+           <span class="nb">rewrite</span> id2_right ;
+           <span class="nb">rewrite</span> runitor_triangle ;
+           <span class="nb">rewrite</span> vcomp_runitor ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="bp">exact</span> (!(left_unit_assoc _ _))).
+    - <span class="nb">intros</span> x y f hx hy hf ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use make_disp_map_bicat_cell.
+      + <span class="bp">exact</span> (linvunitor _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> runitor_rwhisker ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> lwhisker_vcomp ;
+           <span class="nb">rewrite</span> linvunitor_lunitor ;
+           <span class="nb">rewrite</span> lwhisker_id2 ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> &lt;- linvunitor_assoc ;
+           <span class="nb">rewrite</span> lwhisker_hcomp ;
+           <span class="nb">rewrite</span> &lt;- linvunitor_natural ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> linvunitor_assoc ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> rassociator_lassociator ;
+           <span class="nb">rewrite</span> id2_right ;
+           <span class="nb">apply</span> idpath).
+    - <span class="nb">intros</span> x y f hx hy hf ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use make_disp_map_bicat_cell.
+      + <span class="bp">exact</span> (rinvunitor _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !lwhisker_hcomp ;
+           <span class="nb">rewrite</span> triangle_l_inv ;
+           <span class="nb">rewrite</span> &lt;- !lwhisker_hcomp, &lt;- rwhisker_hcomp ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> runitor_triangle ;
+           <span class="nb">rewrite</span> vcomp_runitor ;
+           <span class="nb">refine</span> (!(id2_left _) @ _) ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> &lt;- left_unit_assoc ;
+           <span class="nb">rewrite</span> lwhisker_vcomp ;
+           <span class="nb">rewrite</span> rinvunitor_runitor ;
+           <span class="nb">rewrite</span> lwhisker_id2 ;
+           <span class="nb">apply</span> idpath).
+    - <span class="nb">intros</span> x₁ x₂ x₃ x₄ f g k hx₁ hx₂ hx₃ hx₄ hf hg hk ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use make_disp_map_bicat_cell.
+      + <span class="bp">exact</span> (rassociator _ _ _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp, &lt;- !rwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocl ;
+           use vcomp_move_L_pM ; [ is_iso | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> lassociator_lassociator ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> rwhisker_rwhisker ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           use vcomp_move_L_pM ; [ is_iso | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> &lt;- lassociator_lassociator ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> rwhisker_vcomp ;
+           <span class="nb">rewrite</span> lassociator_rassociator ;
+           <span class="nb">rewrite</span> id2_rwhisker ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           use vcomp_move_L_pM ; [ is_iso | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> lassociator_lassociator ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> lassociator_rassociator ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> &lt;- lassociator_lassociator ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> rwhisker_vcomp ;
+           <span class="nb">rewrite</span> lassociator_rassociator ;
+           <span class="nb">rewrite</span> id2_rwhisker ;
+           <span class="nb">apply</span> id2_right).
+    - <span class="nb">intros</span> x₁ x₂ x₃ x₄ f g k hx₁ hx₂ hx₃ hx₄ hf hg hk ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use make_disp_map_bicat_cell.
+      + <span class="bp">exact</span> (lassociator _ _ _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp, &lt;- !lwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> lassociator_lassociator ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> rwhisker_rwhisker ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           use vcomp_move_R_pM ; [ is_iso | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> &lt;- lassociator_lassociator ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> rwhisker_vcomp ;
+           <span class="nb">rewrite</span> lassociator_rassociator ;
+           <span class="nb">rewrite</span> id2_rwhisker ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           use vcomp_move_R_pM ; [ is_iso | ] ;
+           <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> lassociator_lassociator ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ • z) (vassocr _ _ _)) ;
+           <span class="nb">rewrite</span> lassociator_rassociator ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> &lt;- lassociator_lassociator ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> idpath).
+    - <span class="nb">intros</span> x₁ x₂ f g h α β hx₁ hx₂ hf hg hh hα hβ ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use make_disp_map_bicat_cell.
+      + <span class="bp">exact</span> (pr1 hα • pr1 hβ).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp ;
+           <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> (pr2 hα) ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> (pr2 hβ) ;
+           <span class="nb">apply</span> idpath).
+    - <span class="nb">intros</span> x₁ x₂ x₃ f₁ f₂ g α hx₁ hx₂ hx₃ hf₁ hf₂ hg hα ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use make_disp_map_bicat_cell.
+      + <span class="bp">exact</span> (_ ◃ pr1 hα).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">rewrite</span> lwhisker_lwhisker ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> &lt;- vcomp_whisker ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> &lt;- lwhisker_lwhisker_rassociator ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> !lwhisker_vcomp ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (pr2 hα)).
+    - <span class="nb">intros</span> x₁ x₂ x₃ f₁ f₂ g α hx₁ hx₂ hx₃ hf₁ hf₂ hg hα ; <span class="nb">cbn</span> <span class="k">in</span> *.
+      use make_disp_map_bicat_cell.
+      + <span class="bp">exact</span> (pr1 hα ▹ _).
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> rwhisker_rwhisker ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">rewrite</span> rwhisker_lwhisker ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">rewrite</span> &lt;- vcomp_whisker ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> &lt;- rwhisker_rwhisker_alt ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">apply</span> maponpaths_2 ;
+           <span class="nb">rewrite</span> !rwhisker_vcomp ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="bp">exact</span> (pr2 hα)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportf_disp_map_bicat_cell</span>
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : B}
+             {<span class="nv">g₁</span> <span class="nv">g₂</span> : y₁ --&gt; y₂}
+             {<span class="nv">β₁</span> <span class="nv">β₂</span> : g₁ ==&gt; g₂}
+             (<span class="nv">p</span> : β₁ = β₂)
+             {<span class="nv">h₁</span> : disp_map_bicat_ob y₁}
+             {<span class="nv">h₂</span> : disp_map_bicat_ob y₂}
+             {<span class="nv">f₁</span> : disp_map_bicat_mor h₁ h₂ g₁}
+             {<span class="nv">f₂</span> : disp_map_bicat_mor h₁ h₂ g₂}
+             (<span class="nv">γ</span> : disp_map_bicat_cell f₁ f₂ β₁)
+    : pr1 (transportf
+             (<span class="k">λ</span> <span class="nv">α</span>, disp_map_bicat_cell f₁ f₂ α)
+             p
+             γ)
+      =
+      pr1 γ.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">transportb_disp_map_bicat_cell</span>
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : B}
+             {<span class="nv">g₁</span> <span class="nv">g₂</span> : y₁ --&gt; y₂}
+             {<span class="nv">β₁</span> <span class="nv">β₂</span> : g₁ ==&gt; g₂}
+             (<span class="nv">p</span> : β₁ = β₂)
+             {<span class="nv">h₁</span> : disp_map_bicat_ob y₁}
+             {<span class="nv">h₂</span> : disp_map_bicat_ob y₂}
+             {<span class="nv">f₁</span> : disp_map_bicat_mor h₁ h₂ g₁}
+             {<span class="nv">f₂</span> : disp_map_bicat_mor h₁ h₂ g₂}
+             (<span class="nv">γ</span> : disp_map_bicat_cell f₁ f₂ β₂)
+    : pr1 (transportb
+             (<span class="k">λ</span> <span class="nv">α</span>, disp_map_bicat_cell f₁ f₂ α)
+             p
+             γ)
+      =
+      pr1 γ.
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_to_disp_prebicat_data</span>
+    : disp_prebicat_data B
+    := (disp_map_bicat_to_disp_prebicat_1_id_comp_cells
+        ,,
+        disp_map_bicat_to_disp_prebicat_ops).
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_to_disp_prebicat_laws</span>
+    : disp_prebicat_laws disp_map_bicat_to_disp_prebicat_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>
+    ; <span class="nb">intro</span> ; <span class="nb">intros</span>
+    ; <span class="nb">cbn</span> <span class="k">in</span> *
+    ; (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ]) ; <span class="nb">cbn</span>
+    ; <span class="nb">rewrite</span> transportb_disp_map_bicat_cell ; <span class="nb">cbn</span>.
+    - <span class="nb">apply</span> id2_left.
+    - <span class="nb">apply</span> id2_right.
+    - <span class="nb">apply</span> vassocr.
+    - <span class="nb">apply</span> lwhisker_id2.
+    - <span class="nb">apply</span> id2_rwhisker.
+    - <span class="nb">apply</span> lwhisker_vcomp.
+    - <span class="nb">apply</span> rwhisker_vcomp.
+    - <span class="nb">apply</span> vcomp_lunitor.
+    - <span class="nb">apply</span> vcomp_runitor.
+    - <span class="nb">apply</span> lwhisker_lwhisker.
+    - <span class="nb">apply</span> rwhisker_lwhisker.
+    - <span class="nb">apply</span> rwhisker_rwhisker.
+    - <span class="nb">apply</span> vcomp_whisker.
+    - <span class="nb">apply</span> lunitor_linvunitor.
+    - <span class="nb">apply</span> linvunitor_lunitor.
+    - <span class="nb">apply</span> runitor_rinvunitor.
+    - <span class="nb">apply</span> rinvunitor_runitor.
+    - <span class="nb">apply</span> lassociator_rassociator.
+    - <span class="nb">apply</span> rassociator_lassociator.
+    - <span class="nb">apply</span> runitor_rwhisker.
+    - <span class="nb">apply</span> lassociator_lassociator.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_to_disp_prebicat</span>
+    : disp_prebicat B
+    := (disp_map_bicat_to_disp_prebicat_data
+        ,,
+        disp_map_bicat_to_disp_prebicat_laws).
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_to_disp_bicat</span>
+    : disp_bicat B.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (disp_map_bicat_to_disp_prebicat ,, _).
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    use isaset_total2.
+    - <span class="nb">apply</span> cellset_property.
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> isasetaprop.
+      <span class="nb">apply</span> cellset_property.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_2cells_isaprop_if_contained_in_faithful</span>
+             (<span class="nv">HD</span> : contained_in_faithful D)
+    : disp_2cells_isaprop disp_map_bicat_to_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g α xx yy ff gg.
+    use invproofirrelevance.
+    <span class="nb">intros</span> αα ββ.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> cellset_property.
+    }
+    <span class="nb">apply</span> (faithful_1cell_eq_cell (HD _ _ _ (pr22 yy))).
+    use (vcomp_lcancel (pr22 ff)) ; [ <span class="nb">apply</span> property_from_invertible_2cell | ].
+    <span class="bp">exact</span> (pr2 αα @ !(pr2 ββ)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(** Displayed invertible 2-cells *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_invertible_to_is_disp_invertible</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">α</span> : f ==&gt; g}
+             (<span class="nv">Hα</span> : is_invertible_2cell α)
+             {<span class="nv">hx</span> : disp_map_bicat_to_disp_bicat x}
+             {<span class="nv">hy</span> : disp_map_bicat_to_disp_bicat y}
+             {<span class="nv">hf</span> : hx --&gt;[ f ] hy}
+             {<span class="nv">hg</span> : hx --&gt;[ g ] hy}
+             (<span class="nv">αα</span> : hf ==&gt;[ α ] hg)
+             (<span class="nv">Hαα</span> : is_invertible_2cell (pr1 αα))
+    : is_disp_invertible_2cell Hα αα.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - use make_disp_map_bicat_cell.
+      + <span class="bp">exact</span> Hαα^-<span class="mi">1</span>.
+      + <span class="kp">abstract</span>
+          (use vcomp_move_R_Mp ; [ is_iso | ] ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !vassocl ;
+           <span class="nb">rewrite</span> (pr2 αα) ;
+           <span class="nb">rewrite</span> !vassocr ;
+           <span class="nb">rewrite</span> lwhisker_vcomp ;
+           <span class="nb">rewrite</span> vcomp_linv ;
+           <span class="nb">rewrite</span> lwhisker_id2 ;
+           <span class="nb">rewrite</span> id2_left ;
+           <span class="nb">apply</span> idpath).
+    - <span class="kp">abstract</span>
+        (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> transportb_disp_map_bicat_cell ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> vcomp_rinv).
+    - <span class="kp">abstract</span>
+        (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ] ; <span class="nb">cbn</span> ;
+         <span class="nb">rewrite</span> transportb_disp_map_bicat_cell ; <span class="nb">cbn</span> ;
+         <span class="nb">apply</span> vcomp_linv).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_disp_invertible_to_is_invertible</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">α</span> : f ==&gt; g}
+             (<span class="nv">Hα</span> : is_invertible_2cell α)
+             {<span class="nv">hx</span> : disp_map_bicat_to_disp_bicat x}
+             {<span class="nv">hy</span> : disp_map_bicat_to_disp_bicat y}
+             {<span class="nv">hf</span> : hx --&gt;[ f ] hy}
+             {<span class="nv">hg</span> : hx --&gt;[ g ] hy}
+             (<span class="nv">αα</span> : hf ==&gt;[ α ] hg)
+             (<span class="nv">Hαα</span> : is_disp_invertible_2cell Hα αα)
+    : is_invertible_2cell (pr1 αα).
+  <span class="kn">Proof</span>.
+    use make_is_invertible_2cell.
+    - <span class="bp">exact</span> (pr11 Hαα).
+    - <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (maponpaths pr1 (pr12 Hαα) @ transportb_disp_map_bicat_cell _ _)).
+    - <span class="kp">abstract</span>
+        (<span class="bp">exact</span> (maponpaths pr1 (pr22 Hαα) @ transportb_disp_map_bicat_cell _ _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_disp_map_disp_invertible_2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">γ</span> : f ==&gt; g}
+             (<span class="nv">Hγ</span> : is_invertible_2cell γ)
+             {<span class="nv">hx</span> : disp_map_bicat_to_disp_bicat x}
+             {<span class="nv">hy</span> : disp_map_bicat_to_disp_bicat y}
+             {<span class="nv">hf</span> : hx --&gt;[ f ] hy}
+             {<span class="nv">hg</span> : hx --&gt;[ g ] hy}
+             (<span class="nv">hγ</span> : hf ==&gt;[ γ ] hg)
+             (<span class="nv">Hhγ</span> : is_invertible_2cell (pr1 hγ))
+    : disp_invertible_2cell (make_invertible_2cell Hγ) hf hg.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (hγ ,, _).
+    use is_invertible_to_is_disp_invertible.
+    <span class="bp">exact</span> Hhγ.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_inv_2cell_to_disp_invertible_2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">γ</span> : invertible_2cell f g}
+             {<span class="nv">hx</span> : disp_map_bicat_to_disp_bicat x}
+             {<span class="nv">hy</span> : disp_map_bicat_to_disp_bicat y}
+             {<span class="nv">hf</span> : hx --&gt;[ f ] hy}
+             {<span class="nv">hg</span> : hx --&gt;[ g ] hy}
+             (<span class="nv">α</span> : ∑ (hγ : hf ==&gt;[ γ ] hg), is_invertible_2cell (pr1 hγ))
+    : disp_invertible_2cell γ hf hg.
+  <span class="kn">Proof</span>.
+    use make_disp_map_disp_invertible_2cell.
+    - <span class="bp">exact</span> (pr1 α).
+    - <span class="bp">exact</span> (pr2 α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_disp_invertible_2cell_to_inv_2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             {<span class="nv">γ</span> : invertible_2cell f g}
+             {<span class="nv">hx</span> : disp_map_bicat_to_disp_bicat x}
+             {<span class="nv">hy</span> : disp_map_bicat_to_disp_bicat y}
+             {<span class="nv">hf</span> : hx --&gt;[ f ] hy}
+             {<span class="nv">hg</span> : hx --&gt;[ g ] hy}
+             (<span class="nv">α</span> : disp_invertible_2cell γ hf hg)
+    : ∑ (hγ : hf ==&gt;[ γ ] hg), is_invertible_2cell (pr1 hγ).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (pr1 α ,, _).
+    use is_disp_invertible_to_is_invertible.
+    - <span class="bp">exact</span> (pr2 γ).
+    - <span class="bp">exact</span> (pr2 α).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_inv_2cell_weq_disp_invertible_2cell</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : B}
+             {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+             (<span class="nv">γ</span> : invertible_2cell f g)
+             {<span class="nv">hx</span> : disp_map_bicat_to_disp_bicat x}
+             {<span class="nv">hy</span> : disp_map_bicat_to_disp_bicat y}
+             (<span class="nv">hf</span> : hx --&gt;[ f ] hy)
+             (<span class="nv">hg</span> : hx --&gt;[ g ] hy)
+    : (∑ (hγ : hf ==&gt;[ γ ] hg), is_invertible_2cell (pr1 hγ))
+      ≃
+      disp_invertible_2cell γ hf hg.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> disp_map_inv_2cell_to_disp_invertible_2cell.
+    - use isweq_iso.
+      + <span class="bp">exact</span> disp_map_disp_invertible_2cell_to_inv_2cell.
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> α ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell | ] ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">intro</span> α ;
+           use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell | ] ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Local Univalence</span>
+<span class="sd">   *)</span>
+  <span class="kn">Local Definition</span> <span class="nf">refactor_weq</span>
+        {<span class="nv">x</span> <span class="nv">y</span> : B}
+        {<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y}
+        (<span class="nv">γ</span> : invertible_2cell f g)
+        {<span class="nv">hx</span> : disp_map_bicat_to_disp_bicat x}
+        {<span class="nv">hy</span> : disp_map_bicat_to_disp_bicat y}
+        (<span class="nv">hf</span> : hx --&gt;[ f ] hy)
+        (<span class="nv">hg</span> : hx --&gt;[ g ] hy)
+    : (∑ (γe : invertible_2cell (pr1 hf) (pr1 hg)),
+       pr122 hf • (γe ▹ pr12 hy) = (pr12 hx ◃ γ) • pr122 hg)
+      ≃
+      ∑ (hγ : hf ==&gt;[ γ ] hg), is_invertible_2cell (pr1 hγ).
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">α</span>, ((pr11 α ,, pr2 α) ,, pr21 α)).
+    - use isweq_iso.
+      + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">α</span>, (pr11 α ,, pr2 α) ,, pr21 α).
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> idpath.
+      + <span class="nb">intro</span> ; <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Local Definition</span> <span class="nf">weq_on_fam</span>
+        (<span class="nv">HD</span> : arrow_subbicat_props D)
+        {<span class="nv">x</span> <span class="nv">y</span> : B}
+        {<span class="nv">f</span> : x --&gt; y}
+        {<span class="nv">hx</span> : disp_map_bicat_to_disp_bicat x}
+        {<span class="nv">hy</span> : disp_map_bicat_to_disp_bicat y}
+        (<span class="nv">hf</span> <span class="nv">hg</span> : hx --&gt;[ f] hy)
+        (<span class="nv">p</span> : pr1 hf = pr1 hg)
+    : (transportf
+         (<span class="k">λ</span> <span class="nv">z</span>,
+          pred_mor D (pr12 hx) (pr12 hy) z
+          ×
+          invertible_2cell (pr12 hx · f) (z · pr12 hy))
+         p
+         (pr2 hf)
+       =
+       pr2 hg)
+      ≃
+      (pr122 hf • (idtoiso_2_1 (pr1 hf) (pr1 hg) p ▹ pr12 hy)
+       =
+       (pr12 hx ◃ id₂ f) • pr122 hg).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> hf <span class="k">as</span> [ hf₁ hf₂ ].
+    <span class="nb">induction</span> hg <span class="k">as</span> [ hg₁ hg₂ ].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> p.
+      <span class="nb">induction</span> p.
+      <span class="nb">rewrite</span> id2_rwhisker, lwhisker_id2, id2_left, id2_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">intro</span> p.
+      use pathsdirprod.
+      + <span class="nb">apply</span> (pr2 HD).
+      + <span class="nb">rewrite</span> id2_rwhisker, lwhisker_id2, id2_left, id2_right <span class="k">in</span> p.
+        use subtypePath.
+        {
+          <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+        }
+        <span class="bp">exact</span> p.
+    - use isasetdirprod.
+      + <span class="nb">apply</span> isasetaprop.
+        <span class="nb">apply</span> (pr2 HD).
+      + <span class="nb">apply</span> isaset_invertible_2cell.
+    - <span class="nb">apply</span> cellset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_disp_univalent_2_1</span>
+             (<span class="nv">HD</span> : arrow_subbicat_props D)
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+    : disp_univalent_2_1 disp_map_bicat_to_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f g p hx hy hf hg.
+    <span class="nb">induction</span> p.
+    use weqhomot.
+    - <span class="nb">refine</span> (disp_map_inv_2cell_weq_disp_invertible_2cell _ _ _
+             ∘ refactor_weq _ _ _
+             ∘ weqtotal2
+                 (make_weq _ (HB_2_1 _ _ _ _))
+                 _
+             ∘ total2_paths_equiv _ _ _)%weq.
+      <span class="bp">exact</span> (weq_on_fam HD _ _).
+    - <span class="kp">abstract</span>
+        (<span class="nb">intro</span> p ;
+         <span class="nb">induction</span> p ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_disp_invertible_2cell | ] ;
+         <span class="nb">cbn</span> ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> cellset_property | ] ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Adjoint equivalences</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">AdjEquivToDispAdjEquiv</span>.
+    <span class="kn">Context</span> (<span class="nv">HB</span> : is_univalent_2 B)
+            {<span class="nv">x</span> : B}
+            {<span class="nv">hx</span> <span class="nv">hy</span> : disp_map_bicat_to_disp_bicat x}
+            (<span class="nv">e</span> : adjoint_equivalence (pr1 hx) (pr1 hy))
+            (<span class="nv">com</span> : invertible_2cell (pr12 hx) (e · pr12 hy)).
+
+    <span class="kn">Local Definition</span> <span class="nf">adj_equiv_to_disp_adj_equiv_left_adj</span>
+      : hx --&gt;[ internal_adjoint_equivalence_identity x] hy.
+    <span class="kn">Proof</span>.
+      use make_disp_map_bicat_mor.
+      - <span class="bp">exact</span> e.
+      - <span class="nb">apply</span> (arrow_subbicat_contains_equiv_over_id HB D).
+        + <span class="bp">exact</span> e.
+        + <span class="bp">exact</span> com.
+      - <span class="bp">exact</span> (comp_of_invertible_2cell
+                 (runitor_invertible_2cell _)
+                 com).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'L'"</span> := adj_equiv_to_disp_adj_equiv_left_adj.
+
+    <span class="kn">Local Definition</span> <span class="nf">adj_equiv_to_disp_adj_equiv_right_adj</span>
+      : hy --&gt;[ internal_adjoint_equivalence_identity x] hx.
+    <span class="kn">Proof</span>.
+      use make_disp_map_bicat_mor.
+      - <span class="bp">exact</span> (left_adjoint_right_adjoint e).
+      - <span class="nb">pose</span> (einv := inv_adjequiv e).
+        <span class="nb">apply</span> (arrow_subbicat_contains_equiv_over_id
+                 HB D).
+        + <span class="bp">exact</span> (pr2 einv).
+        + <span class="bp">exact</span> (comp_of_invertible_2cell
+                   (linvunitor_invertible_2cell _)
+                   (comp_of_invertible_2cell
+                      (rwhisker_of_invertible_2cell
+                         _
+                         (left_equivalence_unit_iso einv))
+                      (comp_of_invertible_2cell
+                         (rassociator_invertible_2cell _ _ _)
+                         (lwhisker_of_invertible_2cell
+                            _
+                            (inv_of_invertible_2cell com))))).
+      - <span class="nb">refine</span> (runitor _
+                • linvunitor _
+                • ((left_equivalence_counit_iso e)^-<span class="mi">1</span> ▹ _)
+                • rassociator _ _ _
+                • (_ ◃ com^-<span class="mi">1</span>) ,, _).
+        is_iso.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'R'"</span> := adj_equiv_to_disp_adj_equiv_right_adj.
+
+    <span class="kn">Local Lemma</span> <span class="nf">adj_equiv_to_disp_adj_equiv_unit_coh</span>
+      : pr122 (id_disp hx) • (left_adjoint_unit e ▹ pr12 hx)
+        =
+        (pr12 hx ◃ left_adjoint_unit (internal_adjoint_equivalence_identity x))
+        • pr122 (L ;; R)%mor_disp.
+    <span class="kn">Proof</span>.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> lwhisker_hcomp.
+        <span class="nb">rewrite</span> triangle_l_inv.
+        <span class="nb">rewrite</span> &lt;- rwhisker_hcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> lwhisker_lwhisker.
+      <span class="nb">rewrite</span> !vassocr.
+      use vcomp_move_R_Mp.
+      {
+        is_iso.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> vcomp_whisker.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> lwhisker_hcomp.
+          <span class="nb">rewrite</span> &lt;- linvunitor_natural.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- vcomp_runitor.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths ; <span class="nb">clear</span> com.
+      <span class="nb">rewrite</span> &lt;- runitor_triangle.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      use vcomp_move_R_pM.
+      {
+        is_iso.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">rewrite</span> linvunitor_assoc.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- rwhisker_rwhisker_alt.
+      <span class="nb">rewrite</span> !vassocr.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">assert</span> (linvunitor (pr1 e) • (pr121 (pr2 e) ▹ pr1 e)
+                =
+                rinvunitor _ • (pr1 e ◃ (pr222 (pr2 e))^-<span class="mi">1</span>) • lassociator _ _ _)
+          <span class="k">as</span> p.
+        {
+          <span class="nb">refine</span> (_ @ id2_left _).
+          use vcomp_move_L_Mp.
+          {
+            is_iso.
+          }
+          <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="bp">exact</span> (pr1 (pr122 e)).
+        }
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> p.
+      }
+      <span class="nb">unfold</span> left_adjoint_right_adjoint.
+      use vcomp_move_R_Mp.
+      {
+        is_iso.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> &lt;- lassociator_lassociator.
+      <span class="nb">rewrite</span> &lt;- !lwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">refine</span> (_ @ id2_right _).
+      use vcomp_move_L_pM.
+      {
+        is_iso.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> rwhisker_lwhisker_rassociator.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> lunitor_lwhisker.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        <span class="nb">rewrite</span> runitor_rinvunitor.
+        <span class="nb">apply</span> id2_rwhisker.
+      }
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> rwhisker_vcomp.
+      <span class="nb">rewrite</span> lwhisker_vcomp.
+      <span class="nb">rewrite</span> vcomp_rinv.
+      <span class="nb">rewrite</span> lwhisker_id2.
+      <span class="nb">rewrite</span> id2_rwhisker.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">adj_equiv_to_disp_adj_equiv_unit</span>
+      : id_disp hx
+        ==&gt;[ left_adjoint_unit (internal_adjoint_equivalence_identity x) ]
+        L ;; R.
+    <span class="kn">Proof</span>.
+      use make_disp_map_bicat_cell.
+      - <span class="bp">exact</span> (left_adjoint_unit e).
+      - <span class="bp">exact</span> adj_equiv_to_disp_adj_equiv_unit_coh.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'η'"</span> := adj_equiv_to_disp_adj_equiv_unit.
+
+    <span class="kn">Local Lemma</span> <span class="nf">adj_equiv_to_disp_adj_equiv_counit_coh</span>
+      : pr122 (R ;; L)%mor_disp
+        • (left_adjoint_counit e ▹ pr12 hy)
+        =
+        (pr12 hy ◃ left_adjoint_counit (internal_adjoint_equivalence_identity x))
+        • pr122 (id_disp hy).
+    <span class="kn">Proof</span>.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> runitor_rwhisker.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> !vassocr.
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> &lt;- rwhisker_lwhisker_rassociator.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> lwhisker_vcomp.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> vcomp_runitor.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> vcomp_linv.
+        <span class="nb">rewrite</span> id2_right.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> &lt;- rwhisker_vcomp.
+      <span class="nb">rewrite</span> !vassocl.
+      <span class="nb">assert</span> (rassociator (pr112 e) (pr1 e) (pr12 hy) ▹ id₁ _
+              • rassociator (pr112 e) (pr1 e · pr12 hy) (id₁ _)
+              • (pr112 e ◃ runitor (pr1 e · pr12 hy))
+              • lassociator (pr112 e) (pr1 e) (pr12 hy)
+              =
+              runitor _)
+        <span class="k">as</span> p.
+      {
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> !left_unit_assoc.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">rewrite</span> &lt;- vcomp_runitor.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !vassocr.
+          <span class="nb">rewrite</span> rassociator_lassociator.
+          <span class="nb">rewrite</span> id2_left.
+          <span class="nb">apply</span> idpath.
+        }
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">rewrite</span> rwhisker_vcomp.
+        <span class="nb">rewrite</span> rassociator_lassociator.
+        <span class="nb">rewrite</span> id2_rwhisker.
+        <span class="nb">apply</span> id2_left.
+      }
+      <span class="nb">rewrite</span> &lt;- !rwhisker_vcomp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocl.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> p.
+      }
+      <span class="nb">rewrite</span> &lt;- vcomp_runitor.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !vassocr.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> !rwhisker_vcomp.
+        <span class="nb">rewrite</span> vcomp_linv.
+        <span class="nb">rewrite</span> !id2_rwhisker.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> id2_left.
+      <span class="nb">rewrite</span> vcomp_runitor.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">adj_equiv_to_disp_adj_equiv_counit</span>
+      : R ;; L
+        ==&gt;[ left_adjoint_counit (internal_adjoint_equivalence_identity x) ]
+        id_disp hy.
+    <span class="kn">Proof</span>.
+      use make_disp_map_bicat_cell.
+      - <span class="bp">exact</span> (left_adjoint_counit e).
+      - <span class="bp">exact</span> adj_equiv_to_disp_adj_equiv_counit_coh.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'ε'"</span> := adj_equiv_to_disp_adj_equiv_counit.
+
+    <span class="kn">Local Definition</span> <span class="nf">adj_equiv_to_disp_adj_equiv_data</span>
+      : @disp_left_adjoint_data
+          B
+          disp_map_bicat_to_disp_bicat
+          _ _
+          (internal_adjoint_equivalence_identity x)
+          (internal_adjoint_equivalence_identity x)
+          hx hy
+          L
+      := (R ,, (η ,, ε)).
+
+    <span class="kn">Local Definition</span> <span class="nf">adj_equiv_to_disp_adj_equiv_adjoint_axioms</span>
+      : disp_left_adjoint_axioms
+          (internal_adjoint_equivalence_identity x)
+          adj_equiv_to_disp_adj_equiv_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">simpl</span>.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> cellset_property.
+        }
+        <span class="nb">rewrite</span> transportb_disp_map_bicat_cell.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> (pr2 e).
+      - <span class="nb">simpl</span>.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> cellset_property.
+        }
+        <span class="nb">rewrite</span> transportb_disp_map_bicat_cell.
+        <span class="nb">cbn</span>.
+        <span class="nb">apply</span> (pr2 e).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">adj_equiv_to_disp_adj_equiv_equivalence_axioms</span>
+      : disp_left_equivalence_axioms
+          (internal_adjoint_equivalence_identity x)
+          adj_equiv_to_disp_adj_equiv_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">apply</span> is_invertible_to_is_disp_invertible.
+        <span class="nb">apply</span> (pr2 e).
+      - <span class="nb">apply</span> is_invertible_to_is_disp_invertible.
+        <span class="nb">apply</span> (pr2 e).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_map_bicat_adj_equiv_to_disp_adj_equiv</span>
+      : disp_adjoint_equivalence (internal_adjoint_equivalence_identity x) hx hy.
+    <span class="kn">Proof</span>.
+      <span class="nb">simple refine</span> (L ,, (_ ,, (_ ,, _))).
+      - <span class="bp">exact</span> adj_equiv_to_disp_adj_equiv_data.
+      - <span class="bp">exact</span> adj_equiv_to_disp_adj_equiv_adjoint_axioms.
+      - <span class="bp">exact</span> adj_equiv_to_disp_adj_equiv_equivalence_axioms.
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">AdjEquivToDispAdjEquiv</span>.
+
+  <span class="kn">Section</span> <span class="nf">DispAdjEquivToAdjEquiv</span>.
+    <span class="kn">Context</span> {<span class="nv">x</span> : B}
+            {<span class="nv">hx</span> <span class="nv">hy</span> : disp_map_bicat_to_disp_bicat x}
+            (<span class="nv">e</span> : disp_adjoint_equivalence
+                   (internal_adjoint_equivalence_identity x)
+                   hx hy).
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_adj_equiv_to_left_adj_data</span>
+      : left_adjoint_data (pr11 e)
+      := (pr1 (pr112 e) ,, (pr11 (pr212 e) ,, pr12 (pr212 e))).
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_adj_equiv_to_left_adjoint_axioms</span>
+      : left_adjoint_axioms disp_adj_equiv_to_left_adj_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">pose</span> (maponpaths pr1 (pr1 (pr122 e))) <span class="k">as</span> p.
+        <span class="nb">cbn</span> <span class="k">in</span> p.
+        <span class="nb">rewrite</span> transportb_disp_map_bicat_cell <span class="k">in</span> p.
+        <span class="bp">exact</span> p.
+      - <span class="nb">pose</span> (maponpaths pr1 (pr2 (pr122 e))) <span class="k">as</span> p.
+        <span class="nb">cbn</span> <span class="k">in</span> p.
+        <span class="nb">rewrite</span> transportb_disp_map_bicat_cell <span class="k">in</span> p.
+        <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_adj_equiv_to_left_equivalence_axioms</span>
+      : left_equivalence_axioms disp_adj_equiv_to_left_adj_data.
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> (is_disp_invertible_to_is_invertible _ _ (pr1 (pr222 e))).
+      - <span class="bp">exact</span> (is_disp_invertible_to_is_invertible _ _ (pr2 (pr222 e))).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Local Definition</span> <span class="nf">disp_adj_equiv_to_left_adj_equiv</span>
+      : left_adjoint_equivalence (pr11 e).
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (disp_adj_equiv_to_left_adj_data ,, _).
+      <span class="nb">split</span>.
+      - <span class="bp">exact</span> disp_adj_equiv_to_left_adjoint_axioms.
+      - <span class="bp">exact</span> disp_adj_equiv_to_left_equivalence_axioms.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">disp_adj_equiv_to_adj_equiv</span>
+      : adjoint_equivalence (pr1 hx) (pr1 hy)
+      := (pr11 e ,, disp_adj_equiv_to_left_adj_equiv).
+
+    <span class="kn">Definition</span> <span class="nf">disp_adj_equiv_to_adj_equiv_comm</span>
+      : invertible_2cell
+          (pr12 hx)
+          (disp_adj_equiv_to_adj_equiv · pr12 hy)
+      := comp_of_invertible_2cell
+           (rinvunitor_invertible_2cell _)
+           (pr221 e).
+
+    <span class="kn">Definition</span> <span class="nf">disp_map_bicat_disp_adj_equiv_to_adj_equiv_pair</span>
+      : ∑ (e : adjoint_equivalence (pr1 hx) (pr1 hy)),
+        invertible_2cell
+          (pr12 hx)
+          (e · pr12 hy)
+      := disp_adj_equiv_to_adj_equiv
+         ,,
+         disp_adj_equiv_to_adj_equiv_comm.
+  <span class="kn">End</span> <span class="nf">DispAdjEquivToAdjEquiv</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_to_disp_adj_equiv_to_adj_equiv</span>
+             (<span class="nv">HB</span> : is_univalent_2 B)
+             {<span class="nv">x</span> : B}
+             {<span class="nv">hx</span> <span class="nv">hy</span> : disp_map_bicat_to_disp_bicat x}
+             (<span class="nv">z</span> : ∑ (e : adjoint_equivalence (pr1 hx) (pr1 hy)),
+                  invertible_2cell (pr12 hx) (pr1 e · pr12 hy))
+    : disp_map_bicat_disp_adj_equiv_to_adj_equiv_pair
+        (disp_map_bicat_adj_equiv_to_disp_adj_equiv
+           HB (pr1 z) (pr2 z))
+      =
+      z.
+  <span class="kn">Proof</span>.
+    use total2_paths_f.
+    - <span class="nb">simpl</span>.
+      use subtypePath.
+      {
+        <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_left_adjoint_equivalence.
+        <span class="bp">exact</span> (pr2 HB).
+      }
+      <span class="nb">apply</span> idpath.
+    - use subtypePath.
+      {
+        <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+      }
+      <span class="nb">unfold</span> invertible_2cell.
+      <span class="nb">rewrite</span> pr1_transportf.
+      <span class="nb">unfold</span> subtypePath.
+      <span class="nb">unfold</span> adjoint_equivalence.
+      etrans.
+      {
+        <span class="nb">apply</span> (@transportf_total2_paths_f
+                 (pr1 hx --&gt; pr1 hy)
+                 left_adjoint_equivalence
+                 (<span class="k">λ</span> <span class="nv">x</span>, pr12 hx ==&gt; x · pr12 hy)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> vassocr.
+      <span class="nb">rewrite</span> rinvunitor_runitor.
+      <span class="nb">apply</span> id2_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_adj_equiv_to_adj_equiv_to_disp_adj_equiv</span>
+             (<span class="nv">HB</span> : is_univalent_2 B)
+             (<span class="nv">HD</span> : arrow_subbicat_props D)
+             {<span class="nv">x</span> : B}
+             {<span class="nv">hx</span> <span class="nv">hy</span> : disp_map_bicat_to_disp_bicat x}
+             (<span class="nv">z</span> : disp_adjoint_equivalence
+                    (internal_adjoint_equivalence_identity x)
+                    hx hy)
+    : disp_map_bicat_adj_equiv_to_disp_adj_equiv
+        HB
+        (disp_adj_equiv_to_adj_equiv z)
+        (disp_adj_equiv_to_adj_equiv_comm z)
+      =
+      z.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      use isaprop_disp_left_adjoint_equivalence.
+      - <span class="bp">exact</span> (pr2 HB).
+      - <span class="nb">apply</span> disp_map_disp_univalent_2_1.
+        + <span class="bp">exact</span> HD.
+        + <span class="bp">exact</span> (pr2 HB).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+    use pathsdirprod.
+    - <span class="nb">apply</span> HD.
+    - use subtypePath.
+      {
+        <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> vassocr.
+      <span class="nb">rewrite</span> runitor_rinvunitor.
+      <span class="nb">apply</span> id2_left.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">adj_equiv_weq_disp_adj_equiv</span>
+             (<span class="nv">HB</span> : is_univalent_2 B)
+             (<span class="nv">HD</span> : arrow_subbicat_props D)
+             {<span class="nv">x</span> : B}
+             (<span class="nv">hx</span> <span class="nv">hy</span> : disp_map_bicat_to_disp_bicat x)
+    : (∑ (e : adjoint_equivalence (pr1 hx) (pr1 hy)),
+       invertible_2cell (pr12 hx) (e · pr12 hy))
+      ≃
+      disp_adjoint_equivalence (internal_adjoint_equivalence_identity x) hx hy.
+  <span class="kn">Proof</span>.
+    use make_weq.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">e</span>, disp_map_bicat_adj_equiv_to_disp_adj_equiv HB (pr1 e) (pr2 e)).
+    - use isweq_iso.
+      + <span class="bp">exact</span> disp_map_bicat_disp_adj_equiv_to_adj_equiv_pair.
+      + <span class="bp">exact</span> (adj_equiv_to_disp_adj_equiv_to_adj_equiv HB).
+      + <span class="bp">exact</span> (disp_adj_equiv_to_adj_equiv_to_disp_adj_equiv HB HD).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Global univalence</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">weq_fam_global</span>
+             (<span class="nv">HB_2_1</span> : is_univalent_2_1 B)
+             (<span class="nv">HD</span> : arrow_subbicat_props D)
+             {<span class="nv">x</span> : B}
+             (<span class="nv">hx</span> <span class="nv">hy</span> : disp_map_bicat_to_disp_bicat x)
+             (<span class="nv">p</span> : pr1 hx = pr1 hy)
+    : (transportf
+         (<span class="k">λ</span> <span class="nv">z</span>, ∑ (h : z --&gt; x), pred_ob D h)
+         p
+         (pr2 hx)
+       =
+       pr2 hy)
+      ≃
+      invertible_2cell
+        (pr12 hx)
+        (pr1 (idtoiso_2_0 (pr1 hx) (pr1 hy) p) · pr12 hy).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> hx <span class="k">as</span> [ hx₁ [ hx₂ hx₃ ] ].
+    <span class="nb">induction</span> hy <span class="k">as</span> [ hy₁ [ hy₂ hy₃ ] ].
+    <span class="nb">cbn</span> <span class="k">in</span> *.
+    <span class="nb">induction</span> p ; <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ ∘ path_sigma_hprop _ _ _ _)%weq.
+    - <span class="nb">apply</span> HD.
+    - <span class="bp">exact</span> (cod_1cell_path_help hx₂ hy₂
+             ∘ make_weq
+                 _
+                 (HB_2_1 _ _ _ _))%weq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_disp_univalent_2_0</span>
+             (<span class="nv">HB</span> : is_univalent_2 B)
+             (<span class="nv">HD</span> : arrow_subbicat_props D)
+    : disp_univalent_2_0 disp_map_bicat_to_disp_bicat.
+  <span class="kn">Proof</span>.
+    use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+    <span class="nb">intros</span> x hx hy.
+    use weqhomot.
+    - <span class="bp">exact</span> (adj_equiv_weq_disp_adj_equiv HB HD hx hy
+             ∘ weqtotal2
+                 (make_weq _ (pr1 HB _ _))
+                 (weq_fam_global (pr2 HB) HD _ _)
+             ∘ total2_paths_equiv _ _ _)%weq.
+    - <span class="nb">intro</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">induction</span> p.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        use isaprop_disp_left_adjoint_equivalence.
+        - <span class="bp">exact</span> (pr2 HB).
+        - <span class="nb">apply</span> disp_map_disp_univalent_2_1.
+          + <span class="bp">exact</span> HD.
+          + <span class="bp">exact</span> (pr2 HB).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ ,, z) _).
+      use pathsdirprod.
+      + <span class="nb">apply</span> HD.
+      + use subtypePath.
+        {
+          <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_invertible_2cell.
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id2_left.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">disp_map_bicat_disp_univalent_2</span>
+             (<span class="nv">HB</span> : is_univalent_2 B)
+             (<span class="nv">HD</span> : arrow_subbicat_props D)
+    : disp_univalent_2 disp_map_bicat_to_disp_bicat.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> disp_map_bicat_disp_univalent_2_0.
+      + <span class="bp">exact</span> HB.
+      + <span class="bp">exact</span> HD.
+    - <span class="nb">apply</span> disp_map_disp_univalent_2_1.
+      + <span class="bp">exact</span> HD.
+      + <span class="bp">exact</span> (pr2 HB).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">ArrowSubBicatToDispBicat</span>.
+
+<span class="kn">Definition</span> <span class="nf">cod_sfibs</span>
+           (<span class="nv">B</span> : bicat)
+  : disp_bicat B
+  := disp_map_bicat_to_disp_bicat (sfib_subbicat B).
+
+<span class="kn">Definition</span> <span class="nf">cod_sopfibs</span>
+           (<span class="nv">B</span> : bicat)
+  : disp_bicat B
+  := disp_map_bicat_to_disp_bicat (sopfib_subbicat B).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DisplayedBicats/Examples/DisplayMapBicatToDispBicat.v</tt>, line 6)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  Every display map bicategory gives rise to a displayed bicategory
+  &gt;
+  &gt;  *****************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

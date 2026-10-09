@@ -1,0 +1,743 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>catiso.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.FullyFaithful.
+
+<span class="sd">(******************************************************************************)</span>
+<span class="sd">(** * Isomorphism of (pre)categories *)</span>
+<span class="c">(* (as defined in the paper) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">is_catiso</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory_data}
+  (<span class="nv">F</span> : functor A B)
+  := (fully_faithful F) × (isweq (functor_on_objects F)).
+
+<span class="kn">Definition</span> <span class="nf">catiso</span> (<span class="nv">A</span> <span class="nv">B</span> : precategory_data)
+  := total2 (<span class="k">λ</span> <span class="nv">F</span> : functor A B, is_catiso F).
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_is_catiso</span>
+  {<span class="nv">A</span> <span class="nv">B</span> : precategory_data}
+  {<span class="nv">F</span> : functor A B}
+  : isaprop (is_catiso F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isapropdirprod.
+  - <span class="nb">apply</span> isaprop_fully_faithful.
+  - <span class="nb">apply</span> isapropisweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_from_catiso</span> (<span class="nv">A</span> <span class="nv">B</span> : precategory_data)
+  (<span class="nv">F</span> : catiso A B)
+  : functor A B := pr1 F.
+<span class="kn">Coercion</span> <span class="nf">functor_from_catiso</span> :
+  catiso &gt;-&gt; functor.
+
+<span class="kn">Definition</span> <span class="nf">identity_catiso</span> (<span class="nv">A</span> : precategory_data)
+  : catiso A A.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (functor_identity A).
+  - use tpair.
+    + <span class="nb">apply</span> identity_functor_is_fully_faithful.
+    + <span class="nb">apply</span> idisweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">catiso_ob_weq</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory_data}
+  (<span class="nv">F</span> : catiso A B)
+  : (ob A) ≃ (ob B)
+  := make_weq (functor_on_objects F) (pr2 (pr2 F)).
+
+<span class="kn">Definition</span> <span class="nf">catiso_to_precategory_ob_path</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory_data}
+  (<span class="nv">F</span> : catiso A B)
+  : ob A = ob B
+  := (invmap (univalence _ _) (catiso_ob_weq F)).
+
+<span class="kn">Definition</span> <span class="nf">catiso_fully_faithful_weq</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory_data}
+  (<span class="nv">F</span> : catiso A B)
+  : <span class="k">forall</span> <span class="nv">a</span> <span class="nv">a'</span> : A, (a --&gt; a') ≃ (F a --&gt; F a')
+  := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">a'</span>, (make_weq (functor_on_morphisms F) (pr1 (pr2 F) a a')).
+
+<span class="kn">Lemma</span> <span class="nf">catiso_fully_faithful_path</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory_data}
+  (<span class="nv">F</span> : catiso A B)
+  : <span class="k">forall</span> <span class="nv">a</span> <span class="nv">a'</span> : A, (a --&gt; a') = (F a --&gt; F a').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a a'.
+  <span class="nb">apply</span> (invmap (univalence _ _)).
+  <span class="nb">apply</span> (catiso_fully_faithful_weq F).
+<span class="kn">Defined</span>.
+
+<span class="sd">(******************************************************************************)</span>
+<span class="sd">(** * Construction of a map (catiso A B) -&gt; (A = B) *)</span>
+
+<span class="c">(* The path "p : ob A = ob B" is clear. The next task is to construct a path</span>
+<span class="c">   "A a a' = (transportb p B) a a'" for all a, a' : A. We transport backwards</span>
+<span class="c">   because the fully faithfulness of the functor applies more naturally this way  *)</span>
+
+<span class="c">(* Let "w (= eqweqmap) : (X = Y) -&gt; (X -&gt; Y)" be the canonical map *)</span>
+<span class="c">(* The path "A a a' = (transportb p B) a a'" is constructed in three pieces. *)</span>
+<span class="c">(*     a --&gt; a *)</span>
+<span class="c">(*   = F a --&gt; F a' *)</span>
+<span class="c">(*   = w(p) a --&gt; w(p) a' *)</span>
+<span class="c">(*   = (transportb p B) a a' *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">correct_hom</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory_data}
+  (<span class="nv">F</span> : catiso A B)
+  : <span class="k">forall</span> <span class="nv">a</span> <span class="nv">a'</span> : A,
+      F a --&gt; F a'
+      = (eqweqmap (catiso_to_precategory_ob_path F) a) --&gt;
+        (eqweqmap (catiso_to_precategory_ob_path F) a').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a a'.
+  <span class="nb">assert</span> (W := (!(homotweqinvweq (univalence _ _)) (catiso_ob_weq F))).
+  <span class="bp">exact</span> (maponpaths (<span class="k">λ</span> <span class="nv">T</span>, (pr1weq T) a --&gt; (pr1weq T) a') W ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* w(p) a = F a *)</span>
+<span class="kn">Lemma</span> <span class="nf">eqweq_ob_path_is_functor_app</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory_data}
+  (<span class="nv">F</span> : catiso A B)
+  : <span class="k">forall</span> <span class="nv">a</span> : A, eqweqmap (catiso_to_precategory_ob_path F) a = F a.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a.
+  <span class="bp">exact</span> (! toforallpaths (<span class="k">λ</span> <span class="nv">_</span> : A, B) F
+    (pr1 (eqweqmap (invmap (univalence A B) (catiso_ob_weq F))))
+    (maponpaths pr1 (! homotweqinvweq (univalence A B) (catiso_ob_weq F))) a).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">eqweq_ob_path_is_functor_app_compute</span>
+  (<span class="nv">A</span> <span class="nv">B</span> : precategory)
+  (<span class="nv">F</span> : catiso A B)
+  (<span class="nv">a</span> <span class="nv">a'</span> : A)
+  (<span class="nv">f</span> : B ⟦ F a, F a' ⟧):
+  eqweq_ob_path_is_functor_app F a =
+  ! toforallpaths (<span class="k">λ</span> <span class="nv">_</span> : A, B) F
+      (pr1weq (eqweqmap (invmap (univalence A B) (catiso_ob_weq F))))
+      (maponpaths pr1weq (! homotweqinvweq (univalence A B) (catiso_ob_weq F))) a.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> eqweq_ob_path_is_functor_app.
+<span class="kn">Abort</span>.
+
+<span class="kn">Lemma</span> <span class="nf">eqweq_maponpaths_mor</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+  (<span class="nv">F</span> <span class="nv">G</span> : A ≃ B) (<span class="nv">p</span> : F = G) (<span class="nv">a</span> <span class="nv">a'</span> : A) (<span class="nv">f</span> : F a --&gt; F a')
+  : eqweqmap (maponpaths (<span class="k">λ</span> <span class="nv">T</span> : A ≃ B, (pr1 T) a --&gt; (pr1 T) a') p) f
+    =    (idtomor _ _ (!toforallpaths _ _ _ (maponpaths pr1 p) a))
+      · f
+      · (idtomor _ _ (toforallpaths _ _ _ (maponpaths pr1 p) a')).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="nb">rewrite</span> id_left.
+  <span class="nb">rewrite</span> id_right.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">eqweq_correct_hom_is_comp</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+  (<span class="nv">F</span> : catiso A B)
+  : <span class="k">forall</span> <span class="nv">a</span> <span class="nv">a'</span> : A, <span class="k">forall</span> <span class="nv">f</span> : F a --&gt; F a',
+      eqweqmap (correct_hom F _ _) f
+    =    (idtomor _ _ (eqweq_ob_path_is_functor_app F a))
+      · f
+      · (idtomor _ _ (!eqweq_ob_path_is_functor_app F a')).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a a' f.
+  <span class="nb">rewrite</span> (eqweq_maponpaths_mor _ _
+             (! homotweqinvweq (univalence A B) (catiso_ob_weq F))
+             a a').
+  <span class="nb">apply</span> maponpaths. <span class="nb">apply</span> maponpaths.
+  <span class="nb">unfold</span> eqweq_ob_path_is_functor_app.
+  <span class="nb">rewrite</span> pathsinv0inv0.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">eqweq_fully_faithful_is_functor_app</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory_data}
+  (<span class="nv">F</span> : catiso A B)
+  : <span class="k">forall</span> <span class="nv">a</span> <span class="nv">a'</span> : A,
+    eqweqmap (catiso_fully_faithful_path F a a')
+    = catiso_fully_faithful_weq F _ _.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a a'.
+  <span class="nb">unfold</span> catiso_fully_faithful_path.
+
+  <span class="nb">assert</span> (W := (@homotweqinvweq _ _  (univalence (a --&gt; a') (F a --&gt; F a')))).
+  <span class="nb">simpl</span> <span class="k">in</span> W.
+  <span class="nb">rewrite</span> W.
+
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_mor</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} (<span class="nv">B1</span> : B -&gt; B -&gt; UU) (<span class="nv">p</span> : A = B) :
+  <span class="k">forall</span> <span class="nv">a</span> <span class="nv">a'</span> : A,
+    B1 (eqweqmap p a) (eqweqmap p a')
+  = (transportb (<span class="k">λ</span> <span class="nv">T</span>, T -&gt; T -&gt; UU) p B1) a a'.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">catiso_to_precategory_mor_path</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory_data}
+  (<span class="nv">F</span> : catiso A B)
+  : <span class="k">forall</span> <span class="nv">a</span> <span class="nv">a'</span>,  (precategory_morphisms (C:=A)) a a'
+  = transportb (<span class="k">λ</span> <span class="nv">T</span>, T -&gt; T -&gt; UU) (catiso_to_precategory_ob_path F)
+    (precategory_morphisms (C:=B)) a a'.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a.
+  <span class="nb">intros</span> a'.
+
+  <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> (catiso_fully_faithful_path F).
+  <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> correct_hom.
+  <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> transport_mor.
+
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">catiso_to_precategory_mor_path_funext</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory_data}
+  (<span class="nv">F</span> : catiso A B)
+  : (precategory_morphisms (C:=A))
+  = transportb (<span class="k">λ</span> <span class="nv">T</span>, T -&gt; T -&gt; UU) (catiso_to_precategory_ob_path F)
+    (precategory_morphisms (C:=B)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (pr1 (weqfunextsec _ _ _)).
+  <span class="nb">intros</span> a.
+  <span class="nb">apply</span> (pr1 (weqfunextsec _ _ _)).
+  <span class="nb">intros</span> a'.
+  <span class="nb">apply</span> (catiso_to_precategory_mor_path F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">catiso_to_precategory_ob_mor_path</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory_data}
+  (<span class="nv">F</span> : catiso A B)
+  : precategory_ob_mor_from_precategory_data A = precategory_ob_mor_from_precategory_data B
+  := total2_paths_b (catiso_to_precategory_ob_path F) (catiso_to_precategory_mor_path_funext F).
+
+<span class="c">(* Remains to show that identity and composition transport correctly. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">transport_id</span> {<span class="nv">A0</span> <span class="nv">B0</span> : UU} (<span class="nv">p0</span> : A0 = B0)
+  (<span class="nv">A1</span> : A0 -&gt; A0 -&gt; UU) (<span class="nv">B1</span> : B0 -&gt; B0 -&gt; UU) (<span class="nv">p1</span> : A1 = transportb _ p0 B1)
+  (<span class="nv">idB</span> : <span class="k">forall</span> <span class="nv">b</span> : B0, B1 b b)
+  : <span class="k">forall</span> <span class="nv">a</span> : A0,
+    (transportb (X := total2 (<span class="k">λ</span> <span class="nv">T</span>, T -&gt; T -&gt; UU))
+                (<span class="k">λ</span> <span class="nv">T</span>, <span class="k">forall</span> <span class="nv">a</span>, (pr2 T) a a)
+                (total2_paths2_b p0 p1) idB) a
+  = (eqweqmap (  (transport_mor B1 p0 _ _)
+               @ !weqtoforallpaths _ _ _ (weqtoforallpaths _ _ _ p1 a) a))
+    (idB (eqweqmap p0 a)).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">induction</span> p0.
+  <span class="nb">change</span> (transportb _ _ _) <span class="k">with</span> B1 <span class="k">in</span> p1.
+  <span class="nb">induction</span> p1.
+  <span class="nb">simpl</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">correct_hom_on_id</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+  (<span class="nv">F</span> : catiso A B)
+  : <span class="k">forall</span> <span class="nv">a</span>,
+    identity ((eqweqmap (catiso_to_precategory_ob_path F)) a) =
+    (eqweqmap (correct_hom F a a)) (identity (F a)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a.
+
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> eqweq_correct_hom_is_comp.
+
+  <span class="nb">induction</span> (eqweq_ob_path_is_functor_app F a).
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> <span class="mi">2</span> id_right.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">catiso_to_precategory_id_path</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+  (<span class="nv">F</span> : catiso A B)
+  : <span class="k">forall</span> <span class="nv">a</span> : A,
+    (transportb (X := total2 (<span class="k">λ</span> <span class="nv">T</span>, T -&gt; T -&gt; UU))
+                (<span class="k">λ</span> <span class="nv">T</span>, <span class="k">forall</span> <span class="nv">a</span>, (pr2 T) a a)
+                (total2_paths2_b (catiso_to_precategory_ob_path F)
+                                 (catiso_to_precategory_mor_path_funext F))
+     identity) a
+   = identity a.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a.
+
+  <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> transport_id.
+
+  <span class="c">(* Cancel funext *)</span>
+  <span class="nb">unfold</span> catiso_to_precategory_mor_path_funext.
+  <span class="nb">unfold</span> catiso_to_precategory_mor_path.
+  <span class="nb">unfold</span> weqfunextsec.
+  <span class="nb">simpl</span> (pr1 _).
+  <span class="nb">rewrite</span> !(homotweqinvweq (weqtoforallpaths _ _ _)).
+
+  <span class="c">(* Cancel transport_mor with its inverse *)</span>
+  <span class="nb">rewrite</span> pathscomp_inv.
+  <span class="nb">rewrite</span> pathscomp_inv.
+  <span class="nb">rewrite</span> path_assoc.
+  <span class="nb">rewrite</span> path_assoc.
+  <span class="nb">rewrite</span> pathscomp0rid.
+  <span class="nb">rewrite</span> pathsinv0r.
+  <span class="nb">simpl</span>.
+
+  <span class="c">(* Get into a form we can apply correct_hom_on_id *)</span>
+  <span class="nb">apply</span> pathsweq1'.
+  <span class="nb">rewrite</span> &lt;- pathscomp_inv.
+  <span class="nb">rewrite</span> eqweqmap_pathsinv0.
+  <span class="nb">rewrite</span> invinv.
+
+  <span class="nb">rewrite</span> &lt;- eqweqmap_pathscomp0.
+
+  <span class="nb">rewrite</span> (eqweq_fully_faithful_is_functor_app F a a).
+  <span class="nb">simpl</span>.
+
+  <span class="nb">rewrite</span> functor_id.
+  <span class="nb">apply</span> correct_hom_on_id.
+<span class="kn">Defined</span>.
+
+<span class="c">(* We want to prove a similar lemma to transport_mor. The following is</span>
+<span class="c">   the type on the RHS of the path. *)</span>
+<span class="kn">Lemma</span> <span class="nf">transport_comp_target</span> {<span class="nv">A0</span> <span class="nv">B0</span> : UU} (<span class="nv">p0</span> : A0 = B0)
+  (<span class="nv">A1</span> : A0 -&gt; A0 -&gt; UU) (<span class="nv">B1</span> : B0 -&gt; B0 -&gt; UU) (<span class="nv">p1</span> : A1 = transportb (<span class="k">λ</span> <span class="nv">T</span>, T -&gt; T -&gt; UU) p0 B1)
+  : <span class="k">forall</span> <span class="nv">a</span> <span class="nv">a'</span> <span class="nv">a''</span> : A0,
+    (   B1 (eqweqmap p0 a) (eqweqmap p0 a')
+      -&gt; B1 (eqweqmap p0 a') (eqweqmap p0 a'')
+      -&gt; B1 (eqweqmap p0 a) (eqweqmap p0 a''))
+  -&gt; ( A1 a a' -&gt; A1 a' a'' -&gt; A1 a a'').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a a' a''.
+  <span class="nb">intros</span> Bhom.
+  <span class="nb">intros</span> f g.
+
+  <span class="nb">set</span> (X := <span class="k">λ</span> <span class="nv">a</span> <span class="nv">a'</span>, (transport_mor B1 p0 a a')
+                    @ (! weqtoforallpaths _ _ _ (weqtoforallpaths _ _ _ p1 a) a') ).
+
+  <span class="nb">apply</span> (eqweqmap (X a a'')).
+  <span class="nb">apply</span> Bhom.
+
+  <span class="nb">apply</span> (eqweqmap (! X a a')).
+  <span class="bp">exact</span> f.
+
+  <span class="nb">apply</span> (eqweqmap (! X a' a'')).
+  <span class="bp">exact</span> g.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">transport_comp</span> {<span class="nv">A0</span> <span class="nv">B0</span> : UU} (<span class="nv">p0</span> : A0 = B0)
+  (<span class="nv">A1</span> : A0 -&gt; A0 -&gt; UU) (<span class="nv">B1</span> : B0 -&gt; B0 -&gt; UU) (<span class="nv">p1</span> : A1 = transportb _ p0 B1)
+  (<span class="nv">compB</span> : <span class="k">forall</span> <span class="nv">b</span> <span class="nv">b'</span> <span class="nv">b''</span> : B0, B1 b b' -&gt; B1 b' b'' -&gt; B1 b b'')
+  : <span class="k">forall</span> <span class="nv">a</span> <span class="nv">a'</span> <span class="nv">a''</span> : A0,
+      (transportb (X := total2 (<span class="k">λ</span> <span class="nv">T</span>, T -&gt; T -&gt; UU))
+                  (<span class="k">λ</span> <span class="nv">T</span>, <span class="k">forall</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>, (pr2 T) a b -&gt; (pr2 T) b c -&gt; (pr2 T) a c)
+                  (total2_paths2_b p0 p1) compB)
+        a a' a''
+    = transport_comp_target p0 A1 B1 p1 a a' a''
+        (compB (eqweqmap p0 a) (eqweqmap p0 a') (eqweqmap p0 a'')).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span>.
+  <span class="nb">induction</span> p0.
+  <span class="nb">change</span> (A1 = B1) <span class="k">in</span> p1.
+  <span class="nb">induction</span> p1.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">correct_hom_on_comp</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+  (<span class="nv">F</span> : catiso A B)
+  : <span class="k">forall</span> <span class="nv">a</span> <span class="nv">a'</span> <span class="nv">a''</span>, <span class="k">forall</span> <span class="nv">f</span> : F a --&gt; F a', <span class="k">forall</span> <span class="nv">g</span> : F a' --&gt; F a'',
+       (eqweqmap (correct_hom F _ _)) f
+    · (eqweqmap (correct_hom F _ _)) g
+    =  (eqweqmap (correct_hom F _ _)) (f · g).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a a' a'' f g.
+  <span class="nb">rewrite</span> !eqweq_correct_hom_is_comp.
+  <span class="nb">induction</span> (eqweq_ob_path_is_functor_app F a).
+  <span class="nb">induction</span> (eqweq_ob_path_is_functor_app F a').
+  <span class="nb">induction</span> (eqweq_ob_path_is_functor_app F a'').
+  <span class="nb">rewrite</span> <span class="mi">3</span> id_left.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> <span class="mi">3</span> id_right.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">catiso_to_precategory_comp_path</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+  (<span class="nv">F</span> : catiso A B)
+  : <span class="k">forall</span> <span class="nv">a</span> <span class="nv">a'</span> <span class="nv">a''</span> : A,
+    (transportb (X := total2 (<span class="k">λ</span> <span class="nv">T</span>, T -&gt; T -&gt; UU))
+                (<span class="k">λ</span> <span class="nv">T</span>, <span class="k">forall</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span> : (pr1 T), (pr2 T) a b -&gt; (pr2 T) b c -&gt; (pr2 T) a c)
+                (total2_paths2_b (catiso_to_precategory_ob_path F)
+                                 (catiso_to_precategory_mor_path_funext F))
+     (@compose B)) a a' a''
+   = (@compose A a a' a'').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a a' a''.
+
+  <span class="nb">eapply</span> pathscomp0. <span class="nb">apply</span> transport_comp.
+  <span class="nb">apply</span> funextsec. <span class="nb">intros</span> f.
+  <span class="nb">apply</span> funextsec. <span class="nb">intros</span> g.
+
+  <span class="nb">unfold</span> transport_comp_target.
+
+  <span class="c">(* Cancel funext *)</span>
+  <span class="nb">unfold</span> catiso_to_precategory_mor_path_funext.
+  <span class="nb">simpl</span>.
+
+  <span class="nb">set</span> (W := homotweqinvweq
+              (weqtoforallpaths (<span class="k">λ</span> <span class="nv">_</span> : A, A -&gt; UU)
+                                precategory_morphisms
+                                (transportb (<span class="k">λ</span> <span class="nv">T</span>, T -&gt; T -&gt; UU)
+                                            (catiso_to_precategory_ob_path F)
+                                            precategory_morphisms))).
+  <span class="nb">simpl</span> <span class="k">in</span> W. <span class="nb">rewrite</span> !W. <span class="nb">clear</span> W.
+
+  <span class="nb">set</span> (W := homotweqinvweq
+              (weqtoforallpaths (<span class="k">λ</span> <span class="nv">_</span> : A, UU)
+                                (precategory_morphisms a)
+                                (transportb (<span class="k">λ</span> <span class="nv">T</span>, T -&gt; T -&gt; UU)
+                                            (catiso_to_precategory_ob_path F)
+                                            precategory_morphisms a))).
+  <span class="nb">simpl</span> <span class="k">in</span> W. <span class="nb">rewrite</span> !W. <span class="nb">clear</span> W.
+
+  <span class="nb">set</span> (W := homotweqinvweq
+              (weqtoforallpaths (<span class="k">λ</span> <span class="nv">_</span> : A, UU)
+                                (precategory_morphisms a')
+                                (transportb (<span class="k">λ</span> <span class="nv">T</span>, T -&gt; T -&gt; UU)
+                                            (catiso_to_precategory_ob_path F)
+                                            precategory_morphisms a'))).
+  <span class="nb">simpl</span> <span class="k">in</span> W. <span class="nb">rewrite</span> !W. <span class="nb">clear</span> W.
+
+  <span class="c">(* Cancel as much as possible *)</span>
+  <span class="nb">unfold</span> catiso_to_precategory_mor_path.
+  <span class="nb">rewrite</span> !pathscomp0rid.
+  <span class="nb">rewrite</span> !pathscomp_inv.
+  <span class="nb">rewrite</span> !pathsinv0inv0.
+  <span class="nb">rewrite</span> path_assoc.
+  <span class="nb">rewrite</span> path_assoc.
+  <span class="nb">rewrite</span> pathsinv0r.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> &lt;- path_assoc.
+  <span class="nb">rewrite</span> &lt;- path_assoc.
+  <span class="nb">rewrite</span> pathsinv0r.
+  <span class="nb">rewrite</span> pathscomp0rid.
+  <span class="nb">rewrite</span> &lt;- path_assoc.
+  <span class="nb">rewrite</span> &lt;- path_assoc.
+  <span class="nb">rewrite</span> pathsinv0r.
+  <span class="nb">rewrite</span> pathscomp0rid.
+  <span class="nb">rewrite</span> &lt;- pathscomp_inv.
+
+  <span class="c">(* Rearrange to get into a form to apply correct_hom_on_comp *)</span>
+  <span class="nb">apply</span> pathsweq1'.
+  <span class="nb">rewrite</span> eqweqmap_pathsinv0.
+  <span class="nb">rewrite</span> invinv.
+
+  <span class="nb">rewrite</span> &lt;- !eqweqmap_pathscomp0.
+  <span class="nb">rewrite</span> !eqweq_fully_faithful_is_functor_app.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> functor_comp.
+
+  <span class="nb">apply</span> (correct_hom_on_comp F).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">catiso_to_precategory_data_path</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+  (<span class="nv">F</span> : catiso A B)
+  : precategory_data_from_precategory A
+    = precategory_data_from_precategory B.
+<span class="kn">Proof</span>.
+  <span class="nb">destruct</span> A <span class="k">as</span> [[[Ao Am] [Ai Ac]] Aax].
+  <span class="nb">destruct</span> B <span class="k">as</span> [[[Bo Bm] [Bi Bc]] Bax].
+
+  <span class="nb">eapply</span> total2_paths_b. <span class="kn">Unshelve</span>.
+  <span class="mi">2</span>: { <span class="nb">simpl</span>. <span class="bp">exact</span> (catiso_to_precategory_ob_mor_path F). }
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">eapply</span> pathscomp0.
+  <span class="nb">apply</span> (transportb_dirprod _ _ _ _ _ (catiso_to_precategory_ob_mor_path F)).
+  <span class="nb">apply</span> dirprodeq.
+  - <span class="nb">apply</span> funextsec.
+    <span class="nb">intros</span> a.
+    <span class="nb">apply</span> (catiso_to_precategory_id_path F).
+  - <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> (catiso_to_precategory_comp_path F).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** If either precategory has homsets, then an isomorphism between them</span>
+<span class="sd">    becomes a path. This is essentially one half of univalence for categories.</span>
+<span class="sd"> *)</span>
+<span class="kn">Lemma</span> <span class="nf">catiso_to_precategory_path_f</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+  (<span class="nv">hs</span> : has_homsets A)
+  (<span class="nv">F</span> : catiso A B)
+  : A = B.
+<span class="kn">Proof</span>.
+  use total2_paths_b.
+  - <span class="bp">exact</span> (catiso_to_precategory_data_path F).
+  - <span class="nb">apply</span> proofirrelevance, isaprop_is_precategory.
+    <span class="nb">apply</span> hs.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">catiso_to_precategory_path_b</span> {<span class="nv">A</span> <span class="nv">B</span> : precategory}
+  (<span class="nv">hs</span> : has_homsets B)
+  (<span class="nv">F</span> : catiso A B)
+  : A = B.
+<span class="kn">Proof</span>.
+  use total2_paths_f.
+  - <span class="bp">exact</span> (catiso_to_precategory_data_path F).
+  - <span class="nb">apply</span> proofirrelevance, isaprop_is_precategory.
+    <span class="nb">apply</span> hs.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A special case is that they both have homsets *)</span>
+<span class="kn">Corollary</span> <span class="nf">catiso_to_category_path</span> {<span class="nv">A</span> <span class="nv">B</span> : category}
+  (<span class="nv">F</span> : catiso A B) : A = B.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> category_eq.
+  <span class="nb">apply</span> catiso_to_precategory_data_path.
+  <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">inv_catiso</span>
+           {<span class="nv">C</span> <span class="nv">D</span> : category}
+           (<span class="nv">F</span> : catiso C D)
+  : D ⟶ C.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use tpair.
+    + <span class="bp">exact</span> (invweq (catiso_ob_weq F)).
+    + <span class="nb">intros</span> X Y f ; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (invmap
+                (catiso_fully_faithful_weq F
+                                           (invmap (catiso_ob_weq F) X)
+                                           (invmap (catiso_ob_weq F) Y))
+                _).
+      <span class="bp">exact</span> ((idtoiso (homotweqinvweq (catiso_ob_weq F) X))
+               · f
+               · idtoiso (!(homotweqinvweq (catiso_ob_weq F) Y))).
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span> X ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_right.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="bp">exact</span> (!(maponpaths pr1
+                            (idtoiso_concat D _ _ _
+                                            (homotweqinvweq (catiso_ob_weq F) X)
+                                            (! homotweqinvweq (catiso_ob_weq F) X)))).
+      }
+      <span class="nb">rewrite</span> pathsinv0r ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> invmap_eq ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> functor_id.
+      <span class="bp">reflexivity</span>.
+    + <span class="nb">intros</span> X Y Z f g ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> invmap_eq ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">pose</span> (homotweqinvweq
+              (catiso_fully_faithful_weq F
+                                         (invmap (catiso_ob_weq F) X)
+                                         (invmap (catiso_ob_weq F) Y))) <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> p ; <span class="nb">clear</span> p.
+      <span class="nb">pose</span> (homotweqinvweq
+              (catiso_fully_faithful_weq F
+                                         (invmap (catiso_ob_weq F) Y)
+                                         (invmap (catiso_ob_weq F) Z))) <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> p ; <span class="nb">clear</span> p.
+      <span class="nb">rewrite</span> &lt;- !assoc.
+      <span class="kp">repeat</span> (<span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · (f · z)))).
+      <span class="nb">refine</span> (!(id_left _) @ _).
+      <span class="nb">rewrite</span> !assoc.
+      <span class="kp">repeat</span> (<span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _))).
+      <span class="nb">rewrite</span> idtoiso_inv.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> z_iso_after_z_iso_inv.
+      <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+<span class="c">(* Any adjoint equivalence between univalent categories is an isomorphism of categories *)</span>
+<span class="kn">Definition</span> <span class="nf">adj_equivalence_of_cats_to_cat_iso</span>
+      {<span class="nv">C</span> <span class="nv">D</span> : category}
+      {<span class="nv">F</span> : functor C D}
+      (<span class="nv">Fa</span> : adj_equivalence_of_cats F)
+      (<span class="nv">Cuniv</span> : is_univalent C) (<span class="nv">Duniv</span> : is_univalent D)
+  : catiso C D.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">F</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> fully_faithful_from_equivalence, Fa.
+  - <span class="nb">apply</span>(weq_on_objects_from_adj_equiv_of_cats C D Cuniv Duniv F Fa).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** More operations on isomorphisms of categories *)</span>
+<span class="kn">Section</span> <span class="nf">CatIso</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> <span class="nv">D</span> : setcategory}
+          (<span class="nv">F</span> : catiso C D).
+
+  <span class="kn">Definition</span> <span class="nf">catiso_to_fully_faithful</span>
+    : fully_faithful F.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y.
+    <span class="nb">apply</span> F.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">catiso_inv_ob</span>
+             (<span class="nv">y</span> : D)
+    : C
+    := invmap (catiso_ob_weq F) y.
+
+  <span class="kn">Proposition</span> <span class="nf">catiso_catiso_inv_ob</span>
+              (<span class="nv">y</span> : D)
+    : F (catiso_inv_ob y) = y.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (homotweqinvweq (catiso_ob_weq F) y).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">catiso_inv_ob_catiso</span>
+              (<span class="nv">x</span> : C)
+    : catiso_inv_ob (F x) = x.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (homotinvweqweq (catiso_ob_weq F) x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">catiso_reflect_ob_eq</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">p</span> : F x = F y)
+    : x = y.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!(catiso_inv_ob_catiso x) @ _ @ catiso_inv_ob_catiso y).
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">catiso_inv_hom_idtoiso</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">p</span> : F x = F y)
+    : fully_faithful_inv_hom catiso_to_fully_faithful x y (idtoiso p)
+      =
+      idtoiso (catiso_reflect_ob_eq p).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!_ @ fully_faithful_inv_hom_is_inv catiso_to_fully_faithful _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!(pr1_maponpaths_idtoiso F (catiso_reflect_ob_eq p)) @ _).
+    <span class="nb">apply</span> setcategory_eq_idtoiso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">catiso_inv_mor</span>
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : D}
+             (<span class="nv">f</span> : y₁ --&gt; y₂)
+    : catiso_inv_ob y₁ --&gt; catiso_inv_ob y₂
+    := fully_faithful_inv_hom
+         catiso_to_fully_faithful
+         _ _
+         (idtoiso (catiso_catiso_inv_ob y₁)
+          · f
+          · idtoiso (!(catiso_catiso_inv_ob y₂))).
+
+  <span class="kn">Proposition</span> <span class="nf">catiso_inv_mor_cat_iso</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> : C}
+              (<span class="nv">f</span> : x₁ --&gt; x₂)
+    : catiso_inv_mor (#F f)
+      =
+      idtoiso (catiso_inv_ob_catiso x₁)
+      · f
+      · idtoiso (!(catiso_inv_ob_catiso x₂)).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> catiso_inv_mor.
+    <span class="nb">rewrite</span> !fully_faithful_inv_comp.
+    <span class="nb">rewrite</span> fully_faithful_inv_hom_is_inv.
+    <span class="nb">rewrite</span> !catiso_inv_hom_idtoiso.
+    <span class="nb">apply</span> setcategory_eq_idtoiso_comp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">catiso_catiso_inv_mor</span>
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : D}
+              (<span class="nv">f</span> : y₁ --&gt; y₂)
+    : #F (catiso_inv_mor f)
+      =
+      idtoiso (catiso_catiso_inv_ob y₁)
+      · f
+      · idtoiso (!(catiso_catiso_inv_ob y₂)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> functor_on_fully_faithful_inv_hom.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">catiso_inv_mor_eq</span>
+              {<span class="nv">y₁</span> <span class="nv">y₂</span> : D}
+              (<span class="nv">f</span> : y₁ --&gt; y₂)
+              (<span class="nv">g</span> : catiso_inv_ob y₁ --&gt; catiso_inv_ob y₂)
+              (<span class="nv">p</span> : f
+                   =
+                   idtoiso (!(catiso_catiso_inv_ob y₁))
+                   · #F g
+                   · idtoiso (catiso_catiso_inv_ob y₂))
+    : catiso_inv_mor f = g.
+  <span class="kn">Proof</span>.
+    use (invmaponpathsweq
+           (weq_from_fully_faithful catiso_to_fully_faithful _ _)).
+    <span class="nb">cbn</span> -[catiso_inv_mor].
+    <span class="nb">rewrite</span> catiso_catiso_inv_mor.
+    <span class="nb">rewrite</span> p.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> pr1_idtoiso_concat.
+      }
+      <span class="nb">rewrite</span> pathsinv0r ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (pr1_idtoiso_concat (catiso_catiso_inv_ob y₂)).
+      }
+      <span class="nb">rewrite</span> pathsinv0r ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> id_right.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">CatIso</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/catiso.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

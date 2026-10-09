@@ -1,0 +1,1131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LNWFSCocomplete.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.opp_precat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.MonadAlgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.ComonadCoalgebras.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Three.
+<span class="kn">Require Import</span> UniMath.ModelCategories.NWFS.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Helpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.LNWFSHelpers.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.FFMonoidalStructure.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">Ff_cocomplete</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+<span class="kn">Context</span> (<span class="nv">CC</span> : Colims C).
+
+<span class="kn">Section</span> <span class="nf">Ff_cocomplete_diagram</span>.
+
+<span class="kn">Context</span> {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g (Ff C)).
+<span class="kn">Context</span> (<span class="nv">H</span> : is_connected g).
+
+<span class="c">(* diagram of middle objects *)</span>
+<span class="kn">Definition</span> <span class="nf">Ff_diagram_pointwise_ob1</span> (<span class="nv">a</span> : arrow C) : diagram g C.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> v.
+    <span class="bp">exact</span> (pr1 (pr1 (dob d v) a)).
+  - <span class="nb">intros</span> u v e.
+    <span class="bp">exact</span> (pr1 (pr1 (dmor d e) a)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">CCFf_pt_ob1</span> : ∏ (a : arrow C), ColimCocone (Ff_diagram_pointwise_ob1 a) :=
+    <span class="k">λ</span> <span class="nv">a</span>, CC _ _.
+
+
+<span class="kn">Definition</span> <span class="nf">Ff_cocone_pointwise_R</span>
+      (<span class="nv">f</span> : arrow C) :
+    cocone (Ff_diagram_pointwise_ob1 f) (arrow_cod f).
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v.
+    <span class="bp">exact</span> (fact_R (dob d v) f).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      <span class="nb">set</span> (ecommf := pr2 (three_mor_comm (section_nat_trans (dmor d e) f)));
+      etrans; [<span class="bp">exact</span> (pathsinv0 ecommf)|];
+      <span class="nb">apply</span> id_right
+    ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* this construction only works for non-empty graphs, since</span>
+<span class="c">   we need an arrow arrow_dom a --&gt; colim (CCFf_pt_ob1 a),</span>
+<span class="c">   but we can only find this for a non-empty graph *)</span>
+<span class="kn">Definition</span> <span class="nf">ColimFf_ob</span> (<span class="nv">v0</span> : vertex g) (<span class="nv">a</span> : arrow C) : three_disp C a.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">colim</span> (CCFf_pt_ob1 a)).
+
+  <span class="k">exists</span> (<span class="nv">pr12</span> (pr1 (dob d v0) a) · (colimIn (CCFf_pt_ob1 a) v0)).
+  use tpair.
+  - use colimArrow.
+    <span class="bp">exact</span> (Ff_cocone_pointwise_R a).
+  - <span class="c">(* cbn. *)</span>
+    <span class="kp">abstract</span> (
+      etrans; [<span class="nb">apply</span> assoc'|];
+      etrans; [<span class="nb">apply</span> cancel_precomposition;
+              use (colimArrowCommutes (CCFf_pt_ob1 a))|];
+      <span class="c">(* cbn. *)</span>
+      <span class="bp">exact</span> (three_comp (fact_functor (dob d v0) a))
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ColimFf_mor</span> (<span class="nv">v0</span> : vertex g)
+    {<span class="nv">a</span> <span class="nv">b</span> : arrow C} (<span class="nv">f</span> : a --&gt; b) :
+  ColimFf_ob v0 a --&gt;[f] ColimFf_ob v0 b.
+<span class="kn">Proof</span>.
+  use tpair.
+  - use colimOfArrows.
+    * <span class="nb">intro</span> v.
+      <span class="c">(* cbn. *)</span>
+      <span class="nb">set</span> (Dv := (dob d v)).
+      <span class="bp">exact</span> (pr1 ((section_disp_on_morphisms (section_disp_data_from_section_disp Dv)) f)).
+    * <span class="nb">intros</span> u v e.
+      <span class="c">(* cbn. *)</span>
+      <span class="kp">abstract</span> (
+        <span class="nb">set</span> (De := (dmor d e));
+        <span class="nb">set</span> (Deax := section_nt_disp_axioms_from_section_nt_disp De _ _ f);
+        etrans; [<span class="bp">exact</span> (pathsinv0 (base_paths _ _ Deax))|];
+        etrans; [<span class="nb">apply</span> pr1_transportf_const|];
+        <span class="bp">reflexivity</span>
+      ).
+  - <span class="c">(* functorality of dob d v *)</span>
+    <span class="nb">split</span>.
+    * <span class="c">(* cbn. *)</span>
+      <span class="kp">abstract</span> (
+        <span class="nb">set</span> (Dv0f := ((section_disp_on_morphisms (section_disp_data_from_section_disp (dob d v0))) f));
+        <span class="nb">set</span> (Dv0fax := pr2 Dv0f);
+        etrans; [<span class="nb">apply</span> assoc'|];
+        etrans; [<span class="nb">apply</span> cancel_precomposition;
+                 use (colimArrowCommutes (CCFf_pt_ob1 a))|];
+
+        etrans; [<span class="nb">apply</span> assoc|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> assoc|];
+        <span class="nb">apply</span> cancel_postcomposition;
+        <span class="bp">exact</span> (pathsinv0 (pr1 Dv0fax))
+      ).
+    * <span class="c">(* cbn. *)</span>
+
+      <span class="kp">abstract</span> (
+        etrans; [use postcompWithColimArrow|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [use precompWithColimOfArrows|];
+        <span class="nb">apply</span> maponpaths;
+        use cocone_paths;
+        <span class="nb">intro</span> v;
+        <span class="c">(* cbn. *)</span>
+        <span class="nb">set</span> (Dvf := ((section_disp_on_morphisms (section_disp_data_from_section_disp (dob d v))) f));
+        <span class="nb">set</span> (Dvfax := pr2 Dvf);
+
+        <span class="bp">exact</span> (pathsinv0 (pr2 Dvfax))
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ColimFf_data</span> (<span class="nv">v0</span> : vertex g) : section_disp_data (three_disp C) :=
+    (_,, @ColimFf_mor v0).
+
+<span class="kn">Lemma</span> <span class="nf">ColimFf_axioms</span> (<span class="nv">v0</span> : vertex g) : section_disp_axioms (ColimFf_data v0).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> a.
+    use subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+    <span class="nb">apply</span> pathsinv0, colim_endo_is_identity; <span class="nb">intro</span> u.
+    <span class="c">(* cbn. *)</span>
+    etrans. use (colimOfArrowsIn _ _ (CCFf_pt_ob1 a)).
+    <span class="c">(* cbn. *)</span>
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (section_disp_id (dob d u) _).
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">intros</span> a b c fab fbc.
+    use subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|].
+    <span class="c">(* cbn. *)</span>
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> precompWithColimOfArrows.
+    <span class="nb">apply</span> pathsinv0, colimArrowUnique.
+    <span class="nb">intro</span> u.
+    etrans. <span class="nb">apply</span> colimOfArrowsIn.
+
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+
+    etrans. <span class="nb">apply</span> pr1_section_disp_on_morphisms_comp.
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ColimFf</span> (<span class="nv">v0</span> : vertex g) : Ff C :=
+    (_,, ColimFf_axioms v0).
+
+
+<span class="c">(* we need an edge from v0 to v for this to work,</span>
+<span class="c">   regarding equality of (arrow_dom v/v0 · colimIn v/v0) *)</span>
+<span class="kn">Local Definition</span> <span class="nf">colim_nat_trans_in_data</span>
+      {<span class="nv">v0</span> : vertex g} {<span class="nv">v</span> : vertex g} :
+    dob d v --&gt; ColimFf v0.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> a.
+    <span class="k">exists</span> (<span class="nv">colimIn</span> (CCFf_pt_ob1 a) v).
+    <span class="nb">split</span>.
+    * <span class="c">(* unfold ColimFf. *)</span>
+      <span class="c">(* cbn. *)</span>
+      <span class="kp">abstract</span> (
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> id_left|];
+        <span class="nb">set</span> (predicate := <span class="k">λ</span> <span class="nv">v</span>, pr12 (pr1 (ColimFf v0) a) = pr12 (pr1 (dob d v) a) · colimIn (CCFf_pt_ob1 a) v);
+        use (connected_graph_zig_zag_strong_induction v0 H predicate); [<span class="bp">reflexivity</span>|];
+        <span class="nb">intros</span> u u' Hu uu';
+        <span class="nb">induction</span> uu' <span class="k">as</span> [e|e]; (etrans; [<span class="bp">exact</span> Hu|]);
+          [|<span class="nb">apply</span> pathsinv0];
+          (etrans; [<span class="nb">apply</span> cancel_precomposition;
+                 <span class="bp">exact</span> (pathsinv0 (colimInCommutes (CCFf_pt_ob1 a) _ _ e))|];
+           etrans; [<span class="nb">apply</span> assoc|];
+           <span class="nb">apply</span> cancel_postcomposition;
+           etrans; [<span class="bp">exact</span> (pr12 (pr1 (dmor d e) a))|];
+           <span class="nb">apply</span> id_left)
+      ).
+    * <span class="kp">abstract</span> (
+        etrans; [<span class="nb">apply</span> id_right|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> (colimArrowCommutes (CCFf_pt_ob1 a))|];
+        <span class="bp">reflexivity</span>
+      ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> a b f;
+      <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|];
+      etrans; [use pr1_transportf_const|];
+      <span class="nb">apply</span> pathsinv0;
+      <span class="c">(* cbn. *)</span>
+      etrans; [<span class="nb">apply</span> (colimOfArrowsIn _ _ (CCFf_pt_ob1 a))|];
+      <span class="bp">reflexivity</span>
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">cocone_pointwise</span> (<span class="nv">F</span> : Ff C) (<span class="nv">cc</span> : cocone d F) <span class="nv">a</span> :
+  cocone (Ff_diagram_pointwise_ob1 a) (pr1 (pr1 F a)).
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v.
+    <span class="bp">exact</span> (pr1 (pr1 (coconeIn cc v) a)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      <span class="c">(* cbn. *)</span>
+      <span class="nb">set</span> (cccomm_pointwise := eq_section_nat_trans_disp_on_morphism (coconeInCommutes cc _ _ e) a);
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="bp">exact</span> (pathsinv0 (base_paths _ _ cccomm_pointwise))|];
+      etrans; [use pr1_transportf_const|];
+      <span class="bp">reflexivity</span>
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ColimFf_unique_mor</span>
+    (<span class="nv">v0</span>: vertex g)
+    (<span class="nv">F</span> : Ff C) (<span class="nv">cc</span> : cocone d F) :
+  ColimFf v0 --&gt; F.
+<span class="kn">Proof</span>.
+  use tpair.
+  * <span class="nb">intro</span> a.
+    <span class="k">exists</span> (<span class="nv">colimArrow</span> (CCFf_pt_ob1 a) _ (cocone_pointwise F cc a)).
+    <span class="nb">split</span>.
+    + <span class="kp">abstract</span> (
+        <span class="c">(* cbn. *)</span>
+        etrans; [<span class="nb">apply</span> assoc'|];
+        etrans; [<span class="nb">apply</span> cancel_precomposition;
+                 <span class="nb">apply</span> (colimArrowCommutes (CCFf_pt_ob1 a))|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> id_left|];
+        <span class="nb">apply</span> pathsinv0;
+        <span class="c">(* cbn. *)</span>
+        etrans; [<span class="bp">exact</span> (pr12 (pr1 (coconeIn cc v0) a))|];
+        <span class="nb">apply</span> id_left
+      ).
+    + <span class="kp">abstract</span> (
+        etrans; [<span class="nb">apply</span> id_right|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> postcompWithColimArrow|];
+        use colimArrowUnique;
+        <span class="nb">intro</span> u;
+        etrans; [<span class="nb">apply</span> colimArrowCommutes|];
+        <span class="c">(* naturality of coconeIn cc at u *)</span>
+        etrans; [<span class="bp">exact</span> (pathsinv0 (pr22 (pr1 (coconeIn cc u) a)))|];
+        <span class="nb">apply</span> id_right
+      ).
+  * <span class="kp">abstract</span> (
+      <span class="nb">intros</span> a b f;
+      <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> homset_property|];
+      etrans; [use pr1_transportf_const|];
+      etrans; [<span class="nb">apply</span> precompWithColimOfArrows|];
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="nb">apply</span> postcompWithColimArrow|];
+
+      use colimArrowUnique;
+      <span class="nb">intro</span> u;
+      etrans; [<span class="nb">apply</span> (colimArrowCommutes (CCFf_pt_ob1 a))|];
+      <span class="c">(* cbn. *)</span>
+
+      <span class="nb">set</span> (ccuf := (section_nt_disp_axioms_from_section_nt_disp (coconeIn cc u)) _ _ f);
+      etrans; [<span class="bp">exact</span> (pathsinv0 (base_paths _ _ ccuf))|];
+      etrans; [use pr1_transportf_const|];
+      <span class="bp">reflexivity</span>
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ColimFf_unique</span>
+    {<span class="nv">v0</span> : vertex g}
+    (<span class="nv">F</span> : Ff C) (<span class="nv">cc</span> : cocone d F) :
+  <span class="k">∃</span>! x : ColimFf v0 --&gt; F,
+            ∏ v, colim_nat_trans_in_data · x = coconeIn cc v.
+<span class="kn">Proof</span>.
+  use unique_exists.
+  - <span class="bp">exact</span> (ColimFf_unique_mor v0 F cc).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span> v;
+      functorial_factorization_mor_eq a;
+      etrans; [use pr1_transportf_const|];
+      etrans; [<span class="nb">apply</span> (colimArrowCommutes (CCFf_pt_ob1 a))|];
+      <span class="bp">reflexivity</span>
+    ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property
+    ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> f t;
+      functorial_factorization_mor_eq a;
+      <span class="nb">apply</span> colimArrowUnique;
+      <span class="nb">intro</span> u;
+      <span class="c">(* cbn. *)</span>
+      <span class="nb">set</span> (tax := eq_section_nat_trans_disp_on_morphism (t u) a);
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="bp">exact</span> (pathsinv0 (base_paths _ _ tax))|];
+      etrans; [use pr1_transportf_const|];
+      <span class="bp">reflexivity</span>
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ColimFfCocone</span>
+    (<span class="nv">v0</span> : vertex g) :
+  ColimCocone d.
+<span class="kn">Proof</span>.
+  use make_ColimCocone.
+  - <span class="bp">exact</span> (ColimFf v0).
+  - use make_cocone.
+    * <span class="nb">intro</span> v. <span class="bp">exact</span> (colim_nat_trans_in_data).
+    * <span class="kp">abstract</span> (
+        <span class="nb">intros</span> u v e;
+        functorial_factorization_mor_eq a;
+        etrans; [use pr1_transportf_const|];
+        <span class="c">(* cbn. *)</span>
+        <span class="nb">apply</span> (colimInCommutes (CCFf_pt_ob1 a))
+      ).
+  - <span class="nb">intros</span> F cc; <span class="bp">exact</span> (ColimFf_unique _ cc).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Ff_cocomplete_diagram</span>.
+
+<span class="kn">End</span> <span class="nf">Ff_cocomplete</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ChainsFf</span> {<span class="nv">C</span> : category} (<span class="nv">HC</span> : Colims C) :
+    Chains (Ff C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> d.
+  use (ColimFfCocone HC d).
+  - <span class="bp">exact</span> is_connected_nat_graph.
+  - <span class="bp">exact</span> <span class="mi">0</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoequalizersFf</span> {<span class="nv">C</span> : category} (<span class="nv">HC</span> : Colims C) :
+    Coequalizers (Ff C).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F G f g.
+  use (ColimFfCocone HC).
+  - <span class="bp">exact</span> is_connected_coequalizer_graph.
+  - <span class="bp">exact</span> (● <span class="mi">0</span>)%stn.
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Section</span> <span class="nf">LNWFS_cocomplete</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+<span class="kn">Context</span> (<span class="nv">CC</span> : Colims C).
+
+<span class="kn">Context</span> {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g (total_category (LNWFS C))).
+<span class="kn">Context</span> (<span class="nv">H</span> : is_connected g).
+<span class="kn">Context</span> (<span class="nv">v0</span> : vertex g).
+<span class="kn">Context</span> (<span class="nv">FfCC</span> := <span class="k">λ</span> <span class="nv">d</span>, ColimFfCocone CC d H v0).
+
+
+<span class="kn">Local Definition</span> <span class="nf">lnwfs_Σ</span> {<span class="nv">F</span> : Ff C} (<span class="nv">L</span> : lnwfs_over F) := pr1 L.
+
+<span class="kn">Local Definition</span> <span class="nf">LNWFS_diagram_pointwise_comul_mor</span> (<span class="nv">a</span> : arrow C) : diagram g (arrow C).
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">intro</span> v.
+    <span class="nb">set</span> (Σa := lnwfs_Σ (pr2 (dob d v)) a).
+    <span class="bp">exact</span> (arrow_mor11 Σa).
+  - <span class="nb">intros</span> u v e.
+    <span class="nb">set</span> (Lu := dob d u).
+    <span class="nb">set</span> (Lv := dob d v).
+    <span class="nb">set</span> (mor := dmor d e : Lu --&gt; Lv).
+
+    <span class="nb">set</span> (α := lnwfs_mor (pr2 Lu) (pr2 Lv) (pr1 mor)).
+    <span class="nb">set</span> (Mu := fact_L (pr1 Lu)).
+    <span class="nb">set</span> (Mv := fact_L (pr1 Lv)).
+    <span class="nb">set</span> (mulmor := #Mu (α a) · α (Mv a)).
+
+    use mors_to_arrow_mor.
+    * <span class="bp">exact</span> (arrow_mor11 (α a)).
+    * <span class="bp">exact</span> (arrow_mor11 mulmor).
+    * <span class="kp">abstract</span> (
+        <span class="nb">set</span> (morax := pr2 mor);
+        <span class="nb">set</span> (moraxμa := pr1 morax a);
+        etrans; [<span class="bp">exact</span> (pr2 (pathsdirprodweq (base_paths _ _ moraxμa)))|];
+        <span class="nb">apply</span> assoc'
+      ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">ccμ</span> : ∏ (a : arrow C), ColimCocone (LNWFS_diagram_pointwise_comul_mor a) :=
+    <span class="k">λ</span> <span class="nv">a</span>, (arrow_colims CC) _ _.
+
+<span class="kn">Context</span> (<span class="nv">dbase</span> := mapdiagram (pr1_category _) d).
+<span class="kn">Context</span> (<span class="nv">Finf</span> := FfCC dbase).
+
+<span class="kn">Lemma</span> <span class="nf">ccμ_cod_preservation_mor</span> (<span class="nv">a</span> : arrow C) :
+    arrow_cod (colim (ccμ a)) --&gt; three_ob1 (fact_functor (colim Finf) (fact_L (colim Finf) a)).
+<span class="kn">Proof</span>.
+  use colimOfArrows.
+  - <span class="nb">intro</span> v.
+    <span class="c">(* cbn. *)</span>
+    <span class="c">(* three_ob1 ((dob d v) (fact_L (dob d v) a))</span>
+<span class="c">                  --&gt;</span>
+<span class="c">       three_ob1 ((dob d v) (fact_L Finf a))</span>
+<span class="c">    *)</span>
+    <span class="nb">set</span> (vinFinf := colimIn Finf v).
+    <span class="nb">set</span> (LvinFinf := three_mor_mor01 (section_nat_trans vinFinf a)).
+    <span class="nb">set</span> (dobvLvinFinf := #(fact_functor (pr1 (dob d v))) LvinFinf).
+    <span class="bp">exact</span> (three_mor11 dobvLvinFinf).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      etrans; [<span class="nb">apply</span> assoc'|];
+      <span class="nb">set</span> (morcolim := three_mor_mor01 (section_nat_trans (colim_nat_trans_in_data CC dbase H (v0 := v0) (v := v)) a));
+      <span class="nb">set</span> (dmorenat := (section_nt_disp_axioms_from_section_nt_disp (dmor dbase e)) _ _ morcolim);
+      etrans; [<span class="nb">apply</span> cancel_precomposition; <span class="bp">exact</span> (pathsinv0 (base_paths _ _ dmorenat))|];
+      etrans; [<span class="nb">apply</span> cancel_precomposition; <span class="nb">apply</span> pr1_transportf_const|];
+      <span class="c">(* cbn. *)</span>
+      etrans; [<span class="nb">apply</span> assoc|];
+      <span class="nb">apply</span> cancel_postcomposition;
+      etrans; [<span class="nb">apply</span> pr1_section_disp_on_morphisms_comp|];
+      use section_disp_on_eq_morphisms; [<span class="nb">apply</span> id_left|];
+      <span class="nb">apply</span> (colimInCommutes (CCFf_pt_ob1 CC dbase a))
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">ccμ_cod_arrow</span> (<span class="nv">a</span> : arrow C) :
+    arrow_dom a --&gt; arrow_cod (colim (ccμ a)).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (ccμinv0 := colimIn (ccμ a) v0).
+  <span class="nb">set</span> (ccμinv011 := arrow_mor11 ccμinv0).
+  <span class="nb">set</span> (<span class="k">λ</span><span class="nv">λav0</span> := fact_L (pr1 (dob d v0)) (fact_L (pr1 (dob d v0)) a)).
+  <span class="bp">exact</span> (<span class="k">λ</span><span class="nv">λav0</span> · ccμinv011).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">LNWFS_colim_comul_data_subproof</span>
+    (<span class="nv">v</span> : vertex g)
+    (<span class="nv">f</span> : arrow C)
+  :
+    fact_L (pr1 (dob d v)) f ·
+    arrow_mor11 (lnwfs_Σ (pr2 (dob d v)) f) ·
+    three_mor11 (#(fact_functor (pr1 (dob d v))) (three_mor_mor01 (section_nat_trans (colimIn Finf v) f)))
+    =
+    fact_L (pr1 (dob d v)) (fact_L (colim Finf) f).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (Lv := (dob d v)).
+  <span class="c">(* λf · σf · m11 = λ_{λ∞f}</span>
+<span class="c">    where λf · σf = λλf (component of comul)</span>
+<span class="c">    and λλf · m11 = λ_{λ∞f} (commutativity of fact_L (pr1 Lv) (fact_L (colim Finf)) f)</span>
+<span class="c">  *)</span>
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    <span class="nb">set</span> (Σf := lnwfs_Σ (pr2 (dob d v)) f).
+    <span class="nb">set</span> (Σfcomm := arrow_mor_comm Σf).
+    etrans. <span class="bp">exact</span> (pathsinv0 Σfcomm).
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (lnwfs_Σ_top_map_id _ f).
+    <span class="nb">apply</span> id_left.
+  }
+  etrans.
+  {
+    <span class="nb">set</span> (LcolimIn := (# (fact_functor (pr1 Lv)) (three_mor_mor01 (section_nat_trans (colimIn Finf v) f)))).
+    <span class="nb">set</span> (LcolimIncomm01 := pr1 (three_mor_comm LcolimIn)).
+    <span class="bp">exact</span> LcolimIncomm01.
+  }
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_colim_comul_data_first_mor</span> (<span class="nv">a</span> : arrow C) :
+  fact_L (colim Finf) a --&gt; ccμ_cod_arrow a.
+<span class="kn">Proof</span>.
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (identity _).
+  - <span class="bp">exact</span> (colim (ccμ a)).
+  - <span class="kp">abstract</span> (
+      etrans; [<span class="nb">apply</span> id_left|];
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="nb">apply</span> assoc'|];
+      etrans; [<span class="nb">apply</span> cancel_precomposition;
+              <span class="nb">apply</span> (colimOfArrowsIn _ _ (CCFf_pt_ob1 CC dbase a))|];
+      etrans; [<span class="nb">apply</span> assoc|];
+      <span class="nb">apply</span> cancel_postcomposition;
+      <span class="nb">set</span> (Σf := lnwfs_Σ (pr2 (dob d v0)) a);
+      <span class="nb">set</span> (Σfcomm := arrow_mor_comm Σf);
+      etrans; [<span class="bp">exact</span> (pathsinv0 Σfcomm)|];
+      etrans; [<span class="nb">apply</span> cancel_postcomposition;
+              <span class="bp">exact</span> (lnwfs_Σ_top_map_id _ a)|];
+      <span class="nb">apply</span> id_left
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_colim_comul_data_second_mor</span> (<span class="nv">a</span> : arrow C) :
+    ccμ_cod_arrow a --&gt; (fact_L (colim Finf) ∙ fact_L (colim Finf)) a.
+<span class="kn">Proof</span>.
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (identity _).
+  - <span class="bp">exact</span> (ccμ_cod_preservation_mor a).
+  - <span class="kp">abstract</span> (
+      etrans; [<span class="nb">apply</span> id_left|];
+      <span class="nb">apply</span> pathsinv0;
+      etrans; [<span class="nb">apply</span> assoc'|];
+      etrans; [<span class="nb">apply</span> cancel_precomposition;
+              <span class="nb">apply</span> (colimOfArrowsIn _ _ (CC g
+                  (mapdiagram (PrecategoryBinProduct.pr2_functor C C)
+                    (mapdiagram (pr1_category (arrow_disp C))
+                        (LNWFS_diagram_pointwise_comul_mor a)))))|];
+      etrans; [<span class="nb">apply</span> assoc|];
+      <span class="nb">apply</span> cancel_postcomposition;
+      <span class="nb">set</span> (LcolimIn := (# (fact_functor (pr1 (dob d v0))) (three_mor_mor01 (section_nat_trans (colimIn Finf v0) a))));
+      <span class="nb">set</span> (LcolimIncomm01 := pr1 (three_mor_comm LcolimIn));
+      etrans; [<span class="bp">exact</span> LcolimIncomm01|];
+      <span class="nb">apply</span> id_left
+    ).
+<span class="kn">Defined</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_colim_comul_data</span> :
+  nat_trans_data (fact_L (colim Finf)) ((fact_L (colim Finf)) ∙ (fact_L (colim Finf))).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> a.
+  <span class="bp">exact</span> (
+    LNWFS_colim_comul_data_first_mor a
+    · LNWFS_colim_comul_data_second_mor a
+  ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_colim_comul_ax</span> :
+  is_nat_trans _ _ LNWFS_colim_comul_data.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> f f' γ.
+  <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+  <span class="nb">apply</span> pathsdirprod.
+  - etrans; [<span class="nb">apply</span> assoc|].
+    etrans; [<span class="nb">apply</span> id_right|].
+    etrans; [<span class="nb">apply</span> id_right|].
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> id_left.
+  -  use colimArrowUnique'.
+    <span class="nb">intro</span> v.
+    <span class="c">(* cbn. *)</span>
+    etrans; [<span class="nb">apply</span> assoc|].
+    etrans; [<span class="nb">apply</span> cancel_postcomposition;
+            <span class="nb">apply</span> (colimOfArrowsIn _ _ (CCFf_pt_ob1 CC dbase f))|].
+    <span class="c">(* cbn. *)</span>
+    etrans; [<span class="nb">apply</span> assoc|].
+    etrans; [<span class="nb">apply</span> assoc4|].
+    etrans; [<span class="nb">apply</span> cancel_postcomposition, cancel_precomposition;
+            <span class="nb">apply</span> (colimOfArrowsIn _ _ (CCFf_pt_ob1 CC dbase f'))|].
+    etrans; [<span class="nb">apply</span> cancel_postcomposition, assoc|].
+    etrans; [<span class="nb">apply</span> assoc'|].
+    etrans; [<span class="nb">apply</span> cancel_precomposition, colimOfArrowsIn|].
+    etrans; [<span class="nb">apply</span> assoc|].
+    <span class="nb">apply</span> pathsinv0.
+    etrans; [<span class="nb">apply</span> assoc|].
+    <span class="c">(* cbn. *)</span>
+    etrans; [<span class="nb">apply</span> cancel_postcomposition, assoc|].
+    etrans; [<span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition;
+            <span class="nb">apply</span> (colimOfArrowsIn _ _ (CCFf_pt_ob1 CC dbase f))|].
+    <span class="c">(* cbn. *)</span>
+    etrans; [<span class="nb">apply</span> assoc4|].
+    <span class="c">(* unfold ccμ_cod_preservation_mor. *)</span>
+    <span class="nb">set</span> (ccbase := (CC g
+          (mapdiagram (PrecategoryBinProduct.pr2_functor C C)
+            (mapdiagram (pr1_category (arrow_disp C))
+                (LNWFS_diagram_pointwise_comul_mor f))))).
+    etrans; [<span class="nb">apply</span> cancel_postcomposition, cancel_precomposition;
+            <span class="nb">apply</span> (colimOfArrowsIn _ _ ccbase)|].
+    <span class="nb">clear</span> ccbase.
+    <span class="c">(* cbn. *)</span>
+    etrans; [<span class="nb">apply</span> assoc'|].
+    etrans; [<span class="nb">apply</span> cancel_precomposition, assoc'|].
+    etrans; [<span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_precomposition;
+            <span class="nb">apply</span> (colimOfArrowsIn _ _ (CCFf_pt_ob1 CC dbase _))|].
+    <span class="c">(* cbn. *)</span>
+    etrans; [<span class="nb">apply</span> assoc|].
+    etrans; [<span class="nb">apply</span> assoc|].
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">set</span> (Σnat := nat_trans_ax (lnwfs_Σ (pr2 (dob d v))) _ _ γ).
+    <span class="nb">set</span> (Σnat11 := pr2 (pathsdirprodweq (base_paths _ _ Σnat))).
+    etrans; [<span class="nb">apply</span> cancel_postcomposition; <span class="bp">exact</span> (Σnat11)|].
+    etrans; [<span class="nb">apply</span> assoc'|].
+    <span class="nb">apply</span> pathsinv0.
+    etrans; [<span class="nb">apply</span> assoc'|].
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="c">(* cbn. *)</span>
+    etrans; [<span class="nb">apply</span> pr1_section_disp_on_morphisms_comp|].
+    <span class="nb">apply</span> pathsinv0.
+    etrans; [<span class="nb">apply</span> pr1_section_disp_on_morphisms_comp|].
+    use (section_disp_on_eq_morphisms (pr1 (dob d v))).
+    * etrans; [<span class="nb">apply</span> id_right|].
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> id_left.
+    * <span class="nb">apply</span> pathsinv0.
+      etrans; [<span class="nb">apply</span> (colimOfArrowsIn _ _ (CCFf_pt_ob1 CC dbase f))|].
+      <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">LNWFS_colim_comul</span> :
+    (fact_L (colim Finf)) ⟹ ((fact_L (colim Finf)) ∙ (fact_L (colim Finf))) :=
+  (_,, LNWFS_colim_comul_ax).
+
+<span class="kn">Local Lemma</span> <span class="nf">LNWFS_colim_comul_monad_ax_subproof1</span>
+    (<span class="nv">f</span> : arrow C)
+    (<span class="nv">v</span> : vertex g) :
+  fact_L (pr1 (dob d v0)) (fact_L (pr1 (dob d v0)) f)
+  · arrow_mor11 (colimIn (ccμ f) v0) =
+  fact_L (pr1 (dob d v)) (fact_L (pr1 (dob d v)) f)
+  · arrow_mor11 (colimIn (ccμ f) v).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (predicate := <span class="k">λ</span> <span class="nv">v</span>,
+      fact_L (pr1 (dob d v0)) (fact_L (pr1 (dob d v0)) f)
+      · arrow_mor11 (colimIn (ccμ f) v0) =
+      fact_L (pr1 (dob d v)) (fact_L (pr1 (dob d v)) f)
+      · arrow_mor11 (colimIn (ccμ f) v)).
+
+  <span class="nb">enough</span> (He : ∏ (u u' : vertex g) (e : edge u u'),
+            fact_L (pr1 (dob d u)) (fact_L (pr1 (dob d u)) f)
+            · arrow_mor11 (colimIn (ccμ f) u) =
+            fact_L (pr1 (dob d u')) (fact_L (pr1 (dob d u')) f)
+            · arrow_mor11 (colimIn (ccμ f) u')).
+  {
+    use (connected_graph_zig_zag_strong_induction v0 H predicate); [<span class="bp">reflexivity</span>|].
+
+    <span class="nb">intros</span> u u' Hu e.
+    <span class="nb">destruct</span> e.
+    - etrans. <span class="bp">exact</span> Hu.
+      <span class="bp">exact</span> (He _ _ e).
+    - etrans. <span class="bp">exact</span> Hu.
+      <span class="nb">apply</span> pathsinv0.
+      <span class="bp">exact</span> (He _ _ e).
+  }
+  <span class="nb">intros</span> u u' e.
+  <span class="nb">set</span> (cinc := colimInCommutes (ccμ f) _ _ e).
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="bp">exact</span> (pathsinv0 (pr2 (pathsdirprodweq (base_paths _ _ cinc)))).
+  etrans. <span class="nb">apply</span> assoc.
+  <span class="nb">apply</span> cancel_postcomposition.
+
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+  {
+    <span class="nb">set</span> (e01 := three_mor_mor01 (section_nat_trans (pr1 (dmor d e)) f)).
+    <span class="nb">set</span> (Lue01 := #(fact_L (pr1 (dob d u))) e01).
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            use (section_disp_on_eq_morphisms (pr1 (dob d u)) (γ' := e01)); <span class="bp">reflexivity</span>.
+    etrans. <span class="bp">exact</span> (pathsinv0 (arrow_mor_comm Lue01)).
+    <span class="nb">apply</span> id_left.
+  }
+  <span class="nb">set</span> (e01 := three_mor_mor01 (section_nat_trans (pr1 (dmor d e)) (fact_L (pr1 (dob d u')) f))).
+  etrans. <span class="bp">exact</span> (pathsinv0 (arrow_mor_comm e01)).
+  <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">LNWFS_colim_comul_monad_ax_subproof</span>
+    (<span class="nv">f</span> : arrow C)
+    (<span class="nv">v</span> : vertex g) :
+  arrow_mor11 (lnwfs_Σ (pr2 (dob d v)) f)
+  · three_mor11 (
+      #(fact_functor (pr1 (dob d v)))
+      (three_mor_mor01 ((section_nat_trans_data (colim_nat_trans_in_data CC dbase H) f)))
+    )
+  · three_mor11 (#(fact_functor (pr1 (dob d v))) (LNWFS_colim_comul_data f))
+  =
+  arrow_mor11 (lnwfs_Σ (pr2 (dob d v)) f)
+  · three_mor11 (
+      #(fact_functor (pr1 (dob d v)))
+      (three_mor_mor01 ((section_nat_trans_data (colim_nat_trans_in_data CC dbase H) f)))
+    )
+  · arrow_mor11 (lnwfs_Σ (pr2 (dob d v)) (fact_L (colim Finf) f))
+  · three_mor11 (
+      #(fact_functor (pr1 (dob d v)))
+      (three_mor_mor01 ((section_nat_trans_data (colim_nat_trans_in_data CC dbase H) (fact_L (colim Finf) f))))
+    ).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (Lv := dob d v).
+  <span class="nb">set</span> (law3 := @Comonad_law3 _ (L_monad _ _ (pr22 Lv))).
+
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (functor_comp (fact_functor (pr1 Lv))).
+  }
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+  {
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    etrans. <span class="nb">apply</span> pr1_section_disp_on_morphisms_comp.
+    use (section_disp_on_eq_morphisms (pr1 Lv)).
+    - use (compose (lnwfs_Σ (pr2 (dob d v)) f)).
+      use mors_to_arrow_mor.
+      * <span class="bp">exact</span> (identity _).
+      * <span class="bp">exact</span> (arrow_mor11 (colimIn (ccμ f) v)).
+      * <span class="kp">abstract</span> (
+          etrans; [<span class="nb">apply</span> id_left|];
+          <span class="bp">exact</span> (LNWFS_colim_comul_monad_ax_subproof1 f v)
+        ).
+    - <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> (lnwfs_Σ_top_map_id (pr2 Lv) f).
+      <span class="bp">reflexivity</span>.
+    - etrans. <span class="nb">apply</span> (colimOfArrowsIn _ _ (CCFf_pt_ob1 CC dbase f)).
+      <span class="bp">reflexivity</span>.
+  }
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (pathsinv0 (pr1_section_disp_on_morphisms_comp (pr1 Lv) _ _)).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (pr2 (pathsdirprodweq (base_paths _ _ (law3 f)))).
+
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+
+  <span class="nb">set</span> (mor := (three_mor_mor01
+                (section_nat_trans_data (colim_nat_trans_in_data CC dbase H) f))).
+  <span class="nb">set</span> (LΣnatFinff := nat_trans_ax (pr12 Lv) _ _ mor).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (pr2 (pathsdirprodweq (base_paths _ _ LΣnatFinff))).
+  etrans. <span class="nb">apply</span> assoc'.
+  <span class="nb">apply</span> cancel_precomposition.
+  etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp (pr1 Lv)).
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp (pr1 Lv)).
+  <span class="nb">apply</span> (section_disp_on_eq_morphisms (pr1 Lv)); [<span class="bp">reflexivity</span>|].
+  <span class="c">(* cbn. *)</span>
+  etrans. <span class="nb">apply</span> (colimOfArrowsIn _ _ (CC g
+                  (mapdiagram (PrecategoryBinProduct.pr2_functor C C)
+                    (mapdiagram (pr1_category (arrow_disp C))
+                        (LNWFS_diagram_pointwise_comul_mor f))))).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">LNWFS_colim_comul_data_subproof1</span>
+    (<span class="nv">f</span> : arrow C)
+    (<span class="nv">v</span> : vertex g) :
+  three_mor11
+      (# (fact_functor (pr1 (dob d v))) (three_mor_mor01 (section_nat_trans (colimIn Finf v) f)))
+    · fact_R (pr1 (dob d v)) (fact_L (colim Finf) f) =
+    fact_R (pr1 (dob d v)) (fact_L (pr1 (dob d v)) f)
+    · colimIn (CCFf_pt_ob1 CC dbase f) v.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (Lv := dob d v).
+  <span class="nb">set</span> (Lcin := # (fact_functor (pr1 Lv)) (three_mor_mor01 (section_nat_trans (colimIn Finf v) f))).
+  <span class="nb">set</span> (comm12 := pr2 (three_mor_comm Lcin)).
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">exact</span> comm12.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">LNWFS_colim_comul_monad_ax</span> :
+    disp_Comonad_laws (L_monad_data (colim Finf) LNWFS_colim_comul).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>; <span class="nb">intro</span> f.
+  - <span class="nb">apply</span> arrow_mor_eq; [etrans; [<span class="nb">apply</span> assoc'|]; etrans; [<span class="nb">apply</span> id_left|]; <span class="nb">apply</span> id_left|].
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> colim_endo_is_identity.
+    <span class="nb">intro</span> v.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> assoc.
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (colimOfArrowsIn).
+    etrans. <span class="nb">apply</span> assoc4.
+    etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+            <span class="nb">apply</span> (colimOfArrowsIn).
+    etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (colimArrowCommutes).
+
+    <span class="nb">set</span> (law1v := @Comonad_law1 _ (L_monad _ _ (pr22 (dob d v))) f).
+
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="bp">exact</span> (LNWFS_colim_comul_data_subproof1 f v).
+
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="bp">exact</span> (pr2 (pathsdirprodweq (base_paths _ _ law1v))).
+    <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> arrow_mor_eq; [etrans; [<span class="nb">apply</span> assoc'|]; etrans; [<span class="nb">apply</span> id_left|]; <span class="nb">apply</span> id_left|].
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> colim_endo_is_identity.
+    <span class="nb">intro</span> v.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> assoc.
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (colimOfArrowsIn).
+    <span class="c">(* cbn. *)</span>
+    etrans. <span class="nb">apply</span> assoc4.
+    etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+    {
+      <span class="nb">set</span> (ccmor := (CC g
+            (mapdiagram (PrecategoryBinProduct.pr2_functor C C)
+              (mapdiagram (pr1_category (arrow_disp C))
+                  (LNWFS_diagram_pointwise_comul_mor f))))).
+      <span class="nb">apply</span> (colimOfArrowsIn _ _ ccmor).
+    }
+    <span class="c">(* cbn.  *)</span>
+    etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      <span class="nb">set</span> (ccmor := (CCFf_pt_ob1 CC dbase
+            (make_dirprod (three_ob0 (f,, ColimFf_ob CC dbase v0 f))
+              (colim (CCFf_pt_ob1 CC dbase f)),,
+            pr12 ((pr11 (dob d v0)) f) · colimIn (CCFf_pt_ob1 CC dbase f) v0))).
+      <span class="nb">apply</span> (colimOfArrowsIn _ _ ccmor).
+    }
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> (pathsinv0 (id_left _)).
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">set</span> (law2v := @Comonad_law2 _ (L_monad _ _ (pr22 (dob d v))) f).
+    etrans. <span class="bp">exact</span> (pathsinv0 (pr2 (pathsdirprodweq (base_paths _ _ law2v)))).
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    <span class="nb">apply</span> cancel_precomposition.
+    etrans. <span class="nb">apply</span> pr1_section_disp_on_morphisms_comp.
+    <span class="nb">apply</span> section_disp_on_eq_morphisms; [<span class="nb">apply</span> id_left|].
+    <span class="nb">apply</span> (colimArrowCommutes (CCFf_pt_ob1 CC dbase f)).
+  - <span class="nb">apply</span> arrow_mor_eq; [<span class="bp">reflexivity</span>|].
+    use colimArrowUnique'.
+    <span class="nb">intro</span> v.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> assoc.
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (colimOfArrowsIn _ _ (CCFf_pt_ob1 CC dbase f)).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (colimOfArrowsIn).
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">set</span> (ccinf := CCFf_pt_ob1 CC dbase (fact_L (colim Finf) f)).
+      <span class="nb">apply</span> (colimArrowCommutes ccinf).
+    }
+    <span class="nb">apply</span> pathsinv0.
+    <span class="c">(* cbn. *)</span>
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> assoc.
+    etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (colimOfArrowsIn _ _ (CCFf_pt_ob1 CC dbase f)).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+    {
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (colimOfArrowsIn).
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">set</span> (ccinf := CCFf_pt_ob1 CC dbase (fact_L (colim Finf) f)).
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (colimArrowCommutes ccinf).
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+      <span class="nb">apply</span> (colimOfArrowsIn).
+    }
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="bp">exact</span> (LNWFS_colim_comul_monad_ax_subproof f v).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ColimLNWFS_disp</span> : LNWFS C (colim Finf) :=
+    (LNWFS_colim_comul,, LNWFS_colim_comul_monad_ax).
+
+<span class="kn">Definition</span> <span class="nf">ColimLNWFS</span> : total_category (LNWFS C) :=
+    (_,, ColimLNWFS_disp).
+
+<span class="kn">Definition</span> <span class="nf">ColimLNWFS_disp_in</span> (<span class="nv">v</span> : vertex g) :
+    pr2 (dob d v) --&gt;[colimIn Finf v] ColimLNWFS_disp.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">intro</span> f; (<span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|]); <span class="nb">apply</span> pathsdirprod.
+  - etrans. <span class="nb">apply</span> id_left.
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> id_right.
+    etrans. <span class="nb">apply</span> id_right.
+    <span class="nb">apply</span> (lnwfs_Σ_top_map_id (pr2 (dob d v))).
+  - etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (colimOfArrowsIn _ _ (CCFf_pt_ob1 CC dbase f)).
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> colimOfArrowsIn.
+    etrans. <span class="nb">apply</span> assoc.
+    <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> cancel_postcomposition.
+    <span class="nb">apply</span> cancel_precomposition.
+    <span class="nb">apply</span> section_disp_on_eq_morphisms; <span class="bp">reflexivity</span>.
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> (colimArrowCommutes (CCFf_pt_ob1 CC dbase f)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">ColimLNWFS_in</span> (<span class="nv">v</span> : vertex g) :
+    dob d v --&gt; ColimLNWFS :=
+  (colimIn Finf v,, ColimLNWFS_disp_in v).
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp.
+
+<span class="kn">Lemma</span> <span class="nf">project_cocone</span>
+    (<span class="nv">L</span> : total_category (LNWFS C))
+    (<span class="nv">cc</span> : cocone d L) :
+  cocone dbase (pr1 L).
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v.
+    <span class="bp">exact</span> (pr1 (coconeIn cc v)).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      <span class="bp">exact</span> (base_paths _ _ (coconeInCommutes cc _ _ e))
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ColimLNWFS_disp_cc_mor</span>
+    {<span class="nv">L</span>: total_category (LNWFS C)} (<span class="nv">cc</span> : cocone d L) :
+  ColimLNWFS_disp
+    --&gt;[ColimFf_unique_mor CC dbase v0 (pr1 L) (project_cocone _ cc)]
+    (pr2 L).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">intro</span> f.
+  - <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+    <span class="nb">apply</span> pathsdirprod.
+    * etrans. <span class="nb">apply</span> id_left.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> id_left.
+      etrans. <span class="nb">apply</span> id_left.
+      etrans. <span class="nb">apply</span> id_left.
+      <span class="c">(* cbn. *)</span>
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> (lnwfs_Σ_top_map_id (pr2 L)).
+    * use colimArrowUnique'.
+      <span class="nb">intro</span> v.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (colimArrowCommutes).
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> assoc.
+      etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+              etrans. <span class="nb">apply</span> assoc.
+              <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> colimOfArrowsIn.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> assoc4.
+      etrans. <span class="nb">apply</span> cancel_postcomposition, cancel_precomposition.
+              <span class="nb">apply</span> colimArrowCommutes.
+      etrans. <span class="nb">apply</span> cancel_postcomposition, assoc.
+      etrans. <span class="nb">apply</span> assoc'.
+      etrans. <span class="nb">apply</span> cancel_precomposition.
+      {
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> colimOfArrowsIn.
+        etrans. <span class="nb">apply</span> assoc'.
+        <span class="nb">apply</span> cancel_precomposition.
+        <span class="nb">apply</span> colimArrowCommutes.
+      }
+
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="bp">exact</span> (pr2 (pathsdirprodweq (base_paths _ _ (pr12 (coconeIn cc v) f)))).
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> pathsinv0.
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> cancel_precomposition.
+
+      etrans. <span class="nb">apply</span> assoc.
+      <span class="nb">apply</span> cancel_postcomposition.
+
+      etrans. <span class="nb">apply</span> (pr1_section_disp_on_morphisms_comp).
+      <span class="nb">apply</span> section_disp_on_eq_morphisms.
+      + <span class="nb">apply</span> id_left.
+      + <span class="nb">apply</span> (colimArrowCommutes (CCFf_pt_ob1 CC dbase f)).
+  - <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+    <span class="nb">apply</span> pathsdirprod; [<span class="nb">apply</span> id_left|].
+    use colimArrowUnique.
+    <span class="nb">intro</span> v.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> colimArrowCommutes.
+
+    <span class="bp">exact</span> (pr2 (pathsdirprodweq (base_paths _ _ (pr22 (coconeIn cc v) f)))).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ColimLNWFS_unique</span>
+    {<span class="nv">L</span>: total_category (LNWFS C)} (<span class="nv">cc</span> : cocone d L) :
+  <span class="k">∃</span>! x : ColimLNWFS --&gt; L,
+    ∏ v, ColimLNWFS_in v · x = coconeIn cc v.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (Ff_unique := ColimFf_unique (v0 := v0) CC _ H _ (project_cocone _ cc)).
+
+  use unique_exists.
+  - <span class="k">exists</span> (<span class="nv">pr1</span> (iscontrpr1 Ff_unique)).
+    <span class="bp">exact</span> (ColimLNWFS_disp_cc_mor cc).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span> v;
+      <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_lnwfs_mor_axioms|];
+      <span class="nb">apply</span> (pr2 (iscontrpr1 Ff_unique))
+    ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intro</span> y; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> homset_property
+    ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> y ccy;
+      <span class="nb">destruct</span> y <span class="k">as</span> [Fy Ly];
+      use total2_paths2_f; [|<span class="nb">apply</span> isaprop_lnwfs_mor_axioms];
+      <span class="nb">set</span> (Ff_uniqueness := <span class="k">λ</span> <span class="nv">t</span>, base_paths _ _ (iscontr_uniqueness Ff_unique t));
+      use (Ff_uniqueness (Fy,, _));
+      <span class="nb">intro</span> v;
+      <span class="bp">exact</span> (base_paths _ _ (ccy v))
+    ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ColimLNWFSCocone</span> :
+  ColimCocone d.
+<span class="kn">Proof</span>.
+  use make_ColimCocone.
+  - <span class="k">exists</span> (<span class="nv">colim</span> <span class="nv">Finf</span>).
+    <span class="bp">exact</span> (ColimLNWFS_disp).
+  - use make_cocone.
+    * <span class="nb">intro</span> v.
+      <span class="k">exists</span> (<span class="nv">colimIn</span> <span class="nv">Finf</span> <span class="nv">v</span>).
+      <span class="bp">exact</span> (ColimLNWFS_disp_in v).
+    * <span class="kp">abstract</span> (
+        <span class="nb">intros</span> u v e;
+        <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> isaprop_lnwfs_mor_axioms|];
+        <span class="bp">exact</span> (colimInCommutes Finf _ _ e)
+      ).
+  - <span class="nb">intros</span> L cc; <span class="bp">exact</span> (ColimLNWFS_unique cc).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">LNWFS_cocomplete</span>.
+
+<span class="kn">Lemma</span> <span class="nf">ChainsLNWFS</span> {<span class="nv">C</span> : category} (<span class="nv">HC</span> : Colims C) :
+    Chains (total_category (LNWFS C)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> d.
+  use (ColimLNWFSCocone HC).
+  - <span class="bp">exact</span> is_connected_nat_graph.
+  - <span class="bp">exact</span> <span class="mi">0</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">CoequalizersLNWFS</span> {<span class="nv">C</span> : category} (<span class="nv">HC</span> : Colims C) :
+    Coequalizers (total_category (LNWFS C)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> F G f g.
+  use (ColimLNWFSCocone HC).
+  - <span class="bp">exact</span> is_connected_coequalizer_graph.
+  - <span class="bp">exact</span> (● <span class="mi">0</span>)%stn.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/Generated/LNWFSCocomplete.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

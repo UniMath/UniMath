@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoEpiIso.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Characterizations of monos, epis, and isos in [HSET] *)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">  - Points as global elements</span>
+<span class="sd">  - Monomorphisms are exactly injective functions [MonosAreInjective_HSET]</span>
+<span class="sd">  - Epimorphisms are exactly surjective functions [EpisAreSurjective_HSET]</span>
+<span class="sd">  - Equivalence between isomorphisms and weak equivalences</span>
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Epis.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"'HSET'"</span> := hset_category.
+
+<span class="sd">(** ** Points as global elements *)</span>
+
+<span class="sd">(** See https://ncatlab.org/nlab/show/global+element *)</span>
+
+<span class="kn">Definition</span> <span class="nf">make_global_element_HSET</span> {<span class="nv">A</span> : hSet} (<span class="nv">a</span> : A) : HSET⟦unitset, A⟧ :=
+  invweq (weqfunfromunit A) a.
+
+<span class="sd">(** TODO: I think there is a name in UniMath for the constant function at [a],</span>
+<span class="sd">    what is it? *)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">global_element_HSET_paths_weq</span> {<span class="nv">A</span> : hSet} (<span class="nv">x</span> <span class="nv">y</span> : A) :
+  (x = y) ≃ (make_global_element_HSET x = make_global_element_HSET y).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqonpaths.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">global_element_HSET_comp</span> {<span class="nv">A</span> <span class="nv">B</span> : hSet} (<span class="nv">f</span> : HSET⟦A, B⟧) (<span class="nv">x</span> : A) :
+  make_global_element_HSET x · f = make_global_element_HSET (f x).
+<span class="kn">Proof</span>.
+  <span class="kp">abstract</span> (<span class="nb">apply</span> funextfun; <span class="nb">intro</span> z; <span class="nb">induction</span> z; <span class="bp">reflexivity</span>).
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">global_element_HSET_fun_weq</span> {<span class="nv">A</span> <span class="nv">B</span> : hSet} (<span class="nv">f</span> : HSET⟦A, B⟧) (<span class="nv">x</span> <span class="nv">y</span> : A) :
+  (f x = f y) ≃ (make_global_element_HSET x · f = make_global_element_HSET y · f).
+<span class="kn">Proof</span>.
+  <span class="kp">abstract</span> (<span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> global_element_HSET_comp;
+            <span class="nb">apply</span> global_element_HSET_paths_weq).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Monomorphisms are exactly injective functions [MonosAreInjective_HSET] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">MonosAreInjective_HSET</span> {<span class="nv">A</span> <span class="nv">B</span> : HSET} (<span class="nv">f</span>: HSET ⟦ A, B ⟧) :
+      isMonic f ≃ isInjective f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqimplimpl.
+  - <span class="nb">intro</span> isM.
+    <span class="nb">apply</span> incl_injectivity; <span class="nb">intros</span> b.
+    <span class="nb">apply</span> invproofirrelevance; <span class="nb">intros</span> a1 a2.
+    <span class="nb">apply</span> subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> setproperty|].
+    <span class="nb">apply</span> global_element_HSET_paths_weq.
+    <span class="nb">apply</span> isM.
+    <span class="nb">apply</span> funextsec; <span class="nb">intro</span> t.
+    <span class="kp">abstract</span> (<span class="nb">induction</span> t; <span class="bp">exact</span> (pr2 a1 @ ! pr2 a2)).
+  - <span class="nb">intro</span> isI.
+    <span class="nb">unfold</span> isMonic.
+    <span class="nb">intros</span> ? ? ? eq.
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span>.
+    <span class="nb">apply</span> (invweq (Injectivity _ isI _ _)).
+    <span class="nb">apply</span> toforallpaths <span class="k">in</span> eq.
+    <span class="nb">apply</span> eq.
+  - <span class="nb">apply</span> isapropisMonic.
+  - <span class="nb">apply</span> isaprop_isInjective.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Epimorphisms are exactly surjective functions [EpisAreSurjective_HSET] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">EpisAreSurjective_HSET</span> {<span class="nv">A</span> <span class="nv">B</span> : HSET} (<span class="nv">f</span>: HSET ⟦ A, B ⟧) :
+      isEpi f ≃ issurjective f.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqimplimpl.
+  - <span class="nb">intro</span> epif.
+    <span class="nb">apply</span> epiissurjectiontosets; [<span class="nb">apply</span> setproperty|].
+    <span class="nb">intros</span> ? ? ? ?.
+    <span class="nb">apply</span> toforallpaths.
+    <span class="nb">apply</span> epif.
+    <span class="bp">now</span> <span class="nb">apply</span> funextfun.
+  - <span class="nb">intros</span> is_surj_f.
+    <span class="nb">intros</span> C g h H.
+    <span class="nb">apply</span> funextfun; <span class="nb">intro</span>.
+
+    <span class="sd">(** Get the point [x'] in the fiber above [x] *)</span>
+    <span class="nb">specialize</span> (is_surj_f x).
+    <span class="nb">apply</span> (squash_to_prop is_surj_f); [<span class="nb">apply</span> setproperty|].
+    <span class="nb">intro</span> x'.
+
+    <span class="sd">(** Replace [x] with [f x'] *)</span>
+    <span class="nb">refine</span> (!maponpaths _ (hfiberpr2 _ _ x') @ _).
+    <span class="nb">refine</span> (_ @ maponpaths _ (hfiberpr2 _ _ x')).
+
+    <span class="nb">apply</span> toforallpaths <span class="k">in</span> H.
+    <span class="nb">apply</span> H.
+  - <span class="nb">apply</span> isapropisEpi.
+    <span class="nb">apply</span> has_homsets_HSET.
+  - <span class="nb">apply</span> isapropissurjective.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** Equivalence between isomorphisms and weak equivalences of two [hSet]s. *)</span>
+
+<span class="sd">(** Given an iso, we construct a weak equivalence.</span>
+<span class="sd">   This is basically unpacking and packing again. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hset_z_iso_is_equiv</span> (<span class="nv">A</span> <span class="nv">B</span> : ob HSET)
+   (<span class="nv">f</span> : z_iso A B) : isweq (pr1 f).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweq_iso _ (inv_from_z_iso f)).
+  - <span class="nb">intro</span> x.
+    <span class="nb">set</span> (T:=z_iso_inv_after_z_iso f).
+    <span class="nb">set</span> (T':=toforallpaths _ _ _ T). <span class="nb">apply</span> T'.
+  - <span class="nb">intro</span> x.
+    <span class="nb">apply</span> (toforallpaths _ _ _ (z_iso_after_z_iso_inv f)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hset_z_iso_equiv</span> (<span class="nv">A</span> <span class="nv">B</span> : ob HSET) : z_iso A B -&gt; (pr1 A) ≃ (pr1 B).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">f</span>).
+  <span class="nb">apply</span> hset_z_iso_is_equiv.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Given a weak equivalence, we construct an iso.</span>
+<span class="sd">    Again mostly unwrapping and packing.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hset_equiv_is_z_iso</span> (<span class="nv">A</span> <span class="nv">B</span> : hSet)
+      (<span class="nv">f</span> : (pr1 A) ≃ (pr1 B)) :
+           is_z_isomorphism (C:=HSET) (pr1 f).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">invmap</span> <span class="nv">f</span>).
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  - <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> compose, identity; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> homotinvweqweq.
+  - <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x; <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">unfold</span> compose, identity; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> homotweqinvweq.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hset_equiv_z_iso</span> (<span class="nv">A</span> <span class="nv">B</span> : ob HSET) : (pr1 A) ≃ (pr1 B) -&gt; z_iso A B.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> f.
+  <span class="nb">simpl</span> <span class="k">in</span> *.
+  <span class="k">exists</span> (<span class="nv">pr1</span> <span class="nv">f</span>).
+  <span class="nb">apply</span> hset_equiv_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Both maps defined above are weak equivalences. *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">hset_z_iso_equiv_is_equiv</span> (<span class="nv">A</span> <span class="nv">B</span> : ob HSET) : isweq (hset_z_iso_equiv A B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweq_iso _ (hset_equiv_z_iso A B)).
+  <span class="nb">intro</span>; <span class="nb">apply</span> z_iso_eq.
+  - <span class="bp">reflexivity</span>.
+  - <span class="nb">intro</span>; <span class="nb">apply</span> subtypePath.
+    + <span class="nb">intro</span>; <span class="nb">apply</span> isapropisweq.
+    + <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_z_iso_equiv_weq</span> (<span class="nv">A</span> <span class="nv">B</span> : ob HSET) : (z_iso A B) ≃ ((pr1 A) ≃ (pr1 B)).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">hset_z_iso_equiv</span> <span class="nv">A</span> <span class="nv">B</span>).
+  <span class="nb">apply</span> hset_z_iso_equiv_is_equiv.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hset_equiv_z_iso_is_equiv</span> (<span class="nv">A</span> <span class="nv">B</span> : ob HSET) : isweq (hset_equiv_z_iso A B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweq_iso _ (hset_z_iso_equiv A B)).
+  { <span class="nb">intro</span> f.
+    <span class="nb">apply</span> subtypePath.
+    { <span class="nb">intro</span>; <span class="nb">apply</span> isapropisweq. }
+    <span class="bp">reflexivity</span>. }
+  <span class="nb">intro</span>; <span class="nb">apply</span> z_iso_eq.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">hset_equiv_weq_z_iso</span> (<span class="nv">A</span> <span class="nv">B</span> : ob HSET) :
+  (pr1 A ≃ pr1 B) ≃ z_iso A B.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">hset_equiv_z_iso</span> <span class="nv">A</span> <span class="nv">B</span>).
+  <span class="nb">apply</span> hset_equiv_z_iso_is_equiv.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/HSET/MonoEpiIso.v</tt>, line 11)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   - Equivalence between isomorphisms and weak equivalences
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

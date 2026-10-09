@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Monoid.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Example on monoids. *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2021 *)</span>
+<span class="sd">(**</span>
+<span class="sd">This file contains the definition of the signature of monoids and the way to turn</span>
+<span class="sd">a monoid (as defined in [UniMath.Algebra.Monoids]) into an algebra.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Notations.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Algebra.Monoids.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.EqAlgebras.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> eq.
+
+<span class="sd">(** Signature. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">monoid_signature</span> := make_signature_simple_single_sorted [<span class="mi">2</span>; <span class="mi">0</span>].
+
+<span class="kn">Definition</span> <span class="nf">monoid_sort</span> : sorts monoid_signature := tt.
+
+<span class="sd">(** Algebra of monoids without equations. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">monoid_algebra</span> (<span class="nv">M</span>: monoid)
+  : algebra monoid_signature
+  := make_algebra_simple_single_sorted' monoid_signature M [( op ; unel M )].
+
+<span class="kn">Module</span> <span class="nf">Eqspec</span>.
+
+<span class="sd">(** Free algebra of open terms. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">monoid_varspec</span> : varspec monoid_signature
+  := make_varspec monoid_signature natset (<span class="k">λ</span> <span class="nv">_</span>, monoid_sort).
+
+<span class="kn">Definition</span> <span class="nf">Mon</span> : UU := term monoid_signature monoid_varspec tt.
+<span class="kn">Definition</span> <span class="nf">mul</span> : Mon → Mon → Mon := build_term' (●<span class="mi">0</span>: names monoid_signature).
+<span class="kn">Definition</span> <span class="nf">id</span>  : Mon := build_term' (●<span class="mi">1</span>: names monoid_signature).
+
+<span class="kn">Definition</span> <span class="nf">x</span> : Mon := varterm (<span class="mi">0</span>: monoid_varspec).
+<span class="kn">Definition</span> <span class="nf">y</span> : Mon := varterm (<span class="mi">1</span>: monoid_varspec).
+<span class="kn">Definition</span> <span class="nf">z</span> : Mon := varterm (<span class="mi">2</span>: monoid_varspec).
+
+<span class="kn">Definition</span> <span class="nf">monoid_mul_assoc</span> := mul (mul x y) z == mul x (mul y z).
+<span class="kn">Definition</span> <span class="nf">monoid_mul_lid</span> := mul id x == x.
+<span class="kn">Definition</span> <span class="nf">monoid_mul_rid</span> := mul x id == x.
+
+<span class="kn">Definition</span> <span class="nf">monoid_axioms</span> : eqsystem monoid_signature monoid_varspec
+  := ⟦ <span class="mi">3</span> ⟧,, three_rec monoid_mul_assoc monoid_mul_lid monoid_mul_rid.
+
+<span class="kn">Definition</span> <span class="nf">monoid_eqspec</span> : eqspec.
+<span class="kn">Proof</span>.
+  use tpair. { <span class="bp">exact</span> monoid_signature. }
+  use tpair. { <span class="bp">exact</span> monoid_varspec. }
+  <span class="bp">exact</span> monoid_axioms.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoid_eqalgebra</span> := eqalgebra monoid_eqspec.
+
+<span class="sd">(** Every monoid is a monoid eqalgebra. *)</span>
+
+<span class="kn">Section</span> <span class="nf">Make_Monoid_Eqalgebra</span>.
+
+<span class="kn">Variable</span> <span class="nv">M</span> : monoid.
+
+<span class="kn">Lemma</span> <span class="nf">holds_monoid_mul_lid</span> : holds (monoid_algebra M) monoid_mul_lid.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>. <span class="nb">cbn</span> <span class="k">in</span> α.
+  <span class="nb">change</span> (fromterm (ops (monoid_algebra M)) α tt (mul id x) = α <span class="mi">0</span>).
+  <span class="nb">change</span> (op (unel M) (α <span class="mi">0</span>) = α <span class="mi">0</span>).
+  <span class="nb">apply</span> lunax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">holds_monoid_mul_rid</span> : holds (monoid_algebra M) monoid_mul_rid.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">change</span> (op (α <span class="mi">0</span>) (unel M) = α <span class="mi">0</span>).
+  <span class="nb">apply</span> runax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">holds_monoid_mul_assoc</span> : holds (monoid_algebra M) monoid_mul_assoc.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span>.
+  <span class="nb">change</span> (op (op (α <span class="mi">0</span>) (α <span class="mi">1</span>)) (α <span class="mi">2</span>) = op (α <span class="mi">0</span>) (op (α <span class="mi">1</span>) (α <span class="mi">2</span>))).
+  <span class="nb">apply</span> assocax.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_eqalgebra_monoid</span> :
+  is_eqalgebra (σ := monoid_eqspec) (monoid_algebra M).
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> three_rec_dep; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> holds_monoid_mul_assoc.
+  - <span class="bp">exact</span> holds_monoid_mul_lid.
+  - <span class="bp">exact</span> holds_monoid_mul_rid.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">make_monoid_eqalgebra</span> : monoid_eqalgebra.
+<span class="kn">Proof</span>.
+  use make_eqalgebra.
+  - <span class="bp">exact</span> (monoid_algebra M).
+  - <span class="bp">exact</span> is_eqalgebra_monoid.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Make_Monoid_Eqalgebra</span>.
+
+<span class="kn">End</span> <span class="nf">Eqspec</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Universal/Examples/Monoid.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/Notations.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; a monoid (as defined in [UniMath.Algebra.Monoids]) into an algebra.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.Notations.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Combinatorics.StandardFiniteSets.
+  &gt; Require Import UniMath.Algebra.Monoids.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

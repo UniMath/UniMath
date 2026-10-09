@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>StandardCategories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Standard categories *)</span>
+<span class="sd">(** ** Contents:</span>
+
+<span class="sd">- The path groupoid ([path_groupoid])</span>
+<span class="sd">- Discrete categories</span>
+<span class="sd">  - Characterization of discrete categories</span>
+<span class="sd">- The discrete univalent_category on n objects ([cat_n])</span>
+<span class="sd">  - The category with one object ([unit_category])</span>
+<span class="sd">  - The category with no objects ([empty_category])</span>
+<span class="sd">  - The directed interval</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.FunctorCategory.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Groupoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Exponentials.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">compose'</span> { <span class="nv">C</span>:precategory_data } { <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span>:ob C }
+  (<span class="nv">g</span>:b --&gt; c) (<span class="nv">f</span>:a --&gt; b) : a --&gt; c.
+<span class="kn">Proof</span>. <span class="nb">intros</span>. <span class="bp">exact</span> (compose f g). <span class="kn">Defined</span>.
+
+<span class="sd">(** ** The path/fundamental groupoid of a type *)</span>
+
+<span class="sd">(** The pregroupoid with points in X as objects and paths as morphisms *)</span>
+<span class="kn">Definition</span> <span class="nf">path_pregroupoid</span> (<span class="nv">X</span>:UU) (<span class="nv">iobj</span> : isofhlevel <span class="mi">3</span> X) : pregroupoid.
+<span class="kn">Proof</span>.
+  use make_pregroupoid.
+  - use tpair.
+    {
+    use make_precategory_one_assoc; use tpair.
+    + <span class="bp">exact</span> (X,, <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, x = y).
+    + use make_dirprod.
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, idpath _).
+      * <span class="nb">intros</span> a b c; <span class="bp">exact</span> pathscomp0.
+    + use make_dirprod.
+      * <span class="bp">reflexivity</span>.
+      * <span class="nb">intros</span>; <span class="nb">apply</span> pathscomp0rid.
+    + <span class="nb">intros</span> ? ? ? ? ? ?; <span class="nb">apply</span> path_assoc.
+    }
+    <span class="nb">intros</span> ? ? ? ? ? ?.
+    <span class="nb">apply</span> iobj.
+  - <span class="nb">intros</span> x y path.
+    <span class="k">exists</span> (!path).
+    <span class="nb">split</span>.
+    + <span class="nb">apply</span> pathsinv0r.
+    + <span class="nb">apply</span> pathsinv0l.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** If X [isofhlevel] 3, then in particular, its path types are sets *)</span>
+<span class="kn">Definition</span> <span class="nf">has_homsets_path_pregroupoid</span> {<span class="nv">X</span> : UU} (<span class="nv">iobj</span> : isofhlevel <span class="mi">3</span> X) :
+  has_homsets (path_pregroupoid X iobj).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid</span> (<span class="nv">X</span> : UU) (<span class="nv">iobj</span> : isofhlevel <span class="mi">3</span> X) : groupoid.
+<span class="kn">Proof</span>.
+  use make_groupoid.
+  - use make_category.
+    + <span class="bp">exact</span> (path_pregroupoid X iobj).
+    + <span class="nb">apply</span> (has_homsets_path_pregroupoid); <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> (pregroupoid_is_pregroupoid (path_pregroupoid X iobj)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** In this case, the path pregroupoid is further univalent. *)</span>
+<span class="kn">Lemma</span> <span class="nf">is_univalent_path_pregroupoid</span> (<span class="nv">X</span> : UU) (<span class="nv">iobj</span> : isofhlevel <span class="mi">3</span> X) :
+  is_univalent_pregroupoid (path_pregroupoid X iobj).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> a b.
+    <span class="nb">assert</span> (k : idfun (a = b) ~ idtomor a b).
+           { <span class="nb">intro</span> p; <span class="nb">destruct</span> p; <span class="bp">reflexivity</span>. }
+    <span class="nb">apply</span> (isweqhomot _ _ k). <span class="nb">apply</span> idisweq.
+  - <span class="nb">apply</span> has_homsets_path_pregroupoid; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_path_groupoid</span> (<span class="nv">X</span>:UU) (<span class="nv">i</span> : isofhlevel <span class="mi">3</span> X) :
+  is_univalent (path_groupoid X i).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> is_univalent_pregroupoid_is_univalent,
+          is_univalent_path_pregroupoid; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_univalent_groupoid</span>
+           {<span class="nv">X</span> : UU}
+           (<span class="nv">i3</span> : isofhlevel <span class="mi">3</span> X)
+  : univalent_groupoid.
+<span class="kn">Proof</span>.
+  use make_univalent_groupoid.
+  - <span class="bp">exact</span> (make_univalent_category _ (is_univalent_path_groupoid X i3)).
+  - <span class="nb">apply</span> (groupoid_is_pregroupoid _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">path_groupoid_hset</span> (<span class="nv">X</span> : hSet) : univalent_groupoid :=
+  (path_univalent_groupoid (isofhlevelssnset <span class="mi">1</span> _ (setproperty X))).
+
+<span class="sd">(** When X is a set, its path pregroupoid is the discrete category on its elements. *)</span>
+<span class="kn">Definition</span> <span class="nf">path_groupoid_hset_is_discrete</span> (<span class="nv">X</span> : hSet) :
+  is_discrete (path_groupoid_hset X).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>; <span class="nb">split</span>.
+  - <span class="nb">apply</span> setproperty.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">apply</span> pregroupoid_is_pregroupoid.
+  - <span class="nb">apply</span> univalent_category_is_univalent.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">discrete_category_hset</span> (<span class="nv">X</span> : hSet) : discrete_category :=
+  make_discrete_category (path_groupoid_hset X) (path_groupoid_hset_is_discrete X).
+
+<span class="sd">(** To define a functor out of a path pregroupoid, it suffices to give</span>
+<span class="sd">    its values on objects. Compare to [functor_discrete_categories]. *)</span>
+<span class="kn">Lemma</span> <span class="nf">functor_path_pregroupoid</span>
+      {<span class="nv">X</span> : UU} {<span class="nv">D</span> : category} (<span class="nv">i</span> : isofhlevel <span class="mi">3</span> X) (<span class="nv">f</span> : X → ob D) :
+  functor (path_pregroupoid X i) D.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use make_functor_data.
+    + <span class="nb">apply</span> f.
+    + <span class="nb">intros</span> a b aeqb.
+      <span class="bp">exact</span> (transportf (<span class="k">λ</span> <span class="nv">z</span>, D ⟦ f a, z ⟧) (maponpaths f aeqb) (identity _)).
+  - <span class="nb">split</span>.
+    + <span class="nb">intro</span>; <span class="bp">reflexivity</span>.
+    + <span class="nb">intros</span> a b c g h; <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">p</span>, transportf _ p _) (maponpathscomp0 _ _ _) @ _).
+      <span class="nb">refine</span> (!transport_f_f _ (maponpaths f g) (maponpaths f h) _ @ _).
+      <span class="kp">abstract</span> (<span class="nb">induction</span> h; <span class="nb">cbn</span>; <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> id_right).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** A natural transformation of functors out of a path groupoid is given by any</span>
+<span class="sd">    family of morphisms *)</span>
+<span class="kn">Definition</span> <span class="nf">is_nat_trans_discrete_precategory</span>
+           {<span class="nv">X</span> : UU} {<span class="nv">i</span> : isofhlevel <span class="mi">3</span> X}  {<span class="nv">D</span> : category}
+           {<span class="nv">f</span> <span class="nv">g</span> : functor_category (path_pregroupoid X i) D}
+           (<span class="nv">F</span> : ∏ x : X, (pr1 f) x --&gt; (pr1 g) x)
+  : is_nat_trans (pr1 f) (pr1 g) F.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y h; <span class="nb">cbn</span> <span class="k">in</span> h.
+  <span class="nb">induction</span> h.
+  <span class="nb">change</span> (idpath x) <span class="k">with</span> (identity x).
+  <span class="nb">assert</span> (k := ! functor_id f x).
+  <span class="nb">unfold</span> functor_data_from_functor <span class="k">in</span> k.
+  <span class="nb">induction</span> k.
+  <span class="nb">assert</span> (k := ! functor_id g x).
+  <span class="nb">unfold</span> functor_data_from_functor <span class="k">in</span> k.
+  <span class="nb">induction</span> k.
+  intermediate_path (F x).
+  - <span class="nb">apply</span> id_left.
+  - <span class="nb">apply</span> pathsinv0. <span class="nb">apply</span> id_right.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_functor_path_pregroupoid</span>
+           {<span class="nv">X</span> : UU} {<span class="nv">i</span> : isofhlevel <span class="mi">3</span> X} {<span class="nv">D</span> : category} {<span class="nv">F</span> <span class="nv">G</span> : functor (path_pregroupoid X i) D}
+           (<span class="nv">ϕ</span> : ∏ x : X, F x --&gt; G x) : nat_trans F G.
+<span class="kn">Proof</span>.
+use make_nat_trans.
+- <span class="nb">intros</span> z; <span class="nb">apply</span> (ϕ z).
+- <span class="nb">apply</span> (is_nat_trans_discrete_precategory).
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(** *** Characterization of discrete categories *)</span>
+
+<span class="sd">(** Discrete categories are isomorphic to the path groupoid on their set of objects.</span>
+<span class="sd">    This is analogous to the statement that any skeletal groupoid is discrete. *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">discrete_category_iso_path_groupoid</span> (<span class="nv">C</span> : discrete_category) :
+  catiso C (discrete_category_hset
+              (setcategory_objects_set (_,, discrete_category_is_setcategory C))).
+<span class="kn">Proof</span>.
+  use tpair.
+  - use make_functor.
+    + use make_functor_data.
+      * <span class="bp">exact</span> (idfun _).
+      * <span class="nb">intros</span> a b f.
+        <span class="nb">apply</span> isotoid.
+        -- <span class="nb">apply</span> univalent_category_is_univalent.
+        -- <span class="bp">exact</span> (@pregroupoid_hom_weq_iso C _ _ f).
+    + use make_dirprod.
+      * <span class="nb">intro</span>; <span class="nb">apply</span> setproperty.
+      * <span class="nb">intros</span> ? ? ? ? ?; <span class="nb">apply</span> setproperty.
+  - use make_dirprod.
+    + <span class="nb">intros</span> a b.
+      use isweq_iso.
+      * <span class="nb">intros</span> f.
+        <span class="nb">apply</span> idtoiso.
+        <span class="bp">assumption</span>.
+      * <span class="nb">intro</span>; <span class="nb">apply</span> discrete_category_hom_prop.
+      * <span class="nb">intro</span>; <span class="nb">apply</span> setproperty.
+   + <span class="nb">apply</span> idisweq.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** The discrete univalent_category on n objects ([cat_n]) *)</span>
+
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Definition</span> <span class="nf">cat_n</span> (<span class="nv">n</span>:nat): univalent_groupoid.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> path_groupoid_hset; use make_hSet.
+  - <span class="bp">exact</span> (stn n).
+  - <span class="nb">apply</span> isasetstn.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_discrete_cat_n</span> (<span class="nv">n</span> : nat) : is_discrete (cat_n n).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> path_groupoid_hset_is_discrete.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** The category with one object ([unit_category]) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">unit_category</span> : univalent_category.
+<span class="kn">Proof</span>.
+  use path_univalent_groupoid.
+  - <span class="bp">exact</span> unit.
+  - <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> hlevelntosn). <span class="nb">apply</span> isapropunit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">FunctorToUnit</span>.
+  <span class="kn">Context</span> (<span class="nv">A</span> : precategory).
+
+  <span class="kn">Definition</span> <span class="nf">functor_to_unit_data</span> : functor_data A unit_category.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> tounit.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, idpath _ ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_functor_to_unit</span> : is_functor functor_to_unit_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intro</span>. <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> ? ? ? ? ?; <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_to_unit</span> : functor A _ := make_functor _ is_functor_to_unit.
+
+  <span class="kn">Lemma</span> <span class="nf">iscontr_functor_to_unit</span> : iscontr (functor A unit_category).
+  <span class="kn">Proof</span>.
+    use make_iscontr.
+    - <span class="bp">exact</span> functor_to_unit.
+    - <span class="nb">intro</span> F.
+      <span class="nb">apply</span> functor_eq.
+      + <span class="nb">apply</span> (homset_property unit_category).
+      + use total2_paths_f.
+        * <span class="nb">apply</span> funextsec. <span class="nb">intro</span>. <span class="nb">cbn</span>.
+          <span class="nb">apply</span> proofirrelevance.
+          <span class="nb">apply</span> isapropunit.
+        * <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> funextsec; <span class="nb">intro</span>).
+          <span class="nb">apply</span> proofirrelevance.
+          <span class="nb">simpl</span>.
+          <span class="nb">apply</span> hlevelntosn.
+          <span class="nb">apply</span> isapropunit.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">FunctorToUnit</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Functors from the unit category</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">functor_from_unit_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">x</span> : C)
+  : functor_data unit_category C.
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, x).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, identity _).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_from_unit_is_functor</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">x</span> : C)
+  : is_functor (functor_from_unit_data x).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> ; <span class="nb">apply</span> idpath.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_from_unit</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">x</span> : C)
+  : unit_category ⟶ C.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (functor_from_unit_data x).
+  - <span class="bp">exact</span> (functor_from_unit_is_functor x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_from_unit_is_nat_trans</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : is_nat_trans
+      (functor_from_unit x)
+      (functor_from_unit y)
+      (<span class="k">λ</span> <span class="nv">_</span>, f).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_left, id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_from_unit</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : functor_from_unit x ⟹ functor_from_unit y.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, f).
+  - <span class="bp">exact</span> (nat_trans_from_unit_is_nat_trans f).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">unit_category_nat_trans</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> <span class="nv">G</span> : C ⟶ unit_category)
+  : F ⟹ G.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, pr1 (isapropunit _ _)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> isasetunit).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">nat_trans_to_unit_eq</span>
+      {<span class="nv">X</span> : category}
+      (<span class="nv">F</span> <span class="nv">G</span> : X ⟶ unit_category)
+      (<span class="nv">α</span> <span class="nv">β</span> : F ⟹ G)
+  : α = β.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> nat_trans_eq.
+  - <span class="nb">apply</span> homset_property.
+  - <span class="nb">intro</span> z. <span class="nb">apply</span> isasetunit.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** Morphisms are the same as certain natural transformations *)</span>
+<span class="kn">Definition</span> <span class="nf">nat_trans_from_unit_weq_morphisms</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">x</span> <span class="nv">y</span> : C)
+  : x --&gt; y ≃ (functor_from_unit x ⟹ functor_from_unit y).
+<span class="kn">Proof</span>.
+  use make_weq.
+  - <span class="bp">exact</span> nat_trans_from_unit.
+  - use isweq_iso.
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">n</span>, n tt).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intro</span> f ;
+         <span class="nb">apply</span> idpath).
+    + <span class="kp">abstract</span>
+        (<span class="nb">intros</span> n ;
+         use nat_trans_eq ; [ <span class="nb">apply</span> homset_property | ] ;
+         <span class="nb">intro</span> z ; <span class="nb">cbn</span> ;
+         <span class="nb">induction</span> z ;
+         <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** The category with no objects ([empty_category]) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">empty_category</span> : univalent_category.
+<span class="kn">Proof</span>.
+  use path_univalent_groupoid.
+  - <span class="bp">exact</span> empty.
+  - <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> hlevelntosn). <span class="nb">apply</span> isapropempty.
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">FunctorFromEmpty</span>.
+  <span class="kn">Context</span> (<span class="nv">A</span> : precategory).
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_empty_data</span> : functor_data empty_category A.
+  <span class="kn">Proof</span>.
+    use make_functor_data.
+    - <span class="bp">exact</span> fromempty.
+    - <span class="nb">intros</span> empt ?; <span class="nb">induction</span> empt.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_functor_from_empty</span> : is_functor functor_from_empty_data.
+  <span class="kn">Proof</span>.
+    use tpair; <span class="nb">intro</span> a; <span class="nb">induction</span> a.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">functor_from_empty</span> : functor empty_category A :=
+    make_functor _ is_functor_from_empty.
+
+  <span class="sd">(** Compare to [isaprop_is_functor]. For a functor from the empty_category,</span>
+<span class="sd">      it's not necessary that the codomain has homsets. *)</span>
+  <span class="kn">Lemma</span> <span class="nf">isaprop_is_functor_from_empty</span>
+        (<span class="nv">F</span> : functor_data empty_category A) : isaprop (is_functor F).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">unfold</span> functor_idax.
+      <span class="nb">apply</span> impred; <span class="nb">intro</span> e; <span class="nb">induction</span> e.
+    - <span class="nb">unfold</span> functor_compax.
+      <span class="nb">apply</span> impred; <span class="nb">intro</span> e; <span class="nb">induction</span> e.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">iscontr_functor_from_empty</span> : iscontr (functor empty_category A).
+  <span class="kn">Proof</span>.
+    use make_iscontr.
+    - <span class="bp">exact</span> functor_from_empty.
+    - <span class="nb">intro</span> F.
+      use total2_paths_f.
+      + use total2_paths_f;
+          <span class="nb">apply</span> funextsec; <span class="nb">intro</span> empt; <span class="nb">induction</span> empt.
+      + <span class="nb">apply</span> proofirrelevance, isaprop_is_functor_from_empty.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FunctorFromEmpty</span>.
+
+<span class="sd">(** Natural transformations for the empty category *)</span>
+<span class="kn">Definition</span> <span class="nf">nat_trans_from_empty</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">F</span> <span class="nv">G</span> : empty_category ⟶ C)
+  : nat_trans F G.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span>, fromempty z).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">z</span>, fromempty z).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_to_empty</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ empty_category)
+           (<span class="nv">G</span> : empty_category ⟶ C₂)
+           (<span class="nv">H</span> : C₁ ⟶ C₂)
+  : H ⟹ F ∙ G.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, fromempty (F x)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, fromempty (F x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_to_empty_is_nat_z_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ empty_category)
+           (<span class="nv">G</span> : empty_category ⟶ C₂)
+           (<span class="nv">H</span> : C₁ ⟶ C₂)
+  : is_nat_z_iso (nat_trans_to_empty F G H).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="bp">exact</span> (fromempty (F x)).
+<span class="kn">Defined</span>.
+
+<span class="c">(* Directed interval category *)</span>
+<span class="kn">Definition</span> <span class="nf">directed_interval_precategory_ob_mor</span>
+  : precategory_ob_mor.
+<span class="kn">Proof</span>.
+  use make_precategory_ob_mor.
+  - <span class="bp">exact</span> bool.
+  - <span class="nb">intros</span> x y.
+    <span class="nb">induction</span> x ; <span class="nb">induction</span> y.
+    + <span class="bp">exact</span> unit.
+    + <span class="bp">exact</span> unit.
+    + <span class="bp">exact</span> empty.
+    + <span class="bp">exact</span> unit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">directed_interval_precategory_data</span>
+  : precategory_data.
+<span class="kn">Proof</span>.
+  use make_precategory_data.
+  - <span class="bp">exact</span> directed_interval_precategory_ob_mor.
+  - <span class="nb">intro</span> x.
+    <span class="nb">induction</span> x.
+    + <span class="bp">exact</span> tt.
+    + <span class="bp">exact</span> tt.
+  - <span class="nb">intros</span> x y z f g.
+    <span class="nb">induction</span> x ; <span class="nb">induction</span> y ; <span class="nb">induction</span> z ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    + <span class="bp">exact</span> tt.
+    + <span class="bp">exact</span> tt.
+    + <span class="bp">exact</span> tt.
+    + <span class="bp">exact</span> tt.
+    + <span class="bp">exact</span> f.
+    + <span class="bp">exact</span> tt.
+    + <span class="bp">exact</span> g.
+    + <span class="bp">exact</span> tt.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">directed_interval_precategory_is_precategory</span>
+  : is_precategory directed_interval_precategory_data.
+<span class="kn">Proof</span>.
+  use make_is_precategory_one_assoc.
+  - <span class="nb">intros</span> x y f.
+    <span class="nb">induction</span> x ; <span class="nb">induction</span> y ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    + <span class="nb">apply</span> isapropunit.
+    + <span class="nb">apply</span> isapropunit.
+    + <span class="bp">exact</span> (fromempty f).
+    + <span class="nb">apply</span> isapropunit.
+  - <span class="nb">intros</span> x y f.
+    <span class="nb">induction</span> x ; <span class="nb">induction</span> y ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    + <span class="nb">apply</span> isapropunit.
+    + <span class="nb">apply</span> isapropunit.
+    + <span class="bp">exact</span> (fromempty f).
+    + <span class="nb">apply</span> isapropunit.
+  - <span class="nb">intros</span> w x y z f g h.
+    <span class="nb">induction</span> w ; <span class="nb">induction</span> x ; <span class="nb">induction</span> y ; <span class="nb">induction</span> z ; <span class="nb">cbn</span> <span class="k">in</span> * ; <span class="kp">try</span> (<span class="nb">apply</span> idpath).
+    <span class="bp">exact</span> (fromempty f).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">directed_interval_precategory</span>
+  : precategory.
+<span class="kn">Proof</span>.
+  use make_precategory.
+  - <span class="bp">exact</span> directed_interval_precategory_data.
+  - <span class="bp">exact</span> directed_interval_precategory_is_precategory.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">directed_interval_category_has_homprops</span>
+           (<span class="nv">x</span> <span class="nv">y</span> : directed_interval_precategory_ob_mor)
+  : isaprop (x --&gt; y).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> x ; <span class="nb">induction</span> y.
+  - <span class="nb">apply</span> isapropunit.
+  - <span class="nb">apply</span> isapropunit.
+  - <span class="nb">apply</span> isapropempty.
+  - <span class="nb">apply</span> isapropunit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">directed_interval_category_has_homsets</span>
+  : has_homsets directed_interval_precategory_ob_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  <span class="nb">apply</span> isasetaprop.
+  <span class="bp">exact</span> (directed_interval_category_has_homprops x y).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">directed_interval_category</span>
+  : category.
+<span class="kn">Proof</span>.
+  use make_category.
+  - <span class="bp">exact</span> directed_interval_precategory.
+  - <span class="bp">exact</span> directed_interval_category_has_homsets.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_directed_interval</span>
+  : is_univalent directed_interval_category.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y.
+  use isweqimplimpl.
+  - <span class="nb">intro</span> f.
+    <span class="nb">induction</span> x ; <span class="nb">induction</span> y ; <span class="nb">cbn</span> <span class="k">in</span> *.
+    + <span class="nb">apply</span> idpath.
+    + <span class="nb">apply</span> (fromempty (inv_from_z_iso f)).
+    + <span class="nb">apply</span> (fromempty (pr1 f)).
+    + <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> isasetbool.
+  - use (isaprop_total2 (_ ,, _) (<span class="k">λ</span> <span class="nv">_</span>, _ ,, _)).
+    + <span class="nb">apply</span> directed_interval_category_has_homprops.
+    + <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_z_isomorphism.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">directed_interval</span>
+  : univalent_category.
+<span class="kn">Proof</span>.
+  use make_univalent_category.
+  - <span class="bp">exact</span> directed_interval_category.
+  - <span class="bp">exact</span> is_univalent_directed_interval.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/StandardCategories.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   - The directed interval
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>ExamplesSites.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd"> Examples of Grothendieck topologies and sites</span>
+
+<span class="sd"> We discuss various examples of sites in this file. In particular, we show that every</span>
+<span class="sd"> complete Heyting algebra induces a site and we discuss the dense topology. These</span>
+<span class="sd"> examples are relevant for applications to logic.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. The indiscrete topology</span>
+<span class="sd"> 2. The discrete topology</span>
+<span class="sd"> 3. Every complete Heyting algebra induces a site</span>
+<span class="sd"> 4. The dense topology</span>
+
+<span class="sd"> *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.PosetCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaves.Sites.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.CompleteHeyting.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Lattice.DerivedLawsCompleteHeyting.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The indiscrete topology *)</span>
+<span class="kn">Definition</span> <span class="nf">indiscrete_topology</span>
+           (<span class="nv">C</span> : category)
+  : grothendieck_topology C.
+<span class="kn">Proof</span>.
+  use make_grothendieck_topology.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">ω</span>, <span class="k">∀</span> (<span class="nv">y</span> : C) (<span class="nv">f</span> : y --&gt; x), ω y f).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span>, tt).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">intros</span> x y f ω H z p ;
+       <span class="nb">apply</span> H).
+  - <span class="kp">abstract</span>
+      (<span class="nb">cbn</span> ;
+       <span class="nb">intros</span> x ω₁ ω₂ H p y f ;
+       <span class="nb">cbn</span> <span class="k">in</span> * ;
+       <span class="nb">specialize</span> (p y f (H _ _) y (identity _)) ;
+       <span class="nb">rewrite</span> id_left <span class="k">in</span> p ;
+       <span class="bp">exact</span> p).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">indiscrete_site</span>
+           (<span class="nv">C</span> : category)
+  : site.
+<span class="kn">Proof</span>.
+  use make_site.
+  - <span class="bp">exact</span> C.
+  - <span class="bp">exact</span> (indiscrete_topology C).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 2. The discrete topology *)</span>
+<span class="kn">Definition</span> <span class="nf">discrete_topology</span>
+           (<span class="nv">C</span> : category)
+  : grothendieck_topology C.
+<span class="kn">Proof</span>.
+  use make_grothendieck_topology.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">ω</span>, htrue).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+       <span class="bp">exact</span> tt).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+       <span class="bp">exact</span> tt).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> ; <span class="nb">cbn</span> ;
+       <span class="bp">exact</span> tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">discrete_site</span>
+           (<span class="nv">C</span> : category)
+  : site.
+<span class="kn">Proof</span>.
+  use make_site.
+  - <span class="bp">exact</span> C.
+  - <span class="bp">exact</span> (discrete_topology C).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 3. Every complete Heyting algebra induces a site *)</span>
+<span class="kn">Local</span> <span class="kn">Open Scope</span> heyting.
+
+<span class="kn">Section</span> <span class="nf">CHAToSite</span>.
+  <span class="kn">Context</span> (<span class="nv">H</span> : complete_heyting_algebra).
+
+  <span class="kn">Definition</span> <span class="nf">cha_to_poset</span>
+    : Poset.
+  <span class="kn">Proof</span>.
+    use make_Poset.
+    - <span class="bp">exact</span> H.
+    - use make_PartialOrder.
+      + <span class="bp">exact</span> (<span class="k">λ</span> (<span class="nv">x</span> <span class="nv">y</span> : H), x ≤ y).
+      + <span class="kp">repeat</span> <span class="nb">split</span>.
+        * <span class="nb">intros</span> x y z p q.
+          <span class="bp">exact</span> (cha_le_trans p q).
+        * <span class="nb">intros</span> x.
+          <span class="bp">exact</span> (cha_le_refl x).
+        * <span class="nb">intros</span> x y p q.
+          <span class="bp">exact</span> (cha_le_antisymm p q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">C</span> : category := poset_to_poset_category cha_to_poset.
+
+  <span class="kn">Definition</span> <span class="nf">make_cha_sieve</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">P</span> : ∏ (y : C), y ≤ x → hProp)
+             (<span class="nv">Pc</span> : ∏ (y₁ y₂ : C)
+                     (p₁ : y₁ ≤ x)
+                     (p₂ : y₂ ≤ y₁),
+                   P y₁ p₁
+                   → P y₂ (cha_le_trans p₂ p₁))
+    : sieve x.
+  <span class="kn">Proof</span>.
+    use make_sieve.
+    - <span class="bp">exact</span> P.
+    - <span class="kp">abstract</span>
+        (<span class="nb">intros</span> y₁ y₂ p₁ p₂ p₃ q r ;
+         <span class="nb">refine</span> (transportf (P y₂) _ (Pc y₁ y₂ p₁ p₃ r)) ;
+         <span class="nb">apply</span> propproperty).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cha_sieve_closed</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">ω</span> : sieve x)
+             {<span class="nv">y₁</span> <span class="nv">y₂</span> : C}
+             (<span class="nv">p₁</span> : y₁ ≤ x)
+             (<span class="nv">p₂</span> : y₂ ≤ x)
+             (<span class="nv">p₃</span> : y₁ ≤ y₂)
+             (<span class="nv">q</span> : ω y₂ p₂)
+    : ω y₁ p₁.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (#ω ω p₃ _ q).
+    <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cha_sieve_fam</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">ω</span> : sieve x)
+    : UU
+    := ∑ (y : C) (p : y ≤ x), ω y p.
+
+  <span class="kn">Definition</span> <span class="nf">make_cha_sieve_fam</span>
+             {<span class="nv">x</span> : C}
+             {<span class="nv">ω</span> : sieve x}
+             (<span class="nv">y</span> : C)
+             (<span class="nv">p</span> : y ≤ x)
+             (<span class="nv">q</span> : ω y p)
+    : cha_sieve_fam ω
+    := y ,, p ,, q.
+
+  <span class="kn">Coercion</span> <span class="nf">cha_sieve_fam_el</span>
+           {x : C}
+           {ω : sieve x}
+           (y : cha_sieve_fam ω)
+    : H
+    := pr1 y.
+
+  <span class="kn">Definition</span> <span class="nf">cha_sieve_fam_le</span>
+             {<span class="nv">x</span> : C}
+             {<span class="nv">ω</span> : sieve x}
+             (<span class="nv">y</span> : cha_sieve_fam ω)
+    : y ≤ x
+    := pr12 y.
+
+  <span class="kn">Definition</span> <span class="nf">cha_sieve_fam_in</span>
+             {<span class="nv">x</span> : C}
+             {<span class="nv">ω</span> : sieve x}
+             (<span class="nv">y</span> : cha_sieve_fam ω)
+    : ω _ (cha_sieve_fam_le y)
+    := pr22 y.
+
+  <span class="kn">Definition</span> <span class="nf">cha_sieve_covers</span>
+             {<span class="nv">x</span> : C}
+             (<span class="nv">ω</span> : sieve x)
+    : hProp
+    := x ≤ \/_{ j : cha_sieve_fam ω } j.
+
+  <span class="kn">Proposition</span> <span class="nf">cha_sieve_truth_covers</span>
+              (<span class="nv">x</span> : C)
+    : cha_sieve_covers (truth_sieve x).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cha_sieve_covers.
+    use cha_le_lub.
+    - use make_cha_sieve_fam.
+      + <span class="bp">exact</span> x.
+      + <span class="nb">apply</span> cha_le_refl.
+      + <span class="bp">exact</span> tt.
+    - <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cha_sieve_stable_covers</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : C}
+              (<span class="nv">p</span> : x --&gt; y)
+              (<span class="nv">ω</span> : sieve y)
+              (<span class="nv">q</span> : cha_sieve_covers ω)
+    : cha_sieve_covers (p^* ω).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> cha_sieve_covers.
+    <span class="nb">refine</span> (cha_le_trans _ _).
+    {
+      use cha_eq_to_refl.
+      <span class="bp">exact</span> (!(cha_min_le_eq_l p)).
+    }
+    <span class="nb">refine</span> (cha_le_trans _ _).
+    {
+      <span class="nb">refine</span> (cha_and_monotone_r _).
+      <span class="bp">exact</span> q.
+    }
+    <span class="nb">rewrite</span> cha_frobenius.
+    use cha_lub_le.
+    <span class="nb">intro</span> i.
+    use cha_le_lub.
+    - use make_cha_sieve_fam.
+      + <span class="bp">exact</span> (x ∧ i).
+      + <span class="nb">apply</span> cha_min_le_l.
+      + <span class="nb">cbn</span>.
+        <span class="nb">refine</span> (cha_sieve_closed _ _ _ _ (cha_sieve_fam_in i)).
+        <span class="nb">apply</span> cha_min_le_r.
+    - <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cha_trans_sieve</span>
+             {<span class="nv">y</span> : C}
+             {<span class="nv">ω₁</span> <span class="nv">ω₂</span> : sieve y}
+             (<span class="nv">p</span> : cha_sieve_covers ω₁)
+             (<span class="nv">q</span> : ∏ (x : C) (h : x --&gt; y), ω₁ x h → cha_sieve_covers (h ^* ω₂))
+    : cha_sieve_covers ω₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (cha_le_trans _ _).
+    {
+      <span class="bp">exact</span> p.
+    }
+    <span class="nb">refine</span> (cha_le_trans _ _).
+    {
+      <span class="nb">refine</span> (cha_lub_monotone _).
+      <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (q _ _ (cha_sieve_fam_in x)).
+    }
+    <span class="nb">cbn</span>.
+    use cha_lub_le.
+    <span class="nb">intro</span> i.
+    use cha_lub_le.
+    <span class="nb">intro</span> j.
+    <span class="nb">cbn</span>.
+    use cha_le_lub.
+    - use make_cha_sieve_fam.
+      + <span class="bp">exact</span> (j : H).
+      + <span class="nb">refine</span> (cha_le_trans (cha_sieve_fam_le j) _).
+        <span class="bp">exact</span> (cha_sieve_fam_le i).
+      + <span class="nb">cbn</span>.
+        <span class="bp">exact</span> (cha_sieve_fam_in j).
+    - <span class="nb">cbn</span>.
+      <span class="nb">apply</span> cha_le_refl.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cha_to_grothendieck_topology</span>
+    : grothendieck_topology C.
+  <span class="kn">Proof</span>.
+    use make_grothendieck_topology.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">ω</span>, cha_sieve_covers ω).
+    - <span class="bp">exact</span> cha_sieve_truth_covers.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">p</span> <span class="nv">ω</span>, cha_sieve_stable_covers p ω).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">y</span> <span class="nv">ω₁</span> <span class="nv">ω₂</span> <span class="nv">p</span> <span class="nv">q</span>, cha_trans_sieve p q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cha_to_site</span>
+    : site.
+  <span class="kn">Proof</span>.
+    use make_site.
+    - <span class="bp">exact</span> C.
+    - <span class="bp">exact</span> cha_to_grothendieck_topology.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">CHAToSite</span>.
+
+<span class="sd">(** * 4. The dense topology *)</span>
+<span class="kn">Section</span> <span class="nf">DenseSite</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">dense_below</span>
+             (<span class="nv">x</span> : C)
+             (<span class="nv">ω</span> : sieve x)
+    : hProp
+    := <span class="k">∀</span> (<span class="nv">y</span> : C)
+         (<span class="nv">f</span> : y --&gt; x),
+       <span class="k">∃</span> (<span class="nv">z</span> : C)
+         (<span class="nv">g</span> : z --&gt; y),
+       ω _ (g · f).
+
+  <span class="kn">Definition</span> <span class="nf">truth_sieve_dense_below</span>
+             (<span class="nv">x</span> : C)
+    : dense_below x (truth_sieve x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> y f.
+    use hinhpr.
+    <span class="nb">refine</span> (y ,, _).
+    <span class="nb">refine</span> (identity _ ,, _) ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> tt.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">stable_dense_below</span>
+             {<span class="nv">x</span> <span class="nv">y</span> : C}
+             (<span class="nv">f</span> : x --&gt; y)
+             (<span class="nv">ω</span> : sieve y)
+             (<span class="nv">p</span> : dense_below y ω)
+    : dense_below x (f ^* ω).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z g.
+    <span class="nb">specialize</span> (p z (g · f)).
+    <span class="nb">revert</span> p.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> (w &amp; h &amp; p).
+    use hinhpr.
+    <span class="nb">simple refine</span> (_ ,, _ ,, _).
+    - <span class="bp">exact</span> w.
+    - <span class="bp">exact</span> h.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">trans_dens_below</span>
+             {<span class="nv">y</span> : C}
+             (<span class="nv">ω₁</span> <span class="nv">ω₂</span> : sieve y)
+             (<span class="nv">p</span> : dense_below y ω₁)
+             (<span class="nv">H</span> : ∏ (x : C) (h : x --&gt; y), ω₁ x h → dense_below x (h ^* ω₂))
+    : dense_below y ω₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> z f.
+    <span class="nb">specialize</span> (p z f).
+    <span class="nb">revert</span> p.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> (x &amp; g &amp; p).
+    <span class="nb">specialize</span> (H x (g · f) p x (identity _)).
+    <span class="nb">revert</span> H.
+    use factor_through_squash_hProp.
+    <span class="nb">intros</span> (w &amp; h &amp; q).
+    use hinhpr.
+    <span class="nb">simple refine</span> (w ,, _ ,, _).
+    - <span class="bp">exact</span> (h · g).
+    - <span class="nb">cbn</span> ; <span class="nb">cbn</span> <span class="k">in</span> q.
+      <span class="nb">rewrite</span> id_right <span class="k">in</span> q.
+      <span class="nb">rewrite</span> assoc'.
+      <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dense_topology</span>
+    : grothendieck_topology C.
+  <span class="kn">Proof</span>.
+    use make_grothendieck_topology.
+    - <span class="bp">exact</span> dense_below.
+    - <span class="bp">exact</span> truth_sieve_dense_below.
+    - <span class="bp">exact</span> @stable_dense_below.
+    - <span class="bp">exact</span> @trans_dens_below.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">dense_site</span>
+    : site.
+  <span class="kn">Proof</span>.
+    use make_site.
+    - <span class="bp">exact</span> C.
+    - <span class="bp">exact</span> dense_topology.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DenseSite</span>.
+
+<span class="kn">Definition</span> <span class="nf">dense_set_poset</span>
+           (<span class="nv">P</span> : Poset)
+  : site
+  := dense_site (poset_to_poset_category P).</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Presheaves/ExamplesSites.v</tt>, line 16)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The dense topology
+  &gt;
+  &gt;  *)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.PosetCat.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

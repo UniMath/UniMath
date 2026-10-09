@@ -1,0 +1,860 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Basics.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> Basics of double functors</span>
+
+<span class="sd"> We define the basic notions for double functors. Note that the double functors we</span>
+<span class="sd"> consider are *lax* double functors. Note the direction of the squares in</span>
+<span class="sd"> [double_functor_hor_id_data] and in [double_functor_hor_comp_data] and compare to</span>
+<span class="sd"> definition 6.1 in 'Framed Bicategories and Monoidal Fibrations' by Shulman</span>
+<span class="sd"> (http://www.tac.mta.ca/tac/volumes/20/18/20-18.pdf). In addition, we show that the</span>
+<span class="sd"> identity is a double functor.</span>
+
+<span class="sd"> The proof that the composition of double functors is again a double functor, is</span>
+<span class="sd"> split over multiple files (LeftUnitor.v, RightUnitor.v, and Associator.v).</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Preservation of the identity</span>
+<span class="sd"> 2. Preservation of composition</span>
+<span class="sd"> 3. Preservation of the unitors and associators</span>
+<span class="sd"> 4. The identity double functor</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Preservation of the identity *)</span>
+<span class="kn">Definition</span> <span class="nf">double_functor_hor_id_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂)
+           (<span class="nv">I₁</span> : hor_id D₁)
+           (<span class="nv">I₂</span> : hor_id D₂)
+  : UU
+  := ∏ (x : C₁),
+     double_id I₂ (F x)
+     --&gt;[ identity _ ][ identity _ ]
+     FF _ _ (double_id I₁ x).
+
+<span class="kn">Definition</span> <span class="nf">double_functor_hor_id_laws</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           {<span class="nv">I₁</span> : hor_id D₁}
+           {<span class="nv">I₂</span> : hor_id D₂}
+           (<span class="nv">FI</span> : double_functor_hor_id_data FF I₁ I₂)
+  : UU
+  := ∏ (x y : C₁)
+       (f : x --&gt; y),
+     double_id_mor I₂ (#F f) ;;<span class="mi">2</span> FI y
+     =
+     transportb_disp_mor2
+       (id_right _ @ !(id_left _))
+       (id_right _ @ !(id_left _))
+       (FI x ;;<span class="mi">2</span> #<span class="mi">2</span> FF (double_id_mor I₁ f)).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_double_functor_hor_id_laws</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            (<span class="nv">FI</span> : double_functor_hor_id_data FF I₁ I₂)
+  : isaprop (double_functor_hor_id_laws FI).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaset_disp_mor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_functor_hor_id</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂)
+           (<span class="nv">I₁</span> : hor_id D₁)
+           (<span class="nv">I₂</span> : hor_id D₂)
+  : UU
+  := ∑ (FI : double_functor_hor_id_data FF I₁ I₂), double_functor_hor_id_laws FI.
+
+<span class="kn">Definition</span> <span class="nf">make_double_functor_hor_id</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           {<span class="nv">I₁</span> : hor_id D₁}
+           {<span class="nv">I₂</span> : hor_id D₂}
+           (<span class="nv">FI</span> : double_functor_hor_id_data FF I₁ I₂)
+           (<span class="nv">HFI</span> : double_functor_hor_id_laws FI)
+  : double_functor_hor_id FF I₁ I₂
+  := FI ,, HFI.
+
+<span class="kn">Definition</span> <span class="nf">functor_double_id_cell</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           {<span class="nv">I₁</span> : hor_id D₁}
+           {<span class="nv">I₂</span> : hor_id D₂}
+           (<span class="nv">IFF</span> : double_functor_hor_id FF I₁ I₂)
+           (<span class="nv">x</span> : C₁)
+  : double_id I₂ (F x)
+    --&gt;[ identity _ ][ identity _ ]
+    FF _ _ (double_id I₁ x)
+  := pr1 IFF x.
+
+<span class="kn">Proposition</span> <span class="nf">functor_double_id_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            (<span class="nv">IFF</span> : double_functor_hor_id FF I₁ I₂)
+            {<span class="nv">x</span> <span class="nv">y</span> : C₁}
+            (<span class="nv">f</span> : x --&gt; y)
+  : double_id_mor I₂ (#F f) ;;<span class="mi">2</span> functor_double_id_cell IFF y
+    =
+    transportb_disp_mor2
+      (id_right _ @ !(id_left _))
+      (id_right _ @ !(id_left _))
+      (functor_double_id_cell IFF x ;;<span class="mi">2</span> #<span class="mi">2</span> FF (double_id_mor I₁ f)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 IFF x y f).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Preservation of composition *)</span>
+<span class="kn">Definition</span> <span class="nf">double_functor_hor_comp_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂)
+           (<span class="nv">Cm₁</span> : hor_comp D₁)
+           (<span class="nv">Cm₂</span> : hor_comp D₂)
+  : UU
+  := ∏ (x y z : C₁)
+       (h : D₁ x y)
+       (k : D₁ y z),
+     double_hor_comp Cm₂ (FF _ _ h) (FF _ _ k)
+     --&gt;[ identity _ ][ identity _ ]
+     FF _ _ (double_hor_comp Cm₁ h k).
+
+<span class="kn">Definition</span> <span class="nf">double_functor_hor_comp_laws</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           {<span class="nv">Cm₁</span> : hor_comp D₁}
+           {<span class="nv">Cm₂</span> : hor_comp D₂}
+           (<span class="nv">FC</span> : double_functor_hor_comp_data FF Cm₁ Cm₂)
+  : UU
+  := ∏ (x₁ x₂ y₁ y₂ z₁ z₂ : C₁)
+       (v₁ : x₁ --&gt; x₂)
+       (v₂ : y₁ --&gt; y₂)
+       (v₃ : z₁ --&gt; z₂)
+       (h₁ : D₁ x₁ y₁) (h₂ : D₁ x₂ y₂)
+       (k₁ : D₁ y₁ z₁) (k₂ : D₁ y₂ z₂)
+       (s₁ : h₁ --&gt;[ v₁ ][ v₂ ] h₂)
+       (s₂ : k₁ --&gt;[ v₂ ][ v₃ ] k₂),
+     double_hor_comp_mor Cm₂ (#<span class="mi">2</span> FF s₁) (#<span class="mi">2</span> FF s₂) ;;<span class="mi">2</span> FC _ _ _ _ _
+     =
+     transportb_disp_mor2
+       (id_right _ @ !(id_left _))
+       (id_right _ @ !(id_left _))
+       (FC _ _ _ _ _ ;;<span class="mi">2</span> #<span class="mi">2</span> FF (double_hor_comp_mor Cm₁ s₁ s₂)).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_double_functor_hor_comp_laws</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">FC</span> : double_functor_hor_comp_data FF Cm₁ Cm₂)
+  : isaprop (double_functor_hor_comp_laws FC).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaset_disp_mor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_functor_hor_comp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂)
+           (<span class="nv">Cm₁</span> : hor_comp D₁)
+           (<span class="nv">Cm₂</span> : hor_comp D₂)
+  : UU
+  := ∑ (FC : double_functor_hor_comp_data FF Cm₁ Cm₂),
+     double_functor_hor_comp_laws FC.
+
+<span class="kn">Definition</span> <span class="nf">make_double_functor_hor_comp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           {<span class="nv">Cm₁</span> : hor_comp D₁}
+           {<span class="nv">Cm₂</span> : hor_comp D₂}
+           (<span class="nv">FC</span> : double_functor_hor_comp_data FF Cm₁ Cm₂)
+           (<span class="nv">HFC</span> : double_functor_hor_comp_laws FC)
+  : double_functor_hor_comp FF Cm₁ Cm₂
+  := FC ,, HFC.
+
+<span class="kn">Definition</span> <span class="nf">functor_double_comp_cell</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           {<span class="nv">Cm₁</span> : hor_comp D₁}
+           {<span class="nv">Cm₂</span> : hor_comp D₂}
+           (<span class="nv">CFF</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+           {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C₁}
+           (<span class="nv">h</span> : D₁ x y)
+           (<span class="nv">k</span> : D₁ y z)
+  : double_hor_comp Cm₂ (FF _ _ h) (FF _ _ k)
+    --&gt;[ identity _ ][ identity _ ]
+    FF _ _ (double_hor_comp Cm₁ h k)
+  := pr1 CFF x y z h k.
+
+<span class="kn">Proposition</span> <span class="nf">functor_double_comp_eq</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C₁}
+            {<span class="nv">v₁</span> : x₁ --&gt; x₂}
+            {<span class="nv">v₂</span> : y₁ --&gt; y₂}
+            {<span class="nv">v₃</span> : z₁ --&gt; z₂}
+            {<span class="nv">h₁</span> : D₁ x₁ y₁} {<span class="nv">h₂</span> : D₁ x₂ y₂}
+            {<span class="nv">k₁</span> : D₁ y₁ z₁} {<span class="nv">k₂</span> : D₁ y₂ z₂}
+            (<span class="nv">s₁</span> : h₁ --&gt;[ v₁ ][ v₂ ] h₂)
+            (<span class="nv">s₂</span> : k₁ --&gt;[ v₂ ][ v₃ ] k₂)
+  : double_hor_comp_mor Cm₂ (#<span class="mi">2</span> FF s₁) (#<span class="mi">2</span> FF s₂) ;;<span class="mi">2</span> functor_double_comp_cell FC _ _
+    =
+    transportb_disp_mor2
+      (id_right _ @ !(id_left _))
+      (id_right _ @ !(id_left _))
+      (functor_double_comp_cell FC _ _ ;;<span class="mi">2</span> #<span class="mi">2</span> FF (double_hor_comp_mor Cm₁ s₁ s₂)).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 FC x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">functor_double_comp_eq_alt</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C₁}
+            {<span class="nv">v₁</span> : x₁ --&gt; x₂}
+            {<span class="nv">v₂</span> : y₁ --&gt; y₂}
+            {<span class="nv">v₃</span> : z₁ --&gt; z₂}
+            {<span class="nv">h₁</span> : D₁ x₁ y₁} {<span class="nv">h₂</span> : D₁ x₂ y₂}
+            {<span class="nv">k₁</span> : D₁ y₁ z₁} {<span class="nv">k₂</span> : D₁ y₂ z₂}
+            (<span class="nv">s₁</span> : h₁ --&gt;[ v₁ ][ v₂ ] h₂)
+            (<span class="nv">s₂</span> : k₁ --&gt;[ v₂ ][ v₃ ] k₂)
+  : functor_double_comp_cell FC _ _ ;;<span class="mi">2</span> #<span class="mi">2</span> FF (double_hor_comp_mor Cm₁ s₁ s₂)
+    =
+    transportf_disp_mor2
+      (id_right _ @ !(id_left _))
+      (id_right _ @ !(id_left _))
+      (double_hor_comp_mor Cm₂ (#<span class="mi">2</span> FF s₁) (#<span class="mi">2</span> FF s₂) ;;<span class="mi">2</span> functor_double_comp_cell FC _ _).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> functor_double_comp_eq.
+  <span class="nb">rewrite</span> transportfb_disp_mor2.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">functor_double_comp_eq_transport</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+            {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y₁</span> <span class="nv">y₂</span> <span class="nv">z₁</span> <span class="nv">z₂</span> : C₁}
+            {<span class="nv">v₁</span> : x₁ --&gt; x₂} {<span class="nv">v₁'</span> : F x₁ --&gt; F x₂}
+            {<span class="nv">v₂</span> : y₁ --&gt; y₂} {<span class="nv">v₂'</span> : F y₁ --&gt; F y₂}
+            {<span class="nv">v₃</span> : z₁ --&gt; z₂} {<span class="nv">v₃'</span> : F z₁ --&gt; F z₂}
+            (<span class="nv">p</span> : #F v₁ = v₁')
+            (<span class="nv">q</span> <span class="nv">q'</span> : #F v₂ = v₂')
+            (<span class="nv">r</span> : #F v₃ = v₃')
+            {<span class="nv">h₁</span> : D₁ x₁ y₁} {<span class="nv">h₂</span> : D₁ x₂ y₂}
+            {<span class="nv">k₁</span> : D₁ y₁ z₁} {<span class="nv">k₂</span> : D₁ y₂ z₂}
+            (<span class="nv">s₁</span> : h₁ --&gt;[ v₁ ][ v₂ ] h₂)
+            (<span class="nv">s₂</span> : k₁ --&gt;[ v₂ ][ v₃ ] k₂)
+  : double_hor_comp_mor
+      Cm₂
+      (transportf_disp_mor2 p q (#<span class="mi">2</span> FF s₁))
+      (transportf_disp_mor2 q' r (#<span class="mi">2</span> FF s₂))
+    ;;<span class="mi">2</span>
+    functor_double_comp_cell FC _ _
+    =
+    transportf_disp_mor2
+      (id_left _ @ p @ !(id_right _))
+      (id_left _ @ r @ !(id_right _))
+      (functor_double_comp_cell FC _ _ ;;<span class="mi">2</span> #<span class="mi">2</span> FF (double_hor_comp_mor Cm₁ s₁ s₂)).
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> p, q, r.
+  <span class="nb">assert</span> (q' = idpath _) <span class="k">as</span> H.
+  {
+    <span class="nb">apply</span> homset_property.
+  }
+  <span class="nb">rewrite</span> H.
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> functor_double_comp_eq.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Preservation of the unitors and associators *)</span>
+<span class="kn">Definition</span> <span class="nf">double_functor_lunitor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">I₁</span> : hor_id D₁}
+           {<span class="nv">Cm₁</span> : hor_comp D₁}
+           {<span class="nv">I₂</span> : hor_id D₂}
+           {<span class="nv">Cm₂</span> : hor_comp D₂}
+           (<span class="nv">l₁</span> : double_cat_lunitor I₁ Cm₁)
+           (<span class="nv">l₂</span> : double_cat_lunitor I₂ Cm₂)
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+           (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+  : UU
+  := ∏ (x y : C₁)
+       (f : D₁ x y),
+     double_lunitor l₂ (FF _ _ f)
+     =
+     transportf_disp_mor2
+       (assoc' _ _ _ @ id_left _ @ id_left _ @ functor_id F _)
+       (assoc' _ _ _ @ id_left _ @ id_left _ @ functor_id F _)
+       (double_hor_comp_mor Cm₂ (functor_double_id_cell FI _) (id_two_disp _)
+        ;;<span class="mi">2</span>
+        functor_double_comp_cell FC _ _
+        ;;<span class="mi">2</span>
+        #<span class="mi">2</span> FF (double_lunitor l₁ f)).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_double_functor_lunitor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">l₁</span> : double_cat_lunitor I₁ Cm₁)
+            (<span class="nv">l₂</span> : double_cat_lunitor I₂ Cm₂)
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+  : isaprop (double_functor_lunitor l₁ l₂ FI FC).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaset_disp_mor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_functor_runitor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">I₁</span> : hor_id D₁}
+           {<span class="nv">Cm₁</span> : hor_comp D₁}
+           {<span class="nv">I₂</span> : hor_id D₂}
+           {<span class="nv">Cm₂</span> : hor_comp D₂}
+           (<span class="nv">r₁</span> : double_cat_runitor I₁ Cm₁)
+           (<span class="nv">r₂</span> : double_cat_runitor I₂ Cm₂)
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+           (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+  : UU
+  := ∏ (x y : C₁)
+       (f : D₁ x y),
+     double_runitor r₂ (FF _ _ f)
+     =
+     transportf_disp_mor2
+       (assoc' _ _ _ @ id_left _ @ id_left _ @ functor_id F _)
+       (assoc' _ _ _ @ id_left _ @ id_left _ @ functor_id F _)
+       (double_hor_comp_mor Cm₂ (id_two_disp _) (functor_double_id_cell FI _)
+        ;;<span class="mi">2</span>
+        functor_double_comp_cell FC _ _
+        ;;<span class="mi">2</span>
+        #<span class="mi">2</span> FF (double_runitor r₁ f)).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_double_functor_runitor</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">r₁</span> : double_cat_runitor I₁ Cm₁)
+            (<span class="nv">r₂</span> : double_cat_runitor I₂ Cm₂)
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            (<span class="nv">FI</span> : double_functor_hor_id FF I₁ I₂)
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+  : isaprop (double_functor_runitor r₁ r₂ FI FC).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaset_disp_mor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">double_functor_associator</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">Cm₁</span> : hor_comp D₁}
+           {<span class="nv">Cm₂</span> : hor_comp D₂}
+           (<span class="nv">a₁</span> : double_cat_associator Cm₁)
+           (<span class="nv">a₂</span> : double_cat_associator Cm₂)
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+  : UU
+  := ∏ (w x y z : C₁)
+       (f : D₁ w x)
+       (g : D₁ x y)
+       (h : D₁ y z),
+     double_associator a₂ (FF _ _ f) (FF _ _ g) (FF _ _ h)
+     ;;<span class="mi">2</span> double_hor_comp_mor Cm₂ (functor_double_comp_cell FC f g) (id_two_disp _)
+     ;;<span class="mi">2</span> functor_double_comp_cell FC (double_hor_comp Cm₁ f g) h
+     =
+     transportf_disp_mor2
+       (maponpaths (<span class="k">λ</span> <span class="nv">q</span>, _ · q) (functor_id F _))
+       (maponpaths (<span class="k">λ</span> <span class="nv">q</span>, _ · q) (functor_id F _))
+       (double_hor_comp_mor Cm₂ (id_two_disp _) (functor_double_comp_cell FC g h)
+        ;;<span class="mi">2</span> functor_double_comp_cell FC f (double_hor_comp Cm₁ g h)
+        ;;<span class="mi">2</span> #<span class="mi">2</span> FF (double_associator a₁ f g h)).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_double_functor_associator</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            (<span class="nv">a₁</span> : double_cat_associator Cm₁)
+            (<span class="nv">a₂</span> : double_cat_associator Cm₂)
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            (<span class="nv">FC</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+  : isaprop (double_functor_associator a₁ a₂ FC).
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> isaset_disp_mor.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. The identity double functor *)</span>
+<span class="kn">Definition</span> <span class="nf">identity_hor_id_data</span>
+           (<span class="nv">C</span> : category)
+           (<span class="nv">D</span> : twosided_disp_cat C C)
+           (<span class="nv">I</span> : hor_id D)
+  : double_functor_hor_id_data (twosided_disp_functor_identity D) I I
+  := <span class="k">λ</span> <span class="nv">x</span>, id_two_disp _.
+
+<span class="kn">Arguments</span> identity_hor_id_data {C D} I /.
+
+<span class="kn">Proposition</span> <span class="nf">identity_hor_id_laws</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">I</span> : hor_id D)
+  : double_functor_hor_id_laws (identity_hor_id_data I).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_two_disp_left, id_two_disp_right.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  use transportb_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">identity_hor_id</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">I</span> : hor_id D)
+  : double_functor_hor_id (twosided_disp_functor_identity D) I I.
+<span class="kn">Proof</span>.
+  use make_double_functor_hor_id.
+  - <span class="bp">exact</span> (identity_hor_id_data I).
+  - <span class="bp">exact</span> (identity_hor_id_laws I).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">identity_hor_comp_data</span>
+           (<span class="nv">C</span> : category)
+           (<span class="nv">D</span> : twosided_disp_cat C C)
+           (<span class="nv">Cm</span> : hor_comp D)
+  : double_functor_hor_comp_data (twosided_disp_functor_identity D) Cm Cm
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">k</span>, id_two_disp _.
+
+<span class="kn">Arguments</span> identity_hor_comp_data {C D} Cm /.
+
+<span class="kn">Proposition</span> <span class="nf">identity_hor_comp_laws</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            (<span class="nv">Cm</span> : hor_comp D)
+  : double_functor_hor_comp_laws (identity_hor_comp_data Cm).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂ ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_two_disp_left, id_two_disp_right.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  use transportb_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">identity_hor_comp</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">D</span> : twosided_disp_cat C C}
+           (<span class="nv">Cm</span> : hor_comp D)
+  : double_functor_hor_comp (twosided_disp_functor_identity D) Cm Cm.
+<span class="kn">Proof</span>.
+  use make_double_functor_hor_comp.
+  - <span class="bp">exact</span> (identity_hor_comp_data Cm).
+  - <span class="bp">exact</span> (identity_hor_comp_laws Cm).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">identity_functor_lunitor</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            {<span class="nv">I</span> : hor_id D}
+            {<span class="nv">Cm</span> : hor_comp D}
+            (<span class="nv">l</span> : double_cat_lunitor I Cm)
+  : double_functor_lunitor l l (identity_hor_id I) (identity_hor_comp Cm).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> double_hor_comp_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> transportf_disp_mor2_idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">identity_functor_runitor</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            {<span class="nv">I</span> : hor_id D}
+            {<span class="nv">Cm</span> : hor_comp D}
+            (<span class="nv">r</span> : double_cat_runitor I Cm)
+  : double_functor_runitor r r (identity_hor_id I) (identity_hor_comp Cm).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> double_hor_comp_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">apply</span> transportf_disp_mor2_idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">identity_functor_associator</span>
+            {<span class="nv">C</span> : category}
+            {<span class="nv">D</span> : twosided_disp_cat C C}
+            {<span class="nv">Cm</span> : hor_comp D}
+            (<span class="nv">a</span> : double_cat_associator Cm)
+  : double_functor_associator a a (identity_hor_comp Cm).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> w x y z f g h ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">rewrite</span> double_hor_comp_mor_id.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  <span class="nb">rewrite</span> id_two_disp_right.
+  <span class="nb">rewrite</span> double_hor_comp_mor_id.
+  <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+  <span class="nb">rewrite</span> id_two_disp_left.
+  <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 6. The composition of double functors</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">comp_hor_id_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+           {<span class="nv">I₁</span> : hor_id D₁}
+           {<span class="nv">I₂</span> : hor_id D₂}
+           {<span class="nv">I₃</span> : hor_id D₃}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           {<span class="nv">G</span> : C₂ ⟶ C₃}
+           {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+           (<span class="nv">HFF</span> : double_functor_hor_id FF I₁ I₂)
+           (<span class="nv">HGG</span> : double_functor_hor_id GG I₂ I₃)
+  : double_functor_hor_id_data (comp_twosided_disp_functor FF GG) I₁ I₃
+  := <span class="k">λ</span> <span class="nv">x</span>,
+     transportf_disp_mor2
+       (id_left _ @ functor_id _ _)
+       (id_left _ @ functor_id _ _)
+       (functor_double_id_cell HGG (F x)
+        ;;<span class="mi">2</span>
+        #<span class="mi">2</span> GG (functor_double_id_cell HFF x)).
+
+<span class="kn">Arguments</span> comp_hor_id_data /.
+
+<span class="kn">Proposition</span> <span class="nf">comp_hor_id_laws</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+            {<span class="nv">I₁</span> : hor_id D₁}
+            {<span class="nv">I₂</span> : hor_id D₂}
+            {<span class="nv">I₃</span> : hor_id D₃}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+            (<span class="nv">HFF</span> : double_functor_hor_id FF I₁ I₂)
+            (<span class="nv">HGG</span> : double_functor_hor_id GG I₂ I₃)
+  : double_functor_hor_id_laws (comp_hor_id_data HFF HGG).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> two_disp_post_whisker_f.
+  <span class="nb">rewrite</span> assoc_two_disp.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> (functor_double_id_eq HGG).
+  <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp_alt.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> (twosided_disp_functor_comp_alt _ _ _ _ GG).
+  <span class="nb">rewrite</span> two_disp_post_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> (functor_double_id_eq HFF).
+  <span class="nb">rewrite</span> transportb_twosided_disp_functor.
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> (twosided_disp_functor_comp _ _ _ _ GG).
+  <span class="nb">rewrite</span> two_disp_post_whisker_b.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">refine</span> (!_).
+  <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  <span class="nb">rewrite</span> assoc_two_disp_alt.
+  <span class="nb">unfold</span> transportb_disp_mor2.
+  <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_hor_id</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+           {<span class="nv">I₁</span> : hor_id D₁}
+           {<span class="nv">I₂</span> : hor_id D₂}
+           {<span class="nv">I₃</span> : hor_id D₃}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           {<span class="nv">G</span> : C₂ ⟶ C₃}
+           {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+           (<span class="nv">HFF</span> : double_functor_hor_id FF I₁ I₂)
+           (<span class="nv">HGG</span> : double_functor_hor_id GG I₂ I₃)
+  : double_functor_hor_id (comp_twosided_disp_functor FF GG) I₁ I₃.
+<span class="kn">Proof</span>.
+  use make_double_functor_hor_id.
+  - <span class="bp">exact</span> (comp_hor_id_data HFF HGG).
+  - <span class="bp">exact</span> (comp_hor_id_laws HFF HGG).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_hor_comp_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+           {<span class="nv">Cm₁</span> : hor_comp D₁}
+           {<span class="nv">Cm₂</span> : hor_comp D₂}
+           {<span class="nv">Cm₃</span> : hor_comp D₃}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           {<span class="nv">G</span> : C₂ ⟶ C₃}
+           {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+           (<span class="nv">HFF</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+           (<span class="nv">HGG</span> : double_functor_hor_comp GG Cm₂ Cm₃)
+  : double_functor_hor_comp_data (comp_twosided_disp_functor FF GG) Cm₁ Cm₃.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">k</span>,
+          transportb_disp_mor2
+            _
+            _
+            (functor_double_comp_cell HGG (FF _ _ h) (FF _ _ k)
+             ;;<span class="mi">2</span>
+             #<span class="mi">2</span> GG (functor_double_comp_cell HFF h k))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> functor_id ;
+       <span class="nb">rewrite</span> id_left ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">rewrite</span> functor_id ;
+       <span class="nb">rewrite</span> id_left ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Arguments</span> comp_hor_comp_data /.
+
+<span class="kn">Proposition</span> <span class="nf">comp_hor_comp_laws</span>
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+            {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+            {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+            {<span class="nv">Cm₁</span> : hor_comp D₁}
+            {<span class="nv">Cm₂</span> : hor_comp D₂}
+            {<span class="nv">Cm₃</span> : hor_comp D₃}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+            {<span class="nv">G</span> : C₂ ⟶ C₃}
+            {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+            (<span class="nv">HFF</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+            (<span class="nv">HGG</span> : double_functor_hor_comp GG Cm₂ Cm₃)
+  : double_functor_hor_comp_laws (comp_hor_comp_data HFF HGG).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂ ; <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="nb">rewrite</span> two_disp_post_whisker_b.
+    <span class="nb">rewrite</span> assoc_two_disp.
+    <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+    <span class="nb">rewrite</span> functor_double_comp_eq.
+    <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+    <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+    <span class="nb">rewrite</span> assoc_two_disp_alt.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> twosided_disp_functor_comp_alt.
+    <span class="nb">rewrite</span> two_disp_post_whisker_f.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> functor_double_comp_eq.
+    <span class="nb">rewrite</span> transportb_twosided_disp_functor.
+    <span class="nb">rewrite</span> two_disp_post_whisker_b.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> twosided_disp_functor_comp.
+    <span class="nb">rewrite</span> two_disp_post_whisker_b.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">refine</span> (!_).
+  etrans.
+  {
+    <span class="nb">rewrite</span> two_disp_pre_whisker_b.
+    <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+    <span class="nb">rewrite</span> assoc_two_disp_alt.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">apply</span> idpath.
+  }
+  use transportf_disp_mor2_eq.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">comp_hor_comp</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">D₁</span> : twosided_disp_cat C₁ C₁}
+           {<span class="nv">D₂</span> : twosided_disp_cat C₂ C₂}
+           {<span class="nv">D₃</span> : twosided_disp_cat C₃ C₃}
+           {<span class="nv">Cm₁</span> : hor_comp D₁}
+           {<span class="nv">Cm₂</span> : hor_comp D₂}
+           {<span class="nv">Cm₃</span> : hor_comp D₃}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           {<span class="nv">FF</span> : twosided_disp_functor F F D₁ D₂}
+           {<span class="nv">G</span> : C₂ ⟶ C₃}
+           {<span class="nv">GG</span> : twosided_disp_functor G G D₂ D₃}
+           (<span class="nv">HFF</span> : double_functor_hor_comp FF Cm₁ Cm₂)
+           (<span class="nv">HGG</span> : double_functor_hor_comp GG Cm₂ Cm₃)
+  : double_functor_hor_comp (comp_twosided_disp_functor FF GG) Cm₁ Cm₃.
+<span class="kn">Proof</span>.
+  use make_double_functor_hor_comp.
+  - <span class="bp">exact</span> (comp_hor_comp_data HFF HGG).
+  - <span class="bp">exact</span> (comp_hor_comp_laws HFF HGG).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Core/DoubleFunctor/Basics.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The identity double functor
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

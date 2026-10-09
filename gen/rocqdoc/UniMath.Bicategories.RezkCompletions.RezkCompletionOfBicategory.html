@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory</h1>
+
+<div class="code">
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>. <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#"><span class="id" title="library">UniMath.Bicategories.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.YonedaLemma.html#"><span class="id" title="library">UniMath.Bicategories.Core.YonedaLemma</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.PseudoFunctor</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.Composition.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Examples.Composition</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Properties.html#"><span class="id" title="library">UniMath.Bicategories.PseudoFunctors.Properties</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.RezkCompletions.BicatToLocalUnivalentBicat.html#"><span class="id" title="library">UniMath.Bicategories.RezkCompletions.BicatToLocalUnivalentBicat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#"><span class="id" title="library">UniMath.CategoryTheory.RezkCompletions.Construction</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.RezkCompletions.html#"><span class="id" title="library">UniMath.CategoryTheory.RezkCompletions.RezkCompletions</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Section</span> <a id="RezkCompletionBicategory" class="idref" href="#RezkCompletionBicategory"><span class="id" title="section">RezkCompletionBicategory</span></a>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="rezk_completion_2_1" class="idref" href="#rezk_completion_2_1"><span class="id" title="definition">rezk_completion_2_1</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="R:1" class="idref" href="#R:1"><span class="id" title="binder">R</span></a> : <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.RezkCompletions.html#RezkCat"><span class="id" title="definition">RezkCat</span></a>) (<a id="B:2" class="idref" href="#B:2"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="RB:3" class="idref" href="#RB:3"><span class="id" title="binder">RB</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="HB:4" class="idref" href="#HB:4"><span class="id" title="binder">HB</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#B:2"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#RB:3"><span class="id" title="variable">RB</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.Core.Univalence.html#is_univalent_2_1"><span class="id" title="definition">is_univalent_2_1</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#RB:3"><span class="id" title="variable">RB</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Properties.html#weak_biequivalence"><span class="id" title="definition">weak_biequivalence</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#HB:4"><span class="id" title="variable">HB</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Bicategories.RezkCompletions.BicatToLocalUnivalentBicat.html#LRB"><span class="id" title="definition">LRB</span></a> <span class="id" title="var">R</span> <span class="id" title="var">B</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Bicategories.RezkCompletions.BicatToLocalUnivalentBicat.html#psfunctor_B_to_LRB"><span class="id" title="definition">psfunctor_B_to_LRB</span></a> <span class="id" title="var">R</span> <span class="id" title="var">B</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Bicategories.RezkCompletions.BicatToLocalUnivalentBicat.html#LRB_is_locally_univalent"><span class="id" title="lemma">LRB_is_locally_univalent</span></a> <span class="id" title="var">R</span> <span class="id" title="var">B</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.RezkCompletions.BicatToLocalUnivalentBicat.html#psfunctor_B_to_LRB_is_weak_biequivalence"><span class="id" title="definition">psfunctor_B_to_LRB_is_weak_biequivalence</span></a> <span class="id" title="var">R</span> <span class="id" title="var">B</span>).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Definition</span> <a id="rezk_completion_2" class="idref" href="#rezk_completion_2"><span class="id" title="definition">rezk_completion_2</span></a> (<a id="R:5" class="idref" href="#R:5"><span class="id" title="binder">R</span></a> : <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.RezkCompletions.html#RezkCat"><span class="id" title="definition">RezkCat</span></a>) (<a id="B:6" class="idref" href="#B:6"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="RB:7" class="idref" href="#RB:7"><span class="id" title="binder">RB</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="HB:8" class="idref" href="#HB:8"><span class="id" title="binder">HB</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#B:6"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#RB:7"><span class="id" title="variable">RB</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.Core.Univalence.html#is_univalent_2"><span class="id" title="definition">is_univalent_2</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#RB:7"><span class="id" title="variable">RB</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Properties.html#weak_biequivalence"><span class="id" title="definition">weak_biequivalence</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#HB:8"><span class="id" title="variable">HB</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">set</span> (<span class="id" title="var">r</span> := <a class="idref" href="UniMath.Bicategories.Core.YonedaLemma.html#rezk_completion_2_0"><span class="id" title="definition">rezk_completion_2_0</span></a> (<a class="idref" href="UniMath.Bicategories.RezkCompletions.BicatToLocalUnivalentBicat.html#LRB"><span class="id" title="definition">LRB</span></a> <span class="id" title="var">R</span> <span class="id" title="var">B</span>) (<a class="idref" href="UniMath.Bicategories.RezkCompletions.BicatToLocalUnivalentBicat.html#LRB_is_locally_univalent"><span class="id" title="lemma">LRB_is_locally_univalent</span></a> <span class="id" title="var">R</span> <span class="id" title="var">B</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Foundations.Preamble.html#pr1"><span class="id" title="projection">pr1</span></a> <span class="id" title="var">r</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.Bicategories.PseudoFunctors.Examples.Composition.html#comp_psfunctor"><span class="id" title="definition">comp_psfunctor</span></a> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr12'_x"><span class="id" title="notation">pr12</span></a> <span class="id" title="var">r</span>) (<a class="idref" href="UniMath.Bicategories.RezkCompletions.BicatToLocalUnivalentBicat.html#psfunctor_B_to_LRB"><span class="id" title="definition">psfunctor_B_to_LRB</span></a> <span class="id" title="var">R</span> <span class="id" title="var">B</span>)).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exists</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr122'_x"><span class="id" title="notation">pr122</span></a> <span class="id" title="var">r</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.RezkCompletions.BicatToLocalUnivalentBicat.html#comp_weak_biequivalence"><span class="id" title="lemma">comp_weak_biequivalence</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.RezkCompletions.BicatToLocalUnivalentBicat.html#psfunctor_B_to_LRB_is_weak_biequivalence"><span class="id" title="definition">psfunctor_B_to_LRB_is_weak_biequivalence</span></a>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Bicategories.PseudoFunctors.Properties.html#weak_equivalence_to_is_weak_biequivalence"><span class="id" title="lemma">weak_equivalence_to_is_weak_biequivalence</span></a> <span class="id" title="var">_</span> (<a class="idref" href="UniMath.MoreFoundations.Notations.html#:::'pr222'_x"><span class="id" title="notation">pr222</span></a> <span class="id" title="var">r</span>)).<br/>
+&nbsp;&nbsp;<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">End</span> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#RezkCompletionBicategory"><span class="id" title="section">RezkCompletionBicategory</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="rezk_completion_2_presheaves" class="idref" href="#rezk_completion_2_presheaves"><span class="id" title="definition">rezk_completion_2_presheaves</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="B:9" class="idref" href="#B:9"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="RB:10" class="idref" href="#RB:10"><span class="id" title="binder">RB</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">∑</span></a> <a id="HB:11" class="idref" href="#HB:11"><span class="id" title="binder">HB</span></a> : <a class="idref" href="UniMath.Bicategories.PseudoFunctors.PseudoFunctor.html#psfunctor"><span class="id" title="definition">psfunctor</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#B:9"><span class="id" title="variable">B</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#RB:10"><span class="id" title="variable">RB</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#cd4bc1b07c8b3bdc9f3bbc7941b56107"><span class="id" title="notation">,</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a class="idref" href="UniMath.Bicategories.Core.Univalence.html#is_univalent_2"><span class="id" title="definition">is_univalent_2</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#RB:10"><span class="id" title="variable">RB</span></a> <a class="idref" href="UniMath.Foundations.PartA.html#57f4926fe686c2f5c985fad93ee01cfb"><span class="id" title="notation">×</span></a> <a class="idref" href="UniMath.Bicategories.PseudoFunctors.Properties.html#weak_biequivalence"><span class="id" title="definition">weak_biequivalence</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#HB:11"><span class="id" title="variable">HB</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#rezk_completion_2"><span class="id" title="definition">rezk_completion_2</span></a>.<br/>
+&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="C:12" class="idref" href="#C:12"><span class="id" title="binder"><span id="C:13" class="id">C</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <span class="id" title="var">_</span> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_eta_essentially_surjective"><span class="id" title="lemma">Rezk_eta_essentially_surjective</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#C:12"><span class="id" title="variable">C</span></a> <a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.CategoryTheory.RezkCompletions.Construction.html#Rezk_eta_fully_faithful"><span class="id" title="lemma">Rezk_eta_fully_faithful</span></a> <a class="idref" href="UniMath.Bicategories.RezkCompletions.RezkCompletionOfBicategory.html#C:12"><span class="id" title="variable">C</span></a>).<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

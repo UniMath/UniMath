@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonoidalFromBicategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** *** Going into the opposite direction of [UniMath.Bicategories.Core.Examples.BicategoryFromMonoidal] *)</span>
+<span class="sd">(** We fix a bicategory and an object of it and construct the monoidal category of endomorphisms.</span>
+
+<span class="sd">Written by Ralph Matthes in 2019.</span>
+
+<span class="sd"> *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalCategoriesTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.AlternativeDefinitions.MonoidalFunctorsTensored.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+
+<span class="kn">Section</span> <span class="nf">Monoidal_Cat_From_Bicat</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> bicategory_scope.
+<span class="kn">Import</span> Bicat.Notations.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : bicat}.
+<span class="kn">Context</span> (<span class="nv">c0</span>: ob C).
+
+<span class="kn">Definition</span> <span class="nf">precategory_data_from_bicat_and_ob</span>: precategory_data.
+<span class="kn">Proof</span>.
+  use make_precategory_data.
+  - use make_precategory_ob_mor.
+    + <span class="bp">exact</span> (C⟦c0,c0⟧).
+    + <span class="nb">apply</span> prebicat_cells.
+  - <span class="nb">intro</span> c; <span class="nb">apply</span> id2.
+  - <span class="nb">intros</span> a b c; <span class="nb">apply</span> vcomp2.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_precategory_data_from_prebicat_and_ob</span>: is_precategory precategory_data_from_bicat_and_ob.
+<span class="kn">Proof</span>.
+  use make_is_precategory.
+  - <span class="nb">intros</span> a b f; <span class="nb">apply</span> id2_left.
+  - <span class="nb">intros</span> a b f; <span class="nb">apply</span> id2_right.
+  - <span class="nb">intros</span> a b c d f g h; <span class="nb">apply</span> vassocr.
+  - <span class="nb">intros</span> a b c d f g h; <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> vassocr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">precategory_from_bicat_and_ob</span>: precategory := _,, is_precategory_data_from_prebicat_and_ob.
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_precategory_from_bicat_and_ob</span>: has_homsets precategory_from_bicat_and_ob.
+<span class="kn">Proof</span>.
+  <span class="nb">red</span>. <span class="nb">intros</span>.
+  <span class="nb">apply</span> (cellset_property(C:=C)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">category_from_bicat_and_ob</span>: category := precategory_from_bicat_and_ob ,, has_homsets_precategory_from_bicat_and_ob.
+
+<span class="kn">Local Notation</span> <span class="nf">EndC</span> := category_from_bicat_and_ob.
+
+<span class="kn">Definition</span> <span class="nf">tensor_from_bicat_and_ob</span>: category_from_bicat_and_ob ⊠ category_from_bicat_and_ob ⟶ category_from_bicat_and_ob.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - use make_functor_data.
+    + <span class="nb">intro</span> ab.
+      <span class="bp">exact</span> (pr1 ab · pr2 ab).
+    + <span class="nb">intros</span> ab1 ab2 f.
+      <span class="bp">exact</span> (hcomp (pr1 f) (pr2 f)).
+  - <span class="kp">abstract</span> ( <span class="nb">split</span>; [ <span class="nb">intro</span> c; <span class="nb">apply</span> hcomp_identity |
+                        <span class="nb">intros</span> a b c f g; <span class="nb">apply</span> hcomp_vcomp ] ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Notation</span> <span class="nf">tensor</span> := tensor_from_bicat_and_ob.
+
+<span class="kn">Local Definition</span> <span class="nf">build_left_unitor</span>: left_unitor tensor (id c0).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  + use make_nat_trans.
+    * <span class="nb">intro</span> c.
+      <span class="nb">apply</span> lunitor.
+    * <span class="kp">abstract</span> ( <span class="nb">intros</span> a b f; <span class="nb">apply</span> lunitor_natural ).
+  + <span class="nb">intro</span> c; <span class="nb">apply</span> is_z_iso_lunitor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">build_right_unitor</span>: right_unitor tensor (id c0).
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  + use make_nat_trans.
+    * <span class="nb">intro</span> c.
+      <span class="nb">apply</span> runitor.
+    * <span class="kp">abstract</span> ( <span class="nb">intros</span> a b f; <span class="nb">apply</span> runitor_natural ).
+  + <span class="nb">intro</span> c; <span class="nb">apply</span> is_z_iso_runitor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">nat_trans_associator</span>: assoc_left tensor ⟹ assoc_right tensor.
+<span class="kn">Proof</span>.
+  <span class="c">(* very slow with library elements:</span>
+<span class="c">  set (aux := rassociator_transf(C := C) c0 c0 c0 c0).</span>
+<span class="c">  set (aux' := pre_whisker (precategory_binproduct_unassoc _ _ _) aux).</span>
+<span class="c">  use make_nat_trans.</span>
+<span class="c">  - intro c. exact (pr1 aux' c).</span>
+<span class="c">  - apply (pr2 aux').</span>
+<span class="c">   *)</span>
+  <span class="c">(* still very slow with new additions to library:</span>
+<span class="c">  set (aux := rassociator_transf'(C := C) c0 c0 c0 c0).</span>
+<span class="c">  use make_nat_trans.</span>
+<span class="c">  - intro c. exact (pr1 aux c).</span>
+<span class="c">  - abstract ( apply (pr2 aux) ).</span>
+<span class="c">   *)</span>
+  <span class="c">(* now def. by Anders Mörtberg: *)</span>
+  <span class="k">exists</span> <span class="nv">rassociator_fun'</span>.
+  <span class="kp">abstract</span> (<span class="nb">intros</span> f g x; <span class="nb">apply</span> hcomp_rassoc).
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">build_associator</span>: associator tensor.
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> nat_trans_associator.
+  - <span class="nb">intro</span> c; <span class="nb">apply</span> is_z_iso_rassociator.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">monoidal_cat_from_bicat_and_ob</span>: monoidal_cat.
+<span class="kn">Proof</span>.
+  use (make_monoidal_cat category_from_bicat_and_ob tensor_from_bicat_and_ob (id c0) build_left_unitor build_right_unitor build_associator).
+  - <span class="kp">abstract</span> ( <span class="nb">intros</span> a b; <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> unit_triangle ).
+  - <span class="kp">abstract</span> ( <span class="nb">intros</span> a b c d; <span class="nb">apply</span> pathsinv0; <span class="nb">apply</span> associativity_pentagon ).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Monoidal_Cat_From_Bicat</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/MonoidalCategories/MonoidalFromBicategory.v</tt>, line 8)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt;  *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

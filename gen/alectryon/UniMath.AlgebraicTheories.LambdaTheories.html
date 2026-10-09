@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LambdaTheories.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  λ-theories</span>
+
+<span class="sd">  A λ-theory is a model for the untyped λ-calculus. It is a structure with variables, substitution,</span>
+<span class="sd">  abstraction and application. Here it is formalized as an algebraic theory L, with functions</span>
+<span class="sd">  between the L n and L (S n) that are compatible with the substitution in some way.</span>
+<span class="sd">  This file defines what a λ-theory is and gives accessors, constructors and defines what it means</span>
+<span class="sd">  for a λ-theory to have β- and η-equality.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The definition of λ-theories [lambda_theory]</span>
+<span class="sd">  2. The definition of β-equality [has_β]</span>
+<span class="sd">  3. The definiiton of η-equality [has_η]</span>
+<span class="sd">  4. Lemmas on the interaction of abs with subst [subst_abs] [inflate_abs]</span>
+<span class="sd">  5. The definition and properties of app and beta_equality [app] [subst_app] [beta_equality]</span>
+<span class="sd">  6. A characterization of app and abs in terms of app' and one</span>
+<span class="sd">    [app_from_app'] [abs_from_one]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Import</span> UniMath.Combinatorics.Tuples.
+
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.AlgebraicTheories.
+<span class="kn">Require Import</span> UniMath.AlgebraicTheories.LambdaTheoryCategoryCore.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> algebraic_theories.
+
+<span class="sd">(** * 1. The definition of λ-theories *)</span>
+
+<span class="kn">Definition</span> <span class="nf">lambda_theory_data</span> : UU
+  := lambda_theory_data_cat.
+
+<span class="kn">Definition</span> <span class="nf">make_lambda_theory_data</span>
+  (<span class="nv">T</span> : algebraic_theory)
+  (<span class="nv">app</span> : ∏ n f, app_ax T n f)
+  (<span class="nv">abs</span> : ∏ n f, abs_ax T n f)
+  : lambda_theory_data
+  := T ,, app ,, abs.
+
+<span class="kn">Coercion</span> <span class="nf">lambda_theory_data_to_algebraic_theory</span> (L : lambda_theory_data)
+  : algebraic_theory
+  := pr1 L.
+
+<span class="kn">Definition</span> <span class="nf">appx</span> {<span class="nv">L</span> : lambda_theory_data} {<span class="nv">n</span> : nat} (<span class="nv">f</span> : L n) : app_ax L n f := pr12 L n f.
+
+<span class="kn">Definition</span> <span class="nf">abs</span> {<span class="nv">L</span> : lambda_theory_data} {<span class="nv">n</span> : nat} (<span class="nv">f</span> : L (S n)) : abs_ax L n f := pr22 L n f.
+
+<span class="kn">Definition</span> <span class="nf">lambda_theory</span> : UU := lambda_theory_cat.
+
+<span class="kn">Definition</span> <span class="nf">extended_composition</span>
+  {<span class="nv">T</span> : algebraic_theory_data}
+  {<span class="nv">m</span> <span class="nv">n</span> : nat}
+  (<span class="nv">f</span> : T (S m))
+  (<span class="nv">g</span> : stn m → T n)
+  : T (S n)
+  := f • (extend_tuple (<span class="k">λ</span> <span class="nv">i</span>, inflate (g i)) (var (stnweq (inr tt)))).
+
+<span class="kn">Definition</span> <span class="nf">app_subst_ax</span>
+  (<span class="nv">L</span> : lambda_theory_data)
+  (<span class="nv">m</span> <span class="nv">n</span> : nat)
+  (<span class="nv">f</span> : L m)
+  (<span class="nv">g</span> : stn m → L n)
+  : UU
+  := appx (f • g) = extended_composition (appx f) g.
+
+<span class="kn">Arguments</span> app_subst_ax /.
+
+<span class="kn">Definition</span> <span class="nf">abs_subst_ax</span>
+  (<span class="nv">L</span> : lambda_theory_data)
+  (<span class="nv">m</span> <span class="nv">n</span> : nat)
+  (<span class="nv">f</span> : L (S m))
+  (<span class="nv">g</span> : stn m → L n)
+  : UU
+  := abs (extended_composition f g) = abs f • g.
+
+<span class="kn">Arguments</span> abs_subst_ax /.
+
+<span class="kn">Definition</span> <span class="nf">is_lambda_theory</span> (<span class="nv">L</span> : lambda_theory_data) : UU :=
+  (∏ m n f g, app_subst_ax L m n f g) ×
+  (∏ m n f g, abs_subst_ax L m n f g).
+
+<span class="kn">Definition</span> <span class="nf">make_is_lambda_theory</span>
+  {<span class="nv">L</span> : lambda_theory_data}
+  (<span class="nv">app_subst</span> : ∏ m n f g, app_subst_ax L m n f g)
+  (<span class="nv">abs_subst</span> : ∏ m n f g, abs_subst_ax L m n f g)
+  : is_lambda_theory L
+  := app_subst ,, abs_subst.
+
+<span class="kn">Definition</span> <span class="nf">make_lambda_theory</span>
+  (<span class="nv">L</span> : lambda_theory_data)
+  (<span class="nv">H</span> : is_lambda_theory L)
+  : lambda_theory
+  := L ,, H.
+
+<span class="kn">Coercion</span> <span class="nf">lambda_theory_to_lambda_theory_data</span> (L : lambda_theory) : lambda_theory_data := pr1 L.
+
+<span class="kn">Definition</span> <span class="nf">app_subst</span>
+  (<span class="nv">L</span> : lambda_theory)
+  {<span class="nv">m</span> <span class="nv">n</span> : nat}
+  (<span class="nv">f</span> : L m)
+  (<span class="nv">g</span> : stn m → L n)
+  : app_subst_ax (L : lambda_theory_data) m n f g
+  := pr12 L m n f g.
+
+<span class="kn">Definition</span> <span class="nf">abs_subst</span>
+  (<span class="nv">L</span> : lambda_theory)
+  {<span class="nv">m</span> <span class="nv">n</span> : nat}
+  (<span class="nv">f</span> : L (S m))
+  (<span class="nv">g</span> : stn m → L n)
+  : abs_subst_ax (L : lambda_theory_data) m n f g
+  := pr22 L m n f g.
+
+<span class="sd">(** * 2. The definition of β-equality *)</span>
+
+<span class="kn">Definition</span> <span class="nf">has_β</span> (<span class="nv">L</span> : lambda_theory) : UU
+  := ∏ n l, β_ax L n l.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_has_β</span>
+  (<span class="nv">L</span> : lambda_theory)
+  : isaprop (has_β L).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">β_lambda_theory</span> : UU := β_lambda_theory_cat.
+
+<span class="kn">Coercion</span> <span class="nf">β_lambda_theory_to_lambda_theory</span> (L : β_lambda_theory) : lambda_theory := pr1 L.
+
+<span class="kn">Definition</span> <span class="nf">β_lambda_theory_has_β</span>
+  (<span class="nv">L</span> : β_lambda_theory)
+  : has_β L
+  := pr2 L.
+
+<span class="kn">Definition</span> <span class="nf">make_β_lambda_theory</span>
+  (<span class="nv">L</span> : lambda_theory)
+  (<span class="nv">H</span> : has_β L)
+  := L ,, H.
+
+<span class="sd">(** * 3. The definiiton of η-equality *)</span>
+
+<span class="kn">Definition</span> <span class="nf">has_η</span> (<span class="nv">L</span> : lambda_theory) : UU
+  := ∏ n l, η_ax L n l.
+
+<span class="kn">Lemma</span> <span class="nf">isaprop_has_η</span>
+  (<span class="nv">L</span> : lambda_theory)
+  : isaprop (has_η L).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+  <span class="nb">apply</span> setproperty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">functional_equation_eta</span>
+  {<span class="nv">L</span> : lambda_theory}
+  (<span class="nv">Lβ</span> : has_β L)
+  {<span class="nv">x</span> : L <span class="mi">0</span>}
+  {<span class="nv">y</span> : L <span class="mi">1</span>}
+  (<span class="nv">Hx</span> : x = abs y)
+  : abs (appx x) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ @ !Hx).
+  <span class="nb">refine</span> (_ @ maponpaths abs (Lβ _ _)).
+  <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> maponpaths).
+  <span class="bp">exact</span> Hx.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">functional_equation_beta</span>
+  {<span class="nv">L</span> : lambda_theory}
+  (<span class="nv">Lη</span> : has_η L)
+  {<span class="nv">x</span> : L <span class="mi">1</span>}
+  {<span class="nv">y</span> : L <span class="mi">0</span>}
+  (<span class="nv">Hx</span> : x = appx y)
+  : appx (abs x) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">refine</span> (_ @ !Hx).
+  <span class="nb">refine</span> (_ @ maponpaths appx (Lη _ _)).
+  <span class="kp">do</span> <span class="mi">2</span> (<span class="nb">apply</span> maponpaths).
+  <span class="bp">exact</span> Hx.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Lemmas on the interaction of abs with subst *)</span>
+
+<span class="kn">Definition</span> <span class="nf">subst_abs</span> (<span class="nv">L</span> : lambda_theory) {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">f</span> : L (S m)) (<span class="nv">g</span> : stn m → L n)
+  : <span class="nb">subst</span> (abs f) g = abs (<span class="nb">subst</span> f (extend_tuple (<span class="k">λ</span> <span class="nv">i</span>, inflate (g i)) (var (stnweq (inr tt)))))
+  := !abs_subst _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">inflate_abs</span> (<span class="nv">L</span> : lambda_theory) {<span class="nv">n</span> : nat} (<span class="nv">f</span> : L (S n))
+  : inflate (abs f) = abs (<span class="nb">subst</span> f (extend_tuple (<span class="k">λ</span> <span class="nv">i</span>, var (stnweq (inl (stnweq (inl i))))) (var (stnweq (inr tt))))).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> inflate.
+  <span class="nb">rewrite</span> subst_abs.
+  <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, abs (f • extend_tuple x _))).
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> i.
+  <span class="nb">apply</span> inflate_var.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. The definition and properties of app and beta_equality *)</span>
+
+<span class="kn">Definition</span> <span class="nf">app</span> {<span class="nv">L</span> : lambda_theory_data} {<span class="nv">n</span> : nat} (<span class="nv">f</span> <span class="nv">g</span> : L n) : L n
+  := appx f • extend_tuple var g.
+
+<span class="kn">Lemma</span> <span class="nf">appx_to_app</span>
+  {<span class="nv">L</span> : lambda_theory}
+  {<span class="nv">n</span> : nat}
+  (<span class="nv">f</span> : L n)
+  : appx f = app (inflate f) (var (stnweq (inr tt))).
+<span class="kn">Proof</span>.
+  <span class="nb">symmetry</span>.
+  <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (app_subst _ _ _) @ _).
+  <span class="nb">refine</span> (subst_subst _ (appx _) _ _ @ _).
+  <span class="nb">refine</span> (_ @ subst_var _ _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> i.
+  <span class="nb">rewrite</span> &lt;- (homotweqinvweq stnweq i).
+  <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+  - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (extend_tuple_inl _ _ _) @ _).
+    <span class="nb">refine</span> (subst_inflate _ _ _ @ _).
+    <span class="nb">refine</span> (var_subst _ _ _ @ _).
+    <span class="nb">apply</span> extend_tuple_inl.
+  - <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (extend_tuple_inr _ _ _) @ _).
+    <span class="nb">refine</span> (var_subst _ _ _ @ _).
+    <span class="nb">apply</span> extend_tuple_inr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subst_app</span> (<span class="nv">L</span> : lambda_theory) {<span class="nv">m</span> <span class="nv">n</span> : nat} (<span class="nv">f</span> <span class="nv">g</span> : L m) (<span class="nv">h</span> : stn m → L n)
+  : <span class="nb">subst</span> (app f g) h = app (<span class="nb">subst</span> f h) (<span class="nb">subst</span> g h).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> <span class="nb">subst</span>, app.
+  <span class="nb">rewrite</span> app_subst.
+  <span class="nb">unfold</span> extended_composition.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> (subst_subst _ (appx f)).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> i.
+  <span class="nb">rewrite</span> &lt;- (homotweqinvweq stnweq i).
+  <span class="nb">induction</span> (invmap stnweq i) <span class="k">as</span> [i' | i'].
+  - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> extend_tuple_inl.
+    <span class="nb">rewrite</span> var_subst.
+    <span class="nb">rewrite</span> subst_inflate.
+    <span class="nb">refine</span> (!subst_var _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> funextfun.
+    <span class="nb">intro</span> j.
+    <span class="bp">now</span> <span class="nb">rewrite</span> extend_tuple_inl.
+  - <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> extend_tuple_inr.
+    <span class="nb">rewrite</span> var_subst.
+    <span class="bp">now</span> <span class="nb">rewrite</span> extend_tuple_inr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">inflate_app</span> (<span class="nv">L</span> : lambda_theory) {<span class="nv">n</span> : nat} (<span class="nv">f</span> <span class="nv">g</span> : L n)
+  : inflate (app f g) = app (inflate f) (inflate g)
+  := subst_app L _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">beta_equality</span> (<span class="nv">L</span> : lambda_theory) (<span class="nv">H</span> : has_β L) {<span class="nv">n</span> : nat} (<span class="nv">f</span> : L (S n)) (<span class="nv">g</span> : L n)
+  : app (abs f) g = <span class="nb">subst</span> f (extend_tuple var g).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> app, abs.
+  <span class="bp">now</span> <span class="nb">rewrite</span> H.
+<span class="kn">Qed</span>.
+
+<span class="kn">Declare Scope</span> lambda_calculus.
+  <span class="kn">Notation</span> <span class="s2">"( a b )"</span> := (app a b) (<span class="kn">only printing</span>) : lambda_calculus.
+  <span class="kn">Notation</span> <span class="s2">"(π m )"</span> := (var (make_stn _ m (idpath true))) (<span class="kn">only printing</span>) : lambda_calculus.
+  <span class="kn">Notation</span> <span class="s2">"(λ' n , x )"</span> := (@abs _ n x) (<span class="kn">only printing</span>) : lambda_calculus.
+<span class="kn">Close Scope</span> lambda_calculus.
+
+<span class="sd">(** * 6. A characterization of app and abs in terms of app' and one *)</span>
+
+<span class="kn">Definition</span> <span class="nf">app'</span>
+  (<span class="nv">L</span> : lambda_theory_data)
+  : (L <span class="mi">2</span> : hSet)
+  := appx (var (n := <span class="mi">1</span>) (● <span class="mi">0</span>)%stn).
+
+<span class="kn">Definition</span> <span class="nf">one</span>
+  (<span class="nv">L</span> : lambda_theory_data)
+  : (L <span class="mi">0</span> : hSet)
+  := abs (abs (appx (var (n := <span class="mi">1</span>) (● <span class="mi">0</span>)%stn))).
+
+<span class="kn">Section</span> <span class="nf">AppAbs</span>.
+
+  <span class="kn">Context</span> (<span class="nv">L</span> : lambda_theory).
+  <span class="kn">Context</span> (<span class="nv">H</span> : has_β L).
+
+  <span class="kn">Lemma</span> <span class="nf">app_from_app'</span>
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">s</span> : (L n : hSet))
+    : appx s = extended_composition (app' L) (<span class="k">λ</span> <span class="nv">_</span>, s).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (!maponpaths _ (var_subst _ _ _) @ app_subst _ _ _).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local Lemma</span> <span class="nf">aux1</span>
+    {<span class="nv">n</span> : nat}
+    {<span class="nv">s</span> : (L (S n) : hSet)}
+    {<span class="nv">t</span> : (L n : hSet)}
+    (<span class="nv">H2</span> : extended_composition (app' L) (<span class="k">λ</span> <span class="nv">_</span> : (⟦ <span class="mi">1</span> ⟧)%stn, t) = s)
+    : abs s = app' L • extend_tuple (<span class="k">λ</span> <span class="nv">_</span> : (⟦ <span class="mi">1</span> ⟧)%stn, lift_constant n (one L)) t.
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (!maponpaths _ H2 @ _).
+    <span class="nb">refine</span> (abs_subst _ _ _ @ _).
+    <span class="nb">refine</span> (!maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (H _ _) @ _).
+    <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (app_from_app' (one L)) @ _).
+    <span class="nb">refine</span> (subst_subst _ (app' L) _ _ @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">refine</span> (!extend_tuple_eq _ _).
+    - <span class="nb">intro</span> i'.
+      <span class="nb">refine</span> (!_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (extend_tuple_inl _ _ _)).
+      <span class="nb">refine</span> (subst_subst _ (one L) _ _ @ _).
+      <span class="nb">apply</span> (maponpaths (<span class="nb">subst</span> _)).
+      <span class="nb">apply</span> (pr2 (iscontr_empty_tuple _)).
+    - <span class="nb">refine</span> (!_ @ !maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x • _) (extend_tuple_inr _ _ _)).
+      <span class="nb">apply</span> var_subst.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">abs_from_one</span>
+    {<span class="nv">n</span> : nat}
+    (<span class="nv">s</span> : (L (S n) : hSet))
+    (<span class="nv">t</span> : (L n : hSet))
+    : abs s = t
+    ≃ (app' L • extend_tuple (<span class="k">λ</span> <span class="nv">_</span>, lift_constant _ (one L)) t = t)
+      × (extended_composition (app' L) (<span class="k">λ</span> <span class="nv">_</span>, t) = s).
+  <span class="kn">Proof</span>.
+    use (logeqweq
+      (make_hProp _ (setproperty _ _ _))
+      (make_hProp _ (isapropdirprod _ _ (setproperty _ _ _) (setproperty _ _ _)))).
+    - <span class="nb">intro</span> H1.
+      <span class="nb">assert</span> (H2 : extended_composition (app' L) (<span class="k">λ</span> <span class="nv">_</span>, t) = s).
+      {
+        <span class="nb">refine</span> (!app_from_app' _ @ _).
+        <span class="nb">refine</span> (!maponpaths _ H1 @ _).
+        <span class="nb">apply</span> H.
+      }
+      <span class="nb">refine</span> (make_dirprod _ H2).
+      <span class="nb">refine</span> (_ @ H1).
+      <span class="bp">exact</span> (!aux1 H2).
+    - <span class="nb">intro</span> H'.
+      <span class="nb">induction</span> H' <span class="k">as</span> [H1 H2].
+      <span class="nb">refine</span> (_ @ H1).
+      <span class="bp">exact</span> (aux1 H2).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">AppAbs</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/AlgebraicTheories/LambdaTheories.v</tt>, line 21)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;     [app_from_app'] [abs_from_one]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

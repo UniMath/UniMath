@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DualBeckChevalley.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***************************************************************************************</span>
+
+<span class="sd"> The Dual Beck-Chevalley condition</span>
+
+<span class="sd"> In the setting of categorical logic, quantifiers are interpreted as certain adjoints.</span>
+<span class="sd"> More concretely, existential quantifiers and sigma types are interpreted as left adjoints</span>
+<span class="sd"> of weakening, whereas universal quantifiers and pi types are interpreted as right adjoints</span>
+<span class="sd"> of weakening. These quantifiers must also satisfy a condition that expresses stability</span>
+<span class="sd"> under substitution: more concretely, if we perform a substitution on a universal</span>
+<span class="sd"> quantifier, then we again get a universally quantified formula. In the semantics, these</span>
+<span class="sd"> stability axioms are expressed as Beck-Chevalley conditions.</span>
+
+<span class="sd"> If we are interested in first-order logic with quantifiers (semantically, a hyperdoctrine)</span>
+<span class="sd"> or in dependent type theory with sigma types and pi types (semantically, a comprehension</span>
+<span class="sd"> category), then we need the Beck-Chevalley condition for both the universal and the</span>
+<span class="sd"> existential quantifier. However, it suffices to verify only one of those. More specifically,</span>
+<span class="sd"> if the existential quantifier is stable under substitution, then so is the universal</span>
+<span class="sd"> quantifier. For this reason, only one Beck-Chevalley condition is usually required in</span>
+<span class="sd"> the definition of hyperdoctrines (see, e.g., "Hyperdoctrines, natural deduction and the</span>
+<span class="sd"> Beck condition" by Seely).</span>
+
+<span class="sd"> In this file, we prove this statement. More specifically, suppose that we have a fibration</span>
+<span class="sd"> `D` over `C` and a commuting square `k · f = h · g` where `f : x --&gt; w`, `g : y --&gt; w`,</span>
+<span class="sd"> `h : z --&gt; y`, and `k : z --&gt; x`, and suppose that pulling back along `f` and h` has a</span>
+<span class="sd"> right adjoint, and pulling back along `g` and `k` has a left adjoint. If we can verify</span>
+<span class="sd"> the Beck-Chevalley condition for the left adjoints of `g` and `k`, then the Beck-Chevalley</span>
+<span class="sd"> condition also holds for the right adjoints of `f` and `g`.</span>
+
+<span class="sd"> References</span>
+<span class="sd"> - "Hyperdoctrines, natural deduction and the Beck condition" by Seely</span>
+
+<span class="sd"> ***************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Adjunctions.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">DualBeckChevalley</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          {<span class="nv">D</span> : disp_cat C}
+          (<span class="nv">HD</span> : cleaving D)
+          {<span class="nv">w</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C}
+          {<span class="nv">f</span> : x --&gt; w}
+          {<span class="nv">g</span> : y --&gt; w}
+          {<span class="nv">h</span> : z --&gt; y}
+          {<span class="nv">k</span> : z --&gt; x}
+          {<span class="nv">p</span> : k · f = h · g}
+          {<span class="nv">P₁</span> : dependent_product HD f}
+          {<span class="nv">P₂</span> : dependent_product HD h}
+          {<span class="nv">S₁</span> : dependent_sum HD g}
+          {<span class="nv">S₂</span> : dependent_sum HD k}
+          (<span class="nv">HB</span> : left_beck_chevalley HD g f k h (!p) S₁ S₂).
+
+  <span class="kn">Let</span> <span class="nf">F</span> : D[{w}] ⟶ D[{x}] := fiber_functor_from_cleaving D HD f.
+  <span class="kn">Let</span> <span class="nf">R₁</span> : D[{x}] ⟶ D[{w}] := right_adjoint P₁.
+  <span class="kn">Let</span> <span class="nf">η₁</span> : functor_identity _ ⟹ F ∙ R₁
+    := unit_from_left_adjoint P₁.
+  <span class="kn">Let</span> <span class="nf">ε₁</span> : R₁ ∙ F ⟹ functor_identity _
+    := counit_from_left_adjoint P₁.
+
+  <span class="kn">Let</span> <span class="nf">H</span> : D[{y}] ⟶ D[{z}] := fiber_functor_from_cleaving D HD h.
+  <span class="kn">Let</span> <span class="nf">R₂</span> : D[{z}] ⟶ D[{y}] := right_adjoint P₂.
+  <span class="kn">Let</span> <span class="nf">η₂</span> : functor_identity _ ⟹ H ∙ R₂
+    := unit_from_left_adjoint P₂.
+  <span class="kn">Let</span> <span class="nf">ε₂</span> : R₂ ∙ H ⟹ functor_identity _
+    := counit_from_left_adjoint P₂.
+
+  <span class="kn">Let</span> <span class="nf">G</span> : D[{w}] ⟶ D[{y}] := fiber_functor_from_cleaving D HD g.
+  <span class="kn">Let</span> <span class="nf">L₁</span> : D[{y}] ⟶ D[{w}]
+    := left_adjoint S₁.
+  <span class="kn">Let</span> <span class="nf">φ₁</span> : functor_identity _ ⟹ L₁ ∙ G
+    := unit_from_right_adjoint S₁.
+  <span class="kn">Let</span> <span class="nf">ψ₁</span> : G ∙ L₁ ⟹ functor_identity _
+    := counit_from_right_adjoint S₁.
+
+  <span class="kn">Let</span> <span class="nf">K</span> : D[{x}] ⟶ D[{z}] := fiber_functor_from_cleaving D HD k.
+  <span class="kn">Let</span> <span class="nf">L₂</span> : D[{z}] ⟶ D[{x}]
+    := left_adjoint S₂.
+  <span class="kn">Let</span> <span class="nf">φ₂</span> : functor_identity _ ⟹ L₂ ∙ K
+    := unit_from_right_adjoint S₂.
+  <span class="kn">Let</span> <span class="nf">ψ₂</span> : K ∙ L₂ ⟹ functor_identity _
+    := counit_from_right_adjoint S₂.
+
+  <span class="kn">Let</span> <span class="nf">τ</span> : nat_z_iso (G ∙ H) (F ∙ K)
+    := comm_nat_z_iso HD g f k h (!p).
+  <span class="kn">Let</span> <span class="nf">ℓ_iso</span> : nat_z_iso (H ∙ L₂) (L₁ ∙ F)
+    := make_nat_z_iso
+         _ _
+         (left_beck_chevalley_nat_trans S₁ S₂ τ)
+         HB.
+  <span class="kn">Let</span> <span class="nf">ℓ</span> : H ∙ L₂ ⟹ L₁ ∙ F
+    := left_beck_chevalley_nat_trans S₁ S₂ τ.
+  <span class="kn">Let</span> <span class="nf">ℓi</span> : L₁ ∙ F ⟹ H ∙ L₂
+    := nat_z_iso_inv ℓ_iso.
+
+  <span class="kn">Let</span> <span class="nf">θ</span> : nat_z_iso (G ∙ H) (F ∙ K)
+    := comm_nat_z_iso_inv HD f g h k p.
+  <span class="kn">Let</span> <span class="nf">ρ</span> : R₁ ∙ G ⟹ K ∙ R₂
+    := right_beck_chevalley_nat_trans P₁ P₂ θ.
+
+  #[local] <span class="kn">Opaque</span> fiber_category.
+
+  <span class="kn">Proposition</span> <span class="nf">inv_of_comm_nat_z_iso</span>
+              (<span class="nv">xx</span> : D[{x}])
+    : nat_z_iso_inv (comm_nat_z_iso HD f g h k p) (right_adjoint P₁ xx)
+      =
+      τ (R₁ xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> τ.
+    <span class="nb">cbn</span> -[fiber_functor_from_cleaving_comp_nat_z_iso fiber_functor_on_eq_nat_z_iso].
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!(id_right _) @ _).
+    use z_iso_inv_on_right.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ pr1_idtoiso_concat _ _).
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!(maponpathscomp0 (<span class="k">λ</span> <span class="nv">q</span>, pr1 (HD w z q (R₁ xx))) _ _) @ _).
+      <span class="nb">rewrite</span> pathsinv0r.
+      <span class="nb">apply</span> idpath.
+    }
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dual_right_beck_chevalley_nat_trans_ob</span>
+        (<span class="nv">xx</span> : D[{x}])
+    : ρ xx
+      =
+      η₂(G(R₁ xx))
+      · #R₂(τ(R₁ xx))
+      · #R₂(#K(ε₁ xx)).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> ρ.
+    etrans.
+    {
+      <span class="nb">apply</span> right_beck_chevalley_nat_trans_ob.
+    }
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> inv_of_comm_nat_z_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dual_left_beck_chevalley_nat_trans_ob</span>
+        (<span class="nv">xx</span> : D[{x}])
+    : ℓ (G(R₁ xx))
+      =
+      #L₂(#H(φ₁(G(R₁ xx))))
+      · #L₂(τ(L₁(G(R₁ xx))))
+      · ψ₂(F(L₁(G(R₁ xx)))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> left_beck_chevalley_nat_trans_ob.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dual_left_beck_chevalley_nat_trans_ob'</span>
+        (<span class="nv">xx</span> : D[{x}])
+    : ℓ (R₂(K xx))
+      =
+      #L₂(#H(φ₁(R₂(K xx))))
+      · #L₂(τ(L₁(R₂(K xx))))
+      · ψ₂(F(L₁(R₂(K xx)))).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> left_beck_chevalley_nat_trans_ob.
+  <span class="kn">Qed</span>.
+
+  #[local] <span class="kn">Opaque</span> F G H K η₁ η₂ ε₁ ε₂ φ₁ φ₂ ψ₁ ψ₂ R₁ R₂ L₁ L₂ ℓi ℓ ρ τ.
+
+  <span class="kn">Lemma</span> <span class="nf">dual_left_beck_chevalley_nat_trans_ob_alt</span>
+        (<span class="nv">xx</span> : D[{x}])
+    : ℓ (G(R₁ xx)) · #F(ψ₁ _) · ε₁ xx
+      =
+      # L₂ (τ (R₁ xx)) · (ψ₂ (F (R₁ xx)) · ε₁ xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> dual_left_beck_chevalley_nat_trans_ob.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax ψ₂ _ _ (# F (ψ₁ (R₁ xx)))).
+    }
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">rewrite</span> &lt;- !functor_comp.
+    <span class="nb">refine</span> (!(functor_comp _ _ _) @ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc'.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax τ).
+    }
+    <span class="nb">refine</span> (_ @ id_left _).
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">refine</span> (!(functor_comp _ _ _) @ _ @ functor_id _ _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (pr222 S₁).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">dual_left_beck_chevalley_nat_trans_ob_alt'</span>
+        (<span class="nv">xx</span> : D[{x}])
+    : #H(φ₁(R₂(K xx))) · τ(L₁(R₂(K xx)))
+      =
+      φ₂ _ · #K(ℓ(R₂(K xx))).
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> dual_left_beck_chevalley_nat_trans_ob'.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">rewrite</span> !functor_comp.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax φ₂).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> (nat_trans_ax φ₂).
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ id_right _).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (pr222 S₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">right_from_left_beck_chevalley_inv</span>
+             (<span class="nv">xx</span> : D[{x}])
+    : R₂(K xx) --&gt; G(R₁ xx)
+    := φ₁ _ · #G(η₁ _ · #R₁(ℓi _ · #L₂(ε₂ _) · ψ₂ _)).
+
+  <span class="kn">Proposition</span> <span class="nf">right_from_left_beck_chevalley_inverses</span>
+              (<span class="nv">xx</span> : D[{x}])
+    : is_inverse_in_precat
+        (ρ xx)
+        (right_from_left_beck_chevalley_inv xx).
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> right_from_left_beck_chevalley_inv.
+    <span class="nb">split</span>.
+    - <span class="nb">rewrite</span> !functor_comp.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">4</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (nat_trans_ax φ₁ _ _ (ρ xx)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (_ @ pr222 S₁ _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="nb">assert</span> ((pr212 S₁) (R₁ xx) = ψ₁ (R₁ xx)) <span class="k">as</span> q.
+      {
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (_ @ !q) ; <span class="nb">clear</span> q.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (nat_trans_ax η₁ _ _ (#L₁ (ρ xx))).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (nat_trans_ax ℓi _ _ (ρ xx)).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> dual_right_beck_chevalley_nat_trans_ob.
+        <span class="nb">rewrite</span> !functor_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> &lt;- !functor_comp.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths_2.
+            <span class="nb">apply</span> maponpaths.
+            <span class="nb">refine</span> (!_).
+            <span class="nb">apply</span> (functor_comp R₂).
+          }
+          <span class="nb">apply</span> (nat_trans_ax ε₂ _ _).
+        }
+        <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (pr122 P₂).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_left.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> functor_comp.
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax ψ₂).
+      }
+      <span class="nb">cbn</span>.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> dual_left_beck_chevalley_nat_trans_ob_alt.
+      }
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (z_iso_after_z_iso_inv (nat_z_iso_pointwise_z_iso ℓ_iso (G(R₁ xx)))).
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (nat_trans_ax η₁).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (pr222 P₁).
+      }
+      <span class="nb">apply</span> id_right.
+    - <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> functor_comp.
+        }
+        <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (nat_trans_ax ρ).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> dual_right_beck_chevalley_nat_trans_ob.
+      etrans.
+      {
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (nat_trans_ax η₂ _ _ (_ · #G(η₁(L₁(R₂(K xx)))))).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">refine</span> (_ @ pr222 P₂ _).
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> &lt;- !functor_comp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">cbn</span>.
+      <span class="nb">assert</span> ((pr212 P₂) (K xx) = ε₂(K xx)) <span class="k">as</span> q.
+      {
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">refine</span> (_ @ !q) ; <span class="nb">clear</span> q.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> functor_comp.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (nat_trans_ax τ).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> &lt;- functor_comp.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (pr122 P₁).
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> dual_left_beck_chevalley_nat_trans_ob_alt'.
+      }
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">refine</span> (!(functor_comp K _ _) @ _).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+        <span class="bp">exact</span> (z_iso_inv_after_z_iso (nat_z_iso_pointwise_z_iso ℓ_iso (R₂(K xx)))).
+      }
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> !assoc.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">refine</span> (!_).
+        <span class="nb">apply</span> (nat_trans_ax φ₂).
+      }
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (_ @ id_right _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (pr222 S₂).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">right_from_left_beck_chevalley</span>
+    : right_beck_chevalley HD f g h k p P₁ P₂.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> xx.
+    use make_is_z_isomorphism.
+    - <span class="bp">exact</span> (right_from_left_beck_chevalley_inv xx).
+    - <span class="bp">exact</span> (right_from_left_beck_chevalley_inverses xx).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">DualBeckChevalley</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Fiberwise/DualBeckChevalley.v</tt>, line 33)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  - &quot;Hyperdoctrines, natural deduction and the Beck condition&quot; by Seely
+  &gt;
+  &gt;  ***************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

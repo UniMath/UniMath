@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DiscreteTopology.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The Discrete Topology</span>
+
+<span class="sd">  For any category C, there is a Grothendieck topology that consists of all sieves.</span>
+<span class="sd">  Since this includes the empty sieve ∅, every sheaf F has a unique factorization ∅ ⟹ よ(X) ⟹ F</span>
+<span class="sd">  for all X. This means that F X is contractible. In other words, the sheaf category on the discrete</span>
+<span class="sd">  site is equivalent to the unit category.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. The discrete site [discrete_site]</span>
+<span class="sd">  2. The sheaf category is equivalent to the unit category</span>
+<span class="sd">  2.1. The contractibility of F X [discrete_sheaf_contractible]</span>
+<span class="sd">  2.2. The equivalence [discrete_topos_is_unit]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.StandardCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Equivalences.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Presheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.yoneda.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckToposes.Examples.EmptySieve.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckToposes.Examples.TerminalSheaf.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckToposes.Sheaves.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckToposes.Sites.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.GrothendieckToposes.Topologies.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. The discrete site *)</span>
+
+<span class="kn">Section</span> <span class="nf">DiscreteTopology</span>.
+
+  <span class="kn">Context</span> (<span class="nv">C</span> : category).
+
+  <span class="kn">Definition</span> <span class="nf">discrete_topology_selection</span>
+    (<span class="nv">c</span> : C)
+    : hsubtype (Sieves.sieve c)
+    := <span class="k">λ</span> <span class="nv">_</span>, htrue.
+
+  <span class="kn">Lemma</span> <span class="nf">discrete_topology_is_topology</span>
+    : is_Grothendieck_topology discrete_topology_selection.
+  <span class="kn">Proof</span>.
+    <span class="bp">easy</span>.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_topology</span>
+    : Grothendieck_topology C
+    := make_Grothendieck_topology
+      discrete_topology_selection
+      discrete_topology_is_topology.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_site</span>
+    : site
+    := make_site C discrete_topology.
+
+<span class="kn">End</span> <span class="nf">DiscreteTopology</span>.
+
+<span class="sd">(** * 2. The sheaf category is equivalent to the unit category *)</span>
+
+<span class="kn">Section</span> <span class="nf">Sheaves</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+
+<span class="sd">(** ** 2.1. The contractibility of F X *)</span>
+
+  <span class="kn">Section</span> <span class="nf">Pointwise</span>.
+
+    <span class="kn">Context</span> (<span class="nv">F</span> : sheaf (discrete_site C)).
+    <span class="kn">Context</span> (<span class="nv">X</span> : discrete_site C).
+
+    <span class="kn">Let</span> <span class="nf">H</span> := sheaf_is_sheaf F X
+      (make_covering_sieve (EmptySieve.empty_sieve X) tt)
+      (InitialArrow Initial_PreShv _).
+
+    <span class="kn">Let</span> <span class="nf">FX</span> := F X : hSet.
+
+    <span class="kn">Definition</span> <span class="nf">discrete_sheaf_value</span>
+      : FX
+      := yoneda_weq C X F (pr11 H).
+
+    <span class="kn">Lemma</span> <span class="nf">discrete_sheaf_value_unique</span>
+      (<span class="nv">x</span> : FX)
+      : x = discrete_sheaf_value.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (E := pr2 H (invmap (yoneda_weq C X F) x ,, InitialArrowUnique Initial_PreShv _ _)).
+      <span class="nb">refine</span> (!eqtohomot (functor_id F X) x @ _).
+      <span class="bp">exact</span> (eqtohomot (nat_trans_eq_weq (homset_property _) _ _ (base_paths _ _ E) X) (identity X)).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">discrete_sheaf_contractible</span>
+      : iscontr FX
+      := make_iscontr discrete_sheaf_value discrete_sheaf_value_unique.
+
+    <span class="kn">Lemma</span> <span class="nf">discrete_sheaf_morphism_irrelevance</span>
+      {<span class="nv">Y</span> : hSet}
+      (<span class="nv">f</span> <span class="nv">g</span> : Y → FX)
+      : f = g.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> x.
+      <span class="nb">apply</span> proofirrelevancecontr.
+      <span class="nb">apply</span> discrete_sheaf_contractible.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">Pointwise</span>.
+
+<span class="sd">(** ** 2.2. The equivalence *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">discrete_topos_to_unit_functor</span>
+    : sheaf_cat (discrete_site C) ⟶ unit_category
+    := functor_to_unit _.
+
+  <span class="kn">Lemma</span> <span class="nf">discrete_topos_to_unit_ff</span>
+    : fully_faithful discrete_topos_to_unit_functor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> P Q.
+    use isweq_iso.
+    - <span class="nb">intro</span> f.
+      <span class="nb">apply</span> make_sheaf_morphism.
+      use make_nat_trans.
+      + <span class="nb">intros</span> X x.
+        <span class="nb">apply</span> discrete_sheaf_value.
+      + <span class="kp">abstract</span> (
+          <span class="nb">intros</span> X Y g;
+          <span class="nb">apply</span> discrete_sheaf_morphism_irrelevance
+        ).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intro</span> f;
+        <span class="nb">apply</span> sheaf_morphism_eq;
+        <span class="nb">apply</span> nat_trans_eq_alt;
+        <span class="nb">intro</span> X;
+        <span class="nb">apply</span> discrete_sheaf_morphism_irrelevance
+      ).
+    - <span class="kp">abstract</span> (
+        <span class="nb">intro</span> f;
+        <span class="nb">apply</span> isasetunit
+      ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">discrete_topos_to_unit_ses</span>
+    : split_essentially_surjective discrete_topos_to_unit_functor.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> b.
+    <span class="k">exists</span> (<span class="nv">terminal_sheaf</span> <span class="nv">_</span>).
+    <span class="nb">apply</span> idtoiso.
+    <span class="kp">abstract</span> <span class="bp">now</span> <span class="nb">induction</span> b, (discrete_topos_to_unit_functor (terminal_sheaf _)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">discrete_topos_is_unit</span>
+    : adj_equiv (sheaf_cat (discrete_site C)) unit_category
+    :=
+    functor_to_unit _ ,,
+      (rad_equivalence_of_cats' _ _ _
+        discrete_topos_to_unit_ff
+        discrete_topos_to_unit_ses).
+
+<span class="kn">End</span> <span class="nf">Sheaves</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/GrothendieckToposes/Examples/DiscreteTopology.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   2.2. The equivalence [discrete_topos_is_unit]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

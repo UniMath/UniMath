@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>DisplayedSections.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**************************************************************************************************</span>
+
+<span class="sd">  The category of displayed sections</span>
+
+<span class="sd">  We define the category of "displayed sections". For a displayed category D over a category C, this</span>
+<span class="sd">  category consists of the displayed parts of sections to the projection functor π1: ∫D ⟶ C. In</span>
+<span class="sd">  other words, a displayed section assigns to every object and morphism of C a displayed object or</span>
+<span class="sd">  morphism of D lying over this object or morphism.</span>
+<span class="sd">  A morphism of sections is then the displayed part of a natural transformation of which the</span>
+<span class="sd">  non-displayed part is the identity transformation.</span>
+
+<span class="sd">  Contents</span>
+<span class="sd">  1. Displayed sections and their accessors [section_disp]</span>
+<span class="sd">  2. Displayed natural transformations and their accessors [section_nat_trans_disp]</span>
+<span class="sd">  3. The category [section_disp_cat]</span>
+
+<span class="sd"> **************************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> mor_disp_scope.
+
+<span class="sd">(**</span>
+<span class="sd">  Just like how context morphisms in a CwA can be built up out of terms, similarly, the basic</span>
+<span class="sd">  building-block for functors into (total cats of) displayed categories will be analogous to a term.</span>
+
+<span class="sd">  We call it a _section_ (though we define it intrinsically, not as a section in a (bi)category),</span>
+<span class="sd">  since it corresponds to a section of the forgetful functor.</span>
+<span class="sd">*)</span>
+<span class="kn">Section</span> <span class="nf">Sections</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}.
+  <span class="kn">Context</span> {<span class="nv">D</span> : disp_cat C}.
+
+<span class="sd">(** * 1. Displayed sections and their accessors *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">section_disp_data</span> : UU
+    := ∑ (Fob : <span class="k">forall</span> <span class="nv">x</span>:C, D x),
+      (<span class="k">forall</span> (<span class="nv">x</span> <span class="nv">y</span>:C) (<span class="nv">f</span>:x --&gt; y), Fob x --&gt;[f] Fob y).
+
+  <span class="kn">Definition</span> <span class="nf">section_disp_on_objects</span>
+             (<span class="nv">F</span> : section_disp_data) (<span class="nv">x</span> : C)
+    := pr1 F x : D x.
+
+  <span class="kn">Coercion</span> <span class="nf">section_disp_on_objects</span> : section_disp_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_disp_on_morphisms</span>
+             (<span class="nv">F</span> : section_disp_data) {<span class="nv">x</span> <span class="nv">y</span> : C} (<span class="nv">f</span> : x --&gt; y)
+    := pr2 F _ _ f : F x --&gt;[f] F y.
+
+  <span class="kn">Notation</span> <span class="s2">"# F"</span> := (section_disp_on_morphisms F)
+                      (<span class="kn">at level</span> <span class="mi">3</span>) : mor_disp_scope.
+
+  <span class="kn">Definition</span> <span class="nf">section_disp_axioms</span>
+             (<span class="nv">F</span> : section_disp_data) : UU
+    := ((<span class="k">forall</span> <span class="nv">x</span>:C, # F (identity x) = id_disp (F x))
+          × (<span class="k">forall</span> (<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : C) (<span class="nv">f</span> : x --&gt; y) (<span class="nv">g</span> : y --&gt; z),
+                # F (f · g) = (# F f) ;; (# F g))).
+
+  <span class="kn">Definition</span> <span class="nf">section_disp</span> : UU
+    := total2 section_disp_axioms.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_section_disp_axioms</span> (<span class="nv">F</span> : section_disp_data)
+    (<span class="nv">Hmor</span> : ∏ (x y : C) (f : x --&gt; y) (c : D x) (d : D y), isaset (c --&gt;[f] d)) :
+    isaprop (section_disp_axioms F).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> isapropdirprod.
+    - <span class="nb">apply</span> impred; <span class="nb">intro</span>.
+      <span class="nb">apply</span> Hmor.
+    - <span class="kp">do</span> <span class="mi">5</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+      <span class="nb">apply</span> Hmor.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_disp_data_from_section_disp</span>
+             (<span class="nv">F</span> : section_disp) := pr1 F.
+
+  <span class="kn">Coercion</span> <span class="nf">section_disp_data_from_section_disp</span>
+    : section_disp &gt;-&gt; section_disp_data.
+
+  <span class="kn">Definition</span> <span class="nf">section_disp_id</span> (<span class="nv">F</span> : section_disp)
+    := pr1 (pr2 F).
+
+  <span class="kn">Definition</span> <span class="nf">section_disp_comp</span> (<span class="nv">F</span> : section_disp)
+    := pr2 (pr2 F).
+
+<span class="sd">(** * 2. Displayed natural transformations and their accessors *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">section_nat_trans_disp_data</span>
+      (<span class="nv">F</span> <span class="nv">F'</span> : section_disp) : UU :=
+    ∏ (x : C), F x --&gt;[identity _] F' x.
+
+  <span class="kn">Definition</span> <span class="nf">section_nat_trans_disp_axioms</span>
+      {<span class="nv">F</span> <span class="nv">F'</span>: section_disp}
+      (<span class="nv">nt</span> : section_nat_trans_disp_data F F') : UU :=
+    ∏ x x' (f : x --&gt; x'),
+        transportf _
+        (id_right _ @ !(id_left _))
+        (section_disp_on_morphisms F f ;; nt x') =
+      nt x ;; section_disp_on_morphisms F' f.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_section_nat_trans_disp_axioms</span>
+      {<span class="nv">F</span> <span class="nv">F'</span>: section_disp}
+      (<span class="nv">nt</span> : section_nat_trans_disp_data F F') :
+    isaprop (section_nat_trans_disp_axioms nt).
+  <span class="kn">Proof</span>.
+    <span class="kp">do</span> <span class="mi">3</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>).
+    <span class="nb">apply</span> homsets_disp.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_nat_trans_disp</span>
+      (<span class="nv">F</span> <span class="nv">F'</span>: section_disp) : UU :=
+    ∑ (nt : section_nat_trans_disp_data F F'), section_nat_trans_disp_axioms nt.
+
+  <span class="kn">Lemma</span> <span class="nf">isaset_section_nat_trans_disp</span>
+        (<span class="nv">F</span> <span class="nv">F'</span>: section_disp) :
+    isaset (section_nat_trans_disp F F').
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>).
+    - <span class="nb">apply</span> impred. <span class="nb">intro</span> t. <span class="nb">apply</span> homsets_disp.
+    - <span class="nb">intro</span> x. <span class="nb">apply</span> isasetaprop. <span class="nb">apply</span> isaprop_section_nat_trans_disp_axioms.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_nt_disp_data_from_section_nt_disp</span>
+      {<span class="nv">F</span> <span class="nv">F'</span>: section_disp}
+      (<span class="nv">nt</span> : section_nat_trans_disp F F')
+      : section_nat_trans_disp_data F F'
+    := pr1 nt.
+
+  <span class="kn">Definition</span> <span class="nf">section_nat_trans_data_from_section_nat_trans_disp_funclass</span>
+      {<span class="nv">F</span> <span class="nv">F'</span>: section_disp}
+      (<span class="nv">nt</span> : section_nat_trans_disp F F') :
+    ∏ x : ob C, F x --&gt;[identity _]  F' x := section_nt_disp_data_from_section_nt_disp nt.
+  <span class="kn">Coercion</span> <span class="nf">section_nat_trans_data_from_section_nat_trans_disp_funclass</span> :
+      section_nat_trans_disp &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_nt_disp_axioms_from_section_nt_disp</span>
+      {<span class="nv">F</span> <span class="nv">F'</span>: section_disp}
+      (<span class="nv">nt</span> : section_nat_trans_disp F F')
+      : section_nat_trans_disp_axioms nt
+    := pr2 nt.
+
+  <span class="kn">Lemma</span> <span class="nf">section_nat_trans_eq</span> (<span class="nv">F</span> <span class="nv">F'</span> : section_disp) (<span class="nv">a</span> <span class="nv">a'</span> : section_nat_trans_disp F F'):
+    (∏ x, a x = a' x) -&gt; a = a'.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> H.
+    <span class="nb">assert</span> (H' : pr1 a = pr1 a').
+    { <span class="bp">now</span> <span class="nb">apply</span> funextsec. }
+    <span class="nb">apply</span> (total2_paths_f H').
+    <span class="nb">apply</span> proofirrelevance.
+    <span class="nb">apply</span> isaprop_section_nat_trans_disp_axioms.
+  <span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. The category *)</span>
+
+  <span class="kn">Definition</span> <span class="nf">section_nat_trans_id</span>
+      (<span class="nv">F</span> : section_disp)
+      : section_nat_trans_disp F F.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intro</span>.
+      <span class="bp">exact</span> (id_disp _).
+    - <span class="nb">simpl</span>.
+      <span class="nb">intros</span> x x' f.
+
+      <span class="nb">rewrite</span> id_left_disp, id_right_disp.
+      <span class="nb">unfold</span> transportb.
+      <span class="nb">rewrite</span> transport_f_f.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_nat_trans_comp</span>
+      {<span class="nv">F</span> <span class="nv">F'</span> <span class="nv">F''</span>: section_disp}
+      (<span class="nv">FF'</span> : section_nat_trans_disp F F')
+      (<span class="nv">F'F''</span> : section_nat_trans_disp F' F'') :
+    section_nat_trans_disp F F''.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">intro</span> x.
+      <span class="bp">exact</span> (transportf _ (id_left _) (FF' x ;; F'F'' x)).
+    - <span class="nb">simpl</span>.
+      <span class="nb">intros</span> x x' f.
+
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+      <span class="nb">rewrite</span> transport_f_f.
+
+      <span class="nb">rewrite</span> assoc_disp_var, transport_f_f.
+      <span class="nb">rewrite</span> &lt;- (section_nt_disp_axioms_from_section_nt_disp F'F'').
+
+      <span class="nb">rewrite</span> mor_disp_transportf_prewhisker, transport_f_f.
+
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> assoc_disp, transport_f_b.
+      <span class="nb">rewrite</span> &lt;- (section_nt_disp_axioms_from_section_nt_disp FF').
+
+      <span class="nb">rewrite</span> mor_disp_transportf_postwhisker, transport_f_f.
+
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> homset_property.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_nat_trans_id_left</span>
+      {<span class="nv">F</span> <span class="nv">F'</span>: section_disp}
+      (<span class="nv">FF'</span> : section_nat_trans_disp F F') :
+    section_nat_trans_comp (section_nat_trans_id F) FF' = FF'.
+  <span class="kn">Proof</span>.
+    use section_nat_trans_eq.
+    <span class="nb">intro</span> x.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_left_disp.
+    <span class="nb">rewrite</span> transport_f_b.
+    <span class="nb">apply</span> transportf_set.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_nat_trans_id_right</span>
+      {<span class="nv">F</span> <span class="nv">F'</span>: section_disp}
+      (<span class="nv">FF'</span> : section_nat_trans_disp F F') :
+    section_nat_trans_comp FF' (section_nat_trans_id F') = FF'.
+  <span class="kn">Proof</span>.
+    use section_nat_trans_eq.
+    <span class="nb">intro</span> x.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> id_right_disp.
+    <span class="nb">rewrite</span> transport_f_b.
+    <span class="nb">apply</span> transportf_set.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_nat_trans_assoc</span>
+      {<span class="nv">F1</span> <span class="nv">F2</span> <span class="nv">F3</span> <span class="nv">F4</span>: section_disp}
+      (<span class="nv">F12</span> : section_nat_trans_disp F1 F2)
+      (<span class="nv">F23</span> : section_nat_trans_disp F2 F3)
+      (<span class="nv">F34</span> : section_nat_trans_disp F3 F4) :
+    section_nat_trans_comp F12 (section_nat_trans_comp F23 F34) = section_nat_trans_comp (section_nat_trans_comp F12 F23) F34.
+  <span class="kn">Proof</span>.
+    use section_nat_trans_eq.
+    <span class="nb">intro</span> x.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> mor_disp_transportf_postwhisker.
+    <span class="nb">rewrite</span> mor_disp_transportf_prewhisker.
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> transport_f_f.
+    <span class="nb">rewrite</span> assoc_disp.
+    <span class="nb">rewrite</span> transport_f_b.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> homset_property.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_disp_cat</span>
+    : category.
+  <span class="kn">Proof</span>.
+    use make_category.
+    - use make_precategory.
+      + use make_precategory_data.
+        * use make_precategory_ob_mor.
+          -- <span class="bp">exact</span> section_disp.
+          -- <span class="bp">exact</span> section_nat_trans_disp.
+        * <span class="bp">exact</span> section_nat_trans_id.
+        * <span class="kp">do</span> <span class="mi">3</span> <span class="nb">intro</span>.
+          <span class="bp">exact</span> section_nat_trans_comp.
+      + use make_is_precategory_one_assoc.
+        * <span class="kp">do</span> <span class="mi">2</span> <span class="nb">intro</span>.
+          <span class="bp">exact</span> section_nat_trans_id_left.
+        * <span class="kp">do</span> <span class="mi">2</span> <span class="nb">intro</span>.
+          <span class="bp">exact</span> section_nat_trans_id_right.
+        * <span class="kp">do</span> <span class="mi">4</span> <span class="nb">intro</span>.
+          <span class="bp">exact</span> section_nat_trans_assoc.
+    - <span class="bp">exact</span> isaset_section_nat_trans_disp.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">section_disp_equality</span>
+    { <span class="nv">F</span> <span class="nv">F'</span> : section_disp }
+    (<span class="nv">homset_D</span> : ∏ x y (f : C ⟦ x, y ⟧) (c : D x) (d : D y), isaset (c --&gt;[ f] d))
+    (<span class="nv">equal_on_objects</span> : ∏ A, F A = F' A)
+    (<span class="nv">equal_on_morphisms</span> : ∏ (A A' : C) (f : A --&gt; A'),
+      transportf (<span class="k">λ</span> <span class="nv">FA</span>, FA --&gt;[f] F' A') (equal_on_objects A)
+      (transportf (<span class="k">λ</span> <span class="nv">FA'</span>, F A --&gt;[f] FA') (equal_on_objects A') (#F f))
+      = #F' f
+    )
+    : F = F'.
+  <span class="kn">Proof</span>.
+    use subtypePath.
+    { <span class="nb">intro</span>; use isaprop_section_disp_axioms; use homset_D. }
+    use invmap; [|use total2_paths_equiv|]; use tpair.
+    - use funextsec; <span class="bp">exact</span> equal_on_objects.
+    - <span class="nb">cbn</span>; etrans.
+      <span class="mi">2</span>: {
+        use funextsec; <span class="nb">intro</span> A.
+        use funextsec; <span class="nb">intro</span> A'.
+        use funextsec; <span class="nb">intro</span> f.
+        use equal_on_morphisms.
+      }
+      etrans; [use transportf_sec_constant|].
+      use funextsec; <span class="nb">intro</span> A.
+      etrans; [use transportf_sec_constant|].
+      use funextsec; <span class="nb">intro</span> A'.
+      use funextsec; <span class="nb">intro</span> f.
+      etrans.
+      { <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">x</span>, x f) _); use (transportf_funextsec_2 (<span class="k">λ</span> <span class="nv">A</span> <span class="nv">A'</span> <span class="nv">FA</span> <span class="nv">FA'</span>, ∏ f, FA --&gt;[ f ] FA')). }
+      <span class="nb">cbn</span>; etrans.
+      { use (!helper_A _ _ (equal_on_objects A) _). }
+      use maponpaths; use (!helper_A _ _ (equal_on_objects A') _).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">Sections</span>.
+
+<span class="kn">Arguments</span> section_disp_data {C} D.
+<span class="kn">Arguments</span> section_disp {C} D.
+<span class="kn">Arguments</span> section_disp_cat {C} D.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Constructions/DisplayedSections.v</tt>, line 18)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;   3. The category [section_disp_cat]
+  &gt;
+  &gt;  **************************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

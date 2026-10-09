@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CurriedTransformations.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************************</span>
+
+<span class="sd"> Curried transformations between bifunctors</span>
+
+<span class="sd"> We are also interested in transformations between bifunctors. Since in applications we use</span>
+<span class="sd"> whiskered bifunctors, we also would like to define transformations between bifunctors in a</span>
+<span class="sd"> whiskered style. For that reason, we first define curried transformations between curried</span>
+<span class="sd"> bifunctors.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Curried transformations between bifunctors</span>
+<span class="sd"> 2. Equivalence with enriched natural transformations</span>
+
+<span class="sd"> ******************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enriched.Enriched.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enriched.EnrichmentEquiv.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Examples.Tensor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Bifunctors.CurriedBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="sd">(** * 1. Curried transformations between bifunctors *)</span>
+<span class="kn">Definition</span> <span class="nf">curried_enriched_transformation_data</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           (<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃)
+  : UU
+  := ∏ (x : C₁) (y : C₂), F x y --&gt; G x y.
+
+<span class="kn">Definition</span> <span class="nf">curried_enriched_transformation_law</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           {<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃}
+           (<span class="nv">τ</span> : curried_enriched_transformation_data F G)
+  : UU
+  := ∏ (x₁ x₂ : C₁)
+       (y₁ y₂ : C₂),
+     enriched_curried_bifunctor_mor F x₁ x₂ y₁ y₂
+     · postcomp_arr _ _ (τ x₂ y₂)
+     =
+     enriched_curried_bifunctor_mor G x₁ x₂ y₁ y₂
+     · precomp_arr _ _ (τ x₁ y₁).
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_curried_enriched_transformation_law</span>
+            {<span class="nv">V</span> : sym_monoidal_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃}
+            (<span class="nv">τ</span> : curried_enriched_transformation_data F G)
+  : isaprop (curried_enriched_transformation_law τ).
+<span class="kn">Proof</span>.
+  <span class="kp">do</span> <span class="mi">4</span> (use impred ; <span class="nb">intro</span>).
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">curried_enriched_transformation</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           (<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃)
+  : UU
+  := ∑ (τ : curried_enriched_transformation_data F G),
+     curried_enriched_transformation_law τ.
+
+<span class="kn">Definition</span> <span class="nf">make_curried_enriched_transformation</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           {<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃}
+           (<span class="nv">τ</span> : curried_enriched_transformation_data F G)
+           (<span class="nv">Hτ</span> : curried_enriched_transformation_law τ)
+  : curried_enriched_transformation F G
+  := τ ,, Hτ.
+
+<span class="kn">Definition</span> <span class="nf">curried_enriched_transformation_ob</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           {<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃}
+           (<span class="nv">τ</span> : curried_enriched_transformation F G)
+           (<span class="nv">x</span> : C₁)
+           (<span class="nv">y</span> : C₂)
+  : F x y --&gt; G x y
+  := pr1 τ x y.
+
+<span class="kn">Coercion</span> <span class="nf">curried_enriched_transformation_ob</span>
+  : curried_enriched_transformation &gt;-&gt; <span class="kt">Funclass</span>.
+
+<span class="kn">Proposition</span> <span class="nf">curried_enriched_transformation_natural</span>
+            {<span class="nv">V</span> : sym_monoidal_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃}
+            (<span class="nv">τ</span> : curried_enriched_transformation F G)
+            (<span class="nv">x₁</span> <span class="nv">x₂</span> : C₁)
+            (<span class="nv">y₁</span> <span class="nv">y₂</span> : C₂)
+  : enriched_curried_bifunctor_mor F x₁ x₂ y₁ y₂
+    · postcomp_arr _ _ (τ x₂ y₂)
+    =
+    enriched_curried_bifunctor_mor G x₁ x₂ y₁ y₂
+    · precomp_arr _ _ (τ x₁ y₁).
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 τ x₁ x₂ y₁ y₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">eq_curried_enriched_transformation</span>
+            {<span class="nv">V</span> : sym_monoidal_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃}
+            {<span class="nv">τ</span> <span class="nv">θ</span> : curried_enriched_transformation F G}
+            (<span class="nv">p</span> : ∏ (x : C₁) (y : C₂), τ x y = θ x y)
+  : τ = θ.
+<span class="kn">Proof</span>.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_curried_enriched_transformation_law.
+  }
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intro</span> y.
+  <span class="bp">exact</span> (p x y).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Equivalence with enriched natural transformations *)</span>
+<span class="kn">Definition</span> <span class="nf">curried_enriched_transformation_to_nat_trans</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           {<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃}
+           (<span class="nv">τ</span> : curried_enriched_transformation F G)
+  : enriched_nat_trans
+      (enriched_curried_bifunctor_to_bifunctor F)
+      (enriched_curried_bifunctor_to_bifunctor G).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">xy</span>, enriched_from_arr _ (τ (pr1 xy) (pr2 xy))).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> xy₁ xy₂ ;
+       <span class="bp">exact</span> (curried_enriched_transformation_natural
+                τ
+                (pr1 xy₁) (pr1 xy₂) (pr2 xy₁) (pr2 xy₂))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_nat_trans_to_curried_data</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           {<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃}
+           (<span class="nv">τ</span> : enriched_nat_trans
+                  (enriched_curried_bifunctor_to_bifunctor F)
+                  (enriched_curried_bifunctor_to_bifunctor G))
+  : curried_enriched_transformation_data F G
+  := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span>, enriched_to_arr _ (τ (x ,, y)).
+
+<span class="kn">Arguments</span> enriched_nat_trans_to_curried_data {V C₁ C₂ C₃ E₁ E₂ E₃ F G} τ /.
+
+<span class="kn">Proposition</span> <span class="nf">enriched_nat_trans_to_curried_law</span>
+            {<span class="nv">V</span> : sym_monoidal_cat}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">E₃</span> : enrichment C₃ V}
+            {<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃}
+            (<span class="nv">τ</span> : enriched_nat_trans
+                   (enriched_curried_bifunctor_to_bifunctor F)
+                   (enriched_curried_bifunctor_to_bifunctor G))
+  : curried_enriched_transformation_law (enriched_nat_trans_to_curried_data τ).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x₁ x₂ y₁ y₂.
+  <span class="nb">refine</span> (_ @ pr2 τ (x₁ ,, y₁) (x₂ ,, y₂) @ _) ; <span class="nb">cbn</span>.
+  - <span class="nb">unfold</span> postcomp_arr, postcompose_underlying_morphism ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> enriched_from_to_arr.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">unfold</span> precomp_arr, precompose_underlying_morphism ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> enriched_from_to_arr.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_nat_trans_to_curried</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           {<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃}
+           (<span class="nv">τ</span> : enriched_nat_trans
+                  (enriched_curried_bifunctor_to_bifunctor F)
+                  (enriched_curried_bifunctor_to_bifunctor G))
+  : curried_enriched_transformation F G.
+<span class="kn">Proof</span>.
+  use make_curried_enriched_transformation.
+  - <span class="bp">exact</span> (enriched_nat_trans_to_curried_data τ).
+  - <span class="bp">exact</span> (enriched_nat_trans_to_curried_law τ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">enriched_nat_trans_curried_weq</span>
+           {<span class="nv">V</span> : sym_monoidal_cat}
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> : category}
+           {<span class="nv">E₁</span> : enrichment C₁ V}
+           {<span class="nv">E₂</span> : enrichment C₂ V}
+           {<span class="nv">E₃</span> : enrichment C₃ V}
+           (<span class="nv">F</span> <span class="nv">G</span> : enriched_curried_bifunctor E₁ E₂ E₃)
+  : enriched_nat_trans
+      (enriched_curried_bifunctor_to_bifunctor F)
+      (enriched_curried_bifunctor_to_bifunctor G)
+    ≃
+    curried_enriched_transformation F G.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="bp">exact</span> enriched_nat_trans_to_curried.
+  - <span class="bp">exact</span> curried_enriched_transformation_to_nat_trans.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> τ ;
+       use subtypePath ;
+       [ <span class="nb">intro</span> ; <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>) ; <span class="nb">apply</span> homset_property | ] ;
+       use funextsec ;
+       <span class="nb">intro</span> xy ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> enriched_from_to_arr).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> τ ;
+       use eq_curried_enriched_transformation ;
+       <span class="nb">intros</span> x y ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> enriched_to_from_arr).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Bifunctors/CurriedTransformations.v</tt>, line 15)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Equivalence with enriched natural transformations
+  &gt;
+  &gt;  ******************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

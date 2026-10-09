@@ -1,0 +1,323 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CatIsoDisplayed.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="c">(*</span>
+<span class="c">In this file, it is shown that the projection functor (from a displayed category to its base) is an isomorphism of categories,</span>
+<span class="c">   if the corresponding displayed category is trivial in the sense that the fibers (both over objects and morphisms) are contractible [forgetful_is_iso].</span>
+
+<span class="c">If the displayed category is univalent, the requirement that the fibers over any object are contractible can be weakenend to only requiring existence, i.e., chosen displayed objects.</span>
+
+<span class="c">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.catiso.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">DisplayedCatIso</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} (<span class="nv">D</span> : disp_cat C).
+
+  <span class="kn">Context</span>
+    (<span class="nv">uo</span> : ∏ c : C, iscontr (D c)).
+  <span class="kn">Context</span> (<span class="nv">is_contr_disp_mor</span> : ∏ (c1 c2 : C) (f : C⟦c1,c2⟧),
+              iscontr (pr1 (uo c1) --&gt;[f] (pr1 (uo c2)))).
+
+  <span class="kn">Lemma</span> <span class="nf">uf_eq</span> {<span class="nv">c1</span> <span class="nv">c2</span> : C} (<span class="nv">f</span> : C⟦c1,c2⟧)
+    : ∏ (d1 : D c1) (d2 : D c2),
+      (d1 --&gt;[f] d2) ≃ (pr1 (uo c1) --&gt;[f] pr1 (uo c2)).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d1 d2.
+    <span class="nb">assert</span> (p1 : d1 = pr1 (uo c1)).
+    {
+      <span class="nb">apply</span> uo.
+    }
+
+    <span class="nb">assert</span> (p2 : d2 = pr1 (uo c2)).
+    {
+      <span class="nb">apply</span> uo.
+    }
+
+    <span class="nb">induction</span> p1.
+    <span class="nb">induction</span> p2.
+    <span class="nb">apply</span> idweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">uf0</span> {<span class="nv">c1</span> <span class="nv">c2</span> : C} (<span class="nv">f</span> : C⟦c1,c2⟧)
+    : ∏ (d1 : D c1) (d2 : D c2), iscontr (d1 --&gt;[f] d2).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d1 d2.
+    use (iscontrweqb' (is_contr_disp_mor _ _ f)).
+    <span class="nb">apply</span> uf_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weq_hom'</span>
+    {<span class="nv">c1</span> : C} {<span class="nv">c2</span> : C}
+    (<span class="nv">f</span> : C ⟦ c1, c2 ⟧)
+    : <span class="k">∃</span>! x : (∑ f0 : C ⟦ c1, c2 ⟧,
+          pr1 (uo c1) --&gt;[ f0] pr1 (uo c2)),
+          pr1 x = f.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">simple refine</span> ((_ ,, _) ,, _).
+      + <span class="bp">exact</span> f.
+      + <span class="nb">apply</span> (pr1 (is_contr_disp_mor _ _ f)).
+      + <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> [[g gg] p].
+      use subtypePath.
+      { <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property. }
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropifcontr.
+        <span class="nb">apply</span> is_contr_disp_mor.
+      }
+      <span class="bp">exact</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weq_hom</span>
+    {<span class="nv">c1</span> : C} {<span class="nv">c2</span> : C}
+    (<span class="nv">d1</span> : D c1)
+    (<span class="nv">d2</span> : D c2)
+    (<span class="nv">f</span> : C ⟦ c1, c2 ⟧)
+    : <span class="k">∃</span>! x : (∑ f0 : C ⟦ c1, c2 ⟧, d1 --&gt;[ f0] d2), pr1 x = f.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">simple refine</span> ((_ ,, _) ,, _).
+      + <span class="bp">exact</span> f.
+      + <span class="nb">apply</span> uf0.
+      + <span class="nb">apply</span> idpath.
+    - <span class="nb">cbn</span>.
+      <span class="nb">intros</span> [[g gg] q].
+      use subtypePath.
+      { <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property. }
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isapropifcontr.
+        <span class="nb">apply</span> uf0.
+      }
+      <span class="bp">exact</span> q.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">weq_ob</span> (<span class="nv">c</span> : C)
+    : <span class="k">∃</span>! x : (∑ x : C, D x), pr1 x = c.
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">simple refine</span> ((c ,, _) ,, _).
+      + <span class="nb">apply</span> uo.
+      + <span class="nb">apply</span> idpath.
+    - <span class="nb">intros</span> [[c' d'] p].
+      <span class="nb">cbn</span> <span class="k">in</span> *.
+      use total2_paths_f.
+      + use subtypePath.
+        { <span class="nb">intro</span> ; <span class="nb">apply</span> isapropifcontr, uo. }
+        <span class="bp">exact</span> p.
+      + <span class="nb">simpl</span>.
+        etrans. {
+          <span class="nb">apply</span> (transportf_total2_paths_f
+                   (A := C) (B := <span class="k">λ</span> <span class="nv">x</span> : C, D x) (<span class="k">λ</span> <span class="nv">x</span> : C, x = c)).
+        }
+        <span class="nb">induction</span> p.
+        <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">forgetful_is_iso</span>
+    : is_catiso (pr1_category D).
+  <span class="kn">Proof</span>.
+    <span class="nb">split</span>.
+    - <span class="nb">intros</span> [c1 d1] [c2 d2] f.
+      <span class="nb">apply</span> weq_hom.
+    - <span class="nb">intro</span> c.
+      <span class="nb">apply</span> weq_ob.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">DisplayedCatIso</span>.
+
+<span class="kn">Section</span> <span class="nf">DisplayedCatIsoUnivalence</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+    (<span class="nv">D</span> : disp_cat C) (<span class="nv">Duniv</span> : is_univalent_disp D).
+
+  <span class="kn">Context</span>
+    (<span class="nv">uo</span> : ∏ c : C, D c)
+      (<span class="nv">uf</span> : ∏ (c1 c2 : C) (f : C⟦c1,c2⟧) (d1 : D c1) (d2 : D c2),
+         iscontr (d1 --&gt;[f] d2)).
+
+  <span class="kn">Lemma</span> <span class="nf">only_isos_above_an_iso</span>
+    {<span class="nv">c1</span> <span class="nv">c2</span> : C}
+    {<span class="nv">f</span> : C⟦c1,c2⟧} {<span class="nv">d1</span> : D c1} {<span class="nv">d2</span> : D c2} (<span class="nv">ff</span> : d1 --&gt;[f] d2)
+    : ∏ fi : is_z_isomorphism f, is_z_iso_disp (_ ,, fi) ff.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> fi.
+    use tpair.
+    * <span class="nb">apply</span> (uf c2 c1 (pr1 fi)).
+    * <span class="nb">split</span> ; (<span class="nb">apply</span> proofirrelevance ;
+               <span class="nb">apply</span> isapropifcontr ;
+               <span class="nb">apply</span> uf).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">only_isos_above_an_id</span>
+    {<span class="nv">c</span> : C} (<span class="nv">d1</span> <span class="nv">d2</span> : D c)
+    : is_z_iso_disp (idtoiso (idpath c)) (pr1 (uf _ _ (identity c) d1 d2)).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> only_isos_above_an_iso.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">z_iso_disp_iscontr</span>
+    {<span class="nv">c</span> : C} (<span class="nv">d1</span> <span class="nv">d2</span> : D c)
+    : iscontr (z_iso_disp (idtoiso (idpath c)) d1 d2).
+  <span class="kn">Proof</span>.
+    use tpair.
+    - <span class="nb">refine</span> (_ ,, _).
+      <span class="nb">apply</span> only_isos_above_an_id.
+    - <span class="nb">intro</span> i.
+      use subtypePath.
+      { <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_z_iso_disp. }
+      <span class="nb">apply</span> proofirrelevance.
+      <span class="nb">apply</span> isapropifcontr.
+      <span class="nb">apply</span> uf.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isaprop_uo</span> (<span class="nv">c</span> : C)
+    : isaprop (D c).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d1 d2.
+    use tpair.
+    - use (isotoid_disp Duniv (idpath c)).
+      <span class="bp">exact</span> (_ ,, only_isos_above_an_id d1 d2).
+    - <span class="nb">intro</span>.
+      <span class="nb">apply</span> proofirrelevance.
+      <span class="nb">apply</span> isapropifcontr.
+      <span class="nb">refine</span> (iscontrweqb _ (z_iso_disp_iscontr d1 d2)).
+      <span class="nb">unfold</span> is_univalent_disp <span class="k">in</span> Duniv.
+      <span class="nb">refine</span> ( _ ,, _).
+      <span class="nb">apply</span> Duniv.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">forgetful_is_iso_univ</span>
+    : is_catiso (pr1_category D).
+  <span class="kn">Proof</span>.
+    use forgetful_is_iso.
+    - <span class="nb">intro</span>.
+      use tpair.
+      + <span class="nb">apply</span> uo.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_uo.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> uf.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">DisplayedCatIsoUnivalence</span>.
+
+<span class="kn">Section</span> <span class="nf">CatIsoToContractibleFibers</span>.
+
+  <span class="kn">Context</span> {<span class="nv">C</span> : category} {<span class="nv">D</span> : disp_cat C} (<span class="nv">F</span> : is_catiso (pr1_category D)).
+
+  <span class="kn">Let</span> <span class="nf">inv_i</span> := inv_catiso (_ ,, F).
+
+  <span class="kn">Definition</span> <span class="nf">object_is_proj</span> (<span class="nv">x</span> : C)
+    : x = pr1 (inv_i x)
+    := ! homotweqinvweq  (make_weq pr1 (pr2 F)) x.
+
+  <span class="kn">Definition</span> <span class="nf">object_as_proj_equal_fibers</span> (<span class="nv">x</span> : C)
+    : D x ≃ D (pr1 (inv_i x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> (object_is_proj x).
+    <span class="nb">apply</span> idweq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Let</span> <span class="nf">W</span> := invweq (catiso_ob_weq (_ ,, F)) : ob C ≃ ∑ x : C, D x.
+
+  <span class="kn">Lemma</span> <span class="nf">catiso_is_globally_prop'</span> (<span class="nv">x</span> : C)
+    : ∏ d1 d2 : D x, x ,, d1 = x ,, d2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d1 d2.
+    <span class="nb">set</span> (g := isinclweq _ _ _ (pr2 (invweq W)) x).
+    <span class="nb">set</span> (h := g ((x ,, d1) ,, idpath _) ((x ,, d2) ,, idpath _)).
+    <span class="bp">exact</span> (base_paths _ _ (pr1 h)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">catiso_is_globally_prop</span> (<span class="nv">x</span> : C)
+    : ∏ d1 d2 : D x, d1 = d2.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> d1 d2.
+    <span class="nb">set</span> (h := total2_section_path x d2 (<span class="k">λ</span> <span class="nv">z</span>, invweq (object_as_proj_equal_fibers z) (pr2 (inv_i z)))).
+    <span class="nb">refine</span> (_ @ h (catiso_is_globally_prop' x _ d2)).
+
+    <span class="nb">set</span> (h' := total2_section_path x d1 (<span class="k">λ</span> <span class="nv">z</span>, invweq (object_as_proj_equal_fibers z) (pr2 (inv_i z)))).
+    <span class="bp">exact</span> (! h' (catiso_is_globally_prop' x _ d1)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">catiso_is_globally_contr</span> (<span class="nv">x</span> : C)
+    : iscontr (D x).
+  <span class="kn">Proof</span>.
+    use (iscontrweqb' _ (object_as_proj_equal_fibers x)).
+    use tpair.
+    - <span class="bp">exact</span> (pr2 (inv_i x)).
+    - <span class="nb">intro</span> ; <span class="nb">apply</span> catiso_is_globally_prop.
+  <span class="kn">Defined</span>.
+
+  <span class="c">(* Definition catiso_is_locally_contr'</span>
+<span class="c">    {x y : C} (f : C⟦x, y⟧)</span>
+<span class="c">    : iscontr (pr2 (inv_i x)</span>
+<span class="c">                 --&gt;[Univalence.double_transport (object_is_proj x) (object_is_proj y) f]</span>
+<span class="c">                 pr2 (inv_i y)).</span>
+<span class="c">  Proof.</span>
+<span class="c">    set (ff := pr2 (#inv_i f)).</span>
+<span class="c">  Admitted.</span>
+
+<span class="c">  Definition catiso_is_locally_contr</span>
+<span class="c">    {x y : C} (f : C⟦x, y⟧)</span>
+<span class="c">    : iscontr (pr1 (catiso_is_globally_contr x) --&gt;[f] pr1 (catiso_is_globally_contr y)).</span>
+<span class="c">  Proof.</span>
+<span class="c">    use (iscontrweqb' (catiso_is_locally_contr' f)).</span>
+
+
+<span class="c">  Defined. *)</span>
+
+<span class="kn">End</span> <span class="nf">CatIsoToContractibleFibers</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/CatIsoDisplayed.v</tt>, line 9)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

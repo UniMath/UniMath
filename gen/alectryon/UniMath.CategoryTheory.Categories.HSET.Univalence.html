@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Univalence.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * HSET is a univalent_category ([is_univalent_HSET]) *)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.Foundations.UnivalenceAxiom.
+<span class="kn">Require Import</span> UniMath.Foundations.HLevels.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.MonoEpiIso.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** HSET is a univalent_category. *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hset_id_weq_z_iso</span> (<span class="nv">A</span> <span class="nv">B</span> : ob HSET) :
+  (A = B) ≃ (z_iso A B) :=
+  weqcomp (UA_for_HLevels <span class="mi">2</span> A B) (hset_equiv_weq_z_iso A B).
+
+
+<span class="sd">(** The map [precat_paths_to_iso]</span>
+<span class="sd">    for which we need to show [isweq] is actually</span>
+<span class="sd">    equal to the carrier of the weak equivalence we</span>
+<span class="sd">    constructed above.</span>
+<span class="sd">    We use this fact to show that that [precat_paths_to_iso]</span>
+<span class="sd">    is an equivalence.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hset_id_weq_iso_is</span> (<span class="nv">A</span> <span class="nv">B</span> : ob HSET):
+    @idtoiso _ A B = pr1 (hset_id_weq_z_iso A B).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> p; <span class="nb">elim</span> p.
+  <span class="nb">apply</span> z_iso_eq; <span class="nb">simpl</span>.
+  - <span class="nb">apply</span> funextfun;
+    <span class="nb">intro</span> x;
+    <span class="nb">destruct</span> A.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_weq_precat_paths_to_iso_hset</span> (<span class="nv">A</span> <span class="nv">B</span> : ob HSET):
+   isweq (@idtoiso _ A B).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> hset_id_weq_iso_is.
+  <span class="nb">apply</span> (pr2 (hset_id_weq_z_iso A B)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">category_HSET</span> : category := make_category HSET has_homsets_HSET.
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_HSET</span> : is_univalent category_HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> a b.
+  <span class="nb">apply</span> (is_weq_precat_paths_to_iso_hset a b).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">HSET_univalent_category</span> : univalent_category := _ ,, is_univalent_HSET.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/HSET/Univalence.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * HSET is a univalent_category ([is_univalent_HSET]) *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Sets.
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

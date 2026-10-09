@@ -1,0 +1,657 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Basis.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(******************************************************************************</span>
+
+<span class="sd"> Bases in DCPOs</span>
+
+<span class="sd"> We define the notion of a basis of a DCPO. There are two possible approaches:</span>
+<span class="sd"> 1. A basis is given by a predicate on the elements of the DCPO</span>
+<span class="sd"> 2. We have a type of basis elements and a map from that type to the DCPO</span>
+<span class="sd"> For both approaches, suitable requirements need to be demanded as well.</span>
+
+<span class="sd"> We follow Section 4.7 in https://tdejong.com/writings/phd-thesis.pdf, and we</span>
+<span class="sd"> use the second approach.</span>
+
+<span class="sd"> We also study some properties of bases. First of all, we show that every</span>
+<span class="sd"> continuous DCPO comes equipped with a bases and that every DCPO with a basis</span>
+<span class="sd"> comes equipped with a continuity structure. Second, we look at the standard</span>
+<span class="sd"> properties of continuous DCPOs and we reformulate them using the basis. For</span>
+<span class="sd"> example, in a continuous DCPO the order relation can be characterized using</span>
+<span class="sd"> the approximations (i.e., `x ⊑ y` if and only if for every `z` such that</span>
+<span class="sd"> `z ≪ x`, we have `z ≪ y`). Another standard property would be interpolation:</span>
+<span class="sd"> if we have `x ≪ y`, then we can find an element of the basis `x ≪ b ≪ y`.</span>
+<span class="sd"> Lastly, we look at the mapping property of a DCPO with a basis. We look at</span>
+<span class="sd"> three properties:</span>
+<span class="sd"> 1. Two maps are equal if they are equal on the basis</span>
+<span class="sd"> 2. We have `f x ⊑ g x` for every `x` if for every basis element `b` we have</span>
+<span class="sd">   `f b ⊑ g b`</span>
+<span class="sd"> 3. If we have a monotone map from the basis to some DCPO `Y`, then we can</span>
+<span class="sd">    extend that map to `X`.</span>
+<span class="sd"> Note that the map from the third point is unique. The uniqueness would be</span>
+<span class="sd"> guaranteed if the DCPO is algebraic, but not in general if the DCPO is only</span>
+<span class="sd"> continuous.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Definition of a basis</span>
+<span class="sd"> 2. Accessors and builders for bases</span>
+<span class="sd"> 3. Bases versus continuity</span>
+<span class="sd"> 4. Approximation via bases</span>
+<span class="sd"> 5. Interpolation using bases</span>
+<span class="sd"> 6. Equality of maps via bases</span>
+<span class="sd"> 7. The order on maps via basis elements</span>
+<span class="sd"> 8. Constructing maps from their action on the basis</span>
+
+<span class="sd"> ******************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.OrderTheory.Posets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.Basics.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.ScottContinuous.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Core.WayBelow.
+<span class="kn">Require Import</span> UniMath.OrderTheory.DCPOs.Basis.Continuous.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> dcpo.
+
+<span class="kn">Unset</span> <span class="kn">Universe</span> <span class="nf">Checking</span>.
+
+<span class="kn">Section</span> <span class="nf">BasisInDCPO</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}.
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Definition of a basis</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">dcpo_basis_data</span>
+    : UU
+    := ∑ (B : UU), B → X.
+
+  <span class="kn">Coercion</span> <span class="nf">dcpo_basis_data_to_type</span>
+           (B : dcpo_basis_data)
+    : UU
+    := pr1 B.
+
+  <span class="kn">Definition</span> <span class="nf">dcpo_basis_data_to_dcpo</span>
+             (<span class="nv">B</span> : dcpo_basis_data)
+             (<span class="nv">b</span> : B)
+    : X
+    := pr2 B b.
+
+  <span class="kn">Coercion</span> <span class="nf">dcpo_basis_data_to_dcpo</span> : dcpo_basis_data &gt;-&gt; <span class="kt">Funclass</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_dcpo_basis_data</span>
+             (<span class="nv">B</span> : UU)
+             (<span class="nv">β</span> : B → X)
+    : dcpo_basis_data
+    := B ,, β.
+
+  <span class="kn">Definition</span> <span class="nf">basis_below_element</span>
+             (<span class="nv">B</span> : dcpo_basis_data)
+             (<span class="nv">x</span> : X)
+    : UU
+    := ∑ (b : B), B b ≪ x.
+
+  <span class="kn">Definition</span> <span class="nf">basis_below_map</span>
+             (<span class="nv">B</span> : dcpo_basis_data)
+             (<span class="nv">x</span> : X)
+    : basis_below_element B x → X
+    := <span class="k">λ</span> <span class="nv">b</span>, B(pr1 b).
+
+  <span class="kn">Definition</span> <span class="nf">dcpo_basis_laws</span>
+             (<span class="nv">B</span> : dcpo_basis_data)
+    : UU
+    := ∏ (x : X),
+       is_directed X (basis_below_map B x)
+       ×
+       is_least_upperbound X (basis_below_map B x) x.
+
+  <span class="kn">Definition</span> <span class="nf">dcpo_basis</span>
+    : UU
+    := ∑ (B : dcpo_basis_data), dcpo_basis_laws B.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Accessors and builders for bases</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_dcpo_basis</span>
+             (<span class="nv">B</span> : dcpo_basis_data)
+             (<span class="nv">HB</span> : dcpo_basis_laws B)
+    : dcpo_basis
+    := B ,, HB.
+
+  <span class="kn">Coercion</span> <span class="nf">dcpo_basis_to_data</span>
+           (B : dcpo_basis)
+    : dcpo_basis_data
+    := pr1 B.
+
+  <span class="kn">Coercion</span> <span class="nf">dcpo_basis_to_laws</span>
+           (B : dcpo_basis)
+    : dcpo_basis_laws B
+    := pr2 B.
+
+  <span class="kn">Proposition</span> <span class="nf">is_directed_basis</span>
+              (<span class="nv">B</span> : dcpo_basis)
+              (<span class="nv">x</span> : X)
+    : is_directed X (basis_below_map B x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr2 B x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">directed_set_from_basis</span>
+             (<span class="nv">B</span> : dcpo_basis)
+             (<span class="nv">x</span> : X)
+    : directed_set X.
+  <span class="kn">Proof</span>.
+    use make_directed_set.
+    - <span class="bp">exact</span> (basis_below_element B x).
+    - <span class="bp">exact</span> (basis_below_map B x).
+    - <span class="bp">exact</span> (is_directed_basis B x).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">is_least_upperbound_basis</span>
+              (<span class="nv">B</span> : dcpo_basis)
+              (<span class="nv">x</span> : X)
+    : is_least_upperbound X (basis_below_map B x) x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (pr2 B x)).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">approximating_basis_lub</span>
+              (<span class="nv">B</span> : dcpo_basis)
+              (<span class="nv">x</span> : X)
+    : ⨆ (directed_set_from_basis B x) = x.
+  <span class="kn">Proof</span>.
+    use antisymm_dcpo.
+    - use dcpo_lub_is_least.
+      <span class="nb">intro</span> i.
+      <span class="nb">apply</span> way_below_to_le.
+      <span class="bp">exact</span> (pr2 i).
+    - use (is_least_upperbound_is_least (is_least_upperbound_basis B x)).
+      <span class="nb">apply</span> is_least_upperbound_is_upperbound.
+      <span class="bp">exact</span> (is_least_upperbound_dcpo_lub (directed_set_from_basis B x)).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">BasisInDCPO</span>.
+
+<span class="kt">Set</span> <span class="kn">Universe</span> <span class="nf">Checking</span>.
+
+<span class="kn">Arguments</span> dcpo_basis_data : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> dcpo_basis_laws : <span class="kn">clear implicits</span>.
+<span class="kn">Arguments</span> dcpo_basis : <span class="kn">clear implicits</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Bases versus continuity</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">continuous_struct_from_basis</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">B</span> : dcpo_basis X)
+  : continuous_dcpo_struct X.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">refine</span> (directed_set_from_basis B x ,, _ ,, _).
+  - <span class="nb">intro</span> i.
+    <span class="bp">exact</span> (pr2 i).
+  - <span class="nb">apply</span> is_least_upperbound_basis.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">basis_data_from_continuous_struct</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">CX</span> : continuous_dcpo_struct X)
+  : dcpo_basis_data X.
+<span class="kn">Proof</span>.
+  use make_dcpo_basis_data.
+  - <span class="bp">exact</span> X.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">basis_laws_from_continuous_struct</span>
+            {<span class="nv">X</span> : dcpo}
+            (<span class="nv">CX</span> : continuous_dcpo_struct X)
+  : dcpo_basis_laws X (basis_data_from_continuous_struct CX).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> x.
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    + <span class="bp">exact</span> (nullary_interpolation CX x).
+    + <span class="nb">intros</span> i j.
+      <span class="nb">unfold</span> basis_below_element, basis_data_from_continuous_struct <span class="k">in</span> i, j.
+      <span class="nb">cbn</span> -[way_below] <span class="k">in</span> i, j.
+      <span class="nb">assert</span> (H := binary_interpolation CX (pr2 i) (pr2 j)).
+      <span class="nb">revert</span> H.
+      use factor_through_squash.
+      {
+        <span class="nb">apply</span> propproperty.
+      }
+      <span class="nb">intros</span> z.
+      <span class="nb">induction</span> z <span class="k">as</span> [ z [ p₁ [ p₂ p₃ ]]].
+      <span class="nb">refine</span> (hinhpr ((z ,, p₃) ,, _ ,, _)).
+      * <span class="nb">apply</span> way_below_to_le.
+        <span class="bp">exact</span> p₁.
+      * <span class="nb">apply</span> way_below_to_le.
+        <span class="bp">exact</span> p₂.
+  - <span class="nb">split</span>.
+    + <span class="nb">intros</span> i.
+      <span class="nb">induction</span> i <span class="k">as</span> [ i p ].
+      <span class="nb">apply</span> way_below_to_le.
+      <span class="bp">exact</span> p.
+    + <span class="nb">intros</span> y Hy.
+      <span class="nb">rewrite</span> &lt;- (approximating_family_lub CX x).
+      use dcpo_lub_is_least.
+      <span class="nb">intro</span> i.
+      use (Hy (approximating_family CX x i ,, _)).
+      <span class="nb">cbn</span> -[way_below].
+      <span class="nb">apply</span> approximating_family_way_below.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">basis_from_continuous_struct</span>
+           {<span class="nv">X</span> : dcpo}
+           (<span class="nv">CX</span> : continuous_dcpo_struct X)
+  : dcpo_basis X.
+<span class="kn">Proof</span>.
+  use make_dcpo_basis.
+  - <span class="bp">exact</span> (basis_data_from_continuous_struct CX).
+  - <span class="bp">exact</span> (basis_laws_from_continuous_struct CX).
+<span class="kn">Defined</span>.
+
+<span class="kn">Section</span> <span class="nf">BasisProperties</span>.
+  <span class="kn">Context</span> {<span class="nv">X</span> : dcpo}
+          (<span class="nv">B</span> : dcpo_basis X).
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Approximation via bases</span>
+<span class="sd">   *)</span>
+
+  <span class="sd">(**</span>
+<span class="sd">   We can characterize the order of the DCPO using the way-below relation</span>
+<span class="sd">   and the basis</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">dcpo_basis_le_via_approximation</span>
+              (<span class="nv">x</span> <span class="nv">y</span> : X)
+    : x ⊑ y
+      ≃
+      <span class="k">∀</span> (<span class="nv">z</span> : B), (B z ≪ x ⇒ B z ≪ y)%logic.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intros</span> p z q.
+      <span class="bp">exact</span> (trans_way_below_le q p).
+    - <span class="nb">intros</span> H.
+      <span class="nb">rewrite</span> &lt;- (approximating_basis_lub B x).
+      use dcpo_lub_is_least.
+      <span class="nb">intro</span> i.
+      <span class="nb">apply</span> way_below_to_le.
+      <span class="nb">apply</span> (H (pr1 i) (pr2 i)).
+    - <span class="nb">apply</span> propproperty.
+    - <span class="nb">apply</span> propproperty.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Let</span> <span class="nf">CX</span> : continuous_dcpo_struct X := continuous_struct_from_basis B.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Interpolation using bases</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">basis_nullary_interpolation</span>
+              (<span class="nv">x</span> : X)
+    : <span class="k">∃</span> (<span class="nv">i</span> : B), B i ≪ x.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (H := nullary_interpolation CX x).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> y.
+    <span class="nb">induction</span> y <span class="k">as</span> [ y p ].
+    <span class="nb">assert</span> (H := directed_set_el (directed_set_from_basis B y)).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> i.
+    <span class="nb">induction</span> i <span class="k">as</span> [ i q ].
+    <span class="nb">refine</span> (hinhpr (i ,, _)).
+    <span class="bp">exact</span> (trans_way_below q p).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">basis_unary_interpolation</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : X}
+              (<span class="nv">p</span> : x ≪ y)
+    : <span class="k">∃</span> (<span class="nv">i</span> : B), x ≪ B i ∧ B i ≪ y.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (H := unary_interpolation CX p).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> z.
+    <span class="nb">induction</span> z <span class="k">as</span> [ z [ q₁ q₂ ] ].
+    <span class="nb">assert</span> (r : y ⊑ ⨆ directed_set_from_basis B y).
+    {
+      <span class="nb">rewrite</span> approximating_basis_lub.
+      <span class="nb">apply</span> refl_dcpo.
+    }
+    <span class="nb">assert</span> (H := q₂ (directed_set_from_basis B y) r).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> i.
+    <span class="nb">induction</span> i <span class="k">as</span> [ [ i s₁ ] s₂ ].
+    <span class="nb">refine</span> (hinhpr (i ,, _ ,, _)).
+    - <span class="bp">exact</span> (trans_way_below_le q₁ s₂).
+    - <span class="bp">exact</span> s₁.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">basis_binary_interpolation</span>
+              {<span class="nv">x₁</span> <span class="nv">x₂</span> <span class="nv">y</span> : X}
+              (<span class="nv">p₁</span> : x₁ ≪ y)
+              (<span class="nv">p₂</span> : x₂ ≪ y)
+    : <span class="k">∃</span> (<span class="nv">i</span> : B), x₁ ≪ B i ∧ x₂ ≪ B i ∧ B i ≪ y.
+  <span class="kn">Proof</span>.
+    <span class="nb">assert</span> (H := binary_interpolation CX p₁ p₂).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> z.
+    <span class="nb">induction</span> z <span class="k">as</span> [ z [ q₁ [ q₂ q₃ ] ] ].
+    <span class="nb">assert</span> (H := basis_unary_interpolation q₃).
+    <span class="nb">revert</span> H.
+    use factor_through_squash.
+    {
+      <span class="nb">apply</span> propproperty.
+    }
+    <span class="nb">intro</span> i.
+    <span class="nb">induction</span> i <span class="k">as</span> [ i [ r₁ r₂ ]].
+    <span class="nb">refine</span> (hinhpr (i ,, _ ,, _ ,, _)).
+    - <span class="bp">exact</span> (trans_way_below q₁ r₁).
+    - <span class="bp">exact</span> (trans_way_below q₂ r₁).
+    - <span class="bp">exact</span> r₂.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. Equality of maps via bases</span>
+<span class="sd">   *)</span>
+
+  <span class="sd">(**</span>
+<span class="sd">   Two maps from a continuous DCPO to any DCPO are equal if they</span>
+<span class="sd">   are equal on the basis elements.</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">scott_continuous_map_eq_on_basis</span>
+              {<span class="nv">Y</span> : dcpo}
+              {<span class="nv">f</span> <span class="nv">g</span> : scott_continuous_map X Y}
+              (<span class="nv">p</span> : ∏ (i : B), f (B i) = g (B i))
+    : f = g.
+  <span class="kn">Proof</span>.
+    use eq_scott_continuous_map.
+    <span class="nb">intro</span> x.
+    <span class="nb">refine</span> (maponpaths f (!((approximating_basis_lub B x))) @ _).
+    <span class="nb">refine</span> (_ @ maponpaths g (approximating_basis_lub B x)).
+    <span class="nb">rewrite</span> !scott_continuous_map_on_lub.
+    use antisymm_dcpo.
+    - use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+      <span class="nb">intro</span> i.
+      use less_than_dcpo_lub ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> i.
+      + <span class="nb">unfold</span> basis_below_map.
+        <span class="nb">rewrite</span> p.
+        <span class="nb">apply</span> refl_dcpo.
+    - use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+      <span class="nb">intro</span> i.
+      use less_than_dcpo_lub ; <span class="nb">cbn</span>.
+      + <span class="bp">exact</span> i.
+      + <span class="nb">unfold</span> basis_below_map.
+        <span class="nb">rewrite</span> p.
+        <span class="nb">apply</span> refl_dcpo.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">map_eq_on_basis_if_scott_continuous</span>
+              {<span class="nv">Y</span> : dcpo}
+              {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+              (<span class="nv">p</span> : ∏ (i : B), f (B i) = g (B i))
+              (<span class="nv">Hf</span> : is_scott_continuous X Y f)
+              (<span class="nv">Hg</span> : is_scott_continuous X Y g)
+              (<span class="nv">x</span> : X)
+    : f x = g x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (maponpaths
+             (<span class="k">λ</span> <span class="nv">z</span>, pr1 z x)
+             (@scott_continuous_map_eq_on_basis Y (f ,, Hf) (g ,, Hg) p)).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   7. The order on maps via basis elements</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">scott_continuous_map_le_on_basis</span>
+              {<span class="nv">Y</span> : dcpo}
+              {<span class="nv">f</span> <span class="nv">g</span> : scott_continuous_map X Y}
+              (<span class="nv">p</span> : ∏ (i : B), f (B i) ⊑ g (B i))
+              (<span class="nv">x</span> : X)
+    : f x ⊑ g x.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> (maponpaths f (!((approximating_basis_lub B x)))).
+    <span class="nb">rewrite</span> (maponpaths g (!(approximating_basis_lub B x))).
+    <span class="nb">rewrite</span> !scott_continuous_map_on_lub.
+    use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+    <span class="nb">intro</span> i.
+    use less_than_dcpo_lub ; <span class="nb">cbn</span>.
+    - <span class="bp">exact</span> i.
+    - <span class="nb">unfold</span> basis_below_map.
+      <span class="nb">apply</span> p.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">map_le_on_basis_if_scott_continuous</span>
+              {<span class="nv">Y</span> : dcpo}
+              {<span class="nv">f</span> <span class="nv">g</span> : X → Y}
+              (<span class="nv">p</span> : ∏ (i : B), f (B i) ⊑ g (B i))
+              (<span class="nv">Hf</span> : is_scott_continuous X Y f)
+              (<span class="nv">Hg</span> : is_scott_continuous X Y g)
+              (<span class="nv">x</span> : X)
+    : f x ⊑ g x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (@scott_continuous_map_le_on_basis Y (f ,, Hf) (g ,, Hg) p x).
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   8. Constructing maps from their action on the basis</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">ScottContinuousFromBasis</span>.
+    <span class="kn">Context</span> {<span class="nv">Y</span> : dcpo}
+            (<span class="nv">f</span> : B → Y)
+            (<span class="nv">Hf</span> : ∏ (i₁ i₂ : B), B i₁ ≪ B i₂ → f i₁ ⊑ f i₂).
+
+    <span class="kn">Proposition</span> <span class="nf">is_directed_map_from_basis</span>
+                (<span class="nv">x</span> : X)
+      : is_directed Y (<span class="k">λ</span> (<span class="nv">i</span> : basis_below_element B x), f (pr1 i)).
+    <span class="kn">Proof</span>.
+      <span class="nb">split</span>.
+      - <span class="nb">assert</span> (H := directed_set_el (directed_set_from_basis B x)).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intro</span> i.
+        <span class="bp">exact</span> (hinhpr i).
+      - <span class="nb">intros</span> i j.
+        <span class="nb">induction</span> i <span class="k">as</span> [i Hix].
+        <span class="nb">induction</span> j <span class="k">as</span> [j Hjx].
+        <span class="nb">assert</span> (H := basis_binary_interpolation Hix Hjx).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intro</span> k.
+        <span class="nb">induction</span> k <span class="k">as</span>  [ k [ p [ q r ]]].
+        <span class="nb">refine</span> (hinhpr ((k ,, r) ,, _ ,, _)).
+        + <span class="nb">apply</span> Hf.
+          <span class="bp">exact</span> p.
+        + <span class="nb">apply</span> Hf.
+          <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">map_directed_set_from_basis</span>
+               (<span class="nv">x</span> : X)
+      : directed_set Y.
+    <span class="kn">Proof</span>.
+      use make_directed_set.
+      - <span class="bp">exact</span> (basis_below_element B x).
+      - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">i</span>, f (pr1 i)).
+      - <span class="bp">exact</span> (is_directed_map_from_basis x).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">map_from_basis</span>
+               (<span class="nv">x</span> : X)
+      : Y
+      := ⨆ (map_directed_set_from_basis x).
+
+    <span class="kn">Proposition</span> <span class="nf">map_from_basis_monotone</span>
+                (<span class="nv">x₁</span> <span class="nv">x₂</span> : X)
+                (<span class="nv">p</span> : x₁ ⊑ x₂)
+      : map_from_basis x₁ ⊑ map_from_basis x₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> map_from_basis.
+      use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+      <span class="nb">intro</span> i.
+      use less_than_dcpo_lub.
+      - <span class="nb">refine</span> (pr1 i ,, _).
+        <span class="bp">exact</span> (trans_way_below_le (pr2 i) p).
+      - <span class="nb">cbn</span>.
+        <span class="nb">apply</span> refl_dcpo.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">map_from_basis_lub</span>
+                (<span class="nv">D</span> : directed_set X)
+      : map_from_basis (⨆ D)
+        =
+        ⨆_{ D} (map_from_basis ,, map_from_basis_monotone).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> map_from_basis.
+      use antisymm_dcpo.
+      - <span class="nb">unfold</span> map_from_basis.
+        use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+        <span class="nb">intro</span> i.
+        <span class="nb">induction</span> i <span class="k">as</span> [ i p ] ; <span class="nb">cbn</span>.
+        <span class="nb">assert</span> (H := unary_interpolation CX p).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intro</span> H.
+        <span class="nb">induction</span> H <span class="k">as</span> [ j [ q₁ q₂ ]].
+        <span class="nb">assert</span> (H := q₂ D (refl_dcpo _)).
+        <span class="nb">revert</span> H.
+        use factor_through_squash.
+        {
+          <span class="nb">apply</span> propproperty.
+        }
+        <span class="nb">intro</span> k.
+        <span class="nb">induction</span> k <span class="k">as</span> [ k r ].
+        use less_than_dcpo_lub.
+        + <span class="bp">exact</span> k.
+        + <span class="nb">cbn</span>.
+          use less_than_dcpo_lub.
+          * <span class="nb">refine</span> (i ,, _).
+            <span class="bp">exact</span> (trans_way_below_le q₁ r).
+          * <span class="nb">cbn</span>.
+            <span class="nb">apply</span> refl_dcpo.
+      - <span class="nb">unfold</span> map_from_basis.
+        use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+        <span class="nb">intro</span> i.
+        use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+        <span class="nb">intro</span> j.
+        <span class="nb">induction</span> j <span class="k">as</span> [ j p ] ; <span class="nb">cbn</span>.
+        use less_than_dcpo_lub.
+        + <span class="nb">refine</span> (j ,, _).
+          <span class="nb">refine</span> (trans_way_below_le p _).
+          use less_than_dcpo_lub.
+          * <span class="bp">exact</span> i.
+          * <span class="nb">apply</span> refl_dcpo.
+        + <span class="nb">cbn</span>.
+          <span class="nb">apply</span> refl_dcpo.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">is_scott_continuous_map_from_basis</span>
+      : is_scott_continuous (pr2 X) (pr2 Y) map_from_basis.
+    <span class="kn">Proof</span>.
+      use make_is_scott_continuous.
+      - <span class="bp">exact</span> map_from_basis_monotone.
+      - <span class="bp">exact</span> map_from_basis_lub.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">scott_continuous_map_from_basis</span>
+      : scott_continuous_map X Y
+      := map_from_basis ,, is_scott_continuous_map_from_basis.
+
+    <span class="kn">Proposition</span> <span class="nf">scott_continuous_map_from_basis_le</span>
+                (<span class="nv">i</span> : B)
+      : scott_continuous_map_from_basis (B i) ⊑ f i.
+    <span class="kn">Proof</span>.
+      use dcpo_lub_is_least ; <span class="nb">cbn</span>.
+      <span class="nb">intro</span> j.
+      <span class="nb">induction</span> j <span class="k">as</span> [ j p ] ; <span class="nb">cbn</span>.
+      <span class="nb">apply</span> Hf.
+      <span class="bp">exact</span> p.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">scott_continuous_map_from_basis_greatest</span>
+      (<span class="nv">g</span> : scott_continuous_map X Y)
+      (<span class="nv">Hg</span> : ∏ (i : B), g (B i) ⊑ f i)
+      (<span class="nv">x</span> : X)
+      : g x ⊑ scott_continuous_map_from_basis x.
+    <span class="kn">Proof</span>.
+      <span class="nb">assert</span> (g x ⊑ g (⨆ directed_set_from_basis B x)) <span class="k">as</span> p.
+      {
+        <span class="nb">apply</span> (is_monotone_scott_continuous_map g).
+        <span class="nb">rewrite</span> (approximating_basis_lub B x).
+        <span class="nb">apply</span> refl_dcpo.
+      }
+      <span class="nb">refine</span> (trans_dcpo p _).
+      <span class="nb">rewrite</span> scott_continuous_map_on_lub.
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> map_from_basis.
+      use dcpo_lub_is_least.
+      <span class="nb">intro</span> i.
+      <span class="nb">cbn</span> <span class="k">in</span> i.
+      use less_than_dcpo_lub.
+      - <span class="bp">exact</span> i.
+      - <span class="nb">apply</span> Hg.
+    <span class="kn">Qed</span>.
+
+  <span class="kn">End</span> <span class="nf">ScottContinuousFromBasis</span>.
+<span class="kn">End</span> <span class="nf">BasisProperties</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/OrderTheory/DCPOs/Basis/Basis.v</tt>, line 43)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Constructing maps from their action on the basis
+  &gt;
+  &gt;  ******************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.OrderTheory.Posets.
+  &gt; Require Import UniMath.OrderTheory.DCPOs.Core.DirectedSets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

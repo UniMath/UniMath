@@ -1,0 +1,1964 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>BicatOfDoubleCats.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> The Bicategory of Double Categories</span>
+
+<span class="sd"> In this file, we define the bicategory of univalent double categories, and we</span>
+<span class="sd"> prove that this bicategory is univalent. To do so, we make heavy use of the</span>
+<span class="sd"> machinery of displayed bicategories.</span>
+
+<span class="sd"> The idea behind this construction is to split up the notion of double category into</span>
+<span class="sd"> several layers. More specifically, a univalent double category is a</span>
+<span class="sd"> univalent category with another collection of morphisms and a collection of squares.</span>
+<span class="sd"> As such, the starting point of this construction is the univalent bicategory of</span>
+<span class="sd"> univalent categories.</span>
+
+<span class="sd"> First, we add the collection of morphisms and squares to the structure, which is</span>
+<span class="sd"> done by a 2-sided displayed category. This construction is defined in the file</span>
+<span class="sd"> `DispBicatOfTwoSidedDispCat.v` where it is also proven that this gives rise to a</span>
+<span class="sd"> univalent bicategory.</span>
+
+<span class="sd"> Next, there are two pieces of data to add: identity morphisms and horizontal</span>
+<span class="sd"> composition. So, we define two displayed bicategories on top of the bicategory of</span>
+<span class="sd"> categories with a 2-sided displayed category</span>
+<span class="sd"> - The displayed objects of the first one are horizontal identities, the displayed</span>
+<span class="sd">   morphisms are squares that witness the lax preservation of identities, and the</span>
+<span class="sd">   displayed 2-cells are coherences (i.e., the coherence for horizontal identities</span>
+<span class="sd">   for double transformations).</span>
+<span class="sd"> - The displayed objects of the first one are functions that take horizontal</span>
+<span class="sd">   compositions, the displayed morphisms are squares that witness the lax</span>
+<span class="sd">   preservation of composition, and the displayed 2-cells are coherences (i.e., the</span>
+<span class="sd">   coherence for horizontal composition for double transformations).</span>
+<span class="sd"> We take the product of these two displayed bicategories, and we continue with the</span>
+<span class="sd"> resulting total bicategory. While the 2-cells in this bicategory are double</span>
+<span class="sd"> transformations, we need to add more structure in order to get double categories</span>
+<span class="sd"> as objects and double functors as morphisms.</span>
+
+<span class="sd"> As such, we define three displayed bicategories on top of that total bicategory.</span>
+<span class="sd"> - The displayed objects of the first one are left unitors, and the displayed</span>
+<span class="sd">   morphisms are coherences (i.e., the coherence equation for left unitors by</span>
+<span class="sd">   double functors).</span>
+<span class="sd"> - The displayed objects of the first one are right unitors, and the displayed</span>
+<span class="sd">   morphisms are coherences (i.e., the coherence equation for right unitors by</span>
+<span class="sd">   double functors).</span>
+<span class="sd"> - The displayed objects of the first one are associator, and the displayed</span>
+<span class="sd">   morphisms are coherences (i.e., the coherence equation for associator by</span>
+<span class="sd">   double functors).</span>
+<span class="sd"> Again we take the product of these three displayed bicategories, and we look</span>
+<span class="sd"> at the resulting total bicategory. The 1-cells are double functors and the 2-cells</span>
+<span class="sd"> are double transformations. However, the objects are not yet double categories:</span>
+<span class="sd"> the triangle and pentagon coherence are missing.</span>
+
+<span class="sd"> We finish the construction by taking a full subbicategory where the condition that</span>
+<span class="sd"> we require is precisely the triangle and the pentagon equation. As a consequence,</span>
+<span class="sd"> the objects of the resulting bicategory are actually double categories.</span>
+
+<span class="sd"> In every step, we also prove the displayed univalence of the involved displayed</span>
+<span class="sd"> bicategories. This allows us to prove in the end that the bicategory of double</span>
+<span class="sd"> categories is a univalent bicategory.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Two-sided displayed categories with identities</span>
+<span class="sd"> 2. Two-sided displayed categories with horizontal composition</span>
+<span class="sd"> 3. Two-sided displayed categories with identities and horizontal composition</span>
+<span class="sd"> 4. Two-sided displayed categories with left unitors</span>
+<span class="sd"> 5. Two-sided displayed categories with right unitors</span>
+<span class="sd"> 6. Two-sided displayed categories with associators</span>
+<span class="sd"> 7. Two-sided displayed categories with unitors and associators</span>
+<span class="sd"> 8. Displayed bicategory of double categories</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.DisplayedNatTrans.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Invertible_2cells.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispBicat.
+<span class="kn">Import</span> DispBicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.DispUnivalence.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfDispCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DispBicatOfTwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.DisplayedCatToBicat.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.FullSub.
+<span class="kn">Require Import</span> UniMath.Bicategories.DisplayedBicats.Examples.Prod.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleFunctor.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleTransformation.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** * 1. Two-sided displayed categories with identities *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_twosided_disp_cat_hor_id</span>
+  : disp_cat_ob_mor bicat_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD</span>, hor_id (pr12 CD)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD₁</span> <span class="nv">CD₂</span> <span class="nv">I₁</span> <span class="nv">I₂</span> <span class="nv">FFF</span>, double_functor_hor_id (pr2 FFF) I₁ I₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_id_comp_twosided_disp_cat_hor_id</span>
+  : disp_cat_id_comp
+      bicat_twosided_disp_cat
+      disp_cat_ob_mor_twosided_disp_cat_hor_id.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">I</span>, identity_hor_id I).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">FFF</span> <span class="nv">GGG</span> <span class="nv">I₁</span> <span class="nv">I₂</span> <span class="nv">I₃</span> <span class="nv">FI</span> <span class="nv">GI</span>, comp_hor_id FI GI).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_data_twosided_disp_cat_hor_id</span>
+  : disp_cat_data bicat_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_ob_mor_twosided_disp_cat_hor_id.
+  - <span class="bp">exact</span> disp_cat_id_comp_twosided_disp_cat_hor_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_1_id_comp_cells_twosided_disp_cat_hor_id</span>
+  : disp_prebicat_1_id_comp_cells bicat_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_data_twosided_disp_cat_hor_id.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD₁</span> <span class="nv">CD₂</span> <span class="nv">FFF</span> <span class="nv">GGG</span> <span class="nv">τττ</span> <span class="nv">I₁</span> <span class="nv">I₂</span> <span class="nv">FI</span> <span class="nv">GI</span>, double_nat_trans_hor_id (pr2 τττ) FI GI).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_1_ops_twosided_disp_cat_hor_id</span>
+  : disp_prebicat_ops
+      disp_prebicat_1_id_comp_cells_twosided_disp_cat_hor_id.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> CD₁ CD₂ F I₁ I₂ IF.
+    <span class="bp">exact</span> (id_twosided_disp_nat_trans_hor_id IF).
+  - <span class="nb">intros</span> CD₁ CD₂ F I₁ I₂ IF.
+    <span class="bp">exact</span> (lunitor_twosided_disp_nat_trans_hor_id IF).
+  - <span class="nb">intros</span> CD₁ CD₂ F I₁ I₂ IF.
+    <span class="bp">exact</span> (runitor_twosided_disp_nat_trans_hor_id IF).
+  - <span class="nb">intros</span> CD₁ CD₂ F I₁ I₂ IF.
+    <span class="bp">exact</span> (linvunitor_twosided_disp_nat_trans_hor_id IF).
+  - <span class="nb">intros</span> CD₁ CD₂ F I₁ I₂ IF.
+    <span class="bp">exact</span> (rinvunitor_twosided_disp_nat_trans_hor_id IF).
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ CD₄ F G H I₁ I₂ I₃ I₄ IF IG IH.
+    <span class="bp">exact</span> (rassociator_twosided_disp_nat_trans_hor_id IF IG IH).
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ CD₄ F G H I₁ I₂ I₃ I₄ IF IG IH.
+    <span class="bp">exact</span> (lassociator_twosided_disp_nat_trans_hor_id IF IG IH).
+  - <span class="nb">intros</span> CD₁ CD₂ F G H τ θ I₁ I₂ IF IG IH Iτ Iθ ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (comp_twosided_disp_nat_trans_hor_id Iτ Iθ).
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ F G₁ G₂ θ I₁ I₂ I₃ IF IG₁ IG₂ Iθ.
+    <span class="bp">exact</span> (pre_whisker_twosided_disp_nat_trans_hor_id IF Iθ).
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ F G₁ G₂ τ I₁ I₂ I₃ IF₁ IF₂ IG Iτ.
+    <span class="bp">exact</span> (post_whisker_twosided_disp_nat_trans_hor_id IG Iτ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_data_twosided_disp_cat_hor_id</span>
+  : disp_prebicat_data bicat_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_prebicat_1_id_comp_cells_twosided_disp_cat_hor_id.
+  - <span class="bp">exact</span> disp_prebicat_1_ops_twosided_disp_cat_hor_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_prebicat_laws_twosided_disp_cat_hor_id</span>
+  : disp_prebicat_laws disp_prebicat_data_twosided_disp_cat_hor_id.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isaprop_double_nat_trans_hor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_twosided_disp_cat_hor_id</span>
+  : disp_prebicat bicat_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_prebicat_data_twosided_disp_cat_hor_id.
+  - <span class="bp">exact</span> disp_prebicat_laws_twosided_disp_cat_hor_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_twosided_disp_cat_hor_id</span>
+  : disp_bicat bicat_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_prebicat_twosided_disp_cat_hor_id.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_double_nat_trans_hor_id.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">isaprop_disp_2cell_hor_id</span>
+           {<span class="nv">CD₁</span> <span class="nv">CD₂</span> : bicat_twosided_disp_cat}
+           {<span class="nv">F</span> : CD₁ --&gt; CD₂}
+           {<span class="nv">I₁</span> : disp_bicat_twosided_disp_cat_hor_id CD₁}
+           {<span class="nv">I₂</span> : disp_bicat_twosided_disp_cat_hor_id CD₂}
+           {<span class="nv">FI</span> <span class="nv">GI</span> : I₁ --&gt;[ F] I₂}
+           (<span class="nv">τ</span> <span class="nv">τ'</span> : FI ==&gt;[ id2 _ ] GI)
+  : τ = τ'.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> isaprop_double_nat_trans_hor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_invertible_2cell_hor_id_over_id</span>
+           {<span class="nv">CD₁</span> <span class="nv">CD₂</span> : bicat_twosided_disp_cat}
+           {<span class="nv">F</span> : CD₁ --&gt; CD₂}
+           {<span class="nv">I₁</span> : disp_bicat_twosided_disp_cat_hor_id CD₁}
+           {<span class="nv">I₂</span> : disp_bicat_twosided_disp_cat_hor_id CD₂}
+           {<span class="nv">FI</span> <span class="nv">GI</span> : I₁ --&gt;[ F] I₂}
+           (<span class="nv">τ</span> : FI ==&gt;[ id2 _ ] GI)
+  : is_disp_invertible_2cell
+      (id2_invertible_2cell F)
+      τ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _).
+  - <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (p := τ x) ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_right.
+    <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p.
+    <span class="nb">rewrite</span> double_id_mor_id.
+    <span class="nb">rewrite</span> double_id_mor_id <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+    <span class="nb">rewrite</span> transport_b_b_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">refine</span> (_ @ !p @ _) ; use transportf_disp_mor2_eq ; <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> isaprop_double_nat_trans_hor_id.
+  - <span class="nb">apply</span> isaprop_double_nat_trans_hor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_invertible_2cell_hor_id</span>
+           {<span class="nv">CD₁</span> <span class="nv">CD₂</span> : bicat_twosided_disp_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : CD₁ --&gt; CD₂}
+           {<span class="nv">τ</span> : invertible_2cell F G}
+           {<span class="nv">I₁</span> : disp_bicat_twosided_disp_cat_hor_id CD₁}
+           {<span class="nv">I₂</span> : disp_bicat_twosided_disp_cat_hor_id CD₂}
+           {<span class="nv">FI</span> : I₁ --&gt;[ F ] I₂}
+           {<span class="nv">GI</span> : I₁ --&gt;[ G ] I₂}
+           (<span class="nv">ττ</span> : FI ==&gt;[ τ ] GI)
+  : is_disp_invertible_2cell τ ττ.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> CD₁ CD₂ F G τ I₁ I₂ FI GI ττ.
+  use J_2_1.
+  - <span class="nb">apply</span> is_univalent_2_1_bicat_twosided_disp_cat.
+  - <span class="nb">cbn</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> is_disp_invertible_2cell_hor_id_over_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">HorIdDispInv2cell</span>.
+  <span class="kn">Context</span> {<span class="nv">CD₁</span> <span class="nv">CD₂</span> : bicat_twosided_disp_cat}
+          {<span class="nv">F</span> : CD₁ --&gt; CD₂}
+          {<span class="nv">I₁</span> : disp_bicat_twosided_disp_cat_hor_id CD₁}
+          {<span class="nv">I₂</span> : disp_bicat_twosided_disp_cat_hor_id CD₂}
+          (<span class="nv">FI</span> <span class="nv">GI</span> : I₁ --&gt;[ F] I₂).
+
+  <span class="kn">Definition</span> <span class="nf">disp_bicat_twosided_disp_cat_hor_id_weq_inv2cell</span>
+    : pr1 FI ~ pr1 GI
+      ≃
+      disp_invertible_2cell (id2_invertible_2cell F) FI GI.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> p.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_two_disp_right.
+        <span class="nb">rewrite</span> double_id_mor_id.
+        <span class="nb">rewrite</span> id_two_disp_left.
+        <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (p x).
+        }
+        use transportf_disp_mor2_eq.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> is_disp_invertible_2cell_hor_id.
+    - <span class="nb">intros</span> p x.
+      <span class="nb">pose</span> (q := pr1 p x).
+      <span class="nb">cbn</span> <span class="k">in</span> q.
+      <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> q.
+      <span class="nb">rewrite</span> double_id_mor_id <span class="k">in</span> q.
+      <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> q.
+      <span class="nb">rewrite</span> transport_b_b_disp_mor2 <span class="k">in</span> q.
+      <span class="nb">refine</span> (!_ @ maponpaths _ q @ transportfb_disp_mor2 _ _ _).
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      <span class="nb">apply</span> transportf_disp_mor2_idpath.
+    - use impred ; <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaset_disp_mor.
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> isaprop_double_nat_trans_hor_id.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">HorIdDispInv2cell</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_id</span>
+  : disp_univalent_2_1 disp_bicat_twosided_disp_cat_hor_id.
+<span class="kn">Proof</span>.
+  use fiberwise_local_univalent_is_univalent_2_1.
+  <span class="nb">intros</span> CD₁ CD₂ F I₁ I₂ FI GI.
+  use weqhomot.
+  - <span class="nb">refine</span> (disp_bicat_twosided_disp_cat_hor_id_weq_inv2cell FI GI
+            ∘ weqtoforallpaths _ _ _
+            ∘ path_sigma_hprop _ _ _ _)%weq.
+    <span class="nb">apply</span> isaprop_double_functor_hor_id_laws.
+  - <span class="nb">intro</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+    }
+    <span class="nb">apply</span> isaprop_double_nat_trans_hor_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">AdjEquivHorId</span>.
+  <span class="kn">Context</span> {<span class="nv">CD</span> : bicat_twosided_disp_cat}
+          (<span class="nv">FF</span> <span class="nv">GG</span> : disp_bicat_twosided_disp_cat_hor_id CD)
+          (<span class="nv">τ</span> : FF --&gt;[ identity CD ] GG)
+          (<span class="nv">Hτ</span> : ∏ (x : pr11 CD),
+                is_iso_twosided_disp
+                  (identity_is_z_iso _)
+                  (identity_is_z_iso _)
+                  (pr1 τ x)).
+
+  <span class="kn">Definition</span> <span class="nf">to_disp_left_adjequiv_hor_id_inv_data</span>
+    : double_functor_hor_id_data (twosided_disp_functor_identity _) GG FF
+    := <span class="k">λ</span> <span class="nv">x</span>, pr1 (Hτ x).
+
+  <span class="kn">Arguments</span> to_disp_left_adjequiv_hor_id_inv_data /.
+
+  <span class="kn">Proposition</span> <span class="nf">to_disp_left_adjequiv_hor_id_inv_laws</span>
+    : double_functor_hor_id_laws to_disp_left_adjequiv_hor_id_inv_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (pr2 τ x y f) <span class="k">as</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> id_two_disp_right_alt.
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> assoc_two_disp_alt.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (inv_after_iso_twosided_disp_alt (Hτ y)).
+    }
+    <span class="nb">rewrite</span> !two_disp_post_whisker_f.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc_two_disp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="bp">exact</span> (pr2 τ x y f).
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> !two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> !two_disp_post_whisker_f.
+    <span class="nb">rewrite</span> !transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> !assoc_two_disp.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> !two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> !transport_f_f_disp_mor2.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> Hτ.
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> !two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> !transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> !two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> !transport_f_f_disp_mor2.
+    <span class="nb">apply</span> transportf_disp_mor2_idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_disp_left_adjequiv_hor_id_inv</span>
+    : double_functor_hor_id (twosided_disp_functor_identity _) GG FF.
+  <span class="kn">Proof</span>.
+    use make_double_functor_hor_id.
+    - <span class="bp">exact</span> to_disp_left_adjequiv_hor_id_inv_data.
+    - <span class="bp">exact</span> to_disp_left_adjequiv_hor_id_inv_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_disp_left_adjequiv_hor_id_unit</span>
+    : double_nat_trans_hor_id
+        (id_twosided_disp_nat_trans (twosided_disp_functor_identity _))
+        (identity_hor_id FF)
+        (comp_hor_id τ to_disp_left_adjequiv_hor_id_inv).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">rewrite</span> two_disp_post_whisker_f.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> double_id_mor_id.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> Hτ.
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    use transportf_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_disp_left_adjequiv_hor_id_counit</span>
+    : double_nat_trans_hor_id
+        (id_twosided_disp_nat_trans (twosided_disp_functor_identity _))
+        (comp_hor_id to_disp_left_adjequiv_hor_id_inv τ)
+        (identity_hor_id GG).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !id_two_disp_right.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> !transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> double_id_mor_id.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> Hτ.
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    use transportf_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_disp_left_adjequiv_hor_id</span>
+    : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity CD) τ.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _))).
+    - <span class="bp">exact</span> to_disp_left_adjequiv_hor_id_inv.
+    - <span class="bp">exact</span> to_disp_left_adjequiv_hor_id_unit.
+    - <span class="bp">exact</span> to_disp_left_adjequiv_hor_id_counit.
+    - <span class="nb">apply</span> isaprop_double_nat_trans_hor_id.
+    - <span class="nb">apply</span> isaprop_double_nat_trans_hor_id.
+    - <span class="nb">apply</span> is_disp_invertible_2cell_hor_id.
+    - <span class="nb">apply</span> is_disp_invertible_2cell_hor_id.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">AdjEquivHorId</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_disp_left_adjequiv_hor_id_map</span>
+           {<span class="nv">CD</span> : bicat_twosided_disp_cat}
+           {<span class="nv">FF</span> <span class="nv">GG</span> : disp_bicat_twosided_disp_cat_hor_id CD}
+           (<span class="nv">τ</span> : ∏ (x : pr11 CD),
+                iso_twosided_disp
+                  (identity_z_iso x) (identity_z_iso x)
+                  (double_id (pr1 GG) x) (double_id (pr1 FF) x))
+           (<span class="nv">Hτ</span> : double_functor_hor_id_laws
+                   (FF := twosided_disp_functor_identity _)
+                   (I₁ := FF) (I₂ := GG)
+                   (<span class="k">λ</span> <span class="nv">x</span>, pr1 (τ x)))
+  : disp_adjoint_equivalence (internal_adjoint_equivalence_identity CD) FF GG.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, τ x).
+    + <span class="bp">exact</span> Hτ.
+  - use to_disp_left_adjequiv_hor_id.
+    <span class="nb">intro</span> x.
+    <span class="bp">exact</span> (pr2 (τ x)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_adjequiv_hor_id_help</span>
+           {<span class="nv">CD₁</span> <span class="nv">CD₂</span> : bicat_twosided_disp_cat}
+           (<span class="nv">F</span> : adjoint_equivalence CD₁ CD₂)
+           {<span class="nv">I₁</span> : disp_bicat_twosided_disp_cat_hor_id CD₁}
+           {<span class="nv">I₂</span> : disp_bicat_twosided_disp_cat_hor_id CD₂}
+           (<span class="nv">τ</span> : I₁ --&gt;[ F ] I₂)
+           (<span class="nv">Hτ</span> : ∏ (x : pr11 CD₁),
+                 is_iso_twosided_disp
+                   (identity_is_z_iso _)
+                   (identity_is_z_iso _)
+                   (pr1 τ x))
+  : disp_left_adjoint_equivalence F τ.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> CD₁ CD₂ F I₁ I₂ τ Hτ.
+  use J_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_twosided_disp_cat.
+  - <span class="nb">intros</span> CD I₁ I₂ τ Hτ.
+    use to_disp_left_adjequiv_hor_id.
+    <span class="bp">exact</span> Hτ.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_adjequiv_hor_id</span>
+           {<span class="nv">CD₁</span> <span class="nv">CD₂</span> : bicat_twosided_disp_cat}
+           {<span class="nv">F</span> : CD₁ --&gt; CD₂}
+           (<span class="nv">HF</span> : left_adjoint_equivalence F)
+           {<span class="nv">I₁</span> : disp_bicat_twosided_disp_cat_hor_id CD₁}
+           {<span class="nv">I₂</span> : disp_bicat_twosided_disp_cat_hor_id CD₂}
+           (<span class="nv">τ</span> : I₁ --&gt;[ F ] I₂)
+           (<span class="nv">Hτ</span> : ∏ (x : pr11 CD₁),
+                 is_iso_twosided_disp
+                   (identity_is_z_iso _)
+                   (identity_is_z_iso _)
+                   (pr1 τ x))
+  : disp_left_adjoint_equivalence HF τ.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (disp_left_adjequiv_hor_id_help (F ,, HF) τ Hτ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">FromAdjEquivHorId</span>.
+  <span class="kn">Context</span> {<span class="nv">CD</span> : bicat_twosided_disp_cat}
+          {<span class="nv">FF</span> <span class="nv">GG</span> : disp_bicat_twosided_disp_cat_hor_id CD}
+          (<span class="nv">τ</span> : disp_adjoint_equivalence (internal_adjoint_equivalence_identity CD) FF GG).
+
+  <span class="kn">Definition</span> <span class="nf">weq_disp_left_adjequiv_hor_id_inv_iso</span>
+             (<span class="nv">x</span> : pr11 CD)
+    : is_iso_twosided_disp (identity_is_z_iso x) (identity_is_z_iso x) ((pr11 τ) x).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (pr1 (pr112 τ) x).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">pose</span> (p := pr2 (pr212 τ) x) ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> double_id_mor_id <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p ;
+           <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> !transport_f_f_disp_mor2 <span class="k">in</span> p ;
+           <span class="nb">refine</span> (!(transportbf_disp_mor2 _ _ _) @ maponpaths _ p @ _) ;
+           <span class="nb">unfold</span> transportb_disp_mor2 ;
+           <span class="nb">rewrite</span> transport_f_f_disp_mor2 ;
+           use transportf_disp_mor2_eq ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">pose</span> (p := pr1 (pr212 τ) x) ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> double_id_mor_id <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p ;
+           <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> !transport_f_f_disp_mor2 <span class="k">in</span> p ;
+           <span class="nb">refine</span> (!(transportbf_disp_mor2 _ _ _) @ maponpaths _ (!p) @ _) ;
+           <span class="nb">unfold</span> transportb_disp_mor2 ;
+           <span class="nb">rewrite</span> transport_f_f_disp_mor2 ;
+           use transportf_disp_mor2_eq ;
+           <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">weq_disp_left_adjequiv_hor_id_inv_laws</span>
+    : double_functor_hor_id_laws
+        (FF := twosided_disp_functor_identity _)
+        (I₁ := FF) (I₂ := GG)
+        (<span class="k">λ</span> <span class="nv">x</span>, pr11 τ x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    <span class="bp">exact</span> (pr21 τ x y f).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">FromAdjEquivHorId</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_disp_left_adjequiv_hor_id_inv</span>
+           {<span class="nv">CD</span> : bicat_twosided_disp_cat}
+           {<span class="nv">FF</span> <span class="nv">GG</span> : disp_bicat_twosided_disp_cat_hor_id CD}
+           (<span class="nv">τ</span> : disp_adjoint_equivalence
+                  (internal_adjoint_equivalence_identity CD)
+                  FF GG)
+  : ∑ (F : ∏ (x : pr11 CD),
+           iso_twosided_disp
+             (identity_z_iso x) (identity_z_iso x)
+             (double_id (pr1 GG) x) (double_id (pr1 FF) x)),
+    double_functor_hor_id_laws
+      (FF := twosided_disp_functor_identity _)
+      (I₁ := FF) (I₂ := GG)
+      (<span class="k">λ</span> <span class="nv">x</span>, pr1 (F x)).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">intro</span> x.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (pr11 τ x).
+    + <span class="bp">exact</span> (weq_disp_left_adjequiv_hor_id_inv_iso τ x).
+  - <span class="bp">exact</span> (weq_disp_left_adjequiv_hor_id_inv_laws τ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_disp_left_adjequiv_hor_id</span>
+           {<span class="nv">CD</span> : bicat_twosided_disp_cat}
+           (<span class="nv">FF</span> <span class="nv">GG</span> : disp_bicat_twosided_disp_cat_hor_id CD)
+  : (∑ (F : ∏ (x : pr11 CD),
+            iso_twosided_disp
+              (identity_z_iso x) (identity_z_iso x)
+              (double_id (pr1 GG) x) (double_id (pr1 FF) x)),
+      double_functor_hor_id_laws
+        (FF := twosided_disp_functor_identity _)
+        (I₁ := FF) (I₂ := GG)
+        (<span class="k">λ</span> <span class="nv">x</span>, pr1 (F x)))
+    ≃
+    disp_adjoint_equivalence (internal_adjoint_equivalence_identity CD) FF GG.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intros</span> F.
+    <span class="bp">exact</span> (weq_disp_left_adjequiv_hor_id_map (pr1 F) (pr2 F)).
+  - <span class="bp">exact</span> weq_disp_left_adjequiv_hor_id_inv.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> τ ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_double_functor_hor_id_laws | ] ;
+       use funextsec ; <span class="nb">intro</span> ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> τ ;
+       use subtypePath ;
+       [ <span class="nb">intro</span> ;
+         <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence ;
+         [ <span class="nb">apply</span> is_univalent_2_1_bicat_twosided_disp_cat
+         | <span class="nb">apply</span> disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_id ]
+       | ] ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_double_functor_hor_id_laws | ] ;
+       use funextsec ; <span class="nb">intro</span> ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_twosided_disp_cat_hor_id</span>
+  : disp_univalent_2_0 disp_bicat_twosided_disp_cat_hor_id.
+<span class="kn">Proof</span>.
+  use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+  <span class="nb">intros</span> CD FF GG.
+  use weqhomot.
+  - <span class="nb">refine</span> (weq_disp_left_adjequiv_hor_id FF GG
+            ∘ weqtotal2
+                (weqonsecfibers
+                   _ _
+                   (<span class="k">λ</span> <span class="nv">x</span>,
+                    make_weq _ (pr22 CD _ _ _ _ (idpath _) (idpath _) (pr11 GG x) (pr11 FF x))
+                    ∘ weqpathsinv0 _ _)
+                 ∘ weqtoforallpaths _ _ _)
+                _
+            ∘ total2_paths_equiv _ _ _
+            ∘ path_sigma_hprop _ _ _ (isaprop_hor_id_laws _))%weq.
+    <span class="nb">induction</span> FF <span class="k">as</span> [ [ FF₁ FF₂ ] H ].
+    <span class="nb">induction</span> GG <span class="k">as</span> [ [ GG₁ GG₂ ] K ].
+    <span class="nb">intro</span> p.
+    <span class="nb">pose</span> (q := p : FF₁ = GG₁).
+    <span class="nb">assert</span> (p = q) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+    <span class="nb">induction</span> q.
+    <span class="nb">rewrite</span> X ; <span class="nb">clear</span> p X.
+    <span class="nb">cbn</span>.
+    use weqimplimpl.
+    + <span class="nb">intro</span> q.
+      <span class="nb">intros</span> x y f.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">rewrite</span> id_two_disp_left.
+      <span class="nb">rewrite</span> id_two_disp_right.
+      <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+      use transportf_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">intro</span> q.
+      use funextsec ; <span class="nb">intro</span> x.
+      use funextsec ; <span class="nb">intro</span> y.
+      use funextsec ; <span class="nb">intro</span> f.
+      <span class="nb">pose</span> (q x y f) <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+      <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p.
+      <span class="nb">rewrite</span> transport_b_b_disp_mor2 <span class="k">in</span> p.
+      <span class="nb">refine</span> (!(transportfb_disp_mor2 _ _ _) @ maponpaths _ (!p) @ _).
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      <span class="nb">apply</span> transportf_disp_mor2_idpath.
+    + <span class="kp">do</span> <span class="mi">3</span> (use impred_isaset ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaset_disp_mor.
+    + <span class="nb">apply</span> isaprop_double_functor_hor_id_laws.
+  - <span class="nb">intro</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">induction</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence.
+      - <span class="nb">apply</span> is_univalent_2_1_bicat_twosided_disp_cat.
+      - <span class="nb">apply</span> disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_id.
+    }
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_double_functor_hor_id_laws.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_twosided_disp_cat_hor_id</span>
+  : disp_univalent_2 disp_bicat_twosided_disp_cat_hor_id.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_twosided_disp_cat_hor_id.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_id.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Two-sided displayed categories with horizontal composition *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_twosided_disp_cat_hor_comp</span>
+  : disp_cat_ob_mor bicat_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD</span>, hor_comp (pr12 CD)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD₁</span> <span class="nv">CD₂</span> <span class="nv">Cm₁</span> <span class="nv">Cm₂</span> <span class="nv">FFF</span>, double_functor_hor_comp (pr2 FFF) Cm₁ Cm₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_id_comp_twosided_disp_cat_hor_comp</span>
+  : disp_cat_id_comp
+      bicat_twosided_disp_cat
+      disp_cat_ob_mor_twosided_disp_cat_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C</span> <span class="nv">Cm</span>, identity_hor_comp Cm).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">C₁</span> <span class="nv">C₂</span> <span class="nv">C₃</span> <span class="nv">FFF</span> <span class="nv">GGG</span> <span class="nv">Cm₁</span> <span class="nv">Cm₂</span> <span class="nv">Cm₃</span> <span class="nv">FC</span> <span class="nv">GC</span>, comp_hor_comp FC GC).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_data_twosided_disp_cat_hor_comp</span>
+  : disp_cat_data bicat_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_ob_mor_twosided_disp_cat_hor_comp.
+  - <span class="bp">exact</span> disp_cat_id_comp_twosided_disp_cat_hor_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_1_id_comp_cells_twosided_disp_cat_hor_comp</span>
+  : disp_prebicat_1_id_comp_cells bicat_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_data_twosided_disp_cat_hor_comp.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD₁</span> <span class="nv">CD₂</span> <span class="nv">FFF</span> <span class="nv">GGG</span> <span class="nv">τττ</span> <span class="nv">I₁</span> <span class="nv">I₂</span> <span class="nv">FC</span> <span class="nv">GC</span>, double_nat_trans_hor_comp (pr2 τττ) FC GC).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_1_ops_twosided_disp_cat_hor_comp</span>
+  : disp_prebicat_ops
+      disp_prebicat_1_id_comp_cells_twosided_disp_cat_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span>.
+  - <span class="nb">intros</span> CD₁ CD₂ F I₁ I₂ IF.
+    <span class="bp">exact</span> (id_twosided_disp_nat_trans_hor_comp IF).
+  - <span class="nb">intros</span> CD₁ CD₂ F I₁ I₂ IF.
+    <span class="bp">exact</span> (lunitor_twosided_disp_nat_trans_hor_comp IF).
+  - <span class="nb">intros</span> CD₁ CD₂ F I₁ I₂ IF.
+    <span class="bp">exact</span> (runitor_twosided_disp_nat_trans_hor_comp IF).
+  - <span class="nb">intros</span> CD₁ CD₂ F I₁ I₂ IF.
+    <span class="bp">exact</span> (linvunitor_twosided_disp_nat_trans_hor_comp IF).
+  - <span class="nb">intros</span> CD₁ CD₂ F I₁ I₂ IF.
+    <span class="bp">exact</span> (rinvunitor_twosided_disp_nat_trans_hor_comp IF).
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ CD₄ F G H I₁ I₂ I₃ I₄ IF IG IH.
+    <span class="bp">exact</span> (rassociator_twosided_disp_nat_trans_hor_comp IF IG IH).
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ CD₄ F G H I₁ I₂ I₃ I₄ IF IG IH.
+    <span class="bp">exact</span> (lassociator_twosided_disp_nat_trans_hor_comp IF IG IH).
+  - <span class="nb">intros</span> CD₁ CD₂ F G H τ θ I₁ I₂ IF IG IH Iτ Iθ ; <span class="nb">cbn</span>.
+    <span class="bp">exact</span> (comp_twosided_disp_nat_trans_hor_comp Iτ Iθ).
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ F G₁ G₂ θ I₁ I₂ I₃ IF IG₁ IG₂ Iθ.
+    <span class="bp">exact</span> (pre_whisker_twosided_disp_nat_trans_hor_comp IF Iθ).
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ F G₁ G₂ τ I₁ I₂ I₃ IF₁ IF₂ IG Iτ.
+    <span class="bp">exact</span> (post_whisker_twosided_disp_nat_trans_hor_comp IG Iτ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_data_twosided_disp_cat_hor_comp</span>
+  : disp_prebicat_data bicat_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_prebicat_1_id_comp_cells_twosided_disp_cat_hor_comp.
+  - <span class="bp">exact</span> disp_prebicat_1_ops_twosided_disp_cat_hor_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_prebicat_laws_twosided_disp_cat_hor_comp</span>
+  : disp_prebicat_laws disp_prebicat_data_twosided_disp_cat_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="kp">repeat</span> <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">apply</span> isaprop_double_nat_trans_hor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_prebicat_twosided_disp_cat_hor_comp</span>
+  : disp_prebicat bicat_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_prebicat_data_twosided_disp_cat_hor_comp.
+  - <span class="bp">exact</span> disp_prebicat_laws_twosided_disp_cat_hor_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_twosided_disp_cat_hor_comp</span>
+  : disp_bicat bicat_twosided_disp_cat.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_prebicat_twosided_disp_cat_hor_comp.
+  - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> isasetaprop.
+    <span class="nb">apply</span> isaprop_double_nat_trans_hor_comp.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_invertible_2cell_hor_comp_over_id</span>
+           {<span class="nv">CD₁</span> <span class="nv">CD₂</span> : bicat_twosided_disp_cat}
+           {<span class="nv">F</span> : CD₁ --&gt; CD₂}
+           {<span class="nv">Cm₁</span> : disp_bicat_twosided_disp_cat_hor_comp CD₁}
+           {<span class="nv">Cm₂</span> : disp_bicat_twosided_disp_cat_hor_comp CD₂}
+           {<span class="nv">FC</span> <span class="nv">GC</span> : Cm₁ --&gt;[ F ] Cm₂}
+           (<span class="nv">τ</span> : FC ==&gt;[ id2 _ ] GC)
+  : is_disp_invertible_2cell
+      (id2_invertible_2cell F)
+      τ.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _ ,, _).
+  - <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (p := τ x y z h k) ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_right.
+    <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p.
+    <span class="nb">rewrite</span> double_hor_comp_mor_id.
+    <span class="nb">rewrite</span> double_hor_comp_mor_id <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+    <span class="nb">rewrite</span> transport_b_b_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">refine</span> (_ @ !p @ _) ; use transportf_disp_mor2_eq ; <span class="nb">apply</span> idpath.
+  - <span class="nb">apply</span> isaprop_double_nat_trans_hor_comp.
+  - <span class="nb">apply</span> isaprop_double_nat_trans_hor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_invertible_2cell_hor_comp</span>
+           {<span class="nv">CD₁</span> <span class="nv">CD₂</span> : bicat_twosided_disp_cat}
+           {<span class="nv">F</span> <span class="nv">G</span> : CD₁ --&gt; CD₂}
+           {<span class="nv">τ</span> : invertible_2cell F G}
+           {<span class="nv">Cm₁</span> : disp_bicat_twosided_disp_cat_hor_comp CD₁}
+           {<span class="nv">Cm₂</span> : disp_bicat_twosided_disp_cat_hor_comp CD₂}
+           {<span class="nv">FC</span> : Cm₁ --&gt;[ F ] Cm₂}
+           {<span class="nv">GC</span> : Cm₁ --&gt;[ G ] Cm₂}
+           (<span class="nv">ττ</span> : FC ==&gt;[ τ ] GC)
+  : is_disp_invertible_2cell τ ττ.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> CD₁ CD₂ F G τ Cm₁ Cm₂ FC GC ττ.
+  use J_2_1.
+  - <span class="nb">apply</span> is_univalent_2_1_bicat_twosided_disp_cat.
+  - <span class="nb">cbn</span>.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> is_disp_invertible_2cell_hor_comp_over_id.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">HorCompDispInv2cell</span>.
+  <span class="kn">Context</span> {<span class="nv">CD₁</span> <span class="nv">CD₂</span> : bicat_twosided_disp_cat}
+          {<span class="nv">F</span> : CD₁ --&gt; CD₂}
+          {<span class="nv">Cm₁</span> : disp_bicat_twosided_disp_cat_hor_comp CD₁}
+          {<span class="nv">Cm₂</span> : disp_bicat_twosided_disp_cat_hor_comp CD₂}
+          (<span class="nv">FC</span> <span class="nv">GC</span> : Cm₁ --&gt;[ F ] Cm₂).
+
+  <span class="kn">Definition</span> <span class="nf">disp_bicat_twosided_disp_cat_hor_comp_weq_inv2cell</span>
+    : (∏ x y z h k, pr1 FC x y z h k = pr1 GC x y z h k)
+      ≃
+      disp_invertible_2cell (id2_invertible_2cell F) FC GC.
+  <span class="kn">Proof</span>.
+    use weqimplimpl.
+    - <span class="nb">intro</span> p.
+      <span class="nb">simple refine</span> (_ ,, _).
+      + <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+        <span class="nb">rewrite</span> id_two_disp_right.
+        <span class="nb">rewrite</span> double_hor_comp_mor_id.
+        <span class="nb">rewrite</span> id_two_disp_left.
+        <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (p x y z h k).
+        }
+        use transportf_disp_mor2_eq.
+        <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> is_disp_invertible_2cell_hor_comp.
+    - <span class="nb">intros</span> p x y z h k.
+      <span class="nb">pose</span> (q := pr1 p x y z h k).
+      <span class="nb">cbn</span> <span class="k">in</span> q.
+      <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> q.
+      <span class="nb">rewrite</span> double_hor_comp_mor_id <span class="k">in</span> q.
+      <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> q.
+      <span class="nb">rewrite</span> transport_b_b_disp_mor2 <span class="k">in</span> q.
+      <span class="nb">refine</span> (!_ @ maponpaths _ q @ transportfb_disp_mor2 _ _ _).
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      <span class="nb">apply</span> transportf_disp_mor2_idpath.
+    - <span class="kp">repeat</span> (use impred ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaset_disp_mor.
+    - use isaproptotal2.
+      + <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+      + <span class="nb">intros</span>.
+        <span class="nb">apply</span> isaprop_double_nat_trans_hor_comp.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">HorCompDispInv2cell</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_comp</span>
+  : disp_univalent_2_1 disp_bicat_twosided_disp_cat_hor_comp.
+<span class="kn">Proof</span>.
+  use fiberwise_local_univalent_is_univalent_2_1.
+  <span class="nb">intros</span> CD₁ CD₂ F Cm₁ Cm₂ FC GC.
+  use weqhomot.
+  - <span class="nb">refine</span> (disp_bicat_twosided_disp_cat_hor_comp_weq_inv2cell FC GC
+            ∘ weqonsecfibers
+                _ _
+                (<span class="k">λ</span> <span class="nv">x</span>,
+                 weqonsecfibers
+                   _ _
+                   (<span class="k">λ</span> <span class="nv">y</span>,
+                    weqonsecfibers
+                      _ _
+                      (<span class="k">λ</span> <span class="nv">z</span>,
+                       weqonsecfibers
+                         _ _
+                         (<span class="k">λ</span> <span class="nv">h</span>, weqtoforallpaths _ _ _)
+                       ∘ weqtoforallpaths _ _ _)
+                    ∘ weqtoforallpaths _ _ _)
+                 ∘ weqtoforallpaths _ _ _)
+            ∘ weqtoforallpaths _ _ _
+            ∘ path_sigma_hprop _ _ _ _)%weq.
+    <span class="nb">apply</span> isaprop_double_functor_hor_comp_laws.
+  - <span class="nb">intro</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_disp_invertible_2cell.
+    }
+    <span class="nb">apply</span> isaprop_double_nat_trans_hor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">AdjEquivHorComp</span>.
+  <span class="kn">Context</span> {<span class="nv">CD</span> : bicat_twosided_disp_cat}
+          (<span class="nv">FF</span> <span class="nv">GG</span> : disp_bicat_twosided_disp_cat_hor_comp CD)
+          (<span class="nv">τ</span> : FF --&gt;[ identity CD ] GG)
+          (<span class="nv">Hτ</span> : ∏ (x y z : pr11 CD)
+                  (h : pr12 CD x y)
+                  (k : pr12 CD y z),
+                is_iso_twosided_disp
+                  (identity_is_z_iso _)
+                  (identity_is_z_iso _)
+                  (pr1 τ x y z h k)).
+
+  <span class="kn">Definition</span> <span class="nf">to_disp_left_adjequiv_hor_comp_inv_data</span>
+    : double_functor_hor_comp_data (twosided_disp_functor_identity _) GG FF
+    := <span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">k</span>, pr1 (Hτ x y z h k).
+
+  <span class="kn">Arguments</span> to_disp_left_adjequiv_hor_id_inv_data /.
+
+  <span class="kn">Proposition</span> <span class="nf">to_disp_left_adjequiv_hor_comp_inv_laws</span>
+    : double_functor_hor_comp_laws to_disp_left_adjequiv_hor_comp_inv_data.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂ ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (pr2 τ x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂) <span class="k">as</span> p ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> id_two_disp_right_alt.
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> assoc_two_disp_alt.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">3</span> <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> (inv_after_iso_twosided_disp_alt (Hτ _ _ _ _ _)).
+    }
+    <span class="nb">rewrite</span> !two_disp_post_whisker_f.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    etrans.
+    {
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> assoc_two_disp.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> (pr2 τ).
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> !two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> !two_disp_post_whisker_f.
+    <span class="nb">rewrite</span> !transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> !assoc_two_disp.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> !two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> !transport_f_f_disp_mor2.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> Hτ.
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> !two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> !transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> !two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> !transport_f_f_disp_mor2.
+    <span class="nb">apply</span> transportf_disp_mor2_idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_disp_left_adjequiv_hor_comp_inv</span>
+    : double_functor_hor_comp (twosided_disp_functor_identity _) GG FF.
+  <span class="kn">Proof</span>.
+    use make_double_functor_hor_comp.
+    - <span class="bp">exact</span> to_disp_left_adjequiv_hor_comp_inv_data.
+    - <span class="bp">exact</span> to_disp_left_adjequiv_hor_comp_inv_laws.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_disp_left_adjequiv_hor_comp_unit</span>
+    : double_nat_trans_hor_comp
+        (id_twosided_disp_nat_trans (twosided_disp_functor_identity _))
+        (identity_hor_comp FF)
+        (comp_hor_comp τ to_disp_left_adjequiv_hor_comp_inv).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> two_disp_post_whisker_f.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> double_hor_comp_mor_id.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">refine</span> (!_).
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> Hτ.
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    use transportf_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">to_disp_left_adjequiv_hor_comp_counit</span>
+    : double_nat_trans_hor_comp
+        (id_twosided_disp_nat_trans (twosided_disp_functor_identity _))
+        (comp_hor_comp to_disp_left_adjequiv_hor_comp_inv τ)
+        (identity_hor_comp GG).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y z h k ; <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !id_two_disp_right.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> !transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> double_hor_comp_mor_id.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> Hτ.
+    }
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    use transportf_disp_mor2_eq.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">to_disp_left_adjequiv_hor_comp</span>
+    : disp_left_adjoint_equivalence (internal_adjoint_equivalence_identity CD) τ.
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> ((_ ,, (_ ,, _)) ,, ((_ ,, _) ,, (_ ,, _))).
+    - <span class="bp">exact</span> to_disp_left_adjequiv_hor_comp_inv.
+    - <span class="bp">exact</span> to_disp_left_adjequiv_hor_comp_unit.
+    - <span class="bp">exact</span> to_disp_left_adjequiv_hor_comp_counit.
+    - <span class="nb">apply</span> isaprop_double_nat_trans_hor_comp.
+    - <span class="nb">apply</span> isaprop_double_nat_trans_hor_comp.
+    - <span class="nb">apply</span> is_disp_invertible_2cell_hor_comp.
+    - <span class="nb">apply</span> is_disp_invertible_2cell_hor_comp.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">AdjEquivHorComp</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_disp_left_adjequiv_hor_comp_map</span>
+           {<span class="nv">CD</span> : bicat_twosided_disp_cat}
+           {<span class="nv">FF</span> <span class="nv">GG</span> : disp_bicat_twosided_disp_cat_hor_comp CD}
+           (<span class="nv">τ</span> : ∏ (x y z : pr11 CD)
+                  (h : pr12 CD x y)
+                  (k : pr12 CD y z),
+                iso_twosided_disp
+                  (identity_z_iso _) (identity_z_iso _)
+                  (double_hor_comp (pr1 GG) h k)
+                  (double_hor_comp (pr1 FF) h k))
+           (<span class="nv">Hτ</span> : double_functor_hor_comp_laws
+                   (FF := twosided_disp_functor_identity _)
+                   (Cm₁ := FF) (Cm₂ := GG)
+                   (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">k</span>, pr1 (τ x y z h k)))
+  : disp_adjoint_equivalence (internal_adjoint_equivalence_identity CD) FF GG.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> τ.
+    + <span class="bp">exact</span> Hτ.
+  - use to_disp_left_adjequiv_hor_comp.
+    <span class="nb">intros</span> x y z h k.
+    <span class="bp">exact</span> (pr2 (τ x y z h k)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_adjequiv_hor_comp_help</span>
+           {<span class="nv">CD₁</span> <span class="nv">CD₂</span> : bicat_twosided_disp_cat}
+           (<span class="nv">F</span> : adjoint_equivalence CD₁ CD₂)
+           {<span class="nv">Cm₁</span> : disp_bicat_twosided_disp_cat_hor_comp CD₁}
+           {<span class="nv">Cm₂</span> : disp_bicat_twosided_disp_cat_hor_comp CD₂}
+           (<span class="nv">τ</span> : Cm₁ --&gt;[ F ] Cm₂)
+           (<span class="nv">Hτ</span> : ∏ (x y z : pr11 CD₁)
+                   (h : pr12 CD₁ x y)
+                   (k : pr12 CD₁ y z),
+                 is_iso_twosided_disp
+                   (identity_is_z_iso _)
+                   (identity_is_z_iso _)
+                   (pr1 τ x y z h k))
+  : disp_left_adjoint_equivalence F τ.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> CD₁ CD₂ F Cm₁ Cm₂ τ Hτ.
+  use J_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_twosided_disp_cat.
+  - <span class="nb">intros</span> CD I₁ I₂ τ Hτ.
+    use to_disp_left_adjequiv_hor_comp.
+    <span class="bp">exact</span> Hτ.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_left_adjequiv_hor_comp</span>
+           {<span class="nv">CD₁</span> <span class="nv">CD₂</span> : bicat_twosided_disp_cat}
+           {<span class="nv">F</span> : CD₁ --&gt; CD₂}
+           (<span class="nv">HF</span> : left_adjoint_equivalence F)
+           {<span class="nv">Cm₁</span> : disp_bicat_twosided_disp_cat_hor_comp CD₁}
+           {<span class="nv">Cm₂</span> : disp_bicat_twosided_disp_cat_hor_comp CD₂}
+           (<span class="nv">τ</span> : Cm₁ --&gt;[ F ] Cm₂)
+           (<span class="nv">Hτ</span> : ∏ (x y z : pr11 CD₁)
+                   (h : pr12 CD₁ x y)
+                   (k : pr12 CD₁ y z),
+                 is_iso_twosided_disp
+                   (identity_is_z_iso _)
+                   (identity_is_z_iso _)
+                   (pr1 τ x y z h k))
+  : disp_left_adjoint_equivalence HF τ.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (disp_left_adjequiv_hor_comp_help (F ,, HF) τ Hτ).
+<span class="kn">Qed</span>.
+
+<span class="kn">Section</span> <span class="nf">FromAdjEquivHorComp</span>.
+  <span class="kn">Context</span> {<span class="nv">CD</span> : bicat_twosided_disp_cat}
+          {<span class="nv">FF</span> <span class="nv">GG</span> : disp_bicat_twosided_disp_cat_hor_comp CD}
+          (<span class="nv">τ</span> : disp_adjoint_equivalence (internal_adjoint_equivalence_identity CD) FF GG).
+
+  <span class="kn">Definition</span> <span class="nf">weq_disp_left_adjequiv_hor_comp_inv_iso</span>
+             {<span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> : pr11 CD}
+             (<span class="nv">h</span> : pr12 CD x y)
+             (<span class="nv">k</span> : pr12 CD y z)
+    : is_iso_twosided_disp (identity_is_z_iso x) (identity_is_z_iso z) (pr11 τ x y z h k).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> (pr1 (pr112 τ) x y z h k).
+    - <span class="nb">split</span>.
+      + <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">pose</span> (p := pr2 (pr212 τ) x y z h k) ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> double_hor_comp_mor_id <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p ;
+           <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> !transport_f_f_disp_mor2 <span class="k">in</span> p ;
+           <span class="nb">refine</span> (!(transportbf_disp_mor2 _ _ _) @ maponpaths _ p @ _) ;
+           <span class="nb">unfold</span> transportb_disp_mor2 ;
+           <span class="nb">rewrite</span> transport_f_f_disp_mor2 ;
+           use transportf_disp_mor2_eq ;
+           <span class="nb">apply</span> idpath).
+      + <span class="kp">abstract</span>
+          (<span class="nb">pose</span> (p := pr1 (pr212 τ) x y z h k) ;
+           <span class="nb">cbn</span> <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> double_hor_comp_mor_id <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p ;
+           <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p ;
+           <span class="nb">rewrite</span> !transport_f_f_disp_mor2 <span class="k">in</span> p ;
+           <span class="nb">refine</span> (!(transportbf_disp_mor2 _ _ _) @ maponpaths _ (!p) @ _) ;
+           <span class="nb">unfold</span> transportb_disp_mor2 ;
+           <span class="nb">rewrite</span> transport_f_f_disp_mor2 ;
+           use transportf_disp_mor2_eq ;
+           <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">weq_disp_left_adjequiv_hor_comp_inv_laws</span>
+    : double_functor_hor_comp_laws
+        (FF := twosided_disp_functor_identity _)
+        (Cm₁ := FF) (Cm₂ := GG)
+        (<span class="k">λ</span> <span class="nv">x</span>, pr11 τ x).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> x y f.
+    <span class="bp">exact</span> (pr21 τ x y f).
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">FromAdjEquivHorComp</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_disp_left_adjequiv_hor_comp_inv</span>
+           {<span class="nv">CD</span> : bicat_twosided_disp_cat}
+           {<span class="nv">FF</span> <span class="nv">GG</span> : disp_bicat_twosided_disp_cat_hor_comp CD}
+           (<span class="nv">τ</span> : disp_adjoint_equivalence
+                  (internal_adjoint_equivalence_identity CD)
+                  FF GG)
+  : ∑ (F : ∏ (x y z : pr11 CD)
+             (h : pr12 CD x y)
+             (k : pr12 CD y z),
+           iso_twosided_disp
+             (identity_z_iso _) (identity_z_iso _)
+             (double_hor_comp (pr1 GG) h k)
+             (double_hor_comp (pr1 FF) h k)),
+    double_functor_hor_comp_laws
+      (FF := twosided_disp_functor_identity _)
+      (Cm₁ := FF) (Cm₂ := GG)
+      (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">k</span>, pr1 (F x y z h k)).
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="nb">intros</span> x y z h k.
+    <span class="nb">simple refine</span> (_ ,, _).
+    + <span class="bp">exact</span> (pr11 τ x y z h k).
+    + <span class="bp">exact</span> (weq_disp_left_adjequiv_hor_comp_inv_iso τ h k).
+  - <span class="bp">exact</span> (weq_disp_left_adjequiv_hor_comp_inv_laws τ).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_disp_left_adjequiv_hor_comp</span>
+           {<span class="nv">CD</span> : bicat_twosided_disp_cat}
+           (<span class="nv">FF</span> <span class="nv">GG</span> : disp_bicat_twosided_disp_cat_hor_comp CD)
+  : (∑ (F : ∏ (x y z : pr11 CD)
+              (h : pr12 CD x y)
+              (k : pr12 CD y z),
+            iso_twosided_disp
+              (identity_z_iso _) (identity_z_iso _)
+              (double_hor_comp (pr1 GG) h k)
+              (double_hor_comp (pr1 FF) h k)),
+     double_functor_hor_comp_laws
+       (FF := twosided_disp_functor_identity _)
+       (Cm₁ := FF) (Cm₂ := GG)
+       (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">h</span> <span class="nv">k</span>, pr1 (F x y z h k)))
+    ≃
+    disp_adjoint_equivalence (internal_adjoint_equivalence_identity CD) FF GG.
+<span class="kn">Proof</span>.
+  use weq_iso.
+  - <span class="nb">intros</span> F.
+    <span class="bp">exact</span> (weq_disp_left_adjequiv_hor_comp_map (pr1 F) (pr2 F)).
+  - <span class="bp">exact</span> weq_disp_left_adjequiv_hor_comp_inv.
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> τ ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_double_functor_hor_comp_laws | ] ;
+       <span class="kp">repeat</span> (use funextsec ; <span class="nb">intro</span>) ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_is_iso_twosided_disp | ] ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> τ ;
+       use subtypePath ;
+       [ <span class="nb">intro</span> ;
+         <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence ;
+         [ <span class="nb">apply</span> is_univalent_2_1_bicat_twosided_disp_cat
+         | <span class="nb">apply</span> disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_comp ]
+       | ] ;
+       use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isaprop_double_functor_hor_comp_laws | ] ;
+       use funextsec ; <span class="nb">intro</span> ;
+       <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_twosided_disp_cat_hor_comp</span>
+  : disp_univalent_2_0 disp_bicat_twosided_disp_cat_hor_comp.
+<span class="kn">Proof</span>.
+  use fiberwise_univalent_2_0_to_disp_univalent_2_0.
+  <span class="nb">intros</span> CD FF GG.
+  use weqhomot.
+  - <span class="nb">refine</span> (weq_disp_left_adjequiv_hor_comp FF GG
+            ∘ weqtotal2
+                (weqonsecfibers
+                   _ _
+                   (<span class="k">λ</span> <span class="nv">x</span>,
+                    weqonsecfibers
+                      _ _
+                      (<span class="k">λ</span> <span class="nv">y</span>,
+                       weqonsecfibers
+                         _ _
+                         (<span class="k">λ</span> <span class="nv">z</span>,
+                          weqonsecfibers
+                            _ _
+                            (<span class="k">λ</span> <span class="nv">h</span>,
+                             weqonsecfibers
+                               _ _
+                               (<span class="k">λ</span> <span class="nv">k</span>,
+                                make_weq _ (pr22 CD _ _ _ _ (idpath _) (idpath _) _ _)
+                                ∘ weqpathsinv0 _ _)
+                             ∘ weqtoforallpaths _ _ _)
+                          ∘ weqtoforallpaths _ _ _)
+                       ∘ weqtoforallpaths _ _ _)
+                    ∘ weqtoforallpaths _ _ _)
+                 ∘ weqtoforallpaths _ _ _)
+                _
+            ∘ total2_paths_equiv _ _ _
+            ∘ path_sigma_hprop _ _ _ (isaprop_hor_comp_laws _))%weq.
+    <span class="nb">cbn</span>.
+    <span class="nb">induction</span> FF <span class="k">as</span> [ [ FF₁ FF₂ ] H ].
+    <span class="nb">induction</span> GG <span class="k">as</span> [ [ GG₁ GG₂ ] K ].
+    <span class="nb">intro</span> p.
+    <span class="nb">pose</span> (q := p : FF₁ = GG₁).
+    <span class="nb">assert</span> (p = q) <span class="bp">by</span> <span class="nb">apply</span> idpath.
+    <span class="nb">induction</span> q.
+    <span class="nb">rewrite</span> X ; <span class="nb">clear</span> p X.
+    <span class="nb">cbn</span>.
+    use weqimplimpl.
+    + <span class="nb">intro</span> q.
+      <span class="nb">intros</span> x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ h₂ k₁ k₂ s₁ s₂ ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> q.
+      <span class="nb">rewrite</span> id_two_disp_left.
+      <span class="nb">rewrite</span> id_two_disp_right.
+      <span class="nb">rewrite</span> transport_b_b_disp_mor2.
+      use transportf_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    + <span class="nb">intro</span> q.
+      use funextsec ; <span class="nb">intro</span> x₁.
+      use funextsec ; <span class="nb">intro</span> x₂.
+      use funextsec ; <span class="nb">intro</span> y₁.
+      use funextsec ; <span class="nb">intro</span> y₂.
+      use funextsec ; <span class="nb">intro</span> z₁.
+      use funextsec ; <span class="nb">intro</span> z₂.
+      use funextsec ; <span class="nb">intro</span> v₁.
+      use funextsec ; <span class="nb">intro</span> v₂.
+      use funextsec ; <span class="nb">intro</span> v₃.
+      use funextsec ; <span class="nb">intro</span> h₁.
+      use funextsec ; <span class="nb">intro</span> h₂.
+      use funextsec ; <span class="nb">intro</span> k₁.
+      use funextsec ; <span class="nb">intro</span> k₂.
+      use funextsec ; <span class="nb">intro</span> s₁.
+      use funextsec ; <span class="nb">intro</span> s₂.
+      <span class="nb">pose</span> (q x₁ x₂ y₁ y₂ z₁ z₂ v₁ v₂ v₃ h₁ k₁ h₂ k₂ s₁ s₂) <span class="k">as</span> p.
+      <span class="nb">cbn</span> <span class="k">in</span> p.
+      <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+      <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p.
+      <span class="nb">rewrite</span> transport_b_b_disp_mor2 <span class="k">in</span> p.
+      <span class="nb">refine</span> (!(transportfb_disp_mor2 _ _ _) @ maponpaths _ (!p) @ _).
+      <span class="nb">unfold</span> transportb_disp_mor2.
+      <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+      <span class="nb">apply</span> transportf_disp_mor2_idpath.
+    + <span class="kp">do</span> <span class="mi">15</span> (use impred_isaset ; <span class="nb">intro</span>).
+      <span class="nb">apply</span> isaset_disp_mor.
+    + <span class="nb">apply</span> isaprop_double_functor_hor_comp_laws.
+  - <span class="nb">intro</span> p.
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">induction</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_disp_left_adjoint_equivalence.
+      - <span class="nb">apply</span> is_univalent_2_1_bicat_twosided_disp_cat.
+      - <span class="nb">apply</span> disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_comp.
+    }
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_double_functor_hor_comp_laws.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_twosided_disp_cat_hor_comp</span>
+  : disp_univalent_2 disp_bicat_twosided_disp_cat_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_twosided_disp_cat_hor_comp.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_comp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 3. Two-sided displayed categories with identities and horizontal composition *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_twosided_disp_cat_id_hor_comp</span>
+  : disp_bicat bicat_twosided_disp_cat
+  := disp_dirprod_bicat
+       disp_bicat_twosided_disp_cat_hor_id
+       disp_bicat_twosided_disp_cat_hor_comp.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_1_disp_bicat_twosided_disp_cat_id_hor_comp</span>
+  : disp_univalent_2_1 disp_bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Proof</span>.
+  use is_univalent_2_1_dirprod_bicat.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_id.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_twosided_disp_cat_hor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_0_disp_bicat_twosided_disp_cat_id_hor_comp</span>
+  : disp_univalent_2_0 disp_bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Proof</span>.
+  use is_univalent_2_0_dirprod_bicat.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_twosided_disp_cat.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_twosided_disp_cat_hor_id.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_twosided_disp_cat_hor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_disp_bicat_twosided_disp_cat_id_hor_comp</span>
+  : disp_univalent_2 disp_bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_twosided_disp_cat_id_hor_comp.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_twosided_disp_cat_id_hor_comp</span>
+  : bicat
+  := total_bicat disp_bicat_twosided_disp_cat_id_hor_comp.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_bicat_twosided_disp_cat_id_hor_comp</span>
+  : is_univalent_2_1 bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_1.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_twosided_disp_cat.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_bicat_twosided_disp_cat_id_hor_comp</span>
+  : is_univalent_2_0 bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_twosided_disp_cat.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_bicat_twosided_disp_cat_id_hor_comp</span>
+  : is_univalent_2 bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_twosided_disp_cat_id_hor_comp.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 4. Two-sided displayed categories with left unitors *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_lunitor</span>
+  : disp_cat_ob_mor bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD</span>, double_cat_lunitor (pr12 CD) (pr22 CD)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD₁</span> <span class="nv">CD₂</span> <span class="nv">l₁</span> <span class="nv">l₂</span> <span class="nv">FF</span>, double_functor_lunitor l₁ l₂ (pr12 FF) (pr22 FF)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_id_comp_lunitor</span>
+  : disp_cat_id_comp
+      bicat_twosided_disp_cat_id_hor_comp
+      disp_cat_ob_mor_lunitor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> CD l.
+    <span class="bp">exact</span> (identity_functor_lunitor l).
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ FF GG l₁ l₂ l₃ FFl GGl.
+    <span class="bp">exact</span> (comp_functor_lunitor FFl GGl).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_data_lunitor</span>
+  : disp_cat_data bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_ob_mor_lunitor.
+  - <span class="bp">exact</span> disp_cat_id_comp_lunitor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_lunitor</span>
+  : disp_bicat bicat_twosided_disp_cat_id_hor_comp
+  := disp_cell_unit_bicat disp_cat_data_lunitor.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_lunitor</span>
+  : disp_univalent_2_1 disp_bicat_lunitor.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat_univalent_2_1.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isaprop_double_functor_lunitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_lunitor</span>
+  : disp_univalent_2_0 disp_bicat_lunitor.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat_univalent_2_0.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_twosided_disp_cat_id_hor_comp.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_double_functor_lunitor.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaset_double_cat_lunitor.
+  - <span class="nb">intros</span> CD FF GG H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ H₁ H₂ ].
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_double_lunitor_laws.
+    }
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intro</span> f.
+    <span class="nb">pose</span> (p := H₁ x y f).
+    <span class="nb">pose</span> (q := H₂ x y f).
+    <span class="nb">cbn</span> <span class="k">in</span> p, q.
+    <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p.
+    <span class="nb">rewrite</span> two_disp_pre_whisker_b <span class="k">in</span> p.
+    <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> double_hor_comp_mor_id <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+    <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2 <span class="k">in</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+    }
+    <span class="nb">refine</span> (_ @ !p).
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> transportf_disp_mor2_idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_lunitor</span>
+  : disp_univalent_2 disp_bicat_lunitor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_lunitor.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_lunitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_left_adjoint_equivalence_disp_bicat_lunitor_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_twosided_disp_cat_id_hor_comp}
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+           {<span class="nv">l₁</span> : disp_bicat_lunitor C₁}
+           {<span class="nv">l₂</span> : disp_bicat_lunitor C₂}
+           (<span class="nv">Fl</span> : l₁ --&gt;[ F ] l₂)
+  : disp_left_adjoint_equivalence F Fl.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> C₁ C₂ F l₁ l₂ Fl.
+  use J_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_twosided_disp_cat_id_hor_comp.
+  - <span class="nb">intros</span> C l₁ l₂ Fl.
+    use disp_cell_unit_bicat_left_adjoint_equivalence.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (p := Fl x y f) ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> double_hor_comp_mor_id.
+    <span class="nb">rewrite</span> double_hor_comp_mor_id <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+    <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> two_disp_pre_whisker_f <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+    <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> p.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> transportf_disp_mor2_idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_left_adjoint_equivalence_disp_bicat_lunitor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_twosided_disp_cat_id_hor_comp}
+           {<span class="nv">F</span> : C₁ --&gt; C₂}
+           (<span class="nv">HF</span> : left_adjoint_equivalence F)
+           {<span class="nv">l₁</span> : disp_bicat_lunitor C₁}
+           {<span class="nv">l₂</span> : disp_bicat_lunitor C₂}
+           (<span class="nv">Fl</span> : l₁ --&gt;[ F ] l₂)
+  : disp_left_adjoint_equivalence HF Fl.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (is_disp_left_adjoint_equivalence_disp_bicat_lunitor_help (F ,, HF) Fl).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 5. Two-sided displayed categories with right unitors *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_runitor</span>
+  : disp_cat_ob_mor bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD</span>, double_cat_runitor (pr12 CD) (pr22 CD)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD₁</span> <span class="nv">CD₂</span> <span class="nv">l₁</span> <span class="nv">l₂</span> <span class="nv">FF</span>, double_functor_runitor l₁ l₂ (pr12 FF) (pr22 FF)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_id_comp_runitor</span>
+  : disp_cat_id_comp
+      bicat_twosided_disp_cat_id_hor_comp
+      disp_cat_ob_mor_runitor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> CD l.
+    <span class="bp">exact</span> (identity_functor_runitor l).
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ FF GG l₁ l₂ l₃ FFl GGl.
+    <span class="bp">exact</span> (comp_functor_runitor FFl GGl).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_data_runitor</span>
+  : disp_cat_data bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_ob_mor_runitor.
+  - <span class="bp">exact</span> disp_cat_id_comp_runitor.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_runitor</span>
+  : disp_bicat bicat_twosided_disp_cat_id_hor_comp
+  := disp_cell_unit_bicat disp_cat_data_runitor.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_runitor</span>
+  : disp_univalent_2_1 disp_bicat_runitor.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat_univalent_2_1.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isaprop_double_functor_runitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_runitor</span>
+  : disp_univalent_2_0 disp_bicat_runitor.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat_univalent_2_0.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_twosided_disp_cat_id_hor_comp.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_double_functor_runitor.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaset_double_cat_runitor.
+  - <span class="nb">intros</span> CD FF GG H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ H₁ H₂ ].
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_double_runitor_laws.
+    }
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intro</span> f.
+    <span class="nb">pose</span> (p := H₁ x y f).
+    <span class="nb">pose</span> (q := H₂ x y f).
+    <span class="nb">cbn</span> <span class="k">in</span> p, q.
+    <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p.
+    <span class="nb">rewrite</span> two_disp_pre_whisker_b <span class="k">in</span> p.
+    <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> double_hor_comp_mor_id <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+    <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2 <span class="k">in</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+    }
+    <span class="nb">refine</span> (_ @ !p).
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> transportf_disp_mor2_idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_runitor</span>
+  : disp_univalent_2 disp_bicat_runitor.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_runitor.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_runitor.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_left_adjoint_equivalence_disp_bicat_runitor_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_twosided_disp_cat_id_hor_comp}
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+           {<span class="nv">r₁</span> : disp_bicat_runitor C₁}
+           {<span class="nv">r₂</span> : disp_bicat_runitor C₂}
+           (<span class="nv">Fr</span> : r₁ --&gt;[ F ] r₂)
+  : disp_left_adjoint_equivalence F Fr.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> C₁ C₂ F r₁ r₂ Fr.
+  use J_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_twosided_disp_cat_id_hor_comp.
+  - <span class="nb">intros</span> C r₁ r₂ Fr.
+    use disp_cell_unit_bicat_left_adjoint_equivalence.
+    <span class="nb">intros</span> x y f ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (p := Fr x y f) ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> double_hor_comp_mor_id.
+    <span class="nb">rewrite</span> double_hor_comp_mor_id <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+    <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> two_disp_pre_whisker_f <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+    <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> p.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">refine</span> (!_).
+    <span class="nb">apply</span> transportf_disp_mor2_idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_left_adjoint_equivalence_disp_bicat_runitor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_twosided_disp_cat_id_hor_comp}
+           {<span class="nv">F</span> : C₁ --&gt; C₂}
+           (<span class="nv">HF</span> : left_adjoint_equivalence F)
+           {<span class="nv">r₁</span> : disp_bicat_runitor C₁}
+           {<span class="nv">r₂</span> : disp_bicat_runitor C₂}
+           (<span class="nv">Fr</span> : r₁ --&gt;[ F ] r₂)
+  : disp_left_adjoint_equivalence HF Fr.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (is_disp_left_adjoint_equivalence_disp_bicat_runitor_help (F ,, HF) Fr).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 6. Two-sided displayed categories with associators *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_cat_ob_mor_lassociator</span>
+  : disp_cat_ob_mor bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD</span>, double_cat_associator (pr22 CD)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">CD₁</span> <span class="nv">CD₂</span> <span class="nv">a₁</span> <span class="nv">a₂</span> <span class="nv">FF</span>, double_functor_associator a₁ a₂ (pr22 FF)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_id_comp_lassociator</span>
+  : disp_cat_id_comp
+      bicat_twosided_disp_cat_id_hor_comp
+      disp_cat_ob_mor_lassociator.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> identity_functor_associator.
+  - <span class="nb">intros</span> CD₁ CD₂ CD₃ FF GG a₁ a₂ a₃ FFa GGa.
+    <span class="bp">exact</span> (comp_functor_associator FFa GGa).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_cat_data_lassociator</span>
+  : disp_cat_data bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Proof</span>.
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> disp_cat_ob_mor_lassociator.
+  - <span class="bp">exact</span> disp_cat_id_comp_lassociator.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_bicat_lassociator</span>
+  : disp_bicat bicat_twosided_disp_cat_id_hor_comp
+  := disp_cell_unit_bicat disp_cat_data_lassociator.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_1_disp_bicat_lassociator</span>
+  : disp_univalent_2_1 disp_bicat_lassociator.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat_univalent_2_1.
+  <span class="nb">intros</span>.
+  <span class="nb">apply</span> isaprop_double_functor_associator.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_0_disp_bicat_lassociator</span>
+  : disp_univalent_2_0 disp_bicat_lassociator.
+<span class="kn">Proof</span>.
+  use disp_cell_unit_bicat_univalent_2_0.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_twosided_disp_cat_id_hor_comp.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaprop_double_functor_associator.
+  - <span class="nb">intros</span>.
+    <span class="nb">apply</span> isaset_double_cat_associator.
+  - <span class="nb">intros</span> CD FF GG H.
+    <span class="nb">induction</span> H <span class="k">as</span> [ H₁ H₂ ].
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_double_associator_laws.
+    }
+    use funextsec ; <span class="nb">intro</span> w.
+    use funextsec ; <span class="nb">intro</span> x.
+    use funextsec ; <span class="nb">intro</span> y.
+    use funextsec ; <span class="nb">intro</span> z.
+    use funextsec ; <span class="nb">intro</span> f.
+    use funextsec ; <span class="nb">intro</span> g.
+    use funextsec ; <span class="nb">intro</span> h.
+    <span class="nb">pose</span> (p := H₁ w x y z f g h).
+    <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p.
+    <span class="nb">rewrite</span> double_hor_comp_mor_id <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_b_b_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> double_hor_comp_mor_id <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+    <span class="nb">rewrite</span> two_disp_pre_whisker_b <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_b_b_disp_mor2 <span class="k">in</span> p.
+    use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> isaprop_is_iso_twosided_disp.
+    }
+    <span class="nb">refine</span> (_ @ maponpaths _ (!p) @ transportfb_disp_mor2 _ _ _).
+    <span class="nb">refine</span> (!_).
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">apply</span> transportf_disp_mor2_idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">disp_univalent_2_disp_bicat_lassociator</span>
+  : disp_univalent_2 disp_bicat_lassociator.
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="bp">exact</span> disp_univalent_2_0_disp_bicat_lassociator.
+  - <span class="bp">exact</span> disp_univalent_2_1_disp_bicat_lassociator.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_left_adjoint_equivalence_disp_bicat_lassociator_help</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_twosided_disp_cat_id_hor_comp}
+           (<span class="nv">F</span> : adjoint_equivalence C₁ C₂)
+           {<span class="nv">a₁</span> : disp_bicat_lassociator C₁}
+           {<span class="nv">a₂</span> : disp_bicat_lassociator C₂}
+           (<span class="nv">Fa</span> : a₁ --&gt;[ F ] a₂)
+  : disp_left_adjoint_equivalence F Fa.
+<span class="kn">Proof</span>.
+  <span class="nb">revert</span> C₁ C₂ F a₁ a₂ Fa.
+  use J_2_0.
+  - <span class="bp">exact</span> is_univalent_2_0_bicat_twosided_disp_cat_id_hor_comp.
+  - <span class="nb">intros</span> C a₁ a₂ Fa.
+    use disp_cell_unit_bicat_left_adjoint_equivalence.
+    <span class="nb">intros</span> w x y z f g h ; <span class="nb">cbn</span>.
+    <span class="nb">pose</span> (p := Fa w x y z f g h) ; <span class="nb">cbn</span> <span class="k">in</span> p.
+    <span class="nb">rewrite</span> !double_hor_comp_mor_id.
+    <span class="nb">rewrite</span> !double_hor_comp_mor_id <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_right.
+    <span class="nb">rewrite</span> id_two_disp_right.
+    <span class="nb">rewrite</span> id_two_disp_right.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_right <span class="k">in</span> p.
+    <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> two_disp_pre_whisker_f.
+    <span class="nb">rewrite</span> id_two_disp_left.
+    <span class="nb">unfold</span> transportb_disp_mor2.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2.
+    <span class="nb">rewrite</span> two_disp_pre_whisker_f <span class="k">in</span> p.
+    <span class="nb">rewrite</span> id_two_disp_left <span class="k">in</span> p.
+    <span class="nb">unfold</span> transportb_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">rewrite</span> transport_f_f_disp_mor2 <span class="k">in</span> p.
+    <span class="nb">refine</span> (_ @ !p @ _).
+    + use transportf_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+    + use transportf_disp_mor2_eq.
+      <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_disp_left_adjoint_equivalence_disp_bicat_lassociator</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : bicat_twosided_disp_cat_id_hor_comp}
+           {<span class="nv">F</span> : C₁ --&gt; C₂}
+           (<span class="nv">HF</span> : left_adjoint_equivalence F)
+           {<span class="nv">a₁</span> : disp_bicat_lassociator C₁}
+           {<span class="nv">a₂</span> : disp_bicat_lassociator C₂}
+           (<span class="nv">Fa</span> : a₁ --&gt;[ F ] a₂)
+  : disp_left_adjoint_equivalence HF Fa.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (is_disp_left_adjoint_equivalence_disp_bicat_lassociator_help (F ,, HF) Fa).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 7. Two-sided displayed categories with unitors and associators *)</span>
+<span class="kn">Definition</span> <span class="nf">disp_bicat_unitors_and_associator</span>
+  : disp_bicat bicat_twosided_disp_cat_id_hor_comp
+  := disp_dirprod_bicat
+       disp_bicat_lunitor
+       (disp_dirprod_bicat
+          disp_bicat_runitor
+          disp_bicat_lassociator).
+
+<span class="kn">Proposition</span> <span class="nf">disp_univalent_2_disp_bicat_unitors_and_associator</span>
+  : disp_univalent_2 disp_bicat_unitors_and_associator.
+<span class="kn">Proof</span>.
+  use is_univalent_2_dirprod_bicat.
+  - <span class="bp">exact</span> is_univalent_2_1_bicat_twosided_disp_cat_id_hor_comp.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_lunitor.
+  - use is_univalent_2_dirprod_bicat.
+    + <span class="bp">exact</span> is_univalent_2_1_bicat_twosided_disp_cat_id_hor_comp.
+    + <span class="bp">exact</span> disp_univalent_2_disp_bicat_runitor.
+    + <span class="bp">exact</span> disp_univalent_2_disp_bicat_lassociator.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">bicat_unitors_and_associator</span>
+  : bicat
+  := total_bicat disp_bicat_unitors_and_associator.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_bicat_unitors_and_associator</span>
+  : is_univalent_2 bicat_unitors_and_associator.
+<span class="kn">Proof</span>.
+  use total_is_univalent_2.
+  - <span class="bp">exact</span> disp_univalent_2_disp_bicat_unitors_and_associator.
+  - <span class="bp">exact</span> is_univalent_2_bicat_twosided_disp_cat_id_hor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_1_bicat_unitors_and_associator</span>
+  : is_univalent_2_1 bicat_unitors_and_associator.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr2 is_univalent_2_bicat_unitors_and_associator).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_0_bicat_unitors_and_associator</span>
+  : is_univalent_2_0 bicat_unitors_and_associator.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 is_univalent_2_bicat_unitors_and_associator).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 8. Displayed bicategory of double categories *)</span>
+<span class="kn">Definition</span> <span class="nf">bicat_of_double_cats</span>
+  : bicat
+  := fullsubbicat bicat_unitors_and_associator
+       (<span class="k">λ</span> <span class="nv">CD</span>,
+        <span class="k">let</span> <span class="nv">l</span> := pr12 CD <span class="k">in</span>
+        <span class="k">let</span> <span class="nv">r</span> := pr122 CD <span class="k">in</span>
+        <span class="k">let</span> <span class="nv">a</span> := pr222 CD <span class="k">in</span>
+        triangle_law l r a × pentagon_law a).
+
+<span class="kn">Definition</span> <span class="nf">is_univalent_2_bicat_of_double_cats</span>
+  : is_univalent_2 bicat_of_double_cats.
+<span class="kn">Proof</span>.
+  use is_univalent_2_fullsubbicat.
+  - <span class="bp">exact</span> is_univalent_2_bicat_unitors_and_associator.
+  - <span class="nb">intros</span> L.
+    <span class="nb">apply</span> isapropdirprod.
+    + <span class="nb">apply</span> isaprop_triangle_law.
+    + <span class="nb">apply</span> isaprop_pentagon_law.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Core/BicatOfDoubleCats.v</tt>, line 70)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Displayed bicategory of double categories
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

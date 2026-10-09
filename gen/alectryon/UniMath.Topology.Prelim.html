@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Prelim.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Additional theorems *)</span>
+
+<span class="kn">Require Export</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Subtypes.
+<span class="kn">Require Export</span> UniMath.Combinatorics.StandardFiniteSets.
+<span class="kn">Require Export</span> UniMath.Combinatorics.FVectors.
+<span class="kn">Require Export</span> UniMath.Combinatorics.FLists.
+<span class="kn">Require Export</span> UniMath.Foundations.NaturalNumbers.
+
+<span class="kn">Require Export</span> UniMath.Tactics.EnsureStructuredProofs.
+
+<span class="sd">(** ** hProp *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">hinhuniv2'</span> {<span class="nv">P</span> <span class="nv">X</span> <span class="nv">Y</span> : UU} :
+  isaprop P → (X → Y → P) → (∥ X ∥ → ∥ Y ∥ → P).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> HP Hxy.
+  <span class="nb">apply</span> (hinhuniv2 (P := make_hProp _ HP)).
+  <span class="bp">exact</span> Hxy.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** A new tactic *)</span>
+
+<span class="kn">Ltac</span> <span class="nf">apply_pr2</span> T :=
+  <span class="kp">first</span> [ <span class="nb">refine</span> (pr2 (T) _)
+        | <span class="nb">refine</span> (pr2 (T _) _)
+        | <span class="nb">refine</span> (pr2 (T _ _) _)
+        | <span class="nb">refine</span> (pr2 (T _ _ _) _)
+        | <span class="nb">refine</span> (pr2 (T _ _ _ _) _)
+        | <span class="nb">refine</span> (pr2 (T _ _ _ _ _) _)
+        | <span class="nb">refine</span> (pr2 (T))
+        | <span class="nb">refine</span> (pr2 (T _))
+        | <span class="nb">refine</span> (pr2 (T _ _))
+        | <span class="nb">refine</span> (pr2 (T _ _ _))
+        | <span class="nb">refine</span> (pr2 (T _ _ _ _))
+        | <span class="nb">refine</span> (pr2 (T _ _ _ _ _)) ].
+
+<span class="kn">Ltac</span> <span class="nf">apply_pr2_in</span> T H :=
+  <span class="kp">first</span> [ <span class="nb">apply</span> (pr2 (T)) <span class="k">in</span> H
+        | <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">H0</span>, pr2 (T H0)) <span class="k">in</span> H
+        | <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">H0</span> <span class="nv">H1</span>, pr2 (T H0 H1)) <span class="k">in</span> H
+        | <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">H0</span> <span class="nv">H1</span> <span class="nv">H2</span>, pr2 (T H0 H1 H2)) <span class="k">in</span> H
+        | <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">H0</span> <span class="nv">H1</span> <span class="nv">H2</span> <span class="nv">H3</span>, pr2 (T H0 H1 H2 H3)) <span class="k">in</span> H
+        | <span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">H0</span> <span class="nv">H1</span> <span class="nv">H2</span> <span class="nv">H3</span> <span class="nv">H4</span>, pr2 (T H0 H1 H2 H3 H4)) <span class="k">in</span> H ].
+
+<span class="sd">(** ** About nat *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">max_le_l</span> : ∏ n m : nat, (n ≤ max n m)%nat.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn] ; <span class="nb">simpl</span> max.
+  - <span class="nb">intros</span> m ; <span class="bp">reflexivity</span>.
+  - <span class="nb">induction</span> m <span class="k">as</span> [ | m _].
+    + <span class="bp">now</span> <span class="nb">apply</span> isreflnatleh.
+    + <span class="bp">now</span> <span class="nb">apply</span> IHn.
+<span class="kn">Qed</span>.
+<span class="kn">Lemma</span> <span class="nf">max_le_r</span> : ∏ n m : nat, (m ≤ max n m)%nat.
+<span class="kn">Proof</span>.
+  <span class="nb">induction</span> n <span class="k">as</span> [ | n IHn] ; <span class="nb">simpl</span> max.
+  - <span class="nb">intros</span> m ; <span class="bp">now</span> <span class="nb">apply</span> isreflnatleh.
+  - <span class="nb">induction</span> m <span class="k">as</span> [ | m _].
+    + <span class="bp">reflexivity</span>.
+    + <span class="bp">now</span> <span class="nb">apply</span> IHn.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** ** More about Sequence *)</span>
+
+<span class="kn">Definition</span> <span class="nf">singletonSequence</span> {<span class="nv">X</span>} (<span class="nv">A</span> : X) : Sequence X := (<span class="mi">1</span> ,, <span class="k">λ</span> <span class="nv">_</span>, A).
+<span class="kn">Definition</span> <span class="nf">pairSequence</span> {<span class="nv">X</span>} (<span class="nv">A</span> <span class="nv">B</span> : X) : Sequence X.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="mi">2</span>.
+  <span class="nb">intros</span> m.
+  <span class="nb">induction</span> m <span class="k">as</span> [m _].
+  <span class="nb">induction</span> m <span class="k">as</span> [ | _ _].
+  - <span class="bp">exact</span> A.
+  - <span class="bp">exact</span> B.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** More about sets *)</span>
+<span class="sd">(** union *)</span>
+
+<span class="kn">Definition</span> <span class="nf">union</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : (X → hProp) → hProp) : X → hProp :=
+  <span class="k">λ</span> <span class="nv">x</span> : X, <span class="k">∃</span> <span class="nv">A</span> : X → hProp, P A × A x.
+
+<span class="kn">Lemma</span> <span class="nf">union_hfalse</span> {<span class="nv">X</span> : UU} :
+  union (<span class="k">λ</span> <span class="nv">_</span> : X → hProp, hfalse) = (<span class="k">λ</span> <span class="nv">_</span> : X, hfalse).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextfun ; <span class="nb">intros</span> x.
+  <span class="nb">apply</span> hPropUnivalence.
+  - <span class="nb">apply</span> hinhuniv.
+    <span class="nb">intros</span> A.
+    <span class="nb">apply</span> (pr1 (pr2 A)).
+  - <span class="nb">apply</span> fromempty.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">union_or</span> {<span class="nv">X</span> : UU} :
+  ∏ A B : X → hProp,
+    union (<span class="k">λ</span> <span class="nv">C</span> : X → hProp, C = A ∨ C = B)
+    = (<span class="k">λ</span> <span class="nv">x</span> : X, A x ∨ B x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B.
+  <span class="nb">apply</span> funextfun ; <span class="nb">intro</span> x.
+  <span class="nb">apply</span> hPropUnivalence.
+  - <span class="nb">apply</span> hinhuniv.
+    <span class="nb">intros</span> C.
+    <span class="nb">generalize</span> (pr1 (pr2 C)).
+    <span class="nb">apply</span> hinhfun.
+    <span class="nb">apply</span> sumofmaps.
+    + <span class="nb">intro</span> e.
+      <span class="nb">rewrite</span> &lt;- e.
+      <span class="nb">left</span>.
+      <span class="nb">apply</span> (pr2 (pr2 C)).
+    + <span class="nb">intro</span> e.
+      <span class="nb">rewrite</span> &lt;- e.
+      <span class="nb">right</span>.
+      <span class="nb">apply</span> (pr2 (pr2 C)).
+  - <span class="nb">apply</span> hinhfun ; <span class="nb">apply</span> sumofmaps ; [ <span class="nb">intros</span> Ax | <span class="nb">intros</span> Bx].
+    + <span class="k">exists</span> <span class="nv">A</span>.
+      <span class="nb">split</span>.
+      * <span class="nb">apply</span> hinhpr.
+        <span class="bp">now</span> <span class="nb">left</span>.
+      * <span class="bp">exact</span> Ax.
+    + <span class="k">exists</span> <span class="nv">B</span>.
+      <span class="nb">split</span>.
+      * <span class="nb">apply</span> hinhpr.
+        <span class="bp">now</span> <span class="nb">right</span>.
+      * <span class="bp">exact</span> Bx.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">union_hProp</span> {<span class="nv">X</span> : UU} :
+  ∏ (P : (X → hProp) → hProp),
+    (∏ (L : (X → hProp) → hProp), (∏ A, L A → P A) → P (union L))
+    → (∏ A B, P A → P B → P (<span class="k">λ</span> <span class="nv">x</span> : X, A x ∨ B x)).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P Hp A B Pa Pb.
+  <span class="nb">rewrite</span> &lt;- union_or.
+  <span class="nb">apply</span> Hp.
+  <span class="nb">intros</span> C.
+  <span class="nb">apply</span> hinhuniv.
+  <span class="bp">now</span> <span class="nb">apply</span> sumofmaps ; <span class="nb">intros</span> -&gt;.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> logic.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> subtype.
+
+<span class="kn">Lemma</span> <span class="nf">union_not_contained_in</span> {<span class="nv">X</span> : UU} (<span class="nv">U</span> : (X -&gt; hProp) -&gt; hProp) (<span class="nv">S</span> : X -&gt; hProp) :
+  union U ⊈ S ⇔ (<span class="k">∃</span> <span class="nv">T</span>, U T ∧ T ⊈ S).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> subtype_notContainedIn, union.
+  use make_dirprod; <span class="nb">intro</span> H.
+  - use (hinhuniv _ H); <span class="nb">intro</span> Hx.
+    <span class="nb">induction</span> Hx <span class="k">as</span> [x Hx]. <span class="nb">induction</span> Hx <span class="k">as</span> [Hx HSx].
+    use (hinhfun _ Hx); <span class="nb">intro</span> HT.
+    <span class="nb">induction</span> HT <span class="k">as</span> [T HT].
+    <span class="k">exists</span> <span class="nv">T</span>. use make_dirprod.
+    + <span class="bp">exact</span> (dirprod_pr1 HT).
+    + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">x</span>.
+      <span class="bp">exact</span> (make_dirprod (dirprod_pr2 HT) HSx).
+  - use (hinhuniv _ H); <span class="nb">intro</span> HT.
+    <span class="nb">induction</span> HT <span class="k">as</span> [T HT].
+    use (hinhfun _ (dirprod_pr2 HT)); <span class="nb">intro</span> Hx.
+    <span class="nb">induction</span> Hx <span class="k">as</span> [x Hx].
+    <span class="k">exists</span> <span class="nv">x</span>. use make_dirprod.
+    + <span class="nb">apply</span> hinhpr. <span class="k">exists</span> <span class="nv">T</span>.
+      <span class="bp">exact</span> (make_dirprod (dirprod_pr1 HT) (dirprod_pr1 Hx)).
+    + <span class="bp">exact</span> (dirprod_pr2 Hx).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** finite intersection *)</span>
+
+<span class="kn">Definition</span> <span class="nf">finite_intersection</span> {<span class="nv">X</span> : UU} (<span class="nv">P</span> : Sequence (X → hProp)) : X → hProp.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x.
+  <span class="nb">simple refine</span> (make_hProp _ _).
+  - <span class="nb">apply</span> (∏ n, P n x).
+  - <span class="nb">apply</span> (impred_isaprop _ (<span class="k">λ</span> <span class="nv">_</span>, propproperty _)).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">finite_intersection_htrue</span> {<span class="nv">X</span> : UU} :
+  finite_intersection nil = (<span class="k">λ</span> <span class="nv">_</span> : X, htrue).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextfun ; <span class="nb">intros</span> x.
+  <span class="nb">apply</span> hPropUnivalence.
+  - <span class="nb">intros</span> _.
+    <span class="nb">apply</span> tt.
+  - <span class="nb">intros</span> _ m.
+    <span class="nb">generalize</span> (pr1 m) (pr2 m).
+    <span class="nb">intros</span> m' Hm.
+    <span class="nb">apply</span> fromempty.
+    <span class="nb">revert</span> Hm.
+    <span class="nb">apply</span> negnatlthn0.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">finite_intersection_1</span> {<span class="nv">X</span> : UU} :
+  ∏ (A : X → hProp),
+    finite_intersection (singletonSequence A) = A.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A.
+  <span class="nb">apply</span> funextfun ; <span class="nb">intros</span> x.
+  <span class="nb">apply</span> hPropUnivalence.
+  - <span class="nb">intros</span> H.
+    <span class="nb">simple refine</span> (H _).
+    <span class="bp">now</span> <span class="k">exists</span> <span class="mi">0</span>.
+ - <span class="nb">intros</span> Lx m.
+   <span class="bp">exact</span> Lx.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">finite_intersection_and</span> {<span class="nv">X</span> : UU} :
+  ∏ A B : X → hProp,
+    finite_intersection (pairSequence A B)
+    = (<span class="k">λ</span> <span class="nv">x</span> : X, A x ∧ B x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A B.
+  <span class="nb">apply</span> funextfun ; <span class="nb">intro</span> x.
+  <span class="nb">apply</span> hPropUnivalence.
+  - <span class="nb">intros</span> H.
+    <span class="nb">split</span>.
+    + <span class="nb">simple refine</span> (H (<span class="mi">0</span>,,_)).
+      <span class="bp">reflexivity</span>.
+    + <span class="nb">simple refine</span> (H (<span class="mi">1</span>,,_)).
+      <span class="bp">reflexivity</span>.
+  - <span class="nb">intros</span> H m ; <span class="nb">simpl</span>.
+    <span class="nb">change</span> m <span class="k">with</span> (pr1 m,,pr2 m).
+    <span class="nb">generalize</span> (pr1 m) (pr2 m).
+    <span class="nb">clear</span> m.
+    <span class="nb">intros</span> m Hm.
+    <span class="nb">induction</span> m <span class="k">as</span> [ | m _].
+    + <span class="nb">apply</span> (pr1 H).
+    + <span class="nb">apply</span> (pr2 H).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">finite_intersection_case</span> {<span class="nv">X</span> : UU} :
+  ∏ (L : Sequence (X → hProp)),
+  finite_intersection L =
+  sumofmaps (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span>, htrue)
+            (<span class="k">λ</span> (<span class="nv">AB</span> : (X → hProp) × Sequence (X → hProp)) (<span class="nv">x</span> : X), pr1 AB x ∧ finite_intersection (pr2 AB) x)
+            (disassembleSequence L).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> L.
+  <span class="nb">apply</span> funextfun ; <span class="nb">intros</span> x.
+  <span class="nb">apply</span> hPropUnivalence.
+  - <span class="nb">intros</span> Hx.
+    <span class="nb">induction</span> L <span class="k">as</span> [n L].
+    <span class="nb">induction</span> n <span class="k">as</span> [ | n _] ; <span class="nb">simpl</span>.
+    + <span class="nb">apply</span> tt.
+    + <span class="nb">split</span>.
+      * <span class="nb">simple refine</span> (Hx _).
+      * <span class="nb">intros</span> m.
+        <span class="nb">simple refine</span> (Hx _).
+  - <span class="nb">induction</span> L <span class="k">as</span> [n L].
+    <span class="nb">induction</span> n <span class="k">as</span> [ | n _] ; <span class="nb">simpl</span>.
+    + <span class="nb">intros</span> _ n.
+      <span class="nb">apply</span> fromempty.
+      <span class="nb">induction</span> (negnatlthn0 _ (pr2 n)).
+    + <span class="nb">intros</span> Hx m.
+      <span class="nb">change</span> m <span class="k">with</span> (pr1 m,,pr2 m).
+      <span class="nb">generalize</span> (pr1 m) (pr2 m) ;
+        <span class="nb">clear</span> m ;
+        <span class="nb">intros</span> m Hm.
+      <span class="nb">induction</span> (natlehchoice _ _ (natlthsntoleh _ _ Hm)) <span class="k">as</span> [Hm' | -&gt;].
+      * <span class="nb">generalize</span> (pr2 Hx (m,,Hm')).
+        <span class="nb">unfold</span> dni_lastelement ; <span class="nb">simpl</span>.
+        <span class="nb">assert</span> (H : Hm = natlthtolths m n Hm' ).
+        { <span class="nb">apply</span> (pr2 (natlth m (S n))). }
+        <span class="bp">now</span> <span class="nb">rewrite</span> H.
+      * <span class="nb">assert</span> (H : lastelement = (n,, Hm)).
+        { <span class="bp">now</span> <span class="nb">apply</span> subtypePath_prop. }
+        <span class="nb">rewrite</span> &lt;- H.
+        <span class="bp">exact</span> (pr1 Hx).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">finite_intersection_append</span> {<span class="nv">X</span> : UU} :
+  ∏ (A : X → hProp) (L : Sequence (X → hProp)),
+    finite_intersection (append L A) = (<span class="k">λ</span> <span class="nv">x</span> : X, A x ∧ finite_intersection L x).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> A L.
+  <span class="nb">rewrite</span> finite_intersection_case.
+  <span class="nb">simpl</span>.
+  <span class="nb">rewrite</span> append_vec_compute_2.
+  <span class="nb">apply</span> funextfun ; <span class="nb">intro</span> x.
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">apply</span> map_on_two_paths.
+  - <span class="nb">induction</span> L <span class="k">as</span> [n L] ; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> funextfun ; <span class="nb">intro</span> m.
+    <span class="nb">simpl</span>.
+    <span class="nb">rewrite</span> &lt;- replace_dni_last.
+    <span class="nb">apply</span> append_vec_compute_1.
+  - <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">finite_intersection_hProp</span> {<span class="nv">X</span> : UU} :
+  ∏ (P : (X → hProp) → hProp),
+    (∏ (L : Sequence (X → hProp)), (∏ n, P (L n)) → P (finite_intersection L))
+    &lt;-&gt; (P (<span class="k">λ</span> <span class="nv">_</span>, htrue) × (∏ A B, P A → P B → P (<span class="k">λ</span> <span class="nv">x</span> : X, A x ∧ B x))).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> P.
+  <span class="nb">split</span>.
+  - <span class="nb">split</span>.
+    + <span class="nb">rewrite</span> &lt;- finite_intersection_htrue.
+      <span class="nb">apply</span> X0.
+      <span class="nb">intros</span> n.
+            <span class="nb">induction</span> (negnatlthn0 _ (pr2 n)).
+    + <span class="nb">intros</span> A B Pa Pb.
+      <span class="nb">rewrite</span> &lt;- finite_intersection_and.
+      <span class="nb">apply</span> X0.
+      <span class="nb">intros</span> n.
+      <span class="nb">change</span> n <span class="k">with</span> (pr1 n,,pr2 n).
+      <span class="nb">generalize</span> (pr1 n) (pr2 n) ;
+        <span class="nb">clear</span> n ;
+        <span class="nb">intros</span> n Hn.
+      <span class="bp">now</span> <span class="nb">induction</span> n <span class="k">as</span> [ | n _] ; <span class="nb">simpl</span>.
+  - <span class="nb">intros</span> Hp.
+    <span class="nb">apply</span> (Sequence_rect (P := <span class="k">λ</span> <span class="nv">L</span> : Sequence (X → hProp),
+                                     (∏ n : stn (length L), P (L n)) → P (finite_intersection L))).
+    + <span class="nb">intros</span> _.
+      <span class="nb">rewrite</span> finite_intersection_htrue.
+      <span class="bp">exact</span> (pr1 Hp).
+    + <span class="nb">intros</span> L A IHl Hl.
+      <span class="nb">rewrite</span> finite_intersection_append.
+      <span class="nb">apply</span> (pr2 Hp).
+      * <span class="nb">rewrite</span> &lt;- (append_vec_compute_2 L A).
+        <span class="bp">now</span> <span class="nb">apply</span> Hl.
+      * <span class="nb">apply</span> IHl.
+        <span class="nb">intros</span> n.
+        <span class="nb">rewrite</span> &lt;- (append_vec_compute_1 L A).
+        <span class="nb">apply</span> Hl.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Topology/Prelim.v</tt>, line 3)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Additional theorems *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Tactics.
+  &gt; Require Import UniMath.MoreFoundations.Subtypes.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

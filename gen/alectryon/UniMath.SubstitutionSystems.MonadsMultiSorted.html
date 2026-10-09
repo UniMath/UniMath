@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>MonadsMultiSorted.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**</span>
+
+<span class="sd">    Monads in SET/sort</span>
+
+<span class="sd">This file contains the consideration of monads in the slice category SET/sort that are obtained in</span>
+<span class="sd">our approach to multi-sorted binding signatures. As such, it has nothing to with multi-sorted</span>
+<span class="sd">binding signatures, but the identifiers refer to that situation.</span>
+
+<span class="sd">Written by Ralph Matthes, 2017.</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Export</span> UniMath.Tactics.EnsureStructuredProofs.
+<span class="c">(* Require Import UniMath.Foundations.PartD. *)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Slice.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.slicecat.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C / X"</span> := (slicecat_ob C X).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C / X"</span> := (slice_precat_data C X).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C / X"</span> := (slice_cat C X).
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"C / X ⟦ a , b ⟧"</span> := (slicecat_mor C X a b) (<span class="kn">at level</span> <span class="mi">50</span>, <span class="kn">format</span> <span class="s2">"C / X ⟦ a , b ⟧"</span>).
+
+
+<span class="kn">Section</span> <span class="nf">MonadsInHSET_over_sort</span>.
+
+
+<span class="kn">Context</span> (<span class="nv">sort</span> : hSet).
+
+<span class="kn">Definition</span> <span class="nf">HSET_over_sort</span> : category.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (<span class="nv">HSET</span> / sort).
+<span class="bp">now</span> <span class="nb">apply</span> has_homsets_slice_precat.
+<span class="kn">Defined</span>.
+
+<span class="kn">Let</span> <span class="nf">hs</span> : has_homsets (HSET / sort) := homset_property HSET_over_sort.
+
+<span class="kn">Let</span> <span class="nf">BC</span> := BinCoproducts_slice_precat _ BinCoproductsHSET sort: BinCoproducts (HSET / sort).
+
+<span class="sd">(** The object (1,λ _,s) in SET/sort that can be seen as a sorted variable *)</span>
+<span class="kn">Definition</span> <span class="nf">constHSET_slice</span> (<span class="nv">s</span> : sort) : HSET / sort.
+<span class="kn">Proof</span>.
+<span class="k">exists</span> (<span class="nv">TerminalObject</span> <span class="nv">TerminalHSET</span>); <span class="nb">simpl</span>.
+<span class="nb">apply</span> (<span class="k">λ</span> <span class="nv">x</span>, s).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">sorted_option_functor</span> (<span class="nv">s</span> : sort) : functor (HSET / sort) (HSET / sort) :=
+  constcoprod_functor1 (BinCoproducts_HSET_slice sort) (constHSET_slice s).
+
+
+
+<span class="sd">(** The following definitions do not depend on the monad coming from our construction, only on the</span>
+<span class="sd">    slice category we are working in. *)</span>
+
+<span class="kn">Local Definition</span> <span class="nf">bind_instantiated</span> {<span class="nv">T</span>:Monad (HSET / sort)}{<span class="nv">Γ1</span> <span class="nv">Γ2</span> : HSET_over_sort} (<span class="nv">f</span> : HSET_over_sort⟦Γ1,T Γ2⟧) :
+  HSET_over_sort⟦T Γ1,T Γ2⟧ := bind f.
+
+<span class="c">(* the following would be on the right level of generality but make problems later (the monads are not coerced into their underlying functors):</span>
+<span class="c">Definition wellsorted_in (T:[SET_over_sort,SET_over_sort])(Γ:SET_over_sort): hSet := pr1(pr1 T Γ).</span>
+<span class="c">Definition sort_in (T:[SET_over_sort,SET_over_sort]){Γ:SET_over_sort}(M:wellsorted_in T Γ): sort := pr2 (pr1 T Γ) M.</span>
+<span class="c"> *)</span>
+
+<span class="kn">Context</span> {<span class="nv">T</span> : Monad (HSET / sort)}.
+
+<span class="kn">Local Definition</span> <span class="nf">T0</span> : functor (HSET / sort) (HSET / sort) := T.
+
+<span class="kn">Definition</span> <span class="nf">wellsorted_in</span> (<span class="nv">Γ</span>:HSET_over_sort): hSet := pr1(T0 Γ).
+<span class="kn">Definition</span> <span class="nf">sort_in</span> {<span class="nv">Γ</span>:HSET_over_sort}(<span class="nv">M</span>:wellsorted_in Γ): sort := pr2 (T0 Γ) M.
+
+<span class="kn">Definition</span> <span class="nf">aux_fh</span> {<span class="nv">A1</span>:hSet}{<span class="nv">f1</span>:A1-&gt;sort}{<span class="nv">Γ2</span>:HSET_over_sort}
+   (<span class="nv">f</span> : A1-&gt;wellsorted_in Γ2)(<span class="nv">H</span>: <span class="k">forall</span> <span class="nv">a1</span>:A1, sort_in (f a1) = f1 a1) : HSET_over_sort⟦(A1,,f1),T Γ2⟧.
+<span class="kn">Proof</span>.
+   use tpair.
+    * <span class="bp">exact</span> f.
+    * <span class="nb">cbn</span>. <span class="kp">abstract</span>(<span class="nb">apply</span> funextsec; <span class="nb">intro</span> a1; <span class="bp">now</span> <span class="nb">apply</span> pathsinv0).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">bind_slice</span> {<span class="nv">A1</span>:hSet}{<span class="nv">f1</span>:A1-&gt;sort}{<span class="nv">Γ2</span>:HSET_over_sort}
+   (<span class="nv">f</span> : A1-&gt;wellsorted_in Γ2)(<span class="nv">H</span>: <span class="k">forall</span> <span class="nv">a1</span>:A1, sort_in (f a1) = f1 a1)(<span class="nv">M</span>: wellsorted_in (A1,,f1)) :
+   wellsorted_in Γ2.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (pr1 (bind_instantiated (aux_fh f H)) M).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bind_slice_ok</span> {<span class="nv">A1</span>: hSet} {<span class="nv">f1</span>: A1-&gt;sort} {<span class="nv">Γ2</span>: HSET_over_sort}
+    (<span class="nv">f</span> : A1 -&gt; wellsorted_in Γ2) (<span class="nv">H</span>: <span class="k">forall</span> <span class="nv">a1</span>:A1, sort_in (f a1) = f1 a1) (<span class="nv">M</span>: wellsorted_in (A1,,f1)) :
+    sort_in (bind_slice f H M) = sort_in M.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (H1 := pr2 (bind_instantiated (aux_fh f H))).
+  <span class="nb">apply</span> toforallpaths <span class="k">in</span> H1.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">now</span> <span class="nb">rewrite</span> H1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">η_slice</span> {<span class="nv">Γ</span>:HSET_over_sort} (<span class="nv">a</span>: pr1 (pr1 Γ)) : wellsorted_in Γ :=
+  pr1 ((Monads.η T) Γ) a.
+
+<span class="kn">Lemma</span> <span class="nf">η_slice_ok</span> {<span class="nv">Γ</span>: HSET_over_sort} (<span class="nv">a</span>: pr1 (pr1 Γ)) :
+  sort_in (η_slice(Γ:=Γ) a) = (pr2 Γ) a.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> η_slice.
+  <span class="nb">set</span> (H1 := pr2 ((Monads.η T) Γ)).
+  <span class="nb">simpl</span> <span class="k">in</span> H1.
+  <span class="nb">apply</span> toforallpaths <span class="k">in</span> H1.
+  <span class="bp">now</span> <span class="nb">rewrite</span> H1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">η_bind_slice</span> {<span class="nv">A1</span>: hSet} {<span class="nv">f1</span>: A1 -&gt; sort} {<span class="nv">Γ2</span>: HSET_over_sort}
+      (<span class="nv">f</span> : A1 -&gt; wellsorted_in Γ2) (<span class="nv">H</span>: <span class="k">forall</span> <span class="nv">a1</span>:A1, sort_in (f a1) = f1 a1) (<span class="nv">a1</span>:A1) :
+      bind_slice f H (η_slice(Γ:=(A1,,f1)) a1) = f a1.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> bind_slice.
+  <span class="nb">unfold</span> η_slice.
+  <span class="nb">set</span> (H1 := η_bind(aux_fh f H)).
+  <span class="nb">apply</span> (maponpaths pr1) <span class="k">in</span> H1.
+  <span class="nb">apply</span> toforallpaths <span class="k">in</span> H1.
+  <span class="nb">apply</span> H1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bind_η_slice</span> {<span class="nv">A1</span>: hSet}{<span class="nv">f1</span>: A1 -&gt; sort} (<span class="nv">H</span>: <span class="k">forall</span> <span class="nv">a1</span>:A1, sort_in (η_slice(Γ:=(A1,,f1)) a1) = f1 a1)
+      (<span class="nv">M</span>: wellsorted_in (A1,,f1)) :
+  bind_slice (η_slice(Γ:=(A1,,f1))) H M = M.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> bind_slice, η_slice.
+  <span class="nb">unfold</span> bind_instantiated.
+  <span class="nb">assert</span> (H1 : aux_fh (<span class="k">λ</span> <span class="nv">a</span>:A1, pr1 ((Monads.η T) (A1,, f1)) a) H = (Monads.η T) (A1,, f1)).
+  + <span class="nb">unfold</span> aux_fh.
+    <span class="bp">now</span> <span class="nb">apply</span> eq_mor_slicecat.
+  + intermediate_path (pr1 (bind ((Monads.η T) (A1,, f1))) M).
+    * <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, f M)).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths.
+      <span class="bp">exact</span> H1.
+    * <span class="bp">now</span> <span class="nb">rewrite</span> bind_η.
+<span class="kn">Qed</span>.
+<span class="sd">(** notice that the hypothesis [H] can be instantiated with [η_slice_ok] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">bind_η_slice_inst</span> {<span class="nv">A1</span>: hSet} {<span class="nv">f1</span>: A1 -&gt; sort} (<span class="nv">M</span>: wellsorted_in (A1,,f1)) :
+  bind_slice (η_slice(Γ:=(A1,,f1))) (η_slice_ok(Γ:=(A1,,f1))) M = M.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> bind_η_slice.
+<span class="kn">Qed</span>.
+<span class="sd">(** would rather be used from right to left *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">bind_bind_slice</span> {<span class="nv">A1</span>: hSet} {<span class="nv">f1</span>: A1 -&gt; sort} {<span class="nv">A2</span>: hSet} {<span class="nv">f2</span>: A2 -&gt; sort} {<span class="nv">Γ3</span>: HSET_over_sort}
+  (<span class="nv">f</span> : A1 -&gt; wellsorted_in (A2,,f2)) (<span class="nv">H1</span>: <span class="k">forall</span> <span class="nv">a1</span>:A1, sort_in (f a1) = f1 a1)
+  (<span class="nv">g</span> : A2 -&gt; wellsorted_in Γ3) (<span class="nv">H2</span>: <span class="k">forall</span> <span class="nv">a2</span>:A2, sort_in (g a2) = f2 a2)
+  (<span class="nv">HH</span>: <span class="k">forall</span> <span class="nv">a1</span>:A1, sort_in (bind_slice g H2 (f a1)) = f1 a1)
+  (<span class="nv">M</span>: wellsorted_in (A1,,f1)) :
+    bind_slice g H2 (bind_slice f H1 M) = bind_slice (<span class="k">λ</span> <span class="nv">a1</span>:A1, bind_slice g H2 (f a1)) HH M.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> bind_slice.
+  intermediate_path (pr1 (bind_instantiated (aux_fh f H1) · bind_instantiated (aux_fh g H2)) M).
+  + <span class="nb">apply</span> idpath.
+  + <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, f M)).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> bind_instantiated.
+    <span class="nb">rewrite</span> bind_bind.
+    <span class="nb">apply</span> maponpaths.
+    <span class="bp">now</span> <span class="nb">apply</span> eq_mor_slicecat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Definition</span> <span class="nf">HH_bind_bind_slice</span> {<span class="nv">A1</span>: hSet} {<span class="nv">f1</span>: A1 -&gt; sort} {<span class="nv">A2</span>: hSet} {<span class="nv">f2</span>: A2 -&gt; sort} {<span class="nv">Γ3</span>: HSET_over_sort}
+  (<span class="nv">f</span> : A1 -&gt; wellsorted_in (A2,,f2)) (<span class="nv">H1</span>: <span class="k">forall</span> <span class="nv">a1</span>:A1, sort_in (f a1) = f1 a1)
+  (<span class="nv">g</span> : A2 -&gt; wellsorted_in Γ3) (<span class="nv">H2</span>: <span class="k">forall</span> <span class="nv">a2</span>:A2, sort_in (g a2) = f2 a2) (<span class="nv">a1</span>:A1) :
+  sort_in (bind_slice g H2 (f a1)) = f1 a1.
+<span class="kn">Proof</span>.
+  <span class="nb">eapply</span> pathscomp0.
+  + <span class="nb">apply</span> (bind_slice_ok g H2).
+  + <span class="nb">apply</span> H1.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">bind_bind_slice_inst</span> {<span class="nv">A1</span>: hSet} {<span class="nv">f1</span>: A1 -&gt; sort} {<span class="nv">A2</span>: hSet} {<span class="nv">f2</span>: A2 -&gt; sort} {<span class="nv">Γ3</span>: HSET_over_sort}
+  (<span class="nv">f</span> : A1 -&gt; wellsorted_in (A2,,f2)) (<span class="nv">H1</span>: <span class="k">forall</span> <span class="nv">a1</span>:A1, sort_in (f a1) = f1 a1)
+  (<span class="nv">g</span> : A2 -&gt; wellsorted_in Γ3) (<span class="nv">H2</span>: <span class="k">forall</span> <span class="nv">a2</span>:A2, sort_in (g a2) = f2 a2)
+  (<span class="nv">HH</span>: <span class="k">forall</span> <span class="nv">a1</span>:A1, sort_in (bind_slice g H2 (f a1)) = f1 a1)
+  (<span class="nv">M</span>: wellsorted_in (A1,,f1)) :
+  bind_slice g H2 (bind_slice f H1 M) =
+  bind_slice (<span class="k">λ</span> <span class="nv">a1</span>:A1, bind_slice g H2 (f a1)) (HH_bind_bind_slice f H1 g H2) M.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> bind_bind_slice.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** now we only substitute a single sorted variable *)</span>
+
+<span class="kn">Definition</span> <span class="nf">aux_inject_N</span> {<span class="nv">Γ</span>: HSET_over_sort} (<span class="nv">N</span> : wellsorted_in Γ):
+  HSET_over_sort⟦constHSET_slice (sort_in N),T Γ⟧.
+<span class="kn">Proof</span>.
+  use tpair.
+  + <span class="bp">exact</span> (<span class="k">fun</span> <span class="nv">_</span>=&gt; N).
+  + <span class="bp">now</span> <span class="nb">apply</span> funextsec.
+<span class="kn">Defined</span>.
+
+<span class="c">(* first approach not instantiating from the general situation of a monad:</span>
+<span class="c">Definition subst_slice {Γ:SET_over_sort}(N : wellsorted_in Γ)</span>
+<span class="c">           (M : wellsorted_in (sorted_option_functor (sort_in N) Γ)): wellsorted_in Γ.</span>
+<span class="c">Proof.</span>
+<span class="c">  set (aux0 := (CategoryTheory.Monads.η T Γ)).</span>
+<span class="c">  set (auxf := BinCoproductArrow _ (BC _ _) (aux_inject_N N) (CategoryTheory.Monads.η T Γ)).</span>
+<span class="c">  refine (bind_slice (pr1 auxf) _ M).</span>
+<span class="c">  intro a.</span>
+<span class="c">  simpl in a.</span>
+<span class="c">  induction a as [a | a].</span>
+<span class="c">  + now idtac.</span>
+<span class="c">  + generalize (ii2(A:=unit) a).</span>
+<span class="c">    clear a.</span>
+<span class="c">    apply toforallpaths.</span>
+<span class="c">(*    intermediate_path ((BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Γ))</span>
+<span class="c">                         (λ _ : unit, N) (pr1 ((Monads.η T) Γ))) ·  (sort_in T)).*)</span>
+<span class="c">    change ((BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Γ))</span>
+<span class="c">                                    (λ _ : unit, N) (pr1 ((Monads.η T) Γ))) ·  sort_in =</span>
+<span class="c">                 BinCoproductArrow HSET (BinCoproductsHSET 1%CS (pr1 Γ))</span>
+<span class="c">                                    (λ _ : unit, sort_in N) (pr2 Γ)).</span>
+<span class="c">    rewrite postcompWithBinCoproductArrow.</span>
+<span class="c">    apply map_on_two_paths.</span>
+<span class="c">    - apply idpath.</span>
+<span class="c">    - set (aux1 := pr2 ((Monads.η T) Γ)).</span>
+<span class="c">      apply pathsinv0.</span>
+<span class="c">      now (etrans; try eapply aux1).</span>
+<span class="c">Defined.</span>
+<span class="c"> *)</span>
+
+<span class="kn">Local</span> <span class="kn">Notation</span> <span class="s2">"a ⊕ b"</span> := (BinCoproductObject (BC a b)).
+
+<span class="kn">Local Definition</span> <span class="nf">monadSubstGen_instantiated</span> {<span class="nv">T</span>: Monad (HSET / sort)} {<span class="nv">Γ2</span> : HSET_over_sort}
+      (<span class="nv">Γ1</span>: HSET_over_sort) (<span class="nv">e</span> : HSET_over_sort⟦Γ2,T Γ1⟧) :
+  HSET_over_sort⟦T (Γ2 ⊕ Γ1),T Γ1⟧ := monadSubstGen T BC Γ1 e.
+
+<span class="kn">Definition</span> <span class="nf">subst_slice</span> {<span class="nv">Γ</span>: HSET_over_sort}(<span class="nv">N</span> : wellsorted_in Γ)
+  (<span class="nv">M</span> : wellsorted_in (sorted_option_functor (sort_in N) Γ)): wellsorted_in Γ :=
+  pr1 (monadSubstGen_instantiated _ (aux_inject_N N)) M.
+
+<span class="kn">Lemma</span> <span class="nf">subst_slice_ok</span> {<span class="nv">Γ</span>: HSET_over_sort} (<span class="nv">N</span> : wellsorted_in Γ)
+   (<span class="nv">M</span> : wellsorted_in (sorted_option_functor (sort_in N) Γ)): sort_in (subst_slice N M) = sort_in M.
+<span class="kn">Proof</span>.
+  <span class="nb">assert</span> (H1 := pr2 (monadSubstGen_instantiated _ (aux_inject_N N))).
+  <span class="nb">apply</span> toforallpaths <span class="k">in</span> H1.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">now</span> <span class="nb">rewrite</span> H1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">subst_slice_as_bind_slice</span> {<span class="nv">Γ</span>: HSET_over_sort} (<span class="nv">N</span> : wellsorted_in Γ)
+  (<span class="nv">M</span> : wellsorted_in (sorted_option_functor (sort_in N) Γ)): wellsorted_in Γ.
+<span class="kn">Proof</span>.
+  use (bind_slice (BinCoproductArrow (BinCoproductsHSET _ _) (<span class="k">λ</span> <span class="nv">_</span>, N) (η_slice(Γ:=Γ))) _ M).
+  <span class="kp">abstract</span>(<span class="nb">intro</span> a1; <span class="nb">induction</span> a1 <span class="k">as</span> [u | a1];
+           [<span class="nb">apply</span> idpath | <span class="nb">unfold</span> BinCoproductArrow; <span class="nb">simpl</span>; <span class="bp">now</span> <span class="nb">rewrite</span> η_slice_ok]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subst_slice_as_bind_slice_agrees</span> {<span class="nv">Γ</span>: HSET_over_sort} (<span class="nv">N</span> : wellsorted_in Γ)
+      (<span class="nv">M</span> : wellsorted_in (sorted_option_functor (sort_in N) Γ)) :
+  subst_slice_as_bind_slice N M =subst_slice N M.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> subst_slice_as_bind_slice, subst_slice.
+  <span class="nb">unfold</span> bind_slice, monadSubstGen_instantiated.
+  <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, f M)).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">unfold</span> monadSubstGen, bind_instantiated.
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">now</span> <span class="nb">apply</span> eq_mor_slicecat.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">subst_slice_eqn</span> {<span class="nv">Γ</span>: HSET_over_sort} (<span class="nv">N</span> : wellsorted_in Γ) {<span class="nv">s</span> : sort}
+           (<span class="nv">M</span> : wellsorted_in (sorted_option_functor s Γ)) (<span class="nv">H</span>: sort_in N = s) : wellsorted_in Γ.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (subst_slice N).
+  <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- H <span class="k">in</span> M.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subst_slice_eqn_ok</span> {<span class="nv">Γ</span>: HSET_over_sort} (<span class="nv">N</span> : wellsorted_in Γ) {<span class="nv">s</span> : sort}
+      (<span class="nv">M</span> : wellsorted_in (sorted_option_functor s Γ)) (<span class="nv">H</span>: sort_in N = s) :
+      sort_in (subst_slice_eqn N M H) = sort_in M.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> subst_slice_eqn.
+  <span class="nb">rewrite</span> subst_slice_ok.
+  <span class="bp">now</span> <span class="nb">induction</span> H.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Local Definition</span> <span class="nf">mweak_instantiated</span> (<span class="nv">Γ1</span>: HSET_over_sort) {<span class="nv">Γ2</span>: HSET_over_sort} :
+  HSET_over_sort⟦T Γ2,T (Γ1 ⊕ Γ2)⟧ := mweak T BC _ _.
+
+<span class="kn">Definition</span> <span class="nf">mweak_slice</span> (<span class="nv">Γ1</span>: HSET_over_sort)(<span class="nv">Γ2</span>: HSET_over_sort): wellsorted_in Γ2 -&gt; wellsorted_in (Γ1 ⊕ Γ2)
+  := pr1 (mweak_instantiated Γ1).
+
+<span class="kn">Arguments</span> mweak_slice _ _ _ : <span class="kn">clear implicits</span>.
+
+<span class="kn">Lemma</span> <span class="nf">mweak_slice_ok</span> (<span class="nv">Γ1</span>: HSET_over_sort) {<span class="nv">Γ2</span>: HSET_over_sort} (<span class="nv">M</span>: wellsorted_in Γ2) :
+  sort_in (mweak_slice Γ1 Γ2 M) = sort_in M.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (H1 := pr2 (mweak_instantiated(Γ2:=Γ2) Γ1)).
+  <span class="nb">apply</span> toforallpaths <span class="k">in</span> H1.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">now</span> <span class="nb">rewrite</span> H1.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">mweak_slice_as_bind_slice</span> (<span class="nv">Γ1</span>: HSET_over_sort) (<span class="nv">Γ2</span>: HSET_over_sort) (<span class="nv">M</span>: wellsorted_in Γ2) :
+  wellsorted_in (Γ1 ⊕ Γ2).
+<span class="kn">Proof</span>.
+  use (bind_slice (<span class="k">λ</span> <span class="nv">a1</span>, η_slice(Γ:=Γ1 ⊕ Γ2) (pr1 (BinCoproductIn2 (BC _ _)) a1)) _ M).
+  <span class="nb">intro</span> a1.
+  <span class="nb">simpl</span>; <span class="bp">now</span> <span class="nb">rewrite</span> η_slice_ok.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">mweak_slice_as_bind_slice_agrees</span> (<span class="nv">Γ1</span>: HSET_over_sort) {<span class="nv">Γ2</span>: HSET_over_sort} (<span class="nv">M</span>: wellsorted_in Γ2) :
+  mweak_slice_as_bind_slice Γ1 Γ2 M = mweak_slice Γ1 Γ2 M.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> mweak_slice_as_bind_slice, mweak_slice.
+  <span class="nb">unfold</span> bind_slice, mweak_instantiated.
+  <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, f M)).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">unfold</span> mweak, bind_instantiated.
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">now</span> <span class="nb">apply</span> eq_mor_slicecat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">mweak_slice_as_bind_slice_ok</span> (<span class="nv">Γ1</span>: HSET_over_sort) {<span class="nv">Γ2</span>: HSET_over_sort} (<span class="nv">M</span>: wellsorted_in Γ2) :
+  sort_in (mweak_slice_as_bind_slice Γ1 Γ2 M) = sort_in M.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> mweak_slice_as_bind_slice_agrees; <span class="nb">apply</span> mweak_slice_ok.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Local Definition</span> <span class="nf">mexch_instantiated</span> {<span class="nv">Γ1</span> <span class="nv">Γ2</span> <span class="nv">Γ3</span>: HSET_over_sort} :
+  HSET_over_sort⟦T (Γ1 ⊕ (Γ2 ⊕ Γ3)), T (Γ2 ⊕ (Γ1 ⊕ Γ3))⟧ := mexch T BC _ _ _.
+
+<span class="kn">Definition</span> <span class="nf">mexch_slice</span> {<span class="nv">Γ1</span> <span class="nv">Γ2</span> <span class="nv">Γ3</span>: HSET_over_sort} :
+  wellsorted_in (Γ1 ⊕ (Γ2 ⊕ Γ3)) -&gt; wellsorted_in (Γ2 ⊕ (Γ1 ⊕ Γ3)) :=
+  pr1 (mexch_instantiated).
+
+<span class="kn">Lemma</span> <span class="nf">mexch_slice_ok</span> {<span class="nv">Γ1</span> <span class="nv">Γ2</span> <span class="nv">Γ3</span>: HSET_over_sort} (<span class="nv">M</span>: wellsorted_in (Γ1 ⊕ (Γ2 ⊕ Γ3))) :
+  sort_in (mexch_slice M) = sort_in M.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (H1 := pr2 (mexch_instantiated(Γ1:=Γ1)(Γ2:=Γ2)(Γ3:=Γ3))).
+  <span class="nb">apply</span> toforallpaths <span class="k">in</span> H1.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="bp">now</span> <span class="nb">rewrite</span> H1.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Definition</span> <span class="nf">mexch_slice_as_bind_slice</span> {<span class="nv">Γ1</span> <span class="nv">Γ2</span> <span class="nv">Γ3</span>: HSET_over_sort} (<span class="nv">M</span>: wellsorted_in (Γ1 ⊕ (Γ2 ⊕ Γ3))) :
+  wellsorted_in (Γ2 ⊕ (Γ1 ⊕ Γ3)).
+<span class="kn">Proof</span>.
+  <span class="c">(* first important preparations *)</span>
+  <span class="nb">unfold</span> BinCoproductObject <span class="k">in</span> M.
+  <span class="nb">simpl</span> <span class="k">in</span> M.
+  <span class="nb">set</span> (a1 := BinCoproductIn1 (BinCoproductsHSET _ _) · BinCoproductIn2 (BinCoproductsHSET _ _): HSET⟦pr1 Γ1, pr1(Γ2 ⊕ (Γ1 ⊕ Γ3))⟧).
+  <span class="nb">set</span> (a21 := BinCoproductIn1 (BinCoproductsHSET _ _): HSET⟦pr1 Γ2, pr1(Γ2 ⊕ (Γ1 ⊕ Γ3))⟧).
+  <span class="nb">set</span> (a22 := BinCoproductIn2 (BinCoproductsHSET _ _) · BinCoproductIn2 (BinCoproductsHSET _ _): HSET⟦pr1 Γ3, pr1(Γ2 ⊕ (Γ1 ⊕ Γ3))⟧).
+  use (bind_slice ((BinCoproductArrow _ a1 (BinCoproductArrow _ a21 a22)) · η_slice(Γ:=Γ2 ⊕ (Γ1 ⊕ Γ3))) _ M).
+  <span class="nb">intro</span> x.
+  <span class="nb">induction</span> x <span class="k">as</span> [x1 | x2].
+  + <span class="nb">unfold</span> BinCoproductArrow.
+    <span class="nb">simpl</span>.
+    <span class="nb">unfold</span> compose.
+    <span class="nb">simpl</span>.
+    <span class="bp">now</span> <span class="nb">rewrite</span> η_slice_ok.
+  + <span class="nb">induction</span> x2 <span class="k">as</span> [x21 | x22].
+    * <span class="nb">unfold</span> BinCoproductArrow.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> compose.
+      <span class="nb">simpl</span>.
+      <span class="bp">now</span> <span class="nb">rewrite</span> η_slice_ok.
+    * <span class="nb">unfold</span> BinCoproductArrow.
+      <span class="nb">simpl</span>.
+      <span class="nb">unfold</span> compose.
+      <span class="nb">simpl</span>.
+      <span class="bp">now</span> <span class="nb">rewrite</span> η_slice_ok.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">mexch_slice_as_bind_slice_agrees</span> {<span class="nv">Γ1</span> <span class="nv">Γ2</span> <span class="nv">Γ3</span>: HSET_over_sort} (<span class="nv">M</span> : wellsorted_in (Γ1 ⊕ (Γ2 ⊕ Γ3))) :
+  mexch_slice_as_bind_slice M = mexch_slice M.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> mexch_slice_as_bind_slice, mexch_slice.
+  <span class="nb">unfold</span> bind_slice, mexch_instantiated.
+  <span class="nb">apply</span> (maponpaths (<span class="k">λ</span> <span class="nv">f</span>, f M)).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">unfold</span> mexch, bind_instantiated.
+  <span class="nb">apply</span> maponpaths.
+  <span class="bp">now</span> <span class="nb">apply</span> eq_mor_slicecat.
+<span class="kn">Qed</span>.
+
+
+<span class="kn">Lemma</span> <span class="nf">mexch_slice_as_bind_slice_ok</span> {<span class="nv">Γ1</span> <span class="nv">Γ2</span> <span class="nv">Γ3</span>: HSET_over_sort}
+      (<span class="nv">M</span> : wellsorted_in (Γ1 ⊕ (Γ2 ⊕ Γ3))) :
+  sort_in (mexch_slice_as_bind_slice M) = sort_in M.
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> mexch_slice_as_bind_slice_agrees; <span class="nb">apply</span> mexch_slice_ok.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">subst_interchange_law_instantiated</span> {<span class="nv">t</span> <span class="nv">s</span>: sort} {<span class="nv">Γ</span>: HSET_over_sort}
+      (<span class="nv">NN</span>: HSET_over_sort⟦constHSET_slice t, T (constHSET_slice s ⊕ Γ)⟧)
+      (<span class="nv">LL</span>: HSET_over_sort⟦constHSET_slice s, T Γ⟧):
+  (monadSubstGen_instantiated _ NN) · (monadSubstGen_instantiated _ LL) =
+  (mexch_instantiated (Γ1:=constHSET_slice t) (Γ2:=constHSET_slice s) (Γ3:=Γ))
+    · (monadSubstGen_instantiated _ (LL · (mweak_instantiated _)))
+    · (monadSubstGen_instantiated _ (NN · (monadSubstGen_instantiated _ LL))).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> subst_interchange_law_gen.
+<span class="kn">Qed</span>.
+
+<span class="c">(*</span>
+<span class="c">(* we were heading for the following lemma that presents the result in terms of the application domain and not category theory: *)</span>
+<span class="c">Lemma subst_interchange_law_slice {Γ : SET_over_sort}</span>
+<span class="c">      (L : wellsorted_in Γ)</span>
+<span class="c">      (N : wellsorted_in (sorted_option_functor (sort_in L) Γ))</span>
+<span class="c">      (M : wellsorted_in (sorted_option_functor (sort_in N) (sorted_option_functor (sort_in L) Γ))) :</span>
+<span class="c">  subst_slice L (subst_slice N M) =</span>
+<span class="c">  subst_slice_eqn (subst_slice L N)</span>
+<span class="c">                  (subst_slice_eqn (mweak_slice _ _ L) (mexch_slice M) (mweak_slice_ok _ L))</span>
+<span class="c">                  (subst_slice_ok L N).</span>
+<span class="c">Proof.</span>
+<span class="c">  set (ls := subst_slice L (subst_slice N M)).</span>
+<span class="c">  set (rs1 := subst_slice_eqn (mweak_slice _ _ L) (mexch_slice M) (mweak_slice_ok _ L)).</span>
+<span class="c">  set (rs2 := subst_slice L N).</span>
+<span class="c">  simpl in rs1.</span>
+
+<span class="c">(* Problem: mweak_slice is not an instance of bind_slice, and rewriting is not possible since also *)</span>
+<span class="c">(* mweak_slice_ok appears in the term. *)</span>
+<span class="c">Admitted.</span>
+<span class="c">*)</span>
+
+<span class="kn">Context</span> {<span class="nv">Γ</span> : HSET_over_sort}
+      (<span class="nv">L</span> : wellsorted_in Γ)
+      (<span class="nv">N</span> : wellsorted_in (sorted_option_functor (sort_in L) Γ))
+      (<span class="nv">M</span> : wellsorted_in (sorted_option_functor (sort_in N)
+                            (sorted_option_functor (sort_in L) Γ))).
+
+<span class="kn">Local Definition</span> <span class="nf">LHS</span> : wellsorted_in Γ := subst_slice L (subst_slice N M).
+<span class="kn">Local Definition</span> <span class="nf">RHS</span> : wellsorted_in Γ :=
+  subst_slice_eqn (subst_slice L N)
+           (subst_slice_eqn (mweak_slice_as_bind_slice _ _ L)
+                            (mexch_slice M) (mweak_slice_as_bind_slice_ok _ L))
+        (subst_slice_ok L N).
+
+<span class="kn">Local Lemma</span> <span class="nf">same_sort_LHS_RHS</span> : sort_in LHS = sort_in RHS.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> LHS.
+  <span class="nb">rewrite</span> subst_slice_ok.
+  <span class="nb">rewrite</span> subst_slice_ok.
+  <span class="nb">unfold</span> RHS.
+  <span class="kp">do</span> <span class="mi">2</span> <span class="nb">rewrite</span> subst_slice_eqn_ok.
+  <span class="nb">apply</span> pathsinv0.
+  <span class="nb">apply</span> mexch_slice_ok.
+<span class="kn">Qed</span>.
+
+<span class="c">(*</span>
+<span class="c">Lemma subst_interchange_law_slice: LHS = RHS.</span>
+<span class="c">Proof.</span>
+<span class="c">   unfold LHS.</span>
+<span class="c">   do 2 rewrite &lt;- subst_slice_as_bind_slice_agrees.</span>
+<span class="c">   unfold subst_slice_as_bind_slice.</span>
+<span class="c">   rewrite bind_bind_slice_inst.</span>
+
+
+<span class="c">(* first treat the question of having the right sort *)</span>
+<span class="c">  Focus 2.</span>
+<span class="c">    simpl.</span>
+<span class="c">  induction a1 as [u | a1].</span>
+<span class="c">  + rewrite bind_slice_ok.</span>
+<span class="c">    now rewrite postcompWithBinCoproductArrowHSET.</span>
+<span class="c">  Focus 2.</span>
+<span class="c">  simpl.</span>
+<span class="c">  rewrite bind_slice_ok.</span>
+<span class="c">   rewrite postcompWithBinCoproductArrowHSET.</span>
+<span class="c">   unfold BinCoproductArrow.</span>
+<span class="c">   simpl. unfold compose. simpl.</span>
+<span class="c">   unfold BinCoproduct_of_functors_ob.</span>
+<span class="c">   simpl.</span>
+<span class="c">   intermediate_path (sort_in (η_slice(Γ:=BinCoproductObject</span>
+<span class="c">          (slice_precat HSET sort has_homsets_HSET)</span>
+<span class="c">          (BinCoproducts_HSET_slice sort (constHSET_slice (sort_in L)) Γ))</span>
+<span class="c">          a1)).</span>
+<span class="c">   Focus 2.</span>
+<span class="c">   now rewrite η_slice_ok.</span>
+<span class="c">   apply maponpaths. apply idpath.</span>
+<span class="c">(* end of verifying the right sort *)</span>
+
+<span class="c">   (* the left-hand side is now of the form bind_slice f' H' M *)</span>
+<span class="c">   Admitted.</span>
+<span class="c">*)</span>
+
+<span class="kn">End</span> <span class="nf">MonadsInHSET_over_sort</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/SubstitutionSystems/MonadsMultiSorted.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Tactics/EnsureStructuredProofs.vo
+  &gt; has bad version number 90299 (expected 81601). It is corrupted or was
+  &gt; compiled with another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Export UniMath.Tactics.EnsureStructuredProofs.&lt;&lt;&lt;
+  &gt; (* Require Import UniMath.Foundations.PartD. *)
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

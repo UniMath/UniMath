@@ -1,0 +1,641 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Full.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** ** Full sub(pre)categories</span>
+
+<span class="sd">Authors: Benedikt Ahrens, Chris Kapulkin, Mike Shulman (January 2013)</span>
+<span class="sd">Reorganized: Langston Barrett (@siddharthist) (March 2018)</span>
+
+<span class="sd">*)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">    Image of a functor, full subcat specified by a functor</span>
+
+<span class="sd">    The inclusion of a full subcategory is fully faithful</span>
+<span class="sd">      Fullness</span>
+<span class="sd">      Faithfulness</span>
+
+<span class="sd">    Subcategories, back to</span>
+<span class="sd">      Inclusion functor</span>
+<span class="sd">      Full image of a functor</span>
+<span class="sd">      Factorization of a functor via its</span>
+<span class="sd">          full image</span>
+<span class="sd">      This factorization is fully faithful</span>
+<span class="sd">          if the functor is</span>
+<span class="sd">          [functor_full_img_fully_faithful_if_fun_is]</span>
+
+<span class="sd">      Isos in full subcategory are equiv</span>
+<span class="sd">        to isos in the precategory</span>
+
+<span class="sd">      Full subcategory of a univalent_category is</span>
+<span class="sd">        a univalent_category</span>
+<span class="sd">        [is_univalent_full_sub_category]</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Subcategory.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** A full subcategory has the true predicate on morphisms *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">is_sub_precategory_full</span> (<span class="nv">C</span> : category)
+         (<span class="nv">C'</span>:hsubtype (ob C)) : is_sub_precategory C' (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span>, <span class="k">λ</span> <span class="nv">f</span>, htrue).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>;
+  <span class="nb">intros</span>; <span class="bp">exact</span> tt.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_sub_precategory</span> {<span class="nv">C</span> : category}
+         (<span class="nv">C'</span>: hsubtype (ob C)) :
+   sub_precategories C :=
+  tpair _  (make_dirprod C' (<span class="k">λ</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">f</span>, htrue)) (is_sub_precategory_full C C').
+
+<span class="sd">(** Any morphism between appropriate objects is a morphism of the full subprecategory *)</span>
+<span class="kn">Definition</span> <span class="nf">morphism_in_full_subcat</span> {<span class="nv">C</span> : category} {<span class="nv">C'</span> : hsubtype (ob C)}
+   {<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_precategory C')} (<span class="nv">f</span> : pr1 a --&gt; pr1 b) :
+    precategory_morphisms a b := precategory_morphisms_in_subcat f tt.
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_full_sub_precategory</span> (<span class="nv">C</span> : category)
+         (<span class="nv">C'</span>:hsubtype (ob C)) : has_homsets (full_sub_precategory C').
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> H x y. <span class="nb">apply</span> is_set_sub_precategory_morphisms.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_sub_category</span> (<span class="nv">C</span> : category)
+           (<span class="nv">C'</span>:hsubtype (ob C))
+  : category
+  := make_category _ (has_homsets_full_sub_precategory C C').
+
+<span class="kn">Definition</span> <span class="nf">full_sub_category_pr_data</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">C'</span>: hsubtype (ob C))
+  : functor_data (full_sub_category C C') C.
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">h</span>, pr1 h).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">h₁</span> <span class="nv">h₂</span> <span class="nv">α</span>, pr1 α).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_sub_category_pr_is_functor</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">C'</span>: hsubtype (ob C))
+  : is_functor (full_sub_category_pr_data C').
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intro</span> x ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+  - <span class="nb">intros</span> x y z f g ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_sub_category_pr</span>
+           {<span class="nv">C</span> : category}
+           (<span class="nv">C'</span>: hsubtype (ob C))
+  : full_sub_category C C' ⟶ C.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (full_sub_category_pr_data C').
+  - <span class="bp">exact</span> (full_sub_category_pr_is_functor C').
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** The inclusion of a full subcategory is fully faithful *)</span>
+
+<span class="kn">Section</span> <span class="nf">FullyFaithful</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : category) (<span class="nv">C'</span> : hsubtype (ob C)).
+
+  <span class="sd">(** *** Fullness *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">full_sub_precategory_inclusion</span> :
+    full (sub_precategory_inclusion C (full_sub_precategory C')).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b f.
+    <span class="nb">apply</span> hinhpr.
+    <span class="nb">unfold</span> hfiber.
+    <span class="k">exists</span> (<span class="nv">f</span>,, <span class="nv">tt</span>).
+    <span class="bp">reflexivity</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** *** Faithfulness *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">faithful_sub_precategory_inclusion</span> :
+    faithful (sub_precategory_inclusion C (full_sub_precategory C')).
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> a b; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> isinclpr1.
+    <span class="nb">intro</span>; <span class="nb">apply</span> isapropunit.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">fully_faithful_sub_precategory_inclusion</span> :
+    fully_faithful (sub_precategory_inclusion C (full_sub_precategory C')).
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> full_and_faithful_implies_fully_faithful.
+    <span class="nb">split</span>.
+    - <span class="nb">apply</span> full_sub_precategory_inclusion.
+    - <span class="nb">apply</span> faithful_sub_precategory_inclusion.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">FullyFaithful</span>.
+
+<span class="sd">(** ** The (full) image of a functor *)</span>
+
+<span class="kn">Definition</span> <span class="nf">full_img_sub_precategory</span> {<span class="nv">C</span> <span class="nv">D</span> : category}(<span class="nv">F</span> : functor C D) :
+    sub_precategories D :=
+       full_sub_precategory (sub_img_functor F).
+
+<span class="kn">Lemma</span> <span class="nf">has_homsets_full_img_sub_precategory</span> {<span class="nv">C</span> : category} {<span class="nv">D</span> : category} (<span class="nv">F</span> : functor C D)
+  : has_homsets (full_img_sub_precategory F).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span>  has_homsets_full_sub_precategory.
+<span class="kn">Qed</span>.
+
+
+
+<span class="sd">(** ** Given a functor F : C -&gt; D, we obtain a functor F : C -&gt; Img(F) *)</span>
+
+<span class="kn">Definition</span> <span class="nf">full_img_functor_obj</span> {<span class="nv">C</span> <span class="nv">D</span> : category}(<span class="nv">F</span> : functor C D) :
+   ob C -&gt; ob (full_img_sub_precategory F).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> c.
+  <span class="k">exists</span> (<span class="nv">F</span> <span class="nv">c</span>).
+  <span class="nb">intros</span> a b.
+  <span class="nb">apply</span> b.
+  <span class="k">exists</span> <span class="nv">c</span>.
+  <span class="nb">apply</span> identity_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_img_functor_data</span> {<span class="nv">C</span> <span class="nv">D</span> : category}(<span class="nv">F</span> : functor C D) :
+  functor_data C (full_img_sub_precategory F).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">full_img_functor_obj</span> <span class="nv">F</span>).
+  <span class="nb">intros</span> a b f.
+  <span class="k">exists</span> (#F f).
+  <span class="bp">exact</span> tt.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">is_functor_full_img</span> (<span class="nv">C</span> <span class="nv">D</span>: category) (<span class="nv">F</span> : functor C D) :
+  is_functor (full_img_functor_data F).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  <span class="nb">intro</span> a; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> subtypePath.
+    <span class="nb">intro</span>; <span class="nb">apply</span> pr2.
+  <span class="nb">apply</span> functor_id.
+  <span class="nb">intros</span> a b c f g.
+  <span class="nb">set</span> ( H := eq_in_sub_precategory D (full_img_sub_precategory F)).
+  <span class="nb">apply</span> (H (full_img_functor_obj F a)(full_img_functor_obj F c)).
+  <span class="nb">simpl</span>; <span class="nb">apply</span> functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">functor_full_img</span> {<span class="nv">C</span> <span class="nv">D</span>: category}
+       (<span class="nv">F</span> : functor C D) :
+   functor C (full_img_sub_precategory F) :=
+   tpair _ _ (is_functor_full_img C D F).
+
+
+<span class="sd">(** *** Morphisms in the full subprecat are equiv to morphisms in the precategory *)</span>
+<span class="sd">(** does of course not need the univalent_category hypothesis *)</span>
+
+<span class="kn">Definition</span> <span class="nf">hom_in_subcat_from_hom_in_precat</span> (<span class="nv">C</span> : category)
+ (<span class="nv">C'</span> : hsubtype (ob C))
+  (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_precategory C'))
+      (<span class="nv">f</span> : pr1 a --&gt; pr1 b) : a --&gt; b :=
+       tpair _ f tt.
+
+<span class="kn">Definition</span> <span class="nf">hom_in_precat_from_hom_in_full_subcat</span> (<span class="nv">C</span> : category)
+ (<span class="nv">C'</span> : hsubtype (ob C))
+  (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_precategory C')) :
+     a --&gt; b -&gt; pr1 a --&gt; pr1 b := @pr1 _ _ .
+
+
+<span class="kn">Lemma</span> <span class="nf">isweq_hom_in_precat_from_hom_in_full_subcat</span> (<span class="nv">C</span> : category)
+ (<span class="nv">C'</span> : hsubtype (ob C))
+    (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_precategory C')):
+ isweq (hom_in_precat_from_hom_in_full_subcat _ _ a b).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweq_iso _
+         (hom_in_subcat_from_hom_in_precat _ _ a b)).
+  <span class="nb">intro</span> f.
+  <span class="nb">destruct</span> f. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> eq_in_sub_precategory.
+  <span class="nb">apply</span> idpath.
+  <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isweq_hom_in_subcat_from_hom_in_precat</span> (<span class="nv">C</span> : category)
+ (<span class="nv">C'</span> : hsubtype (ob C))
+    (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_precategory C')):
+ isweq (hom_in_subcat_from_hom_in_precat  _ _ a b).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweq_iso _
+         (hom_in_precat_from_hom_in_full_subcat _ _ a b)).
+  <span class="nb">intro</span> f.
+  <span class="nb">intros</span>. <span class="nb">apply</span> idpath.
+  <span class="nb">intro</span> f.
+  <span class="nb">destruct</span> f. <span class="nb">simpl</span>.
+  <span class="nb">apply</span> eq_in_sub_precategory.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">weq_hom_in_subcat_from_hom_in_precat</span> (<span class="nv">C</span> : category)
+     (<span class="nv">C'</span> : hsubtype (ob C))
+    (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_precategory C')): (pr1 a --&gt; pr1 b) ≃ (a--&gt;b) :=
+  tpair _ _ (isweq_hom_in_subcat_from_hom_in_precat C C' a b).
+
+
+<span class="kn">Lemma</span> <span class="nf">image_is_in_image</span> (<span class="nv">C</span> <span class="nv">D</span> : precategory) (<span class="nv">F</span> : functor C D)
+     (<span class="nv">a</span> : ob C): is_in_img_functor F (F a).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> hinhpr.
+  <span class="k">exists</span> <span class="nv">a</span>.
+  <span class="nb">apply</span> identity_z_iso.
+<span class="kn">Defined</span>.
+
+
+
+<span class="kn">Lemma</span> <span class="nf">functor_full_img_fully_faithful_if_fun_is</span> (<span class="nv">C</span> <span class="nv">D</span> : category)
+   (<span class="nv">F</span> : functor C D) (<span class="nv">H</span> : fully_faithful F) :
+   fully_faithful (functor_full_img F).
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> fully_faithful <span class="k">in</span> *.
+  <span class="nb">intros</span> a b.
+  <span class="nb">set</span> (H' := weq_hom_in_subcat_from_hom_in_precat).
+  <span class="nb">set</span> (H'' := H' D (is_in_img_functor F)).
+  <span class="nb">set</span> (Fa := tpair (<span class="k">λ</span> <span class="nv">a</span> : ob D, is_in_img_functor F a)
+        (F a) (image_is_in_image _ _ F a)).
+  <span class="nb">set</span> (Fb := tpair (<span class="k">λ</span> <span class="nv">a</span> : ob D, is_in_img_functor F a)
+        (F b) (image_is_in_image _ _ F b)).
+  <span class="nb">set</span> (H3 := (H'' Fa Fb)).
+  <span class="nb">assert</span> (H2 : functor_on_morphisms (functor_full_img F) (a:=a) (b:=b) =
+                  funcomp (functor_on_morphisms F (a:=a) (b:=b))
+                          ((H3))).
+  <span class="nb">apply</span> funextsec. <span class="nb">intro</span> f.
+  <span class="nb">apply</span> idpath.
+  <span class="nb">rewrite</span> H2.
+  <span class="nb">apply</span> (twooutof3c #F H3).
+  <span class="nb">apply</span> H.
+  <span class="nb">apply</span> pr2.
+<span class="kn">Qed</span>.
+
+
+
+
+<span class="sd">(** *** Image factorization C -&gt; Img(F) -&gt; D *)</span>
+
+<span class="kn">Local Lemma</span> <span class="nf">functor_full_img_factorization_ob</span> (<span class="nv">C</span> <span class="nv">D</span>: category)
+   (<span class="nv">F</span> : functor C D):
+  functor_on_objects F =
+  functor_on_objects (functor_composite
+       (functor_full_img F)
+            (sub_precategory_inclusion D _)).
+<span class="kn">Proof</span>.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Defined</span>.
+
+
+<span class="sd">(**  works up to eta conversion *)</span>
+
+<span class="c">(*</span>
+<span class="c">Lemma functor_full_img_factorization (C D: precategory)</span>
+<span class="c">                (F : functor C D) :</span>
+<span class="c">    F = functor_composite _ _ _ (functor_full_img F)</span>
+<span class="c">            (sub_precategory_inclusion D _).</span>
+<span class="c">Proof.</span>
+<span class="c">  apply functor_eq. About functor_full_img_factorization_ob.</span>
+<span class="c">  set (H := functor_full_img_factorization_ob C D F).</span>
+<span class="c">  simpl in *.</span>
+<span class="c">  destruct F as [F Fax].</span>
+<span class="c">  simpl.</span>
+<span class="c">  destruct F as [Fob Fmor]; simpl in *.</span>
+<span class="c">  apply (two_arg_paths_f (H)).</span>
+<span class="c">  unfold functor_full_img_factorization_ob in H.</span>
+<span class="c">  simpl in *.</span>
+<span class="c">  apply dep_funextfun.</span>
+<span class="c">  intro a.</span>
+<span class="c">  apply dep_funextfun.</span>
+<span class="c">  intro b.</span>
+<span class="c">  apply funextfun.</span>
+<span class="c">  intro f.</span>
+
+<span class="c">  generalize Fmor.</span>
+<span class="c">  clear Fax.</span>
+<span class="c">  assert (H' : Fob = (λ a : ob C, Fob a)).</span>
+<span class="c">   apply H.</span>
+
+<span class="c">  generalize dependent a .</span>
+<span class="c">  generalize dependent b.</span>
+<span class="c">  clear Fmor.</span>
+<span class="c">    generalize H.</span>
+<span class="c">  clear H.</span>
+<span class="c">  intro H.</span>
+<span class="c">  clear H'.</span>
+<span class="c">  destruct H.</span>
+<span class="c">  tion H.</span>
+<span class="c">  induction  H'.</span>
+<span class="c">  induction H'.</span>
+<span class="c">  clear H.</span>
+
+<span class="c">*)</span>
+
+
+<span class="sd">(** ** Any full subprecategory of a univalent_category is a univalent_category. *)</span>
+
+
+<span class="kn">Section</span> <span class="nf">full_sub_cat</span>.
+
+<span class="kn">Variable</span> <span class="nv">C</span> : category.
+
+<span class="kn">Variable</span> <span class="nv">C'</span> : hsubtype (ob C).
+
+
+<span class="sd">(** *** Isos in the full subcategory are equivalent to isos in the precategory *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">iso_in_subcat_is_iso_in_precat</span> (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_category C C'))
+       (<span class="nv">f</span> : z_iso a b): is_z_isomorphism (C:=C) (a:=pr1 a) (b:=pr1 b)
+     (pr1 (pr1 f)).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">pr1</span> (inv_from_z_iso f)).
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  - <span class="nb">set</span> (T:=z_iso_inv_after_z_iso f).
+    <span class="nb">apply</span> (base_paths _ _ T).
+  - <span class="nb">set</span> (T:=z_iso_after_z_iso_inv f).
+    <span class="nb">apply</span> (base_paths _ _ T).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">iso_in_precat_is_iso_in_subcat</span> (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_category C C'))
+     (<span class="nv">f</span> : z_iso (pr1 a) (pr1 b)) :
+   is_z_isomorphism (C:=full_sub_category C C')
+     (precategory_morphisms_in_subcat f tt).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">precategory_morphisms_in_subcat</span> (inv_from_z_iso f) tt).
+  <span class="nb">split</span>; <span class="nb">simpl</span>.
+  - <span class="nb">apply</span> eq_in_sub_precategory; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> z_iso_inv_after_z_iso.
+  - <span class="nb">apply</span> eq_in_sub_precategory; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> z_iso_after_z_iso_inv.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">iso_from_iso_in_sub</span> (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_category C C'))
+       (<span class="nv">f</span> : z_iso a b) : z_iso (pr1 a) (pr1 b) :=
+   tpair _ _ (iso_in_subcat_is_iso_in_precat a b f).
+
+<span class="kn">Definition</span> <span class="nf">iso_in_sub_from_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_category C C'))
+   (<span class="nv">f</span> : z_iso (pr1 a) (pr1 b)) : z_iso a b :=
+    tpair _ _ (iso_in_precat_is_iso_in_subcat a b f).
+
+<span class="kn">Lemma</span> <span class="nf">isweq_iso_from_iso_in_sub</span> (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_category C C')):
+     isweq (iso_from_iso_in_sub a b).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweq_iso _ (iso_in_sub_from_iso a b)).
+  - <span class="nb">intro</span> f.
+    <span class="nb">apply</span> z_iso_eq; <span class="nb">simpl</span>.
+    <span class="nb">apply</span> eq_in_sub_precategory, idpath.
+  - <span class="nb">intro</span> f; <span class="nb">apply</span> z_iso_eq, idpath.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isweq_iso_in_sub_from_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_category C C')):
+     isweq (iso_in_sub_from_iso a b).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (isweq_iso _ (iso_from_iso_in_sub a b)).
+  <span class="nb">intro</span> f; <span class="nb">apply</span> z_iso_eq, idpath.
+  <span class="nb">intro</span> f; <span class="nb">apply</span> z_iso_eq; <span class="nb">simpl</span>.
+  <span class="nb">apply</span> eq_in_sub_precategory, idpath.
+<span class="kn">Defined</span>.
+
+
+
+
+<span class="sd">(** *** From Identity in the subcategory to isos in the category  *)</span>
+<span class="sd">(** This gives a weak equivalence *)</span>
+
+<span class="kn">Definition</span> <span class="nf">Id_in_sub_to_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_category C C')):
+     a = b -&gt; z_iso (pr1 a) (pr1 b) :=
+       funcomp (@idtoiso _ a b) (iso_from_iso_in_sub a b).
+
+<span class="kn">Lemma</span> <span class="nf">Id_in_sub_to_iso_equal_iso</span>
+  (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_category C C')) :
+    Id_in_sub_to_iso a b = funcomp (total2_paths_hProp_equiv C' a b)
+                                    (@idtoiso _ (pr1 a) (pr1 b)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> p.
+  <span class="nb">destruct</span> p.
+  <span class="nb">apply</span> z_iso_eq.
+  <span class="nb">simpl</span>; <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">isweq_Id_in_sub_to_iso</span> (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_category C C')) (<span class="nv">H</span> : is_univalent C) :
+    isweq (Id_in_sub_to_iso a b).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> Id_in_sub_to_iso_equal_iso.
+  <span class="nb">apply</span> (twooutof3c _ idtoiso).
+  <span class="nb">apply</span> pr2.
+  <span class="nb">apply</span> H.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Decomp of map from id in the subcat to isos in the subcat via isos in ambient precat  *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">precat_paths_in_sub_as_3_maps</span>
+   (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_category C C')):
+     @idtoiso _ a b = funcomp (Id_in_sub_to_iso a b)
+                                        (iso_in_sub_from_iso a b).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> funextfun.
+  <span class="nb">intro</span> p; <span class="nb">destruct</span> p.
+  <span class="nb">apply</span> z_iso_eq; <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> precategory_morphisms_in_subcat.
+  <span class="nb">apply</span> eq_in_sub_precategory, idpath.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** The aforementioned decomposed map is a weak equivalence  *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">isweq_sub_precat_paths_to_iso</span>
+  (<span class="nv">a</span> <span class="nv">b</span> : ob (full_sub_category C C')) (<span class="nv">H</span> : is_univalent C) :
+ isweq (@idtoiso _ a b).
+<span class="kn">Proof</span>.
+  <span class="nb">rewrite</span> precat_paths_in_sub_as_3_maps.
+  <span class="k">match goal with</span> |- isweq (funcomp <span class="nl">?f</span> <span class="nl">?g</span>) =&gt; <span class="nb">apply</span> (twooutof3c f g) <span class="k">end</span>.
+  - <span class="nb">apply</span> isweq_Id_in_sub_to_iso; <span class="bp">assumption</span>.
+  - <span class="nb">apply</span> isweq_iso_in_sub_from_iso.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Proof of the targeted theorem: full subcats of cats are cats *)</span>
+
+
+<span class="kn">Lemma</span> <span class="nf">is_univalent_full_sub_category</span> (<span class="nv">H</span> : is_univalent C) : is_univalent (full_sub_category C C').
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> is_univalent.
+  <span class="nb">intros</span>; <span class="nb">apply</span> isweq_sub_precat_paths_to_iso; <span class="bp">assumption</span>.
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">full_sub_cat</span>.
+
+<span class="sd">(** The carrier of a subcategory of a univalent category is itself univalent. *)</span>
+<span class="kn">Definition</span> <span class="nf">subcategory_univalent</span> (<span class="nv">C</span> : univalent_category) (<span class="nv">C'</span> : hsubtype (ob C)) :
+  univalent_category.
+<span class="kn">Proof</span>.
+  use make_univalent_category.
+  - <span class="bp">exact</span> (subcategory C (full_sub_precategory C')).
+  - <span class="nb">apply</span> is_univalent_full_sub_category, univalent_category_is_univalent.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">univalent_image</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+  : univalent_category.
+<span class="kn">Proof</span>.
+  use make_univalent_category.
+  - <span class="bp">exact</span> (full_img_sub_precategory F).
+  - use is_univalent_full_sub_category.
+    <span class="bp">exact</span> (pr2 C₂).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">functor_full_img_essentially_surjective</span> (<span class="nv">A</span> <span class="nv">B</span> : category)
+     (<span class="nv">F</span> : functor A B) :
+  essentially_surjective (functor_full_img F).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> b.
+  use (pr2 b).
+  <span class="nb">intros</span> [c h] q Hq.
+  <span class="nb">apply</span> Hq.
+  <span class="k">exists</span> <span class="nv">c</span>.
+  <span class="nb">apply</span> iso_in_sub_from_iso.
+  <span class="nb">apply</span> h.
+<span class="kn">Qed</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Commuting triangle for factorization</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">full_image_inclusion_commute</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+  : functor_full_img F ∙ sub_precategory_inclusion C₂ (full_img_sub_precategory F)
+    ⟹
+    F.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, identity _).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> id_left, id_right ;
+       <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_image_inclusion_commute_nat_iso</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+  : nat_z_iso
+      (functor_full_img F ∙ sub_precategory_inclusion C₂ (full_img_sub_precategory F))
+      F.
+<span class="kn">Proof</span>.
+  use make_nat_z_iso.
+  - <span class="bp">exact</span> (full_image_inclusion_commute F).
+  - <span class="nb">intro</span>.
+    <span class="nb">apply</span> identity_is_z_iso.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** Isos in full subcategory *)</span>
+<span class="kn">Definition</span> <span class="nf">is_iso_full_sub</span>
+           {<span class="nv">C</span> : category}
+           {<span class="nv">P</span> : hsubtype C}
+           {<span class="nv">x</span> <span class="nv">y</span> : full_sub_category C P}
+           {<span class="nv">f</span> : x --&gt; y}
+           (<span class="nv">Hf</span> : is_z_isomorphism (pr1 f))
+  : is_z_isomorphism f.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">inv_from_z_iso</span> (_,,Hf) ,, tt).
+  <span class="nb">split</span>.
+    + <span class="kp">abstract</span>
+        (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit | ] ;
+         <span class="bp">exact</span> (z_iso_inv_after_z_iso (_,,Hf))).
+    + <span class="kp">abstract</span>
+        (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit | ] ;
+         <span class="bp">exact</span> (z_iso_after_z_iso_inv (_,,Hf))).
+<span class="kn">Defined</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Functors between full subcategories</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">full_sub_category_functor_data</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P</span> : hsubtype C₁}
+           {<span class="nv">Q</span> : hsubtype C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">HF</span> : ∏ (x : C₁), P x → Q (F x))
+  : functor_data
+      (full_sub_category C₁ P)
+      (full_sub_category C₂ Q).
+<span class="kn">Proof</span>.
+  use make_functor_data.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, F (pr1 x) ,, HF (pr1 x) (pr2 x)).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, #F (pr1 f) ,, tt).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_sub_category_is_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           {<span class="nv">P</span> : hsubtype C₁}
+           {<span class="nv">Q</span> : hsubtype C₂}
+           {<span class="nv">F</span> : C₁ ⟶ C₂}
+           (<span class="nv">HF</span> : ∏ (x : C₁), P x → Q (F x))
+  : is_functor (full_sub_category_functor_data HF).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span> ; <span class="nb">intro</span> ; <span class="nb">intros</span> ; <span class="nb">cbn</span> ; (use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> isapropunit | ]).
+  - <span class="nb">apply</span> functor_id.
+  - <span class="nb">apply</span> functor_comp.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">full_sub_category_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+           (<span class="nv">P</span> : hsubtype C₁)
+           (<span class="nv">Q</span> : hsubtype C₂)
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">HF</span> : ∏ (x : C₁), P x → Q (F x))
+  : full_sub_category C₁ P ⟶ full_sub_category C₂ Q.
+<span class="kn">Proof</span>.
+  use make_functor.
+  - <span class="bp">exact</span> (full_sub_category_functor_data HF).
+  - <span class="bp">exact</span> (full_sub_category_is_functor HF).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Subcategory/Full.v</tt>, line 34)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/Sets.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.Sets.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.PartA.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

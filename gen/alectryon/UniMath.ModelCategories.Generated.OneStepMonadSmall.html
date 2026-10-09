@@ -1,0 +1,1222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>OneStepMonadSmall.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.NaturalTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Coproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinCoproducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pushouts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Coequalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.whiskering.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Chains.Chains.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Colimits.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Monads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Constructions.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Arrow.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Examples.Three.
+
+<span class="kn">Require Import</span> UniMath.ModelCategories.MorphismClass.
+<span class="kn">Require Import</span> UniMath.ModelCategories.NWFS.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.LiftingWithClass.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Generated.OneStepMonad.
+<span class="kn">Require Import</span> UniMath.ModelCategories.Helpers.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Definition</span> <span class="nf">presentable</span> {<span class="nv">C</span> : category} (<span class="nv">x</span> : C) :=
+    preserves_colimits_of_shape
+      (cov_homSet_functor x)
+      nat_graph.
+
+<span class="kn">Definition</span> <span class="nf">class_presentable</span> {<span class="nv">C</span> : category} (<span class="nv">J</span> : morphism_class C) :=
+    ∏ (g : arrow C), J _ _ g -&gt; (presentable g).
+
+<span class="kn">Section</span> <span class="nf">OSCSmall</span>.
+
+<span class="kn">Context</span> {<span class="nv">C</span> : category}.
+<span class="kn">Context</span> (<span class="nv">J</span> : morphism_class C).
+<span class="kn">Context</span> (<span class="nv">CC</span> : Colims C).
+
+<span class="kn">Local Definition</span> <span class="nf">F1</span> := one_step_factorization J CC.
+<span class="kn">Local Definition</span> <span class="nf">K</span> := morcls_coprod_functor J CC.
+
+<span class="c">(* lifting problem to base colimit from other colimCocone by</span>
+<span class="c">   composing colimArrow *)</span>
+<span class="kn">Definition</span> <span class="nf">morcls_lp_colim_lp_to_morcls_base_colim_lp</span>
+    {<span class="nv">d</span> : chain (arrow C)}
+    {<span class="nv">cl</span> : arrow C}
+    {<span class="nv">cc</span> : cocone d cl}
+    (<span class="nv">isclCC</span> : isColimCocone d cl cc)
+    (<span class="nv">S</span> : morcls_lp J cl) :
+  morcls_lp J (colim (arrow_colims CC _ d)).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">morcls_lp_map</span> <span class="nv">S</span>).
+  <span class="nb">apply</span> (compose S).
+  <span class="nb">set</span> (clCC := make_ColimCocone _ _ _ isclCC).
+  <span class="bp">exact</span> (colimArrow clCC _ (colimCocone (arrow_colims CC _ d))).
+<span class="kn">Defined</span>.
+
+<span class="c">(* diagram of homsets *)</span>
+<span class="kn">Definition</span> <span class="nf">homSet_diagram</span>
+    (<span class="nv">f</span> : arrow C)
+    (<span class="nv">d</span> : chain (arrow C)) :=
+  mapdiagram (cov_homSet_functor f) d.
+
+<span class="kn">Definition</span> <span class="nf">homSet_diagram_colim</span>
+    (<span class="nv">f</span> : arrow C)
+    (<span class="nv">d</span> : chain (arrow C)) :=
+  ColimsHSET _ (homSet_diagram f d).
+
+<span class="kn">Definition</span> <span class="nf">homSet</span> (<span class="nv">f</span> <span class="nv">cl</span> : arrow C) : HSET.
+<span class="kn">Proof</span>.
+  use make_hSet.
+  - <span class="bp">exact</span> (f --&gt; cl).
+  - <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+<span class="c">(* set of lifting problems f --&gt; colim (K d) *)</span>
+<span class="kn">Definition</span> <span class="nf">arrow_colimK_lp_hSet</span>
+    (<span class="nv">f</span> : arrow C)
+    (<span class="nv">d</span> : chain (arrow C)) : hSet :=
+  homSet f (colim (arrow_colims CC _ (mapdiagram K d))).
+
+
+<span class="c">(* induced isomorphism on</span>
+<span class="c">    lifting problems f --&gt; cl</span>
+<span class="c">       ===&gt;</span>
+<span class="c">    colim (homSet_diagram_colim)</span>
+<span class="c">*)</span>
+<span class="kn">Definition</span> <span class="nf">presentable_lp_homSet_colim_z_iso</span>
+    {<span class="nv">d</span> : chain (arrow C)}
+    {<span class="nv">cl</span> : arrow C}
+    {<span class="nv">cc</span> : cocone d cl}
+    (<span class="nv">isclCC</span> : isColimCocone d cl cc)
+    (<span class="nv">f</span> : arrow C)
+    (<span class="nv">Hf</span> : presentable f) :
+  z_iso
+    (homSet f cl)
+    (colim (homSet_diagram_colim f d)).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (homset_ccbase_isCC := Hf _ _ _ isclCC).
+  <span class="nb">set</span> (homset_ccbase_CC := make_ColimCocone _ _ _ homset_ccbase_isCC).
+  <span class="nb">set</span> (homset_iso := isColim_is_z_iso _ (ColimsHSET _ (homSet_diagram f d)) _ _ homset_ccbase_isCC).
+  <span class="bp">exact</span> ((_,, is_z_isomorphism_inv homset_iso) : z_iso _ _).
+<span class="kn">Defined</span>.
+
+<span class="c">(* lifting problem J --&gt; cl as element in colim (homSet_diagram (pr1 S) d) *)</span>
+<span class="kn">Definition</span> <span class="nf">presentable_lp_homSet_colim_arrow</span>
+    {<span class="nv">d</span> : chain (arrow C)}
+    {<span class="nv">cl</span> : arrow C}
+    {<span class="nv">cc</span> : cocone d cl}
+    (<span class="nv">isclCC</span> : isColimCocone d cl cc)
+    (<span class="nv">S</span> : morcls_lp J cl)
+    (<span class="nv">HS</span> : presentable (pr1 (morcls_lp_map S))) :
+  pr1hSet (colim (homSet_diagram_colim (pr1 (morcls_lp_map S)) d)).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (homset_ccbase_isCC := HS _ _ _ (pr2 (arrow_colims CC _ d))).
+  <span class="nb">set</span> (homset_ccbase_CC := make_ColimCocone _ _ _ homset_ccbase_isCC).
+  <span class="nb">set</span> (homset_iso := isColim_is_z_iso _ (ColimsHSET _ (homSet_diagram (pr1 (morcls_lp_map S)) d)) _ _ homset_ccbase_isCC).
+  <span class="bp">exact</span> (pr1 homset_iso (pr2 (morcls_lp_colim_lp_to_morcls_base_colim_lp isclCC S))).
+<span class="kn">Defined</span>.
+
+<span class="c">(* inclusion of arrow into CoproductArrow in the arrow category *)</span>
+<span class="kn">Definition</span> <span class="nf">morcls_lp_coprod_in</span>
+    {<span class="nv">f</span> : arrow C}
+    (<span class="nv">S</span> : morcls_lp J f) :
+  pr1 (morcls_lp_map S) --&gt; morcls_lp_coprod CC J f.
+<span class="kn">Proof</span>.
+  use mors_to_arrow_mor.
+  - <span class="bp">exact</span> (CoproductIn (morcls_lp_dom_coprod CC J f) S).
+  - <span class="bp">exact</span> (CoproductIn (morcls_lp_cod_coprod CC J f) S).
+  - <span class="kp">abstract</span> (
+      <span class="bp">exact</span> (CoproductOfArrows'In _ _ (morcls_lp_dom_coprod CC J f) _ _ S)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* HSET colimit base, i.e. pairs of (v : vertex nat_graph, S : f --&gt; dob d v) *)</span>
+<span class="kn">Local Definition</span> <span class="nf">HSETcobase</span> (<span class="nv">f</span> : arrow C) (<span class="nv">d</span> : chain (arrow C)) :=
+    Colimits.cobase _ (homSet_diagram f d).
+
+<span class="c">(* given a lp (f, S) : morcls_lp J cl,</span>
+<span class="c">   a map from HSET colimit base (i.e. pairs of (v, f --&gt; dob d v))</span>
+<span class="c">   to lifting problems f --&gt; (colim (K d)) *)</span>
+<span class="c">(* we will use this to define a map from the colimit *)</span>
+<span class="kn">Definition</span> <span class="nf">presentable_lp_homSet_colim_colimK_fun</span>
+    (<span class="nv">d</span> : chain (arrow C))
+    {<span class="nv">cl</span> : arrow C}
+    (<span class="nv">S</span> : morcls_lp J cl) :
+  HSETcobase (pr1 (morcls_lp_map S)) d
+  -&gt; pr1hSet (arrow_colimK_lp_hSet (pr1 (morcls_lp_map S)) d).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> vS'.
+  <span class="nb">destruct</span> vS' <span class="k">as</span> [v S'].
+  <span class="nb">set</span> (S'lp := (morcls_lp_map S,, S') : morcls_lp J (dob d v)).
+  <span class="nb">apply</span> (compose (morcls_lp_coprod_in S'lp)).
+  <span class="bp">exact</span> (colimIn (arrow_colims CC _ (mapdiagram K d)) v).
+<span class="kn">Defined</span>.
+
+<span class="c">(* helper relation on the function to show that it preserves</span>
+<span class="c">   the colimit equivalence relation on HSETcobase *)</span>
+<span class="kn">Local Definition</span> <span class="nf">presentable_lp_homSet_colim_colimK_fun_rel</span>
+    (<span class="nv">d</span> : chain (arrow C))
+    {<span class="nv">cl</span> : arrow C}
+    (<span class="nv">S</span> : morcls_lp J cl) :
+  hrel (HSETcobase (pr1 (morcls_lp_map S)) d).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> uS vT.
+  <span class="k">exists</span> (
+    <span class="nv">presentable_lp_homSet_colim_colimK_fun</span> <span class="nv">d</span> <span class="nv">S</span> <span class="nv">uS</span>
+    = presentable_lp_homSet_colim_colimK_fun d S vT
+  ).
+  <span class="nb">apply</span> homset_property.
+<span class="kn">Defined</span>.
+
+<span class="c">(* we show it is an equivalence relation *)</span>
+<span class="kn">Local Definition</span> <span class="nf">presentable_lp_homSet_colim_colimK_fun_eqrel</span>
+    (<span class="nv">d</span> : chain (arrow C))
+    {<span class="nv">cl</span> : arrow C}
+    (<span class="nv">S</span> : morcls_lp J cl) :
+  eqrel (HSETcobase (pr1 (morcls_lp_map S)) d).
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (<span class="nv">presentable_lp_homSet_colim_colimK_fun_rel</span> <span class="nv">d</span> <span class="nv">S</span>).
+  <span class="kp">abstract</span> (
+    <span class="kp">repeat</span> <span class="nb">split</span>;
+      [ <span class="nb">intros</span> x y z H1 H2 ;
+        <span class="bp">exact</span> (pathscomp0 H1 H2)
+      |
+        <span class="nb">intros</span> x y H;
+        <span class="bp">exact</span> (pathsinv0 H)
+      ]
+  ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* we show that our equivalence relation holds, whenever two</span>
+<span class="c">   pairs (u,, f --&gt; dob d u) and (v,, f --&gt; dob d v)</span>
+<span class="c">   are related through the relation on HSETcobase,</span>
+<span class="c">   i.e. there is a morphism dob d u --&gt; dob d v</span>
+<span class="c">   such that the composite with dob d u is equal to dob d v.</span>
+<span class="c">   This is the exact relation that we want to find back in</span>
+<span class="c">   our proofs later "if it holds for all (u,, f --&gt; dob d u),</span>
+<span class="c">   then our proof holds"</span>
+<span class="c">*)</span>
+<span class="kn">Lemma</span> <span class="nf">presentable_lp_homSet_colim_colimK_fun_rel0_impl</span>
+    (<span class="nv">d</span> : chain (arrow C))
+    {<span class="nv">cl</span> : arrow C}
+    (<span class="nv">S'</span> : morcls_lp J cl)
+    (<span class="nv">uS</span> <span class="nv">vT</span> : (HSETcobase (pr1 (morcls_lp_map S')) d))
+    (<span class="nv">HuSvT</span> : Colimits.rel0 _ _ uS vT) :
+  presentable_lp_homSet_colim_colimK_fun_eqrel d S' uS vT.
+<span class="kn">Proof</span>.
+  use HuSvT. <span class="nb">clear</span> HuSvT.
+  <span class="nb">intro</span> H; <span class="nb">simpl</span>.
+  <span class="nb">destruct</span> H <span class="k">as</span> [f Hf].
+  <span class="nb">destruct</span> uS <span class="k">as</span> [u Su].
+  <span class="nb">destruct</span> vT <span class="k">as</span> [v Tv].
+
+  <span class="nb">unfold</span> presentable_lp_homSet_colim_colimK_fun.
+  <span class="nb">cbn</span> <span class="k">in</span> f.
+  <span class="nb">induction</span> f.
+  etrans. <span class="nb">apply</span> maponpaths.
+          <span class="nb">set</span> (ccincomm := colimInCommutes (arrow_colims CC nat_graph (mapdiagram K d)) _ _ (idpath (S u))).
+          <span class="bp">exact</span> (pathsinv0 ccincomm).
+  <span class="nb">rewrite</span> assoc.
+  <span class="nb">apply</span> (cancel_postcomposition _ _ (colimIn (arrow_colims CC nat_graph (mapdiagram K d)) (S u))).
+  use arrow_mor_eq.
+  - etrans. <span class="nb">apply</span> (CoproductOfArrowsInclusionIn _ (morcls_lp_dom_coprod CC J (dob d u)) _ _ (morcls_lp_map S',, Su)).
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">cbn</span>.
+    morcls_lp_coproduct_in_eq.
+    use arrow_mor_eq.
+    * use (pathscomp1 (arrow_mor00_eq Hf)); [|<span class="bp">reflexivity</span>].
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> id_left.
+    * use (pathscomp1 (arrow_mor11_eq Hf)); [|<span class="bp">reflexivity</span>].
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> id_left.
+  - etrans. <span class="nb">apply</span> (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J (dob d u)) _ _ (morcls_lp_map S',, Su)).
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">cbn</span>.
+    morcls_lp_coproduct_in_eq.
+    use arrow_mor_eq.
+    * use (pathscomp1 (arrow_mor00_eq Hf)); [|<span class="bp">reflexivity</span>].
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> id_left.
+    * use (pathscomp1 (arrow_mor11_eq Hf)); [|<span class="bp">reflexivity</span>].
+      etrans. <span class="nb">apply</span> assoc'.
+      <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="c">(* This implies that our equivalence relation</span>
+<span class="c">   holds whenever two pairs are related by the closure</span>
+<span class="c">   of the relations on HSETcobase *)</span>
+<span class="kn">Lemma</span> <span class="nf">presentable_lp_homSet_colim_colimK_fun_rel_impl</span>
+    (<span class="nv">d</span> : chain (arrow C))
+    {<span class="nv">cl</span> : arrow C}
+    (<span class="nv">S</span> : morcls_lp J cl)
+    (<span class="nv">uS</span> <span class="nv">vT</span> : (HSETcobase (pr1 (morcls_lp_map S)) d))
+    (<span class="nv">HuSvT</span> : Colimits.rel _ _ uS vT) :
+  presentable_lp_homSet_colim_colimK_fun_eqrel d S uS vT.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (meqrel := @minimal_eqrel_from_hrel _ (Colimits.rel0 _ (homSet_diagram (pr1 (morcls_lp_map S)) d))).
+  <span class="nb">set</span> (presfun := presentable_lp_homSet_colim_colimK_fun_eqrel d S).
+
+  <span class="nb">apply</span> (meqrel presfun).
+  - <span class="nb">apply</span> (presentable_lp_homSet_colim_colimK_fun_rel0_impl d S).
+  - <span class="nb">trivial</span>.
+<span class="kn">Qed</span>.
+
+<span class="c">(* This in turn implies that our function is compatible</span>
+<span class="c">   with the equivalence relation on ColimHSET of HSETcobase *)</span>
+<span class="kn">Definition</span> <span class="nf">presentable_lp_homSet_colim_colimK_fun_iscomprel</span>
+    (<span class="nv">d</span> : chain (arrow C))
+    {<span class="nv">cl</span> : arrow C}
+    (<span class="nv">S</span> : morcls_lp J cl)
+    (<span class="nv">HS</span> : presentable (pr1 (morcls_lp_map S))) :
+  iscomprelfun
+      (Colimits.rel _ (homSet_diagram (pr1 (morcls_lp_map S)) _))
+      (presentable_lp_homSet_colim_colimK_fun d S).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> uS' vT'.
+  <span class="nb">apply</span> presentable_lp_homSet_colim_colimK_fun_rel_impl.
+<span class="kn">Qed</span>.
+
+<span class="c">(* This allows us to use the function to define an arrow</span>
+<span class="c">   f --&gt; colim (K d)</span>
+<span class="c">  given any lifting problem f --&gt; cl for cl a colimit on d *)</span>
+<span class="kn">Definition</span> <span class="nf">presentable_lp_colimK_mor</span>
+    {<span class="nv">d</span> : chain (arrow C)}
+    {<span class="nv">cl</span> : arrow C}
+    {<span class="nv">cc</span> : cocone d cl}
+    (<span class="nv">isclCC</span> : isColimCocone d cl cc)
+    (<span class="nv">S</span> : morcls_lp J cl)
+    (<span class="nv">HS</span> : presentable (pr1 (morcls_lp_map S))) :
+  pr1 (morcls_lp_map S) --&gt; colim (arrow_colims CC _ (mapdiagram K d)).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (f := presentable_lp_homSet_colim_colimK_fun d S).
+  <span class="nb">set</span> (fcomprel := presentable_lp_homSet_colim_colimK_fun_iscomprel d S HS).
+  <span class="nb">set</span> (homset_colim_arrow := presentable_lp_homSet_colim_arrow isclCC S HS).
+  <span class="bp">exact</span> (setquotuniv _ _ f fcomprel homset_colim_arrow).
+<span class="kn">Defined</span>.
+
+<span class="c">(* ABSOLUTELY disgusting *)</span>
+<span class="c">(* we want to show that the arrow f --&gt; colim (K d) we get</span>
+<span class="c">   for any lifting problem of the form Sv · coconeIn cc v</span>
+<span class="c">   is the same as the canonical projection of (v,, Sv)</span>
+<span class="c">   down to the set quotient. *)</span>
+<span class="kn">Lemma</span> <span class="nf">presentable_lp_homSet_colim_arrow_of_factored_arrow</span>
+    {<span class="nv">d</span> : chain (arrow C)}
+    {<span class="nv">cl</span> : arrow C}
+    {<span class="nv">cc</span> : cocone d cl}
+    (<span class="nv">isclCC</span> : isColimCocone d cl cc)
+    {<span class="nv">v</span> : vertex nat_graph}
+    (<span class="nv">S</span> : morcls_lp J (dob d v))
+    (<span class="nv">HS</span> : presentable (pr1 (morcls_lp_map S))) :
+  <span class="k">let</span> <span class="nv">Sin</span> := (pr1 S,, pr2 S · coconeIn cc v) : morcls_lp J cl <span class="k">in</span>
+  presentable_lp_homSet_colim_arrow isclCC Sin HS
+  = setquotpr (Colimits.eqr _ (homSet_diagram (pr1 (morcls_lp_map Sin)) d)) (v,, pr2 S).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> Sin.
+  <span class="nb">set</span> (homset_ccbase_isCC := HS _ _ _ (pr2 (arrow_colims CC _ d))).
+  <span class="nb">set</span> (homset_ccbase_CC := make_ColimCocone _ _ _ homset_ccbase_isCC).
+  <span class="nb">set</span> (homset_iso := isColim_is_z_iso _ (ColimsHSET _ (homSet_diagram (pr1 (morcls_lp_map S)) d)) _ _ homset_ccbase_isCC).
+  <span class="nb">set</span> (carrcomm := colimArrowCommutes (homset_ccbase_CC) _ (colimCocone (ColimsHSET _ (homSet_diagram (pr1 (morcls_lp_map S)) d))) v).
+  use (pathscomp1 (funeq carrcomm (pr2 S))); [|<span class="bp">reflexivity</span>].
+  etrans. <span class="nb">unshelve</span> use (funeq _ (pr2 S)).
+          <span class="mi">2</span>: {
+            use (colimArrowCommutes (homset_ccbase_CC)).
+          }
+  <span class="c">(* unfold Sinarr. *)</span>
+  <span class="nb">unfold</span> presentable_lp_homSet_colim_arrow.
+  <span class="nb">set</span> (iso := isColim_is_z_iso
+          _
+          (ColimsHSET nat_graph
+            (homSet_diagram (pr1 (morcls_lp_map Sin)) d))
+          _ _
+          (HS d (pr11 (arrow_colims CC nat_graph d))
+            (pr21 (arrow_colims CC nat_graph d))
+            (pr2 (arrow_colims CC nat_graph d)))).
+  <span class="nb">set</span> (ziso := (_,, iso) : z_iso _ _).
+  <span class="nb">set</span> (iso_rel := pr122 ziso).
+  <span class="nb">assert</span> (X : pr2 (morcls_lp_colim_lp_to_morcls_base_colim_lp isclCC Sin) = pr1 ziso (coconeIn
+                  (colimCocone
+                    (ColimsHSET nat_graph
+                        (homSet_diagram (pr1 (morcls_lp_map S)) d))) v
+                  (pr2 S))).
+  {
+    etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (colimArrowCommutes (make_ColimCocone _ _ _ isclCC)).
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc'.
+    use arrow_mor_eq; <span class="nb">apply</span> id_left.
+  }
+  <span class="nb">rewrite</span> X.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. use (funeq iso_rel).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="c">(* we can use this to show that the following relation holds</span>
+<span class="c">   for any such arrow *)</span>
+<span class="kn">Lemma</span> <span class="nf">presentable_lp_colimK_mor_coconeInCommutes</span>
+    {<span class="nv">d</span> : chain (arrow C)}
+    {<span class="nv">cl</span> : arrow C}
+    {<span class="nv">cc</span> : cocone d cl}
+    (<span class="nv">isclCC</span> : isColimCocone d cl cc)
+    {<span class="nv">v</span> : vertex nat_graph}
+    (<span class="nv">S</span> : morcls_lp J (dob d v))
+    (<span class="nv">HS</span> : presentable (pr1 (morcls_lp_map S))) :
+  presentable_lp_colimK_mor isclCC (pr1 S,, pr2 S · coconeIn cc v) HS
+  = morcls_lp_coprod_in S · colimIn (arrow_colims CC _ (mapdiagram K d)) v.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (Sin := (pr1 S,, pr2 S · coconeIn cc v) : morcls_lp J cl).
+  <span class="nb">unfold</span> presentable_lp_colimK_mor.
+  <span class="nb">set</span> (Sinarr := presentable_lp_homSet_colim_arrow isclCC Sin HS).
+  <span class="nb">set</span> (rel := (Colimits.eqr _ (homSet_diagram (pr1 (morcls_lp_map Sin)) d))).
+  <span class="nb">set</span> (X := presentable_lp_homSet_colim_arrow_of_factored_arrow isclCC S HS : Sinarr = setquotpr rel (v,, pr2 S)).
+  <span class="nb">rewrite</span> X.
+  etrans. <span class="bp">exact</span> (
+    setquotunivcomm
+      rel
+      _
+      (presentable_lp_homSet_colim_colimK_fun d Sin)
+      (presentable_lp_homSet_colim_colimK_fun_iscomprel d Sin HS)
+      (v,, pr2 S)
+  ).
+  <span class="nb">unfold</span> presentable_lp_homSet_colim_colimK_fun.
+  use arrow_mor_eq; <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="c">(* predicate type to show relations on f --&gt; cl given</span>
+<span class="c">   that it holds for any (v,, Sv · colimIn cc v) *)</span>
+<span class="kn">Local Definition</span> <span class="nf">predicate_type</span>
+    (<span class="nv">d</span> : chain (arrow C))
+    (<span class="nv">cl</span> : arrow C)
+    (<span class="nv">f</span> : arrow C) :=
+  (f --&gt; cl) -&gt; hProp.
+
+<span class="c">(* disgusting, but very useful *)</span>
+<span class="c">(* we show that a predicate on a lifting problem f --&gt; cl</span>
+<span class="c">   holds whenever it holds for any (Sv · colimIn cc v) for</span>
+<span class="c">   a pair (v,, Sv : f --&gt; dob d v) *)</span>
+<span class="kn">Definition</span> <span class="nf">presentable_lp_colimK_mor_univ</span>
+    {<span class="nv">d</span> : chain (arrow C)}
+    {<span class="nv">cl</span> : arrow C}
+    {<span class="nv">cc</span> : cocone d cl}
+    (<span class="nv">isclCC</span> : isColimCocone d cl cc)
+    (<span class="nv">S</span> : morcls_lp J cl)
+    (<span class="nv">HS</span> : presentable (pr1 (morcls_lp_map S)))
+    (<span class="nv">P</span> : predicate_type d cl (pr1 (morcls_lp_map S)))
+    (<span class="nv">PS</span> : ∏ (v : vertex nat_graph)
+      (Sv : pr1hSet (dob (homSet_diagram (pr1 (morcls_lp_map S)) d) v)),
+        P (Sv · (colimIn (make_ColimCocone _ _ _ isclCC) v))) :
+  P (pr2 S).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (homset_z_iso := presentable_lp_homSet_colim_z_iso isclCC (pr1 (morcls_lp_map S)) HS).
+  <span class="nb">set</span> (Srew := funeq (pr122 homset_z_iso) (pr2 S)).
+  <span class="nb">change</span> (P (identity (homSet (pr1 (morcls_lp_map S)) cl) (pr2 S))).
+  <span class="nb">rewrite</span> &lt;- Srew.
+  <span class="nb">set</span> (Spr := (pr1 homset_z_iso) (pr2 S)).
+  <span class="nb">change</span> (P ((pr12 homset_z_iso) Spr)).
+
+  <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> colimArrow.
+  <span class="nb">simpl</span>.
+  <span class="nb">unfold</span> from_colimHSET.
+  <span class="nb">simpl</span>.
+  <span class="nb">set</span> (rel := (Colimits.eqr _ (homSet_diagram (pr1 (morcls_lp_map S)) d))).
+  transparent <span class="nb">assert</span> (pred : (pr1hSet (colim (homSet_diagram_colim (pr1 (morcls_lp_map S)) d)) -&gt; hProp)).
+  {
+    <span class="nb">intro</span> S'.
+    <span class="bp">exact</span> (P
+      (setquotuniv
+        rel
+        _
+        (Colimits.from_cobase _ _ _
+            (mapcocone (cov_homSet_functor (pr1 (morcls_lp_map S))) d cc))
+        (iscomprel_from_base _ _ _
+            (mapcocone (cov_homSet_functor (pr1 (morcls_lp_map S))) d cc))
+        S'
+      )
+    ).
+  }
+  use (setquotunivprop rel pred).
+  <span class="nb">intro</span> uSu.
+  <span class="nb">change</span> (pred (setquotpr rel uSu)).
+  <span class="nb">unfold</span> pred.
+  <span class="nb">set</span> (predcomm := setquotunivcomm
+    rel
+    _
+    (Colimits.from_cobase _ _ _
+        (mapcocone (cov_homSet_functor (pr1 (morcls_lp_map S))) d cc))
+    (iscomprel_from_base _ _ _
+        (mapcocone (cov_homSet_functor (pr1 (morcls_lp_map S))) d cc))
+    uSu
+  ).
+  <span class="nb">rewrite</span> predcomm.
+  <span class="nb">destruct</span> uSu <span class="k">as</span> [u Su].
+  <span class="nb">change</span> (P (identity _ · Su · (colimIn (make_ColimCocone _ _ _ isclCC) u))).
+  <span class="nb">rewrite</span> id_left.
+  <span class="bp">exact</span> (PS u Su).
+<span class="kn">Qed</span>.
+
+<span class="c">(* we use thsi to show the following relation *)</span>
+<span class="kn">Lemma</span> <span class="nf">presentable_lp_colimK_mor_colimArrowCommutes</span>
+    {<span class="nv">d</span> : chain (arrow C)}
+    {<span class="nv">cl</span> : arrow C}
+    {<span class="nv">cc</span> : cocone d cl}
+    (<span class="nv">isclCC</span> : isColimCocone d cl cc)
+    (<span class="nv">S</span> : morcls_lp J cl)
+    (<span class="nv">HS</span> : presentable (pr1 (morcls_lp_map S))) :
+  presentable_lp_colimK_mor isclCC S HS
+  · colimArrow (arrow_colims CC _ (mapdiagram K d)) _ (mapcocone K d cc)
+  = morcls_lp_coprod_in S.
+<span class="kn">Proof</span>.
+  <span class="nb">unfold</span> presentable_lp_colimK_mor.
+
+  <span class="nb">set</span> (g := (morcls_lp_map S)).
+  transparent <span class="nb">assert</span> (pred : (predicate_type d cl (pr1 g))).
+  {
+    <span class="nb">intro</span> S'.
+    use make_hProp.
+    - <span class="bp">exact</span> (
+        presentable_lp_colimK_mor isclCC (g,, S') HS
+        · colimArrow (arrow_colims CC _ (mapdiagram K d)) _ (mapcocone K d cc)
+        = morcls_lp_coprod_in (g,, S')
+      ).
+    - <span class="nb">apply</span> homset_property.
+  }
+
+  use (presentable_lp_colimK_mor_univ isclCC S HS pred).
+  <span class="nb">intros</span> u Su.
+  <span class="nb">set</span> (Su' := (pr1 S,, Su) : morcls_lp J (dob d u)).
+  <span class="nb">unfold</span> pred.
+  <span class="nb">simpl</span>.
+  etrans. <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (presentable_lp_colimK_mor_coconeInCommutes isclCC Su' HS).
+  use subtypePath; [<span class="nb">intro</span>; <span class="nb">apply</span> homset_property|].
+  <span class="nb">apply</span> pathsdirprod.
+  - etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (colimArrowCommutes (CC _ (project_diagram00 (mapdiagram K d)))).
+    etrans. <span class="nb">apply</span> (CoproductOfArrowsInclusionIn _ (morcls_lp_dom_coprod CC J (dob d u)) _ _ Su').
+    <span class="nb">apply</span> id_left.
+  - etrans. <span class="nb">apply</span> assoc'.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (colimArrowCommutes (CC _ (project_diagram11 (mapdiagram K d)))).
+    etrans. <span class="nb">apply</span> (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J (dob d u)) _ _ Su').
+    <span class="nb">apply</span> id_left.
+<span class="kn">Qed</span>.
+
+<span class="c">(* The main proof of interest! *)</span>
+<span class="kn">Lemma</span> <span class="nf">K_small_if_J_small</span> :
+  class_presentable J
+  -&gt; preserves_colimits_of_shape K nat_graph.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> HJ.
+  <span class="nb">intros</span> d cl cc isclCC.
+
+  <span class="nb">set</span> (clCC := make_ColimCocone _ _ _ isclCC).
+  <span class="nb">set</span> (Kd00 := project_diagram00 (mapdiagram K d)).
+  <span class="nb">set</span> (Kd11 := project_diagram11 (mapdiagram K d)).
+
+  use (is_z_iso_isColim _ (arrow_colims CC _ (mapdiagram K d))).
+  use tpair.
+  - use mors_to_arrow_mor.
+    * use CoproductArrow.
+      <span class="nb">intro</span> S.
+      <span class="bp">exact</span> (arrow_mor00 (presentable_lp_colimK_mor isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
+    * use CoproductArrow.
+      <span class="nb">intro</span> S.
+      <span class="bp">exact</span> (arrow_mor11 (presentable_lp_colimK_mor isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
+    * <span class="kp">abstract</span> (
+        use CoproductArrow_eq;
+        <span class="nb">intro</span> S;
+        etrans; [<span class="nb">apply</span> assoc|];
+        etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J cl))|];
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> assoc|];
+        etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                <span class="nb">apply</span> (CoproductOfArrows'In _ _ (morcls_lp_dom_coprod CC J cl) _ _ S)|];
+        etrans; [<span class="nb">apply</span> assoc'|];
+        etrans; [<span class="nb">apply</span> cancel_precomposition;
+                <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_cod_coprod CC J cl))|];
+        <span class="nb">set</span> (mor := (presentable_lp_colimK_mor isclCC S (HJ _ (pr2 (morcls_lp_map S)))));
+        <span class="bp">exact</span> (pathsinv0 (arrow_mor_comm mor))
+      ).
+  - <span class="nb">split</span>.
+    * <span class="nb">apply</span> pathsinv0.
+      use (colim_endo_is_identity).
+      <span class="nb">intro</span> v.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="nb">apply</span> (colimArrowCommutes).
+      use arrow_mor_eq.
+      + use CoproductArrow_eq.
+        <span class="nb">intro</span> S.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (CoproductOfArrowsInclusionIn _ (morcls_lp_dom_coprod CC J (dob d v))).
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> id_left.
+        etrans. <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J cl) _ (pr1 S,, _)).
+        <span class="bp">exact</span> (arrow_mor00_eq (presentable_lp_colimK_mor_coconeInCommutes isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
+      + use CoproductArrow_eq.
+        <span class="nb">intro</span> S.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J (dob d v))).
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> id_left.
+        etrans. <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_cod_coprod CC J cl) _ (pr1 S,, _)).
+        <span class="bp">exact</span> (arrow_mor11_eq (presentable_lp_colimK_mor_coconeInCommutes isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
+    * use arrow_mor_eq.
+      + use CoproductArrow_eq.
+        <span class="nb">intro</span> S.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J cl) _ S).
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="bp">exact</span> (arrow_mor00_eq (presentable_lp_colimK_mor_colimArrowCommutes isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
+      + use CoproductArrow_eq.
+        <span class="nb">intro</span> S.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_cod_coprod CC J cl) _ S).
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> pathsinv0.
+        <span class="bp">exact</span> (arrow_mor11_eq (presentable_lp_colimK_mor_colimArrowCommutes isclCC S (HJ _ (pr2 (morcls_lp_map S))))).
+<span class="kn">Qed</span>.
+
+<span class="c">(* no need for information about f here,</span>
+<span class="c">   this morphism is just the pushout square *)</span>
+<span class="kn">Definition</span> <span class="nf">K_L1_colim_mor</span> (<span class="nv">f</span> : arrow C) :
+   K f --&gt; fact_L F1 f.
+<span class="kn">Proof</span>.
+ use mors_to_arrow_mor.
+ * <span class="bp">exact</span> (arrow_mor00 (morcls_lp_coprod_diagram CC J f)).
+ * <span class="bp">exact</span> (PushoutIn1 (morcls_lp_coprod_diagram_pushout CC J f)).
+ * <span class="kp">abstract</span> (
+     <span class="nb">set</span> (pocomm := PushoutSqrCommutes (morcls_lp_coprod_diagram_pushout CC J f));
+     <span class="bp">exact</span> (pathsinv0 pocomm)
+   ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* this is just the pushout square again *)</span>
+<span class="kn">Definition</span> <span class="nf">colim_K_L1_mor_pointwise</span>
+  {<span class="nv">g</span> : graph}
+  (<span class="nv">d</span> : diagram g (arrow C))
+  (<span class="nv">v</span> : vertex g) :
+    dob (mapdiagram K d) v
+    --&gt; dob (mapdiagram (fact_L F1) d) v :=
+  K_L1_colim_mor (dob d v).
+
+<span class="c">(* pushouts and coproducts commute *)</span>
+<span class="kn">Lemma</span> <span class="nf">colim_K_L1_mor_commutes</span>
+    {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g (arrow C))
+    {<span class="nv">u</span> <span class="nv">v</span> : vertex g} (<span class="nv">e</span> : edge u v) :
+  dmor (mapdiagram K d) e · colim_K_L1_mor_pointwise d v
+  = colim_K_L1_mor_pointwise d u · dmor (mapdiagram (fact_L F1) d) e.
+<span class="kn">Proof</span>.
+  use arrow_mor_eq.
+  - etrans. <span class="nb">apply</span> (precompWithCoproductArrowInclusion).
+    use CoproductArrow_eq.
+    <span class="nb">intro</span> S.
+    etrans. <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J (dob d u))).
+    etrans. <span class="nb">apply</span> id_left.
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J (dob d u))).
+    <span class="bp">reflexivity</span>.
+  - use CoproductArrow_eq.
+    <span class="nb">intro</span> S.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J (dob d u))).
+    <span class="nb">apply</span> pathsinv0.
+    etrans. <span class="nb">apply</span> cancel_precomposition.
+            <span class="nb">apply</span> (PushoutArrow_PushoutIn1).
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (CoproductOfArrowsInclusionIn _ (morcls_lp_cod_coprod CC J (dob d u))).
+    <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="c">(* colim (K fi) --&gt; colim (L1 fi) *)</span>
+<span class="kn">Definition</span> <span class="nf">colim_K_L1_mor</span>
+    {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g (arrow C)) :
+  colim (arrow_colims CC g (mapdiagram K d))
+  --&gt; colim (arrow_colims CC g (mapdiagram (fact_L F1) d)).
+<span class="kn">Proof</span>.
+  use colimOfArrows.
+  - <span class="nb">intro</span> v.
+    <span class="bp">exact</span> (colim_K_L1_mor_pointwise d v).
+  - <span class="kp">abstract</span> (
+      <span class="bp">exact</span> (@colim_K_L1_mor_commutes g d)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* colim (K fi) --&gt; K (colim fi) *)</span>
+<span class="kn">Definition</span> <span class="nf">can_K_mor</span>
+    {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g (arrow C))
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">HK</span> : preserves_colimit K _ _ ccf)
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf) :
+  z_iso
+    (colim (arrow_colims CC g (mapdiagram K d)))
+    (K f).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (HKCC := HK isclCC).
+  <span class="nb">set</span> (K_mor := isColim_is_z_iso _ (arrow_colims CC _ (mapdiagram K d)) _ _ HKCC).
+  <span class="bp">exact</span> (_,, K_mor).
+<span class="kn">Defined</span>.
+
+<span class="c">(* L1 (colim fi) --&gt; colim fi *)</span>
+<span class="kn">Definition</span> <span class="nf">L_colim_id_mor</span> (<span class="nv">f</span> : arrow C) :
+    fact_L F1 f --&gt; f.
+<span class="kn">Proof</span>.
+  <span class="bp">exact</span> (ε (lnwfs_L_monad (one_step_comonad J CC)) f).
+<span class="kn">Defined</span>.
+
+<span class="c">(* colim (L1 fi) --&gt; colim fi *)</span>
+<span class="kn">Definition</span> <span class="nf">colim_L_id_mor</span>
+    {<span class="nv">g</span> : graph} (<span class="nv">d</span> : diagram g (arrow C))
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf)  :
+  colim (arrow_colims CC g (mapdiagram (fact_L F1) d))
+  --&gt; f.
+<span class="kn">Proof</span>.
+  use colimArrow.
+  <span class="nb">set</span> (ccL1f := mapcocone (fact_L F1) _ ccf).
+  use make_cocone.
+  - <span class="nb">intro</span> v.
+    use mors_to_arrow_mor.
+    * <span class="bp">exact</span> (arrow_mor00 (coconeIn ccL1f v)).
+    * <span class="bp">exact</span> ((arrow_mor11 (coconeIn ccL1f v)) · fact_R F1 f).
+    * <span class="kp">abstract</span> (
+        <span class="nb">apply</span> pathsinv0;
+        etrans; [<span class="nb">apply</span> assoc|];
+        etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                <span class="bp">exact</span> (pathsinv0 (arrow_mor_comm (coconeIn ccL1f v)))|];
+        etrans; [<span class="nb">apply</span> assoc'|];
+        <span class="nb">apply</span> cancel_precomposition;
+        <span class="bp">exact</span> (three_comp (fact_functor F1 f))
+      ).
+  - <span class="kp">abstract</span> (
+      <span class="nb">intros</span> u v e;
+      <span class="nb">set</span> (ccL1fcomm := coconeInCommutes ccL1f _ _ e);
+      use arrow_mor_eq; [
+        <span class="bp">exact</span> (arrow_mor00_eq ccL1fcomm)
+      | etrans; [<span class="nb">apply</span> assoc|];
+        etrans; [<span class="nb">apply</span> cancel_postcomposition;
+                 <span class="bp">exact</span> (arrow_mor11_eq ccL1fcomm)|];
+        <span class="bp">reflexivity</span>
+      ]
+    ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* we need to know that arrow_dom f is</span>
+<span class="c">   a colimit for (L1 d)00, after all, all morphisms</span>
+<span class="c">   are identity. We need an isomorphism *)</span>
+<span class="kn">Definition</span> <span class="nf">dom_colim_dom_L1_cocone</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} (<span class="nv">ccf</span> : cocone d f):
+  cocone (project_diagram00 (mapdiagram (fact_L F1) d)) (arrow_dom f).
+<span class="kn">Proof</span>.
+  use make_cocone.
+  - <span class="nb">intro</span> v. <span class="bp">exact</span> (arrow_mor00 (coconeIn ccf v)).
+  - <span class="kp">abstract</span> (<span class="nb">intros</span> u v e; <span class="bp">exact</span> (arrow_mor00_eq (coconeInCommutes ccf _ _ e))).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">dom_colim_dom_L1_isColimCocone</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf) :
+  isColimCocone _ _ (dom_colim_dom_L1_cocone ccf).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (base_mor := isColim_is_z_iso _ (arrow_colims CC _ d) _ _ isclCC).
+  use (is_z_iso_isColim _ (CC _ (project_diagram00 (mapdiagram (fact_L F1) d)))).
+  <span class="k">exists</span> (<span class="nv">arrow_mor00</span> (pr1 base_mor)).
+  <span class="kp">abstract</span> (
+    <span class="nb">split</span>; [
+      etrans; [|<span class="bp">exact</span> (arrow_mor00_eq (pr12 base_mor))];
+      <span class="nb">apply</span> cancel_postcomposition
+      | etrans; [|<span class="bp">exact</span> (arrow_mor00_eq (pr22 base_mor))];
+        <span class="nb">apply</span> cancel_precomposition
+    ]; (
+      use colimArrowUnique;
+      <span class="nb">intro</span> v;
+      etrans; [<span class="nb">apply</span> colimArrowCommutes|];
+      <span class="bp">reflexivity</span>
+    )
+  ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* the isomorphism dom f --&gt; colim (L1 d)00 *)</span>
+<span class="kn">Definition</span> <span class="nf">colim_dom_L1_dom_iso</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf) :
+  z_iso
+    (arrow_dom f)
+    (colim (CC _ (project_diagram00 (mapdiagram (fact_L F1) d)))).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (fCC := dom_colim_dom_L1_isColimCocone isclCC).
+  <span class="nb">set</span> (baseCC := CC _ (project_diagram00 (mapdiagram (fact_L F1) d))).
+  <span class="nb">set</span> (mor := isColim_is_z_iso _ baseCC _ _ fCC).
+  <span class="bp">exact</span> (z_iso_inv (_,, mor)).
+<span class="kn">Defined</span>.
+
+<span class="c">(* arrow_dom (L1 colim fi) --&gt; arrow_dom (colim (L1 fi)) *)</span>
+<span class="kn">Definition</span> <span class="nf">L1_colim_L1_map00</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf) :
+  arrow_dom (fact_L F1 f)
+  --&gt; arrow_dom (colim (arrow_colims CC g (mapdiagram (fact_L F1) d))).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (compose (arrow_mor00 (L_colim_id_mor f))).
+  <span class="bp">exact</span> (colim_dom_L1_dom_iso isclCC).
+<span class="kn">Defined</span>.
+
+<span class="c">(* K (colim fi) --&gt; colim (L1 fi) *)</span>
+<span class="c">(* arrow_mor11 is the bottom pushout map *)</span>
+<span class="kn">Definition</span> <span class="nf">Kcolim_colimL1_mor</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">HK</span> : preserves_colimit K _ _ ccf)
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf) :
+  K f
+  --&gt; colim (arrow_colims CC g (mapdiagram (fact_L F1) d)).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (compose (z_iso_inv (can_K_mor d HK isclCC))).
+  <span class="bp">exact</span> (colim_K_L1_mor d).
+<span class="kn">Defined</span>.
+
+<span class="c">(* top pushout map *)</span>
+<span class="kn">Definition</span> <span class="nf">L1_colim_L1_map_pushoutOut2</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf) :
+  arrow_dom (fact_L F1 f)
+  --&gt; arrow_cod (colim (arrow_colims CC g (mapdiagram (fact_L F1) d))).
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (compose (L1_colim_L1_map00 isclCC)).
+  <span class="bp">exact</span> (colim (arrow_colims CC g (mapdiagram (fact_L F1) d))).
+<span class="kn">Defined</span>.
+
+<span class="c">(* we show that arrow_dom (K f) is a colimCocone,</span>
+<span class="c">   given that (K f) is a colim for the mapped diagram,</span>
+<span class="c">   i.e. we project the ColimCocone to the 0 ob/arr *)</span>
+<span class="kn">Definition</span> <span class="nf">L1_colim_L1_map_dom_Kf_is_colimCocone</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">HK</span> : preserves_colimit K _ _ ccf)
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf)
+    (<span class="nv">isHKCC</span> := HK isclCC)
+    (<span class="nv">HKCC</span> := make_ColimCocone _ _ _ isHKCC)
+    (<span class="nv">HKCC00</span> := project_cocone00 (colimCocone HKCC)) :
+  isColimCocone _ _ HKCC00 :=
+    project_colimcocone00 CC isHKCC.
+
+<span class="c">(* we show that arrow_cod (K f) is a colimCocone,</span>
+<span class="c">   given that (K f) is a colim for the mapped diagram,</span>
+<span class="c">   i.e. we project the ColimCocone to the 1 ob/arr *)</span>
+<span class="kn">Definition</span> <span class="nf">L1_colim_L1_map_cod_Kf_is_colimCocone</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">HK</span> : preserves_colimit K _ _ ccf)
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf)
+    (<span class="nv">isHKCC</span> := HK isclCC)
+    (<span class="nv">HKCC</span> := make_ColimCocone _ _ _ isHKCC)
+    (<span class="nv">HKCC11</span> := project_cocone11 (colimCocone HKCC)) :
+  isColimCocone _ _ HKCC11 :=
+    project_colimcocone11 CC isHKCC.
+
+<span class="c">(* we show that the canonical iso from</span>
+<span class="c">   K (colim fi) --&gt; colim (K fi)</span>
+<span class="c">   projects to the one on the domains *)</span>
+<span class="kn">Local Lemma</span> <span class="nf">colim_iso_inv_projects</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">HK</span> : preserves_colimit K _ _ ccf)
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf)
+    (<span class="nv">dbase</span> := project_diagram00 (mapdiagram K d))
+    (<span class="nv">isKfCC</span> := L1_colim_L1_map_dom_Kf_is_colimCocone HK isclCC)
+    (<span class="nv">KfCC</span> := make_ColimCocone _ _ _ isKfCC)
+    (<span class="nv">Kf_mor</span> := isColim_is_z_iso _ (CC _ dbase) _ _ isKfCC) :
+  arrow_mor00 (z_iso_inv (can_K_mor d HK isclCC))
+  = pr1 Kf_mor.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (iso := (_,, Kf_mor) : z_iso _ _).
+  <span class="nb">apply</span> (post_comp_with_z_iso_is_inj iso).
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="bp">exact</span> (pr22 Kf_mor).
+
+  <span class="nb">set</span> (can_K_is_iso := pr222 (can_K_mor d HK isclCC)).
+  etrans. <span class="bp">exact</span> (pathsinv0 (arrow_mor00_eq can_K_is_iso)).
+  <span class="nb">apply</span> cancel_precomposition.
+  use colimArrowUnique.
+  <span class="nb">intro</span> v.
+  etrans. <span class="nb">apply</span> (colimArrowCommutes (CC g dbase)).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">L1_colim_L1_map_ispushoutOut_subproof0</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">HK</span> : preserves_colimit K _ _ ccf)
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf) :
+  arrow_mor00 (Kcolim_colimL1_mor HK isclCC)
+  · z_iso_inv (colim_dom_L1_dom_iso isclCC)
+  = arrow_mor00 (morcls_lp_coprod_diagram CC J f).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (isKfCC := L1_colim_L1_map_dom_Kf_is_colimCocone HK isclCC).
+  <span class="nb">set</span> (KfCC := make_ColimCocone _ _ _ isKfCC).
+
+  use (colimArrowUnique' KfCC).
+  <span class="nb">intro</span> v.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> assoc.
+  etrans. <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> cancel_postcomposition.
+          etrans. <span class="nb">apply</span> cancel_precomposition.
+                  <span class="bp">exact</span> (colim_iso_inv_projects HK isclCC).
+          <span class="nb">apply</span> (colimArrowCommutes KfCC).
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (colimArrowCommutes (CC _ (project_diagram00 (mapdiagram K d)))).
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> (colimArrowCommutes (CC _ (project_diagram00 (mapdiagram (fact_L F1) d)))).
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> (precompWithCoproductArrowInclusion _ _ (morcls_lp_dom_coprod CC J f)).
+  use CoproductArrow_eq.
+  <span class="nb">intro</span> S.
+  etrans. <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J (dob d v))).
+  etrans. <span class="nb">apply</span> id_left.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J (dob d v))).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">L1_colim_L1_map_ispushoutOut_subproof</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">HK</span> : preserves_colimit K _ _ ccf)
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf) :
+  arrow_mor00 (K_L1_colim_mor f)
+  · (L1_colim_L1_map00 isclCC)
+  = arrow_mor00 (Kcolim_colimL1_mor HK isclCC).
+<span class="kn">Proof</span>.
+  use CoproductArrow_eq.
+  <span class="nb">intro</span> S.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J f)).
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> id_left.
+
+  <span class="nb">apply</span> (post_comp_with_z_iso_is_inj (z_iso_inv (colim_dom_L1_dom_iso isclCC))).
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="bp">exact</span> (pr122 (colim_dom_L1_dom_iso isclCC)).
+  etrans. <span class="nb">apply</span> id_right.
+
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc'.
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="bp">exact</span> (L1_colim_L1_map_ispushoutOut_subproof0 HK isclCC).
+  etrans. <span class="nb">apply</span> (CoproductInCommutes (morcls_lp_dom_coprod CC J f)).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">L1_colim_L1_map_ispushoutOut</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">HK</span> : preserves_colimit K _ _ ccf)
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf) :
+  K f · arrow_mor11 (Kcolim_colimL1_mor HK isclCC)
+  = arrow_mor00 (K_L1_colim_mor f)
+  · L1_colim_L1_map_pushoutOut2 isclCC.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (L1_colim_L1_map_ispushoutOut_subproof HK isclCC).
+
+  <span class="bp">exact</span> (arrow_mor_comm (Kcolim_colimL1_mor HK isclCC)).
+<span class="kn">Qed</span>.
+
+<span class="c">(* the map L1 (colim fi) --&gt; colim (L1 fi)</span>
+<span class="c">   that we need, defined with the pushout *)</span>
+<span class="kn">Definition</span> <span class="nf">L1_colim_L1_map</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">HK</span> : preserves_colimit K _ _ ccf)
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf) :
+  fact_L F1 f
+  --&gt; colim (arrow_colims CC g (mapdiagram (fact_L F1) d)).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (KLcolimPO := morcls_lp_coprod_diagram_pushout CC J f).
+  use mors_to_arrow_mor.
+  * <span class="bp">exact</span> (L1_colim_L1_map00 isclCC).
+  * use (PushoutArrow KLcolimPO).
+    + <span class="bp">exact</span> (arrow_mor11 (Kcolim_colimL1_mor HK isclCC)).
+    + <span class="bp">exact</span> (L1_colim_L1_map_pushoutOut2 isclCC).
+    + <span class="bp">exact</span> (L1_colim_L1_map_ispushoutOut HK isclCC).
+  * <span class="kp">abstract</span> (
+      <span class="nb">set</span> (poin2 := PushoutArrow_PushoutIn2 KLcolimPO _ _ _ (L1_colim_L1_map_ispushoutOut HK isclCC));
+      <span class="bp">exact</span> (pathsinv0 poin2)
+    ).
+<span class="kn">Defined</span>.
+
+<span class="c">(* the canonical arrow from f --&gt; (colim CC d)</span>
+<span class="c">   (where the colimit is not necessarily f)</span>
+<span class="c">   projects down to the colimArrow on the domains  *)</span>
+<span class="kn">Local Lemma</span> <span class="nf">colimArrow_projects</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf)
+    (<span class="nv">fcc</span> := make_ColimCocone d f ccf isclCC)
+    (<span class="nv">domfcc</span> := make_ColimCocone _ _ _ (dom_colim_dom_L1_isColimCocone isclCC)) :
+  arrow_mor00 (colimArrow fcc _ (colimCocone (arrow_colims CC _ d)))
+  = colimArrow domfcc _ (colimCocone (CC _ (project_diagram00 d))).
+<span class="kn">Proof</span>.
+  use (colimArrowUnique' domfcc).
+  <span class="nb">intro</span> v.
+  etrans. <span class="bp">exact</span> (arrow_mor00_eq (colimArrowCommutes fcc _ (colimCocone (arrow_colims CC _ d)) v)).
+  <span class="nb">apply</span> pathsinv0.
+  etrans. <span class="nb">apply</span> colimArrowCommutes.
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">colimIn00_L1_colim_L1_commutes</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">HK</span> : preserves_colimit K _ _ ccf)
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf)
+    (<span class="nv">v</span> : vertex g) :
+    arrow_mor00 (coconeIn (mapcocone (fact_L F1) d ccf) v · L1_colim_L1_map HK isclCC) =
+    arrow_mor00 (colimIn (arrow_colims CC g (mapdiagram (fact_L F1) d)) v).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (domfiscc := dom_colim_dom_L1_isColimCocone isclCC).
+  <span class="nb">set</span> (domfcc := make_ColimCocone _ _ _ domfiscc).
+  etrans. <span class="nb">apply</span> cancel_precomposition.
+          <span class="nb">apply</span> id_left.
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          etrans. <span class="nb">apply</span> cancel_precomposition.
+                  <span class="bp">exact</span> (colimArrow_projects isclCC).
+          <span class="nb">apply</span> (colimArrowCommutes domfcc).
+  etrans. <span class="nb">apply</span> (colimArrowCommutes (CC _ (project_diagram00 d))).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+<span class="c">(*</span>
+<span class="c">Local Lemma arrow_mor11_comp</span>
+<span class="c">    {f g h : arrow C}</span>
+<span class="c">    (γ : f --&gt; g)</span>
+<span class="c">    (γ' : g --&gt; h) :</span>
+<span class="c">  arrow_mor11 γ · arrow_mor11 γ' = arrow_mor11 (γ · γ').</span>
+<span class="c">Proof.</span>
+<span class="c">  reflexivity.</span>
+<span class="c">Qed. *)</span>
+
+<span class="kn">Local Lemma</span> <span class="nf">colimIn11_Kcolim_colimL1_commutes</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">HK</span> : preserves_colimit K _ _ ccf)
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf)
+    (<span class="nv">v</span> : vertex g)
+    (<span class="nv">iscodKfCC</span> := L1_colim_L1_map_cod_Kf_is_colimCocone HK isclCC)
+    (<span class="nv">codKfCC</span> := make_ColimCocone _ _ _ iscodKfCC) :
+  colimIn codKfCC v · arrow_mor11 (Kcolim_colimL1_mor HK isclCC)
+  = PushoutIn1 (morcls_lp_coprod_diagram_pushout CC J (dob d v))
+  · colimIn (CC _ (project_diagram11 (mapdiagram (fact_L F1) d))) v.
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (isHKCC := HK isclCC).
+  <span class="nb">set</span> (HKCC := make_ColimCocone _ _ _ isHKCC).
+  etrans. <span class="nb">apply</span> assoc.
+  etrans. <span class="nb">apply</span> cancel_postcomposition.
+          <span class="bp">exact</span> (arrow_mor11_eq (colimArrowCommutes HKCC _ _ v)).
+  etrans. <span class="nb">apply</span> (colimArrowCommutes (CC _ (project_diagram11 (mapdiagram K d)))).
+  <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">L1_colim_L1_map_is_inverse_in_precat</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} {<span class="nv">ccf</span> : cocone d f}
+    (<span class="nv">HK</span> : preserves_colimit K _ _ ccf)
+    (<span class="nv">isclCC</span> : isColimCocone d f ccf) :
+  is_inverse_in_precat
+    (colimArrow (arrow_colims CC _ (mapdiagram (fact_L F1) d)) _ (mapcocone (fact_L F1) d ccf))
+    (L1_colim_L1_map HK isclCC).
+<span class="kn">Proof</span>.
+  <span class="nb">set</span> (isHKCC := HK isclCC).
+  <span class="nb">set</span> (HKCC := make_ColimCocone _ _ _ isHKCC).
+
+  <span class="nb">set</span> (isKfCC := L1_colim_L1_map_dom_Kf_is_colimCocone HK isclCC).
+  <span class="nb">set</span> (KfCC := make_ColimCocone _ _ _ isKfCC).
+  <span class="nb">set</span> (domfiscc := dom_colim_dom_L1_isColimCocone isclCC).
+  <span class="nb">set</span> (domfcc := make_ColimCocone _ _ _ domfiscc).
+  <span class="nb">set</span> (iscodKfCC := L1_colim_L1_map_cod_Kf_is_colimCocone HK isclCC).
+  <span class="nb">set</span> (codKfCC := make_ColimCocone _ _ _ iscodKfCC).
+  <span class="nb">split</span>.
+  - <span class="nb">apply</span> pathsinv0.
+    <span class="nb">apply</span> colim_endo_is_identity.
+    <span class="nb">intro</span> v.
+    etrans. <span class="nb">apply</span> assoc.
+    etrans. <span class="nb">apply</span> cancel_postcomposition.
+            <span class="nb">apply</span> (colimArrowCommutes).
+    use arrow_mor_eq.
+    * <span class="bp">exact</span> (colimIn00_L1_colim_L1_commutes HK isclCC v).
+    * use (MorphismsOutofPushoutEqual (isPushout_Pushout (morcls_lp_coprod_diagram_pushout CC J (dob d v)))).
+      + etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (PushoutArrow_PushoutIn1).
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+
+        <span class="bp">exact</span> (colimIn11_Kcolim_colimL1_commutes HK isclCC v).
+      + etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (PushoutArrow_PushoutIn2).
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="bp">exact</span> (colimIn00_L1_colim_L1_commutes HK isclCC v).
+        etrans. <span class="nb">apply</span> (colimArrowCommutes (CC _ (project_diagram00 d))).
+        <span class="bp">reflexivity</span>.
+  - use arrow_mor_eq.
+    * <span class="nb">apply</span> pathsinv0.
+      use (colim_endo_is_identity _ domfcc).
+      <span class="nb">intro</span> v.
+      etrans. <span class="nb">apply</span> assoc.
+      etrans. <span class="nb">apply</span> cancel_postcomposition.
+              <span class="bp">exact</span> (colimIn00_L1_colim_L1_commutes HK isclCC v).
+      etrans. <span class="nb">apply</span> (colimArrowCommutes (CC _ (project_diagram00 (mapdiagram (fact_L F1) d)))).
+      <span class="bp">reflexivity</span>.
+    * use (MorphismsOutofPushoutEqual (isPushout_Pushout (morcls_lp_coprod_diagram_pushout CC J f))).
+      + etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> pathsinv0.
+
+        use (colimArrowUnique' codKfCC).
+        <span class="nb">intro</span> v.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="bp">exact</span> (colimIn11_Kcolim_colimL1_commutes HK isclCC v).
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> (colimArrowCommutes (CC _ (project_diagram11 (mapdiagram (fact_L F1) d)))).
+        etrans. <span class="nb">apply</span> PushoutArrow_PushoutIn1.
+        <span class="bp">reflexivity</span>.
+      + etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+        <span class="nb">apply</span> pathsinv0.
+        etrans. <span class="nb">apply</span> id_right.
+        <span class="nb">apply</span> pathsinv0.
+        use (colimArrowUnique' domfcc).
+        <span class="nb">intro</span> v.
+        etrans. <span class="nb">apply</span> assoc.
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                etrans. <span class="nb">apply</span> assoc.
+                <span class="nb">apply</span> cancel_postcomposition.
+                <span class="bp">exact</span> (colimIn00_L1_colim_L1_commutes HK isclCC v).
+        etrans. <span class="nb">apply</span> cancel_postcomposition.
+                <span class="nb">apply</span> (colimArrowCommutes (CC _ (project_diagram00 d))).
+        etrans. <span class="nb">apply</span> assoc'.
+        etrans. <span class="nb">apply</span> cancel_precomposition.
+                <span class="nb">apply</span> (colimArrowCommutes (CC _ (project_diagram11 (mapdiagram (fact_L F1) d)))).
+        etrans. <span class="nb">apply</span> PushoutArrow_PushoutIn2.
+        <span class="bp">reflexivity</span>.
+<span class="kn">Qed</span>.
+
+<span class="c">(* Main result *)</span>
+<span class="kn">Lemma</span> <span class="nf">L1_preserves_colim_if_K_preserves_colim</span>
+    {<span class="nv">g</span> : graph} {<span class="nv">d</span> : diagram g (arrow C)}
+    {<span class="nv">f</span> : arrow C} (<span class="nv">ccf</span> : cocone d f) :
+  preserves_colimit K _ _ ccf
+  -&gt; preserves_colimit (fact_L F1) _ _ ccf.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> HK isclCC.
+
+  <span class="nb">set</span> (isHKCC := HK isclCC).
+  <span class="nb">set</span> (HKCC := make_ColimCocone _ _ _ isHKCC).
+
+  use (is_z_iso_isColim _ (arrow_colims CC _ (mapdiagram (fact_L F1) d))).
+  <span class="k">exists</span> (<span class="nv">L1_colim_L1_map</span> <span class="nv">HK</span> <span class="nv">isclCC</span>).
+  <span class="bp">exact</span> (L1_colim_L1_map_is_inverse_in_precat HK isclCC).
+<span class="kn">Defined</span>.
+
+<span class="c">(* applying the main result *)</span>
+<span class="kn">Lemma</span> <span class="nf">L1_small_if_K_small</span> :
+  preserves_colimits_of_shape K nat_graph
+  -&gt; preserves_colimits_of_shape (fact_L F1) nat_graph.
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> HK.
+  <span class="nb">intros</span> d cl cc.
+  <span class="nb">apply</span> L1_preserves_colim_if_K_preserves_colim.
+  <span class="nb">apply</span> HK.
+<span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">OSCSmall</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/ModelCategories/Generated/OneStepMonadSmall.v</tt>, line 1)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+  &gt; Require Import UniMath.CategoryTheory.Core.Functors.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Algebras.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * The univalent category of algebras over a signature. *)</span>
+<span class="sd">(** Gianluca Amato,  Marco Maggesi, Cosimo Perini Brogi 2019-2023 *)</span>
+<span class="sd">(**</span>
+<span class="sd">We use display categories to define the category of algebras and prove its univalence.</span>
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Total.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.SIP.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Initial.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.TermAlgebras.
+
+<span class="kn">Section</span> <span class="nf">Algebras</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> sorted_scope.
+
+  <span class="kn">Context</span> (<span class="nv">σ</span> : signature).
+
+  <span class="kn">Definition</span> <span class="nf">shSet_precategory_ob_mor</span> : precategory_ob_mor.
+  <span class="kn">Proof</span>.
+    use make_precategory_ob_mor.
+    - <span class="bp">exact</span> (shSet (sorts σ)).
+    - <span class="nb">intros</span> F G. <span class="bp">exact</span> (F s→ G).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">shSet_precategory_data</span> : precategory_data.
+  <span class="kn">Proof</span>.
+    use make_precategory_data.
+    - <span class="bp">exact</span> shSet_precategory_ob_mor.
+    - <span class="nb">intro</span> C. <span class="nb">simpl</span>. <span class="nb">apply</span> idsfun.
+    - <span class="nb">simpl</span>. <span class="nb">intros</span> F G H. <span class="nb">intros</span> f g. <span class="bp">exact</span> (g s∘ f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_precategory_shSet_precategory_data</span> : is_precategory shSet_precategory_data.
+  <span class="kn">Proof</span>.
+    <span class="kp">repeat</span> <span class="nb">split</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">shSet_precategory</span> : precategory.
+  <span class="kn">Proof</span>.
+    use make_precategory.
+    - <span class="nb">apply</span> shSet_precategory_data.
+    - <span class="nb">apply</span> is_precategory_shSet_precategory_data.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">has_homsets_shSet_precategory</span> : has_homsets shSet_precategory.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F G. <span class="nb">simpl</span>.
+    use isaset_set_sfun_space.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">shSet_category</span> : category := (shSet_precategory ,, has_homsets_shSet_precategory).
+
+  <span class="kn">Definition</span> <span class="nf">algebras_disp</span> : disp_cat shSet_category.
+  <span class="kn">Proof</span>.
+    use disp_cat_from_SIP_data. <span class="nb">simpl</span>.
+    - <span class="nb">intro</span> A. <span class="bp">exact</span> (∏ nm: names σ, A⋆ (arity nm) → A (sort nm)).
+    - <span class="nb">simpl</span>. <span class="nb">intros</span> A B asA asB f. <span class="bp">exact</span> (@ishom σ (make_algebra A asA) (make_algebra B asB) f).
+    - <span class="nb">simpl</span>. <span class="nb">intros</span> A B asA asB f opA opB.
+      <span class="nb">apply</span> isapropishom.
+      <span class="nb">intro</span> s.
+      <span class="nb">apply</span> setproperty.
+    - <span class="nb">cbn</span>. <span class="nb">intros</span> A asA. <span class="nb">apply</span> ishomid.
+    - <span class="nb">cbn</span>. <span class="nb">intros</span> A B C opA opB opC. <span class="nb">intros</span> f g ishomf ishomg.
+      <span class="bp">exact</span> (ishomcomp (make_hom ishomf) (make_hom ishomg)).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_algebras_disp</span> : is_univalent_disp algebras_disp.
+  <span class="kn">Proof</span>.
+    use is_univalent_disp_from_SIP_data.
+    - <span class="nb">intro</span> A. <span class="nb">cbn</span>. use impred_isaset. <span class="nb">intro</span> nm. <span class="nb">cbn</span>.
+      use isaset_set_fun_space.
+    - <span class="nb">cbn</span>. <span class="nb">intros</span> A op1 op2 ishomid1 _. use funextsec. <span class="nb">intro</span> nm. use funextfun. <span class="nb">intro</span> vec.
+      <span class="nb">unfold</span> ishom <span class="k">in</span> *. <span class="nb">cbn</span> <span class="k">in</span> *. <span class="nb">set</span> (H1:= ishomid1 nm vec).
+      <span class="nb">rewrite</span> staridfun <span class="k">in</span> H1. <span class="nb">apply</span> H1.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+  <span class="sd">(**</span>
+<span class="sd">  Here follows the proof that [shSet_category] is univalent. The proof is obtained by</span>
+<span class="sd">  following the example of the proof of univalence of the functor category.</span>
+<span class="sd">  *)</span>
+
+  <span class="kn">Lemma</span> <span class="nf">shSet_iso_fiber</span> {<span class="nv">A</span> <span class="nv">B</span> : shSet_category} (<span class="nv">i</span> : z_iso A B): ∏ s, @z_iso HSET (A s) (B s).
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> s.
+    <span class="nb">induction</span> i <span class="k">as</span> [i [i' [p q]]].
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    use make_z_iso.
+    - <span class="bp">exact</span> (i s).
+    - <span class="bp">exact</span> (i' s).
+    - <span class="nb">split</span>.
+      + <span class="bp">exact</span> (eqtohomot p s).
+      + <span class="bp">exact</span> (eqtohomot q s).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">shSet_eq_from_shSet_z_iso</span> (<span class="nv">F</span> <span class="nv">G</span> : shSet_category) (<span class="nv">i</span> : z_iso F G) : F = G.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> s.
+    <span class="nb">apply</span> (isotoid HSET is_univalent_HSET).
+    <span class="nb">apply</span> shSet_iso_fiber.
+    <span class="bp">assumption</span>.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">idtoiso_shSet_category_compute_pointwise</span> {<span class="nv">F</span> <span class="nv">G</span> : shSet_category} (<span class="nv">p</span> : F = G) (<span class="nv">s</span>: sorts σ)
+    : shSet_iso_fiber (idtoiso p) s = idtoiso(C:=HSET) (toforallpaths (<span class="k">λ</span> <span class="nv">_</span> , hSet) F G p s).
+  <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> z_iso_eq. <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">shSet_eq_from_shSet_z_iso_idtoiso</span>  (<span class="nv">F</span> <span class="nv">G</span> : shSet_category) (<span class="nv">p</span> : F = G)
+    : shSet_eq_from_shSet_z_iso F G (idtoiso p) = p.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> shSet_eq_from_shSet_z_iso.
+    <span class="nb">apply</span> (invmaponpathsweq (weqtoforallpaths _ _ _ )).
+    <span class="nb">simpl</span> (pr1weq (weqtoforallpaths (<span class="k">λ</span> <span class="nv">_</span> : sorts σ, hSet) F G)).
+    <span class="nb">rewrite</span> (toforallpaths_funextsec).
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> a.
+    <span class="nb">rewrite</span> idtoiso_shSet_category_compute_pointwise.
+    <span class="nb">rewrite</span> isotoid_idtoiso.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">idtoiso_shSet_eq_from_shSet_z_iso</span> (<span class="nv">F</span> <span class="nv">G</span> : shSet_category) (<span class="nv">i</span> : z_iso F G)
+    : idtoiso (shSet_eq_from_shSet_z_iso F G i) = i.
+  <span class="kn">Proof</span>.
+    <span class="nb">apply</span> z_iso_eq.
+    <span class="nb">apply</span> funextsec.
+    <span class="nb">intro</span> s.
+    <span class="nb">unfold</span> shSet_eq_from_shSet_z_iso.
+    <span class="nb">assert</span> (H' := idtoiso_shSet_category_compute_pointwise (shSet_eq_from_shSet_z_iso F G i) s).
+    <span class="nb">simpl</span> <span class="k">in</span> *.
+    <span class="nb">assert</span> (H2 := maponpaths (@pr1 _ _ ) H').
+    <span class="nb">simpl</span> <span class="k">in</span> H2.
+    etrans.
+    { <span class="nb">apply</span> H2. }
+    intermediate_path (pr1 (idtoiso (isotoid HSET is_univalent_HSET (shSet_iso_fiber i s)))).
+    - <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> shSet_eq_from_shSet_z_iso.
+      <span class="nb">rewrite</span> toforallpaths_funextsec.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> idtoiso_isotoid.
+      <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">is_univalent_shSet_category</span> : is_univalent shSet_category.
+  <span class="kn">Proof</span>.
+    <span class="nb">intros</span> F G.
+    <span class="nb">apply</span> (isweq_iso _ (shSet_eq_from_shSet_z_iso F G)).
+    - <span class="nb">apply</span> shSet_eq_from_shSet_z_iso_idtoiso.
+    - <span class="nb">apply</span> idtoiso_shSet_eq_from_shSet_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">category_algebras</span> : category := total_category algebras_disp.
+
+  <span class="kn">Lemma</span> <span class="nf">is_univalent_category_algebras</span> : is_univalent category_algebras.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (@is_univalent_total_category shSet_category algebras_disp is_univalent_shSet_category is_univalent_algebras_disp).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Lemma</span> <span class="nf">isinitial_termalgebra</span> : Initial (category_algebras).
+  <span class="kn">Proof</span>.
+    <span class="k">exists</span> (<span class="nv">term_hSetalgebra</span> <span class="nv">σ</span>).
+    <span class="nb">intro</span> a.
+    <span class="nb">apply</span> (iscontrhomsfromgterm (hSetalgebra_to_algebra a)).
+    <span class="nb">apply</span> (has_supportsets_hSetalgebra a).
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">Algebras</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/Universal_Algebra/Algebras.v</tt>, line 7)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; We use display categories to define the category of algebras and prove its univalence.
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.Univalence.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

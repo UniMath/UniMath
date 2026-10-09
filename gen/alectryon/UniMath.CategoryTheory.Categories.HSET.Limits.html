@@ -1,0 +1,466 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>Limits.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Limits in [HSET] *)</span>
+
+<span class="sd">(** ** Contents</span>
+
+<span class="sd">  - General limits ([LimsHSET])</span>
+<span class="sd">    - Alternate definition using cats/limits</span>
+<span class="sd">  - Binary products ([BinProductsHSET])</span>
+<span class="sd">  - General indexed products ([ProductsHSET])</span>
+<span class="sd">  - Terminal object ([TerminalHSET])</span>
+<span class="sd">    - Terminal object from general limits ([TerminalHSET_from_Lims])</span>
+<span class="sd">  - Pullbacks ([PullbacksHSET])</span>
+<span class="sd">    - Pullbacks from general limits ([PullbacksHSET_from_Lims])</span>
+<span class="sd">    - Pullbacks of arrows from [unit] as inverse images</span>
+<span class="sd">  - Equalizers from general limits ([EqualizersHSET_from_Lims])</span>
+
+<span class="sd">Written by: Benedikt Ahrens, Anders Mörtberg</span>
+
+<span class="sd">October 2015 - January 2016</span>
+
+<span class="sd">*)</span>
+
+<span class="kn">Require Import</span> UniMath.Foundations.PartD.
+<span class="kn">Require Import</span> UniMath.Foundations.Propositions.
+<span class="kn">Require Import</span> UniMath.Foundations.Sets.
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.PartA. <span class="c">(* flip *)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.Tactics.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.WeakEquivalences.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Colimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Limits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Graphs.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Products.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.HSET.Core.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="sd">(** ** General limits *)</span>
+
+<span class="kn">Section</span> <span class="nf">limits</span>.
+
+<span class="kn">Variable</span> <span class="nv">g</span> : graph.
+<span class="kn">Variable</span> <span class="nv">D</span> : diagram g HSET.
+
+<span class="kn">Definition</span> <span class="nf">limset_UU</span> : UU :=
+  ∑ (f : ∏ u : vertex g, pr1hSet (dob D u)),
+    ∏ u v (e : edge u v), dmor D e (f u) = f v.
+
+<span class="kn">Definition</span> <span class="nf">limset</span> : HSET.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">limset_UU</span>.
+  <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>);
+            [ <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> pr2
+            | <span class="nb">intro</span> f; <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>);
+              <span class="nb">apply</span> isasetaprop, setproperty ].
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">LimConeHSET</span> : LimCone D.
+<span class="kn">Proof</span>.
+use make_LimCone.
+- <span class="nb">apply</span> limset.
+- <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">u</span> <span class="nv">f</span>, <span class="nv">pr1</span> <span class="nv">f</span> <span class="nv">u</span>).
+  <span class="kp">abstract</span> (<span class="nb">intros</span> u v e; <span class="nb">simpl</span>; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> f; <span class="nb">simpl</span>; <span class="nb">apply</span> (pr2 f)).
+- <span class="nb">intros</span> X CC.
+  use tpair.
+  + use tpair.
+    * <span class="nb">intro</span> x; <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">u</span>, <span class="nv">coneOut</span> <span class="nv">CC</span> <span class="nv">u</span> <span class="nv">x</span>).
+      <span class="kp">abstract</span> (<span class="nb">intros</span> u v e; <span class="nb">apply</span> (toforallpaths _ _ _ (coneOutCommutes CC _ _ e))).
+    * <span class="kp">abstract</span> (<span class="nb">intro</span> v; <span class="nb">apply</span> idpath).
+  + <span class="kp">abstract</span> (<span class="nb">intros</span> [t p]; <span class="nb">apply</span> subtypePath;
+              [ <span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> isaset_set_fun_space
+              | <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">apply</span> subtypePath];
+                [ <span class="nb">intro</span>; <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> setproperty
+                | <span class="nb">apply</span> funextsec; <span class="nb">intro</span> u; <span class="nb">apply</span> (toforallpaths _ _ _ (p u))]).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">limits</span>.
+
+<span class="kn">Lemma</span> <span class="nf">LimsHSET</span> : Lims HSET.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> g d; <span class="nb">apply</span> LimConeHSET.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">LimsHSET_of_shape</span> (<span class="nv">g</span> : graph) : Lims_of_shape g HSET.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> d; <span class="nb">apply</span> LimConeHSET.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Alternate definition using cats/limits  *)</span>
+
+<span class="kn">Require</span> UniMath.CategoryTheory.Limits.Cats.Limits.
+
+<span class="kn">Section</span> <span class="nf">cats_limits</span>.
+
+<span class="kn">Variable</span> <span class="nv">J</span> : precategory.
+<span class="kn">Variable</span> <span class="nv">D</span> : functor J HSET.
+
+<span class="kn">Definition</span> <span class="nf">cats_limset_UU</span> : UU :=
+  ∑ (f : ∏ u, pr1hSet (D u)),
+    ∏ u v (e : J⟦u,v⟧), # D e (f u) = f v.
+
+<span class="kn">Definition</span> <span class="nf">cats_limset</span> : HSET.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> <span class="nv">cats_limset_UU</span>.
+  <span class="nb">apply</span> (isofhleveltotal2 <span class="mi">2</span>);
+            [ <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> pr2
+            | <span class="nb">intro</span> f; <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>);
+              <span class="nb">apply</span> isasetaprop, setproperty ].
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cats_LimConeHSET</span> : Cats.Limits.LimCone D.
+<span class="kn">Proof</span>.
+use make_LimCone.
+- <span class="nb">apply</span> cats_limset.
+- <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">u</span> <span class="nv">f</span>, <span class="nv">pr1</span> <span class="nv">f</span> <span class="nv">u</span>).
+  <span class="kp">abstract</span> (<span class="nb">intros</span> u v e; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> f; <span class="nb">apply</span> (pr2 f)).
+- <span class="nb">intros</span> X CC.
+  use tpair.
+  + use tpair.
+    * <span class="nb">intro</span> x; <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">u</span>, <span class="nv">coneOut</span> <span class="nv">CC</span> <span class="nv">u</span> <span class="nv">x</span>).
+      <span class="kp">abstract</span> (<span class="nb">intros</span> u v e; <span class="nb">apply</span> (toforallpaths _ _ _ (coneOutCommutes CC _ _ e))).
+    * <span class="kp">abstract</span> (<span class="nb">intro</span> v; <span class="nb">apply</span> idpath).
+  + <span class="kp">abstract</span> (<span class="nb">intros</span> [t p]; <span class="nb">apply</span> subtypePath;
+     [ <span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> isaset_set_fun_space
+     | <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x; <span class="nb">apply</span> subtypePath];
+       [ <span class="nb">intro</span>; <span class="kp">repeat</span> (<span class="nb">apply</span> impred; <span class="nb">intro</span>); <span class="nb">apply</span> setproperty
+       | <span class="nb">simpl</span>; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> u; <span class="nb">apply</span> (toforallpaths _ _ _ (p u))]).
+<span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">cats_limits</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cats_LimsHSET</span> : Cats.Limits.Lims HSET.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> g d; <span class="nb">apply</span> cats_LimConeHSET.
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">cats_LimsHSET_of_shape</span> (<span class="nv">g</span> : category) : Cats.Limits.Lims_of_shape g HSET.
+<span class="kn">Proof</span>.
+<span class="bp">now</span> <span class="nb">intros</span> d; <span class="nb">apply</span> cats_LimConeHSET.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Binary products ([BinProductsHSET]) *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">BinProductsHSET</span> : BinProducts HSET.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> A B.
+use make_BinProduct.
+- <span class="nb">apply</span> (A × B)%<span class="nb">set</span>.
+- <span class="nb">simpl</span> <span class="k">in</span> *; <span class="nb">apply</span> pr1.
+- <span class="nb">simpl</span> <span class="k">in</span> *; <span class="nb">intros</span> x; <span class="nb">apply</span> (pr2 x).
+- <span class="nb">apply</span> make_isBinProduct.
+  <span class="nb">intros</span> C f g; use tpair.
+  * <span class="k">exists</span> (<span class="nv">prodtofuntoprod</span> (f,,g)); <span class="kp">abstract</span> (<span class="nb">split</span>; <span class="nb">apply</span> idpath).
+  * <span class="kp">abstract</span> (<span class="nb">intros</span> [t [ht1 ht2]]; <span class="nb">apply</span> subtypePath;
+             [ <span class="nb">intros</span> x; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> has_homsets_HSET
+             | <span class="bp">now</span> <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x; <span class="nb">rewrite</span> &lt;- ht2, &lt;- ht1 ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Require</span> UniMath.CategoryTheory.Limits.Graphs.BinProducts.
+
+<span class="sd">(** *** Binary products from limits ([BinProductsHSET_from_Lims]) *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">BinProductsHSET_from_Lims</span> : Graphs.BinProducts.BinProducts HSET.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> BinProducts.BinProducts_from_Lims, LimsHSET_of_shape.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** General indexed products ([ProductsHSET]) *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">ProductsHSET</span> (<span class="nv">I</span> : UU) : Products I HSET.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> A.
+use make_Product.
+- <span class="k">exists</span> (∏ i, pr1 (A i)); <span class="nb">apply</span> isaset_forall_hSet.
+- <span class="nb">simpl</span>; <span class="nb">intros</span> i f; <span class="nb">apply</span> (f i).
+- <span class="nb">apply</span> make_isProduct; <span class="kp">try</span> <span class="nb">apply</span> homset_property.
+  <span class="nb">intros</span> C f; <span class="nb">simpl</span> <span class="k">in</span> *.
+  use tpair.
+  * <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">c</span> <span class="nv">i</span>, <span class="nv">f</span> <span class="nv">i</span> <span class="nv">c</span>); <span class="nb">intro</span> i; <span class="nb">apply</span> idpath.
+   * <span class="kp">abstract</span> (<span class="nb">intros</span> h; <span class="nb">apply</span> subtypePath; <span class="nb">simpl</span>;
+       [ <span class="nb">intro</span>; <span class="nb">apply</span> impred; <span class="nb">intro</span>; <span class="nb">apply</span> has_homsets_HSET
+       | <span class="nb">destruct</span> h <span class="k">as</span> [t ht]; <span class="nb">simpl</span>; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x;
+         <span class="nb">apply</span> funextsec; <span class="nb">intro</span> i; <span class="nb">rewrite</span> &lt;- ht; <span class="nb">apply</span> idpath ]).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Terminal object [TerminalHSET] *)</span>
+
+<span class="kn">Lemma</span> <span class="nf">TerminalHSET</span> : Terminal HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (make_Terminal unitHSET).
+  <span class="nb">apply</span> make_isTerminal; <span class="nb">intro</span> a.
+  <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">tt</span>).
+  <span class="kp">abstract</span> (<span class="nb">simpl</span>; <span class="nb">intro</span> f; <span class="nb">apply</span> funextfun; <span class="nb">intro</span> x; <span class="nb">case</span> (f x); <span class="nb">apply</span> idpath).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Terminal object from general limits [TerminalHSET_from_Lims] *)</span>
+
+<span class="kn">Require</span> UniMath.CategoryTheory.Limits.Graphs.Terminal.
+
+<span class="kn">Lemma</span> <span class="nf">TerminalHSET_from_Lims</span> : Graphs.Terminal.Terminal HSET.
+<span class="kn">Proof</span>.
+  <span class="bp">now</span> <span class="nb">apply</span> Terminal.Terminal_from_Lims, LimsHSET_of_shape.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Pullbacks [PullbacksHSET] *)</span>
+
+<span class="kn">Definition</span> <span class="nf">PullbackHSET_ob</span> {<span class="nv">A</span> <span class="nv">B</span> <span class="nv">C</span> : HSET} (<span class="nv">f</span> : HSET⟦B,A⟧) (<span class="nv">g</span> : HSET⟦C,A⟧) : HSET.
+<span class="kn">Proof</span>.
+  <span class="k">exists</span> (∑ (xy : setdirprod B C), f (pr1 xy) = g (pr2 xy)).
+  <span class="kp">abstract</span> (<span class="nb">apply</span> isaset_total2; [ <span class="nb">apply</span> isasetdirprod; <span class="nb">apply</span> setproperty
+                                 | <span class="nb">intros</span> xy; <span class="nb">apply</span> isasetaprop, setproperty ]).
+<span class="kn">Defined</span>.
+
+<span class="kn">Lemma</span> <span class="nf">PullbacksHSET</span> : Pullbacks HSET.
+<span class="kn">Proof</span>.
+<span class="nb">intros</span> A B C f g.
+use make_Pullback.
+  + <span class="nb">apply</span> (PullbackHSET_ob f g).
+  + <span class="nb">intros</span> xy; <span class="nb">apply</span> (pr1 (pr1 xy)).
+  + <span class="nb">intros</span> xy; <span class="nb">apply</span> (pr2 (pr1 xy)).
+  + <span class="kp">abstract</span> (<span class="nb">apply</span> funextsec; <span class="nb">intros</span> [[x y] Hxy]; <span class="nb">apply</span> Hxy).
+  + use make_isPullback.
+    <span class="nb">intros</span> X f1 f2 Hf12; <span class="nb">cbn</span>.
+    use unique_exists.
+    - <span class="nb">intros</span> x.
+      <span class="k">exists</span> (<span class="nv">f1</span> <span class="nv">x</span>,,<span class="nv">f2</span> <span class="nv">x</span>); <span class="kp">abstract</span> (<span class="nb">apply</span> (toforallpaths _ _ _ Hf12)).
+    - <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">split</span>).
+    - <span class="kp">abstract</span> (<span class="bp">now</span> <span class="nb">intros</span> h; <span class="nb">apply</span> isapropdirprod; <span class="nb">apply</span> has_homsets_HSET).
+    - <span class="kp">abstract</span> (<span class="nb">intros</span> h [H1 H2]; <span class="nb">apply</span> funextsec; <span class="nb">intro</span> x;
+      <span class="nb">apply</span> subtypePath; [<span class="nb">intros</span> H; <span class="nb">apply</span> setproperty|]; <span class="nb">simpl</span>;
+      <span class="bp">now</span> <span class="nb">rewrite</span> &lt;- (toforallpaths _ _ _ H1 x), &lt;- (toforallpaths _ _ _ H2 x)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * Elements of pullbacks of sets *)</span>
+<span class="kn">Definition</span> <span class="nf">el_pullback_set</span>
+           {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : hSet}
+           {<span class="nv">f₁</span> : Y₁ → Y₂}
+           {<span class="nv">f₂</span> : X₂ → Y₂}
+           {<span class="nv">g₁</span> : X₁ → X₂}
+           {<span class="nv">g₂</span> : X₁ → Y₁}
+           {<span class="nv">p</span> : (<span class="k">λ</span> <span class="nv">x</span>, f₁(g₂ x)) = (<span class="k">λ</span> <span class="nv">x</span>, f₂(g₁ x))}
+           (<span class="nv">Hp</span> : isPullback (C := SET) p)
+           (<span class="nv">y</span> : Y₁)
+           (<span class="nv">x</span> : X₂)
+           (<span class="nv">q</span> : f₁ y = f₂ x)
+  : X₁.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (P := make_Pullback _ Hp).
+  <span class="nb">simple refine</span> (PullbackArrow P unitset _ _ _ tt).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, y).
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span>, x).
+  - <span class="kp">abstract</span>
+      (use funextsec ; <span class="nb">intro</span> ;
+       <span class="bp">exact</span> q).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">el_pullback_set_pr1</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : hSet}
+            {<span class="nv">f₁</span> : Y₁ → Y₂}
+            {<span class="nv">f₂</span> : X₂ → Y₂}
+            {<span class="nv">g₁</span> : X₁ → X₂}
+            {<span class="nv">g₂</span> : X₁ → Y₁}
+            {<span class="nv">p</span> : (<span class="k">λ</span> <span class="nv">x</span>, f₁(g₂ x)) = (<span class="k">λ</span> <span class="nv">x</span>, f₂(g₁ x))}
+            (<span class="nv">Hp</span> : isPullback (C := SET) p)
+            (<span class="nv">y</span> : Y₁)
+            (<span class="nv">x</span> : X₂)
+            (<span class="nv">q</span> : f₁ y = f₂ x)
+  : g₂ (el_pullback_set Hp y x q) = y.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (P := make_Pullback _ Hp).
+  use (eqtohomot (PullbackArrow_PullbackPr1 P _ _ _ _)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">el_pullback_set_pr2</span>
+            {<span class="nv">X₁</span> <span class="nv">X₂</span> <span class="nv">Y₁</span> <span class="nv">Y₂</span> : hSet}
+            {<span class="nv">f₁</span> : Y₁ → Y₂}
+            {<span class="nv">f₂</span> : X₂ → Y₂}
+            {<span class="nv">g₁</span> : X₁ → X₂}
+            {<span class="nv">g₂</span> : X₁ → Y₁}
+            {<span class="nv">p</span> : (<span class="k">λ</span> <span class="nv">x</span>, f₁(g₂ x)) = (<span class="k">λ</span> <span class="nv">x</span>, f₂(g₁ x))}
+            (<span class="nv">Hp</span> : isPullback (C := SET) p)
+            (<span class="nv">y</span> : Y₁)
+            (<span class="nv">x</span> : X₂)
+            (<span class="nv">q</span> : f₁ y = f₂ x)
+  : g₁ (el_pullback_set Hp y x q) = x.
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (P := make_Pullback _ Hp).
+  use (eqtohomot (PullbackArrow_PullbackPr2 P _ _ _ _)).
+<span class="kn">Qed</span>.
+
+<span class="sd">(** *** Pullbacks from general limits [PullbacksHSET_from_Lims] *)</span>
+
+<span class="kn">Require</span> UniMath.CategoryTheory.Limits.Graphs.Pullbacks.
+
+<span class="kn">Lemma</span> <span class="nf">PullbacksHSET_from_Lims</span> : Graphs.Pullbacks.Pullbacks HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (Graphs.Pullbacks.Pullbacks_from_Lims HSET LimsHSET).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** *** Pullbacks of arrows from [unit] as inverse images *)</span>
+
+<span class="sd">(** The set [hfiber f y] is a pullback of a diagram involving an arrow</span>
+<span class="sd">    from [TerminalHSET], i.e. [unit].</span>
+
+<span class="sd">    In particular, A pullback diagram of shape</span>
+<span class="sd">&lt;&lt;</span>
+<span class="sd">      Z --- ! --&gt; unit</span>
+<span class="sd">      |            |</span>
+<span class="sd">      |            | y</span>
+<span class="sd">      V            V</span>
+<span class="sd">      X --- f --&gt;  Y</span>
+<span class="sd">&gt;&gt;</span>
+<span class="sd">    makes [Z] (isomorphic to) the inverse image of a point [y : Y] under [f].</span>
+<span class="sd"> *)</span>
+
+<span class="sd">(** A translation of [weqfunfromunit] into the language of category theory,</span>
+<span class="sd">    to make the statement of the next lemmas more concise. *)</span>
+<span class="kn">Lemma</span> <span class="nf">weqfunfromunit_HSET</span> (<span class="nv">X</span> : hSet) : HSET⟦TerminalHSET, X⟧ ≃ X.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> weqfunfromunit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Local Lemma</span> <span class="nf">tosecoverunit_compute</span> {<span class="nv">X</span> : UU} {<span class="nv">x</span> : X} :
+  ∏ t, tosecoverunit (<span class="k">λ</span> <span class="nv">_</span> : unit, X) x t = x.
+<span class="kn">Proof</span>.
+  <span class="kp">abstract</span> (<span class="nb">induction</span> t; <span class="bp">reflexivity</span>).
+<span class="kn">Qed</span>.
+
+<span class="kn">Lemma</span> <span class="nf">hfiber_is_pullback</span> {<span class="nv">X</span> <span class="nv">Y</span> : hSet} (<span class="nv">f</span> : HSET⟦X, Y⟧)
+      (<span class="nv">y</span> : Y) (<span class="nv">y'</span> := invweq (weqfunfromunit_HSET _) y) :
+  ∑ H, @isPullback _ _ _ _ _ f y' (hfiberpr1 f y : HSET⟦hfiber_hSet f y , X⟧)
+                       (TerminalArrow TerminalHSET _) H.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="nb">apply</span> funextfun; <span class="nb">intro</span>.
+    <span class="nb">apply</span> hfiberpr2.
+  - <span class="nb">intros</span> pb pbpr1 pbpr2 pbH.
+
+    <span class="sd">(** First, simplify what we have to prove.</span>
+<span class="sd">        Part of the condition is trivial. *)</span>
+    use iscontrweqb.
+    + <span class="bp">exact</span> (∑ hk : HSET ⟦ pb, hfiber_hSet f y ⟧,
+              hk · hfiberpr1 f y = pbpr1).
+    + <span class="nb">apply</span> weqfibtototal; <span class="nb">intro</span>.
+      <span class="nb">apply</span> invweq.
+      <span class="nb">apply</span> dirprod_with_contr_r.
+      use make_iscontr.
+      * <span class="nb">apply</span> isapropifcontr.
+        <span class="nb">apply</span> TerminalHSET.
+      * <span class="nb">intro</span>; <span class="nb">apply</span> proofirrelevance; <span class="nb">apply</span> homset_property.
+    + <span class="nb">unfold</span> hfiber_hSet, hfiber; <span class="nb">cbn</span>.
+      use make_iscontr.
+      * use tpair.
+        <span class="nb">intros</span> pb0.
+        use tpair.
+        -- <span class="bp">exact</span> (pbpr1 pb0).
+        -- <span class="nb">cbn</span>.
+           <span class="nb">apply</span> toforallpaths <span class="k">in</span> pbH.
+           <span class="nb">specialize</span> (pbH pb0); <span class="nb">cbn</span> <span class="k">in</span> pbH.
+           <span class="nb">refine</span> (pbH @ _).
+           <span class="nb">apply</span> tosecoverunit_compute.
+        -- <span class="nb">apply</span> idpath.
+      * <span class="nb">intros</span> t.
+        <span class="nb">apply</span> subtypePath.
+        -- <span class="nb">intro</span>; <span class="nb">apply</span> has_homsets_HSET.
+        -- <span class="nb">cbn</span>.
+           <span class="nb">apply</span> funextfun; <span class="nb">intro</span>; <span class="nb">cbn</span>.
+           <span class="nb">apply</span> subtypePath.
+           ++ <span class="nb">intro</span>; <span class="nb">apply</span> setproperty.
+           ++ <span class="nb">apply</span> (toforallpaths _ _ _ (pr2 t)).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** ** Equalizers from general limits [EqualizersHSET_from_Lims] *)</span>
+
+<span class="kn">Require</span> UniMath.CategoryTheory.Limits.Graphs.Equalizers.
+
+<span class="kn">Lemma</span> <span class="nf">EqualizersHSET_from_Lims</span> : Graphs.Equalizers.Equalizers HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">apply</span> (Graphs.Equalizers.Equalizers_from_Lims HSET LimsHSET).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** HSET Pullbacks and Equalizers from limits to direct definition *)</span>
+<span class="kn">Section</span> <span class="nf">HSET_Structures</span>.
+
+  <span class="kn">Definition</span> <span class="nf">HSET_Pullbacks</span> : @Limits.Pullbacks.Pullbacks HSET :=
+    equiv_Pullbacks_2 HSET PullbacksHSET_from_Lims.
+
+  <span class="kn">Definition</span> <span class="nf">HSET_Equalizers</span>: @Limits.Equalizers.Equalizers HSET :=
+    equiv_Equalizers2 HSET EqualizersHSET_from_Lims.
+
+<span class="kn">End</span> <span class="nf">HSET_Structures</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> Concrete construction of equalizers of sets</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">Equalizers_in_HSET</span>
+  : Equalizers HSET.
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> X Y f g ; <span class="nb">cbn</span> <span class="k">in</span> *.
+  <span class="nb">simple refine</span> ((_ ,, _) ,, _ ,, _).
+  - <span class="bp">exact</span> (∑ (x : X), hProp_to_hSet (eqset (f x) (g x)))%<span class="nb">set</span>.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, pr1 x).
+  - <span class="kp">abstract</span>
+      (use funextsec ;
+       <span class="nb">intro</span> z ; <span class="nb">cbn</span> ;
+       <span class="bp">exact</span> (pr2 z)).
+  - <span class="nb">intros</span> W h p.
+    use iscontraprop1.
+    + <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+         use funextsec ;
+         <span class="nb">intro</span> w ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> setproperty | ] ;
+         <span class="bp">exact</span> (eqtohomot (pr2 φ₁ @ !(pr2 φ₂)) w)).
+    + <span class="nb">simple refine</span> (_ ,, _).
+      * <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">w</span>, h w ,, eqtohomot p w).
+      * <span class="nb">apply</span> idpath.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/Categories/HSET/Limits.v</tt>, line 22)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/PartD.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;
+  &gt; *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.Foundations.PartD.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Foundations.Propositions.
+  &gt; Require Import UniMath.Foundations.Sets.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

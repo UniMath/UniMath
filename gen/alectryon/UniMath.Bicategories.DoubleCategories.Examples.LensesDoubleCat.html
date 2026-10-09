@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LensesDoubleCat.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(**********************************************************************************</span>
+
+<span class="sd"> The double category of lenses</span>
+
+<span class="sd"> In this file, we define the double category of lenses. Suppose that `C` is a</span>
+<span class="sd"> category with binary products. Then we define the following double category:</span>
+<span class="sd"> - Objects: those of `C`</span>
+<span class="sd"> - Vertical morphisms: morphisms in `C`</span>
+<span class="sd"> - Horizontal morphisms: lenses in `C`</span>
+<span class="sd"> The squares in this double category are commutative squares.</span>
+
+<span class="sd"> This double category is essentially also constructed in Proposition 2.0.4 in</span>
+<span class="sd"> "Categories of Optics" by Riley ( https://arxiv.org/pdf/1809.00738.pdf).</span>
+<span class="sd"> There are two difference between the formalization in this file and the reference.</span>
+<span class="sd"> In the reference, a category of lenses is constructed, and this amounts to</span>
+<span class="sd"> constructing the horizontal composition and identities of lenses, whereas here</span>
+<span class="sd"> a double category is constructed. The other difference is the method taken: the</span>
+<span class="sd"> reference uses an abstract theorem about optics, whereas we construct the desired</span>
+<span class="sd"> double category directly.</span>
+
+<span class="sd"> Note that a double category of lenses has also been considered by Clarke in</span>
+<span class="sd"> "The double category of lenses" (https://figshare.mq.edu.au/articles/thesis/The_double_category_of_lenses/22045073/1).</span>
+<span class="sd"> The difference between the formalization and that thesis is that a different</span>
+<span class="sd"> notion of lens is considered. Clarke looks at delta-lenses, so the resulting</span>
+<span class="sd"> double category is as follows:</span>
+<span class="sd"> - Objects: categories</span>
+<span class="sd"> - Vertical morphisms: delta-lenses</span>
+<span class="sd"> - Horizontal morphisms: functors</span>
+<span class="sd"> This is different from what we look at, because we look at lenses in a category</span>
+<span class="sd"> with finite products.</span>
+
+<span class="sd"> We provide both a univalent and a strict version.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The horizontal identity</span>
+<span class="sd"> 2. Horizontal composition</span>
+<span class="sd"> 3. Unitors and associators</span>
+<span class="sd"> 4. The double category</span>
+<span class="sd"> 5. The strict double category</span>
+
+<span class="sd"> **********************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Setcategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.TwoSidedDispCat.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Strictness.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.TwoSidedDisplayedCats.Examples.Lenses.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Bicat.
+<span class="kn">Import</span> Bicat.Notations.
+<span class="kn">Require Import</span> UniMath.Bicategories.Core.Examples.BicatOfUnivCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.StrictDoubleCatBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Basics.DoubleCategoryBasics.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.DoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.UnivalentDoubleCats.
+<span class="kn">Require Import</span> UniMath.Bicategories.DoubleCategories.Core.StrictDoubleCats.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">LensesDoubleCat</span>.
+  <span class="kn">Context</span> (<span class="nv">C</span> : category)
+          (<span class="nv">PC</span> : BinProducts C).
+
+  <span class="sd">(** * 1. The horizontal identity *)</span>
+  <span class="kn">Definition</span> <span class="nf">lenses_double_cat_hor_id_data</span>
+    : hor_id_data (twosided_disp_cat_of_lenses C PC).
+  <span class="kn">Proof</span>.
+    use make_hor_id_data.
+    - <span class="bp">exact</span> (identity_lens _ _).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">f</span>, identity_lens_mor _ _ f).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lenses_double_cat_hor_id</span>
+    : hor_id (twosided_disp_cat_of_lenses C PC).
+  <span class="kn">Proof</span>.
+    use make_hor_id.
+    - <span class="bp">exact</span> lenses_double_cat_hor_id_data.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         <span class="nb">intros</span> ;
+         <span class="nb">apply</span> discrete_lenses_twosided_disp_cat).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 2. Horizontal composition *)</span>
+  <span class="kn">Definition</span> <span class="nf">lenses_double_cat_hor_comp_data</span>
+    : hor_comp_data (twosided_disp_cat_of_lenses C PC).
+  <span class="kn">Proof</span>.
+    use make_hor_comp_data.
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span> <span class="nv">y</span> <span class="nv">z</span> <span class="nv">l₁</span> <span class="nv">l₂</span>, comp_lens _ _ l₁ l₂).
+    - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">_</span> <span class="nv">φ</span> <span class="nv">ψ</span>, comp_lens_mor _ _ φ ψ).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lenses_double_cat_hor_comp</span>
+    : hor_comp (twosided_disp_cat_of_lenses C PC).
+  <span class="kn">Proof</span>.
+    use make_hor_comp.
+    - <span class="bp">exact</span> lenses_double_cat_hor_comp_data.
+    - <span class="kp">abstract</span>
+        (<span class="nb">split</span> ;
+         <span class="nb">intros</span> ;
+         <span class="nb">apply</span> discrete_lenses_twosided_disp_cat).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(** * 3. Unitors and associators *)</span>
+  <span class="kn">Definition</span> <span class="nf">lenses_double_cat_lunitor</span>
+    : double_cat_lunitor lenses_double_cat_hor_id lenses_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_lunitor.
+    - <span class="nb">intros</span> x y f.
+      use make_iso_twosided_disp.
+      + use make_lens_mor ; <span class="nb">cbn</span>.
+        * <span class="nb">rewrite</span> !id_left, !id_right.
+          <span class="nb">apply</span> idpath.
+        * <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> discrete_lenses_twosided_disp_cat.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> discrete_lenses_twosided_disp_cat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lenses_double_cat_runitor</span>
+    : double_cat_runitor lenses_double_cat_hor_id lenses_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_runitor.
+    - <span class="nb">intros</span> x y f.
+      use make_iso_twosided_disp.
+      + use make_lens_mor ; <span class="nb">cbn</span>.
+        * <span class="nb">rewrite</span> !id_left, !id_right.
+          <span class="nb">apply</span> idpath.
+        * <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductOfArrows_id.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">refine</span> (_ @ !(BinProductArrowEta _ _ _ _ _ _)).
+          <span class="nb">rewrite</span> postcompWithBinProductArrow.
+          <span class="nb">rewrite</span> !id_left, !id_right.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> discrete_lenses_twosided_disp_cat.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> discrete_lenses_twosided_disp_cat.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">lenses_double_cat_associator</span>
+    : double_cat_associator lenses_double_cat_hor_comp.
+  <span class="kn">Proof</span>.
+    use make_double_associator.
+    - <span class="nb">intros</span> w x y z f g h.
+     use make_iso_twosided_disp.
+      + use make_lens_mor ; <span class="nb">cbn</span>.
+        * <span class="nb">rewrite</span> !id_left, !id_right.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> idpath.
+        * <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductOfArrows_id.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> id_left.
+          <span class="nb">rewrite</span> !postcompWithBinProductArrow.
+          <span class="nb">rewrite</span> !precompWithBinProductArrow.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> !postcompWithBinProductArrow.
+          <span class="nb">rewrite</span> !id_left, !id_right.
+          <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> !postcompWithBinProductArrow.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">rewrite</span> BinProductOfArrows_comp.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> idpath.
+      + <span class="nb">apply</span> discrete_lenses_twosided_disp_cat.
+    - <span class="nb">intro</span> ; <span class="nb">intros</span>.
+      <span class="nb">apply</span> discrete_lenses_twosided_disp_cat.
+  <span class="kn">Qed</span>.
+<span class="kn">End</span> <span class="nf">LensesDoubleCat</span>.
+
+<span class="sd">(** * 4. The double category *)</span>
+<span class="kn">Definition</span> <span class="nf">lenses_double_cat</span>
+           (<span class="nv">C</span> : category)
+           (<span class="nv">PC</span> : BinProducts C)
+  : double_cat.
+<span class="kn">Proof</span>.
+  use make_double_cat.
+  - <span class="bp">exact</span> C.
+  - <span class="bp">exact</span> (twosided_disp_cat_of_lenses C PC).
+  - <span class="bp">exact</span> (lenses_double_cat_hor_id C PC).
+  - <span class="bp">exact</span> (lenses_double_cat_hor_comp C PC).
+  - <span class="bp">exact</span> (lenses_double_cat_lunitor C PC).
+  - <span class="bp">exact</span> (lenses_double_cat_runitor C PC).
+  - <span class="bp">exact</span> (lenses_double_cat_associator C PC).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> discrete_lenses_twosided_disp_cat).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> discrete_lenses_twosided_disp_cat).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">is_flat_lenses_double_cat</span>
+            (<span class="nv">C</span> : category)
+            (<span class="nv">PC</span> : BinProducts C)
+  : is_flat_double_cat (lenses_double_cat C PC).
+<span class="kn">Proof</span>.
+  <span class="nb">intro</span> ; <span class="nb">intros</span>.
+  <span class="nb">apply</span> discrete_lenses_twosided_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lenses_double_cat_ver_weq_square</span>
+           (<span class="nv">C</span> : category)
+           (<span class="nv">PC</span> : BinProducts C)
+  : ver_weq_square (lenses_double_cat C PC).
+<span class="kn">Proof</span>.
+  <span class="nb">intros</span> x y f g.
+  use isweqimplimpl.
+  - <span class="nb">intros</span> p.
+    <span class="nb">pose</span> (q := pr11 p) ; <span class="nb">cbn</span> <span class="k">in</span> q.
+    <span class="nb">rewrite</span> id_left, id_right <span class="k">in</span> q.
+    <span class="bp">exact</span> (!q).
+  - <span class="nb">apply</span> homset_property.
+  - use invproofirrelevance.
+    <span class="nb">intro</span> ; <span class="nb">intros</span>.
+    <span class="nb">apply</span> discrete_lenses_twosided_disp_cat.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">lenses_univalent_double_cat</span>
+           (<span class="nv">C</span> : univalent_category)
+           (<span class="nv">PC</span> : BinProducts C)
+  : univalent_double_cat.
+<span class="kn">Proof</span>.
+  use make_univalent_double_cat.
+  - <span class="bp">exact</span> (lenses_double_cat C PC).
+  - <span class="nb">split</span>.
+    + <span class="nb">apply</span> univalent_category_is_univalent.
+    + <span class="nb">apply</span> is_univalent_lenses_twosided_disp_cat.
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 5. The strict double category *)</span>
+<span class="kn">Definition</span> <span class="nf">lenses_strict_double_cat</span>
+           (<span class="nv">C</span> : setcategory)
+           (<span class="nv">PC</span> : BinProducts C)
+  : strict_double_cat.
+<span class="kn">Proof</span>.
+  use make_strict_double_cat.
+  - <span class="bp">exact</span> C.
+  - <span class="bp">exact</span> (twosided_disp_cat_of_lenses C PC).
+  - <span class="nb">apply</span> is_strict_twosided_disp_cat_of_lenses.
+  - <span class="bp">exact</span> (lenses_double_cat_hor_id C PC).
+  - <span class="bp">exact</span> (lenses_double_cat_hor_comp C PC).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+       <span class="bp">exact</span> (lens_id_left C PC f)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+       <span class="bp">exact</span> (lens_id_right C PC f)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> w x y z f g h ; <span class="nb">cbn</span> ;
+       <span class="bp">exact</span> (lens_assoc C PC f g h)).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> discrete_lenses_twosided_disp_cat).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> discrete_lenses_twosided_disp_cat).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intro</span> ; <span class="nb">intros</span> ;
+       <span class="nb">apply</span> discrete_lenses_twosided_disp_cat).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Bicategories/DoubleCategories/Examples/LensesDoubleCat.v</tt>, line 42)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  5. The strict double category
+  &gt;
+  &gt;  **********************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.Core.Setcategories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>RepresentableLaws.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(********************************************************************************************</span>
+
+<span class="sd"> Laws for representable profunctors</span>
+
+<span class="sd"> In this file, we establish the laws that are necessary to show that representable profunctors</span>
+<span class="sd"> give companion pairs and conjoints in the double bicategory of enriched profunctors.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Laws for the left representable</span>
+<span class="sd"> 2. Laws for the right representable</span>
+
+<span class="sd"> ********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.EnrichmentTransformation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Profunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.StandardProfunctors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.ProfunctorTransformations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.ProfunctorSquares.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Profunctors.Composition.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Opaque</span> sym_mon_braiding.
+
+<span class="sd">(** * 1. Laws for the left representable *)</span>
+<span class="kn">Proposition</span> <span class="nf">representable_enriched_profunctor_left_left_eq</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            (<span class="nv">EF</span> : functor_enrichment F E₁ E₂)
+  : rwhisker_enriched_profunctor_square
+      (runitor_enriched_profunctor
+         (representable_enriched_profunctor_left EF))
+      (lwhisker_enriched_profunctor_square
+         (linvunitor_enriched_profunctor
+            (representable_enriched_profunctor_left EF))
+         (comp_v_enriched_profunctor_square
+            (representable_enriched_profunctor_left_counit EF)
+            (representable_enriched_profunctor_left_unit EF)))
+    =
+    id_h_enriched_profunctor_square (representable_enriched_profunctor_left EF).
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z x ; <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> linvunitor_enriched_profunctor_mor.
+  <span class="nb">refine</span> (_ @ mon_linvunitor_lunitor _).
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (comp_v_enriched_profunctor_square_mor_comm
+             (representable_enriched_profunctor_left_counit _)
+             (representable_enriched_profunctor_left_unit _)).
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (runitor_enriched_profunctor_mor_comm
+             (representable_enriched_profunctor_left _)).
+  }
+  <span class="nb">cbn</span>.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> assoc.
+    <span class="nb">rewrite</span> sym_mon_braiding_inv.
+    <span class="nb">apply</span> id_left.
+  }
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> &lt;- tensor_comp_id_r.
+  <span class="nb">rewrite</span> functor_enrichment_id.
+  <span class="nb">rewrite</span> enrichment_id_left.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">representable_enriched_profunctor_left_right_eq</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            (<span class="nv">EF</span> : functor_enrichment F E₁ E₂)
+  : dwhisker_enriched_profunctor_square
+      (rinvunitor_enrichment EF)
+      (uwhisker_enriched_profunctor_square
+         (lunitor_enrichment EF)
+         (comp_h_enriched_profunctor_square
+            (representable_enriched_profunctor_left_counit EF)
+            (representable_enriched_profunctor_left_unit EF)))
+    =
+    id_v_enriched_profunctor_square EF.
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (_ @ id_right _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> !enriched_from_arr_id.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- enrichment_id_left.
+    <span class="nb">rewrite</span> mon_lunitor_linvunitor.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- enrichment_id_right.
+    <span class="nb">rewrite</span> sym_mon_braiding_runitor.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> mon_linvunitor_lunitor.
+<span class="kn">Qed</span>.
+
+<span class="sd">(** * 2. Laws for the right representable *)</span>
+<span class="kn">Proposition</span> <span class="nf">representable_enriched_profunctor_right_left_eq</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            (<span class="nv">EF</span> : functor_enrichment F E₁ E₂)
+  : lwhisker_enriched_profunctor_square
+      (rinvunitor_enriched_profunctor
+         (representable_enriched_profunctor_right EF))
+      (rwhisker_enriched_profunctor_square
+         (lunitor_enriched_profunctor
+            (representable_enriched_profunctor_right EF))
+         (comp_v_enriched_profunctor_square
+            (representable_enriched_profunctor_right_counit EF)
+            (representable_enriched_profunctor_right_unit EF)))
+    =
+    id_h_enriched_profunctor_square (representable_enriched_profunctor_right EF).
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z x ; <span class="nb">cbn</span>.
+  <span class="nb">unfold</span> rinvunitor_enriched_profunctor_mor.
+  <span class="nb">refine</span> (_ @ mon_rinvunitor_runitor _).
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">apply</span> maponpaths.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">apply</span> maponpaths_2.
+    <span class="nb">apply</span> (comp_v_enriched_profunctor_square_mor_comm
+             (representable_enriched_profunctor_right_counit _)
+             (representable_enriched_profunctor_right_unit _)).
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc'.
+  etrans.
+  {
+    <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> (lunitor_enriched_profunctor_mor_comm
+             (representable_enriched_profunctor_right _)).
+  }
+  <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> !assoc.
+  <span class="nb">rewrite</span> &lt;- tensor_comp_id_l.
+  <span class="nb">rewrite</span> functor_enrichment_id.
+  <span class="nb">rewrite</span> enrichment_id_right.
+  <span class="nb">apply</span> idpath.
+<span class="kn">Qed</span>.
+
+<span class="kn">Proposition</span> <span class="nf">representable_enriched_profunctor_right_right_eq</span>
+            {<span class="nv">V</span> : benabou_cosmos}
+            {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+            {<span class="nv">E₁</span> : enrichment C₁ V}
+            {<span class="nv">E₂</span> : enrichment C₂ V}
+            {<span class="nv">F</span> : C₁ ⟶ C₂}
+            (<span class="nv">EF</span> : functor_enrichment F E₁ E₂)
+  : dwhisker_enriched_profunctor_square
+      (linvunitor_enrichment EF)
+      (uwhisker_enriched_profunctor_square
+         (runitor_enrichment EF)
+         (comp_h_enriched_profunctor_square
+            (representable_enriched_profunctor_right_unit EF)
+            (representable_enriched_profunctor_right_counit EF)))
+    =
+    id_v_enriched_profunctor_square EF.
+<span class="kn">Proof</span>.
+  use eq_enriched_profunctor_transformation ; <span class="nb">intros</span> z x ; <span class="nb">cbn</span>.
+  <span class="nb">rewrite</span> id_right.
+  <span class="nb">rewrite</span> !assoc'.
+  <span class="nb">refine</span> (_ @ id_right _).
+  <span class="nb">apply</span> maponpaths.
+  <span class="nb">rewrite</span> !enriched_from_arr_id.
+  etrans.
+  {
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">rewrite</span> !assoc.
+    <span class="nb">rewrite</span> &lt;- enrichment_id_left.
+    <span class="nb">rewrite</span> mon_lunitor_linvunitor.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">rewrite</span> tensor_sym_mon_braiding.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> &lt;- enrichment_id_right.
+    <span class="nb">rewrite</span> sym_mon_braiding_runitor.
+    <span class="nb">apply</span> idpath.
+  }
+  <span class="nb">apply</span> mon_linvunitor_lunitor.
+<span class="kn">Qed</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Profunctors/RepresentableLaws.v</tt>, line 13)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  2. Laws for the right representable
+  &gt;
+  &gt;  ********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.EnrichedCats.BenabouCosmos.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>WTypes.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(** * Algebra, functor algebras and w-types. *)</span>
+<span class="sd">(** Gianluca Amato, Matteo Calosci, Marco Maggesi, Cosimo Perini Brogi 2019-2024. *)</span>
+
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.Combinatorics.StandardFiniteSets.
+
+<span class="kn">Require Import</span> UniMath.Induction.PolynomialFunctors.
+<span class="kn">Require Import</span> UniMath.Induction.W.Core.
+<span class="kn">Require Import</span> UniMath.Induction.W.Wtypes.
+<span class="kn">Require Import</span> UniMath.Induction.FunctorAlgebras_legacy.
+
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.Signatures.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.Algebras.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.HVectors.
+<span class="kn">Require Import</span> UniMath.Algebra.Universal.Terms.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> stn.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> vec.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> sorted.
+
+<span class="kn">Section</span> <span class="nf">alegbra_functoralgebra</span>.
+
+  <span class="kn">Section</span> <span class="nf">lemmas</span>.
+
+    <span class="sd">(** Correspondence between a vector of types and an hvector of level 1 with constant arguments *)</span>
+
+    <span class="kn">Definition</span> <span class="nf">h1const_to_vec</span> {<span class="nv">A</span>: UU} {<span class="nv">n</span>: nat} {<span class="nv">B</span>: A} {<span class="nv">P</span>: A → UU}
+                              (<span class="nv">hv</span>: hvec (vec_map P (vec_fill B n)) )
+      : vec (P B) n.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> n.
+      - <span class="bp">exact</span> vnil.
+      - <span class="nb">simpl</span> <span class="k">in</span> hv.
+        <span class="bp">exact</span> (pr1 hv ::: IHn (pr2 hv)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">vec_to_h1const</span> {<span class="nv">A</span>: UU} {<span class="nv">n</span>: nat} {<span class="nv">B</span>: A} {<span class="nv">P</span>: A → UU} (<span class="nv">v</span>: vec (P B) n)
+      : hvec (vec_map P (vec_fill B n)).
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> n.
+      - <span class="bp">exact</span> hnil.
+      - <span class="nb">simpl</span> <span class="k">in</span> v.
+        <span class="nb">simpl</span>.
+        <span class="bp">exact</span> (pr1 v ::: IHn (pr2 v))%hvec.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">h1const_vec_h1const</span> {<span class="nv">A</span>: UU} {<span class="nv">n</span>: nat} {<span class="nv">B</span>: A} {<span class="nv">P</span>: A → UU}
+                                  (<span class="nv">hv</span>: hvec (vec_map P (vec_fill B n)) )
+      : vec_to_h1const (h1const_to_vec hv) = hv.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> n.
+      - <span class="nb">induction</span> hv.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">simpl</span> <span class="k">in</span> hv.
+        <span class="nb">simpl</span>.
+        <span class="nb">change</span> hv <span class="k">with</span> (pr1 hv ::: pr2 hv)%hvec.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (IHn (pr2 hv)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">vec_h1const_vec</span> {<span class="nv">A</span>: UU} {<span class="nv">n</span>: nat} {<span class="nv">B</span>: A} {<span class="nv">P</span>: A → UU} (<span class="nv">v</span>: vec (P B) n)
+      : h1const_to_vec ( vec_to_h1const v ) = v.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> n.
+      - <span class="nb">induction</span> v.
+        <span class="nb">apply</span> idpath.
+      - <span class="nb">simpl</span> <span class="k">in</span> v.
+        <span class="nb">simpl</span>.
+        <span class="nb">change</span> v <span class="k">with</span> (pr1 v ::: pr2 v).
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> (IHn (pr2 v)).
+    <span class="kn">Defined</span>.
+    <span class="sd">(** This is the inverse of eta_unit **)</span>
+    <span class="kn">Lemma</span> <span class="nf">eta_unit'</span> {<span class="nv">X</span> : UU} (<span class="nv">f</span> : unit -&gt; X) : (<span class="k">λ</span> <span class="nv">_</span>, f tt) = f.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> funextfun.
+      <span class="nb">intro</span> x.
+      <span class="nb">induction</span> x.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Defined</span>.
+
+    <span class="sd">(** Helper lemma on transport *)</span>
+
+    <span class="kn">Definition</span> <span class="nf">transportf_dirprod'</span> (<span class="nv">A</span> : UU) (<span class="nv">B</span> <span class="nv">B'</span> : A -&gt; UU) (<span class="nv">a</span> <span class="nv">a'</span>: A) (<span class="nv">x</span>: B a)
+                                  (<span class="nv">x'</span>: B' a) (<span class="nv">p</span> : a = a')
+      : transportf (<span class="k">λ</span> <span class="nv">a</span>, B a × B' a) p (x,, x') =
+          make_dirprod (transportf (<span class="k">λ</span> <span class="nv">a</span>, B a) p x) (transportf (<span class="k">λ</span> <span class="nv">a</span>, B' a) p x').
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> p.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">transportb_sec_constant</span> {<span class="nv">A</span> <span class="nv">B</span> : UU} {<span class="nv">C</span> : A -&gt; B -&gt; UU} {<span class="nv">x1</span> <span class="nv">x2</span> : A} (<span class="nv">p</span> : x1 = x2)
+                                  (<span class="nv">f</span> : ∏ y : B, C x2 y)
+    : transportb (<span class="k">λ</span> <span class="nv">x</span>, ∏ y : B, C x y) p f = (<span class="k">λ</span> <span class="nv">y</span>, transportb (<span class="k">λ</span> <span class="nv">x</span>, C x y) p (f y)).
+    <span class="kn">Proof</span>.
+    <span class="nb">induction</span> p.
+    <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">transportb_fun</span> {<span class="nv">P</span>: (unit → UU) → UU} {<span class="nv">Q</span>: (unit → UU) → UU} {<span class="nv">a</span> <span class="nv">a'</span>: unit → UU}
+                        {<span class="nv">p</span>: a = a'} {<span class="nv">f</span>: P a' → Q a'} {<span class="nv">x</span>: P a}
+      : transportb (<span class="k">λ</span> <span class="nv">x</span>: unit → UU, P x → Q x) p f x =
+          transportb (<span class="k">λ</span> <span class="nv">x</span>: unit → UU, Q x) p (f (transportf (<span class="k">λ</span> <span class="nv">x</span>: unit → UU, P x) p x)).
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> p.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">transportf_eta_unit'</span> {<span class="nv">P</span>: (unit → UU) → UU} {<span class="nv">a</span>: unit → UU} (<span class="nv">y</span>: a tt)
+      : transportf (<span class="k">λ</span> <span class="nv">x0</span> : unit → UU, x0 tt) (eta_unit' a) y = y.
+    <span class="kn">Proof</span>.
+      <span class="nb">rewrite</span> (transportf_funextfun
+                (<span class="k">λ</span> <span class="nv">A</span>:UU, A) _ _
+                (<span class="k">λ</span> <span class="nv">x</span> : unit, unit_rect (<span class="k">λ</span> <span class="nv">x0</span> : unit, a tt = a x0) (idpath (a tt)) x)
+              ).
+    <span class="nb">unfold</span> unit_rect.
+    <span class="nb">rewrite</span> idpath_transportf.
+    <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">transportb_eta_unit'</span>{<span class="nv">P</span>: (unit → UU) → UU} {<span class="nv">a</span>: unit → UU} (<span class="nv">y</span>: a tt)
+      : transportb (<span class="k">λ</span> <span class="nv">x0</span> : unit → UU, x0 tt) (eta_unit' a) y = y.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (transportb_transpose_left(P:= <span class="k">λ</span> <span class="nv">x0</span>: unit → UU, x0 tt)(e:=eta_unit' a)).
+      <span class="nb">apply</span> pathsinv0.
+      <span class="nb">apply</span> (transportf_eta_unit'(P:= <span class="k">λ</span> <span class="nv">x0</span>: unit → UU, x0 tt)).
+    <span class="kn">Qed</span>.
+
+    <span class="sd">(** Helper lemma for interaction between h1const and eta_unit *)</span>
+
+    <span class="kn">Lemma</span> <span class="nf">h1const_to_vec_eta_unit'</span> {<span class="nv">f</span>: sUU unit} {<span class="nv">n</span>: nat} {<span class="nv">hv</span>: hvec (vec_map (<span class="k">λ</span> <span class="nv">_</span> : unit, f tt) (vec_fill tt n))}
+      : h1const_to_vec hv =
+        h1const_to_vec (transportf (<span class="k">λ</span> <span class="nv">X</span>, hvec (vec_map X (vec_fill tt n))) (eta_unit' f) hv).
+
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> n.
+      - <span class="nb">apply</span> idpath.
+      - <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> transportf_dirprod'.
+        use total2_paths2.
+        + <span class="nb">simpl</span>.
+          <span class="nb">rewrite</span> (transportf_eta_unit'(P:=<span class="k">λ</span> <span class="nv">a</span>: unit → UU, a tt)).
+          <span class="nb">apply</span> idpath.
+        + <span class="nb">apply</span> (IHn (pr2 hv)).
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">lemmas</span>.
+
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+  <span class="kn">Local</span> <span class="kn">Open Scope</span> hom.
+
+  <span class="kn">Context</span> (<span class="nv">σ</span>: signature_simple_single_sorted).
+
+  <span class="kn">Let</span> <span class="nf">A</span> := names σ.
+
+  <span class="kn">Let</span> <span class="nf">B</span> (<span class="nv">a</span>: A) := ⟦ length (arity a) ⟧.
+
+  <span class="c">(* Polynomial functor corresponding to the signature σ *)</span>
+
+  <span class="kn">Local Notation</span> <span class="nf">F</span> := (polynomial_functor A B).
+
+  <span class="sd">(** Prove that algebra_ob and algebra are equal types *)</span>
+
+    <span class="kn">Definition</span> <span class="nf">algebra_to_functoralgebra</span> (<span class="nv">a</span>: algebra σ)
+      : algebra_ob F.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> a <span class="k">as</span> [carrier ops].
+      <span class="nb">unfold</span> algebra_ob.
+      <span class="k">exists</span> (<span class="nv">carrier</span> <span class="nv">tt</span>).
+      <span class="nb">simpl</span>.
+      <span class="nb">intro</span> X.
+      <span class="nb">induction</span> X <span class="k">as</span> [nm subterms].
+      <span class="nb">refine</span> (ops nm _).
+      <span class="nb">apply</span> vec_to_h1const.
+      <span class="bp">exact</span> (make_vec subterms).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">functoralgebra_to_algebra</span> (<span class="nv">FAlg</span>: algebra_ob F)
+      : algebra σ.
+    <span class="kn">Proof</span>.
+      <span class="nb">induction</span> FAlg <span class="k">as</span> [carrier ops].
+      <span class="nb">simpl</span> <span class="k">in</span> ops.
+      <span class="k">exists</span> (<span class="nv">λ</span> <span class="nv">_</span>, <span class="nv">carrier</span>).
+      <span class="nb">intro</span> nm.
+      <span class="nb">intro</span> subterms.
+      <span class="nb">apply</span> h1const_to_vec <span class="k">in</span> subterms.
+      <span class="bp">exact</span> (ops (nm ,, el subterms)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">alg_funcalg_alg</span> (<span class="nv">a</span>: algebra_ob F)
+      : algebra_to_functoralgebra (functoralgebra_to_algebra a) = a.
+    <span class="kn">Proof</span>.
+      use total2_paths2_f.
+      - <span class="nb">apply</span> idpath.
+      - <span class="nb">rewrite</span> idpath_transportf.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> X.
+        <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> vec_h1const_vec.
+        <span class="nb">rewrite</span> el_make_vec_fun.
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Lemma</span> <span class="nf">funcalg_alg_funcalg</span> (<span class="nv">a</span>: algebra σ)
+      : functoralgebra_to_algebra (algebra_to_functoralgebra a) = a.
+    <span class="kn">Proof</span>.
+      use total2_paths2_b.
+      - <span class="nb">apply</span> eta_unit'.
+      - <span class="nb">apply</span> funextsec.
+        <span class="nb">intro</span> nm.
+        <span class="nb">apply</span> funextfun.
+        <span class="nb">intro</span> x.
+        <span class="nb">simpl</span>.
+        <span class="nb">rewrite</span> make_vec_el.
+        <span class="nb">rewrite</span> h1const_to_vec_eta_unit'.
+        <span class="nb">rewrite</span> h1const_vec_h1const.
+        <span class="nb">rewrite</span> transportb_sec_constant.
+        <span class="nb">rewrite</span> transportb_fun.
+        <span class="nb">rewrite</span> (transportb_eta_unit'(P:=(<span class="k">λ</span> <span class="nv">x0</span> : unit → UU, x0 (sort nm)))).
+        <span class="nb">apply</span> idpath.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">alegbra_weq_functoralgebra</span>: algebra σ ≃ algebra_ob F.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> (weq_iso algebra_to_functoralgebra functoralgebra_to_algebra).
+      <span class="bp">exact</span> funcalg_alg_funcalg.
+      <span class="bp">exact</span> alg_funcalg_alg.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">alegbra_eq_functoralgebra</span>: algebra σ = algebra_ob F.
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> univalence.
+      <span class="bp">exact</span> alegbra_weq_functoralgebra.
+    <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">alegbra_functoralgebra</span>.
+
+
+<span class="kn">Section</span> <span class="nf">groundTermAlgebraWtype</span>.
+
+<span class="sd">(** Prove that the ground term algebra is a W-type *)</span>
+
+  <span class="kn">Section</span> <span class="nf">lemmas</span>.
+
+    <span class="kn">Definition</span> <span class="nf">comp_maponsecfibers</span> {<span class="nv">X</span> : UU} {<span class="nv">P</span> <span class="nv">Q</span> : X → UU} (<span class="nv">f</span> : (∏ x : X, (P x ≃ Q x))) {<span class="nv">p</span>} {<span class="nv">x</span>}
+      : (weqonsecfibers P Q f) p x = (f x) (p x).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">inv_weqonsecbase</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">P</span>:Y→UU} (<span class="nv">f</span>:X≃Y) {<span class="nv">xz</span>} {<span class="nv">y</span>}
+      : invmap (weqonsecbase P f) xz y = transportf _ (homotweqinvweq f y) (xz (invmap f y)).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Section</span> <span class="nf">Comp_weqonsec</span>.
+
+    <span class="kn">Context</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">P</span>:X-&gt;<span class="kt">Type</span>} {<span class="nv">Q</span>:Y-&gt;<span class="kt">Type</span>}
+            {<span class="nv">f</span>:X ≃ Y} {<span class="nv">g</span>:∏ x, weq (P x) (Q (f x))}.
+
+    <span class="kn">Definition</span> <span class="nf">comp_weqonsec</span>  :
+      pr1weq (weqonsec P Q f g) =
+      (<span class="k">λ</span> <span class="nv">xp</span> <span class="nv">y</span>, transportf Q (homotweqinvweq f y) ((g (invmap f y)) (xp (invmap f y)))).
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Defined</span>.
+    <span class="kn">End</span> <span class="nf">Comp_weqonsec</span>.
+
+    <span class="kn">Definition</span> <span class="nf">inv_weqonsecfibers</span> {<span class="nv">X</span> : UU} {<span class="nv">P</span> <span class="nv">Q</span> : X → UU} (<span class="nv">f</span> : (∏ x : X, (P x ≃ Q x)))
+      : invmap (weqonsecfibers P Q f) = (<span class="k">λ</span> <span class="nv">q</span> <span class="nv">x</span>, invmap (f x) (q x)).
+    <span class="kn">Proof</span>.
+      use funextsec.
+      <span class="nb">intro</span> q.
+      use funextsec.
+      <span class="nb">intro</span> x.
+      use maponpaths.
+      <span class="nb">simpl</span>.
+      use proofirrelevance.
+      <span class="nb">fold</span> ((hfiber (f x) (q x))).
+      use isapropifcontr.
+      use weqproperty.
+    <span class="kn">Defined</span>. <span class="c">(*it is possible to improve computation time here?*)</span>
+
+    <span class="kn">Definition</span> <span class="nf">inv_weqonsec</span> {<span class="nv">X</span> <span class="nv">Y</span>} {<span class="nv">P</span>:X-&gt;<span class="kt">Type</span>} {<span class="nv">Q</span>:Y-&gt;<span class="kt">Type</span>}
+              {<span class="nv">f</span>:X ≃ Y} {<span class="nv">g</span>:∏ x, weq (P x) (Q (f x))} :
+      (invmap (weqonsec P Q f g)) =
+      (<span class="k">λ</span> <span class="nv">yq</span> <span class="nv">x</span>, invmap (g x) (yq ( f x)) ).
+    <span class="kn">Proof</span>.
+      use funextsec.
+      <span class="nb">intro</span> yq.
+      use funextsec.
+      <span class="nb">intro</span> x.
+
+      <span class="nb">unfold</span> weqonsec.
+      <span class="nb">rewrite</span> invmap_weqcomp_expand.
+      <span class="nb">simpl</span>.
+      <span class="nb">rewrite</span> inv_weqonsecfibers.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">lemmas</span>.
+
+  <span class="kn">Context</span> (<span class="nv">σ</span>: signature_simple_single_sorted).
+
+  <span class="kn">Let</span> <span class="nf">A</span> := names σ.
+  <span class="kn">Let</span> <span class="nf">B</span> (<span class="nv">a</span>: A) := ⟦ length (arity a) ⟧.
+  <span class="kn">Let</span> <span class="nf">U</span> := gterm σ tt.
+
+  <span class="kn">Section</span> <span class="nf">sup</span>.
+
+    <span class="kn">Definition</span> <span class="nf">gtweq_sec</span> (<span class="nv">x</span>:A) : (gterm σ)⋆ (arity x) ≃ (B x → U).
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> star.
+      use (weqcomp helf_weq).
+      use weqonsecfibers.
+      <span class="nb">intro</span> i.
+      use eqweqmap.
+      use el_vec_map_vec_fill.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">gtweq_sec_comp</span> {<span class="nv">x</span>:A} (<span class="nv">v</span>:(gterm σ)⋆ (arity x)) (<span class="nv">i</span> : B x) : gtweq_sec x v i = eqweqmap (el_vec_map_vec_fill (gterm σ) tt i) (hel v i).
+    <span class="kn">Proof</span>.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">gtweq_sectoU</span> (<span class="nv">x</span>:A)
+      : ((gterm σ)⋆ (arity x) → U) ≃ ((B x → U) → U)
+      := invweq (weqbfun U (gtweq_sec x)).
+
+    <span class="kn">Definition</span> <span class="nf">gtweqtoU</span>
+      : (∏ x : A, (gterm σ)⋆ (arity x) → U) ≃ (∏ x : A, (B x → U) → U)
+      := (weqonsecfibers _ _ gtweq_sectoU).
+
+    <span class="kn">Definition</span> <span class="nf">sup</span>: ∏ x : A, (B x → U) → U.
+    <span class="kn">Proof</span>.
+      use (gtweqtoU).
+      use build_gterm.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">sup</span>.
+
+  <span class="kn">Section</span> <span class="nf">ind</span>.
+
+    <span class="kn">Definition</span> <span class="nf">ind_HP</span> (<span class="nv">P</span>:U → UU) : UU
+      := ∏ (x : A) (f : B x → U), (∏ u : B x, P (f u)) → P (sup x f).
+
+    <span class="kn">Definition</span> <span class="nf">lower_predicate</span> : (∏ (s: sorts σ), gterm σ s → UU) ≃ (U → UU).
+    <span class="kn">Proof</span>.
+      use (weqsecoverunit (<span class="k">λ</span> <span class="nv">s</span>, gterm σ s → UU)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Context</span>
+        (<span class="nv">P</span>:(∏ (s: sorts σ), gterm σ s → UU)).
+      <span class="kn">Let</span> <span class="nf">lowP</span> := lower_predicate P.
+
+    <span class="kn">Section</span> <span class="nf">ind_HP</span>.
+
+      <span class="kn">Context</span>
+        (<span class="nv">nm</span>:names σ)
+        (<span class="nv">v</span> : (gterm σ)⋆ (arity nm)).
+      <span class="kn">Let</span> <span class="nf">f</span> := gtweq_sec nm v.
+
+      <span class="kn">Theorem</span> <span class="nf">ind_HP_Hypo</span> : hvec (h1map_vec P v) ≃ (∏ u : B nm, lowP (f u)).
+      <span class="kn">Proof</span>.
+        use (weqcomp helf_weq).
+        use weqonsecfibers.
+        <span class="nb">intro</span> i.
+        use eqweqmap.
+        use hel_h1map_vec_vec_fill.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Theorem</span> <span class="nf">ind_HP_Th</span> : P (sort nm) (build_gterm nm v) ≃ lowP (sup nm f).
+      <span class="kn">Proof</span>.
+        <span class="nb">change</span> (sort nm) <span class="k">with</span> tt.
+
+        <span class="nb">change</span> (lowP) <span class="k">with</span> (P tt).
+
+        use eqweqmap.
+        use maponpaths.
+        <span class="nb">unfold</span> sup.
+        <span class="nb">unfold</span> gtweqtoU.
+
+        <span class="nb">change</span> (build_gterm nm v = transportf (<span class="k">λ</span> <span class="nv">_</span> : B nm → U, U) (homotweqinvweq (gtweq_sec nm) f) (build_gterm nm (invmap (gtweq_sec nm) f))).
+        <span class="c">(*</span>
+<span class="c">        (* to see why the computation above works step by step run the following code *)</span>
+<span class="c">        rewrite comp_maponsecfibers.</span>
+<span class="c">        unfold gtweq_sectoU, weqbfun.</span>
+<span class="c">        simpl.</span>
+<span class="c">        rewrite (inv_weqonsecbase (P:=(λ _ : B nm → U, U)) (gtweq_sec nm)).</span>
+<span class="c">        *)</span>
+        <span class="nb">rewrite</span> transportf_const.
+        <span class="nb">induction</span> ((homotweqinvweq (gtweq_sec nm) f)).
+        use pathsinv0.
+        etrans.
+        { use idpath_transportf. }
+        <span class="nb">unfold</span> idfun.
+        use maponpaths.
+        <span class="nb">induction</span> (!homotweqinvweq (gtweq_sec nm) f).
+        use pathsinv0.
+        use homotinvweqweq0.
+      <span class="kn">Defined</span>.
+
+    <span class="kn">End</span> <span class="nf">ind_HP</span>.
+
+    <span class="kn">Theorem</span> <span class="nf">HP_weq</span> : term_ind_HP P ≃ ind_HP (lowP).
+    <span class="kn">Proof</span>.
+      use weqonsecfibers.
+      <span class="nb">intro</span> x.
+      <span class="nb">cbn</span> beta.
+      use weqonsec.
+      + use gtweq_sec.
+      + <span class="nb">intro</span> v.
+        use weqonsec.
+        - use ind_HP_Hypo.
+        - <span class="nb">intro</span> HypOnSub.
+          use ind_HP_Th.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Theorem</span> <span class="nf">toLowerPredicateWeq</span> : (∏ (s : sorts σ) (t : gterm σ s), P s t) ≃ (∏ w : U, lowP w).
+    <span class="kn">Proof</span>.
+      use weqsecoverunit.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">ind</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ind_weq</span>
+    : (∏ P : ∏ s : sorts σ, gterm σ s → UU, term_ind_HP P → ∏ (s : sorts σ) (t : gterm σ s), P s t) ≃
+    (∏ P : U → UU, ind_HP P → ∏ w : U, P w).
+  <span class="kn">Proof</span>.
+    use weqonsec.
+    + <span class="bp">exact</span> lower_predicate.
+    + <span class="nb">intro</span> P.
+      use weqonsec.
+      - use HP_weq.
+      - <span class="nb">intros</span> H.
+        <span class="nb">cbn</span> beta.
+        use toLowerPredicateWeq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">ind</span>: ∏ P : U → UU, ind_HP P → ∏ w : U, P w.
+    <span class="kn">Proof</span>.
+      use ind_weq.
+      use term_ind.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">Theorem</span> <span class="nf">invind</span> : term_ind = (invweq ind_weq) ind.
+    <span class="kn">Proof</span>.
+      use pathsweq1.
+      <span class="nb">unfold</span> ind.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">beta_simplecase</span>.
+    <span class="kn">Context</span>
+      (<span class="nv">P</span>:(∏ (s: sorts σ), gterm σ s → UU))
+      (<span class="nv">nm</span>: names σ)
+      (<span class="nv">v</span> : (gterm σ)⋆ (arity nm))
+      (<span class="nv">R</span> : ∏ (nm : names σ) (v : (gterm σ)⋆ (arity nm)), hvec (h1map_vec P v) → P (sort nm) (build_gterm nm v)).
+    <span class="kn">Let</span> <span class="nf">lowP</span> := lower_predicate P.
+    <span class="kn">Let</span> <span class="nf">f</span> := gtweq_sec nm v.
+    <span class="kn">Let</span> <span class="nf">e_s</span> : ∏ (x: A) (f: B x → U) (IH: ∏ u: B x, lowP (f u)), lowP (sup x f) := HP_weq P R.
+
+    <span class="kn">Section</span> <span class="nf">lemmas</span>.
+
+      <span class="kn">Theorem</span> <span class="nf">termInd_ind</span> : ind lowP e_s = term_ind P R.
+      <span class="kn">Proof</span>.
+        <span class="nb">rewrite</span> invind.
+        <span class="nb">unfold</span> ind_weq.
+        <span class="nb">simpl</span>.
+
+        <span class="nb">rewrite</span> inv_weqonsec.
+        <span class="nb">rewrite</span> inv_weqonsec.
+
+        use maponpaths.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Theorem</span> <span class="nf">ind_HP_Th_termInd</span>
+      : ind_HP_Th P nm v (term_ind P R (build_gterm nm v)) = term_ind P R (sup nm (gtweq_sec nm v)).
+      <span class="kn">Proof</span>.
+        use eqweqmap_ap.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Theorem</span> <span class="nf">UnderstangHP_weq</span> : R = invweq (HP_weq P) e_s.
+      <span class="kn">Proof</span>.
+        use pathsweq1.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Theorem</span> <span class="nf">UnderstandingR</span>
+      : R nm v = (invweq ((ind_HP_Th P nm v)))∘(e_s nm f)∘(ind_HP_Hypo P nm v).
+      <span class="kn">Proof</span>.
+        <span class="nb">rewrite</span> UnderstangHP_weq.
+        <span class="nb">change</span> (invweq (HP_weq P) e_s nm v) <span class="k">with</span> (invmap (HP_weq P) e_s nm v).
+        <span class="nb">unfold</span> HP_weq.
+        <span class="nb">rewrite</span> (inv_weqonsecfibers
+          (P:=(<span class="k">λ</span> <span class="nv">x</span> : names σ, ∏ v0 : (gterm σ)⋆ (arity x), hvec (h1map_vec P v0) → P (sort x) (build_gterm x v0)))
+          (Q:=(<span class="k">λ</span> <span class="nv">x</span> : names σ, ∏ f0 : B x → U, (∏ u : B x, lower_predicate P (f0 u)) → lower_predicate P (sup x f0)))).
+        <span class="nb">rewrite</span> inv_weqonsec.
+        <span class="nb">rewrite</span> inv_weqonsec.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Theorem</span> <span class="nf">ind_HP_Hypo_h2map</span>
+      : ind_HP_Hypo P nm v (h2map (<span class="k">λ</span> (<span class="nv">s</span> : sorts σ) (<span class="nv">t</span> <span class="nv">_</span> : gterm σ s), term_ind P R t) (h1lift v)) = (<span class="k">λ</span> <span class="nv">u</span> : B nm, ind lowP e_s (f u)).
+      <span class="kn">Proof</span>.
+        use pathsweq1'.
+        <span class="nb">unfold</span> ind_HP_Hypo.
+        <span class="nb">rewrite</span> invmap_weqcomp_expand.
+        <span class="nb">rewrite</span> inv_helf_weq.
+        <span class="nb">rewrite</span> inv_weqonsecfibers.
+        <span class="nb">unfold</span> funcomp.
+        <span class="nb">rewrite</span> termInd_ind.
+        use h2map_makehvec_basevecfill.
+      <span class="kn">Defined</span>.
+
+    <span class="kn">End</span> <span class="nf">lemmas</span>.
+
+    <span class="kn">Definition</span> <span class="nf">beta_simplecase</span> : ind lowP e_s (sup nm f) = (e_s nm f (<span class="k">λ</span> <span class="nv">u</span>, ind lowP e_s (f u))).
+    <span class="kn">Proof</span>.
+      use (weqonpaths2 _ _ _ (term_ind_step P R nm v)).
+      + <span class="nb">apply</span> ind_HP_Th.
+      + etrans.
+        { <span class="nb">apply</span> ind_HP_Th_termInd. }
+        use toforallpaths.
+        use (!termInd_ind).
+      + <span class="nb">rewrite</span> UnderstandingR.
+        <span class="nb">unfold</span> funcomp.
+        use pathsweq1'.
+        use maponpaths.
+        use maponpaths.
+        use ind_HP_Hypo_h2map.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">beta_simplecase</span>.
+
+  <span class="kn">Section</span> <span class="nf">beta</span>.
+    <span class="kn">Context</span>
+      (<span class="nv">P</span>:U → UU)
+      (<span class="nv">e_s</span> : ∏ (x: A) (f: B x → U) (IH: ∏ u: B x, P (f u)), P (sup x f) )
+      (<span class="nv">x</span>: names σ)
+      (<span class="nv">f</span> : B x → U).
+
+    <span class="kn">Definition</span> <span class="nf">beta</span>: ind P e_s (sup x f) = e_s x f (<span class="k">λ</span> <span class="nv">u</span>, ind P e_s (f u)).
+    <span class="kn">Proof</span>.
+      <span class="nb">revert</span> P x f e_s.
+      use (invweq (weqonsecbase (<span class="k">λ</span> <span class="nv">pred</span>, ∏ x f e_s, ind pred e_s (sup x f) = e_s x f (<span class="k">λ</span> <span class="nv">u</span> : B x, ind pred e_s (f u))) lower_predicate)).
+      <span class="nb">intro</span> P.
+      <span class="nb">cbn</span> beta.
+      <span class="nb">intro</span> nm.
+      use (invweq (weqonsecbase (<span class="k">λ</span> <span class="nv">hponSub</span> , ∏ e_s, ind (lower_predicate P) e_s (sup nm hponSub) = e_s nm hponSub (<span class="k">λ</span> <span class="nv">u</span> : B nm, ind (lower_predicate P) e_s (hponSub u))) (gtweq_sec nm))).
+      <span class="nb">intro</span> v.
+      <span class="nb">cbn</span> beta.
+      use (invweq (weqonsecbase (<span class="k">λ</span> <span class="nv">hpi</span>, ind (lower_predicate P) hpi (sup nm (gtweq_sec nm v)) = hpi nm (gtweq_sec nm v) (<span class="k">λ</span> <span class="nv">u</span> : B nm, ind (lower_predicate P) hpi (gtweq_sec nm v u))) (HP_weq P))).
+      <span class="nb">intro</span> R.
+      <span class="nb">cbn</span> beta.
+      use beta_simplecase.
+    <span class="kn">Defined</span>.
+
+  <span class="kn">End</span> <span class="nf">beta</span>.
+
+  <span class="kn">Definition</span> <span class="nf">groundTermAlgebraWtype</span> : Wtype A B.
+  <span class="kn">Proof</span>.
+    use makeWtype.
+    + <span class="bp">exact</span> U.
+    + <span class="bp">exact</span> sup.
+    + <span class="bp">exact</span> ind.
+    + <span class="bp">exact</span> beta.
+  <span class="kn">Defined</span>.
+
+<span class="kn">End</span> <span class="nf">groundTermAlgebraWtype</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Algebra/Universal/WTypes.v</tt>, line 4)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt; (** * Algebra, functor algebras and w-types. *)
+  &gt; (** Gianluca Amato, Matteo Calosci, Marco Maggesi, Cosimo Perini Brogi 2019-2024. *)
+  &gt; &gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.Combinatorics.StandardFiniteSets.
+  &gt;
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,497 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>LinearCategory.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(****************************************************************************</span>
+
+<span class="sd"> Linear categories</span>
+
+<span class="sd"> In this file, we define linear categories.</span>
+
+<span class="sd"> Note that the thirteen laws in [linear_category_laws] are written out explicitly.</span>
+<span class="sd"> In the "other accessors" (part 3 below), each of the laws enters a mathematical structure, so as</span>
+<span class="sd"> to validate its purpose.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. Data of linear categories</span>
+<span class="sd"> 2. Laws of linear categories</span>
+<span class="sd"> 3. Other accessors for linear categories</span>
+
+<span class="sd"> ****************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.PrecategoryBinProduct.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monads.Comonads.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.FunctorCategories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Symmetric.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.SymmetricDiagonal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.<span class="kn">Structure</span>.Closed.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Comonoids.Category.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.ConstantFunctor.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.CategoriesOfMonoids.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Categories.Dialgebras.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Examples.DiagonalFunctor.
+
+<span class="kn">Import</span> MonoidalNotations.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="sd">(**</span>
+<span class="sd"> 1. Data of linear categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">linear_category_data</span>
+  : UU
+  := ∑ (𝕃 : sym_mon_closed_cat)
+       (bang : sym_monoidal_cmd 𝕃),
+     (∏ (x : 𝕃), bang x --&gt; bang x ⊗ bang x)
+     ×
+     (∏ (x : 𝕃), bang x --&gt; I_{𝕃}).
+
+<span class="kn">Definition</span> <span class="nf">make_linear_category_data</span>
+           (<span class="nv">𝕃</span> : sym_mon_closed_cat)
+           (<span class="nv">bang</span> : sym_monoidal_cmd 𝕃)
+           (<span class="nv">δ</span> : ∏ (x : 𝕃), bang x --&gt; bang x ⊗ bang x)
+           (<span class="nv">ε</span> : ∏ (x : 𝕃), bang x --&gt; I_{𝕃})
+  : linear_category_data
+  := 𝕃 ,, bang ,, δ ,, ε.
+
+<span class="kn">Coercion</span> <span class="nf">linear_category_data_to_sym_mon_closed_cat</span>
+         (𝕃 : linear_category_data)
+  : sym_mon_closed_cat
+  := pr1 𝕃.
+
+<span class="kn">Definition</span> <span class="nf">linear_category_bang</span>
+           (<span class="nv">𝕃</span> : linear_category_data)
+  : sym_monoidal_cmd 𝕃
+  := pr12 𝕃.
+
+<span class="kn">Definition</span> <span class="nf">linear_category_bang_functor</span>
+           (<span class="nv">𝕃</span> : linear_category_data)
+  : lax_monoidal_functor 𝕃 𝕃
+  := _ ,, lax_monoidal_from_symmetric_monoidal_comonad _ (linear_category_bang 𝕃).
+
+<span class="kn">Definition</span> <span class="nf">linear_category_comult</span>
+           (<span class="nv">𝕃</span> : linear_category_data)
+           (<span class="nv">x</span> : 𝕃)
+  : linear_category_bang 𝕃 x
+    --&gt;
+    linear_category_bang 𝕃 x ⊗ linear_category_bang 𝕃 x
+  := pr122 𝕃 x.
+
+<span class="kn">Definition</span> <span class="nf">linear_category_counit</span>
+           (<span class="nv">𝕃</span> : linear_category_data)
+           (<span class="nv">x</span> : 𝕃)
+  : linear_category_bang 𝕃 x --&gt; I_{𝕃}
+  := pr222 𝕃 x.
+
+<span class="sd">(**</span>
+<span class="sd"> 2. Laws of linear categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">linear_category_laws</span>
+           (<span class="nv">𝕃</span> : linear_category_data)
+  : UU
+  := <span class="sd">(** naturality of comultiplication *)</span>
+     (∏ (x y : 𝕃)
+        (f : x --&gt; y),
+      #(linear_category_bang 𝕃) f
+      · linear_category_comult 𝕃 y
+      =
+      linear_category_comult 𝕃 x
+      · (#(linear_category_bang 𝕃) f #⊗ #(linear_category_bang 𝕃) f))
+     ×
+     <span class="sd">(** naturality of counit *)</span>
+     (∏ (x y : 𝕃)
+        (f : x --&gt; y),
+      #(linear_category_bang 𝕃) f · linear_category_counit 𝕃 y
+      =
+      linear_category_counit 𝕃 x)
+     ×
+     <span class="sd">(** the comultiplication is a coalgebra morphism *)</span>
+     (∏ (x : 𝕃),
+      linear_category_comult 𝕃 x
+      · (δ (linear_category_bang 𝕃) x #⊗ δ (linear_category_bang 𝕃) x)
+      · mon_functor_tensor (linear_category_bang_functor 𝕃) _ _
+      =
+      δ (linear_category_bang 𝕃) x
+      · #(linear_category_bang 𝕃) (linear_category_comult 𝕃 x))
+     ×
+     <span class="sd">(** the counit is a coalgebra morphism *)</span>
+     (∏ (x : 𝕃),
+      linear_category_counit 𝕃 x
+      · mon_functor_unit (linear_category_bang_functor 𝕃)
+      =
+      δ (linear_category_bang 𝕃) x
+      · #(linear_category_bang 𝕃) (linear_category_counit 𝕃 x))
+     ×
+     <span class="sd">(** the comultiplication of the comonad is a comonoid morphism (counit) *)</span>
+     (∏ (x : 𝕃),
+      δ (linear_category_bang 𝕃) x
+      · linear_category_counit 𝕃 (linear_category_bang 𝕃 x)
+      =
+      linear_category_counit 𝕃 x)
+     ×
+     <span class="sd">(** the comultiplication of the comonad is a comonoid morphism (comultiplication) *)</span>
+     (∏ (x : 𝕃),
+      δ (linear_category_bang 𝕃) x
+      · linear_category_comult 𝕃 (linear_category_bang 𝕃 x)
+      =
+      linear_category_comult 𝕃 x
+      · (δ (linear_category_bang 𝕃) x #⊗ δ (linear_category_bang 𝕃) x))
+     ×
+     <span class="sd">(** coassociativity *)</span>
+     (∏ (x : 𝕃),
+      linear_category_comult 𝕃 x
+      · (identity _ #⊗ linear_category_comult 𝕃 x)
+      =
+      linear_category_comult 𝕃 x
+      · (linear_category_comult 𝕃 x #⊗ identity _)
+      · mon_lassociator _ _ _)
+     ×
+     <span class="sd">(** counitality *)</span>
+     (∏ (x : 𝕃),
+      linear_category_comult 𝕃 x
+      · (linear_category_counit 𝕃 x #⊗ identity _)
+      · mon_lunitor _
+      =
+      identity _)
+     ×
+     <span class="sd">(** cocommutativity *)</span>
+     (∏ (x : 𝕃),
+      linear_category_comult 𝕃 x
+      · sym_mon_braiding 𝕃 _ _
+      =
+        linear_category_comult 𝕃 x)
+     ×
+     <span class="sd">(** comult preserves tensor *)</span>
+     (∏ x y : 𝕃,
+         mon_functor_tensor (linear_category_bang_functor 𝕃) x y
+           · linear_category_comult 𝕃 (x ⊗ y)
+         = (linear_category_comult 𝕃 x) #⊗ (linear_category_comult 𝕃 y)
+             · (inner_swap 𝕃
+                  (linear_category_bang 𝕃 x)
+                  (linear_category_bang 𝕃 x)
+                  (linear_category_bang 𝕃 y)
+                  (linear_category_bang 𝕃 y)
+                  · mon_functor_tensor (linear_category_bang_functor 𝕃) x y
+                  #⊗ mon_functor_tensor (linear_category_bang_functor 𝕃) x y))
+     ×
+     <span class="sd">(** comult preserves unit *)</span>
+     (mon_functor_unit (linear_category_bang_functor 𝕃)
+                · linear_category_comult 𝕃 I_{𝕃}
+              = mon_linvunitor I_{𝕃}
+                  · mon_functor_unit (linear_category_bang_functor 𝕃)
+                  #⊗ mon_functor_unit (linear_category_bang_functor 𝕃))
+     ×
+     <span class="sd">(** counit preserves tensor *)</span>
+     (∏ x y : 𝕃, mon_functor_tensor (linear_category_bang_functor 𝕃) x y
+                           · linear_category_counit 𝕃 (x ⊗ y)
+                         = linear_category_counit 𝕃 x #⊗ linear_category_counit 𝕃 y
+                             · mon_lunitor (monoidal_unit 𝕃))
+     ×
+     <span class="sd">(** counit preserves unit *)</span>
+     (mon_functor_unit (linear_category_bang_functor 𝕃)
+                · linear_category_counit 𝕃 I_{𝕃}
+              = identity I_{𝕃}).
+
+
+<span class="kn">Definition</span> <span class="nf">linear_category</span>
+  : UU
+  := ∑ (𝕃 : linear_category_data), linear_category_laws 𝕃.
+
+<span class="kn">Definition</span> <span class="nf">make_linear_category</span>
+           (<span class="nv">𝕃</span> : linear_category_data)
+           (<span class="nv">H</span> : linear_category_laws 𝕃)
+  : linear_category
+  := 𝕃 ,, H.
+
+<span class="kn">Coercion</span> <span class="nf">linear_category_to_data</span>
+         (𝕃 : linear_category)
+  : linear_category_data
+  := pr1 𝕃.
+
+<span class="kn">Section</span> <span class="nf">AccessorsLaws</span>.
+  <span class="kn">Context</span> {<span class="nv">𝕃</span> : linear_category}.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_comult_nat</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : 𝕃}
+              (<span class="nv">f</span> : x --&gt; y)
+    : #(linear_category_bang 𝕃) f
+      · linear_category_comult 𝕃 y
+      =
+      linear_category_comult 𝕃 x
+      · (#(linear_category_bang 𝕃) f #⊗ #(linear_category_bang 𝕃) f).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 𝕃 x y f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_counit_nat</span>
+              {<span class="nv">x</span> <span class="nv">y</span> : 𝕃}
+              (<span class="nv">f</span> : x --&gt; y)
+    : #(linear_category_bang 𝕃) f · linear_category_counit 𝕃 y
+      =
+      linear_category_counit 𝕃 x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 𝕃 x y f).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_comult_coalgebra_mor</span>
+              (<span class="nv">x</span> : 𝕃)
+    : linear_category_comult 𝕃 x
+      · (δ (linear_category_bang 𝕃) x #⊗ δ (linear_category_bang 𝕃) x)
+      · mon_functor_tensor (linear_category_bang_functor 𝕃) _ _
+      =
+      δ (linear_category_bang 𝕃) x
+      · #(linear_category_bang 𝕃) (linear_category_comult 𝕃 x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr222 𝕃) x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_counit_coalgebra_mor</span>
+              (<span class="nv">x</span> : 𝕃)
+    : linear_category_counit 𝕃 x
+      · mon_functor_unit (linear_category_bang_functor 𝕃)
+      =
+      δ (linear_category_bang 𝕃) x
+      · #(linear_category_bang 𝕃) (linear_category_counit 𝕃 x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 (pr222 𝕃) x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_comult_comonoid_mor_counit</span>
+              (<span class="nv">x</span> : 𝕃)
+    : δ (linear_category_bang 𝕃) x
+      · linear_category_counit 𝕃 (linear_category_bang 𝕃 x)
+      =
+      linear_category_counit 𝕃 x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 (pr222 𝕃) x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_comult_comonoid_mor_comult</span>
+              (<span class="nv">x</span> : 𝕃)
+    : δ (linear_category_bang 𝕃) x
+      · linear_category_comult 𝕃 (linear_category_bang 𝕃 x)
+      =
+      linear_category_comult 𝕃 x
+      · (δ (linear_category_bang 𝕃) x #⊗ δ (linear_category_bang 𝕃) x).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr222 (pr222 𝕃)) x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_coassoc</span>
+              (<span class="nv">x</span> : 𝕃)
+    : linear_category_comult 𝕃 x
+      · (identity _ #⊗ linear_category_comult 𝕃 x)
+      =
+      linear_category_comult 𝕃 x
+      · (linear_category_comult 𝕃 x #⊗ identity _)
+      · mon_lassociator _ _ _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 (pr222 (pr222 𝕃)) x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_counitality</span>
+              (<span class="nv">x</span> : 𝕃)
+    : linear_category_comult 𝕃 x
+      · (linear_category_counit 𝕃 x #⊗ identity _)
+      · mon_lunitor _
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 (pr222 (pr222 𝕃)) x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_cocommutative</span>
+              (<span class="nv">x</span> : 𝕃)
+    : linear_category_comult 𝕃 x
+      · sym_mon_braiding 𝕃 _ _
+      =
+      linear_category_comult 𝕃 x.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr222 (pr222 (pr222 𝕃))) x).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_comult_preserves_tensor</span>
+    (<span class="nv">x</span> <span class="nv">y</span> : 𝕃)
+    : mon_functor_tensor (linear_category_bang_functor 𝕃) x y
+           · linear_category_comult 𝕃 (x ⊗ y)
+         = (linear_category_comult 𝕃 x) #⊗ (linear_category_comult 𝕃 y)
+             · (inner_swap 𝕃
+                  (linear_category_bang 𝕃 x)
+                  (linear_category_bang 𝕃 x)
+                  (linear_category_bang 𝕃 y)
+                  (linear_category_bang 𝕃 y)
+                  · mon_functor_tensor (linear_category_bang_functor 𝕃) x y
+                  #⊗ mon_functor_tensor (linear_category_bang_functor 𝕃) x y).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr12 (pr222 (pr222 (pr222 𝕃))) x y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_comult_preserves_unit</span>
+    : mon_functor_unit (linear_category_bang_functor 𝕃)
+        · linear_category_comult 𝕃 I_{𝕃}
+      = mon_linvunitor I_{𝕃}
+          · mon_functor_unit (linear_category_bang_functor 𝕃)
+          #⊗ mon_functor_unit (linear_category_bang_functor 𝕃).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr122 (pr222 (pr222 (pr222 𝕃)))).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_counit_preserves_tensor</span>
+    (<span class="nv">x</span> <span class="nv">y</span> : 𝕃)
+    : mon_functor_tensor (linear_category_bang_functor 𝕃) x y
+        · linear_category_counit 𝕃 (x ⊗ y)
+      = linear_category_counit 𝕃 x #⊗ linear_category_counit 𝕃 y
+          · mon_lunitor (monoidal_unit 𝕃).
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr1 (pr222 (pr222 (pr222 (pr222 𝕃)))) x y).
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">linear_category_counit_preserves_unit</span>
+    : mon_functor_unit (linear_category_bang_functor 𝕃)
+        · linear_category_counit 𝕃 I_{𝕃}
+      = identity I_{𝕃}.
+  <span class="kn">Proof</span>.
+    <span class="bp">exact</span> (pr2 (pr222 (pr222 (pr222 (pr222 𝕃))))).
+  <span class="kn">Qed</span>.
+
+<span class="kn">End</span> <span class="nf">AccessorsLaws</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 3. Other accessors for linear categories</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">linear_category_cocommutative_comonoid</span>
+           (<span class="nv">𝕃</span> : linear_category)
+           (<span class="nv">x</span> : 𝕃)
+  : commutative_comonoid 𝕃.
+<span class="kn">Proof</span>.
+  use make_commutative_comonoid.
+  - <span class="bp">exact</span> (linear_category_bang 𝕃 x).
+  - <span class="bp">exact</span> (linear_category_comult 𝕃 x).
+  - <span class="bp">exact</span> (linear_category_counit 𝕃 x).
+  - <span class="bp">exact</span> (linear_category_counitality x).
+  - <span class="bp">exact</span> (!(linear_category_coassoc x)).
+  - <span class="bp">exact</span> (linear_category_cocommutative x).
+<span class="kn">Defined</span>.
+
+<span class="kn">Proposition</span> <span class="nf">linear_category_comult_comonoid_mor_struct</span>
+            (<span class="nv">𝕃</span> : linear_category)
+            (<span class="nv">x</span> : 𝕃)
+  : comonoid_mor_struct
+      𝕃
+      (linear_category_cocommutative_comonoid 𝕃 x)
+      (linear_category_cocommutative_comonoid 𝕃
+         (linear_category_cocommutative_comonoid 𝕃 x))
+      (δ (linear_category_bang 𝕃) x).
+<span class="kn">Proof</span>.
+  use make_is_comonoid_mor ; <span class="nb">cbn</span>.
+  - <span class="bp">exact</span> (!(linear_category_comult_comonoid_mor_comult x)).
+  - <span class="nb">rewrite</span> id_right.
+    <span class="bp">exact</span> (!(linear_category_comult_comonoid_mor_counit x)).
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">linear_category_comult_nat_trans</span>
+           (<span class="nv">𝕃</span> : linear_category)
+  : linear_category_bang 𝕃
+    ⟹
+    linear_category_bang 𝕃∙ diag_functor 𝕃.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, linear_category_comult 𝕃 x).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+       <span class="nb">apply</span> linear_category_comult_nat).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">linear_category_counit_nat_trans</span>
+           (<span class="nv">𝕃</span> : linear_category)
+  : linear_category_bang 𝕃 ⟹ constant_functor _ _ I_{𝕃}.
+<span class="kn">Proof</span>.
+  use make_nat_trans.
+  - <span class="bp">exact</span> (<span class="k">λ</span> <span class="nv">x</span>, linear_category_counit 𝕃 x).
+  - <span class="kp">abstract</span>
+      (<span class="nb">intros</span> x y f ; <span class="nb">cbn</span> ;
+       <span class="nb">rewrite</span> id_right ;
+       <span class="nb">apply</span> linear_category_counit_nat).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">linear_category_comult_is_mon_nat_trans</span>
+  (<span class="nv">𝕃</span> : linear_category):
+  is_mon_nat_trans (linear_category_bang_functor 𝕃)
+    (comp_fmonoidal_lax (linear_category_bang_functor 𝕃) (diag_functor_fmonoidal_lax 𝕃))
+    (linear_category_comult_nat_trans 𝕃).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y. <span class="nb">apply</span> linear_category_comult_preserves_tensor.
+  - <span class="nb">apply</span> linear_category_comult_preserves_unit.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">linear_category_counit_is_mon_nat_trans</span>
+  (<span class="nv">𝕃</span> : linear_category):
+  is_mon_nat_trans (linear_category_bang_functor 𝕃)
+    (constant_functor_fmonoidal_lax _ (unit_monoid 𝕃)) (linear_category_counit_nat_trans 𝕃).
+<span class="kn">Proof</span>.
+  <span class="nb">split</span>.
+  - <span class="nb">intros</span> x y. <span class="nb">apply</span> linear_category_counit_preserves_tensor.
+  - <span class="nb">apply</span> linear_category_counit_preserves_unit.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">linear_category_comult_coalgebra_morphism</span>
+  (<span class="nv">𝕃</span> : linear_category) (<span class="nv">x</span> : 𝕃)
+  :  CoAlg_category (linear_category_bang 𝕃)
+        ⟦ ((linear_category_bang 𝕃) x) ,, δ (linear_category_bang 𝕃) x,
+          (linear_category_bang 𝕃 x ⊗ linear_category_bang 𝕃 x ,,
+             (δ (linear_category_bang 𝕃) x #⊗ δ (linear_category_bang 𝕃) x)
+             · mon_functor_tensor (linear_category_bang_functor 𝕃) _ _ )⟧.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (linear_category_comult 𝕃 x).
+  - <span class="kp">abstract</span> (<span class="nb">cbn</span>; <span class="nb">rewrite</span> assoc; <span class="nb">apply</span> pathsinv0, linear_category_comult_coalgebra_mor).
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">linear_category_counit_coalgebra_morphism</span>
+  (<span class="nv">𝕃</span> : linear_category) (<span class="nv">x</span> : 𝕃)
+  : CoAlg_category (linear_category_bang 𝕃)
+        ⟦ ((linear_category_bang 𝕃) x) ,, δ (linear_category_bang 𝕃) x,
+          (I_{𝕃} ,, mon_functor_unit (linear_category_bang_functor 𝕃)) ⟧.
+<span class="kn">Proof</span>.
+  use tpair.
+  - <span class="bp">exact</span> (linear_category_counit 𝕃 x).
+  - <span class="kp">abstract</span> (<span class="nb">apply</span> pathsinv0, linear_category_counit_coalgebra_mor).
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/Semantics/LinearLogic/LinearCategory.v</tt>, line 17)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/MoreFoundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  3. Other accessors for linear categories
+  &gt;
+  &gt;  ****************************************************************************)&gt;&gt;&gt;Require Import UniMath.MoreFoundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+  &gt; Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

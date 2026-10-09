@@ -1,0 +1,760 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>CodSubobjectClassifier.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(***********************************************************************************************</span>
+
+<span class="sd"> Subobject classifiers in slice categories</span>
+
+<span class="sd"> If `C` is a category with a subobject classifier `Ω`, then the slice categories `C/x` have a</span>
+<span class="sd"> subobject classifier for every object `x`. This subobject classifier is given by `x × Ω --&gt; x`.</span>
+
+<span class="sd"> To understand why `x × Ω --&gt; x` is a subobject classifier, we need to realize a couple of</span>
+<span class="sd"> things. The first is that morphisms `y₁ --&gt; y₂` in `C/x` are monomorphisms if and only if the</span>
+<span class="sd"> underlying morphism from `y₁` to `y₂` is a monomorphism. This allows us to use the universal</span>
+<span class="sd"> property of `Ω` to say something about the universal property of `x × Ω`. The second thing is a</span>
+<span class="sd"> difficulty that arises from the fact that the terminal object of `C/x` is given by `x --&gt; x`,</span>
+<span class="sd"> and that it does not use the terminal object in `C`. As such, if we have a monomorphism</span>
+<span class="sd"> `y₁ --&gt; y₂` in the slice category, then we get the following pullback square in `C`:</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd">   y₁ ---&gt; 𝟙</span>
+<span class="sd">   |       |</span>
+<span class="sd">   |       |</span>
+<span class="sd">   V       V</span>
+<span class="sd">   y₂ ---&gt; Ω</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd"> whereas we would like to have a pullback square like this</span>
+
+<span class="sd">&lt;&lt;</span>
+<span class="sd">   y₁ -----&gt; x</span>
+<span class="sd">   |         |</span>
+<span class="sd">   |         |</span>
+<span class="sd">   V         V</span>
+<span class="sd">   y₂ ---&gt; x × Ω</span>
+<span class="sd">&gt;&gt;</span>
+
+<span class="sd"> where each of the objects in this diagram lives in the slice category. Proving that we have</span>
+<span class="sd"> the desired pullback square, is a matter of doing it.</span>
+
+<span class="sd"> We also show that the pullback functor preserves subobject classifiers, and we show that the</span>
+<span class="sd"> functor on the arrow category preserves subobject classifiers.</span>
+
+<span class="sd"> Contents</span>
+<span class="sd"> 1. The universal property</span>
+<span class="sd"> 2. The subobject classifier</span>
+<span class="sd"> 3. Preservation of subobject classifiers by the pullback functor</span>
+<span class="sd"> 4. The functor on the arrow category preserves subobject classifiers</span>
+
+<span class="sd"> ***********************************************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Prelude.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Terminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.BinProducts.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Pullbacks.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.PullbackConstructions.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Preservation.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monics.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifierIso.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.SubobjectClassifier.PreservesSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Core.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fibrations.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiber.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseTerminal.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseSubobjectClassifier.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.FiberCod.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodLimits.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodMorphisms.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.DisplayedCats.Codomain.CodFunctor.
+
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+
+<span class="kn">Section</span> <span class="nf">SubobjectClassifier</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">T</span> : Terminal C)
+          (<span class="nv">P</span> : BinProducts C)
+          (<span class="nv">Ω</span> : subobject_classifier T)
+          (<span class="nv">x</span> : C).
+
+  <span class="sd">(** * 1. The universal property *)</span>
+  <span class="kn">Section</span> <span class="nf">UMP</span>.
+    <span class="kn">Context</span> {<span class="nv">zg₁</span> <span class="nv">zg₂</span> : C/x}
+            (<span class="nv">mp</span> : Monic _ zg₁ zg₂).
+
+    <span class="kn">Let</span> <span class="nf">z₁</span> : C := cod_dom zg₁.
+    <span class="kn">Let</span> <span class="nf">g₁</span> : z₁ --&gt; x := cod_mor zg₁.
+
+    <span class="kn">Let</span> <span class="nf">z₂</span> : C := cod_dom zg₂.
+    <span class="kn">Let</span> <span class="nf">g₂</span> : z₂ --&gt; x := cod_mor zg₂.
+
+    <span class="kn">Let</span> <span class="nf">m_mor</span> : z₁ --&gt; z₂ := dom_mor mp.
+
+    <span class="kn">Local Lemma</span> <span class="nf">monic_mor_of_slice</span>
+      : isMonic m_mor.
+    <span class="kn">Proof</span>.
+      use from_is_monic_cod_fib.
+      <span class="bp">exact</span> (pr2 mp).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Let</span> <span class="nf">m</span> : Monic _ z₁ z₂ := make_Monic _ _ monic_mor_of_slice.
+
+    <span class="kn">Definition</span> <span class="nf">cod_fib_subobject_classifier_mor_map</span>
+      : z₂ --&gt; P x Ω.
+    <span class="kn">Proof</span>.
+      use BinProductArrow.
+      - <span class="bp">exact</span> g₂.
+      - <span class="bp">exact</span> (characteristic_morphism Ω m).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cod_fib_subobject_classifier_mor</span>
+      : zg₂ --&gt; pr_cod_fib P x Ω.
+    <span class="kn">Proof</span>.
+      use make_cod_fib_mor.
+      - <span class="bp">exact</span> cod_fib_subobject_classifier_mor_map.
+      - <span class="kp">abstract</span>
+          (<span class="nb">apply</span> BinProductPr1Commutes).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">cod_fib_subobject_classifier_comm</span>
+      : mp · cod_fib_subobject_classifier_mor
+        =
+        TerminalArrow (codomain_fib_terminal x) zg₁
+        · mor_to_pr_cod_fib P (cod_fib_id x) (const_true x Ω).
+    <span class="kn">Proof</span>.
+      use eq_mor_cod_fib.
+      <span class="nb">rewrite</span> !comp_in_cod_fib.
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">unfold</span> cod_fib_subobject_classifier_mor_map.
+      use BinProductArrowsEq.
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !BinProductPr1Commutes.
+        <span class="nb">rewrite</span> id_right.
+        <span class="bp">exact</span> (mor_eq mp).
+      - <span class="nb">rewrite</span> !assoc'.
+        <span class="nb">rewrite</span> !BinProductPr2Commutes.
+        <span class="nb">refine</span> (subobject_classifier_square_commutes Ω m @ _).
+        <span class="nb">unfold</span> const_true.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> TerminalArrowEq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">cod_fib_subobject_classifier_comm_dom</span>
+      : m · cod_fib_subobject_classifier_mor_map
+        =
+        g₁ · identity _ · dom_mor (mor_to_pr_cod_fib P (cod_fib_id x) (const_true x Ω)).
+    <span class="kn">Proof</span>.
+      <span class="bp">exact</span> (!(comp_in_cod_fib _ _)
+             @ maponpaths dom_mor cod_fib_subobject_classifier_comm
+             @ comp_in_cod_fib _ _).
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">PBUMP</span>.
+      <span class="kn">Context</span> {<span class="nv">w</span> : C}
+              (<span class="nv">h</span> : w --&gt; z₂)
+              (<span class="nv">k</span> : w --&gt; x)
+              (<span class="nv">p</span> : h · cod_fib_subobject_classifier_mor_map
+                   =
+                   k · BinProductArrow C (P x Ω) (identity x) (const_true x Ω)).
+
+      <span class="kn">Let</span> <span class="nf">PB</span> : Pullback (characteristic_morphism Ω m) Ω
+        := subobject_classifier_pullback Ω m.
+
+      <span class="kn">Proposition</span> <span class="nf">cod_fib_subobject_classifier_pb_unique</span>
+        : isaprop
+            (∑ hk,
+             (hk · m = h)
+             ×
+             (hk · (cod_mor zg₁ · identity x) = k)).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> φ₁ φ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+        }
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback PB)).
+        - <span class="bp">exact</span> (pr12 φ₁ @ !(pr12 φ₂)).
+        - <span class="nb">apply</span> TerminalArrowEq.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">cod_fib_subobject_classifier_pb_map</span>
+        : w --&gt; z₁.
+      <span class="kn">Proof</span>.
+        use (PullbackArrow PB).
+        - <span class="bp">exact</span> h.
+        - <span class="nb">apply</span> TerminalArrow.
+        - <span class="kp">abstract</span>
+            (<span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · BinProductPr2 _ _) p) <span class="k">as</span> q ;
+             <span class="nb">cbn</span> <span class="k">in</span> q ;
+             <span class="nb">unfold</span> cod_fib_subobject_classifier_mor_map, const_true <span class="k">in</span> q ;
+             <span class="nb">rewrite</span> !assoc' <span class="k">in</span> q ;
+             <span class="nb">rewrite</span> !BinProductPr2Commutes <span class="k">in</span> q ;
+             <span class="nb">refine</span> (q @ _) ;
+             <span class="nb">rewrite</span> !assoc ;
+             <span class="nb">apply</span> maponpaths_2 ;
+             <span class="nb">apply</span> TerminalArrowEq).
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">cod_fib_subobject_classifier_pb_pr1</span>
+        : cod_fib_subobject_classifier_pb_map · m = h.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr1 PB).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">cod_fib_subobject_classifier_pb_pr2</span>
+        : cod_fib_subobject_classifier_pb_map · (g₁ · identity x) = k.
+      <span class="kn">Proof</span>.
+        <span class="nb">rewrite</span> id_right.
+        <span class="nb">pose</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · BinProductPr1 _ _) p) <span class="k">as</span> q.
+        <span class="nb">cbn</span> <span class="k">in</span> q.
+        <span class="nb">unfold</span> cod_fib_subobject_classifier_mor_map, const_true <span class="k">in</span> q.
+        <span class="nb">rewrite</span> !assoc' <span class="k">in</span> q.
+        <span class="nb">rewrite</span> !BinProductPr1Commutes <span class="k">in</span> q.
+        <span class="nb">rewrite</span> id_right <span class="k">in</span> q.
+        <span class="nb">refine</span> (_ @ q).
+        etrans.
+        {
+          <span class="nb">apply</span> maponpaths.
+          <span class="bp">exact</span> (!(mor_eq mp)).
+        }
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr1 PB).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">PBUMP</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">cod_fib_subobject_classifier_pb</span>
+      : isPullback cod_fib_subobject_classifier_comm.
+    <span class="kn">Proof</span>.
+      use to_is_pullback_slice.
+      - <span class="bp">exact</span> cod_fib_subobject_classifier_comm_dom.
+      - <span class="nb">intros</span> w h k p.
+        use iscontraprop1.
+        + <span class="nb">apply</span> cod_fib_subobject_classifier_pb_unique.
+        + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+          * <span class="bp">exact</span> (cod_fib_subobject_classifier_pb_map h k p).
+          * <span class="nb">apply</span> cod_fib_subobject_classifier_pb_pr1.
+          * <span class="nb">apply</span> cod_fib_subobject_classifier_pb_pr2.
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">cod_fib_subobject_classifier_unique_eq</span>
+                (<span class="nv">χ</span> : zg₂ --&gt; pr_cod_fib P x Ω)
+                (<span class="nv">p</span> : mp · χ
+                     =
+                     TerminalArrow (codomain_fib_terminal x) zg₁
+                     · mor_to_pr_cod_fib P (codomain_fib_terminal x) (const_true x Ω))
+                (<span class="nv">H</span> : isPullback p)
+      : m · (dom_mor χ · BinProductPr2 C (P x Ω)) = const_true z₁ Ω.
+    <span class="kn">Proof</span>.
+      <span class="nb">pose</span> (maponpaths dom_mor p) <span class="k">as</span> q.
+      <span class="nb">rewrite</span> !comp_in_cod_fib <span class="k">in</span> q.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, z · _) q @ _).
+      <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> BinProductPr2Commutes.
+      <span class="nb">unfold</span> const_true.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> TerminalArrowEq.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Section</span> <span class="nf">SubPBUMP</span>.
+      <span class="kn">Context</span> {<span class="nv">χ</span> : zg₂ --&gt; pr_cod_fib P x Ω}
+              {<span class="nv">p</span> : mp · χ
+                   =
+                   TerminalArrow (codomain_fib_terminal x) zg₁
+                   · mor_to_pr_cod_fib P (codomain_fib_terminal x) (const_true x Ω)}
+              (<span class="nv">H</span> : isPullback p)
+              {<span class="nv">w</span> : C}
+              (<span class="nv">h</span> : w --&gt; z₂)
+              (<span class="nv">k</span> : w --&gt; T)
+              (<span class="nv">r</span> : h · (dom_mor χ · BinProductPr2 C (P x Ω)) = k · Ω).
+
+      <span class="kn">Local Lemma</span> <span class="nf">cod_fib_subobject_classifier_unique_pb_eq</span>
+        : dom_mor mp
+          · dom_mor χ
+          =
+          dom_mor (TerminalArrow (codomain_fib_terminal x) zg₁)
+          · dom_mor (mor_to_pr_cod_fib P (codomain_fib_terminal x) (const_true x Ω)).
+      <span class="kn">Proof</span>.
+        <span class="nb">rewrite</span> &lt;- !comp_in_cod_fib.
+        <span class="nb">rewrite</span> p.
+        <span class="nb">apply</span> idpath.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Let</span> <span class="nf">q</span> := cod_fib_subobject_classifier_unique_pb_eq.
+      <span class="kn">Let</span> <span class="nf">PB</span> := make_Pullback _ (from_is_pullback_slice _ _ _ _ q _ H).
+
+      <span class="kn">Local Lemma</span> <span class="nf">cod_fib_subobject_classifier_unique_pb_map_eq</span>
+        : h · dom_mor χ
+          =
+          h · g₂ · BinProductArrow C (P x Ω) (identity x) (const_true x Ω).
+      <span class="kn">Proof</span>.
+        use BinProductArrowsEq.
+        - <span class="nb">rewrite</span> !assoc'.
+          etrans.
+          {
+            <span class="nb">apply</span> maponpaths.
+            <span class="bp">exact</span> (mor_eq χ).
+          }
+          <span class="nb">rewrite</span> BinProductPr1Commutes.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">apply</span> idpath.
+        - <span class="nb">rewrite</span> !assoc'.
+          <span class="nb">rewrite</span> BinProductPr2Commutes.
+          <span class="nb">refine</span> (r @ _).
+          <span class="nb">unfold</span> const_true.
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="nb">apply</span> TerminalArrowEq.
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Definition</span> <span class="nf">cod_fib_subobject_classifier_unique_pb_map</span>
+        : w --&gt; z₁.
+      <span class="kn">Proof</span>.
+        use (PullbackArrow PB _ h (h · g₂)).
+        <span class="bp">exact</span> cod_fib_subobject_classifier_unique_pb_map_eq.
+      <span class="kn">Defined</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">cod_fib_subobject_classifier_unique_pb_pr1</span>
+        : cod_fib_subobject_classifier_unique_pb_map · m = h.
+      <span class="kn">Proof</span>.
+        <span class="nb">apply</span> (PullbackArrow_PullbackPr1 PB).
+      <span class="kn">Qed</span>.
+
+      <span class="kn">Proposition</span> <span class="nf">cod_fib_subobject_classifier_unique_pb_unique</span>
+        : isaprop (∑ hk, hk · m = h × hk · TerminalArrow T z₁ = k).
+      <span class="kn">Proof</span>.
+        use invproofirrelevance.
+        <span class="nb">intros</span> φ₁ φ₂.
+        use subtypePath.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isapropdirprod ; <span class="nb">apply</span> homset_property.
+        }
+        use (MorphismsIntoPullbackEqual (isPullback_Pullback PB)).
+        - <span class="bp">exact</span> (pr12 φ₁ @ !(pr12 φ₂)).
+        - <span class="nb">cbn</span>.
+          <span class="nb">rewrite</span> id_right.
+          <span class="nb">rewrite</span> &lt;- !(mor_eq mp).
+          <span class="nb">rewrite</span> !assoc.
+          <span class="nb">apply</span> maponpaths_2.
+          <span class="bp">exact</span> (pr12 φ₁ @ !(pr12 φ₂)).
+      <span class="kn">Qed</span>.
+    <span class="kn">End</span> <span class="nf">SubPBUMP</span>.
+
+    <span class="kn">Definition</span> <span class="nf">cod_fib_subobject_classifier_unique_pb</span>
+               (<span class="nv">χ</span> : zg₂ --&gt; pr_cod_fib P x Ω)
+               (<span class="nv">p</span> : mp · χ
+                    =
+                    TerminalArrow (codomain_fib_terminal x) zg₁
+                    · mor_to_pr_cod_fib P (codomain_fib_terminal x) (const_true x Ω))
+               (<span class="nv">H</span> : isPullback p)
+      : isPullback (cod_fib_subobject_classifier_unique_eq χ p H).
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w h k r.
+      use iscontraprop1.
+      - <span class="bp">exact</span> (cod_fib_subobject_classifier_unique_pb_unique H h k).
+      - <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        + <span class="bp">exact</span> (cod_fib_subobject_classifier_unique_pb_map H h k r).
+        + <span class="nb">apply</span> cod_fib_subobject_classifier_unique_pb_pr1.
+        + <span class="kp">abstract</span>
+            (<span class="nb">apply</span> TerminalArrowEq).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">cod_fib_subobject_classifier_unique</span>
+      : isaprop
+          (∑ (χ : zg₂ --&gt; pr_cod_fib P x Ω)
+             (H : mp · χ
+                  =
+                  TerminalArrow (codomain_fib_terminal x) zg₁
+                  · mor_to_pr_cod_fib P (codomain_fib_terminal x) (const_true x Ω)),
+            isPullback H).
+    <span class="kn">Proof</span>.
+      use invproofirrelevance.
+      <span class="nb">intros</span> χ₁ χ₂.
+      use subtypePath.
+      {
+        <span class="nb">intro</span>.
+        <span class="nb">apply</span> isaproptotal2.
+        {
+          <span class="nb">intro</span>.
+          <span class="nb">apply</span> isaprop_isPullback.
+        }
+        <span class="nb">intros</span>.
+        <span class="nb">apply</span> homset_property.
+      }
+      use eq_mor_cod_fib.
+      use BinProductArrowsEq.
+      - <span class="bp">exact</span> (mor_eq (pr1 χ₁) @ !(mor_eq (pr1 χ₂))).
+      - use (subobject_classifier_map_eq Ω m).
+        + <span class="bp">exact</span> (cod_fib_subobject_classifier_unique_eq (pr1 χ₁) (pr12 χ₁) (pr22 χ₁)).
+        + <span class="bp">exact</span> (cod_fib_subobject_classifier_unique_eq (pr1 χ₂) (pr12 χ₂) (pr22 χ₂)).
+        + <span class="nb">apply</span> cod_fib_subobject_classifier_unique_pb.
+        + <span class="nb">apply</span> cod_fib_subobject_classifier_unique_pb.
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">UMP</span>.
+
+  <span class="sd">(** * 2. The subobject classifier *)</span>
+  <span class="kn">Definition</span> <span class="nf">cod_fib_subobject_classifier</span>
+    : subobject_classifier (codomain_fib_terminal x).
+  <span class="kn">Proof</span>.
+    use make_subobject_classifier_cat.
+    - <span class="bp">exact</span> (pr_cod_fib P x Ω).
+    - use mor_to_pr_cod_fib.
+      <span class="bp">exact</span> (const_true x Ω).
+    - <span class="nb">intros</span> zg₁ zg₂ mp.
+      use iscontraprop1.
+      + <span class="nb">apply</span> cod_fib_subobject_classifier_unique.
+      + <span class="nb">simple refine</span> (_ ,, _ ,, _).
+        * <span class="bp">exact</span> (cod_fib_subobject_classifier_mor mp).
+        * <span class="bp">exact</span> (cod_fib_subobject_classifier_comm mp).
+        * <span class="bp">exact</span> (cod_fib_subobject_classifier_pb mp).
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">SubobjectClassifier</span>.
+
+<span class="sd">(** * 3. Preservation of subobject classifiers by the pullback functor *)</span>
+<span class="kn">Section</span> <span class="nf">PreservesChosen</span>.
+  <span class="kn">Context</span> {<span class="nv">C</span> : category}
+          (<span class="nv">T</span> : Terminal C)
+          (<span class="nv">BP</span> : BinProducts C)
+          (<span class="nv">P</span> : Pullbacks C)
+          (<span class="nv">Ω</span> : subobject_classifier T)
+          {<span class="nv">x</span> <span class="nv">y</span> : C}
+          (<span class="nv">f</span> : x --&gt; y).
+
+  <span class="kn">Let</span> <span class="nf">φ</span> : P y (BP y Ω) x (BinProductPr1 C (BP y Ω)) f --&gt; BP x Ω
+    := pb_prod_z_iso BP P f Ω.
+
+  <span class="kn">Definition</span> <span class="nf">cod_pb_preserves_chosen_subobject_classifier_mor</span>
+    : cod_pb P f (cod_fib_subobject_classifier T BP Ω y)
+      --&gt;
+      cod_fib_subobject_classifier T BP Ω x.
+  <span class="kn">Proof</span>.
+    use make_cod_fib_mor.
+    - <span class="bp">exact</span> φ.
+    - <span class="kp">abstract</span>
+        (<span class="nb">cbn</span> ;
+         <span class="nb">unfold</span> map_from_pb_prod ;
+         <span class="nb">rewrite</span> BinProductPr1Commutes ;
+         <span class="nb">apply</span> idpath).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_pb_preserves_chosen_subobject_classifier_z_iso</span>
+    : z_iso
+        (cod_pb P f (cod_fib_subobject_classifier T BP Ω y))
+        (cod_fib_subobject_classifier T BP Ω x).
+  <span class="kn">Proof</span>.
+    <span class="nb">simple refine</span> (_ ,, _).
+    - <span class="bp">exact</span> cod_pb_preserves_chosen_subobject_classifier_mor.
+    - use is_z_iso_fiber_from_is_z_iso_disp.
+      use is_z_iso_disp_codomain.
+      <span class="nb">apply</span> pb_prod_z_iso.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">cod_pb_preserves_chosen_subobject_classifier_eq</span>
+    : # (cod_pb P f) (cod_fib_subobject_classifier T BP Ω y)
+      · cod_pb_preserves_chosen_subobject_classifier_z_iso
+      =
+      TerminalArrow (codomain_fib_terminal x) (cod_pb P f (codomain_fib_terminal y))
+      · cod_fib_subobject_classifier T BP Ω x.
+  <span class="kn">Proof</span>.
+    use eq_mor_cod_fib.
+    <span class="nb">rewrite</span> !comp_in_cod_fib.
+    etrans.
+    {
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> cod_fiber_functor_on_mor.
+    }
+    <span class="nb">cbn</span>.
+    <span class="nb">unfold</span> map_from_pb_prod.
+    use BinProductArrowsEq.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !BinProductPr1Commutes.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr2.
+      <span class="nb">rewrite</span> !id_right.
+      <span class="nb">apply</span> idpath.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> BinProductPr2Commutes.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> PullbackArrow_PullbackPr1.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !BinProductPr2Commutes.
+      <span class="nb">rewrite</span> id_left.
+      <span class="nb">unfold</span> const_true.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> TerminalArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">cod_pb_preserves_chosen_subobject_classifier</span>
+    : preserves_chosen_to_chosen_subobject_classifier
+        (codomain_fib_preserves_terminal P f)
+        (cod_fib_subobject_classifier T BP Ω y)
+        (cod_fib_subobject_classifier T BP Ω x)
+    := cod_pb_preserves_chosen_subobject_classifier_z_iso
+       ,,
+       cod_pb_preserves_chosen_subobject_classifier_eq.
+<span class="kn">End</span> <span class="nf">PreservesChosen</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_subobject_classifier_cod_pb</span>
+           {<span class="nv">C</span> : univalent_category}
+           (<span class="nv">T</span> : Terminal C)
+           (<span class="nv">P</span> : Pullbacks C)
+           (<span class="nv">Ω</span> : subobject_classifier T)
+           {<span class="nv">x</span> <span class="nv">y</span> : C}
+           (<span class="nv">f</span> : x --&gt; y)
+  : preserves_subobject_classifier
+      (cod_pb P f)
+      (codomain_fib_terminal y)
+      (codomain_fib_terminal x)
+      (codomain_fib_preserves_terminal P f).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (BP := BinProductsFromPullbacks P T).
+  use preserves_chosen_to_preserves_subobject_classifier'.
+  - <span class="nb">apply</span> is_univalent_cod_slice.
+  - <span class="nb">apply</span> is_univalent_cod_slice.
+  - <span class="bp">exact</span> (cod_fib_subobject_classifier T BP Ω y).
+  - use preserves_chosen_to_preserves_chosen_subobject_classifier'.
+    + <span class="nb">apply</span> is_univalent_cod_slice.
+    + <span class="nb">apply</span> is_univalent_cod_slice.
+    + <span class="bp">exact</span> (cod_fib_subobject_classifier T BP Ω x).
+    + <span class="nb">apply</span> cod_pb_preserves_chosen_subobject_classifier.
+<span class="kn">Defined</span>.
+
+<span class="kn">Definition</span> <span class="nf">codomain_fiberwise_subobject_classifier</span>
+           {<span class="nv">C</span> : univalent_category}
+           (<span class="nv">T</span> : Terminal C)
+           (<span class="nv">P</span> : Pullbacks C)
+           (<span class="nv">Ω</span> : subobject_classifier T)
+  : fiberwise_subobject_classifier
+      (codomain_fiberwise_terminal P).
+<span class="kn">Proof</span>.
+  <span class="nb">pose</span> (BP := BinProductsFromPullbacks P T).
+  <span class="nb">simple refine</span> (_ ,, _).
+  - <span class="bp">exact</span> (cod_fib_subobject_classifier T BP Ω).
+  - <span class="nb">intros</span> x y f.
+    <span class="bp">exact</span> (preserves_subobject_classifier_cod_pb T P Ω f).
+<span class="kn">Defined</span>.
+
+<span class="sd">(** * 4. The functor on the arrow category preserves subobject classifiers *)</span>
+<span class="kn">Section</span> <span class="nf">FiberPreservesSubobject</span>.
+  <span class="kn">Context</span> {<span class="nv">C₁</span> <span class="nv">C₂</span> : category}
+          {<span class="nv">T₁</span> : Terminal C₁}
+          {<span class="nv">T₂</span> : Terminal C₂}
+          (<span class="nv">P₁</span> : BinProducts C₁)
+          (<span class="nv">P₂</span> : BinProducts C₂)
+          (<span class="nv">Ω₁</span> : subobject_classifier T₁)
+          (<span class="nv">Ω₂</span> : subobject_classifier T₂)
+          (<span class="nv">F</span> : C₁ ⟶ C₂)
+          (<span class="nv">HFT</span> : preserves_terminal F)
+          (<span class="nv">HFP</span> : preserves_binproduct F)
+          (<span class="nv">HFΩ</span> : preserves_subobject_classifier F T₁ T₂ HFT)
+          (<span class="nv">x</span> : C₁).
+
+  <span class="kn">Definition</span> <span class="nf">preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_iso_mor</span>
+    : z_iso
+        (F (P₁ x Ω₁))
+        (P₂ (F x) Ω₂)
+    := z_iso_comp
+         (preserves_binproduct_to_z_iso F HFP (P₁ x Ω₁) (P₂ (F x) (F Ω₁)))
+         (binproduct_of_z_iso
+            _
+            _
+            (identity_z_iso (F x))
+            (preserves_subobject_classifier_z_iso HFΩ Ω₁ Ω₂)).
+
+  <span class="kn">Let</span> <span class="nf">φ</span> := preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_iso_mor.
+
+  <span class="kn">Proposition</span> <span class="nf">preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_mor_eq</span>
+    : φ · BinProductPr1 C₂ (P₂ (F x) Ω₂)
+      =
+      # F (BinProductPr1 C₁ (P₁ x Ω₁)) · identity (F x).
+  <span class="kn">Proof</span>.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+    <span class="nb">rewrite</span> !id_right.
+    <span class="nb">rewrite</span> BinProductPr1Commutes.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_mor</span>
+    : fiber_functor
+        (disp_codomain_functor F)
+        x
+        (cod_fib_subobject_classifier T₁ P₁ Ω₁ x)
+      --&gt;
+      cod_fib_subobject_classifier T₂ P₂ Ω₂ (F x).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (pr1 φ ,, _).
+    <span class="bp">exact</span> preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_mor_eq.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_iso</span>
+    : z_iso
+        (fiber_functor
+           (disp_codomain_functor F)
+           x
+           (cod_fib_subobject_classifier T₁ P₁ Ω₁ x))
+        (cod_fib_subobject_classifier T₂ P₂ Ω₂ (F x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_mor ,, _).
+    use is_z_iso_fiber_from_is_z_iso_disp.
+    use is_z_iso_disp_codomain.
+    <span class="nb">apply</span> preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_iso_mor.
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Proposition</span> <span class="nf">preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_eq</span>
+    : # (fiber_functor (disp_codomain_functor F) x) (cod_fib_subobject_classifier T₁ P₁ Ω₁ x)
+      · preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_iso
+      =
+      TerminalArrow (codomain_fib_terminal (F x)) _
+      · cod_fib_subobject_classifier T₂ P₂ Ω₂ (F x).
+  <span class="kn">Proof</span>.
+    use eq_mor_cod_fib.
+    <span class="nb">refine</span> (comp_in_cod_fib _ _ @ _ @ !(comp_in_cod_fib _ _)).
+    <span class="nb">rewrite</span> disp_codomain_fiber_functor_mor.
+    <span class="nb">cbn</span>.
+    <span class="nb">rewrite</span> functor_id.
+    <span class="nb">rewrite</span> !id_left.
+    use BinProductArrowsEq.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> BinProductPr1Commutes.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr1.
+      <span class="nb">rewrite</span> id_right.
+      <span class="nb">rewrite</span> BinProductPr1Commutes.
+      <span class="nb">rewrite</span> &lt;- functor_comp, &lt;- functor_id.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> BinProductPr1Commutes.
+    - <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> BinProductPr2Commutes.
+      <span class="nb">rewrite</span> BinProductOfArrowsPr2.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="nb">rewrite</span> BinProductPr2Commutes.
+        <span class="nb">apply</span> idpath.
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- functor_comp.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths_2.
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">apply</span> BinProductPr2Commutes.
+      }
+      <span class="nb">unfold</span> mor_subobject_classifier, const_true.
+      <span class="nb">rewrite</span> functor_comp.
+      <span class="nb">rewrite</span> (functor_on_terminal_arrow T₁ HFT x).
+      <span class="nb">assert</span> (TerminalArrow (preserves_terminal_to_terminal F HFT T₁) (F x)
+              =
+              TerminalArrow T₂ _
+              · TerminalArrow (preserves_terminal_to_terminal F HFT T₁) T₂)
+        <span class="k">as</span> q.
+      {
+        <span class="nb">apply</span> TerminalArrowEq.
+      }
+      <span class="nb">rewrite</span> q.
+      <span class="nb">rewrite</span> !assoc'.
+      etrans.
+      {
+        <span class="nb">apply</span> maponpaths.
+        <span class="nb">rewrite</span> !assoc.
+        <span class="bp">exact</span> (subobject_classifier_square_commutes
+                 Ω₂
+                 (preserves_subobject_classifier_on_ob HFΩ Ω₁)).
+      }
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">apply</span> TerminalArrowEq.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">preserves_chosen_subobject_classifier_disp_codomain_fiber_functor</span>
+    : preserves_chosen_to_chosen_subobject_classifier
+        (preserves_terminal_fiber_disp_codomain_functor F x)
+        (cod_fib_subobject_classifier T₁ P₁ Ω₁ x)
+        (cod_fib_subobject_classifier T₂ P₂ Ω₂ (F x)).
+  <span class="kn">Proof</span>.
+    <span class="nb">refine</span> (preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_iso ,, _).
+    <span class="bp">exact</span> preserves_chosen_subobject_classifier_disp_codomain_fiber_functor_eq.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">FiberPreservesSubobject</span>.
+
+<span class="kn">Definition</span> <span class="nf">preserves_subobject_classifier_disp_codomain_fiber_functor</span>
+           {<span class="nv">C₁</span> <span class="nv">C₂</span> : univalent_category}
+           {<span class="nv">T₁</span> : Terminal C₁}
+           {<span class="nv">T₂</span> : Terminal C₂}
+           (<span class="nv">P₁</span> : BinProducts C₁)
+           (<span class="nv">P₂</span> : BinProducts C₂)
+           (<span class="nv">Ω₁</span> : subobject_classifier T₁)
+           (<span class="nv">Ω₂</span> : subobject_classifier T₂)
+           (<span class="nv">F</span> : C₁ ⟶ C₂)
+           (<span class="nv">HFT</span> : preserves_terminal F)
+           (<span class="nv">HFP</span> : preserves_binproduct F)
+           (<span class="nv">HFΩ</span> : preserves_subobject_classifier F T₁ T₂ HFT)
+           (<span class="nv">x</span> : C₁)
+  : preserves_subobject_classifier
+      (fiber_functor (disp_codomain_functor F) x)
+      (codomain_fib_terminal x)
+      (codomain_fib_terminal (F x))
+      (preserves_terminal_fiber_disp_codomain_functor F x).
+<span class="kn">Proof</span>.
+  use preserves_chosen_to_preserves_subobject_classifier'.
+  - <span class="nb">apply</span> is_univalent_cod_slice.
+  - <span class="nb">apply</span> is_univalent_cod_slice.
+  - <span class="bp">exact</span> (cod_fib_subobject_classifier T₁ P₁ Ω₁ x).
+  - use preserves_chosen_to_preserves_chosen_subobject_classifier'.
+    + <span class="nb">apply</span> is_univalent_cod_slice.
+    + <span class="nb">apply</span> is_univalent_cod_slice.
+    + <span class="bp">exact</span> (cod_fib_subobject_classifier T₂ P₂ Ω₂ (F x)).
+    + use preserves_chosen_subobject_classifier_disp_codomain_fiber_functor.
+      * <span class="bp">exact</span> HFT.
+      * <span class="bp">exact</span> HFP.
+      * <span class="bp">exact</span> HFΩ.
+<span class="kn">Defined</span>.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/DisplayedCats/Codomain/CodSubobjectClassifier.v</tt>, line 47)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  4. The functor on the arrow category preserves subobject classifiers
+  &gt;
+  &gt;  ***********************************************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Prelude.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>

@@ -1,0 +1,596 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" class="alectryon-standalone" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.22.4: https://docutils.sourceforge.io/" />
+<title>EnrichedEqualizers.v</title>
+<link rel="stylesheet" href="alectryon.css" type="text/css" />
+<link rel="stylesheet" href="docutils_basic.css" type="text/css" />
+<link rel="stylesheet" href="pygments.css" type="text/css" />
+<script type="text/javascript" src="alectryon.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/IBM-type/0.5.4/css/ibm-type.min.css" integrity="sha512-sky5cf9Ts6FY1kstGOBHSybfKqdHR41M0Ldb0BjNiv3ifltoQIsg0zIaQ+wwdwgQ0w9vKFW7Js50lxH9vqNSSw==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/firacode/5.2.0/fira_code.min.css" integrity="sha512-MbysAYimH1hH2xYzkkMHB6MqxBqfP0megxsCLknbYqHVwXTCg9IqHbk+ZP/vnhO8UEW6PaXAkKe2vQ+SWACxxA==" crossorigin="anonymous" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+<div class="alectryon-root alectryon-centered"><div class="alectryon-banner">Built with <a href="https://github.com/cpitclaudel/alectryon/">Alectryon</a>, running Coq+SerAPI v8.16.0+0.16.3. Bubbles (<span class="alectryon-bubble"></span>) indicate interactive fragments: hover for details, tap to reveal contents. Use <kbd>Ctrl+↑</kbd> <kbd>Ctrl+↓</kbd> to navigate, <kbd>Ctrl+🖱️</kbd> to focus. On Mac, use <kbd>⌘</kbd> instead of <kbd>Ctrl</kbd>.</div><div class="document">
+
+
+<pre class="alectryon-io highlight lang-rocq"><!-- Generator: Alectryon --><span class="alectryon-txt"><span class="sd">(*****************************************************************</span>
+
+<span class="sd"> Enriched equalizers</span>
+
+<span class="sd"> We define the notion of equalizers in the enriched setting. To</span>
+<span class="sd"> do so, we formulate the universal property for equalizers in</span>
+<span class="sd"> arbitrary monoidal categories rather than just set. Whereas cones</span>
+<span class="sd"> for cones we can use the same definition, we need to reformulate</span>
+<span class="sd"> the universal property to take the enrichment into account. The</span>
+<span class="sd"> idea here is the same as for terminal objects and for binary</span>
+<span class="sd"> products.</span>
+
+<span class="sd"> Content</span>
+<span class="sd"> 1. Cones of enriched equalizers</span>
+<span class="sd"> 2. Equalizers in an enriched category</span>
+<span class="sd"> 3. Being an equalizer is a proposition</span>
+<span class="sd"> 4. Equalizers in the underlying category</span>
+<span class="sd"> 5. Builders for equalizers</span>
+<span class="sd"> 6. Equalizers are closed under iso</span>
+<span class="sd"> 7. Equalizers are isomorphic</span>
+<span class="sd"> 8. Enriched categories with equalizers</span>
+
+<span class="sd"> *****************************************************************)</span>
+<span class="kn">Require Import</span> UniMath.Foundations.All.
+<span class="kn">Require Import</span> UniMath.MoreFoundations.All.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Isos.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Univalence.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Core.Functors.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Monoidal.Categories.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.EnrichedCats.Enrichment.
+<span class="kn">Require Import</span> UniMath.CategoryTheory.Limits.Equalizers.
+
+<span class="kn">Import</span> MonoidalNotations.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> cat.
+<span class="kn">Local</span> <span class="kn">Open Scope</span> moncat.
+
+<span class="kn">Section</span> <span class="nf">EnrichedEqualizer</span>.
+  <span class="kn">Context</span> {<span class="nv">V</span> : monoidal_cat}
+          {<span class="nv">C</span> : category}
+          (<span class="nv">E</span> : enrichment C V)
+          {<span class="nv">x</span> <span class="nv">y</span> : C}
+          (<span class="nv">f</span> <span class="nv">g</span> : x --&gt; y).
+
+  <span class="sd">(**</span>
+<span class="sd">   1. Cones of enriched equalizers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">enriched_equalizer_cone</span>
+    : UU
+    := ∑ (a : C)
+         (p : I_{V} --&gt; E ⦃ a , x ⦄),
+       enriched_to_arr E p · f = enriched_to_arr E p · g.
+
+  #[reversible] <span class="kn">Coercion</span> <span class="nf">ob_enriched_equalizer_cone</span>
+           (a : enriched_equalizer_cone)
+    : C
+    := pr1 a.
+
+  <span class="kn">Definition</span> <span class="nf">enriched_equalizer_cone_pr</span>
+             (<span class="nv">a</span> : enriched_equalizer_cone)
+    : a --&gt; x
+    := enriched_to_arr E (pr12 a).
+
+  <span class="kn">Definition</span> <span class="nf">enriched_equalizer_cone_eq</span>
+             (<span class="nv">a</span> : enriched_equalizer_cone)
+    : enriched_equalizer_cone_pr a · f
+      =
+      enriched_equalizer_cone_pr a · g
+    := pr22 a.
+
+  <span class="kn">Definition</span> <span class="nf">make_enriched_equalizer_cone</span>
+             (<span class="nv">a</span> : C)
+             (<span class="nv">p</span> : I_{V} --&gt; E ⦃ a , x ⦄)
+             (<span class="nv">q</span> : enriched_to_arr E p · f = enriched_to_arr E p · g)
+    : enriched_equalizer_cone
+    := a ,, p ,, q.
+
+  <span class="kn">Proposition</span> <span class="nf">postcomp_eq_from_equalizer_cone</span>
+              (<span class="nv">a</span> : enriched_equalizer_cone)
+              (<span class="nv">w</span> : C)
+    : postcomp_arr E w (enriched_equalizer_cone_pr a) · postcomp_arr E w f
+      =
+      postcomp_arr E w (enriched_equalizer_cone_pr a) · postcomp_arr E w g.
+  <span class="kn">Proof</span>.
+    <span class="nb">rewrite</span> &lt;- !postcomp_arr_comp.
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">apply</span> enriched_equalizer_cone_eq.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   2. Equalizers in an enriched category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">is_equalizer_enriched</span>
+             (<span class="nv">a</span> : enriched_equalizer_cone)
+    : UU
+    := ∏ (w : C),
+       isEqualizer
+         (postcomp_arr E w f)
+         (postcomp_arr E w g)
+         (postcomp_arr E w (enriched_equalizer_cone_pr a))
+         (postcomp_eq_from_equalizer_cone a w).
+
+  <span class="kn">Definition</span> <span class="nf">is_equalizer_enriched_to_Equalizer</span>
+             {<span class="nv">a</span> : enriched_equalizer_cone}
+             (<span class="nv">Ha</span> : is_equalizer_enriched a)
+             (<span class="nv">w</span> : C)
+    : Equalizer
+        (postcomp_arr E w f)
+        (postcomp_arr E w g).
+  <span class="kn">Proof</span>.
+    use make_Equalizer.
+    - <span class="bp">exact</span> (E ⦃ w , a ⦄).
+    - <span class="bp">exact</span> (postcomp_arr E w (enriched_equalizer_cone_pr a)).
+    - <span class="bp">exact</span> (postcomp_eq_from_equalizer_cone a w).
+    - <span class="bp">exact</span> (Ha w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equalizer_enriched</span>
+    : UU
+    := ∑ (a : enriched_equalizer_cone),
+       is_equalizer_enriched a.
+
+  <span class="kn">Coercion</span> <span class="nf">cone_of_equalizer_enriched</span>
+           (a : equalizer_enriched)
+    : enriched_equalizer_cone
+    := pr1 a.
+
+  <span class="kn">Coercion</span> <span class="nf">equalizer_enriched_is_equalizer</span>
+           (a : equalizer_enriched)
+    : is_equalizer_enriched a
+    := pr2 a.
+
+  <span class="sd">(**</span>
+<span class="sd">   3. Being an equalizer is a proposition</span>
+<span class="sd">   *)</span>
+  <span class="kn">Proposition</span> <span class="nf">isaprop_is_equalizer_enriched</span>
+              (<span class="nv">a</span> : enriched_equalizer_cone)
+    : isaprop (is_equalizer_enriched a).
+  <span class="kn">Proof</span>.
+    use impred ; <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_isEqualizer.
+  <span class="kn">Qed</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   4. Equalizers in the underlying category</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">InUnderlying</span>.
+    <span class="kn">Context</span> {<span class="nv">a</span> : enriched_equalizer_cone}
+            (<span class="nv">Ha</span> : is_equalizer_enriched a).
+
+    <span class="kn">Definition</span> <span class="nf">underlying_Equalizer_arr</span>
+               {<span class="nv">w</span> : C}
+               (<span class="nv">h</span> : w --&gt; x)
+               (<span class="nv">q</span> : h · f = h · g)
+      : w --&gt; a.
+    <span class="kn">Proof</span>.
+      use (enriched_to_arr E).
+      use (EqualizerIn (is_equalizer_enriched_to_Equalizer Ha w)).
+      - <span class="bp">exact</span> (enriched_from_arr E h).
+      - <span class="kp">abstract</span>
+          (<span class="nb">rewrite</span> !enriched_from_arr_postcomp ;
+           <span class="nb">rewrite</span> q ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">underlying_Equalizer_arr_pr</span>
+                {<span class="nv">w</span> : C}
+                (<span class="nv">h</span> : w --&gt; x)
+                (<span class="nv">q</span> : h · f = h · g)
+      : underlying_Equalizer_arr h q · enriched_equalizer_cone_pr a = h.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> underlying_Equalizer_arr, enriched_equalizer_cone_pr.
+      use (invmaponpathsweq (make_weq _ (isweq_enriched_from_arr E _ _))) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> enriched_from_arr_comp.
+      <span class="nb">rewrite</span> !enriched_from_to_arr.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_linvunitor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">refine</span> (maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) _
+              @ EqualizerCommutes
+                  (is_equalizer_enriched_to_Equalizer Ha w)
+                  I_{V}
+                  (enriched_from_arr E h)
+                  _).
+      <span class="nb">cbn</span> ; <span class="nb">unfold</span> postcomp_arr.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths_2.
+      <span class="nb">refine</span> (!_).
+      <span class="nb">apply</span> enriched_from_to_arr.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">underlying_Equalizer_arr_eq</span>
+                {<span class="nv">w</span> : C}
+                {<span class="nv">h₁</span> <span class="nv">h₂</span> : w --&gt; a}
+                (<span class="nv">q</span> : h₁ · enriched_equalizer_cone_pr a = h₂ · enriched_equalizer_cone_pr a)
+      : h₁ = h₂.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (!(enriched_to_from_arr E _) @ _ @ enriched_to_from_arr E _).
+      <span class="nb">apply</span> maponpaths.
+      use (EqualizerInsEq (is_equalizer_enriched_to_Equalizer Ha w)).
+      <span class="nb">cbn</span>.
+      <span class="nb">unfold</span> postcomp_arr.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> !tensor_linvunitor.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · z) (assoc _ _ _)).
+      <span class="nb">rewrite</span> &lt;- !tensor_split.
+      use (invmaponpathsweq (make_weq _ (isweq_enriched_to_arr E _ _))) ; <span class="nb">cbn</span>.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- !(enriched_to_arr_comp E).
+      <span class="bp">exact</span> q.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Definition</span> <span class="nf">underlying_Equalizer</span>
+      : Equalizer f g.
+    <span class="kn">Proof</span>.
+      use make_Equalizer.
+      - <span class="bp">exact</span> a.
+      - <span class="bp">exact</span> (enriched_equalizer_cone_pr a).
+      - <span class="bp">exact</span> (enriched_equalizer_cone_eq a).
+      - <span class="nb">intros</span> w h q.
+        use iscontraprop1.
+        + <span class="kp">abstract</span>
+            (use invproofirrelevance ;
+             <span class="nb">intros</span> φ₁ φ₂ ;
+             use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+             <span class="bp">exact</span> (underlying_Equalizer_arr_eq (pr2 φ₁ @ !(pr2 φ₂)))).
+        + <span class="bp">exact</span> (underlying_Equalizer_arr h q ,, underlying_Equalizer_arr_pr h q).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">InUnderlying</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   5. Builders for equalizers</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">make_is_equalizer_enriched</span>
+             (<span class="nv">a</span> : enriched_equalizer_cone)
+             (<span class="nv">eq_arr_eq</span> : ∏ (w : C)
+                            (v : V)
+                            (h₁ h₂ : v --&gt; E ⦃ w, a ⦄)
+                            (q : h₁ · postcomp_arr E w (enriched_equalizer_cone_pr a)
+                                 =
+                                 h₂ · postcomp_arr E w (enriched_equalizer_cone_pr a)),
+                          h₁ = h₂)
+             (<span class="nv">eq_in</span> : ∏ (w : C)
+                        (v : V)
+                        (h : v --&gt; E ⦃ w, x ⦄)
+                        (q : h · postcomp_arr E w f = h · postcomp_arr E w g),
+                      v --&gt; E ⦃ w, a ⦄)
+             (<span class="nv">eq_in_eq</span> : ∏ (w : C)
+                           (v : V)
+                           (h : v --&gt; E ⦃ w, x ⦄)
+                           (q : h · postcomp_arr E w f = h · postcomp_arr E w g),
+                         eq_in w v h q
+                         · postcomp_arr E w (enriched_equalizer_cone_pr a)
+                         =
+                         h)
+    : is_equalizer_enriched a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> w.
+    use make_isEqualizer.
+    <span class="nb">intros</span> v h q.
+    use iscontraprop1.
+    - <span class="kp">abstract</span>
+        (use invproofirrelevance ;
+         <span class="nb">intros</span> φ₁ φ₂ ;
+         use subtypePath ; [ <span class="nb">intro</span> ; <span class="nb">apply</span> homset_property | ] ;
+         <span class="bp">exact</span> (eq_arr_eq w v _ _ (pr2 φ₁ @ !(pr2 φ₂)))).
+    - <span class="bp">exact</span> (eq_in w v h q,, eq_in_eq w v h q).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">equalizer_enriched_to_equalizer</span>
+             (<span class="nv">EqV</span> : Equalizers V)
+             (<span class="nv">a</span> : enriched_equalizer_cone)
+             (<span class="nv">w</span> : C)
+    : E ⦃ w , a ⦄ --&gt; EqV (E ⦃ w, x ⦄) _ (postcomp_arr E w f) (postcomp_arr E w g).
+  <span class="kn">Proof</span>.
+    use EqualizerIn.
+    - <span class="bp">exact</span> (postcomp_arr E w (enriched_equalizer_cone_pr a)).
+    - <span class="bp">exact</span> (postcomp_eq_from_equalizer_cone a w).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_is_equalizer_enriched_from_z_iso</span>
+             (<span class="nv">EqV</span> : Equalizers V)
+             (<span class="nv">a</span> : enriched_equalizer_cone)
+             (<span class="nv">Ha</span> : ∏ (w : C),
+                   is_z_isomorphism (equalizer_enriched_to_equalizer EqV a w))
+    : is_equalizer_enriched a.
+  <span class="kn">Proof</span>.
+    <span class="nb">intro</span> w.
+    use (isEqualizer_z_iso
+           (pr22 (EqV (E ⦃ w, x ⦄) (E ⦃ w, y ⦄) (postcomp_arr E w f) (postcomp_arr E w g)))
+           (_ ,, Ha w)).
+    <span class="kp">abstract</span>
+      (<span class="nb">unfold</span> equalizer_enriched_to_equalizer ; <span class="nb">cbn</span> ;
+       <span class="nb">refine</span> (!_) ;
+       <span class="nb">apply</span> EqualizerCommutes).
+  <span class="kn">Defined</span>.
+
+  <span class="kn">Section</span> <span class="nf">EqualizersFromUnderlying</span>.
+    <span class="kn">Context</span> (<span class="nv">EqV</span> : Equalizers V)
+            (<span class="nv">a</span> : enriched_equalizer_cone)
+            (<span class="nv">eq_a</span> : isEqualizer
+                      f g
+                      (enriched_equalizer_cone_pr a)
+                      (enriched_equalizer_cone_eq a))
+            (<span class="nv">w</span> : C).
+
+    <span class="kn">Definition</span> <span class="nf">equalizer_enriched_from_underlying_map</span>
+               (<span class="nv">h</span> : I_{ V} --&gt; EqV _ _ (postcomp_arr E w f) (postcomp_arr E w g))
+      : I_{ V} --&gt; E ⦃ w, a ⦄.
+    <span class="kn">Proof</span>.
+      use enriched_from_arr.
+      use (EqualizerIn (make_Equalizer _ _ _ _ eq_a)).
+      - <span class="bp">exact</span> (enriched_to_arr E (h · EqualizerArrow _)).
+      - <span class="kp">abstract</span>
+          (use (invmaponpathsweq (make_weq _ (isweq_enriched_from_arr E _ _))) ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> !enriched_from_arr_comp ;
+           <span class="nb">rewrite</span> !enriched_from_to_arr ;
+           <span class="nb">rewrite</span> tensor_split ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> &lt;- tensor_linvunitor ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">rewrite</span> !(maponpaths (<span class="k">λ</span> <span class="nv">z</span>, _ · (_ · z)) (assoc _ _ _)) ;
+           <span class="nb">refine</span> (maponpaths
+                     (<span class="k">λ</span> <span class="nv">z</span>, _ · z)
+                     (EqualizerEqAr
+                        (EqV _ _ (postcomp_arr E w f) (postcomp_arr E w g)))
+                   @ _) ;
+           <span class="nb">refine</span> (!_) ;
+           <span class="nb">rewrite</span> tensor_split ;
+           <span class="nb">rewrite</span> !assoc ;
+           <span class="nb">rewrite</span> &lt;- tensor_linvunitor ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="kp">do</span> <span class="mi">2</span> <span class="nb">apply</span> maponpaths ;
+           <span class="nb">unfold</span> postcomp_arr ;
+           <span class="nb">rewrite</span> !assoc' ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">equalizer_enriched_from_underlying_map_inv₁</span>
+                (<span class="nv">h</span> : I_{ V} --&gt; E ⦃ w, a ⦄)
+      : equalizer_enriched_from_underlying_map (h · equalizer_enriched_to_equalizer EqV a w)
+        =
+        h.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> equalizer_enriched_from_underlying_map.
+      <span class="nb">refine</span> (_ @ enriched_from_to_arr E h).
+      <span class="nb">apply</span> maponpaths.
+      use (isEqualizerInsEq eq_a).
+      etrans.
+      {
+        <span class="nb">apply</span> (EqualizerCommutes (make_Equalizer _ _ _ _ eq_a)).
+      }
+      <span class="nb">unfold</span> enriched_equalizer_cone_pr.
+      <span class="nb">rewrite</span> (enriched_to_arr_comp E).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">rewrite</span> tensor_split.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">rewrite</span> &lt;- tensor_linvunitor.
+      <span class="nb">rewrite</span> enriched_from_to_arr.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">unfold</span> equalizer_enriched_to_equalizer.
+      <span class="nb">rewrite</span> EqualizerCommutes.
+      <span class="nb">rewrite</span> !assoc.
+      <span class="nb">apply</span> idpath.
+    <span class="kn">Qed</span>.
+
+    <span class="kn">Proposition</span> <span class="nf">equalizer_enriched_from_underlying_map_inv₂</span>
+                (<span class="nv">h</span> : I_{ V} --&gt; EqV _ _ (postcomp_arr E w f) (postcomp_arr E w g))
+      : equalizer_enriched_from_underlying_map h
+        · equalizer_enriched_to_equalizer EqV a w
+        =
+        h.
+    <span class="kn">Proof</span>.
+      <span class="nb">unfold</span> equalizer_enriched_from_underlying_map.
+      use (isEqualizerInsEq (pr22 (EqV _ _ _ _))).
+      <span class="nb">unfold</span> equalizer_enriched_to_equalizer.
+      <span class="nb">rewrite</span> !assoc'.
+      <span class="nb">rewrite</span> EqualizerCommutes.
+      <span class="nb">rewrite</span> enriched_from_arr_postcomp.
+      <span class="nb">refine</span> (_ @ enriched_from_to_arr E _).
+      <span class="nb">apply</span> maponpaths.
+      <span class="nb">apply</span> (EqualizerCommutes (make_Equalizer _ _ _ _ eq_a)).
+    <span class="kn">Qed</span>.
+  <span class="kn">End</span> <span class="nf">EqualizersFromUnderlying</span>.
+
+  <span class="kn">Definition</span> <span class="nf">make_is_equalizer_enriched_from_underlying</span>
+             (<span class="nv">EqV</span> : Equalizers V)
+             (<span class="nv">a</span> : enriched_equalizer_cone)
+             (<span class="nv">eq_a</span> : isEqualizer
+                       f g
+                       (enriched_equalizer_cone_pr a)
+                       (enriched_equalizer_cone_eq a))
+             (<span class="nv">HV</span> : conservative_moncat V)
+    : is_equalizer_enriched a.
+  <span class="kn">Proof</span>.
+    use (make_is_equalizer_enriched_from_z_iso EqV).
+    <span class="nb">intros</span> w.
+    use HV.
+    use isweq_iso.
+    - <span class="bp">exact</span> (equalizer_enriched_from_underlying_map EqV a eq_a w).
+    - <span class="bp">exact</span> (equalizer_enriched_from_underlying_map_inv₁ EqV a eq_a w).
+    - <span class="bp">exact</span> (equalizer_enriched_from_underlying_map_inv₂ EqV a eq_a w).
+  <span class="kn">Defined</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   6. Equalizers are closed under iso</span>
+<span class="sd">   *)</span>
+  <span class="kn">Section</span> <span class="nf">EqualizerIso</span>.
+    <span class="kn">Context</span> (<span class="nv">a</span> : enriched_equalizer_cone)
+            (<span class="nv">Ha</span> : is_equalizer_enriched a)
+            (<span class="nv">b</span> : C)
+            (<span class="nv">h</span> : z_iso b a).
+
+    <span class="kn">Definition</span> <span class="nf">enriched_equalizer_cone_from_iso</span>
+      : enriched_equalizer_cone.
+    <span class="kn">Proof</span>.
+      <span class="nb">refine</span> (make_enriched_equalizer_cone
+                b
+                (enriched_from_arr E (h · enriched_equalizer_cone_pr a))
+                _).
+      <span class="kp">abstract</span>
+        (<span class="nb">rewrite</span> !enriched_to_from_arr ;
+         <span class="nb">rewrite</span> !assoc' ;
+         <span class="nb">apply</span> maponpaths ;
+         <span class="bp">exact</span> (enriched_equalizer_cone_eq a)).
+    <span class="kn">Defined</span>.
+
+    <span class="kn">Definition</span> <span class="nf">is_equalizer_enriched_from_iso</span>
+      : is_equalizer_enriched enriched_equalizer_cone_from_iso.
+    <span class="kn">Proof</span>.
+      <span class="nb">intros</span> w.
+      use (isEqualizer_z_iso (Ha w)).
+      - <span class="bp">exact</span> (postcomp_arr_z_iso E w h).
+      - <span class="kp">abstract</span>
+          (<span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> &lt;- postcomp_arr_comp ;
+           <span class="nb">apply</span> maponpaths ;
+           <span class="nb">unfold</span> enriched_equalizer_cone_from_iso ; <span class="nb">cbn</span> ;
+           <span class="nb">unfold</span>  enriched_equalizer_cone_pr ; <span class="nb">cbn</span> ;
+           <span class="nb">rewrite</span> enriched_to_from_arr ;
+           <span class="nb">apply</span> idpath).
+    <span class="kn">Defined</span>.
+  <span class="kn">End</span> <span class="nf">EqualizerIso</span>.
+
+  <span class="sd">(**</span>
+<span class="sd">   7. Equalizers are isomorphic</span>
+<span class="sd">   *)</span>
+  <span class="kn">Definition</span> <span class="nf">map_between_equalizer_enriched</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : enriched_equalizer_cone}
+             (<span class="nv">Ha</span> : is_equalizer_enriched a)
+             (<span class="nv">Hb</span> : is_equalizer_enriched b)
+    : a --&gt; b
+    := underlying_Equalizer_arr
+         Hb
+         (enriched_equalizer_cone_pr a)
+         (enriched_equalizer_cone_eq a).
+
+  <span class="kn">Lemma</span> <span class="nf">iso_between_equalizer_enriched_inv</span>
+        {<span class="nv">a</span> <span class="nv">b</span> : enriched_equalizer_cone}
+        (<span class="nv">Ha</span> : is_equalizer_enriched a)
+        (<span class="nv">Hb</span> : is_equalizer_enriched b)
+    : map_between_equalizer_enriched Ha Hb · map_between_equalizer_enriched Hb Ha
+      =
+      identity _.
+  <span class="kn">Proof</span>.
+    <span class="nb">unfold</span> map_between_equalizer_enriched.
+    use (underlying_Equalizer_arr_eq Ha).
+    <span class="nb">rewrite</span> !assoc'.
+    <span class="nb">rewrite</span> !underlying_Equalizer_arr_pr.
+    <span class="nb">rewrite</span> id_left.
+    <span class="nb">apply</span> idpath.
+  <span class="kn">Qed</span>.
+
+  <span class="kn">Definition</span> <span class="nf">iso_between_equalizer_enriched</span>
+             {<span class="nv">a</span> <span class="nv">b</span> : enriched_equalizer_cone}
+             (<span class="nv">Ha</span> : is_equalizer_enriched a)
+             (<span class="nv">Hb</span> : is_equalizer_enriched b)
+    : z_iso a b.
+  <span class="kn">Proof</span>.
+    use make_z_iso.
+    - <span class="bp">exact</span> (map_between_equalizer_enriched Ha Hb).
+    - <span class="bp">exact</span> (map_between_equalizer_enriched Hb Ha).
+    - <span class="nb">split</span>.
+      + <span class="nb">apply</span> iso_between_equalizer_enriched_inv.
+      + <span class="nb">apply</span> iso_between_equalizer_enriched_inv.
+  <span class="kn">Defined</span>.
+<span class="kn">End</span> <span class="nf">EnrichedEqualizer</span>.
+
+<span class="sd">(**</span>
+<span class="sd"> 8. Enriched categories with equalizers</span>
+<span class="sd"> *)</span>
+<span class="kn">Definition</span> <span class="nf">enrichment_equalizers</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           {<span class="nv">C</span> : category}
+           (<span class="nv">E</span> : enrichment C V)
+  : UU
+  := ∏ (x y : C) (f g : x --&gt; y),
+     ∑ (a : enriched_equalizer_cone E f g),
+     is_equalizer_enriched E f g a.
+
+<span class="kn">Proposition</span> <span class="nf">isaprop_enrichment_equalizers</span>
+            {<span class="nv">V</span> : monoidal_cat}
+            {<span class="nv">C</span> : category}
+            (<span class="nv">HC</span> : is_univalent C)
+            (<span class="nv">E</span> : enrichment C V)
+  : isaprop (enrichment_equalizers E).
+<span class="kn">Proof</span>.
+  use invproofirrelevance.
+  <span class="nb">intros</span> φ₁ φ₂.
+  use funextsec ; <span class="nb">intro</span> x.
+  use funextsec ; <span class="nb">intro</span> y.
+  use funextsec ; <span class="nb">intro</span> f.
+  use funextsec ; <span class="nb">intro</span> g.
+  use subtypePath.
+  {
+    <span class="nb">intro</span>.
+    <span class="nb">apply</span> isaprop_is_equalizer_enriched.
+  }
+  use total2_paths_f.
+  - use (isotoid _ HC).
+    use iso_between_equalizer_enriched.
+    + <span class="bp">exact</span> (pr2 (φ₁ x y f g)).
+    + <span class="bp">exact</span> (pr2 (φ₂ x y f g)).
+  - use subtypePath.
+    {
+      <span class="nb">intro</span>.
+      <span class="nb">apply</span> homset_property.
+    }
+    <span class="nb">rewrite</span> pr1_transportf.
+    <span class="nb">rewrite</span> transportf_enriched_arr_l.
+    <span class="nb">rewrite</span> idtoiso_inv.
+    <span class="nb">rewrite</span> idtoiso_isotoid.
+    <span class="nb">cbn</span>.
+    <span class="nb">refine</span> (_ @ enriched_from_to_arr E _).
+    <span class="nb">apply</span> maponpaths.
+    <span class="nb">unfold</span> map_between_equalizer_enriched ; <span class="nb">cbn</span>.
+    <span class="nb">apply</span> underlying_Equalizer_arr_pr.
+<span class="kn">Qed</span>.
+
+<span class="kn">Definition</span> <span class="nf">cat_with_enrichment_equalizers</span>
+           (<span class="nv">V</span> : monoidal_cat)
+  : UU
+  := ∑ (C : cat_with_enrichment V), enrichment_equalizers C.
+
+<span class="kn">Coercion</span> <span class="nf">cat_with_enrichment_equalizers_to_cat_with_enrichment</span>
+         {V : monoidal_cat}
+         (C : cat_with_enrichment_equalizers V)
+  : cat_with_enrichment V
+  := pr1 C.
+
+<span class="kn">Definition</span> <span class="nf">equalizers_of_cat_with_enrichment_equalizers</span>
+           {<span class="nv">V</span> : monoidal_cat}
+           (<span class="nv">C</span> : cat_with_enrichment_equalizers V)
+  : enrichment_equalizers C
+  := pr2 C.</span></pre><div class="system-messages section">
+<h1>Docutils System Messages</h1>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">UniMath/CategoryTheory/EnrichedCats/Limits/EnrichedEqualizers.v</tt>, line 24)</p>
+Coq raised an exception:
+  &gt; File /github/workspace/_build/default/UniMath/Foundations/All.vo has bad
+  &gt; version number 90299 (expected 81601). It is corrupted or was compiled with
+  &gt; another version of Coq.
+The offending chunk is delimited by &gt;&gt;&gt;…&lt;&lt;&lt; below:
+  &gt;  8. Enriched categories with equalizers
+  &gt;
+  &gt;  *****************************************************************)&gt;&gt;&gt;Require Import UniMath.Foundations.All.&lt;&lt;&lt;
+  &gt; Require Import UniMath.MoreFoundations.All.
+  &gt; Require Import UniMath.CategoryTheory.Core.Categories.
+Results past this point may be unreliable.</div>
+</div>
+</div>
+</div></body>
+</html>
