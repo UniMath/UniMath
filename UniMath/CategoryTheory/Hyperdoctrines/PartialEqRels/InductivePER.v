@@ -21,7 +21,7 @@
  `N` to some other partial setoid are equal. This principle is based on induction.
 
  Content
- 1, Preliminary notions
+ 1. Preliminary notions
  2. Inductive numbers
  3. Induction principles
  4. Examples of inductive numbers
