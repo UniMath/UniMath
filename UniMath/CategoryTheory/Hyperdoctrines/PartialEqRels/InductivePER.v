@@ -6,7 +6,7 @@
  To do so, we assume that the tripos comes with an object `N` with terms `z : N` and
  `s : N → N` such that `z ≠ s n` and `s` is injective. From the object `N`, we can
  make the natural numbers object using an impredicative encoding. Specifically, `N`
- induces a partial setois `(N, ≡)` and we restrict that partial setoid to the
+ induces a partial setoid `(N, ≡)` and we restrict that partial setoid to the
  inductively generated elements. These are the elements for which the induction
  principle of natural numbers hold.
 
