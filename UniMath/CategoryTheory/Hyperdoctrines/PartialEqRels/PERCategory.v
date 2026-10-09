@@ -35,6 +35,7 @@
  1. The identity morphism
  2. The composition of morphisms of partial setoids
  3. The category of partial setoids
+ 4. Isomorphisms of partial setoids
 
  ******************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -578,4 +579,343 @@ Section CategoryOfPartialSetoids.
         (intros X Y ;
          exact isaset_partial_setoid_morphism).
   Defined.
+
+  (** * 4. Isomorphisms of partial setoids *)
+  Definition per_morphism_surjective_law
+             {X Y : partial_setoid H}
+             (φ : partial_setoid_morphism X Y)
+    : UU
+    := let Γ := (𝟙 ×h Y) ×h X in
+       let x := π₂ (tm_var Γ) in
+       let y := π₂ (π₁ (tm_var Γ)) in
+       ⊤ ⊢ (∀h (π₂ (tm_var _) ~ π₂ (tm_var _) ⇒ ∃h (φ [ ⟨ x , y ⟩ ]))).
+
+  Proposition per_morphism_surjective
+              {X Y : partial_setoid H}
+              {φ : partial_setoid_morphism X Y}
+              (Hφ : per_morphism_surjective_law φ)
+              {Γ : ty H}
+              {Δ : form Γ}
+              (y : tm Γ Y)
+              (p : Δ ⊢ y ~ y)
+    : Δ ⊢ (∃h (φ [ ⟨ π₂ (tm_var _) , y [ π₁ (tm_var _) ]tm ⟩ ])).
+  Proof.
+    refine (hyperdoctrine_cut _ _).
+    {
+      refine (conj_intro _ p).
+      refine (hyperdoctrine_cut _ (hyperdoctrine_proof_subst !! Hφ)).
+      hypersimplify.
+      apply truth_intro.
+    }
+    hypersimplify.
+    refine (weaken_cut _ _).
+    {
+      use weaken_left.
+      refine (forall_elim (hyperdoctrine_hyp _) _).
+      exact y.
+    }
+    use hyp_ltrans.
+    use weaken_right.
+    hypersimplify.
+    refine (impl_elim _ _).
+    - use weaken_left.
+      apply hyperdoctrine_hyp.
+    - use weaken_right.
+      apply hyperdoctrine_hyp.
+  Qed.
+
+  Definition per_morphism_injective_law
+             {X Y : partial_setoid H}
+             (φ : partial_setoid_morphism X Y)
+    : UU
+    := let Γ := ((𝟙 ×h X) ×h X) ×h Y in
+       let y := π₂ (tm_var Γ) in
+       let x₂ := π₂ (π₁ (tm_var Γ)) in
+       let x₁ := π₂ (π₁ (π₁ (tm_var Γ))) in
+       ⊤ ⊢ (∀h ∀h ∀h (φ [ ⟨ x₁ , y ⟩ ] ⇒ φ [ ⟨ x₂ , y ⟩ ] ⇒ x₁ ~ x₂)).
+
+  Proposition per_morphism_injective
+              {X Y : partial_setoid H}
+              {φ : partial_setoid_morphism X Y}
+              (Hφ : per_morphism_injective_law φ)
+              {Γ : ty H}
+              {Δ : form Γ}
+              {x₁ x₂ : tm Γ X}
+              {y : tm Γ Y}
+              (p : Δ ⊢ φ [ ⟨ x₁ , y ⟩ ])
+              (q : Δ ⊢ φ [ ⟨ x₂ , y ⟩ ])
+    : Δ ⊢ x₁ ~ x₂.
+  Proof.
+    refine (hyperdoctrine_cut _ _).
+    {
+      refine (conj_intro _ q).
+      refine (conj_intro _ p).
+      refine (hyperdoctrine_cut _ (hyperdoctrine_proof_subst !! Hφ)).
+      hypersimplify.
+      apply truth_intro.
+    }
+    hypersimplify.
+    use hyp_ltrans.
+    refine (weaken_cut _ _).
+    {
+      use weaken_left.
+      refine (forall_elim (hyperdoctrine_hyp _) _).
+      exact x₁.
+    }
+    use hyp_ltrans.
+    use weaken_right.
+    use hyp_sym.
+    hypersimplify.
+    refine (weaken_cut _ _).
+    {
+      use weaken_left.
+      refine (forall_elim (hyperdoctrine_hyp _) _).
+      exact x₂.
+    }
+    use hyp_ltrans.
+    use weaken_right.
+    use hyp_sym.
+    hypersimplify.
+    refine (weaken_cut _ _).
+    {
+      use weaken_left.
+      refine (forall_elim (hyperdoctrine_hyp _) _).
+      exact y.
+    }
+    use hyp_ltrans.
+    use weaken_right.
+    hypersimplify.
+    refine (impl_elim _ _).
+    - use weaken_left.
+      use weaken_right.
+      apply hyperdoctrine_hyp.
+    - refine (impl_elim _ _).
+      + do 2 use weaken_left.
+        apply hyperdoctrine_hyp.
+      + use weaken_right.
+        apply hyperdoctrine_hyp.
+  Qed.
+
+  Section Isomorphism.
+    Context {X Y : partial_setoid H}
+            (φ : partial_setoid_morphism X Y)
+            (H₁ : per_morphism_surjective_law φ)
+            (H₂ : per_morphism_injective_law φ).
+
+    Let ψ : form (Y ×h X) := φ [ ⟨ π₂ (tm_var _) , π₁ (tm_var _) ⟩ ].
+
+    Proposition partial_setoid_morphism_inverse_laws
+      : partial_setoid_morphism_laws ψ.
+    Proof.
+      unfold ψ.
+      repeat split.
+      - do 2 use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        use (partial_setoid_mor_cod_defined φ).
+        {
+          exact (π₂ (tm_var _)).
+        }
+        hypersimplify.
+        apply hyperdoctrine_hyp.
+      - do 2 use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        use (partial_setoid_mor_dom_defined φ).
+        {
+          exact (π₂ (π₁ (tm_var _))).
+        }
+        hypersimplify.
+        apply hyperdoctrine_hyp.
+      - do 4 use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        do 2 use impl_intro.
+        hypersimplify.
+        pose (Γ := (((𝟙 ×h Y) ×h Y) ×h X) ×h X).
+        fold Γ.
+        pose (y₁ := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
+        pose (y₂ := π₂ (π₁ (π₁ (tm_var Γ)))).
+        pose (x₁ := π₂ (π₁ (tm_var Γ))).
+        pose (x₂ := π₂ (tm_var Γ)).
+        fold x₁ x₂ y₁ y₂.
+         use (partial_setoid_mor_eq_defined φ).
+        + exact x₁.
+        + exact y₁.
+        + use weaken_left.
+          use weaken_right.
+          apply hyperdoctrine_hyp.
+        + do 2 use weaken_left.
+          apply hyperdoctrine_hyp.
+        + use weaken_right.
+          apply hyperdoctrine_hyp.
+      - do 3 use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        hypersimplify.
+        use impl_intro.
+        pose (Γ := ((𝟙 ×h Y) ×h X) ×h X).
+        fold Γ.
+        pose (x₂ := π₂ (tm_var Γ)).
+        pose (x₁ := π₂ (π₁ (tm_var Γ))).
+        pose (y := π₂ (π₁ (π₁ (tm_var Γ)))).
+        fold x₁ x₂ y.
+        use (per_morphism_injective H₂).
+        + exact y.
+        + use weaken_left.
+          apply hyperdoctrine_hyp.
+        + use weaken_right.
+          apply hyperdoctrine_hyp.
+      - use forall_intro.
+        use impl_intro.
+        use weaken_right.
+        refine (exists_elim _ _).
+        {
+          refine (per_morphism_surjective H₁ _ _).
+          apply hyperdoctrine_hyp.
+        }
+        hypersimplify.
+        pose (Γ := (𝟙 ×h Y) ×h X).
+        pose (x := π₂ (tm_var Γ)).
+        pose (y := π₂ (π₁ (tm_var Γ))).
+        use exists_intro.
+        {
+          exact x.
+        }
+        hypersimplify.
+        fold Γ x y.
+        use weaken_right.
+        apply hyperdoctrine_hyp.
+    Qed.
+
+    Definition partial_setoid_morphism_inverse
+      : partial_setoid_morphism Y X.
+    Proof.
+      use make_partial_setoid_morphism.
+      - exact ψ.
+      - exact partial_setoid_morphism_inverse_laws.
+    Defined.
+
+    Proposition make_partial_setoid_z_iso_laws
+      : is_inverse_in_precat
+          (C := category_of_partial_setoids)
+          φ
+          partial_setoid_morphism_inverse.
+    Proof.
+      split.
+      - use eq_partial_setoid_morphism.
+        + cbn.
+          refine (exists_elim (hyperdoctrine_hyp _) _).
+          use weaken_right.
+          unfold ψ.
+          hypersimplify.
+          pose (Γ := (X ×h X) ×h Y).
+          fold Γ.
+          pose (x₁ := π₁ (π₁ (tm_var Γ))).
+          pose (x₂ := π₂ (π₁ (tm_var Γ))).
+          pose (y := π₂ (tm_var Γ)).
+          fold x₁ x₂ y.
+          use (per_morphism_injective H₂).
+          * exact y.
+          * use weaken_left.
+            apply hyperdoctrine_hyp.
+          * use weaken_right.
+            apply hyperdoctrine_hyp.
+        + cbn.
+          unfold ψ.
+          refine (exists_elim (partial_setoid_mor_hom_exists φ _) _).
+          {
+            refine (partial_setoid_refl_r _).
+            apply hyperdoctrine_hyp.
+          }
+          hypersimplify.
+          pose (Γ := (X ×h X) ×h Y).
+          fold Γ.
+          pose (x₁ := π₁ (π₁ (tm_var Γ))).
+          pose (x₂ := π₂ (π₁ (tm_var Γ))).
+          pose (y := π₂ (tm_var Γ)).
+          fold x₁ x₂ y.
+          use exists_intro.
+          {
+            exact y.
+          }
+          hypersimplify.
+          fold x₁ x₂.
+          use conj_intro.
+          * use (partial_setoid_mor_eq_defined φ).
+            ** exact x₂.
+            ** exact y.
+            ** use weaken_left.
+               use partial_setoid_sym.
+               apply hyperdoctrine_hyp.
+            ** use weaken_right.
+               refine (partial_setoid_mor_cod_defined φ _ _ _).
+               apply hyperdoctrine_hyp.
+            ** use weaken_right.
+               apply hyperdoctrine_hyp.
+          * use weaken_right.
+            apply hyperdoctrine_hyp.
+      - use eq_partial_setoid_morphism.
+        + cbn.
+          refine (exists_elim (hyperdoctrine_hyp _) _).
+          use weaken_right.
+          unfold ψ.
+          hypersimplify.
+          pose (Γ := (Y ×h Y) ×h X).
+          fold Γ.
+          pose (y₁ := π₁ (π₁ (tm_var Γ))).
+          pose (y₂ := π₂ (π₁ (tm_var Γ))).
+          pose (x := π₂ (tm_var Γ)).
+          fold x y₁ y₂.
+          use (partial_setoid_mor_unique_im φ).
+          * exact x.
+          * use weaken_left.
+            apply hyperdoctrine_hyp.
+          * use weaken_right.
+            apply hyperdoctrine_hyp.
+        + cbn.
+          unfold ψ.
+          refine (exists_elim (per_morphism_surjective H₁ _ _) _).
+          {
+            refine (partial_setoid_refl_r _).
+            apply hyperdoctrine_hyp.
+          }
+          hypersimplify.
+          pose (Γ := (Y ×h Y) ×h X).
+          fold Γ.
+          pose (y₁ := π₁ (π₁ (tm_var Γ))).
+          pose (y₂ := π₂ (π₁ (tm_var Γ))).
+          pose (x := π₂ (tm_var Γ)).
+          fold x y₁ y₂.
+          use exists_intro.
+          {
+            exact x.
+          }
+          hypersimplify.
+          fold y₁ y₂.
+          use conj_intro.
+          * use (partial_setoid_mor_eq_defined φ).
+            ** exact x.
+            ** exact y₂.
+            ** use weaken_right.
+               refine (partial_setoid_mor_dom_defined φ _ _ _).
+               apply hyperdoctrine_hyp.
+            ** use weaken_left.
+               use partial_setoid_sym.
+               apply hyperdoctrine_hyp.
+            ** use weaken_right.
+               apply hyperdoctrine_hyp.
+          * use weaken_right.
+            apply hyperdoctrine_hyp.
+    Qed.
+
+    Definition make_partial_setoid_z_iso
+      : z_iso (C := category_of_partial_setoids) X Y.
+    Proof.
+      use make_z_iso.
+      - exact φ.
+      - exact partial_setoid_morphism_inverse.
+      - exact make_partial_setoid_z_iso_laws.
+    Defined.
+  End Isomorphism.
 End CategoryOfPartialSetoids.

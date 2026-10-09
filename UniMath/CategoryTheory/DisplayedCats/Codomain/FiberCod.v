@@ -143,6 +143,19 @@ Section CodomainFiber.
     : C/y
     := make_cod_fib_ob (cod_mor g · f).
 
+  Definition cod_fib_comp_mor
+             {x y : C}
+             (f : x --> y)
+    : cod_fib_comp f (cod_fib_id x) --> cod_fib_id y.
+  Proof.
+    use make_cod_fib_mor.
+    - exact f.
+    - abstract
+        (cbn ;
+         rewrite id_left, id_right ;
+         apply idpath).
+  Defined.
+
   Definition pr_cod_fib
              (P : BinProducts C)
              (x : C)
@@ -170,6 +183,16 @@ Section CodomainFiber.
   Defined.
 
   (** * 4. Calculations for codomain fiber *)
+  Proposition dom_mor_idtoiso
+              {x : C}
+              {f₁ f₂ : C/x}
+              (p : f₁ = f₂)
+    : dom_mor (idtoiso p) = idtoiso (maponpaths cod_dom p).
+  Proof.
+    induction p ; cbn.
+    apply idpath.
+  Qed.
+
   Proposition comp_in_cod_fib
               {x : C}
               {gz₁ gz₂ gz₃ : C/x}

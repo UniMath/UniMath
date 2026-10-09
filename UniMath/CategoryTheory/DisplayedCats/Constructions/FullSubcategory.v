@@ -15,11 +15,13 @@
   2. Univalence [disp_full_sub_univalent]
   3. Shortcuts for just the resulting total category [full_subcat] [is_univalent_full_subcat]
   4. The truncation functor [truncation_functor]
+  5. Some properties of the full subcategory
 
  **************************************************************************************************)
-Require Import UniMath.Foundations.Sets.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Functors.
@@ -135,3 +137,102 @@ Section TruncationFunctor.
   Defined.
 
 End TruncationFunctor.
+
+(** * 5. Some properties of the full subcategory *)
+Proposition full_subcat_mor_eq
+            {C : category}
+            (P : C → UU)
+            {x y : full_subcat C P}
+            {f g : x --> y}
+            (p : pr1 f = pr1 g)
+  : f = g.
+Proof.
+  use subtypePath.
+  {
+    intro.
+    apply isapropunit.
+  }
+  exact p.
+Qed.
+
+Proposition is_z_isomorphism_full_subcat
+            {C : category}
+            (P : C → UU)
+            {x y : full_subcat C P}
+            {f : x --> y}
+            (Hf : is_z_isomorphism (C := C) (pr1 f))
+  : is_z_isomorphism f.
+Proof.
+  use make_is_z_isomorphism.
+  - exact (pr1 Hf ,, tt).
+  - abstract
+      (split ; use full_subcat_mor_eq ; apply Hf).
+Defined.
+
+Definition z_iso_full_subcat
+           {C : category}
+           (P : C → UU)
+           {x y : full_subcat C P}
+           (f : z_iso (pr1 x) (pr1 y))
+  : z_iso x y.
+Proof.
+  refine ((pr1 f ,, tt) ,, _).
+  use is_z_isomorphism_full_subcat.
+  exact (pr2 f).
+Defined.
+
+Definition full_subcat_terminal
+           {C : category}
+           (P : C → UU)
+           (T : Terminal C)
+           (PT : P T)
+  : Terminal (full_subcat C P).
+Proof.
+  use make_Terminal.
+  - exact ((T : C) ,, PT).
+  - intros x.
+    use make_iscontr.
+    + exact (TerminalArrow T _ ,, tt).
+    + abstract
+        (intros f ;
+         use full_subcat_mor_eq ;
+         apply TerminalArrowUnique).
+Defined.
+
+Proposition full_subcat_is_pullback
+            {C : category}
+            (P : C → UU)
+            {w x y z : full_subcat C P}
+            {f : x --> z}
+            {g : y --> z}
+            (π₁ : w --> x)
+            (π₂ : w --> y)
+            (p : π₁ · f = π₂ · g)
+            (H : isPullback (C := C) (maponpaths pr1 p))
+  : isPullback (C := full_subcat C P) p.
+Proof.
+  pose (PB := make_Pullback _ H).
+  intros a h k q.
+  use make_iscontr.
+  - simple refine (_ ,, _ ,, _).
+    + refine (_ ,, tt).
+      use (PullbackArrow PB _ (pr1 h) (pr1 k)).
+      exact (maponpaths pr1 q).
+    + abstract
+        (use full_subcat_mor_eq ; cbn ;
+         apply (PullbackArrow_PullbackPr1 PB)).
+    + abstract
+        (use full_subcat_mor_eq ; cbn ;
+         apply (PullbackArrow_PullbackPr2 PB)).
+  - abstract
+      (intros φ ;
+       use subtypePath ; [ intro ; apply isapropdirprod ; apply homset_property | ] ;
+       use full_subcat_mor_eq ;
+       use (MorphismsIntoPullbackEqual H) ;
+       [ cbn ;
+         refine (maponpaths pr1 (pr12 φ) @ !_) ;
+         apply (PullbackArrow_PullbackPr1 PB)
+       | cbn ;
+         refine (maponpaths pr1 (pr22 φ) @ !_) ;
+         apply (PullbackArrow_PullbackPr2 PB) ]).
+Defined.

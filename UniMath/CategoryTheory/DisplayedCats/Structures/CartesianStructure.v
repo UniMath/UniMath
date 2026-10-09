@@ -666,7 +666,7 @@ Section TerminalAndProductCartesian.
       + abstract
           (use isaproptotal2 ;
            [ intro ;
-            apply isapropdirprod ; apply hset_struct_disp_cat
+             apply isapropdirprod ; apply hset_struct_disp_cat
            | ] ;
            intros ;
            apply isaprop_hset_struct_on_mor).
@@ -691,6 +691,26 @@ Section TerminalAndProductCartesian.
     - exact BinProductsHSET.
     - exact dispBinProducts_hset_disp_struct.
   Defined.
+
+  Definition enough_points_category_of_hset_struct
+             (H : ∏ (X Y : hSet)
+                    (PX : P X)
+                    (PY : P Y)
+                    (y : Y),
+                  mor_hset_struct P PX PY (λ x, y))
+    : enough_points Terminal_category_of_hset_struct.
+  Proof.
+    intros D₁ D₂ f g path.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_hset_struct_on_mor.
+    }
+    use funextsec.
+    intro z.
+    specialize (path (_ ,, H _ _ _ _ z)).
+    exact (maponpaths (λ h, pr1 h tt) path).
+  Qed.
 End TerminalAndProductCartesian.
 
 (**

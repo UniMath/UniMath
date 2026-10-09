@@ -529,6 +529,13 @@ Definition is_univalent_disp_hyperdoctrine
   : is_univalent_disp _
   := pr222 (pr222 H).
 
+Proposition locally_propositional_preorder_hyperdoctrine
+            (H : preorder_hyperdoctrine)
+  : locally_propositional (hyperdoctrine_formula_disp_cat H).
+Proof.
+  exact (pr22 (pr222 H)).
+Defined.
+
 Proposition isaset_hyperdoctrine_formula
             {H : hyperdoctrine}
             (A : ty H)
@@ -536,7 +543,7 @@ Proposition isaset_hyperdoctrine_formula
 Proof.
   use locally_propositional_to_obj_set.
   - exact (is_univalent_disp_hyperdoctrine H).
-  - exact (pr122 (pr222 H)).
+  - apply locally_propositional_preorder_hyperdoctrine.
 Defined.
 
 (** * 5. Proof terms in a hyperdoctrine *)

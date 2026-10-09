@@ -63,9 +63,10 @@ Require Import UniMath.CategoryTheory.Hyperdoctrines.PartialEqRels.PERMonomorphi
 
 Local Open Scope cat.
 Local Open Scope hd.
+Local Open Scope weak_tripos.
 
 Section TriposSubobjectClassifier.
-  Context (H : tripos).
+  Context (H : weak_tripos).
 
   (** * 1. The partial setoid representing the subobject classifier *)
   Definition omega_per_form
@@ -248,15 +249,24 @@ Section TriposSubobjectClassifier.
       use forall_intro.
       use impl_intro.
       use weaken_right.
-      pose (t₁ := π₁ (tm_var ((𝟙 : ty H) ×h 𝟙))).
-      pose (t₂ := π₂ (tm_var ((𝟙 : ty H) ×h 𝟙))).
-      use exists_intro.
+      refine (exists_elim _ _).
       {
-        exact (tripos_form_to_tm ⊤).
+        exact (weak_tripos_form_to_tm ⊤ _ (tm_var _)).
       }
       hypersimplify.
-      fold t₁ t₂.
-      rewrite tripos_form_to_tm_Prf.
+      use exists_intro.
+      {
+        exact (π₂ (tm_var _)).
+      }
+      cbn.
+      hypersimplify.
+      pose (Γ := (𝟙 ×h 𝟙) ×h (Ω : ty H)).
+      pose (ω := π₂ (tm_var Γ)).
+      pose (t₁ := π₁ (π₁ (tm_var Γ))).
+      pose (t₂ := π₂ (π₁ (tm_var Γ))).
+      fold Γ ω t₁ t₂.
+      use weaken_right.
+      refine (iff_elim_left (hyperdoctrine_hyp _) _).
       apply truth_intro.
   Qed.
 
@@ -443,20 +453,20 @@ Section TriposSubobjectClassifier.
         use forall_intro.
         use impl_intro.
         use weaken_right.
-        pose (y := π₂ (tm_var (𝟙 ×h Y))).
-        fold y.
-        use exists_intro.
+        refine (exists_elim _ _).
         {
-          exact (tripos_form_to_tm (∃h (φ [ ⟨ π₂ (tm_var _) , π₂ (π₁ (tm_var _)) ⟩ ]))).
+          exact (weak_tripos_form_to_tm
+                   (∃h (φ [ ⟨ π₂ (tm_var _) , π₂ (π₁ (tm_var _)) ⟩ ]))
+                   _
+                   (tm_var _)).
         }
         hypersimplify_form.
-        rewrite partial_setoid_subst.
-        unfold y.
+        use exists_intro.
+        {
+          exact (π₂ (tm_var _)).
+        }
         hypersimplify.
-        rewrite tripos_form_to_tm_Prf.
-        use conj_intro.
-        + apply hyperdoctrine_hyp.
-        + apply iff_refl.
+        apply hyperdoctrine_hyp.
     Qed.
 
     Definition subobject_classifier_partial_setoid_map
@@ -703,12 +713,21 @@ Section TriposSubobjectClassifier.
           use forall_intro.
           use impl_intro.
           use weaken_right.
-          pose (w := π₂ (tm_var (𝟙 ×h W))).
-          fold w.
+          refine (exists_elim _ _).
+          {
+            exact (weak_tripos_form_to_tm ⊤ _ (tm_var _)).
+          }
+          rewrite partial_setoid_subst.
+          hypersimplify.
+          pose (Γ := (𝟙 ×h W) ×h Ω).
+          fold Γ.
+          pose (ω := π₂ (tm_var Γ)).
+          pose (w := π₂ (π₁ (tm_var Γ))).
+          fold w ω.
           pose (from_eq_partial_setoid_morphism_b
                   q
-                  (t₁ := w) (t₂ := tripos_form_to_tm ⊤)
-                  (Δ := w ~ w)).
+                  (t₁ := w) (t₂ := ω)
+                  (Δ := w ~ w ∧ (⊤ ⇔ Prf [ω]))).
           cbn -[tripos_form_to_tm] in h.
           rewrite !exists_subst in h.
           use (exists_elim (h _)).
@@ -718,25 +737,38 @@ Section TriposSubobjectClassifier.
               exact !!.
             }
             hypersimplify.
-            rewrite tripos_form_to_tm_Prf.
-            use conj_intro ; [ | apply truth_intro ].
-            use (exists_elim (partial_setoid_mor_hom_exists ψ₂ (hyperdoctrine_hyp _))).
-            use weaken_right.
-            unfold w.
-            hypersimplify.
-            use (hyperdoctrine_eq_transportf _ _ (hyperdoctrine_hyp _)).
-            use hyperdoctrine_eq_pair_right.
-            apply hyperdoctrine_unit_tm_eq.
+            use conj_intro.
+            * use (exists_elim
+                     (partial_setoid_mor_hom_exists
+                        ψ₂
+                        (weaken_left (hyperdoctrine_hyp _) _))).
+              use weaken_right.
+              unfold w.
+              hypersimplify.
+              use (hyperdoctrine_eq_transportf _ _ (hyperdoctrine_hyp _)).
+              use hyperdoctrine_eq_pair_right.
+              apply hyperdoctrine_unit_tm_eq.
+            * use weaken_right.
+              use (iff_elim_left (hyperdoctrine_hyp _)).
+              apply truth_intro.
           + unfold w.
             hypersimplify_form.
             hypersimplify.
             rewrite <- hyperdoctrine_comp_subst.
-            rewrite tripos_form_to_tm_Prf.
             hypersimplify_form.
             refine (weaken_cut _ _).
             {
-              do 3 use weaken_right.
-              use (iff_elim_right (hyperdoctrine_hyp _)).
+              refine (iff_elim_right _ _).
+              {
+                do 3 use weaken_right.
+                apply hyperdoctrine_hyp.
+              }
+              use weaken_left.
+              refine (iff_elim_left _ _).
+              {
+                use weaken_right.
+                apply hyperdoctrine_hyp.
+              }
               apply truth_intro.
             }
             refine (exists_elim _ _).
@@ -762,11 +794,15 @@ Section TriposSubobjectClassifier.
               exact (π₂ (π₁ (tm_var _))).
             }
             hypersimplify.
-            clear w h.
-            pose (x := π₂ (tm_var (((𝟙 ×h W) ×h Y) ×h X))).
-            pose (y := π₂ (π₁ (tm_var (((𝟙 ×h W) ×h Y) ×h X)))).
-            pose (w := π₂ (π₁ (π₁ (tm_var (((𝟙 ×h W) ×h Y) ×h X))))).
-            fold x y w.
+            unfold ω, Γ.
+            clear Γ w ω h.
+            hypersimplify.
+            pose (Γ := (((𝟙 ×h W) ×h Ω) ×h Y) ×h X).
+            pose (x := π₂ (tm_var Γ)).
+            pose (y := π₂ (π₁ (tm_var Γ))).
+            pose (ω := π₂ (π₁ (π₁ (tm_var Γ)))).
+            pose (w := π₂ (π₁ (π₁ (π₁ (tm_var Γ))))).
+            fold Γ x y w ω.
             use conj_intro.
             * do 3 use weaken_left.
               apply hyperdoctrine_hyp.

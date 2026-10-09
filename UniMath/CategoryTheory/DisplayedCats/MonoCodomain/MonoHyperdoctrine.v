@@ -87,7 +87,7 @@ Section PreorderHyperdoctrineMonos.
   Definition mono_first_order_preorder_hyperdoctrine
     : first_order_preorder_hyperdoctrine.
   Proof.
-    use make_first_order_preorder_hyperdoctrine.
+    use make_first_order_preorder_hyperdoctrine_all.
     - exact mono_preorder_hyperdoctrine.
     - apply mono_codomain_fiberwise_terminal.
     - exact (mono_codomain_fiberwise_initial PB I HI).
@@ -133,7 +133,7 @@ Section HyperdoctrineUnivalentSubobjects.
   Definition subobject_first_order_hyperdoctrine
     : first_order_hyperdoctrine.
   Proof.
-    use make_first_order_hyperdoctrine.
+    use make_first_order_hyperdoctrine_all.
     - exact subobject_hyperdoctrine.
     - apply mono_codomain_fiberwise_terminal.
     - exact (mono_codomain_fiberwise_initial PB I HI).

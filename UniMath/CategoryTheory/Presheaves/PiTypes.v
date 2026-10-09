@@ -18,6 +18,7 @@
  6. λ-abstraction
  7. β and η equations
  8. The dependent product
+ 9. Exponentials
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -28,6 +29,8 @@ Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
 Require Import UniMath.CategoryTheory.opp_precat.
 Require Import UniMath.CategoryTheory.Categories.HSET.All.
 Require Import UniMath.CategoryTheory.FunctorCategory.
+Require Import UniMath.CategoryTheory.Limits.Terminal.
+Require Import UniMath.CategoryTheory.Limits.BinProducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Total.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiber.
@@ -35,6 +38,7 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fibrations.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
 Require Import UniMath.CategoryTheory.Presheaves.DependentPresheaf.
 Require Import UniMath.CategoryTheory.Presheaves.TotalPresheaf.
+Require Import UniMath.CategoryTheory.Presheaves.Constructions.
 Require Import UniMath.CategoryTheory.Presheaves.DisplayedCatOfDependentPresheaf.
 
 Local Open Scope cat.
@@ -948,5 +952,98 @@ Section PiTypes.
           (intros τ' ;
            use subtypePath ; [ intro ; apply homset_property | ] ;
            exact (pi_dep_psh_lam_eta _ _ _ (pr1 τ') (pr2 τ'))).
+  Defined.
+
+  (** * 9. Exponentials *)
+  Section Exponentials.
+    Context (A B : C^op ⟶ HSET).
+
+    Let AA : dep_psh (constant_functor C^op SET unitHSET)
+      := psh_to_dep_psh A.
+    Let BB : dep_psh (total_psh AA)
+      := dep_psh_subst
+           (TerminalArrow Terminal_PreShv _)
+           (psh_to_dep_psh B).
+
+    Definition exp_psh
+      : C^op ⟶ HSET
+      := total_psh (pi_dep_psh AA BB).
+
+    Definition exp_psh_eval
+      : BinProduct_of_functors _ _ BinProductsHSET A exp_psh ⟹ B.
+    Proof.
+      use make_nat_trans.
+      - intros x xx.
+        exact (pi_dep_psh_eval AA BB x (tt ,, pr1 xx) (pr22 xx)).
+      - abstract
+          (intros x y f ;
+           use funextsec ;
+           intros xx ;
+           cbn ;
+           exact (dep_psh_nat_trans_ax
+                    (pi_dep_psh_eval AA BB)
+                    (xx := tt ,, pr1 xx)
+                    f
+                    (idpath _)
+                    (idpath _)
+                    (pr22 xx))).
+    Defined.
+
+    Context {Z : C^op ⟶ HSET}
+            (τ : BinProduct_of_functors _ _ BinProductsHSET A Z ⟹ B).
+
+    Let ZZ : dep_psh (constant_functor C^op SET unitHSET)
+      := psh_to_dep_psh Z.
+
+    Definition exp_psh_lam_nat_trans
+      : dep_psh_nat_trans
+          (dep_psh_subst (total_psh_pr AA) ZZ)
+          BB
+          (nat_trans_id _).
+    Proof.
+      use make_dep_psh_nat_trans.
+      - exact (λ x xx zz, τ x (pr2 xx ,, zz)).
+      - abstract
+          (intros x y xx yy f p q zz ;
+           cbn in * ;
+           induction q ;
+           exact (eqtohomot (nat_trans_ax τ _ _ f) (pr2 xx ,, zz))).
+    Defined.
+
+    Definition exp_psh_lam
+      : Z ⟹ exp_psh.
+    Proof.
+      use make_nat_trans.
+      - intros x zz.
+        exact (tt ,, pi_dep_psh_lam AA BB exp_psh_lam_nat_trans x tt zz).
+      - abstract
+          (intros x y f ;
+           use funextsec ;
+           intro zz ;
+           cbn ;
+           apply maponpaths ;
+           exact (dep_psh_nat_trans_ax
+                    (pi_dep_psh_lam AA BB exp_psh_lam_nat_trans)
+                    f
+                    (xx := tt)
+                    (idpath _)
+                    (idpath _)
+                    zz)).
+    Defined.
+  End Exponentials.
+
+  Arguments exp_psh_lam {A B Z} τ.
+
+  Definition exp_psh_fun_cod
+             (A : C^op ⟶ HSET)
+             {B₁ B₂ : C^op ⟶ HSET}
+             (τ : B₁ ⟹ B₂)
+    : exp_psh A B₁ ⟹ exp_psh A B₂.
+  Proof.
+    use exp_psh_lam.
+    exact (nat_trans_comp
+             _ _ _
+             (exp_psh_eval _ _)
+             τ).
   Defined.
 End PiTypes.

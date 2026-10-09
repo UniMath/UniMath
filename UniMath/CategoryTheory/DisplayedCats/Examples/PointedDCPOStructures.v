@@ -164,3 +164,8 @@ Definition Products_DCPPO
            (I : UU)
   : Products I DCPPO
   := Products_category_of_hset_struct_type_prod (type_products_struct_dcppo I).
+
+Definition enough_points_Terminal_DCPPO
+  : enough_points Terminal_DCPPO
+  := enough_points_hset_cartesian_closed_struct
+       cartesian_closed_struct_dcppo.

@@ -65,6 +65,16 @@ Qed.
 
 Definition hset_category : category := (HSET ,, has_homsets_HSET).
 
+Proposition hset_category_comp
+            {X Y Z : HSET}
+            (f : X --> Y)
+            (g : Y --> Z)
+            (x : (X : hSet))
+  : (f · g) x = g(f x).
+Proof.
+  apply idpath.
+Qed.
+
 End HSET_precategory.
 
 Notation "'HSET'" := hset_category : cat.

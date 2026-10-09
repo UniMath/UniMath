@@ -229,7 +229,7 @@ Proof.
   - exact (pr222 E).
 Defined.
 
-Definition make_univ_topos_with_NNO
+Definition make_univ_topos_with_NNO_univ
            (E : univ_pi_pretopos)
            (Ω : subobject_classifier (terminal_univ_cat_with_finlim E))
            (N : parameterized_NNO

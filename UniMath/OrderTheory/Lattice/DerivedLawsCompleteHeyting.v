@@ -155,7 +155,7 @@ Proposition cha_not_top
 Proof.
   cbn.
   use cha_le_antisymm.
-  - rewrite <- (cha_runit_min_bot (¬ ⊤)).
+  - rewrite <- (cha_runit_min_top (¬ ⊤)).
     use cha_exp_eval.
   - use cha_to_le_exp.
     use cha_min_le_l.
@@ -400,4 +400,79 @@ Proof.
   use cha_glb_le.
   - exact i.
   - apply cha_le_refl.
+Qed.
+
+Proposition cha_max_as_lub
+            {H : complete_heyting_algebra}
+            (x y : H)
+  : (x ∨ y) = \/_{ z : ∑ (w : H), (w ≤ x) ⨿ (w ≤ y) } pr1 z.
+Proof.
+  use cha_le_antisymm.
+  - use cha_max_le_case.
+    + use cha_le_lub.
+      * refine (x ,, _).
+        exact (inl (cha_le_refl _)).
+      * cbn.
+        apply cha_le_refl.
+    + use cha_le_lub.
+      * refine (y ,, _).
+        exact (inr (cha_le_refl _)).
+      * cbn.
+        apply cha_le_refl.
+  - use cha_lub_le.
+    intros ( w & p ).
+    cbn.
+    induction p as [ p | p ].
+    + refine (cha_le_trans p _).
+      apply cha_max_le_l.
+    + refine (cha_le_trans p _).
+      apply cha_max_le_r.
+Qed.
+
+Proposition cha_le_conj
+            {H : complete_heyting_algebra}
+            (w x y : H)
+  : (w ≤ (x ∧ y))%heyting ≃ hconj (w ≤ x) (w ≤ y).
+Proof.
+  use weqimplimpl.
+  - intros p.
+    split.
+    + refine (cha_le_trans p _).
+      apply cha_min_le_l.
+    + refine (cha_le_trans p _).
+      apply cha_min_le_r.
+  - intros ( p & q ).
+    use cha_min_le_case.
+    + exact p.
+    + exact q.
+  - apply propproperty.
+  - apply propproperty.
+Qed.
+
+Proposition cha_le_exp
+            {H : complete_heyting_algebra}
+            (w x y : H)
+  : (w ≤ (x ⇒ y)%heyting) ≃ (∀ (v : H), v ≤ w ⇒ v ≤ x ⇒ v ≤ y)%logic.
+Proof.
+  use weqimplimpl.
+  - intros p v q₁ q₂.
+    rewrite <- (cha_min_le_eq_r q₁).
+    refine (cha_le_trans _ _).
+    {
+      refine (cha_and_monotone_r _).
+      exact q₂.
+    }
+    refine (cha_le_trans _ _).
+    {
+      refine (cha_and_monotone_l _).
+      exact p.
+    }
+    apply cha_exp_eval.
+  - intros p.
+    use cha_to_le_exp.
+    refine (p _ _ _).
+    + apply cha_min_le_l.
+    + apply cha_min_le_r.
+  - apply propproperty.
+  - apply propproperty.
 Qed.

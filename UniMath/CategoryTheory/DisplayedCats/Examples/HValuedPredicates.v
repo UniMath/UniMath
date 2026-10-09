@@ -19,9 +19,9 @@
 
  References
  - "Tripos Theory in Retrospect" by Andrew Pitts
- - "Implicative algebras: a new foundation for realizability and forcing" by Alexandra Miquel
+ - "Implicative algebras: a new foundation for realizability and forcing" by Alexandre Miquel
  - "Intuitionistic Set Theory" by John Bell
- - "An injection from NN to N" by Andrej Bauer. Link:
+ - "An injection from N^N to N" by Andrej Bauer. Link:
  [https://math.andrej.com/2011/06/15/constructive-gem-an-injection-from-baire-space-to-natural-numbers/]
 
  Content
@@ -34,12 +34,13 @@
  4.3. Fiberwise binary products
  4.4. Fiberwise binary coproducts
  4.5. Fiberwise exponentials
- 4.6. Dependent products
- 4.7. Dependent sums
+ 4.6. Universal quantifiers
+ 4.7. Existential quantifiers
  5. The first-order hyperdoctrine of H-valued predicates
  6. Comprehension category of H-valued predicates
  7. The tripos of H-valued predicates
- 8. The comprehension category of H-valued predicates is not necessarily full
+ 8. Natural numbers for H-valued predicates
+ 9. The comprehension category of H-valued predicates is not necessarily full
 
  ********************************************************************************************)
 Require Import UniMath.Foundations.All.
@@ -47,6 +48,7 @@ Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.OrderTheory.Lattice.Lattice.
 Require Import UniMath.OrderTheory.Lattice.Bounded.
 Require Import UniMath.OrderTheory.Lattice.CompleteHeyting.
+Require Import UniMath.OrderTheory.Lattice.DerivedLawsCompleteHeyting.
 Require Import UniMath.OrderTheory.Lattice.Examples.ScottOpen.
 Require Import UniMath.OrderTheory.DCPOs.Core.Basics.
 Require Import UniMath.OrderTheory.DCPOs.Core.ScottTopology.
@@ -73,7 +75,9 @@ Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.FiberwiseCartesian
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentProducts.
 Require Import UniMath.CategoryTheory.DisplayedCats.Fiberwise.DependentSums.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
+Require Import UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+Require Import UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrineChosen.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Tripos.
 
 Local Open Scope cat.
@@ -292,76 +296,89 @@ Section HValuedSets.
          apply cha_le_refl).
   Defined.
 
-  (** * 4.6. Dependent products *)
-  Definition has_dependent_products_h_valued_sets
-    : has_dependent_products cleaving_h_valued_sets.
+  (** * 4.6. Universal quantifiers *)
+  Definition universal_quantifiers_h_valued_sets
+    : universal_quantifiers h_valued_sets_hyperdoctrine.
   Proof.
-    use make_has_dependent_products_poset.
-    - exact locally_propositional_h_valued_sets.
+    use universal_quantifiers_from_chosen.
+    use make_universal_quantifiers_chosen.
     - exact (λ (X Y : hSet)
-               (f : X → Y)
-               (P : X → H)
-               (y : Y),
-             /\_{ z : ∑ (x : X), f x = y } P (pr1 z)).
+               (P : X × Y → H)
+               (x : X),
+             /\_{ y : Y } P (x ,, y)).
     - abstract
-        (intros X Y f P x ; cbn in * ;
-         use cha_glb_le ; [ exact (x ,, idpath _) | ] ;
+        (cbn ;
+         intros X Y P ( x & y ) ;
+         use cha_glb_le ; [ exact y | ] ;
          cbn ;
          apply cha_le_refl).
     - abstract
-        (intros X Y f P Q p y ; cbn in * ;
+        (cbn ;
+         intros X Y P Q p x ;
          use cha_le_glb ;
-         intros z ;
-         induction z as [ x q ] ;
-         induction q ; cbn ;
-         apply p).
+         intros y ;
+         exact (p (x ,, y))).
     - abstract
-        (intros Y₂ Y₁ X₂ X₁ f₁ f₂ g₁ g₂ p Hp P y ; cbn in * ;
-         use cha_le_glb ;
-         intros z ;
-         induction z as [ z zp ] ;
-         use cha_glb_le ;
-         [ exact (el_pullback_set Hp z y zp ,, el_pullback_set_pr2 Hp z y zp)
-         | ] ;
-         cbn ;
-         rewrite el_pullback_set_pr1 ;
+        (intros X₁ X₂ Y s P x ;
+         cbn ; unfold prodtofuntoprod ; cbn ;
          apply cha_le_refl).
   Defined.
 
-  (** * 4.7. Dependent sums *)
-  Definition has_dependent_sums_h_valued_sets
-    : has_dependent_sums cleaving_h_valued_sets.
+  (** * 4.7. Existential quantifiers *)
+  Definition existential_quantifiers_h_valued_sets
+    : existential_quantifiers h_valued_sets_hyperdoctrine.
   Proof.
-    use make_has_dependent_sums_poset.
-    - exact locally_propositional_h_valued_sets.
+    use existential_quantifiers_from_chosen.
+    use make_existential_quantifiers_chosen.
     - exact (λ (X Y : hSet)
-               (f : X → Y)
+               (P : X × Y → H)
+               (x : X),
+             \/_{ y : Y } P (x ,, y)).
+    - abstract
+        (cbn ;
+         intros X Y P ( x & y ) ;
+         use cha_le_lub ; [ exact y | ] ;
+         cbn ;
+         apply cha_le_refl).
+    - abstract
+        (cbn ;
+         intros X Y P Q p x ;
+         use cha_lub_le ;
+         intro y ;
+         cbn ;
+         exact (p (x ,, y))).
+    - abstract
+        (intros X₁ X₂ Y s P x ;
+         cbn ; unfold prodtofuntoprod ; cbn ;
+         apply cha_le_refl).
+  Defined.
+
+  (** * 4.7. Equality formulas *)
+  Definition equality_formulas_h_valued_sets
+    : equality_formulas h_valued_sets_hyperdoctrine.
+  Proof.
+    use make_equality_formulas.
+    - exact (λ (X : hSet)
                (P : X → H)
-               (y : Y),
-             \/_{ z : ∑ (x : X), f x = y } P (pr1 z)).
+               (xy : X × X),
+             P (pr1 xy) ∧ \/_{ p : pr1 xy = pr2 xy } ⊤).
     - abstract
-        (intros X Y f P x ; cbn in * ;
-         use cha_le_lub  ; [ exact (x ,, idpath _) | ] ;
+        (cbn ;
+         intros X P x ;
+         use cha_min_le_case ; [ apply cha_le_refl | ] ;
+         use cha_le_lub ; [ apply idpath | ] ;
          cbn ;
-         apply cha_le_refl).
+         apply cha_le_top).
     - abstract
-        (intros X Y f P Q p y ; cbn in * ;
+        (cbn ; unfold prodtofuntoprod ; cbn ;
+         intros X P Q p ( x & y ) ;
+         cbn ;
+         rewrite cha_frobenius ;
          use cha_lub_le ;
-         intros z ;
-         induction z as [ x q ] ;
-         induction q ; cbn ;
+         intros q ;
+         induction q ;
+         rewrite cha_runit_min_top ;
          apply p).
-    - abstract
-        (intros Y₂ Y₁ X₂ X₁ f₁ f₂ g₁ g₂ p Hp P y ; cbn in * ;
-         use cha_lub_le ;
-         intros z ;
-         induction z as [ z zp ] ;
-         use cha_le_lub ;
-         [ exact (el_pullback_set Hp z y zp ,, el_pullback_set_pr2 Hp z y zp)
-         | ] ;
-         cbn ;
-         rewrite el_pullback_set_pr1 ;
-         apply cha_le_refl).
   Defined.
 
   (** * 5. The first-order hyperdoctrine of H-valued predicates *)
@@ -375,8 +392,9 @@ Section HValuedSets.
     - exact fiberwise_binproducts_h_valued_sets.
     - exact fiberwise_bincoproducts_h_valued_sets.
     - exact fiberwise_exponentials_h_valued_sets.
-    - exact has_dependent_products_h_valued_sets.
-    - exact has_dependent_sums_h_valued_sets.
+    - exact universal_quantifiers_h_valued_sets.
+    - exact existential_quantifiers_h_valued_sets.
+    - exact equality_formulas_h_valued_sets.
   Defined.
 
   (** * 6. Comprehension category of H-valued predicates *)
@@ -561,9 +579,64 @@ Section HValuedSets.
     - exact h_valued_sets_first_order_hyperdoctrine.
     - exact is_tripos_h_valued_sets.
   Defined.
+
+  (** * 8. Natural numbers for H-valued predicates *)
+  Definition h_valued_sets_first_order_hyperdoctrine_nats_data
+    : first_order_hyperdoctrine_nats_data
+        h_valued_sets_first_order_hyperdoctrine.
+  Proof.
+    use make_first_order_hyperdoctrine_nats_data.
+    - exact natset.
+    - exact (λ _, 0).
+    - exact succ.
+  Defined.
+
+  Proposition h_valued_sets_first_order_hyperdoctrine_nats_axioms
+    : first_order_hyperdoctrine_nats_axioms
+        h_valued_sets_first_order_hyperdoctrine_nats_data.
+  Proof.
+    split.
+    - intro x ; cbn in *.
+      induction x.
+      use cha_le_glb ; cbn.
+      intros n.
+      use cha_to_le_exp.
+      rewrite cha_lunit_min_top.
+      rewrite cha_frobenius.
+      use cha_lub_le.
+      cbn ; unfold prodtofuntoprod ; cbn.
+      intros p.
+      use fromempty.
+      refine (negpathssx0 n _).
+      exact p.
+    - intro x ; cbn in *.
+      induction x.
+      use cha_le_glb ; cbn.
+      intros n.
+      use cha_le_glb ; cbn.
+      intros m.
+      use cha_to_le_exp.
+      rewrite !cha_lunit_min_top.
+      use cha_lub_le.
+      cbn ; unfold prodtofuntoprod ; cbn.
+      intro p.
+      use cha_le_lub.
+      + exact (invmaponpathsS _ _ p).
+      + cbn.
+        apply cha_le_top.
+  Qed.
+
+  Definition h_valued_sets_first_order_hyperdoctrine_nats
+    : first_order_hyperdoctrine_nats
+        h_valued_sets_first_order_hyperdoctrine.
+  Proof.
+    use make_first_order_hyperdoctrine_nats.
+    - exact h_valued_sets_first_order_hyperdoctrine_nats_data.
+    - exact h_valued_sets_first_order_hyperdoctrine_nats_axioms.
+  Defined.
 End HValuedSets.
 
-(** * 8. The comprehension category of H-valued predicates is not necessarily full *)
+(** * 9. The comprehension category of H-valued predicates is not necessarily full *)
 Lemma h_valued_pred_comprehension_ff_no_non_trivial_open
       {D : dcpo}
       (X : scott_open_set D)

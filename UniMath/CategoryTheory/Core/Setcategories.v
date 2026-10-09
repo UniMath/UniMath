@@ -99,3 +99,32 @@ Proof.
   do 2 apply maponpaths_2.
   apply setcategory_eq_idtoiso.
 Qed.
+
+Proposition isaset_functors_to_setcategory
+            (C₁ : category)
+            (C₂ : setcategory)
+  : isaset (C₁ ⟶ C₂).
+Proof.
+  use isaset_total2.
+  - use isaset_total2.
+    + use impred_isaset.
+      intro.
+      apply isaset_ob.
+    + intro.
+      repeat (use impred_isaset ; intro).
+      apply homset_property.
+  - intro.
+    apply isasetaprop.
+    apply isaprop_is_functor.
+    apply homset_property.
+Qed.
+
+Definition set_functors_to_set_category
+           (C₁ : category)
+           (C₂ : setcategory)
+  : hSet.
+Proof.
+  use make_hSet.
+  - exact (C₁ ⟶ C₂).
+  - apply isaset_functors_to_setcategory.
+Defined.

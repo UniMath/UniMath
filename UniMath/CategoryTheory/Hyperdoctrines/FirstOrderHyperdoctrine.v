@@ -83,9 +83,11 @@
  13. A tactic for simplifying goals in the internal language of first-order hyperdoctrines
 
  **********************************************************************************************)
-Require Import UniMath.Foundations.All.
 Require Import UniMath.MoreFoundations.All.
 Require Import UniMath.CategoryTheory.Core.Prelude.
+Require Import UniMath.CategoryTheory.Adjunctions.Core.
+Require Import UniMath.CategoryTheory.Adjunctions.Coreflections.
+Require Import UniMath.CategoryTheory.Adjunctions.Reflections.
 Require Import UniMath.CategoryTheory.DisplayedCats.Core.
 Require Import UniMath.CategoryTheory.DisplayedCats.Isos.
 Require Import UniMath.CategoryTheory.DisplayedCats.Univalence.
@@ -119,6 +121,181 @@ Local Open Scope hd.
 Set Default Proof Mode "Classic".
 
 (** * 1. First-order hyperdoctrines *)
+Definition existential_quantifiers
+           (H : preorder_hyperdoctrine)
+  : UU
+  := ∑ (sig : ∏ (Γ A : ty H), dependent_sum (hyperdoctrine_cleaving H) (π₁ (tm_var _))),
+     ∏ (Γ₁ Γ₂ A₁ A₂ : ty H)
+       (s₁ : Γ₁ --> Γ₂)
+       (s₂ : (Γ₁ ×h A₁) --> (Γ₂ ×h A₂))
+       (p : s₂ · _ = _ · s₁)
+       (Hp : isPullback p),
+     left_beck_chevalley
+       _
+       _ s₁ _ s₂
+       p
+       (sig _ A₂)
+       (sig _ A₁).
+
+Section MakeExistentialQuantifiers.
+  Context {H : preorder_hyperdoctrine}
+          (ex : ∏ (Γ A : ty H), form (Γ ×h A) → form Γ)
+          (ex_i : ∏ (Γ A : ty H)
+                    (φ : form (Γ ×h A)),
+                  φ ⊢ (ex _ _ φ) [ π₁ (tm_var _) ])
+          (ex_e : ∏ (Γ A : ty H)
+                    (ψ : form (Γ ×h A))
+                    (χ : form Γ)
+                    (p : ψ ⊢ χ [ π₁ (tm_var _) ]),
+                  ex Γ A ψ ⊢ χ)
+          (ex_sub : ∏ (Γ₁ Γ₂ A₁ A₂ : ty H)
+                      (s₁ : Γ₁ --> Γ₂)
+                      (s₂ : (Γ₁ ×h A₁) --> (Γ₂ ×h A₂))
+                      (p : s₂ · π₁ (tm_var (Γ₂ ×h A₂)) = π₁ (tm_var (Γ₁ ×h A₁)) · s₁)
+                      (Hp : isPullback p)
+                      (φ : form (Γ₂ ×h A₂)),
+                    (ex _ _ φ) [ s₁ ] ⊢ ex _ _ (φ [ s₂ ])).
+
+  Definition make_existential_quantifiers_sum
+             (Γ A : ty H)
+    : dependent_sum (hyperdoctrine_cleaving H) (π₁ (tm_var (Γ ×h A))).
+  Proof.
+    apply reflections_to_is_right_adjoint.
+    intro x.
+    use make_reflection'.
+    - exact (ex _ _ x).
+    - exact (ex_i _ _ x).
+    - intros p.
+      use make_reflection_arrow.
+      + apply ex_e.
+        exact (p : _ --> _).
+      + abstract apply locally_propositional_preorder_hyperdoctrine.
+      + intros.
+        abstract apply locally_propositional_preorder_hyperdoctrine.
+  Defined.
+
+  Definition make_existential_quantifiers
+    : existential_quantifiers H.
+  Proof.
+    simple refine (_ ,, _).
+    - exact make_existential_quantifiers_sum.
+    - abstract
+        (intros Γ₁ Γ₂ A₁ A₂ s₁ s₂ p Hp φ ;
+        simple refine (_ ,, _ ,, _) ;
+        [
+        | apply locally_propositional_preorder_hyperdoctrine
+        | apply locally_propositional_preorder_hyperdoctrine ] ;
+         exact (ex_sub _ _ _ _ _ _ _ Hp φ)).
+  Defined.
+End MakeExistentialQuantifiers.
+
+Definition equality_formulas
+           (H : preorder_hyperdoctrine)
+  : UU
+  := ∏ (A : ty H), dependent_sum (hyperdoctrine_cleaving H) (Δ_{A}).
+
+Section MakeEqualityFormulas.
+  Context {H : preorder_hyperdoctrine}
+          (eq : ∏ (A : ty H), form A → form (A ×h A))
+          (eq_i : ∏ (A : ty H)
+                    (φ : form A),
+                  φ ⊢ (eq _ φ) [ Δ_{A} ])
+          (eq_e : ∏ (A : ty H)
+                    (ψ : form A)
+                    (χ : form (A ×h A))
+                    (p : ψ ⊢ χ [ Δ_{A} ]),
+                  eq A ψ ⊢ χ).
+
+  Definition make_equality_formulas
+    : equality_formulas H.
+  Proof.
+    intros A.
+    apply reflections_to_is_right_adjoint.
+    intro x.
+    use make_reflection'.
+    - exact (eq _ x).
+    - exact (eq_i _ x).
+    - intros p.
+      use make_reflection_arrow.
+      + apply eq_e.
+        exact (p : _ --> _).
+      + abstract apply locally_propositional_preorder_hyperdoctrine.
+      + intros.
+        abstract apply locally_propositional_preorder_hyperdoctrine.
+  Defined.
+End MakeEqualityFormulas.
+
+Definition universal_quantifiers
+           (H : preorder_hyperdoctrine)
+  : UU
+  := ∑ (all : ∏ (Γ A : ty H), dependent_product (hyperdoctrine_cleaving H) (π₁ (tm_var _))),
+     ∏ (Γ₁ Γ₂ A₁ A₂ : ty H)
+       (s₁ : Γ₁ --> Γ₂)
+       (s₂ : (Γ₁ ×h A₁) --> (Γ₂ ×h A₂))
+       (p : s₂ · _ = _ · s₁)
+       (Hp : isPullback p),
+     right_beck_chevalley
+       _
+       _ s₁ _ s₂
+       p
+       (all _ A₂)
+       (all _ A₁).
+
+Section MakeUniversalQuantifiers.
+  Context {H : preorder_hyperdoctrine}
+          (all : ∏ (Γ A : ty H), form (Γ ×h A) → form Γ)
+          (all_e : ∏ (Γ A : ty H)
+                     (φ : form (Γ ×h A)),
+                   (all _ _ φ) [ π₁ (tm_var _) ] ⊢ φ)
+          (all_i : ∏ (Γ A : ty H)
+                     (ψ : form (Γ ×h A))
+                     (χ : form Γ)
+                     (p : χ [ π₁ (tm_var _) ] ⊢ ψ),
+                   χ ⊢ all Γ A ψ)
+          (all_sub : ∏ (Γ₁ Γ₂ A₁ A₂ : ty H)
+                       (s₁ : Γ₁ --> Γ₂)
+                       (s₂ : (Γ₁ ×h A₁) --> (Γ₂ ×h A₂))
+                       (p : s₂ · π₁ (tm_var (Γ₂ ×h A₂))
+                            =
+                            π₁ (tm_var (Γ₁ ×h A₁)) · s₁)
+                       (Hp : isPullback p)
+                       (φ : form (Γ₂ ×h A₂)),
+                     all _ _ (φ [ s₂ ]) ⊢ (all _ _ φ) [ s₁ ]).
+
+  Definition make_universal_quantifiers_prod
+             (Γ A : ty H)
+    : dependent_product (hyperdoctrine_cleaving H) (π₁ (tm_var (Γ ×h A))).
+  Proof.
+    apply coreflections_to_is_left_adjoint.
+    intro ψ.
+    use make_coreflection'.
+    - exact (all _ _ ψ).
+    - exact (all_e _ _ ψ).
+    - intro p.
+      use make_coreflection_arrow.
+      + apply all_i.
+        exact (p : _ --> _).
+      + abstract apply locally_propositional_preorder_hyperdoctrine.
+      + abstract (
+          intros;
+          apply locally_propositional_preorder_hyperdoctrine).
+  Defined.
+
+  Definition make_universal_quantifiers
+    : universal_quantifiers H.
+  Proof.
+    simple refine (_ ,, _).
+    - exact make_universal_quantifiers_prod.
+    - abstract
+        (intros Γ₁ Γ₂ A₁ A₂ s₁ s₂ p Hp φ ;
+        simple refine (_ ,, _ ,, _) ;
+        [
+        | apply locally_propositional_preorder_hyperdoctrine
+        | apply locally_propositional_preorder_hyperdoctrine ] ;
+         exact (all_sub _ _ _ _ _ _ _ Hp φ)).
+  Defined.
+End MakeUniversalQuantifiers.
+
 Definition first_order_preorder_hyperdoctrine
   : UU
   := ∑ (H : preorder_hyperdoctrine),
@@ -131,9 +308,11 @@ Definition first_order_preorder_hyperdoctrine
      ×
      fiberwise_exponentials P
      ×
-     has_dependent_products (hyperdoctrine_cleaving H)
+     universal_quantifiers H
      ×
-     has_dependent_sums (hyperdoctrine_cleaving H).
+     existential_quantifiers H
+     ×
+     equality_formulas H.
 
 Coercion first_order_preorder_hyperdoctrine_to_preorder_hyperdoctrine
          (H : first_order_preorder_hyperdoctrine)
@@ -154,9 +333,11 @@ Definition first_order_hyperdoctrine
      ×
      fiberwise_exponentials P
      ×
-     has_dependent_products (hyperdoctrine_cleaving H)
+     universal_quantifiers H
      ×
-     has_dependent_sums (hyperdoctrine_cleaving H).
+     existential_quantifiers H
+     ×
+     equality_formulas H.
 
 Coercion first_order_hyperdoctrine_to_hyperdoctrine
          (H : first_order_hyperdoctrine)
@@ -169,7 +350,7 @@ Coercion first_order_hyperdoctrine_to_preorder_hyperdoctrine
          (H : first_order_hyperdoctrine)
   : first_order_preorder_hyperdoctrine.
 Proof.
-  exact (_
+  refine (_
          ,,
          pr12 H
          ,,
@@ -183,7 +364,9 @@ Proof.
          ,,
          pr1 (pr222 (pr222 H))
          ,,
-         pr2 (pr222 (pr222 H))).
+         pr12 (pr222 (pr222 H))
+         ,,
+         pr22 (pr222 (pr222 H))).
 Defined.
 
 Definition univalent_first_order_hyperdoctrine
@@ -198,9 +381,11 @@ Definition univalent_first_order_hyperdoctrine
      ×
      fiberwise_exponentials P
      ×
-     has_dependent_products (hyperdoctrine_cleaving H)
+     universal_quantifiers H
      ×
-     has_dependent_sums (hyperdoctrine_cleaving H).
+     existential_quantifiers H
+     ×
+     equality_formulas H.
 
 Coercion univalent_first_order_hyperdoctrine_to_hyperdoctrine
          (H : univalent_first_order_hyperdoctrine)
@@ -227,7 +412,9 @@ Proof.
          ,,
          pr1 (pr222 (pr222 H))
          ,,
-         pr2 (pr222 (pr222 H))).
+         pr12 (pr222 (pr222 H))
+         ,,
+         pr22 (pr222 (pr222 H))).
 Defined.
 
 Definition make_first_order_preorder_hyperdoctrine
@@ -237,8 +424,9 @@ Definition make_first_order_preorder_hyperdoctrine
            (PH : fiberwise_binproducts (hyperdoctrine_cleaving H))
            (CH : fiberwise_bincoproducts (hyperdoctrine_cleaving H))
            (IMPH : fiberwise_exponentials PH)
-           (DPH : has_dependent_products (hyperdoctrine_cleaving H))
-           (DSH : has_dependent_sums (hyperdoctrine_cleaving H))
+           (DPH : universal_quantifiers H)
+           (DSH : existential_quantifiers H)
+           (EQH : equality_formulas H)
   : first_order_preorder_hyperdoctrine
   := H
      ,,
@@ -254,7 +442,43 @@ Definition make_first_order_preorder_hyperdoctrine
      ,,
      DPH
      ,,
-     DSH.
+     DSH
+     ,,
+     EQH.
+
+Definition make_first_order_preorder_hyperdoctrine_all
+           (H : preorder_hyperdoctrine)
+           (TH : fiberwise_terminal (hyperdoctrine_cleaving H))
+           (IH : fiberwise_initial (hyperdoctrine_cleaving H))
+           (PH : fiberwise_binproducts (hyperdoctrine_cleaving H))
+           (CH : fiberwise_bincoproducts (hyperdoctrine_cleaving H))
+           (IMPH : fiberwise_exponentials PH)
+           (DPH : has_dependent_products (hyperdoctrine_cleaving H))
+           (DSH : has_dependent_sums (hyperdoctrine_cleaving H))
+  : first_order_preorder_hyperdoctrine.
+Proof.
+  use make_first_order_preorder_hyperdoctrine.
+  - exact H.
+  - exact TH.
+  - exact IH.
+  - exact PH.
+  - exact CH.
+  - exact IMPH.
+  - simple refine (_ ,, _).
+    + intros.
+      apply DPH.
+    + intro ; intros.
+      apply DPH.
+      assumption.
+  - simple refine (_ ,, _).
+    + intros.
+      apply DSH.
+    + intro ; intros.
+      apply DSH.
+      assumption.
+  - intro.
+    apply DSH.
+Defined.
 
 Definition make_first_order_hyperdoctrine
            (H : hyperdoctrine)
@@ -263,8 +487,9 @@ Definition make_first_order_hyperdoctrine
            (PH : fiberwise_binproducts (hyperdoctrine_cleaving H))
            (CH : fiberwise_bincoproducts (hyperdoctrine_cleaving H))
            (IMPH : fiberwise_exponentials PH)
-           (DPH : has_dependent_products (hyperdoctrine_cleaving H))
-           (DSH : has_dependent_sums (hyperdoctrine_cleaving H))
+           (DPH : universal_quantifiers H)
+           (DSH : existential_quantifiers H)
+           (EQH : equality_formulas H)
   : first_order_hyperdoctrine
   := H
      ,,
@@ -280,7 +505,43 @@ Definition make_first_order_hyperdoctrine
      ,,
      DPH
      ,,
-     DSH.
+     DSH
+     ,,
+     EQH.
+
+Definition make_first_order_hyperdoctrine_all
+           (H : hyperdoctrine)
+           (TH : fiberwise_terminal (hyperdoctrine_cleaving H))
+           (IH : fiberwise_initial (hyperdoctrine_cleaving H))
+           (PH : fiberwise_binproducts (hyperdoctrine_cleaving H))
+           (CH : fiberwise_bincoproducts (hyperdoctrine_cleaving H))
+           (IMPH : fiberwise_exponentials PH)
+           (DPH : has_dependent_products (hyperdoctrine_cleaving H))
+           (DSH : has_dependent_sums (hyperdoctrine_cleaving H))
+  : first_order_hyperdoctrine.
+Proof.
+  use make_first_order_hyperdoctrine.
+  - exact H.
+  - exact TH.
+  - exact IH.
+  - exact PH.
+  - exact CH.
+  - exact IMPH.
+  - simple refine (_ ,, _).
+    + intros.
+      apply DPH.
+    + intro ; intros.
+      apply DPH.
+      assumption.
+  - simple refine (_ ,, _).
+    + intros.
+      apply DSH.
+    + intro ; intros.
+      apply DSH.
+      assumption.
+  - intro.
+    apply DSH.
+Defined.
 
 Definition make_univalent_first_order_hyperdoctrine
            (H : univalent_hyperdoctrine)
@@ -289,8 +550,9 @@ Definition make_univalent_first_order_hyperdoctrine
            (PH : fiberwise_binproducts (hyperdoctrine_cleaving H))
            (CH : fiberwise_bincoproducts (hyperdoctrine_cleaving H))
            (IMPH : fiberwise_exponentials PH)
-           (DPH : has_dependent_products (hyperdoctrine_cleaving H))
-           (DSH : has_dependent_sums (hyperdoctrine_cleaving H))
+           (DPH : universal_quantifiers H)
+           (DSH : existential_quantifiers H)
+           (EQH : equality_formulas H)
   : univalent_first_order_hyperdoctrine
   := H
      ,,
@@ -306,14 +568,56 @@ Definition make_univalent_first_order_hyperdoctrine
      ,,
      DPH
      ,,
-     DSH.
+     DSH
+     ,,
+     EQH.
+
+Definition make_univalent_first_order_hyperdoctrine_all
+           (H : univalent_hyperdoctrine)
+           (TH : fiberwise_terminal (hyperdoctrine_cleaving H))
+           (IH : fiberwise_initial (hyperdoctrine_cleaving H))
+           (PH : fiberwise_binproducts (hyperdoctrine_cleaving H))
+           (CH : fiberwise_bincoproducts (hyperdoctrine_cleaving H))
+           (IMPH : fiberwise_exponentials PH)
+           (DPH : has_dependent_products (hyperdoctrine_cleaving H))
+           (DSH : has_dependent_sums (hyperdoctrine_cleaving H))
+  : univalent_first_order_hyperdoctrine.
+Proof.
+  use make_univalent_first_order_hyperdoctrine.
+  - exact H.
+  - exact TH.
+  - exact IH.
+  - exact PH.
+  - exact CH.
+  - exact IMPH.
+  - simple refine (_ ,, _).
+    + intros.
+      apply DPH.
+    + intro ; intros.
+      apply DPH.
+      assumption.
+  - simple refine (_ ,, _).
+    + intros.
+      apply DSH.
+    + intro ; intros.
+      apply DSH.
+      assumption.
+  - intro.
+    apply DSH.
+Defined.
 
 (** * 2. The truth formula *)
+Definition first_order_preorder_hyperdoctrine_truth
+           {H : first_order_preorder_hyperdoctrine}
+           {Γ : ty H}
+  : form Γ
+  := terminal_obj_in_fib (pr12 H) Γ.
+
 Definition first_order_hyperdoctrine_truth
            {H : first_order_hyperdoctrine}
            {Γ : ty H}
   : form Γ
-  := terminal_obj_in_fib (pr12 H) Γ.
+  := @first_order_preorder_hyperdoctrine_truth H Γ.
 
 Notation "'⊤'" := first_order_hyperdoctrine_truth : hyperdoctrine.
 
@@ -339,11 +643,17 @@ Proof.
 Qed.
 
 (** * 3. The falsity formula *)
+Definition first_order_preorder_hyperdoctrine_false
+           {H : first_order_preorder_hyperdoctrine}
+           {Γ : ty H}
+  : form Γ
+  := initial_obj_in_fib (pr122 H) Γ.
+
 Definition first_order_hyperdoctrine_false
            {H : first_order_hyperdoctrine}
            {Γ : ty H}
   : form Γ
-  := initial_obj_in_fib (pr122 H) Γ.
+  := @first_order_preorder_hyperdoctrine_false H Γ.
 
 Notation "'⊥'" := first_order_hyperdoctrine_false : hyperdoctrine.
 
@@ -371,12 +681,19 @@ Proof.
 Qed.
 
 (** * 4. Conjunction *)
+Definition first_order_preorder_hyperdoctrine_conj
+           {H : first_order_preorder_hyperdoctrine}
+           {Γ : ty H}
+           (φ ψ : form Γ)
+  : form Γ
+  := BinProductObject _ (binprod_in_fib (pr1 (pr222 H)) φ ψ).
+
 Definition first_order_hyperdoctrine_conj
            {H : first_order_hyperdoctrine}
            {Γ : ty H}
            (φ ψ : form Γ)
   : form Γ
-  := BinProductObject _ (binprod_in_fib (pr1 (pr222 H)) φ ψ).
+  := @first_order_preorder_hyperdoctrine_conj H Γ φ ψ.
 
 Notation "φ ∧ ψ" := (first_order_hyperdoctrine_conj φ ψ) : hyperdoctrine.
 
@@ -548,12 +865,19 @@ Proof.
 Qed.
 
 (** * 6. Disjunction *)
+Definition first_order_preorder_hyperdoctrine_disj
+           {H : first_order_preorder_hyperdoctrine}
+           {Γ : ty H}
+           (φ ψ : form Γ)
+  : form Γ
+  := BinCoproductObject (bincoprod_in_fib (pr12 (pr222 H)) φ ψ).
+
 Definition first_order_hyperdoctrine_disj
            {H : first_order_hyperdoctrine}
            {Γ : ty H}
            (φ ψ : form Γ)
   : form Γ
-  := BinCoproductObject (bincoprod_in_fib (pr12 (pr222 H)) φ ψ).
+  := @first_order_preorder_hyperdoctrine_disj H Γ φ ψ.
 
 Notation "φ ∨ ψ" := (first_order_hyperdoctrine_disj φ ψ) : hyperdoctrine.
 
@@ -621,12 +945,19 @@ Proof.
 Qed.
 
 (** * 7. Implication *)
+Definition first_order_preorder_hyperdoctrine_impl
+           {H : first_order_preorder_hyperdoctrine}
+           {Γ : ty H}
+           (φ ψ : form Γ)
+  : form Γ
+  := exp_in_fib (pr122 (pr222 H)) φ ψ.
+
 Definition first_order_hyperdoctrine_impl
            {H : first_order_hyperdoctrine}
            {Γ : ty H}
            (φ ψ : form Γ)
   : form Γ
-  := exp_in_fib (pr122 (pr222 H)) φ ψ.
+  := @first_order_preorder_hyperdoctrine_impl H Γ φ ψ.
 
 Notation "φ ⇒ ψ" := (first_order_hyperdoctrine_impl φ ψ) : hyperdoctrine.
 
@@ -682,12 +1013,19 @@ Proof.
 Qed.
 
 (** * 8. Universal quantification *)
+Definition first_order_preorder_hyperdoctrine_forall
+           {H : first_order_preorder_hyperdoctrine}
+           {Γ A : ty H}
+           (φ : form (Γ ×h A))
+  : form Γ
+  := right_adjoint (pr11 (pr222 (pr222 H)) Γ A) φ.
+
 Definition first_order_hyperdoctrine_forall
            {H : first_order_hyperdoctrine}
            {Γ A : ty H}
            (φ : form (Γ ×h A))
   : form Γ
-  := dep_prod (pr1 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) φ.
+  := @first_order_preorder_hyperdoctrine_forall H Γ A φ.
 
 Notation "'∀h' φ" := (first_order_hyperdoctrine_forall φ) (at level 10)
     : hyperdoctrine.
@@ -701,9 +1039,8 @@ Proposition forall_intro
   : Δ ⊢ ∀h φ.
 Proof.
   use (hyperdoctrine_cut
-         (dep_prod_unit (pr1 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) Δ)).
-  use dep_prod_mor.
-  cbn.
+         (unit_from_left_adjoint ((pr11 (pr222 (pr222 H))) Γ A) Δ)).
+  use (#(right_adjoint ((pr11 (pr222 (pr222 H))) Γ A))).
   exact p.
 Qed.
 
@@ -719,7 +1056,7 @@ Proof.
   use (hyperdoctrine_cut p).
   assert ((∀h φ)[ π₁ (tm_var (Γ ×h A)) ] ⊢ φ) as r.
   {
-    exact (dep_prod_counit (pr1 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) φ).
+    exact (counit_from_left_adjoint ((pr11 (pr222 (pr222 H))) Γ A) φ).
   }
   pose (hyperdoctrine_proof_subst ⟨ tm_var Γ , t ⟩ r) as r'.
   rewrite hyperdoctrine_comp_subst in r'.
@@ -812,7 +1149,7 @@ Proposition forall_subst
     =
     (∀h (φ [ ⟨ s [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩ ])).
 Proof.
-  pose (pr21 (pr222 (pr222 H)) _ _ _ _ _ _ _ _ _ (quantifier_subst_pb A s) φ) as p.
+  pose (pr21 (pr222 (pr222 H)) _ _ _ _ _ _ _ (quantifier_subst_pb A s) φ) as p.
   pose (f := (_ ,, p) : z_iso _ _).
   use hyperdoctrine_formula_eq.
   - apply f.
@@ -820,12 +1157,19 @@ Proof.
 Qed.
 
 (** * 9. Existential quantification *)
+Definition first_order_preorder_hyperdoctrine_exists
+           {H : first_order_preorder_hyperdoctrine}
+           {Γ A : ty H}
+           (φ : form (Γ ×h A))
+  : form Γ
+  := left_adjoint (pr112 (pr222 (pr222 H)) Γ A) φ.
+
 Definition first_order_hyperdoctrine_exists
            {H : first_order_hyperdoctrine}
            {Γ A : ty H}
            (φ : form (Γ ×h A))
   : form Γ
-  := dep_sum (pr2 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) φ.
+  := @first_order_preorder_hyperdoctrine_exists H Γ A φ.
 
 Notation "'∃h' φ" := (first_order_hyperdoctrine_exists φ) (at level 10)
     : hyperdoctrine.
@@ -839,7 +1183,7 @@ Proposition exists_subst
     =
     ∃h (φ [ ⟨ s [ π₁ (tm_var _) ]tm , π₂ (tm_var _) ⟩ ]).
 Proof.
-  pose (pr22 (pr222 (pr222 H)) _ _ _ _ _ _ _ _ _ (quantifier_subst_pb A s) φ) as p.
+  pose (pr212 (pr222 (pr222 H)) _ _ _ _ _ _ _ (quantifier_subst_pb A s) φ) as p.
   pose (f := (_ ,, p) : z_iso _ _).
   use hyperdoctrine_formula_eq.
   - exact (inv_from_z_iso f).
@@ -858,7 +1202,7 @@ Proof.
   use (hyperdoctrine_cut p).
   assert (φ ⊢ (∃h φ) [ π₁ (tm_var (Γ ×h A)) ]) as r.
   {
-    exact (dep_sum_unit (pr2 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) φ).
+    exact (unit_from_right_adjoint ((pr112 (pr222 (pr222 H))) Γ A) φ).
   }
   pose (hyperdoctrine_proof_subst ⟨ tm_var Γ , t ⟩ r) as r'.
   rewrite hyperdoctrine_comp_subst in r'.
@@ -878,11 +1222,11 @@ Proposition exists_elim_empty
 Proof.
   assert (∃h (ψ [ π₁ (tm_var (Γ ×h A)) ]) ⊢ ψ) as r.
   {
-    exact (dep_sum_counit (pr2 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) ψ).
+    exact (counit_from_right_adjoint ((pr112 (pr222 (pr222 H))) Γ A) ψ).
   }
   use (hyperdoctrine_cut _ r).
   use (hyperdoctrine_cut p).
-  use dep_sum_mor.
+  use (#(left_adjoint ((pr112 (pr222 (pr222 H))) Γ A))).
   exact q.
 Qed.
 
@@ -936,22 +1280,32 @@ Proposition exists_elim
 Proof.
   assert (∃h (ψ [ π₁ (tm_var (Γ ×h A)) ]) ⊢ ψ) as r.
   {
-    exact (dep_sum_counit (pr2 (pr222 (pr222 H))) (π₁ (identity (Γ ×h A))) ψ).
+    exact (counit_from_right_adjoint ((pr112 (pr222 (pr222 H))) Γ A) ψ).
   }
   use (hyperdoctrine_cut _ r).
   use (weaken_cut p).
   use (hyperdoctrine_cut (frobenius_reciprocity _ _)).
-  use dep_sum_mor.
+  use (#(left_adjoint ((pr112 (pr222 (pr222 H))) Γ A))).
   exact q.
 Qed.
 
 (** * 10. Equality *)
+Definition first_order_preorder_hyperdoctrine_equal
+           {H : first_order_preorder_hyperdoctrine}
+           {Γ A : ty H}
+           (t₁ t₂ : tm Γ A)
+  : form Γ
+  := (left_adjoint
+        (pr22 (pr222 (pr222 H)) A)
+        first_order_preorder_hyperdoctrine_truth)
+       [ ⟨ t₁ , t₂ ⟩ ].
+
 Definition first_order_hyperdoctrine_equal
            {H : first_order_hyperdoctrine}
            {Γ A : ty H}
            (t₁ t₂ : tm Γ A)
   : form Γ
-  := (dep_sum (pr2 (pr222 (pr222 H))) (Δ_{A}) ⊤) [ ⟨ t₁ , t₂ ⟩ ].
+  := @first_order_preorder_hyperdoctrine_equal H Γ A t₁ t₂.
 
 Notation "t₁ ≡ t₂" := (first_order_hyperdoctrine_equal t₁ t₂)
     : hyperdoctrine.
@@ -963,10 +1317,11 @@ Proposition equal_subst
             (t₁ t₂ : tm Γ₂ A)
   : (t₁ ≡ t₂) [ s ] = (t₁ [ s ]tm ≡ t₂ [ s ]tm).
 Proof.
-  unfold first_order_hyperdoctrine_equal.
+  unfold first_order_hyperdoctrine_equal, first_order_preorder_hyperdoctrine_equal.
+  cbn.
   rewrite hyperdoctrine_comp_subst.
-  rewrite hyperdoctrine_pair_subst.
-  apply idpath.
+  apply maponpaths.
+  apply hyperdoctrine_pair_subst.
 Qed.
 
 Proposition hyperdoctrine_refl'
@@ -975,9 +1330,9 @@ Proposition hyperdoctrine_refl'
             (t : tm Γ A)
   : ⊤ ⊢ t ≡ t.
 Proof.
-  assert (⊤ ⊢ (dep_sum (pr2 (pr222 (pr222 H))) (Δ_{A}) ⊤) [ Δ_{A} ]) as p.
+  assert (⊤ ⊢ (left_adjoint (pr22 (pr222 (pr222 H)) A) ⊤) [ Δ_{A} ]) as p.
   {
-    exact (dep_sum_unit (pr2 (pr222 (pr222 H))) (Δ_{A}) ⊤).
+    exact (unit_from_right_adjoint (pr22 (pr222 (pr222 H)) A) ⊤).
   }
   pose (hyperdoctrine_proof_subst t p) as q.
   rewrite truth_subst in q.
@@ -1017,12 +1372,12 @@ Proposition hyperdoctrine_eq_elim_help
             (t₁ t₂ : tm Γ A)
   : t₁ ≡ t₂ ⊢ φ [ ⟨ t₁ , t₂ ⟩ ].
 Proof.
-  pose (dep_sum_counit (pr2 (pr222 (pr222 H))) (Δ_{A}) φ) as r.
+  pose (counit_from_right_adjoint (pr22 (pr222 (pr222 H)) A) φ) as r.
   pose (hyperdoctrine_proof_subst ⟨ t₁ , t₂ ⟩ r) as r'.
   use (hyperdoctrine_cut _ r').
   unfold first_order_hyperdoctrine_equal.
   use hyperdoctrine_proof_subst.
-  use dep_sum_mor.
+  use (#(left_adjoint (pr22 (pr222 (pr222 H)) A))).
   exact p.
 Qed.
 
@@ -1578,6 +1933,17 @@ Proof.
     apply hyperdoctrine_hyp.
   - use weaken_right.
     apply hyperdoctrine_hyp.
+Qed.
+
+Proposition iff_from_eq
+            {H : first_order_hyperdoctrine}
+            {Γ : ty H}
+            (Δ φ ψ : form Γ)
+            (p : φ = ψ)
+  : Δ ⊢ φ ⇔ ψ.
+Proof.
+  induction p.
+  apply iff_refl.
 Qed.
 
 Proposition iff_sym

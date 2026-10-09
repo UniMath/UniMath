@@ -4,18 +4,18 @@
 
  In a category with a terminal object, we can define the notion of a natural numbers object.
  Such an object satisfies a universal mapping property that represents the recursion principle
- of the natural numbers, and thus this object plays the role of the natural umbers in the
+ of the natural numbers, and thus this object plays the role of the natural numbers in the
  internal language of that category.
 
  However, if our category is not Cartesian closed, then it is better to use a slightly stronger
  notion, namely that of a parameterized natural numbers object. The definition of a parameterized
  natural numbers object is quite similar to that of an ordinary natural numbers object: the only
- difference is that we require a slightly stronger recursion principle where one can use an arbitrary
- object of parameters (see, for instance, Definition 2.1 in "Joyal's arithmetic universe as
- list-arithmetic pretopos" by Maietti). There are various kinds of categories that are not Cartesian
- closed but which support such a parameterized natural numbers object, namely list-arithmetic
- pretoposes and arithmetical universes. Note that to formulate the notion of a parameterized
- natural numbers object we use binary products.
+ difference is that we require a slightly stronger recursion principle where one can use an
+ arbitrary object of parameters (see, for instance, Definition 2.1 in "Joyal's arithmetic universe
+ as list-arithmetic pretopos" by Maietti). There are various kinds of categories that are not
+ Cartesian closed but which support such a parameterized natural numbers object, namely
+ list-arithmetic pretoposes and arithmetical universes. Note that to formulate the notion of a
+ parameterized natural numbers object we use binary products.
 
  References
  - "Joyal's arithmetic universe as list-arithmetic pretopos" by Maietti
@@ -47,6 +47,24 @@ Section ParameterizedNNO.
           {BC : BinProducts C}.
 
   (** * 1. Parameterized NNOs *)
+  Definition is_parameterized_NNO_Z_eq
+             {N : C}
+             (z : T --> N)
+             {b y : C}
+             (zy : b --> y)
+             (f : BC b N --> y)
+    : UU
+    := BinProductArrow _ _ (identity _) (TerminalArrow _ _ · z) · f = zy.
+
+  Definition is_parameterized_NNO_S_eq
+             {N : C}
+             (s : N --> N)
+             {b y : C}
+             (sy : y --> y)
+             (f : BC b N --> y)
+    : UU
+    := BinProductOfArrows _ _ _ (identity _) s · f = f · sy.
+
   Definition is_parameterized_NNO
              (N : C)
              (z : T --> N)
@@ -56,9 +74,9 @@ Section ParameterizedNNO.
          (zy : b --> y)
          (sy : y --> y),
        ∃! (f : BC b N --> y),
-       (BinProductArrow _ _ (identity _) (TerminalArrow _ _ · z) · f = zy)
+       is_parameterized_NNO_Z_eq z zy f
        ×
-       (BinProductOfArrows _ _ _ (identity _) s · f = f · sy).
+       is_parameterized_NNO_S_eq s sy f.
 
   Proposition isaprop_is_parameterized_NNO
               (N : C)
@@ -704,12 +722,15 @@ Qed.
 (** * 9. Independence of the choice of terminal *)
 Lemma parameterized_NNO_independent_of_terminal_is_parameterized_NNO
   {C : category} {T : Terminal C} {P : BinProducts C} (N : parameterized_NNO T P) (T' : Terminal C)
-  : is_parameterized_NNO T' P N (TerminalArrow T T' · parameterized_NNO_Z N) (parameterized_NNO_S N).
+  : is_parameterized_NNO
+      T' P N
+      (TerminalArrow T T' · parameterized_NNO_Z N) (parameterized_NNO_S N).
 Proof.
   intros b y z s.
   use (iscontrweqb' (pr222 N b y z s)).
   use weqfibtototal.
   intro f.
+  unfold is_parameterized_NNO_Z_eq, is_parameterized_NNO_S_eq.
   simpl.
   use weqdirprodf.
   - rewrite assoc.

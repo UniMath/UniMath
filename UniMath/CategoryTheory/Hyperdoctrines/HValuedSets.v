@@ -21,6 +21,8 @@
  1. The topos of H-valued sets
  2. Accessors and builders for H-valued sets
  3. Accessors and builders for morphisms of H-valued sets
+ 4. Isomorphisms of H-valued sets
+ 5. The natural numbers of H-valued sets
 
  **********************************************************************************************)
 Require Import UniMath.MoreFoundations.All.
@@ -33,9 +35,11 @@ Require Import UniMath.CategoryTheory.Limits.Pullbacks.
 Require Import UniMath.CategoryTheory.SubobjectClassifier.SubobjectClassifier.
 Require Import UniMath.CategoryTheory.Exponentials.
 Require Import UniMath.CategoryTheory.ElementaryTopos.
+Require Import UniMath.CategoryTheory.Arithmetic.NNO.
 Require Import UniMath.CategoryTheory.DisplayedCats.Examples.HValuedPredicates.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Hyperdoctrine.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.FirstOrderHyperdoctrine.
+Require Import UniMath.CategoryTheory.Hyperdoctrines.HyperdoctrineNat.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.Tripos.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.GenericPredicate.
 Require Import UniMath.CategoryTheory.Hyperdoctrines.TriposToTopos.
@@ -50,6 +54,12 @@ Section HValuedSets.
   Definition topos_of_h_valued_sets
     : Topos
     := tripos_to_topos (tripos_h_valued_sets H).
+
+  Definition topos_of_h_valued_sets_NNO
+    : NNO (Topos_Terminal topos_of_h_valued_sets)
+    := tripos_to_topos_NNO
+         (tripos_h_valued_sets H)
+         (h_valued_sets_first_order_hyperdoctrine_nats H).
 
   (** * 2. Accessors and builders for H-valued sets *)
   Definition h_valued_set
@@ -70,27 +80,20 @@ Section HValuedSets.
       + repeat split ; intros [] ; cbn.
         * abstract
             (use cha_le_glb ;
-             intros i ;
-             induction i as [ [ [] x ] p ] ;
+             intro x ;
              use cha_le_glb ;
-             intros i ;
-             induction i as [ [ [ [] y ] z ] q ] ;
-             cbn in * ;
+             intro y ;
              use cha_to_le_exp ;
              rewrite cha_lunit_min_top ;
              rewrite sym ;
              apply cha_le_refl).
         * abstract
             (use cha_le_glb ;
-             intros i ;
-             induction i as [ [ [] x₁ ] p ] ;
+             intro x ;
              use cha_le_glb ;
-             intros i ;
-             induction i as [ [ [ [] x₂ ] x₃ ] q ] ;
+             intro y ;
              use cha_le_glb ;
-             intros i ;
-             induction i as [ [ [ [ [] x₄ ] x₅ ] x₆ ] r ] ;
-             cbn in * ;
+             intro z ;
              do 2 use cha_to_le_exp ;
              rewrite cha_lunit_min_top ;
              apply trans).
@@ -107,12 +110,12 @@ Section HValuedSets.
     : H
     := pr12 X (x ,, y).
 
-  Notation "x ~_{ X } y" := (@per_of_h_valued_set X x y) (at level 10).
+  Notation "x ~_{ X } y" := (@per_of_h_valued_set X x y) (at level 70).
 
   Proposition sym_per_of_h_valued_set
               {X : h_valued_set}
               (x y : X)
-    : x ~_{X} y = y ~_{X} x.
+    : (x ~_{X} y) = (y ~_{X} x).
   Proof.
     pose (pr122 X tt) as p.
     cbn in p ; unfold prodtofuntoprod in p ; cbn in p.
@@ -122,14 +125,12 @@ Section HValuedSets.
         refine (cha_le_trans p _).
         simple refine (cha_le_trans (cha_glb_le_pt _ _) _).
         {
-          refine ((tt ,, x) ,, _).
-          apply idpath.
+          exact x.
         }
         cbn.
         simple refine (cha_le_trans (cha_glb_le_pt _ _) _).
         {
-          refine (((tt ,, x) ,, y) ,, _).
-          apply idpath.
+          exact y.
         }
         cbn.
         apply cha_le_refl.
@@ -142,14 +143,12 @@ Section HValuedSets.
         refine (cha_le_trans p _).
         simple refine (cha_le_trans (cha_glb_le_pt _ _) _).
         {
-          refine ((tt ,, y) ,, _).
-          apply idpath.
+          exact y.
         }
         cbn.
         simple refine (cha_le_trans (cha_glb_le_pt _ _) _).
         {
-          refine (((tt ,, y) ,, x) ,, _).
-          apply idpath.
+          exact x.
         }
         cbn.
         apply cha_le_refl.
@@ -171,21 +170,17 @@ Section HValuedSets.
       refine (cha_le_trans p _).
       simple refine (cha_le_trans (cha_glb_le_pt _ _) _).
       {
-        refine ((tt ,, x) ,, _).
-        apply idpath.
+        exact x.
       }
       cbn.
       simple refine (cha_le_trans (cha_glb_le_pt _ _) _).
       {
-        refine (((tt ,, x) ,, y) ,, _).
-        apply idpath.
+        exact y.
       }
       cbn.
       simple refine (cha_le_trans (cha_glb_le_pt _ _) _).
       {
-        refine ((((tt ,, x) ,, y) ,, z) ,, _).
-        cbn.
-        apply idpath.
+        exact z.
       }
       cbn.
       apply cha_le_refl.
@@ -193,6 +188,30 @@ Section HValuedSets.
     pose proof (cha_from_le_exp q) as r.
     rewrite cha_lunit_min_top in r.
     exact (cha_from_le_exp r).
+  Qed.
+
+  Proposition refl_l_per_of_h_valued_set
+              {X : h_valued_set}
+              (x y : X)
+    : ((x ~_{X} y) ≤ (x ~_{X} x))%heyting.
+  Proof.
+    refine (cha_le_trans _ (trans_per_of_h_valued_set x y x)).
+    use cha_min_le_case.
+    - apply cha_le_refl.
+    - rewrite sym_per_of_h_valued_set.
+      apply cha_le_refl.
+  Qed.
+
+  Proposition refl_r_per_of_h_valued_set
+              {X : h_valued_set}
+              (x y : X)
+    : ((x ~_{X} y) ≤ (y ~_{X} y))%heyting.
+  Proof.
+    refine (cha_le_trans _ (trans_per_of_h_valued_set y x y)).
+    use cha_min_le_case.
+    - rewrite sym_per_of_h_valued_set.
+      apply cha_le_refl.
+    - apply cha_le_refl.
   Qed.
 
   (** * 3. Accessors and builders for morphisms of H-valued sets *)
@@ -218,7 +237,7 @@ Section HValuedSets.
     Proposition h_valued_morphism_dom_defined
                 (x : X)
                 (y : Y)
-      : (f x y ≤ x ~_{X} x)%heyting.
+      : (f x y ≤ (x ~_{X} x))%heyting.
     Proof.
       refine (@partial_setoid_mor_dom_defined
                  _ _ _ f
@@ -248,7 +267,7 @@ Section HValuedSets.
     Proposition h_valued_morphism_eq_defined
                 (x₁ x₂ : X)
                 (y₁ y₂ : Y)
-      :  ((x₁ ~_{X} x₂ ∧ y₁ ~_{Y} y₂ ∧ f x₁ y₁) ≤ f x₂ y₂)%heyting.
+      : ((x₁ ~_{X} x₂ ∧ y₁ ~_{Y} y₂ ∧ f x₁ y₁) ≤ f x₂ y₂)%heyting.
     Proof.
       refine (@partial_setoid_mor_eq_defined
                  _ _ _ f
@@ -288,8 +307,7 @@ Section HValuedSets.
       }
       cbn ; unfold prodtofuntoprod ; cbn.
       use cha_lub_le ; cbn.
-      intro i.
-      induction i as [ [ [] y ] p ] ; cbn.
+      intro y.
       use cha_le_lub.
       {
         exact y.
@@ -300,7 +318,7 @@ Section HValuedSets.
     Proposition h_valued_morphism_unique_im
                 (x : X)
                 (y₁ y₂ : Y)
-      : ((f x y₁ ∧ f x y₂) ≤ y₁ ~_{Y} y₂)%heyting.
+      : ((f x y₁ ∧ f x y₂) ≤ (y₁ ~_{Y} y₂))%heyting.
     Proof.
       refine (@partial_setoid_mor_unique_im
                  _ _ _ f
@@ -315,17 +333,31 @@ Section HValuedSets.
     Qed.
   End Accessors.
 
+  Proposition h_valued_morphism_eq
+              {X Y : h_valued_set}
+              {φ ψ : h_valued_morphism X Y}
+              (p : ∏ (x : X) (y : Y), (φ x y ≤ ψ x y)%heyting)
+              (q : ∏ (x : X) (y : Y), (ψ x y ≤ φ x y)%heyting)
+    : φ = ψ.
+  Proof.
+    use eq_partial_setoid_morphism.
+    - intros xy.
+      exact (p (pr1 xy) (pr2 xy)).
+    - intros xy.
+      exact (q (pr1 xy) (pr2 xy)).
+  Qed.
+
   Section Builder.
     Context {X Y : h_valued_set}
             (f : X → Y → H)
             (p₁ : ∏ (x : X) (y : Y),
-                  (f x y ≤ x ~_{X} x)%heyting)
+                  (f x y ≤ (x ~_{X} x))%heyting)
             (p₂ : ∏ (x : X) (y : Y),
-                  (f x y ≤ y ~_{Y} y)%heyting)
+                  (f x y ≤ (y ~_{Y} y))%heyting)
             (p₃ : ∏ (x₁ x₂ : X) (y₁ y₂ : Y),
                   ((x₁ ~_{X} x₂ ∧ y₁ ~_{Y} y₂ ∧ f x₁ y₁) ≤ f x₂ y₂)%heyting)
             (p₄ : ∏ (x : X) (y₁ y₂ : Y),
-                  ((f x y₁ ∧ f x y₂) ≤ y₁ ~_{Y} y₂)%heyting)
+                  ((f x y₁ ∧ f x y₂) ≤ (y₁ ~_{Y} y₂))%heyting)
             (p₅ : ∏ (x : X),
                   (x ~_{X} x ≤ \/_{ y } f x y)%heyting).
 
@@ -339,48 +371,46 @@ Section HValuedSets.
     Proof.
       repeat split ; cbn ; unfold prodtofuntoprod ; cbn ; intros z ; induction z.
       - use cha_le_glb.
-        intros [ [ [] x ] p ].
+        intro x.
         use cha_le_glb.
-        intros [ [ [ [] x' ] y  ] q ].
-        cbn in *.
+        intro y.
+        cbn.
         use cha_to_le_exp.
         rewrite cha_lunit_min_top.
         apply p₁.
       - use cha_le_glb.
-        intros [ [ [] x ] p ].
+        intro x.
         use cha_le_glb.
-        intros [ [ [ [] x' ] y  ] q ].
+        intro y.
         cbn in *.
         use cha_to_le_exp.
         rewrite cha_lunit_min_top.
         apply p₂.
       - use cha_le_glb.
-        intros [ [ [] x₁ ] q₁ ].
+        intro x₁.
         use cha_le_glb.
-        intros [ [ [ [] x' ] x₂ ] q₂ ].
-        cbn in *.
+        intro x₂.
         use cha_le_glb.
-        intros [ [ [ [ [ ] x₁' ] x₂' ] y₁ ] q₃ ].
-        cbn in *.
+        intro y₁.
         use cha_le_glb.
-        intros [ [ [ [ [ [ ] x₁'' ]  x₂'' ] y₁' ] y₂ ] q₄ ].
+        intro y₂.
         cbn in *.
         do 3 use cha_to_le_exp.
         rewrite cha_lunit_min_top.
         rewrite cha_min_assoc.
         apply p₃.
       - use cha_le_glb.
-        intros [ [ [] x ] q₁ ].
+        intro x.
         use cha_le_glb.
-        intros [ [ [ [] x' ] y₁ ] q₂ ].
+        intro y₁.
         use cha_le_glb.
-        intros [ [ [ [ [ ] x'' ] y₁' ] y₂ ] q₃ ].
+        intro y₂.
         cbn in *.
         do 2 use cha_to_le_exp.
         rewrite cha_lunit_min_top.
         apply p₄.
       - use cha_le_glb.
-        intros [ [ [] x ] q ] ; cbn.
+        intro x.
         use cha_to_le_exp.
         rewrite cha_lunit_min_top.
         refine (cha_le_trans _ _).
@@ -390,8 +420,7 @@ Section HValuedSets.
         use cha_lub_le.
         intros y.
         use cha_le_lub.
-        + refine (((tt ,, x) ,, y) ,, _).
-          apply idpath.
+        + exact y.
         + apply cha_le_refl.
     Qed.
 
@@ -403,4 +432,148 @@ Section HValuedSets.
       - exact make_h_valued_morphism_laws.
     Defined.
   End Builder.
+
+  (** * 4. Isomorphisms of H-valued sets *)
+  Proposition h_valued_morphism_surjective
+              {X Y : h_valued_set}
+              (φ : h_valued_morphism X Y)
+              (p : ∏ (y : Y), (y ~_{Y} y ≤ \/_{ x : X} (φ x y))%heyting)
+    : per_morphism_surjective_law (tripos_h_valued_sets H) φ.
+  Proof.
+    unfold per_morphism_surjective_law.
+    cbn ; unfold prodtofuntoprod ; cbn.
+    intros [].
+    use cha_le_glb.
+    intro y.
+    cbn.
+    use cha_to_le_exp.
+    rewrite cha_lunit_min_top.
+    refine (cha_le_trans (p y) _).
+    use cha_lub_le.
+    intros x.
+    cbn.
+    use cha_le_lub.
+    - exact x.
+    - cbn.
+      apply cha_le_refl.
+  Qed.
+
+  Proposition h_valued_morphism_injective
+              {X Y : h_valued_set}
+              (φ : h_valued_morphism X Y)
+              (p : ∏ (x₁ x₂ : X) (y : Y), ((φ x₁ y ∧ φ x₂ y) ≤ (x₁ ~_{X} x₂))%heyting)
+    : per_morphism_injective_law (tripos_h_valued_sets H) φ.
+  Proof.
+    unfold per_morphism_injective_law.
+    cbn ; unfold prodtofuntoprod ; cbn.
+    intros [].
+    use cha_le_glb.
+    intro x₁.
+    use cha_le_glb.
+    intro x₂.
+    use cha_le_glb.
+    intro y.
+    cbn.
+    use cha_to_le_exp.
+    rewrite cha_lunit_min_top.
+    use cha_to_le_exp.
+    apply p.
+  Qed.
+
+  Definition make_h_valued_isomorphism
+             {X Y : h_valued_set}
+             (φ : h_valued_morphism X Y)
+             (p : ∏ (y : Y), (y ~_{Y} y ≤ \/_{ x : X} (φ x y))%heyting)
+             (q : ∏ (x₁ x₂ : X) (y : Y), ((φ x₁ y ∧ φ x₂ y) ≤ (x₁ ~_{X} x₂))%heyting)
+    : z_iso (C := topos_of_h_valued_sets) X Y.
+  Proof.
+    use make_partial_setoid_z_iso.
+    - exact φ.
+    - use h_valued_morphism_surjective.
+      exact p.
+    - use h_valued_morphism_injective.
+      exact q.
+  Defined.
+
+  (** * 5. The natural numbers of H-valued sets *)
+
+  (**
+     Every natural number is inductive. As a consequence, the carrier of the natural numbers
+     object is the set of natural numbers and the (partial) equivalence relation is equality
+     in the first-order hyperdoctrine of H-valued predicates.
+   *)
+  Section InductiveNat.
+    Context {Γ : ty (tripos_h_valued_sets H)}
+            (t : tm Γ (h_valued_sets_first_order_hyperdoctrine_nats H)).
+
+    Let φ : form (h_valued_sets_first_order_hyperdoctrine_nats H)
+      := is_inductive_nat
+           (H := tripos_to_weak_tripos (tripos_h_valued_sets H))
+           (h_valued_sets_first_order_hyperdoctrine_nats H).
+
+    Definition h_valued_pred_nat_inductive
+      : ⊤ ⊢ φ [ t ].
+    Proof.
+      intro x.
+      cbn.
+      use cha_le_glb.
+      intro ψ.
+      cbn.
+      use cha_to_le_exp.
+      rewrite cha_lunit_min_top.
+      use cha_to_le_exp.
+      pose (k := t x).
+      assert (t x = k) as -> by apply idpath.
+      induction k as [ | k IHk ].
+      - apply cha_min_le_l.
+      - refine (cha_le_trans _ _).
+        {
+          use cha_eq_to_refl.
+          refine (!_).
+          exact (cha_min_le_eq_l IHk).
+        }
+        rewrite cha_min_assoc.
+        refine (cha_le_trans (cha_min_le_r _ _) _).
+        use cha_from_le_exp.
+        use cha_glb_le.
+        + exact k.
+        + cbn.
+          apply cha_le_refl.
+    Qed.
+  End InductiveNat.
+
+  (**
+     We can conclude that the NNO is equal to a discrete partial setoid.
+   *)
+  Definition nat_h_valued_set_eq
+    : eq_partial_setoid (H := h_valued_sets_first_order_hyperdoctrine H) natset
+      =
+      pr1 (topos_of_h_valued_sets_NNO).
+  Proof.
+    cbn ; unfold eq_partial_setoid, nat_partial_setoid ; cbn.
+    apply maponpaths.
+    use subtypePath.
+    {
+      intro.
+      apply isaprop_per_axioms.
+    }
+    use funextsec.
+    intros [ n m ].
+    cbn.
+    refine (!(cha_runit_min_top _) @ _).
+    apply maponpaths.
+    use cha_le_antisymm.
+    - refine (cha_le_trans _ _).
+      {
+        use h_valued_pred_nat_inductive.
+        + exact unitset.
+        + exact (λ _, n).
+        + exact tt.
+      }
+      cbn.
+      apply cha_le_refl.
+    - apply cha_le_top.
+  Qed.
 End HValuedSets.
+
+Notation "x ~_{ X } y" := (@per_of_h_valued_set _ X x y) (at level 70) : heyting.

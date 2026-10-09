@@ -908,6 +908,87 @@ Section ExpIndependent.
   Defined.
 End ExpIndependent.
 
+Proposition preserves_exponentials_independent_cod_eq
+            {C₁ C₂ : category}
+            {BC₁ : BinProducts C₁}
+            (E₁ : Exponentials BC₁)
+            {BC₂ BC₂' : BinProducts C₂}
+            (E₂ : Exponentials BC₂)
+            {F : C₁ ⟶ C₂}
+            (HF : preserves_binproduct F)
+            (x y : C₁)
+  : preserves_exponentials_map E₁ E₂ HF x y
+    =
+    preserves_exponentials_map E₁ (exponentials_independent BC₂ BC₂' E₂) HF x y.
+Proof.
+  unfold preserves_exponentials_map.
+  use exp_funext.
+  intros a h.
+  rewrite <- (id_right h).
+  etrans.
+  {
+    apply maponpaths_2.
+    apply maponpaths.
+    exact (!(id_left _)).
+  }
+  rewrite <- BinProductOfArrows_comp.
+  rewrite assoc'.
+  rewrite exp_beta.
+  refine (!_).
+  etrans.
+  {
+    apply maponpaths_2.
+    apply maponpaths.
+    exact (!(id_left _)).
+  }
+  rewrite <- BinProductOfArrows_comp.
+  rewrite assoc'.
+  apply maponpaths.
+  use (cancel_z_iso' (iso_between_BinProduct (BC₂' _ _) (BC₂ _ _))).
+  refine (!_).
+  etrans.
+  {
+    cbn.
+    rewrite !assoc.
+    apply maponpaths_2.
+    refine (precompWithBinProductArrow _ (preserves_binproduct_to_binproduct F HF _) _ _ _ @ _).
+    rewrite BinProductPr1Commutes.
+    rewrite BinProductPr2Commutes.
+    apply idpath.
+  }
+  refine (!(exp_beta (exponentials_independent BC₂ BC₂' E₂ (F x)) _) @ _).
+  cbn.
+  rewrite !assoc.
+  apply maponpaths_2.
+  rewrite precompWithBinProductArrow.
+  rewrite BinProductOfArrowsPr1.
+  rewrite BinProductOfArrowsPr2.
+  unfold BinProductOfArrows.
+  rewrite precompWithBinProductArrow.
+  rewrite !id_right.
+  rewrite !assoc.
+  rewrite BinProductPr1Commutes.
+  rewrite BinProductPr2Commutes.
+  apply idpath.
+Qed.
+
+Proposition preserves_exponentials_independent_cod
+            {C₁ C₂ : category}
+            {BC₁ : BinProducts C₁}
+            (E₁ : Exponentials BC₁)
+            {BC₂ BC₂' : BinProducts C₂}
+            (E₂ : Exponentials BC₂)
+            {F : C₁ ⟶ C₂}
+            {HF : preserves_binproduct F}
+            (HFE : preserves_exponentials E₁ E₂ HF)
+  : preserves_exponentials E₁ (exponentials_independent BC₂ BC₂' E₂) HF.
+Proof.
+  intros x y.
+  specialize (HFE x y).
+  use (is_z_isomorphism_path _ HFE).
+  apply preserves_exponentials_independent_cod_eq.
+Qed.
+
 (** * 6. IsExponentiableClosedUnderIso *)
 Section IsExponentiableClosedUnderIso.
 
@@ -1056,6 +1137,20 @@ Section ExponentsProperties.
     - exact (is_coreflection_along_iso e i).
   Defined.
 
+  Proposition isaprop_Exponentials
+              (H : is_univalent C)
+    : isaprop (Exponentials P).
+  Proof.
+    use impred ; intro x.
+    unfold is_exponentiable.
+    refine (isofhlevelweqb _ _ _).
+    {
+      apply right_adjoint_weq_coreflections.
+    }
+    use impred ; intro y.
+    apply isaprop_Exponent.
+    exact H.
+  Qed.
 End ExponentsProperties.
 
 (** * 9. PreservationCharacterizations *)

@@ -13,6 +13,7 @@
  3. Recursion
  4. The parameterized natural numbers object
  5. Stability
+ 6. NNO in the category of presheaves
 
  *)
 Require Import UniMath.MoreFoundations.All.
@@ -354,3 +355,144 @@ Section ParameterizedNNO.
     - exact (dep_psh_fiberwise_nno_stable_laws s).
   Defined.
 End ParameterizedNNO.
+
+(** * 6. NNO in the category of presheaves *)
+Section PresheafNNO.
+  Context (C : category).
+
+  Definition nno_presheaf
+    : C^op ⟶ HSET
+    := constant_functor C^op SET natset.
+
+  Definition nno_presheaf_Z
+    : constant_functor C^op SET unitset ⟹ nno_presheaf.
+  Proof.
+    use constant_nat_trans.
+    exact (λ _, 0).
+  Defined.
+
+  Definition nno_presheaf_S
+    : nno_presheaf ⟹ nno_presheaf.
+  Proof.
+    use constant_nat_trans.
+    exact S.
+  Defined.
+
+  Section RecursionPsh.
+    Context {F : C^op ⟶ HSET}
+            (ζ : constant_functor C^op SET unitset ⟹ F)
+            (σ : F ⟹ F).
+
+    Definition nno_presheaf_rec_data
+               (x : C)
+               (n : ℕ)
+      : (F x : hSet).
+    Proof.
+      induction n as [ | n IHn ].
+      - exact (ζ x tt).
+      - exact (σ x IHn).
+    Defined.
+
+    Proposition nno_presheaf_rec_laws
+      : is_nat_trans nno_presheaf F nno_presheaf_rec_data.
+    Proof.
+      intros x y f.
+      use funextsec.
+      intro n.
+      induction n as [ | n IHn ].
+      - cbn.
+        exact (eqtohomot (nat_trans_ax ζ _ _ f) tt).
+      - cbn -[nno_presheaf_rec_data].
+        cbn -[nno_presheaf_rec_data] in IHn.
+        simpl.
+        rewrite IHn.
+        exact (eqtohomot (nat_trans_ax σ _ _ f) _).
+    Qed.
+
+    Definition nno_presheaf_rec
+      : nno_presheaf ⟹ F.
+    Proof.
+      use make_nat_trans.
+      - exact nno_presheaf_rec_data.
+      - exact nno_presheaf_rec_laws.
+    Defined.
+
+    Proposition nno_presheaf_rec_Z
+      : nat_trans_comp _ _ _ nno_presheaf_Z nno_presheaf_rec = ζ.
+    Proof.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      use funextsec.
+      intros [ ].
+      cbn.
+      apply idpath.
+    Qed.
+
+    Proposition nno_presheaf_rec_S
+      : nat_trans_comp _ _ _ nno_presheaf_S nno_presheaf_rec
+        =
+        nat_trans_comp _ _ _ nno_presheaf_rec σ.
+    Proof.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      use funextsec.
+      intros n.
+      cbn.
+      apply idpath.
+    Qed.
+
+    Proposition nno_presheaf_unique
+                (ρ : nno_presheaf ⟹ F)
+                (qz : nat_trans_comp _ _ _ nno_presheaf_Z ρ = ζ)
+                (qs : nat_trans_comp _ _ _ nno_presheaf_S ρ
+                       =
+                       nat_trans_comp _ _ _ ρ σ)
+      : ρ = nno_presheaf_rec.
+    Proof.
+      use nat_trans_eq.
+      {
+        apply homset_property.
+      }
+      intro x.
+      use funextsec.
+      intros n.
+      induction n as [ | n IHn ].
+      - cbn.
+        exact (eqtohomot (nat_trans_eq_pointwise qz x) tt).
+      - simpl.
+        etrans.
+        {
+          exact (eqtohomot (nat_trans_eq_pointwise qs x) n).
+        }
+        cbn.
+        apply maponpaths.
+        exact IHn.
+    Qed.
+  End RecursionPsh.
+
+  Definition nno_cat_of_psh
+    : NNO (Terminal_PreShv (C := C)).
+  Proof.
+    use make_NNO.
+    - exact nno_presheaf.
+    - exact nno_presheaf_Z.
+    - exact nno_presheaf_S.
+    - intros F ζ σ.
+      use make_iscontr.
+      + simple refine (_ ,, _ ,, _).
+        * exact (nno_presheaf_rec ζ σ).
+        * exact (nno_presheaf_rec_Z ζ σ).
+        * exact (nno_presheaf_rec_S ζ σ).
+      + abstract
+          (intros [ ρ [ qz qs ] ] ;
+           use subtypePath ;
+           [ intro ; apply isapropdirprod ; apply homset_property | ] ;
+           exact (nno_presheaf_unique ζ σ ρ qz qs)).
+  Defined.
+End PresheafNNO.
