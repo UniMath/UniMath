@@ -6,7 +6,7 @@
  and H-valued sets are equivalent, we show that the functor from sheaves to H-valued
  sets is essentially surjective. Concretely, we construct the sheafification of
  each H-valued set `X`, and we show that the H-valued set associated to the
- sheafification iss isomorphic to `X`. Note the difference with the sheafification
+ sheafification is isomorphic to `X`. Note the difference with the sheafification
  of presheaves, because presheaves are not necessarily isomorphic to their
  sheafifications.
 
