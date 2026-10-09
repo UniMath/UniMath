@@ -11,7 +11,7 @@
  principle of natural numbers holds.
 
  The reason why it is necessary to take this encoding, is because the object `N`
- might be too 'large': there might be too amny terms of type `N` meaning that we do
+ might be too 'large': there might be too many terms of type `N` meaning that we do
  not get a NNO. It is also worthwhile to note the similarity with the construction
  of natural numbers in ZFC. The axiom of infinity usually states that there is an
  infinite set, and we can construct the set of natural numbers by taking the
