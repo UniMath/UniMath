@@ -14,7 +14,7 @@
  might be too 'large': there might be too amny terms of type `N` meaning that we do
  not get a NNO. It is also worthwhile to note the similarity with the construction
  of natural numbers in ZFC. The axiom of infinity usually states that there is an
- infinite set, and we can construct the set of natural numbers by aking the
+ infinite set, and we can construct the set of natural numbers by taking the
  intersection of all inductive sets.
 
  Finally, we give a principle that allows us to check whether two morphisms from
