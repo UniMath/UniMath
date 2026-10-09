@@ -3,7 +3,7 @@
  First-order hyperdoctrines with chosen pullbacks for stability
 
  The existential and universal quantifiers in a first-order hyperdoctrine satisfy a
- stablity condition that expresses that these quantifiers are preserved under
+ stability condition that expresses that these quantifiers are preserved under
  substitution. They are phrased by talking about all pullback squares in the base
  category. However, we can simplify these conditions for first-order hyperdoctrines.
  This is because the pullback squares used to express the Beck-Chevalley condition,
