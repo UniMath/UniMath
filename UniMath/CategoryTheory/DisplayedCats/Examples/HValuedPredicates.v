@@ -19,7 +19,7 @@
 
  References
  - "Tripos Theory in Retrospect" by Andrew Pitts
- - "Implicative algebras: a new foundation for realizability and forcing" by Alexander Miquel
+ - "Implicative algebras: a new foundation for realizability and forcing" by Alexandre Miquel
  - "Intuitionistic Set Theory" by John Bell
  - "An injection from N^N to N" by Andrej Bauer. Link:
  [https://math.andrej.com/2011/06/15/constructive-gem-an-injection-from-baire-space-to-natural-numbers/]
