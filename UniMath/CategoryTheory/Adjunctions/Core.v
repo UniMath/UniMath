@@ -506,12 +506,35 @@ Section HomSetIso_from_Adjunction.
     apply triangle_id_left_ad.
   Qed.
 
+  Lemma φ_adj_inv_identity (B : D) : φ_adj_inv (identity (G B)) = ε _ .
+  Proof.
+    unfold φ_adj_inv. rewrite functor_id.
+    apply id_left.
+  Qed.
+
+  Lemma φ_adj_counit (B : D) : φ_adj (ε B) = identity _ .
+  Proof.
+    apply triangle_id_right_ad.
+  Qed.
+
   Definition adjunction_hom_weq (A : C) (B : D) : F A --> B ≃ A --> G B.
   Proof.
     exists φ_adj.
     apply (isweq_iso _ φ_adj_inv).
     - apply φ_adj_inv_after_φ_adj.
     - apply φ_adj_after_φ_adj_inv.
+  Defined.
+
+  Lemma isweq_φ_adj (A : C) (B : D)
+    : isweq (λ (f : F A --> B), φ_adj f).
+  Proof.
+    exact (weqproperty (adjunction_hom_weq A B)).
+  Defined.
+
+  Lemma isweq_φ_adj_inv (A : C) (B : D)
+    : isweq (λ (f : A --> G B), φ_adj_inv f).
+  Proof.
+    exact (weqproperty (invweq (adjunction_hom_weq A B))).
   Defined.
 
   (** * Proof of the equations (naturality squares) of the adjunction *)

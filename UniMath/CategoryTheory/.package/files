@@ -880,3 +880,4 @@ Nonassociative/UnitalMagmoids/Univalence.v
 Nonassociative/Duploids/Core.v
 Nonassociative/Duploids/PolarizedSubcategories.v
 Nonassociative/Duploids/Univalence.v
+Nonassociative/Duploids/FromAdjunction/Envelope.v

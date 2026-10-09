@@ -356,6 +356,12 @@ Section shifts.
   Coercion duploid_to_preduploid (D : duploid) : preduploid := pr1 D.
   Coercion duploid_has_polarity_shifts (D : duploid) : has_polarity_shifts D := pr2 D.
 
+  Definition make_duploid
+    (D : preduploid)
+    (S : has_polarity_shifts D)
+    : duploid
+    := D,, S.
+
   (** Upshifts *)
   Definition upshift {D : duploid} (a : D) : sub_ob D ^⊖
     := make_sub_ob ^⊖ (upshift' D a) (is_negative_upshift' D a).
