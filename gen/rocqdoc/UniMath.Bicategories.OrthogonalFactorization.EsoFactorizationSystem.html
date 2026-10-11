@@ -1,0 +1,122 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.Bicategories.OrthogonalFactorization.EsoFactorizationSystem</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.Bicategories.OrthogonalFactorization.EsoFactorizationSystem</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Foundations.All.html#"><span class="id" title="library">UniMath.Foundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.IsoCommaCategory.html#"><span class="id" title="library">UniMath.CategoryTheory.IsoCommaCategory</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#"><span class="id" title="library">UniMath.Bicategories.Core.Bicat</span></a>.<br/>
+<span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#Notations"><span class="id" title="module">Bicat.Notations</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Invertible_2cells.html#"><span class="id" title="library">UniMath.Bicategories.Core.Invertible_2cells</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#"><span class="id" title="library">UniMath.Bicategories.Core.Univalence</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.OneTypes.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.OneTypes</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#"><span class="id" title="library">UniMath.Bicategories.Core.Examples.BicatOfUnivCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Eso.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.Eso</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.FullyFaithful</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.ClosedUnderInvertibles.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.Properties.ClosedUnderInvertibles</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Properties.EsoProperties.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.Properties.EsoProperties</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOneTypes.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.Examples.MorphismsInOneTypes</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.EsosInBicatOfUnivCats.html#"><span class="id" title="library">UniMath.Bicategories.Morphisms.Examples.EsosInBicatOfUnivCats</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.Orthogonality.html#"><span class="id" title="library">UniMath.Bicategories.OrthogonalFactorization.Orthogonality</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.FactorizationSystem.html#"><span class="id" title="library">UniMath.Bicategories.OrthogonalFactorization.FactorizationSystem</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 1. The eso-ff factorization system
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="eso_ff_orthogonal_factorization_system" class="idref" href="#eso_ff_orthogonal_factorization_system"><span class="id" title="definition">eso_ff_orthogonal_factorization_system</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<a id="B:1" class="idref" href="#B:1"><span class="id" title="binder">B</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#bicat"><span class="id" title="definition">bicat</span></a>}<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="fact_B:2" class="idref" href="#fact_B:2"><span class="id" title="binder">fact_B</span></a> : <a class="idref" href="UniMath.Bicategories.Morphisms.Eso.html#eso_ff_factorization"><span class="id" title="definition">eso_ff_factorization</span></a> <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.EsoFactorizationSystem.html#B:1"><span class="id" title="variable">B</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a id="HB_2_1:3" class="idref" href="#HB_2_1:3"><span class="id" title="binder">HB_2_1</span></a> : <a class="idref" href="UniMath.Bicategories.Core.Univalence.html#is_univalent_2_1"><span class="id" title="definition">is_univalent_2_1</span></a> <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.EsoFactorizationSystem.html#B:1"><span class="id" title="variable">B</span></a>)<br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.FactorizationSystem.html#orthogonal_factorization_system"><span class="id" title="definition">orthogonal_factorization_system</span></a> <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.EsoFactorizationSystem.html#B:1"><span class="id" title="variable">B</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.FactorizationSystem.html#make_orthogonal_factorization_system"><span class="id" title="definition">make_orthogonal_factorization_system</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:4" class="idref" href="#x:4"><span class="id" title="binder"><span id="x:7" class="id">x</span></span></a> <a id="y:5" class="idref" href="#y:5"><span class="id" title="binder"><span id="y:8" class="id">y</span></span></a> <a id="f:6" class="idref" href="#f:6"><span class="id" title="binder"><span id="f:9" class="id">f</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.Eso.html#is_eso"><span class="id" title="definition">is_eso</span></a> <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.EsoFactorizationSystem.html#f:6"><span class="id" title="variable">f</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> (<a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">λ</span></a> <a id="x:10" class="idref" href="#x:10"><span class="id" title="binder"><span id="x:13" class="id">x</span></span></a> <a id="y:11" class="idref" href="#y:11"><span class="id" title="binder"><span id="y:14" class="id">y</span></span></a> <a id="f:12" class="idref" href="#f:12"><span class="id" title="binder"><span id="f:15" class="id">f</span></span></a><a class="idref" href="UniMath.Foundations.Init.html#bc1ad27deabe143d39d35abe6be2c1a4"><span class="id" title="notation">,</span></a> <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#fully_faithful_1cell"><span class="id" title="definition">fully_faithful_1cell</span></a> <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.EsoFactorizationSystem.html#f:12"><span class="id" title="variable">f</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Eso.html#isaprop_is_eso"><span class="id" title="definition">isaprop_is_eso</span></a> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">HB_2_1</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">abstract</span><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<span class="id" title="tactic">intros</span> ;<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Morphisms.FullyFaithful.html#isaprop_fully_faithful_1cell"><span class="id" title="definition">isaprop_fully_faithful_1cell</span></a>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> (<span class="id" title="var">fact_B</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span>).<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> τ <span class="id" title="var">Hf</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.EsoProperties.html#invertible_is_eso"><span class="id" title="definition">invertible_is_eso</span></a> <span class="id" title="var">HB_2_1</span> <span class="id" title="var">Hf</span> τ).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#property_from_invertible_2cell"><span class="id" title="definition">property_from_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">x</span> <span class="id" title="var">y</span> <span class="id" title="var">f</span> <span class="id" title="var">g</span> τ <span class="id" title="var">Hf</span> ; <span class="id" title="var">cbn</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> (<a class="idref" href="UniMath.Bicategories.Morphisms.Properties.ClosedUnderInvertibles.html#fully_faithful_invertible"><span class="id" title="definition">fully_faithful_invertible</span></a> τ <span class="id" title="var">_</span> <span class="id" title="var">Hf</span>).<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">apply</span> <a class="idref" href="UniMath.Bicategories.Core.Bicat.html#property_from_invertible_2cell"><span class="id" title="definition">property_from_invertible_2cell</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">intros</span> <span class="id" title="var">b₁</span> <span class="id" title="var">b₂</span> <span class="id" title="var">c₁</span> <span class="id" title="var">c₂</span> <span class="id" title="var">e</span> <span class="id" title="var">m</span> <span class="id" title="var">He</span> <span class="id" title="var">Hm</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="var">use</span> <span class="id" title="var">He</span>.<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="id" title="tactic">exact</span> <span class="id" title="var">Hm</span>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 2. The eso-ff factorization system for 1-types
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="eso_ff_orthogonal_factorization_system_one_types" class="idref" href="#eso_ff_orthogonal_factorization_system_one_types"><span class="id" title="definition">eso_ff_orthogonal_factorization_system_one_types</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.FactorizationSystem.html#orthogonal_factorization_system"><span class="id" title="definition">orthogonal_factorization_system</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.OneTypes.html#one_types"><span class="id" title="definition">one_types</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.EsoFactorizationSystem.html#eso_ff_orthogonal_factorization_system"><span class="id" title="definition">eso_ff_orthogonal_factorization_system</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.MorphismsInOneTypes.html#eso_ff_factorization_one_types"><span class="id" title="definition">eso_ff_factorization_one_types</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.OneTypes.html#one_types_is_univalent_2_1"><span class="id" title="definition">one_types_is_univalent_2_1</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+
+<br/>
+</div>
+
+<div class="doc">
+ 3. The eso-ff factorization system for univalent categories
+ 
+</div>
+<div class="code">
+<span class="id" title="keyword">Definition</span> <a id="eso_ff_orthogonal_factorization_system_bicat_of_univ_cats" class="idref" href="#eso_ff_orthogonal_factorization_system_bicat_of_univ_cats"><span class="id" title="definition">eso_ff_orthogonal_factorization_system_bicat_of_univ_cats</span></a><br/>
+&nbsp;&nbsp;: <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.FactorizationSystem.html#orthogonal_factorization_system"><span class="id" title="definition">orthogonal_factorization_system</span></a> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#bicat_of_univ_cats"><span class="id" title="definition">bicat_of_univ_cats</span></a>.<br/>
+<span class="id" title="keyword">Proof</span>.<br/>
+&nbsp;&nbsp;<span class="id" title="var">use</span> <a class="idref" href="UniMath.Bicategories.OrthogonalFactorization.EsoFactorizationSystem.html#eso_ff_orthogonal_factorization_system"><span class="id" title="definition">eso_ff_orthogonal_factorization_system</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Morphisms.Examples.EsosInBicatOfUnivCats.html#eso_ff_factorization_bicat_of_univ_cats"><span class="id" title="definition">eso_ff_factorization_bicat_of_univ_cats</span></a>.<br/>
+&nbsp;&nbsp;- <span class="id" title="tactic">exact</span> <a class="idref" href="UniMath.Bicategories.Core.Examples.BicatOfUnivCats.html#univalent_cat_is_univalent_2_1"><span class="id" title="definition">univalent_cat_is_univalent_2_1</span></a>.<br/>
+<span class="id" title="keyword">Defined</span>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>

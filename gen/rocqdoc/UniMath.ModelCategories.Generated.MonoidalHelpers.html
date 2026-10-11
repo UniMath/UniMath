@@ -1,0 +1,63 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link href="coqdoc.css" rel="stylesheet" type="text/css" />
+<title>UniMath.ModelCategories.Generated.MonoidalHelpers</title>
+</head>
+
+<body>
+
+<div id="page">
+
+<div id="header">
+</div>
+
+<div id="main">
+
+<h1 class="libtitle">Library UniMath.ModelCategories.Generated.MonoidalHelpers</h1>
+
+<div class="code">
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.MoreFoundations.All.html#"><span class="id" title="library">UniMath.MoreFoundations.All</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Prelude.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Prelude</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.opp_precat.html#"><span class="id" title="library">UniMath.CategoryTheory.opp_precat</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Core.Functors.html#"><span class="id" title="library">UniMath.CategoryTheory.Core.Functors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Graphs.Colimits</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coequalizers.html#"><span class="id" title="library">UniMath.CategoryTheory.Limits.Graphs.Coequalizers</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Chains.Chains.html#"><span class="id" title="library">UniMath.CategoryTheory.Chains.Chains</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.Categories</span></a>.<br/>
+<span class="id" title="keyword">Require</span> <span class="id" title="keyword">Import</span> <a class="idref" href="UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors.html#"><span class="id" title="library">UniMath.CategoryTheory.Monoidal.WhiskeredBifunctors</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Local Open</span> <span class="id" title="keyword">Scope</span> <span class="id" title="var">cat</span>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="rt_preserves_chains" class="idref" href="#rt_preserves_chains"><span class="id" title="definition">rt_preserves_chains</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:1" class="idref" href="#C:1"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="V:2" class="idref" href="#V:2"><span class="id" title="binder">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal"><span class="id" title="definition">monoidal</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#C:1"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="CMon:3" class="idref" href="#CMon:3"><span class="id" title="binder">CMon</span></a> := (<a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#C:1"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#V:2"><span class="id" title="variable">V</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_cat"><span class="id" title="definition">monoidal_cat</span></a>) :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="A:4" class="idref" href="#A:4"><span class="id" title="binder">A</span></a> : <a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#C:1"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#preserves_colimits_of_shape"><span class="id" title="definition">preserves_colimits_of_shape</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_right_tensor"><span class="id" title="definition">monoidal_right_tensor</span></a> (<a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#A:4"><span class="id" title="variable">A</span></a> : <a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#CMon:3"><span class="id" title="variable">CMon</span></a>)) <a class="idref" href="UniMath.CategoryTheory.Chains.Chains.html#nat_graph"><span class="id" title="definition">nat_graph</span></a>.<br/>
+
+<br/>
+<span class="id" title="keyword">Definition</span> <a id="rt_preserves_coequalizers" class="idref" href="#rt_preserves_coequalizers"><span class="id" title="definition">rt_preserves_coequalizers</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;{<a id="C:5" class="idref" href="#C:5"><span class="id" title="binder">C</span></a> : <a class="idref" href="UniMath.CategoryTheory.Core.Categories.html#category"><span class="id" title="definition">category</span></a>} (<a id="V:6" class="idref" href="#V:6"><span class="id" title="binder">V</span></a> : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal"><span class="id" title="definition">monoidal</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#C:5"><span class="id" title="variable">C</span></a>)<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;(<a id="CMon:7" class="idref" href="#CMon:7"><span class="id" title="binder">CMon</span></a> := (<a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#C:5"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Preamble.html#b66601545ff7e22c5dcb7c86aa0cca21"><span class="id" title="notation">,,</span></a> <a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#V:6"><span class="id" title="variable">V</span></a>) : <a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_cat"><span class="id" title="definition">monoidal_cat</span></a>) :=<br/>
+&nbsp;&nbsp;<a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">∏</span></a> <a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">(</span></a><a id="A:8" class="idref" href="#A:8"><span class="id" title="binder">A</span></a> : <a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#C:5"><span class="id" title="variable">C</span></a><a class="idref" href="UniMath.Foundations.Init.html#dff69deb40f49011cdae37d20690a136"><span class="id" title="notation">),</span></a> <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Colimits.html#preserves_colimits_of_shape"><span class="id" title="definition">preserves_colimits_of_shape</span></a><br/>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(<a class="idref" href="UniMath.CategoryTheory.Monoidal.Categories.html#monoidal_right_tensor"><span class="id" title="definition">monoidal_right_tensor</span></a> (<a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#A:8"><span class="id" title="variable">A</span></a> : <a class="idref" href="UniMath.ModelCategories.Generated.MonoidalHelpers.html#CMon:7"><span class="id" title="variable">CMon</span></a>)) <a class="idref" href="UniMath.CategoryTheory.Limits.Graphs.Coequalizers.html#Coequalizer_graph"><span class="id" title="definition">Coequalizer_graph</span></a>.<br/>
+</div>
+</div>
+
+<div id="footer">
+<hr/><a href="index.html">Index</a><hr/>This page has been generated by <a href="http://rocq-prover.org/">coqdoc</a>
+</div>
+
+</div>
+
+</body>
+</html>
