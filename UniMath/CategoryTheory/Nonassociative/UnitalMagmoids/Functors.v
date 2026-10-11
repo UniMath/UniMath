@@ -7,6 +7,11 @@
 
  Contents:
  1. Preservation of submagmoids
+ 1.1. Definition of preservation/reflection
+ 1.2. Preservation/reflection of isomorphisms
+ 2. Equivalences of unital magmoids
+ 2.1. Essential fibres
+ 2.2. Weak equivalences
 
  ********************************************************************************)
 
@@ -30,6 +35,8 @@ Local Open Scope unital_magmoid.
 Section preservation.
   Context {C D : unital_premagmoid_data} (F : functor_data C D).
   Hypothesis Hfunctor : is_functor F.
+
+  (** *** Definition of preservation/reflection *)
 
   Definition preserves_submm
     (P : wide_submagmoid_data C)
@@ -167,6 +174,8 @@ Definition functor_lift_submm
   := make_functor _ (functor_lift_submm_is_functor F (pr2 F) P Q H).
 
 Section preservation_proofs.
+  (** *** Preservation/reflection of isomorphisms *)
+
   Theorem functor_preserves_subcat_iso
     {C D : unital_magmoid}
     (F : functor C D)
@@ -285,7 +294,11 @@ Section preservation_proofs.
 
 End preservation_proofs.
 
+(** ** Equivalences of unital magmoids *)
+
 Section equivalences.
+
+  (** *** Essential fibres *)
 
   Definition submm_fibre
     {C : unital_premagmoid_data}
@@ -293,6 +306,8 @@ Section equivalences.
     (F : functor_data C D)
     (P : wide_submagmoid D) (b : D)
     : UU := ∑ (a : C), submm_iso P (F a) b.
+
+  (** *** Weak equivalences *)
 
   Definition submm_essentially_surjective
     {C : unital_premagmoid_data}
