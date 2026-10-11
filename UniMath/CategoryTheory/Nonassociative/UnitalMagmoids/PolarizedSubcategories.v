@@ -35,7 +35,7 @@ Local Open Scope unital_magmoid.
 (** ** Linear, thunkable, intermediate, and polarized subcategories *)
 
 Section polarized_submagmoids.
-  Context {M : unital_magmoid}.
+  Context (M : unital_magmoid).
   Let hs : has_homsets M := unital_magmoid_has_homsets M.
 
   (** Linear morphisms *)
@@ -73,16 +73,6 @@ Section polarized_submagmoids.
             (wide_subcategory_is_assoc isc_intermediate)).
 
 End polarized_submagmoids.
-Arguments isw_linear _ : clear implicits.
-Arguments isc_linear _ : clear implicits.
-Arguments isw_thunkable _ : clear implicits.
-Arguments isc_thunkable _ : clear implicits.
-Arguments isw_intermediate _ : clear implicits.
-Arguments isc_intermediate _ : clear implicits.
-Arguments isw_linear_and_thunkable _ : clear implicits.
-Arguments isc_linear_and_thunkable _ : clear implicits.
-Arguments isw_linear_and_thunkable_and_intermediate _ : clear implicits.
-Arguments isc_linear_and_thunkable_and_intermediate _ : clear implicits.
 
 Notation "'_l'" := (isc_linear _) : unital_magmoid.
 Notation "'_t'" := (isc_thunkable _) : unital_magmoid.
@@ -216,7 +206,7 @@ Notation "M '⁻ₗ'" := (negative_linear_category M) (at level 1) : unital_magm
                       ↳     Mₜ  ← M⁻
   >>
 
-  All categories also have inclusion functors into M itself.
+  All these categories also have inclusion functors into M itself.
 
  *)
 Section inclusion_functors.

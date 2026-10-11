@@ -499,55 +499,6 @@ Section inclusions.
     - exact I.
   Defined.
 
-  Lemma weq_hfiber_bandfmap {X Y : UU}
-    (f : X -> Y)
-    (P : X -> UU) (Q : Y -> UU)
-    (fm : ∏ x, P x -> Q (f x))
-    (x : Y) (y : Q x)
-    : hfiber (bandfmap f P Q fm) (x,, y)
-        ≃ ∑ (h : hfiber f x),
-      hfiber (fm (pr1 h))
-        (transportb Q (pr2 h) y).
-  Proof.
-    intermediate_weq (∑ (wz : ∑ x, P x),
-                       f (pr1 wz),, fm (pr1 wz) (pr2 wz)
-                         ╝ x,, y).
-    { apply weqfibtototal; intro.
-      apply total2_paths_equiv. }
-    use weq_iso.
-    - intros [[w z] [Hw Hz]]; cbn in Hw, Hz.
-      induction Hw; cbn in Hz.
-      exists (make_hfiber f w (idpath (f w))).
-      exact (make_hfiber (fm w) z Hz).
-    - intros [[w Hw] [z Hz]]; cbn in Hw, Hz.
-      induction Hw; cbn in z, Hz.
-      exists (w,, z); cbn.
-      exists (idpath (f w)).
-      exact Hz.
-    - intros [[w z] [Hw Hz]]; cbn in Hw, Hz.
-      now induction Hw.
-    - intros [[w Hw] [z Hz]]; cbn in Hw, Hz.
-      now induction Hw.
-  Defined.
-
-  Lemma isofhlevelf_bandfmap (n : nat) {X Y : UU}
-    (f : X -> Y)
-    (P : X -> UU) (Q : Y -> UU)
-    (fm : ∏ x, P x -> Q (f x))
-    (Hf : isofhlevelf n f)
-    (Hfm : ∏ x, isofhlevelf n (fm x))
-    : isofhlevelf n (bandfmap f P Q fm).
-  Proof.
-    intros [x y].
-    unfold hfiber, bandfmap; cbn.
-    apply (isofhlevelweqb n (weq_hfiber_bandfmap f P Q fm x y)).
-    apply isofhleveltotal2.
-    - exact (Hf x).
-    - intros [w Hw]; cbn.
-      induction Hw; cbn.
-      exact (Hfm w y).
-  Defined.
-
   Lemma isincl_has_submm_inverse_incl
     (P Q : wide_submagmoid M)
     {a b : M} (H : submm_includes_at P Q b a)

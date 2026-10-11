@@ -22,8 +22,8 @@
  ** Linearity, thunkability and polarization (exposition)
 
  Linearity, thunkability, and polarization are those properties of morphisms or
- objects that provide associatitivy of composition around them, in the following
- ways (described in diagram order):
+ objects that provide associativity of composition around them, in the following
+ ways (described in diagrammatic order):
 
  1. A *linear* morphism associates when it is on the *right*.
  2. A *thunkable* morphism associates when it is on the *left*.
@@ -133,14 +133,12 @@ Section magmoid_defs.
   Coercion unital_magmoid_to_unital_premagmoid (M : unital_magmoid) : unital_premagmoid := pr1 M.
   Definition unital_magmoid_has_homsets (M : unital_magmoid) : has_homsets M := pr2 M.
 
-  Definition unital_magmoid_paths (N M : unital_magmoid)
+  Theorem unital_magmoid_paths (N M : unital_magmoid)
     (data_eq : (N : precategory_data) = M)
     : N = M.
   Proof.
-    apply subtypePath'.
-    2: apply isaprop_has_homsets.
-    apply subtypePath'.
-    2: apply isaprop_is_unital_premagmoid, unital_magmoid_has_homsets.
+    apply subtypePath'; [|apply isaprop_has_homsets].
+    apply subtypePath'; [|apply isaprop_is_unital_premagmoid, unital_magmoid_has_homsets].
     exact data_eq.
   Defined.
 

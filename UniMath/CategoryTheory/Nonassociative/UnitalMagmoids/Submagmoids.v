@@ -211,39 +211,6 @@ Section submagmoids.
     (f : a -->{P} b) : a -->{Q} b
     := make_submm_mor Q f (H f (submm_mor_property P f)).
 
-  Lemma weq_hfiber_totalfun {X : UU} (P Q : X -> UU)
-    (f : ∏ x : X, P x -> Q x)
-    (x : X) (y : Q x)
-    : hfiber (totalfun _ _ f) (x,, y) ≃ hfiber (f x) y.
-  Proof.
-    intermediate_weq (∑ xy, totalfun P Q f xy ╝ x,, y).
-    { apply weqfibtototal; intro.
-      apply total2_paths_equiv. }
-    use weq_iso.
-    - intros [[x' y'] [Hx' Hy']]; cbn in Hx', Hy'.
-      induction Hx'; cbn in Hy'.
-      exact (y',, Hy').
-    - intros [y' Hy'].
-      exists (x,, y').
-      exists (idpath x).
-      exact Hy'.
-    - intros [[x' y'] [Hx' Hy']]; cbn in Hx', Hy'.
-      induction Hx'; cbn in Hy'.
-      reflexivity.
-    - easy.
-  Defined.
-
-  Lemma isofhlevelf_totalfun (n : nat) {X : UU} (P Q : X -> UU)
-    (f : ∏ x : X, P x -> Q x)
-    (H : ∏ x, isofhlevelf n (f x))
-    : isofhlevelf n (totalfun _ _ f).
-  Proof.
-    intros [x y].
-    apply (isofhlevelweqb n (Y:=hfiber (f x) y)).
-    - exact (weq_hfiber_totalfun P Q f x y).
-    - exact (H x y).
-  Defined.
-
   Theorem isincl_submm_mor_incl (P Q : wide_submagmoid_data)
     {a b : M} (H : submm_includes_at P Q a b)
     : isincl (submm_mor_incl P Q H).
@@ -922,7 +889,7 @@ Section submagmoid_to_magmoid_functors.
     - apply fully_faithful_implies_full_and_faithful.
       apply fully_faithful_submm_into_wide_incl.
     - apply faithful_wide_submm_trivial_incl.
-  Defined.
+  Qed.
 
   Lemma full_submm_trivial_incl
     (M : unital_premagmoid_data)
