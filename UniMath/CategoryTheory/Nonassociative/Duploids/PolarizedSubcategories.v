@@ -609,3 +609,5 @@ Notation "'#⇑'" := upshiftf : duploid.
   (* type in Emacs using agda-input with # \Uparrow *)
 Notation "'#⇓'" := downshiftf : duploid.
   (* type in Emacs using agda-input with # \Downarrow *)
+
+Arguments adjunction_neg_l_to_pos_t _ : clear implicits.

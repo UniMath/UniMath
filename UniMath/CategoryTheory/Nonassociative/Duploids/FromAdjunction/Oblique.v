@@ -26,23 +26,17 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
-Require Import UniMath.CategoryTheory.Subcategory.Core.
-Require Import UniMath.CategoryTheory.Subcategory.Full.
-Require Import UniMath.CategoryTheory.catiso.
 
 Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
 Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Isos.
 Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Submagmoids.
 Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.PolarizedSubcategories.
-Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Univalence.
 Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Functors.
 Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Tactics.
+
 Require Import UniMath.CategoryTheory.Nonassociative.Duploids.Core.
 Require Import UniMath.CategoryTheory.Nonassociative.Duploids.PolarizedSubcategories.
-Require Import UniMath.CategoryTheory.Nonassociative.Duploids.Univalence.
+Require Import UniMath.CategoryTheory.Nonassociative.Duploids.FromAdjunction.ObliqueMor.
 Require Import UniMath.CategoryTheory.Nonassociative.Duploids.FromAdjunction.Envelope.
 
 Local Open Scope cat.
@@ -407,7 +401,7 @@ Section oblique_dupl.
              (oblique_is_thunkable_iff_envelope f)).
   Qed.
 
-  Lemma weq_oblique_thunkable_mor_oblique_thunkable_mor {a : oblique_ob} {p : P}
+  Lemma weq_oblique_thunkable_mor_oblique_thunkable_mor (a : oblique_ob) (p : P)
     : oblique_thunkable_mor θ (envelope_positive_ob θ (O2E a)) p
         ≃ oblique_duploid∣_t∣⟦a, oblique_ob_of_positive p⟧.
   Proof.

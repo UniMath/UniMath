@@ -30,8 +30,6 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Univalence.
 Require Import UniMath.CategoryTheory.Core.Isos.
-Require Import UniMath.CategoryTheory.Subcategory.Core.
-Require Import UniMath.CategoryTheory.Subcategory.Full.
 Require Import UniMath.CategoryTheory.catiso.
 Require Import UniMath.CategoryTheory.CategoryRXGraph.
 
@@ -606,7 +604,7 @@ Section characterizations.
   Defined.
 
   Lemma is_dupl_univalent_to_lt_cat
-    (H : is_dupl_univalent D) : is_univalent (linear_and_thunkable_category D).
+    (H : is_dupl_univalent D) : Univalence.is_univalent (D ₗₜ).
   Proof.
     exact (is_univalent_rxgraph_iso_b _ _
              duploid_to_lt_cat_rxgraph_iso
@@ -615,7 +613,7 @@ Section characterizations.
 
   (** 2 -> 1 *)
   Lemma is_dupl_univalent_from_lt_cat
-    (H : is_univalent (D ₗₜ)) : is_dupl_univalent D.
+    (H : Univalence.is_univalent (D ₗₜ)) : is_dupl_univalent D.
   Proof.
     exact (is_univalent_rxgraph_iso_f _ _
              duploid_to_lt_cat_rxgraph_iso
@@ -624,7 +622,7 @@ Section characterizations.
 
   (** 2 -> 3.a *)
   Lemma is_univalent_lt_cat_to_pos_t_cat
-    (H : is_univalent (D ₗₜ)) : is_univalent (D ⁺ₜ).
+    (H : Univalence.is_univalent (D ₗₜ)) : Univalence.is_univalent (D ⁺ₜ).
   Proof.
     intros a b.
     use weqhomot.
@@ -642,7 +640,7 @@ Section characterizations.
 
   (** 2 -> 3.b *)
   Lemma is_univalent_lt_cat_to_neg_l_cat
-    (H : is_univalent (D ₗₜ)) : is_univalent (D ⁻ₗ).
+    (H : Univalence.is_univalent (D ₗₜ)) : Univalence.is_univalent (D ⁻ₗ).
   Proof.
     intros a b.
     use weqhomot.
@@ -660,9 +658,9 @@ Section characterizations.
 
   (* 3 -> 2 *)
   Lemma is_univalent_lt_cat_from_polarized
-    (Hpositive : is_univalent (D⁺ₜ))
-    (Hnegative : is_univalent (D⁻ₗ))
-    : is_univalent (D ₗₜ).
+    (Hpositive : Univalence.is_univalent (D⁺ₜ))
+    (Hnegative : Univalence.is_univalent (D⁻ₗ))
+    : Univalence.is_univalent (D ₗₜ).
   Proof.
     apply (is_univalent_from_isaprop_edges_from (category_to_rxgraph (D ₗₜ))).
     intro a.
@@ -692,8 +690,8 @@ Section characterizations.
 
   (* 3 -> 1 *)
   Lemma is_dupl_univalent_from_polarized
-    (Hpositive : is_univalent (D⁺ₜ))
-    (Hnegative : is_univalent (D⁻ₗ))
+    (Hpositive : Univalence.is_univalent (D⁺ₜ))
+    (Hnegative : Univalence.is_univalent (D⁻ₗ))
     : is_dupl_univalent D.
   Proof.
     apply is_dupl_univalent_from_lt_cat.

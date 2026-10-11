@@ -8,18 +8,14 @@
  This file defines the envelope duploid and some proofs about it.
 
  Contents:
- 1. Definition and proofs of oblique morphisms
- 1.1. Definition of oblique morphisms
- 1.2. Constructors and compositions
- 1.3. Linearity and thunkability of oblique morphisms
- 2. Definition of the envelope duploid
- 2.1. Polarity choices and their universal properties
- 2.2. Envelope unital magmoid
- 2.3. Envelope preduploid
- 2.4. Envelope duploid
- 3. Lemmas about the envelope duploid
- 3.1. Characterization of polarities
- 3.2. Functors into the envelope duploid
+ 1. Definition of the envelope duploid
+ 1.1. Polarity choices and their universal properties
+ 1.2. Envelope unital magmoid
+ 1.3. Envelope preduploid
+ 1.4. Envelope duploid
+ 2. Lemmas about the envelope duploid
+ 2.1. Characterization of polarities
+ 2.2. Functors into the envelope duploid
 
  ********************************************************************************)
 
@@ -31,358 +27,21 @@ Require Import UniMath.CategoryTheory.Core.Categories.
 Require Import UniMath.CategoryTheory.Core.Functors.
 Require Import UniMath.CategoryTheory.Core.Isos.
 Require Import UniMath.CategoryTheory.Core.NaturalTransformations.
-Require Import UniMath.CategoryTheory.Core.Univalence.
-Require Import UniMath.CategoryTheory.Equivalences.Core.
-Require Import UniMath.CategoryTheory.Equivalences.FullyFaithful.
-Require Import UniMath.CategoryTheory.Subcategory.Core.
-Require Import UniMath.CategoryTheory.Subcategory.Full.
-Require Import UniMath.CategoryTheory.catiso.
 
-Require Import UniMath.CategoryTheory.Nonassociative.Duploids.Core.
-Require Import UniMath.CategoryTheory.Nonassociative.Duploids.PolarizedSubcategories.
-Require Import UniMath.CategoryTheory.Nonassociative.Duploids.Univalence.
 Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Core.
 Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Isos.
 Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Submagmoids.
 Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.PolarizedSubcategories.
-Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Univalence.
 Require Import UniMath.CategoryTheory.Nonassociative.UnitalMagmoids.Tactics.
+
+Require Import UniMath.CategoryTheory.Nonassociative.Duploids.Core.
+Require Import UniMath.CategoryTheory.Nonassociative.Duploids.PolarizedSubcategories.
+Require Import UniMath.CategoryTheory.Nonassociative.Duploids.FromAdjunction.ObliqueMor.
 
 Local Open Scope cat.
 Local Open Scope unital_magmoid.
+Local Open Scope oblique_mor.
 Local Open Scope duploid.
-
-(** ** Definition and proofs of oblique morphisms
-
- Given an adjunction [θ : L ⊣ R] between [L : P ⟶ N] and [R : N ⟶ P], the
- oblique morphisms [f : oblique_mor θ (p : P) (n : N)] are pairs of morphisms
- [f♭ : N⟦L p, n⟧] and [f♯ : P⟦p, R n⟧] such that [f♯] is the transpose of [f♭]
- (via [φ_adj θ]).
-
- *)
-
-Section oblique_mor_defs.
-  Context {N P : category} (θ : adjunction P N).
-  Let L : P ⟶ N := left_functor θ.
-  Let R : N ⟶ P := right_functor θ.
-  Let η : functor_identity P ⟹ L ∙ R := adjunit θ.
-  Let ε : R ∙ L ⟹ functor_identity N := adjcounit θ.
-
-  (** *** Definition of oblique morphisms *)
-  Definition oblique_mor (p : P) (n : N) : UU
-    := ∑ (f : N⟦L p, n⟧) (g : P⟦p, R n⟧), φ_adj θ f = g.
-
-  Definition oblique_mor_negative {p : P} {n : N} (f : oblique_mor p n)
-    : N⟦L p, n⟧ := pr1 f.
-  Definition oblique_mor_positive {p : P} {n : N} (f : oblique_mor p n)
-    : P⟦p, R n⟧ := pr12 f.
-
-  Local Notation "f '♭'" := (oblique_mor_negative f) (at level 4, format "f ♭") : duploid.
-  Local Notation "f '♯'" := (oblique_mor_positive f) (at level 4, format "f ♯") : duploid.
-
-  Definition oblique_mor_negative_transpose {p : P} {n : N} (f : oblique_mor p n)
-    : φ_adj θ f♭ = f♯ := pr22 f.
-  Definition oblique_mor_positive_transpose {p : P} {n : N} (f : oblique_mor p n)
-    : φ_adj_inv θ f♯ = f♭.
-  Proof.
-    intermediate_path (φ_adj_inv θ (φ_adj θ f♭)).
-    - apply maponpaths, pathsinv0, oblique_mor_negative_transpose.
-    - apply φ_adj_inv_after_φ_adj.
-  Qed.
-
-  (** Construct an oblique morphism from a proof either with [φ_adj] or [φ_adj_inv]. *)
-  Definition make_oblique_mor_forward {p : P} {n : N}
-    (f : N⟦L p, n⟧) (g : P⟦p, R n⟧) (H : φ_adj θ f = g)
-    : oblique_mor p n := f,,g,,H.
-  Definition make_oblique_mor_backward {p : P} {n : N}
-    (f : N⟦L p, n⟧) (g : P⟦p, R n⟧) (H : φ_adj_inv θ g = f)
-    : oblique_mor p n.
-  Proof.
-    apply (make_oblique_mor_forward f g).
-    abstract (apply (maponpaths (φ_adj θ)) in H;
-              refine (!H @ _);
-              apply φ_adj_after_φ_adj_inv).
-  Defined.
-
-  Definition oblique_mor_from_negative {p : P} {n : N}
-    (f : N⟦L p, n⟧) : oblique_mor p n
-    := make_oblique_mor_forward f _ (idpath _).
-  Definition oblique_mor_from_positive {p : P} {n : N}
-    (g : P⟦p, R n⟧) : oblique_mor p n
-    := make_oblique_mor_backward _ g (idpath _).
-
-  (** Negative injectivity/equivalence. *)
-  Lemma weq_oblique_mor_negative (p : P) (n : N)
-    : oblique_mor p n ≃ N⟦L p, n⟧.
-  Proof.
-    use remakeweqboth.
-    - apply weqpr1; intro f.
-      apply iscontr_paths_from.
-    - apply oblique_mor_negative.
-    - apply oblique_mor_from_negative.
-    - easy.
-    - easy.
-  Defined.
-
-  Definition isweq_oblique_mor_negative (p : P) (n : N)
-    : isweq (@oblique_mor_negative p n)
-    := weqproperty (weq_oblique_mor_negative p n).
-  Definition weq_oblique_mor_from_negative (p : P) (n : N)
-    : N⟦L p, n⟧ ≃ oblique_mor p n
-    := invweq (weq_oblique_mor_negative p n).
-  Definition isweq_oblique_mor_from_negative (p : P) (n : N)
-    : isweq (@oblique_mor_from_negative p n)
-    := weqproperty (weq_oblique_mor_from_negative p n).
-
-  Lemma isaset_oblique_mor (p : P) (n : N) : isaset (oblique_mor p n).
-  Proof.
-    apply (isofhlevelweqb 2 (weq_oblique_mor_negative p n)).
-    apply homset_property.
-  Qed.
-
-  Definition oblique_mor_negative_path_weq {p : P} {n : N}
-    (f g : oblique_mor p n) : f = g ≃ f♭ = g♭.
-  Proof.
-    apply weqonpathsincl, isinclweq, isweq_oblique_mor_negative.
-  Defined.
-  Definition oblique_mor_negative_path {p : P} {n : N}
-    (f g : oblique_mor p n) (H : f♭ = g♭) : f = g.
-  Proof.
-    now apply (invmap (oblique_mor_negative_path_weq f g)).
-  Defined.
-
-  (** Positive injectivity/equivalence. *)
-  Lemma weq_oblique_mor_positive (p : P) (n : N)
-    : oblique_mor p n ≃ P⟦p, R n⟧.
-  Proof.
-    use remakeweqboth.
-    - intermediate_weq (∑ (g : P⟦p, R n⟧) (f : N⟦L p, n⟧), φ_adj θ f = g).
-      { use weq_iso.
-        - intros [f [g H]]; exact (g,, f,, H).
-        - intros [f [g H]]; exact (g,, f,, H).
-        - easy.
-        - easy. }
-      apply weqpr1; intro f.
-      apply isweq_φ_adj.
-    - apply oblique_mor_positive.
-    - apply oblique_mor_from_positive.
-    - easy.
-    - intros f.
-      now apply oblique_mor_negative_path.
-  Defined.
-
-  Definition isweq_oblique_mor_positive (p : P) (n : N)
-    : isweq (@oblique_mor_positive p n)
-    := weqproperty (weq_oblique_mor_positive p n).
-  Definition weq_oblique_mor_from_positive (p : P) (n : N)
-    : P⟦p, R n⟧ ≃ oblique_mor p n
-    := invweq (weq_oblique_mor_positive p n).
-  Definition isweq_oblique_mor_from_positive (p : P) (n : N)
-    : isweq (@oblique_mor_from_positive p n)
-    := weqproperty (weq_oblique_mor_from_positive p n).
-
-  Definition oblique_mor_positive_path_weq {p : P} {n : N}
-    (f g : oblique_mor p n) : f = g ≃ f♯ = g♯.
-  Proof.
-    apply weqonpathsincl, isinclweq, isweq_oblique_mor_positive.
-  Defined.
-  Definition oblique_mor_positive_path {p : P} {n : N}
-    (f g : oblique_mor p n) (H : f♯ = g♯) : f = g.
-  Proof.
-    now apply (invmap (oblique_mor_positive_path_weq f g)).
-  Defined.
-
-  (** *** Constructors and compositions *)
-  Definition oblique_positive_identity (p : P) : oblique_mor p (L p).
-  Proof.
-    use make_oblique_mor_forward.
-    - exact (identity (L p)).
-    - exact (η p).
-    - apply φ_adj_identity.
-  Defined.
-
-  Definition oblique_negative_identity (n : N) : oblique_mor (R n) n.
-  Proof.
-    use make_oblique_mor_backward.
-    - exact (ε n).
-    - exact (identity (R n)).
-    - apply φ_adj_inv_identity.
-  Defined.
-
-  (** Compose a negative morphism on the right *)
-  Definition oblique_compose_negative {p : P} {n m : N}
-    (f : oblique_mor p n) (g : N⟦n, m⟧) : oblique_mor p m.
-  Proof.
-    use make_oblique_mor_forward.
-    - exact (f♭ · g).
-    - exact (f♯ · #R g).
-    - etrans; [apply φ_adj_natural_postcomp|].
-      apply cancel_postcomposition.
-      apply oblique_mor_negative_transpose.
-  Defined.
-
-  Definition oblique_compose_negative_identity {p : P} {n : N}
-    (f : oblique_mor p n)
-    : oblique_compose_negative f (identity n) = f.
-  Proof. apply oblique_mor_negative_path, id_right. Qed.
-
-  Definition oblique_compose_negative_compose {p : P} {n m r : N}
-    (f : oblique_mor p n) (g : n --> m) (h : m --> r)
-    : oblique_compose_negative f (g · h)
-      = oblique_compose_negative (oblique_compose_negative f g) h.
-  Proof. apply oblique_mor_negative_path, assoc. Qed.
-
-  (** Compose a positive morphism on the left *)
-  Definition oblique_compose_positive {p q : P} {n : N}
-    (f : P⟦p, q⟧) (g : oblique_mor q n) : oblique_mor p n.
-  Proof.
-    use make_oblique_mor_backward.
-    - exact (#L f · g♭).
-    - exact (f · g♯).
-    - etrans; [apply φ_adj_inv_natural_precomp|].
-      apply cancel_precomposition.
-      apply oblique_mor_positive_transpose.
-  Defined.
-
-  Definition oblique_compose_positive_identity {p : P} {n : N}
-    (f : oblique_mor p n)
-    : oblique_compose_positive (identity p) f = f.
-  Proof. apply oblique_mor_positive_path, id_left. Qed.
-
-  Definition oblique_compose_positive_compose {p q r : P} {n : N}
-    (f : p --> q) (g : q --> r) (h : oblique_mor r n)
-    : oblique_compose_positive (f · g) h
-      = oblique_compose_positive f (oblique_compose_positive g h).
-  Proof. apply oblique_mor_positive_path, assoc'. Qed.
-
-  (** Combination *)
-  Definition oblique_compose_negative_positive_comm {p q : P} {n m : N}
-    (f : p --> q) (g : oblique_mor q n) (h : n --> m)
-    : oblique_compose_negative (oblique_compose_positive f g) h
-      = oblique_compose_positive f (oblique_compose_negative g h).
-  Proof. apply oblique_mor_negative_path, assoc'. Qed.
-
-  (** *** Linearity and thunkability of oblique morphisms *)
-
-  Definition is_oblique_mor_linear
-    {n m : N} (f : oblique_mor (R n) m) : UU
-    := #(R ∙ L) (ε n) · f♭ = ε ((R ∙ L) n) · f♭.
-  Lemma isaprop_is_oblique_mor_linear
-    {n m : N} (f : oblique_mor (R n) m)
-    : isaprop (is_oblique_mor_linear f).
-  Proof. apply homset_property. Qed.
-
-  Definition ish_oblique_mor_linear (n m : N)
-    : hsubtype (oblique_mor (R n) m)
-    := λ f, make_hProp
-              (is_oblique_mor_linear f)
-              (isaprop_is_oblique_mor_linear f).
-  Definition oblique_linear_mor (n m : N) := carrier (ish_oblique_mor_linear n m).
-  Coercion oblique_linear_mor_mor {n m : N} (f : oblique_linear_mor n m)
-    : oblique_mor (R n) m := pr1carrier _ f.
-  Coercion oblique_linear_mor_property {n m : N} (f : oblique_linear_mor n m)
-    : is_oblique_mor_linear f := pr2 f.
-
-  Definition is_oblique_mor_thunkable
-    {p q : P} (f : oblique_mor p (L q)) : UU
-    := f♯ · #(L ∙ R) (η q) = f♯ · η ((L ∙ R) q).
-  Lemma isaprop_is_oblique_mor_thunkable
-    {p q : P} (f : oblique_mor p (L q))
-    : isaprop (is_oblique_mor_thunkable f).
-  Proof. apply homset_property. Qed.
-
-  Definition ish_oblique_mor_thunkable (p q : P)
-    : hsubtype (oblique_mor p (L q))
-    := λ f, make_hProp
-              (is_oblique_mor_thunkable f)
-              (isaprop_is_oblique_mor_thunkable f).
-  Definition oblique_thunkable_mor (p q : P) := carrier (ish_oblique_mor_thunkable p q).
-  Coercion oblique_thunkable_mor_mor {p q : P} (f : oblique_thunkable_mor p q)
-    : oblique_mor p (L q) := pr1carrier _ f.
-  Coercion oblique_thunkable_mor_property {p q : P} (f : oblique_thunkable_mor p q)
-    : is_oblique_mor_thunkable f := pr2 f.
-
-  (** Embed a negative morphism *)
-  Definition oblique_lift_negative {n m : N}
-    (f : n --> m) : oblique_linear_mor n m.
-  Proof.
-    use tpair.
-    - use make_oblique_mor_backward.
-      + exact (ε n · f).
-      + exact (#R f).
-      + etrans; [apply maponpaths, pathsinv0, id_left|].
-        etrans; [apply φ_adj_inv_natural_postcomp|].
-        apply cancel_postcomposition.
-        apply φ_adj_inv_identity.
-    - cbn; red; cbn.
-      rewrite !assoc.
-      apply cancel_postcomposition, (nat_trans_ax ε).
-  Defined.
-
-  (** Embed a positive morphism *)
-  Definition oblique_lift_positive {p q : P}
-    (f : p --> q) : oblique_thunkable_mor p q.
-  Proof.
-    use tpair.
-    - use make_oblique_mor_forward.
-      + exact (#L f).
-      + exact (f · η q).
-      + etrans; [apply maponpaths, pathsinv0, id_right|].
-        etrans; [apply φ_adj_natural_precomp|].
-        apply cancel_precomposition.
-        apply φ_adj_identity.
-    - cbn; red; cbn.
-      rewrite !assoc'.
-      apply cancel_precomposition, pathsinv0, (nat_trans_ax η).
-  Defined.
-
-  Definition is_negative_pre_fixed_point (n : N) : UU
-    := #(R ∙ L) (ε n) = ε ((R ∙ L) n).
-  Lemma isaprop_is_negative_pre_fixed_point (n : N)
-    : isaprop (is_negative_pre_fixed_point n).
-  Proof. apply homset_property. Qed.
-
-  Definition is_negative_fixed_point (n : N) : UU
-    := is_z_isomorphism (ε n).
-  Identity Coercion Id_is_negative_fixed_point : is_negative_fixed_point >-> is_z_isomorphism.
-  Lemma isaprop_is_negative_fixed_point (n : N)
-    : isaprop (is_negative_fixed_point n).
-  Proof. apply isaprop_is_z_isomorphism. Qed.
-
-  Definition is_positive_pre_fixed_point (p : P) : UU
-    := #(L ∙ R) (η p) = η ((L ∙ R) p).
-  Lemma isaprop_is_positive_pre_fixed_point (p : P)
-    : isaprop (is_positive_pre_fixed_point p).
-  Proof. apply homset_property. Qed.
-
-  Definition is_positive_fixed_point (p : P) : UU
-    := is_z_isomorphism (η p).
-  Identity Coercion Id_is_positive_fixed_point : is_positive_fixed_point >-> is_z_isomorphism.
-  Lemma isaprop_is_positive_fixed_point (p : P)
-    : isaprop (is_positive_fixed_point p).
-  Proof. apply isaprop_is_z_isomorphism. Qed.
-
-End oblique_mor_defs.
-Arguments is_oblique_mor_linear / _.
-Arguments is_oblique_mor_thunkable / _.
-
-Notation "f '♭'" := (oblique_mor_negative _ f) (at level 4, format "f ♭") : duploid.
-Notation "f '♯'" := (oblique_mor_positive _ f) (at level 4, format "f ♯") : duploid.
-Notation "f '◅·' g" := (oblique_compose_positive _ f g) (at level 40, left associativity) : duploid.
-Notation "f '·▻' g" := (oblique_compose_negative _ f g) (at level 40, left associativity) : duploid.
-Notation "g '▻∘' f" := (f ·▻ g) (at level 40, left associativity, only parsing) : duploid.
-Notation "g '∘◅' f" := (f ◅· g) (at level 40, left associativity, only parsing) : duploid.
-
-Lemma isweq_iscontrweqf {X Y : UU} (w : X ≃ Y) : isweq (iscontrweqf w).
-Proof.
-  use isweq_iso.
-  - apply (iscontrweqb w).
-  - intro; apply isapropiscontr.
-  - intro; apply isapropiscontr.
-Defined.
-
-Definition weq_iscontrweqf {X Y : UU} (w : X ≃ Y) : iscontr X ≃ iscontr Y
-  := make_weq _ (isweq_iscontrweqf w).
 
 Section envelope_defs.
   (** ** Definition of the envelope duploid *)
@@ -1242,6 +901,17 @@ Section envelope_defs.
   Definition negative_to_envelope_duploid : N ⟶ envelope_duploid⁻ₗ
     := make_functor _ negative_to_envelope_duploid_is_functor.
 
+  Lemma split_eso_negative_to_envelope_duploid
+    : split_essentially_surjective negative_to_envelope_duploid.
+  Proof.
+    intros a; cbn -[envelope_duploid] in a.
+    exists (π⊖ (sub_ob_ob a : envelope_ob)).
+    apply weq_submm_iso_z_iso.
+    change (⇑a ≅{_lt} a).
+    apply weq_negative_lt_iso.
+    exact (force a).
+  Defined.
+
   Definition positive_to_envelope_duploid_data
     : functor_data P envelope_duploid⁺ₜ.
   Proof.
@@ -1267,44 +937,15 @@ Section envelope_defs.
   Definition positive_to_envelope_duploid : P ⟶ envelope_duploid⁺ₜ
     := make_functor _ positive_to_envelope_duploid_is_functor.
 
-  Lemma envelope_lt_iso_from_negative_iso {a b : N}
-    (f : z_iso a b)
-    : lt_iso (M:=envelope_duploid)
-        (envelope_ob_of_negative a)
-        (envelope_ob_of_negative b).
+  Lemma split_eso_positive_to_envelope_duploid
+    : split_essentially_surjective positive_to_envelope_duploid.
   Proof.
-    use make_submm_iso'.
-    - apply envelope_mor_from_negative_mor, (z_iso_mor f).
-    - apply envelope_mor_from_negative_mor, (inv_from_z_iso f).
-    - split.
-      + apply oblique_mor_positive_path.
-        cbn; unfold envelope_factor_negative, envelope_factor_positive; cbn.
-        rewrite id_right, <- functor_comp, <- functor_id.
-        apply maponpaths, (is_inverse_in_precat1 f).
-      + apply oblique_mor_positive_path.
-        cbn; unfold envelope_factor_negative, envelope_factor_positive; cbn.
-        rewrite id_right, <- functor_comp, <- functor_id.
-        apply maponpaths, (is_inverse_in_precat2 f).
-  Defined.
-
-  Lemma envelope_lt_iso_from_positive_iso {a b : P}
-    (f : z_iso a b)
-    : lt_iso (M:=envelope_duploid)
-        (envelope_ob_of_positive a)
-        (envelope_ob_of_positive b).
-  Proof.
-    use make_submm_iso'.
-    - apply envelope_mor_from_positive_mor, (z_iso_mor f).
-    - apply envelope_mor_from_positive_mor, (inv_from_z_iso f).
-    - split.
-      + apply oblique_mor_negative_path.
-        cbn; unfold envelope_factor_negative, envelope_factor_positive; cbn.
-        rewrite id_left, <- functor_comp, <- functor_id.
-        apply maponpaths, (is_inverse_in_precat1 f).
-      + apply oblique_mor_negative_path.
-        cbn; unfold envelope_factor_negative, envelope_factor_positive; cbn.
-        rewrite id_left, <- functor_comp, <- functor_id.
-        apply maponpaths, (is_inverse_in_precat2 f).
+    intros a; cbn -[envelope_duploid] in a.
+    exists (π⊕ (sub_ob_ob a : envelope_ob)).
+    apply weq_submm_iso_z_iso.
+    change (⇓a ≅{_lt} a).
+    apply weq_positive_lt_iso.
+    exact (unwrap a).
   Defined.
 
 End envelope_defs.
@@ -1313,3 +954,7 @@ Ltac envelope_induction θ a
   := let a' := uconstr:(a : envelope_ob θ) in
      generalize (a' : envelope_polarization θ a');
      apply (envelope_polarization_rec' θ (a:=a')).
+
+Notation "'π⊖'" := (envelope_negative_ob _) (at level 1) : duploid.
+Notation "'π⊕'" := (envelope_positive_ob _) (at level 1) : duploid.
+Notation "'cross(' a ')'" := (envelope_cross_mor _ a) (at level 3, format "cross( a )") : duploid.
