@@ -18,6 +18,7 @@
  Contents:
  1. Reflexive graph of graphs
  2. Reflexive graph of [rxgraph]s
+ 2.1. Univalence transports
  3. Reflexive graph of displayed graphs
  4. Reflexive graph of [disp_rxgraph]s
  5. Displayed reflexive graph of [disp_rxgraph]s
@@ -68,17 +69,18 @@ Qed.
 Definition graph_univalent_rxgraph (* ℓ *) : univalent_rxgraph (* ℓ+1 *)
   := make_univalent_rxgraph (* ℓ+1 *) _ is_univalent_graph_rxgraph.
 
-Definition graph_iso (* ℓ *) (C D : graph_rxgraph (* ℓ *)) : UU (* ℓ *) := C ≈ D.
+Definition graph : UU := graph_rxgraph.
+Definition graph_iso (* ℓ *) (C D : graph (* ℓ *)) : UU (* ℓ *) := C ≈{graph_rxgraph} D.
 Identity Coercion Id_graph_iso : graph_iso >-> edge.
 
-Coercion graph_iso_on_vertex {C D : graph_rxgraph}
+Coercion graph_iso_on_vertex {C D : graph}
   (w : graph_iso C D) : pr1 C ≃ pr1 D := pr1 w.
-Definition graph_iso_on_edge {C D : graph_rxgraph}
+Definition graph_iso_on_edge {C D : graph}
   (w : graph_iso C D)
   : ∏ {a b : pr1 C}, pr2 C a b ≃ pr2 D (w a) (w b)
   := pr2 w.
 
-Definition make_graph_iso (C D : graph_rxgraph)
+Definition make_graph_iso (C D : graph)
   (v : pr1 C ≃ pr1 D)
   (e : ∏ (a b : pr1 C), pr2 C a b ≃ pr2 D (v a) (v b))
   : graph_iso C D
@@ -161,8 +163,13 @@ Definition make_rxgraph_iso (C D : rxgraph)
   : rxgraph_iso C D
   := verts,, @edges,, refls.
 
-Definition is_univalent_rxgraph_iso_f
-  (C D : rxgraph) (F : rxgraph_iso C D)
+(** *** Univalence transports *)
+
+Coercion rxgraph_to_graph (C : rxgraph) : graph := pr1 C,, pr12 C.
+
+Lemma is_univalent_graph_iso_f
+  (C D : rxgraph)
+  (F : graph_iso C D)
   (H : is_univalent C) : is_univalent D.
 Proof.
   apply is_univalent_from_isaprop_edges_from; intro a.
@@ -171,19 +178,60 @@ Proof.
     intermediate_weq (F (invmap F a) ≈ F (invmap F b)).
     { rewrite !(homotweqinvweq F).
       exact (idweq (a ≈ b)). }
-    apply invweq, (rxgraph_iso_on_edge F).
+    apply invweq, (graph_iso_on_edge F).
   - apply is_univalent_to_isaprop_edges_from, H.
 Qed.
 
-Definition is_univalent_rxgraph_iso_b
-  (C D : rxgraph) (F : rxgraph_iso C D)
+Lemma is_univalent_graph_iso_b
+  (C D : rxgraph)
+  (F : graph_iso C D)
   (H : is_univalent D) : is_univalent C.
 Proof.
   apply is_univalent_from_isaprop_edges_from; intro a.
   apply (isofhlevelweqb 1 (Y:=(edges_from D (F a)))).
   - apply (weqbandf F); intro b.
-    exact (rxgraph_iso_on_edge F).
+    exact (graph_iso_on_edge F).
   - apply is_univalent_to_isaprop_edges_from, H.
+Qed.
+
+Theorem is_univalent_graph_iso_iff
+  (C D : rxgraph)
+  (F : graph_iso C D)
+  : is_univalent C ≃ is_univalent D.
+Proof.
+  apply weqimplimpl.
+  - apply is_univalent_graph_iso_f, F.
+  - apply is_univalent_graph_iso_b, F.
+  - apply isaprop_is_univalent.
+  - apply isaprop_is_univalent.
+Qed.
+
+Lemma is_univalent_rxgraph_iso_f
+  (C D : rxgraph) (F : rxgraph_iso C D)
+  (H : is_univalent C) : is_univalent D.
+Proof.
+  refine (is_univalent_graph_iso_f C D _ H).
+  exact (pr1 F,, pr12 F).
+Qed.
+
+Lemma is_univalent_rxgraph_iso_b
+  (C D : rxgraph) (F : rxgraph_iso C D)
+  (H : is_univalent D) : is_univalent C.
+Proof.
+  refine (is_univalent_graph_iso_b C D _ H).
+  exact (pr1 F,, pr12 F).
+Qed.
+
+Theorem is_univalent_rxgraph_iso_iff
+  (C D : rxgraph)
+  (F : rxgraph_iso C D)
+  : is_univalent C ≃ is_univalent D.
+Proof.
+  apply weqimplimpl.
+  - apply is_univalent_rxgraph_iso_f, F.
+  - apply is_univalent_rxgraph_iso_b, F.
+  - apply isaprop_is_univalent.
+  - apply isaprop_is_univalent.
 Qed.
 
 (** ** Reflexive graph of displayed graphs *)
