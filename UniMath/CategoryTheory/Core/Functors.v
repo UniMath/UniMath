@@ -276,7 +276,7 @@ Qed.
 
 Section functors_on_iso_with_inv.
 
-  Lemma functor_on_is_inverse_in_precat {C C' : precategory} (F : functor C C')
+  Lemma functor_on_is_inverse_in_precat {C C' : precategory_data} (F : functor C C')
         {a b : ob C} {f : a --> b} {g : b --> a} (H : is_inverse_in_precat f g) :
     is_inverse_in_precat (# F f) (# F g).
   Proof.
@@ -285,7 +285,7 @@ Section functors_on_iso_with_inv.
     - rewrite <- functor_comp. rewrite (is_inverse_in_precat2 H). apply functor_id.
   Qed.
 
-  Definition functor_on_is_z_isomorphism {C C' : precategory} (F : functor C C')
+  Definition functor_on_is_z_isomorphism {C C' : precategory_data} (F : functor C C')
              {a b : ob C} {f : a --> b} (I : is_z_isomorphism f) :
     is_z_isomorphism (# F f).
   Proof.
@@ -320,7 +320,7 @@ Section functors_on_iso_with_inv.
     - apply z_iso_after_z_iso_inv.
   Qed.
 
-  Definition functor_on_z_iso {C C' : precategory} (F : functor C C') {a b : ob C}
+  Definition functor_on_z_iso {C C' : precategory_data} (F : functor C C') {a b : ob C}
              (f : z_iso a b) : z_iso (F a) (F b).
   Proof.
     use make_z_iso.
@@ -338,7 +338,7 @@ Section functors_on_iso_with_inv.
     apply idpath.
   Defined.
 
-  Lemma functor_on_inv_from_z_iso' {C C' : precategory} (F : functor C C')
+  Lemma functor_on_inv_from_z_iso' {C C' : precategory_data} (F : functor C C')
       {a b : ob C} {f : a --> b} (H : is_z_isomorphism f) :
   inv_from_z_iso (make_z_iso _ _ (functor_on_is_z_isomorphism F H)) = # F (inv_from_z_iso (make_z_iso _ _ H)).
   Proof.
@@ -693,7 +693,7 @@ Qed.
 
 (** *** Fully faithful functors reflect isos *)
 
-Lemma inv_of_ff_inv_is_inv (C D : precategory) (F : functor C D)
+Lemma inv_of_ff_inv_is_inv (C D : precategory_data) (F : functor C D)
    (FF : fully_faithful F) (a b : C) (f : z_iso (F a) (F b)) :
   is_inverse_in_precat ((FF ^-1) f) ((FF ^-1) (inv_from_z_iso f)).
 Proof.
@@ -720,7 +720,7 @@ Proof.
   apply z_iso_after_z_iso_inv.
 Qed.
 
-Lemma fully_faithful_reflects_iso_proof (C D : precategory)(F : functor C D)
+Lemma fully_faithful_reflects_iso_proof (C D : precategory_data)(F : functor C D)
         (FF : fully_faithful F)
     (a b : ob C) (f : z_iso (F a) (F b)) :
      is_z_isomorphism (FF^-1 f).
@@ -741,7 +741,7 @@ Proof.
   - apply (fully_faithful_reflects_iso_proof _ _ _ _ _ _ (_,,is_iso_Ff)).
 Defined.
 
-Definition  iso_from_fully_faithful_reflection {C D : precategory} {F : functor C D}
+Definition  iso_from_fully_faithful_reflection {C D : precategory_data} {F : functor C D}
         (HF : fully_faithful F)
     {a b : ob C} (f : z_iso (F a) (F b)) :
       z_iso a b.
@@ -974,7 +974,7 @@ Qed.
 
 (** Composition of faithful functors yields a faithful functor. *)
 
-Lemma comp_faithful_is_faithful (C D E : precategory)
+Lemma comp_faithful_is_faithful (C D E : precategory_data)
       (F : functor C D) (faithF : faithful F)
       (G : functor D E) (faithG : faithful G) : faithful (functor_composite F G).
 Proof.
@@ -1012,7 +1012,7 @@ Qed.
     in D, then f · g = h in C. (Really, this is true more generally for any
     diagram.) *)
 
-Lemma faithful_reflects_commutative_triangle {C D : precategory} (F : functor C D)
+Lemma faithful_reflects_commutative_triangle {C D : precategory_data} (F : functor C D)
       (FF : faithful F) {a b c : ob C} (f : C ⟦a, b⟧) (g : C ⟦b, c⟧) (h : C ⟦a, c⟧) :
   # F f · # F g = # F h → f · g = h.
 Proof.
@@ -1023,7 +1023,7 @@ Proof.
 Defined.
 
 (** a simpler instance of that principle *)
-Lemma faithful_reflects_morphism_equality {C D : precategory} (F : functor C D)
+Lemma faithful_reflects_morphism_equality {C D : precategory_data} (F : functor C D)
       (FF : faithful F) {a b : ob C} (f g : C ⟦a, b⟧) :
   # F f = # F g → f = g.
 Proof.
@@ -1048,7 +1048,7 @@ Qed.
 
 (** Composition of full functors yields a full functor *)
 
-Lemma comp_full_is_full (C D E : precategory)
+Lemma comp_full_is_full (C D E : precategory_data)
       (F : functor C D) (fullF : full F)
       (G : functor D E) (fullG : full G) : full (functor_composite F G).
 Proof.
@@ -1114,7 +1114,7 @@ Proof.
   - apply comp_faithful_is_faithful; [apply (pr2 f_and_f_F)|apply (pr2 f_and_f_G)].
 Qed.
 
-Lemma comp_ff_is_ff (C D E : precategory)
+Lemma comp_ff_is_ff (C D E : precategory_data)
       (F : functor C D) (ffF : fully_faithful F)
       (G : functor D E) (ffG : fully_faithful G) :
   fully_faithful (functor_composite F G).
@@ -1127,7 +1127,7 @@ Qed.
 
     Compare to [faithful_reflects_commutative_triangle]. *)
 Lemma fully_faithful_commutative_triangle_weq
-      {C D : precategory} (F : functor C D) (fff : fully_faithful F)
+      {C D : precategory_data} (F : functor C D) (fff : fully_faithful F)
       {X Y Z : ob C} (f : X --> Y) (g : Y --> Z) (h : X --> Z) :
   (f · g = h) ≃ (#F f · #F g = #F h).
 Proof.

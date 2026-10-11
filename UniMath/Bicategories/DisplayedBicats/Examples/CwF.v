@@ -144,7 +144,7 @@ Proof.
   apply idpath.
 Defined.
 
-Lemma inv_from_z_iso_iso_from_fully_faithful_reflection {C D : precategory}
+Lemma inv_from_z_iso_iso_from_fully_faithful_reflection {C D : precategory_data}
       (F : functor C D) (HF : fully_faithful F) (a b : C) (i : z_iso (F a) (F b))
   : inv_from_z_iso
       (iso_from_fully_faithful_reflection HF i) =

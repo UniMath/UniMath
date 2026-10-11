@@ -1434,6 +1434,90 @@ Proof.
   - apply weqdirprodcomm.
 Defined.
 
+(** Fibers and h-level of [totalfun] *)
+Lemma weq_hfiber_totalfun {X : UU} (P Q : X -> UU)
+  (f : ∏ x : X, P x -> Q x)
+  (x : X) (y : Q x)
+  : hfiber (totalfun _ _ f) (x,, y) ≃ hfiber (f x) y.
+Proof.
+  intermediate_weq (∑ xy, totalfun P Q f xy ╝ x,, y).
+  { apply weqfibtototal; intro.
+    apply total2_paths_equiv. }
+  use weq_iso.
+  - intros [[x' y'] [Hx' Hy']]; cbn in Hx', Hy'.
+    induction Hx'; cbn in Hy'.
+    exact (y',, Hy').
+  - intros [y' Hy'].
+    exists (x,, y').
+    exists (idpath x).
+    exact Hy'.
+  - intros [[x' y'] [Hx' Hy']]; cbn in Hx', Hy'.
+    induction Hx'; cbn in Hy'.
+    reflexivity.
+  - easy.
+Defined.
+
+Lemma isofhlevelf_totalfun (n : nat) {X : UU} (P Q : X -> UU)
+  (f : ∏ x : X, P x -> Q x)
+  (H : ∏ x, isofhlevelf n (f x))
+  : isofhlevelf n (totalfun _ _ f).
+Proof.
+  intros [x y].
+  apply (isofhlevelweqb n (Y:=hfiber (f x) y)).
+  - exact (weq_hfiber_totalfun P Q f x y).
+  - exact (H x y).
+Defined.
+
+(** Fibers and h-level of [bandfmap] *)
+Lemma weq_hfiber_bandfmap {X Y : UU}
+  (f : X -> Y)
+  (P : X -> UU) (Q : Y -> UU)
+  (fm : ∏ x, P x -> Q (f x))
+  (x : Y) (y : Q x)
+  : hfiber (bandfmap f P Q fm) (x,, y)
+      ≃ ∑ (h : hfiber f x),
+    hfiber (fm (pr1 h))
+      (transportb Q (pr2 h) y).
+Proof.
+  intermediate_weq (∑ (wz : ∑ x, P x),
+                     f (pr1 wz),, fm (pr1 wz) (pr2 wz)
+                       ╝ x,, y).
+  { apply weqfibtototal; intro.
+    apply total2_paths_equiv. }
+  use weq_iso.
+  - intros [[w z] [Hw Hz]]; cbn in Hw, Hz.
+    induction Hw; cbn in Hz.
+    exists (make_hfiber f w (idpath (f w))).
+    exact (make_hfiber (fm w) z Hz).
+  - intros [[w Hw] [z Hz]]; cbn in Hw, Hz.
+    induction Hw; cbn in z, Hz.
+    exists (w,, z); cbn.
+    exists (idpath (f w)).
+    exact Hz.
+  - intros [[w z] [Hw Hz]]; cbn in Hw, Hz.
+    now induction Hw.
+  - intros [[w Hw] [z Hz]]; cbn in Hw, Hz.
+    now induction Hw.
+Defined.
+
+Lemma isofhlevelf_bandfmap (n : nat) {X Y : UU}
+  (f : X -> Y)
+  (P : X -> UU) (Q : Y -> UU)
+  (fm : ∏ x, P x -> Q (f x))
+  (Hf : isofhlevelf n f)
+  (Hfm : ∏ x, isofhlevelf n (fm x))
+  : isofhlevelf n (bandfmap f P Q fm).
+Proof.
+  intros [x y].
+  unfold hfiber, bandfmap; cbn.
+  apply (isofhlevelweqb n (weq_hfiber_bandfmap f P Q fm x y)).
+  apply isofhleveltotal2.
+  - exact (Hf x).
+  - intros [w Hw]; cbn.
+    induction Hw; cbn.
+    exact (Hfm w y).
+Defined.
+
 (** ** Surjectivity *)
 
 Section surjectivity.
