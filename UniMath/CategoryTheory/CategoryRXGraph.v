@@ -207,6 +207,24 @@ Defined.
 Coercion category_to_rxgraph : category >-> rxgraph.
 
 Definition is_univalent_category_to_rxgraph (C : category)
-  : is_univalent C -> RXGraph.is_univalent C := idfun _.
+  : Univalence.is_univalent C -> RXGraph.is_univalent C := idfun _.
 Definition is_univalent_rxgraph_to_category (C : category)
-  : RXGraph.is_univalent C -> is_univalent C := idfun _.
+  : RXGraph.is_univalent C -> Univalence.is_univalent C := idfun _.
+
+Lemma is_univalent_catiso_iff (C D : category) (F : catiso C D)
+  : Univalence.is_univalent C ≃ Univalence.is_univalent D.
+Proof.
+  change (RXGraph.is_univalent C ≃ RXGraph.is_univalent D).
+  apply is_univalent_graph_iso_iff.
+  use make_graph_iso.
+  - exact (catiso_ob_weq F).
+  - intros a b.
+    apply weq_ff_functor_on_z_iso, F.
+Qed.
+
+Corollary is_univalent_catiso_f (C D : category) (F : catiso C D)
+  : Univalence.is_univalent C -> Univalence.is_univalent D.
+Proof. exact (is_univalent_catiso_iff C D F). Qed.
+Corollary is_univalent_catiso_b (C D : category) (F : catiso C D)
+  : Univalence.is_univalent D -> Univalence.is_univalent C.
+Proof. exact (invmap (is_univalent_catiso_iff C D F)). Qed.
